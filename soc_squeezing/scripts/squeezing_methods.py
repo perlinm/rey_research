@@ -37,7 +37,7 @@ def S_n(vec, N):
 
 
 ##########################################################################################
-# constructing states and calculating squeezing
+# coherent states and squeezing
 ##########################################################################################
 
 # get polar and azimulthal angles of a vector (v_z, v_x, v_y)
@@ -59,14 +59,16 @@ def rotate_vector(vector, axis, angle):
     return linalg.expm(angle * L) @ vector
 
 # coherent spin state on S = N/2 Bloch sphere
-def coherent_spin_state(vec, N = 10):
-    theta, phi = vec_theta_phi(vec)
+def coherent_spin_state_angles(theta, phi, N = 10):
     state = np.zeros(N+1, dtype = complex)
     for m in range(N+1):
         c_theta = np.sin(theta/2)**(N-m) * np.cos(theta/2)**m
         c_phi = np.exp(1j * (N/2-m) * phi)
         state[m] = np.sqrt(binomial(N,m)) * c_theta * c_phi
     return state
+def coherent_spin_state(vec, N = 10):
+    theta, phi = vec_theta_phi(vec)
+    return coherent_spin_state_angles(theta, phi, N)
 
 # get spin vector <\vec S> for a state
 def spin_vec(state):
@@ -108,91 +110,59 @@ def spin_squeezing(state):
 
     return squeezing_parameter, squeezing_axis(optimal_phi)
 
+# squeezing parameter after orthogonal-state one-axis twisting
+def squeezing_OAT(chi_t, N):
+    A = 1 - np.cos(2*chi_t)**(N-2)
+    B = 4 * np.sin(chi_t) * np.cos(chi_t)**(N-2)
+    return (1 + 1/4*(N-1)*A) - 1/4*(N-1)*np.sqrt(A*A+B*B)
+
+# squeezing parameter after orthogonal-state two-axis twisting
+def squeezing_TAT(chi_t, N):
+    Sz = S_z(N)
+    Sy = S_y(N)
+    H = 1/3 * ( Sz @ Sz - Sy @ Sy )
+    initial_state = coherent_spin_state([0,1,0], N)
+    final_state = linalg.expm(-1j*chi_t*H) @ initial_state
+    return spin_squeezing(final_state)[0]
 
 ##########################################################################################
 # plotting a state on the S = N/2 Bloch sphere
 ##########################################################################################
 
-def plot_state(state, grid_size = 30):
-    fig = plt.figure(figsize=plt.figaspect(0.5))
-    ax = fig.add_subplot(111, projection = "3d")
+def plot_state(state, grid_size = 51, single_sphere = False):
+    N = state.size-1
+    if single_sphere:
+        fig = plt.figure(figsize=plt.figaspect(1))
+    else:
+        fig = plt.figure(figsize=plt.figaspect(0.5))
+    ax = Axes3D(fig)
 
     theta, phi = np.mgrid[0:np.pi:(grid_size*1j), 0:2*np.pi:(grid_size*1j)]
-    z = np.cos(theta)
-    x = np.sin(theta) * np.cos(phi)
-    y = np.sin(theta) * np.sin(phi)
+    z_vals = np.cos(theta)
+    x_vals = np.sin(theta) * np.cos(phi)
+    y_vals = np.sin(theta) * np.sin(phi)
 
     def color_val(theta, phi):
-        vec = [ np.cos(theta), np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi) ]
-        angle_state = coherent_spin_state(vec, state.size-1)
+        angle_state = coherent_spin_state_angles(theta, phi, N)
         return abs(angle_state.conjugate() @ state)**2
-    color_val_vect = np.vectorize(color_val)
-    color_vals = color_val_vect(theta, phi)
+    color_vals = np.vectorize(color_val)(theta, phi)
     norm = colors.Normalize(vmin = np.min(color_vals),
                             vmax = np.max(color_vals), clip = False)
     color_map = cm.inferno(norm(color_vals))
 
-    ax.plot_surface(x, y-1.5, z, rstride = 1, cstride = 1,
-                    facecolors = color_map)
-    ax.plot_surface(-x, y+1.5, z, rstride = 1, cstride = 1,
-                    facecolors = color_map)
+    ax.set_xlim(-1,1)
+    ax.set_ylim(-1,1)
+    ax.set_zlim(-1,1)
+    if single_sphere:
+        ax.plot_surface(x_vals, y_vals, z_vals, rstride = 1, cstride = 1,
+                        facecolors = color_map, shade = False)
+    else:
+        ax.plot_surface(x_vals, y_vals-1.5, z_vals, rstride = 1, cstride = 1,
+                        facecolors = color_map, shade = False)
+        ax.plot_surface(-x_vals, y_vals+1.5, z_vals, rstride = 1, cstride = 1,
+                        facecolors = color_map, shade = False)
+        ax.set_ylim(-2,2)
 
     ax.set_axis_off()
     ax.view_init(elev = 0, azim = 0)
-    ax.set_xlim(-1,1)
-    ax.set_ylim(-2,2)
-    ax.set_zlim(-1,1)
-    fig.subplots_adjust(left = 0, right = 1, bottom = 0, top = 1)
     return fig, ax
-
-
-##########################################################################################
-# actual squeezing methods
-##########################################################################################
-
-# squeeze a state with the one-axis twisting Hamiltonian \chi S_z^2 for a time t
-def squeeze_OAT(state, chi_t):
-    N = state.size - 1
-    return np.exp(-1j*chi_t*(np.arange(N+1)-N/2)**2) * state
-
-# squeezing parameter after one-axis twisting in a direction orthogonal to the initial state
-def squeezing_OAT_perp(chi_t, N):
-    A = 1 - np.cos(2*chi_t)**(N-2)
-    B = 4 * np.sin(chi_t) * np.cos(chi_t)**(N-2)
-    return (1 + 1/4*(N-1)*A) - 1/4*(N-1)*np.sqrt(A*A+B*B)
-
-# squeeze a state with the two-axis twisting Hamiltonian \chi (S_z^2-S_y^2) for a time t,
-def squeeze_TAT(state, chi_t):
-    N = state.size-1
-    Sz = S_z(N)
-    Sy = S_y(N)
-    return linalg.expm(-1j*chi_t*(Sz@Sz - Sy@Sy)) @ state
-
-
-
-N = 50
-S = N / 2
-
-state_z = coherent_spin_state([1,0,0], N)
-state_x = coherent_spin_state([0,1,0], N)
-state_y = coherent_spin_state([0,0,1], N)
-
-initial_state = state_x
-tau_vals = np.linspace(0, 3, 100)
-times = tau_vals * N**(-2/3)
-squeezing_OAT_vals = np.vectorize(squeezing_OAT_perp)(times,N)
-squeezing_TAT_vals = np.zeros(tau_vals.size)
-for ii in range(times.size):
-    final_TAT_state = squeeze_TAT(initial_state, times[ii]/3)
-    squeezing_TAT_vals[ii], _ = spin_squeezing(final_TAT_state)
-
-print("tau_OAT_opt:", tau_vals[squeezing_OAT_vals.argmin()])
-print("tau_TAT_opt:", tau_vals[squeezing_TAT_vals.argmin()])
-
-plt.plot(tau_vals, np.log(squeezing_OAT_vals), label = "OAT")
-plt.plot(tau_vals, np.log(squeezing_TAT_vals), label = "TAT")
-plt.xlabel(r"$\tau$")
-plt.ylabel(r"$\ln(\xi^2)$")
-plt.legend(loc="best")
-plt.tight_layout()
-plt.show()
