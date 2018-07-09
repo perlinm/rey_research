@@ -1,0 +1,764 @@
+\documentclass[aps,notitlepage,nofootinbib,11pt]{revtex4-1}
+
+% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,
+  urlcolor=cyan,
+}
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,bm,commath,amssymb} % physics and math
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\renewcommand{\v}{\bm} % bold vectors
+\renewcommand{\c}{\cdot} % inner product
+\newcommand{\bk}{\braket} % shorthand for braket notation
+\newcommand{\Bk}{\Braket} % shorthand for braket notation
+
+\renewcommand{\d}{\text{d}} % "d" for integration measure
+\newcommand{\g}{\text{g}} % ground / excited electronic states
+\newcommand{\e}{\text{e}}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\J}{\mathcal{J}}
+\renewcommand{\L}{\mathcal{L}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+
+\usepackage{dsfont} % for identity operator
+\newcommand{\1}{\hat{\mathds{1}}}
+
+
+\usepackage[inline]{enumitem} % for inline enumeration
+
+%%% figures
+\usepackage{graphicx} % for figures
+\usepackage{grffile} % help latex properly identify figure extensions
+\usepackage[caption=false]{subfig} % subfigures (via \subfloat[]{})
+\graphicspath{{./plots/}} % set path for all figures
+
+% for strikeout text
+% normalem included to prevent underlining titles in the bibliography
+\usepackage[normalem]{ulem}
+
+% for leaving notes in the text
+\newcommand{\note}[1]{\textcolor{red}{#1}}
+
+
+
+\begin{document}
+
+\title{Spin-orbit-coupling-induced squeezing in the optical lattice
+  clock}
+
+\author{Michael A. Perlin}
+
+\maketitle
+
+These are some notes about trying to induce squeezing in an optical
+lattice clock by combining spin-orbit coupling and interactions.  We
+assume, for now, that
+\begin{enumerate*}[label=(\roman*)]
+\item atoms are fermionic in nature with an alkali-earth(-like)
+  electronic structure,
+\item atoms are nuclear-spin-polarized, and
+\item the optical lattice is quasi-one-dimensional, with tight
+  (i.e.~ground-state) confinement in transverse directions.
+\end{enumerate*}
+
+
+\section{Spin-orbit coupling}
+
+We start with two-level atoms loaded into the ground band of an
+optical lattice, and consider interrogating these atoms by a linearly
+polarized plane-wave laser tuned to the relevant electronic (atomic)
+transition, with wavenumber projection $\phi$ onto the lattice axis.
+After performing a gauge transformation which shifts the on-axis
+momenta of ground (excited) states by $\phi/2$ ($-\phi/2$), and
+eliminating (i.e.~turning off) the interrogation laser, one can arrive
+at the Hamiltonian
+\begin{align}
+  H_{\t{SOC}}
+  = -2J_0\sum_{q,s} \cos\p{q+s\phi/2} \hat c_{qs}^\dag \hat c_{qs}
+  \label{eq:H_SOC_start}
+\end{align}
+where $q$ indexes quasi-momentum along the lattice axis,
+$s\in\set{\g\leftrightarrow-1,\e\leftrightarrow1}$ labels the
+electronic state, $J_0$ is the (positive) ground-band tunneling rate,
+$c_{q\sigma}$ is a fermionic annihilation operator, and we work in
+units with the lattice spacing $a=1$.  Defining
+\begin{align}
+  \1_q \equiv \hat c_{q,\g}^\dag \hat c_{q,\g}
+  + \hat c_{q,\e}^\dag \hat c_{q,\e},
+  &&
+  \sigma_q^j \equiv \sum_{\alpha,\beta}
+  \hat c_{q\alpha}^\dag \sigma^j_{\alpha\beta} \hat c_{q\beta},
+  \label{eq:pseudospin}
+\end{align}
+for Pauli matrices $\sigma^j$ (i.e.~such that $\sigma_q^j$ is a
+pseudo-spin-1/2 Pauli operator on the electronic degrees of freedom)
+and expanding the cosine in \eqref{eq:H_SOC_start}, we thus find
+\begin{align}
+  H_{\t{SOC}}
+  = -\sum_q \p{\epsilon_q \1_q + \f12 h_q \sigma_q^z},
+  &&
+  \epsilon_q \equiv 2J_0 \cos\p{\phi/2} \cos q,
+  &&
+  h_q \equiv -4J_0 \sin\p{\phi/2} \sin q.
+\end{align}
+When all dynamics conserve the occupations of all quasi-momenta, the
+first term in this Hamiltonian merely contributes a constant energy
+shift which we can safely neglect, leaving us with the effective
+inhomogeneous-field Hamiltonian
+\begin{align}
+  H_{\t{SOC}} = -\sum_q h_q s_q^z,
+  &&
+  s_q^z \equiv \f12 \sigma_q^z
+  \label{eq:H_SOC}
+\end{align}
+
+
+\section{Interactions}
+
+At ultracold temperatures inter-atomic interactions are dominated by
+$s$-wave collisions, which are captured by the Hamiltonian
+\begin{align}
+  H_{\t{int}} = G \int \d^3x~
+  \hat\psi_\e^\dag\p{x} \hat\psi_\g^\dag\p{x}
+  \hat\psi_\g\p{x} \hat\psi_\e\p{x},
+  &&
+  G \equiv \f{4\pi a_{\e\g^-}}{m_A},
+\end{align}
+where $\hat\psi_\sigma$ is a fermionic field operator for atoms in
+electronic state $\sigma\in\set{\g,\e}$, $a_{eg}^-$ is an scattering
+length, and $m_A$ is the mass of a single atom.  Considering only
+occupation of the ground band in a lattice, we can expand the field
+operators as
+\begin{align}
+  \hat\psi_\sigma\p{x} = \sum_q \phi_q\p{x} \hat c_{q\sigma},
+\end{align}
+for momentum-space (Bloch) wavefunctions $\phi_q$ and fermionic
+annihilation operators $\hat c_{q\sigma}$.  The interaction
+Hamiltonian then becomes
+\begin{align}
+  H_{\t{int}} = G \sum_{p,q,r,s} K^{pq}_{rs}
+  \hat c_{r,\e}^\dag \hat c_{s,\g}^\dag \hat c_{q,\g} \hat c_{p,\e},
+  &&
+  K^{pq}_{rs} \equiv \int \d^3x~
+  \phi_r\p{x}^* \phi_s\p{x}^* \phi_q\p{x} \phi_p\p{x}.
+\end{align}
+In a lattice with $L$ sites centered on positions $x_j$ (i.e.~for
+$j=1,\cdots L$ indexing lattice site) and localized (Wannier)
+wavefunctions $w_j$, we can expand
+$\phi_p\p{x}=L^{-1/2}\sum_je^{-ipx_j}w_j\p{x}$, which implies
+\begin{align}
+  K^{pq}_{rs} = L^{-2} \sum_{j,k,\ell,m} \int \d^3x~
+  \exp\sp{-i\p{px_j+qx_k-rx_\ell-sx_m}}
+  w_\ell\p{x}^* w_m\p{x}^* w_k\p{x} w_j\p{x}.
+\end{align}
+If we now assume that we can neglect integrals without $j=k=\ell=m$,
+which is equivalent to neglecting inter-site interactions and
+interaction-assisted hopping, then we have
+\begin{align}
+  K^{pq}_{rs} \approx L^{-2} \sum_j \int \d^3x~
+  \exp\sp{-i\p{p+q-r-s}x_j} \abs{w_j\p{x}}^4,
+\end{align}
+where a stationary phase approximation now forces $p+q-r-s=0$ (mod
+$2\pi$ in units with the lattice spacing $a=1$), which is equivalent
+to conservation of total momentum.  In terms of the Kronecker delta
+$\delta_{p+q,r+s}$ enforcing $p+q=r+s$, it follows that
+\begin{align}
+  K^{pq}_{rs} \approx \delta_{p+q,r+s} L^{-2}
+  \sum_j \int \d^3x~ \abs{w_j\p{x}}^4
+  = \delta_{p+q,r+s} L^{-1} \int \d^3x~ \abs{w_0\p{x}}^4,
+\end{align}
+which motivates the definitions
+\begin{align}
+  U \equiv G \int \d^3x~ \abs{w_0\p{x}}^4,
+  &&
+  \xi \equiv \f{U}{L},
+\end{align}
+in order to express the interaction Hamiltonian in the simple form
+\begin{align}
+  H_{\t{int}} = \xi \sum_{p,q,r,s}
+  \delta_{p+q,r+s} \hat c_{r,\e}^\dag \hat c_{s,\g}^\dag
+  \hat c_{q,\g} \hat c_{p,\e}.
+  \label{eq:H_int_full}
+\end{align}
+
+
+\section{Collective spin model}
+
+If the single-particle energy spacings are much greater than the
+strength of inter-particle interactions, or equivalently if
+$J_0\gg U$, then by the secular approximation we can neglect terms in
+$H_{\t{int}}$ which do not conserve the sum of single-particle
+energies.  By solving this single-particle energy conservation
+condition, one finds that we must have $\set{p,q}\ne\set{r,s}$; that
+is, atoms in different clock states can only interact via
+\begin{enumerate*}[label=(\roman*)]
+\item direct density-density terms, and
+\item terms which exchange their momenta.
+\end{enumerate*}
+The surviving terms in \eqref{eq:H_int_full} are thus
+\begin{align}
+  H_{\t{int}}
+  = \xi \sum_{p,q}
+  \p{\hat c_{p,\e}^\dag \hat c_{q,\g}^\dag \hat c_{q,\g} \hat c_{p,\e}
+    + \hat c_{q,\e}^\dag \hat c_{p,\g}^\dag \hat c_{q,\g} \hat c_{p,\e}}
+  = \xi \sum_{p,q}
+  \p{\hat c_{q,\g}^\dag \hat c_{q,\g} \hat c_{p,\e}^\dag \hat c_{p,\e}
+    - \hat c_{q,\e}^\dag \hat c_{q,\g} \hat c_{p,\g}^\dag \hat c_{p,\e}},
+\end{align}
+where we can use the single-particle pseudo-spin-1/2 Pauli operators
+in \eqref{eq:pseudospin} to write
+\begin{align}
+  H_{\t{int}} = \xi \sum_{p,q}
+  \sp{\p{\f{\1_q-\sigma_q^z}{2}} \p{\f{\1_p+\sigma_p^z}{2}}
+    - \sigma_q^+ \sigma_p^-}.
+\end{align}
+Up to a global shift in energy, this result is equivalently
+\begin{align}
+  H_{\t{int}}
+  = - \f14 \xi \sum_{p,q} \v{\sigma}_q\c\v{\sigma}_p
+  = - \xi \sum_{p,q} \v s_q \c\v s_p
+  = - \xi \v S \c \v S,
+\end{align}
+where
+\begin{align}
+  \v{\sigma}_p
+  \equiv \p{\sigma_p^x,\sigma_p^y,\sigma_p^z},
+  &&
+  \v s_p \equiv \p{s_p^x,s_P^y,s_p^z},
+  &&
+  \v S \equiv \f12 \sum_p \v{\sigma}_p.
+  \label{eq:H_int}
+\end{align}
+For a fixed particle number $N$, the collective spin Hamiltonian
+$H_{\t{int}}$ has electronic eigenstates $\set{\ket{Sm}}$ with total
+(pseudo-)spin $S$ and projection $m$ onto a quantization axis; the
+corresponding energies are $\bk{Sm|H_{\t{int}}|S,m}=-\xi S\p{S+1}$.
+The ground-state $S=N/2$ manifold is spanned by the Dicke states
+\begin{align}
+  \ket{m} \equiv \ket{N/2,m}
+  = {N \choose N/2+m}^{-1/2} S_+^{N/2+m} \ket{\g}^{\otimes N},
+  &&
+  S_+ \equiv \sum_n \sigma_n^+,
+\end{align}
+for which we note that $N/2+m=0,1,\cdots,N$ is the number of
+electronic state excitations in the state $\ket{m}$.  Above this
+ground-state manifold with an energy gap of $N\xi$ lies the manifold
+of $S=N/2-1$ states, which is spanned by the orthonormal spin-wave
+states
+\begin{align}
+  \ket{mk}
+  \equiv \ket{N/2-1,m,k}
+  \equiv {N-1 \choose \p{N/2-m}\p{N/2-m+1}}^{-1/2}
+  \sum_{n=1}^N e^{2\pi ikn/N} s_n^+ \ket{N/2,m-1},
+\end{align}
+where $k=1,2,\cdots,N-1$; $n$ indices an individual atom; and
+$s_n^+\equiv\hat c_{n,\e}\hat c_{n,\g}$
+\cite{swallows2011suppression}.  \note{[We should comment about how we
+  do not actually achieve $J_0\gg U$ in practice, but that we can
+  nonetheless validate the spin model using numerics.]}
+
+
+\section{Mean-field treatment}
+
+To sum up our developments thus far, spin-orbit coupling gives rise to
+an effective inhomogeneous field, while $s$-wave interactions give
+rise to a collective spin interaction, which means that the system is
+characterized by the Hamiltonian \note{[MP: I removed the mention of
+  non-uniform coupling (i.e.~through $\xi_{ij}$), as I feel it is
+  unnecessary given the preceding section on the collective spin
+  model.  The uniform all-to-all coupling in \eqref{eq:H_int} is exact
+  under the assumptions of the spin model, so there is no need to
+  ``re-derive'' it by throwing out inhomogeneous couplings and taking
+  $\xi_{ij}\to\xi\equiv\overline{\xi_{ij}}$.]}
+\begin{align}
+  H = H_{\t{int}} + H_{\t{SOC}} = -\xi\v S\c\v S - \sum_q h_q s_q^z,
+  \label{eq:H_full}
+\end{align}
+
+\note{[MP] Note: ``eqnarray'' environment is generally not recommended
+  for typesetting math, as it has inconsistent spacing in addition to
+  some other problems (discussed a bit
+  \href{http://www.tug.org/pracjourn/2006-4/madsen/madsen.pdf}{here},
+  if you're interested).  The ``align'' environment, on the other
+  hand, is provided by math packages for the purposes of typesetting
+  math, lacks spacing problems, and generally has more functionality.}
+
+This collective Heisenberg model is a celebrated model for magnetism,
+and is closely related to the Richardson-Gaudin models for
+superconductivity based on the Anderson pseudo-spin mapping
+\note{[cite?]}.  So before demonstrating how to generate an effective
+one-axis squeezing Hamiltonian based on Eqn.~\eqref{eq:H_full}, we
+first try to develop better understanding of this Hamiltonian.  In
+fact, this model is well-studied at the mean-field (MF) level as given
+by
+\begin{align}
+  H_{\t{MF}} = -\sum_q \v s_q \c \v B_q,
+  &&
+  \v B_q \equiv \xi\v{\mathcal S} + \v h_q,
+  &&
+  \v{\mathcal S} \equiv \bk{\v S},
+  &&
+  \v h_q \equiv \p{0,0,h_q}.
+  \label{eq:mean_field}
+\end{align}
+\note{[MP: I removed a factor of 2 in front of $\xi$, as I believe it
+  was a mistake.  Was this correct?  If the factor of 2 was indeed
+  incorrect, please make sure that there are no extra factors of 2 in
+  Peiru's codes.]}
+% MP: as an additional side note, I personally recommend the use of
+% \braket{X} or (\bk{X}, which I defined as a shorthand) in place of
+% \langle X \rangle; I find this is a little easier to read.
+% Similarly, you can use \ket{X} (\bra{X}) in place of |X\rangle in
+% place of (\langle X|), and \op{X}{Y} in place of |X\rangle\langle Y|
+% (where "op" stands for "outer product")
+
+The behavior of this model is determined by a competition between the
+non-local MF coupling through $\xi$ and an effective inhomogeneous
+axial field $\v h_q$ whose strength has a variance
+$8J_0^2\sin^2\p{\phi/2}$.  Fig.~\ref{fig:MFcontrast} shows the
+dynamics of the system as computed by numerical simulation of
+\eqref{eq:mean_field}, after initialization with all spins pointing
+along the $x$ axis, i.e.~in the state
+$\bigotimes_q\p{\ket{q,\g}+\ket{q,\e}}/\sqrt2$. \note{[MP: I added
+  text specifying the initial state; is it correct?]}  As the
+interaction strength $\xi$ increases, the contrast
+$\mathcal C\equiv2\abs{\mathcal S_+}/N$, \note{[MP: I propose writing
+  $\mathcal C\equiv\sqrt{\mathcal S_x^2+\mathcal S_y^2}/\p{N/2}$;
+  while longer, I feel like it makes the physical interpretation of
+  $\mathcal C$ more clear.]} i.e.~the normalized magnitude of the
+collective spin vector in the $x$-$y$ plane, gets stabilized against
+dephasing induced by the effective inhomogeneous axial field $\v h_q$.
+Furthermore, when $\xi$ is below a critical value $\xi_{\t{c}}$, the
+contrast exhibits some oscillatory behavior, but ultimately decays at
+long times.  Above the critical value $\xi_{\t{c}}$, however, the
+contrast reaches a non-zero steady state, with oscillatory behavior
+that is damped with increasing $\xi$.  These two phases can be
+understood through the underlying integrability of
+\eqref{eq:mean_field}.  Using the techniques in \note{[cite]}, the
+steady state contrast $\bar{\mathcal C}$ at the MF level can be
+obtained analytically as
+\begin{align}
+  \bar{\mathcal C} =
+  \begin{cases}
+    \sqrt{1-\sp{4J_0\sin\p{\phi/2}/N\xi}^2},
+    & \text{if}~ \abs{4J_0\sin(\phi/2)/N\xi} < 1 \\
+    0,
+    & \text{otherwise}
+  \end{cases}
+\end{align}
+
+\begin{figure}
+\centering
+\includegraphics[width=3.5in]{MFcontrast.pdf}
+\caption{
+The contrast as a function of time and interaction strength.
+}
+\label{fig:MFcontrast}
+\end{figure}
+
+Comparing the MF simulation results with the quantum simulation
+results \note{[MP: In my experience, ``quantum simulation'' refers to
+  that which is performed with a quantum simulator, i.e.~via
+  experiment.  I assume that's not what you meant here, and that these
+  are actually some sort of Monte Carlo / quantum trajectory / TWA
+  simulations.  Can we specify the method?]}, however, we find that
+the contrast decreases rather than remain as a constant even if
+$\xi\gg\xi_{\t{c}}$, as shown in Fig.~\ref{fig:EffectiveSqueezing}.
+
+\begin{figure}
+\centering
+\includegraphics[width=3in]{Fig33.pdf}
+\caption{Contrast comparison among the MF simulation results, quantum simulation results and analytic expressions:
+(a) Good agreement between MF simulation (solid line) and quantum simulation (dashed line) at short time,
+while  the discrepancy occurs at longer time due to the quantum fluctuations.
+(b-c) Benchmark the approximated one-axis twisting analytical expressions (dashed line) with the quantum treatment (solid line).
+}
+\label{fig:EffectiveSqueezing}
+\end{figure}
+
+\note{[MP: While it may be nice for understanding some properties of
+  the Hamiltonian in \eqref{eq:H_full}, I do not think that this text
+  about contrast and mean-field treatment adds much to our goal of
+  spin squeezing.  Do we need to include this material here?  I would
+  cut this section out for now.]}
+
+
+\section{Effective spin squeezing}
+\label{sec:OAT}
+
+In order to demonstrate spin squeezing behavior induced by spin-orbit
+coupling, we fix the total particle number $N$, consider initial
+states with total spin $S=N/2$, and write the total system Hamiltonian
+as
+\begin{align}
+  H_{\t{free}} = H_{\t{int}} + H_{\t{SOC}}
+  = -\xi\v S\c\v S - \sum_n h_n s_n^z
+  = -\xi\v S\c\v S - \bar h S_z - \sum_n b_n s_n^z,
+\end{align}
+where we have separated out the mean and residual effective fields
+\begin{align}
+  \bar h \equiv \f1N \sum_n h_n,
+  &&
+  b_n \equiv h_n - \bar h.
+\end{align}
+The subscript on $H_{\t{free}}$ refers to the fact that this
+Hamiltonian corresponds to free, undriven evolution of (interacting)
+atoms on the lattice.  The collective spin operators $\v S\c\v S$ and
+$S_z$ both preserve total spin $S$ and its projection $m$ onto a
+quantization axis, which makes the Dicke states a good basis for
+treating $H_{\t{free}}$ (i.e.~within the $S=N/2$ manifold).  While the
+residual effective field term $\sum_n b_n s_n^z$ generally takes
+states outside the $S=N/2$ manifold, we can treat this spin-changing
+process perturbatively when the residual effective fields $b_n$ are
+small compared to the collective spin gap, i.e.~when
+$\max_n\abs{b_n}\ll N\abs{\xi}$.  Such a perturbative treatment yields
+an effective Hamiltonian of the form
+$H_{\t{free,eff}} = H_{\t{free,eff}}^{(1)} + H_{\t{free,eff}}^{(2)}$
+with
+\begin{align}
+  H_{\t{free,eff}}^{(1)}
+  &= \sum_m \op{m} H \op{m}
+  = -\xi \v S \c \v S - \bar h S_z, \\
+  H_{\t{free,eff}}^{(2)}
+  &= -\sum_{\substack{m\\S<N/2}}
+  \frac{\abs{\bk{Sm|H|m}}^2}{E_{Sm}^{\t{free}}-E_m^{\t{free}}} \op{m}
+  = -\sum_{\substack{m\\S<N/2}}
+  \frac{\abs{\sum_n b_n \bk{Sm|s_n^z|m}}^2}
+  {E_{Sm}^{\t{free}}-E_m^{\t{free}}} \op{m},
+\end{align}
+where $E_\psi^{\t{free}}\equiv\bk{\psi|H_{\t{free}}|\psi}$ and we have
+used the fact the spin projection $m$ is conserved by $H$.  As the
+individual spin operators $s_n^z$ cannot change the total spin $S$ by
+more than 1, we need only consider $S=N/2-1$ spin-wave states when
+evaluating the sum over $S<N/2$ in $H_{\t{free,eff}}^{(2)}$ above.
+These spin-wave states couple to the Dicke states via the matrix
+elements of the form (see section 2 in the supporting materials of
+\cite{swallows2011suppression})
+\begin{align}
+  \bk{m|s_n^z|mk} = e^{2\pi i k n/N} \sqrt{\f{(N/2)^2-m^2}{N^2 (N-1)}},
+\end{align}
+which implies
+\begin{align}
+  H_{\t{free,eff}}^{(2)}
+  = -\sum_{m,k}
+  \frac{\abs{\sum_n b_n \bk{mk|s_n^z|m}}^2}{N\xi} \op{m}
+  = -\sum_m \f{(N/2)^2-m^2}{N^3(N-1)\xi}
+  \sum_k \abs{\sum_n b_n e^{2\pi ikn/N}}^2 \op{m}.
+\end{align}
+Using the fact that $\sum_nb_n=0$, we can expand
+\begin{align}
+  \sum_k \abs{\sum_n b_n e^{2\pi ikn/N}}^2
+  = \sum_{k=1}^{N-1} \sum_{n,n'} b_n b_{n'} e^{2\pi ik\p{n-n'}/N}
+  = \sum_{n,n'} b_n b_{n'} \sum_{k=0}^{N-1} e^{2\pi ik\p{n-n'}/N},
+\end{align}
+where the sum over $k$ vanishes for $n\ne n'$ and equals $N$ when
+$n=n'$, so
+\begin{align}
+  \sum_k \abs{\sum_n b_n e^{2\pi ikn/N}}^2
+  = N \sum_n b_n^2 = N^2 \tilde h^2,
+  &&
+  \tilde h^2 \equiv \f1N \sum_n b_n^2 = \f1N \sum_n \p{h_n - \bar h}^2.
+  \label{eq:sum_knn}
+\end{align}
+We therefore have that
+\begin{align}
+  H_{\t{free,eff}}^{(2)}
+  = -\sum_m \f{\p{N/2}^2-m^2}{N\p{N-1}\xi}~ \tilde h^2 \op{m},
+\end{align}
+where the term $\p{N/2}^2$ term contributes a global energy shift
+which we can neglect, while the $m^2$ term is proportional to
+$m^2\op{m}=S_z^2$.  In total, the effective Hamiltonian is thus
+\begin{align}
+  H_{\t{free,eff}}
+  = -\xi \v S \c \v S - \bar h S_z + \chi S_z^2,
+  &&
+  \chi \equiv \f{\tilde h^2}{N\p{N-1}\xi}.
+\end{align}
+This effective Hamiltonian preserves total spin $S$, which means that
+the $\v S\c\v S$ term contributes only a constant energy shift which
+we can neglect.  Furthermore, at temperatures $T\gg J_0$ the mean
+effective field $\bar h=0$, while for $T\sim J_0$ the collective
+rotation due to the $S_z$ term can be neglected by use of a rotating
+frame.  The effective Hamiltonian therefore simplifies to the one-axis
+twisting Hamiltonian
+\begin{align}
+  H_{\t{OAT}} = \chi S_z^2.
+  \label{eq:H_OAT}
+\end{align}
+An example set of parameters and values for one-axis twisting via
+$H_{\t{OAT}}$ with strontium-87 is provided in Table
+\ref{tab:parameters}, along with the optimal one-axis twisting
+squeezing time
+$t_{\t{opt}}^{\t{OAT}}\approx1.1N^{-2/3}\chi^{-1}\sim\eta
+N^{1/3}=N^{4/3}/L$.  Lattice depths are provided in units of the
+lattice recoil energy $E_R$.
+
+\begin{table}[h]
+  \centering
+  \caption{Example parameters for spin squeezing via one-axis
+    twisting.}
+  \label{tab:parameters}
+  \begin{tabular}{|l|c|l|}
+    \hline
+    Parameter & Symbol & Value \\ \hline\hline
+    Primary lattice depth & $V_0$ & 3 $E_R$ \\
+    Transverse lattice depths & $V_T$ & 80 $E_R$ \\
+    Lattice sites & $L$ & 100 \\
+    Atom number & $N$ & 50 \\
+    SOC strength & $\phi$ & $\pi/50$ \\ \hline\hline
+    Tunneling rate & $J_0$ & $\approx300\times2\pi$ Hz \\
+    On-site interaction strength & $U$ & $\approx1.4\times2\pi$ kHz \\
+    Collective interaction strength & $\xi$
+    & $\approx14\times2\pi$ Hz \\
+    Squeezing strength & $\chi$ & $\approx21\times2\pi$ mHz \\
+    Optimal squeezing time & $t_{\t{opt}}^{\t{OAT}}$
+    & $\approx0.66$ seconds \\ \hline
+  \end{tabular}
+\end{table}
+
+
+\section{Two-axis twisting: pulsed drive}
+
+While one-axis twisting provides a spin fluctuation noise floor which
+scales with atom number as $\sim1/N^{2/3}$, it is possible to beat
+this limit and achieve a noise floor scaling as $\sim1/N$ via
+so-called two-axis twisting.  We can transform the one-axis twisting
+Hamitlonian in \eqref{eq:H_OAT} into an effective two-axis twisting
+Hamiltonian by using a pulsed drive sequence developed in
+ref.~\cite{liu2011spin}.  The necessary drive sequence requires the
+pulsed application of a clock laser, which turns on a collective spin
+Hamiltonian
+\begin{align}
+  H_{\t{clock}} = -\Omega \sum_n s_n^x = -\Omega S_x.
+\end{align}
+If $\abs{\Omega}\gg N\chi$, then we can apply $H_{\t{clock}}$ for
+short times $\theta/\abs{\Omega}\ll\p{N\chi}^{-1}$ (during which we
+can neglect $H_{\t{eff}}$) to realize collective rotations of the form
+$\exp\p{\pm i\theta S_x}$.  Thus acting with $\exp\sp{i\p{\pi/2}S_x}$,
+waiting for a time $2\tau$, acting with $\exp\sp{-i\p{\pi/2}S_x}$, and
+waiting for a time $\tau$ then realizes the unitary
+\begin{align}
+  U_1 = \exp\p{-i\tau\chi S_z^2} \exp\p{-i\f{\pi}{2}S_x}
+  \exp\p{-i2\tau\chi S_z^2} \exp\p{i\f{\pi}{2}S_x}
+  = \exp\p{-i\tau\chi S_z^2} \exp\p{-i2\tau\chi S_y^2}.
+\end{align}
+If $\tau\chi\ll1$, then
+\begin{align}
+  U_1 \approx \exp\sp{-i\tau\chi\p{S_z^2 + 2S_y^2}}
+  = \exp\sp{-i\tau\chi\p{S^2 + S_y^2 - S_x^2}}
+  \simeq \exp\sp{-i\tau\chi\p{S_y^2 - S_x^2}},
+\end{align}
+where $\simeq$ denotes equality up to an overall phase, which holds
+above because $S^2$ is conserved by all dynamics.  Repeating the above
+sequence $n$ times for a time $t=3n\tau$ thus results in the two-axis
+twisting unitary
+\begin{align}
+  U = \exp\sp{-in\tau\chi\p{S_y^2 - S_x^2}}
+  = \exp\sp{-i\p{t/3}\chi\p{S_y^2 - S_x^2}},
+\end{align}
+which is equivalent to evolving for a time $t$ under the two-axis
+twisting Hamiltonian
+\begin{align}
+  H_{\t{TAT}}^{y,x} = \f{\chi}{3}\p{S_y^2 - S_x^2}.
+  \label{eq:H_TAT_pulse}
+\end{align}
+Despite the factor of 1/3 in the effective two-axis twisting strength,
+the optimal squeezing time for this two-axis twisting Hamiltonian is
+generally close to that for one-axis twisting with $H_{\t{OAT}}$ in
+\eqref{eq:H_OAT} \cite{liu2011spin}.
+
+\note{[MP: In practice, of course, the gates $\exp\p{i\theta S_x}$
+  take a nonzero amount of time to implement.  For the purposes of
+  simulation, we can probably approximate these gates by square pulses
+  centered on the appropriate time.  I believe that experiments are
+  capable of achieving $\Omega\sim1\times2\pi~\t{kHz}$.  I can do an
+  error analysis on this sequence to determine the effect of the
+  $\O\p{\tau^2\chi^2}$ terms in the exponent of $U_1$, but it is
+  probably simpler to just try this out in simulations.]}
+
+
+\section{Two-axis twisting: continuous drive}
+
+Rather than pulsing the clock laser, we can apply a continuous drive
+to realize the Hamiltonian
+\begin{align}
+  H_{\t{drive}} = H_{\t{free}} + H_{\t{clock}}
+  = -\xi\v S\c\v S - \bar h S_z - \Omega S_x - \sum_n b_n s_n^z,
+\end{align}
+where the drive strength $\Omega$ may generally depend on time.  As
+shown in Appendix \ref{sec:effective_squeezing_drive}, the addition of
+a drive with $\abs{\Omega}\ll N\abs{\xi}$ does not modify the
+squeezing behavior of the spin-orbit coupling terms in
+$H_{\t{drive}}$, whose effective action on the $S=N/2$ manifold is
+captured by
+\begin{align}
+  H_{\t{drive,eff}} = -\bar h S_z - \Omega S_x + \chi S_z^2.
+  \label{eq:H_drive_eff}
+\end{align}
+To follow the continuous-drive two-axis twisting prescription in
+ref.~\cite{huang2015twoaxis}, we now
+\begin{enumerate*}[label=(\roman*)]
+\item blue-detune the clock laser by $\bar h$ and shift into an
+  appropriate rotating frame to eliminate the $\sim S_z$ term in
+  \eqref{eq:H_drive_eff},
+\item modulate the drive as $\Omega\p{t}=\beta\omega\cos\p{\omega t}$
+  with $\omega\gg N\chi$,
+\item move into the rotating frame of $-\Omega\p{t}S_x$, and finally
+\item shift $H_{\t{drive,eff}}$ by the constant
+  $\p{\chi/2}\sp{\J_0\p{2\beta}-1} S^2$, where $\J_0\p{x}$ is the
+  zero-order Bessel function of the first kind evaluated at $x$.
+\end{enumerate*}
+After a secular approximation which relies on $\omega\gg N\chi$, this
+procedure results in the effective Hamiltonian
+\begin{align}
+  H_{\t{drive,eff}}^{\t{mod}}
+  = \f{\chi}{2} \sp{3\J_0\p{2\beta}-1} S_z^2
+  + \f{\chi}{2} \sp{1-\J_0\p{2\beta}} \p{S_z^2 - S_x^2},
+\end{align}
+where choosing the modulation index $\beta$ such that
+$\J_0\p{2\beta}=1/3$ or $\J_0\p{2\beta}=-1/3$ respectively results in
+the two-axis twisting Hamiltonians
+\begin{align}
+  H_{\t{TAT}}^{z,x} = \f{\chi}{3} \p{S_z^2 - S_x^2},
+  &&
+  H_{\t{TAT}}^{y,x} = \f{\chi}{3}\p{S_y^2 - S_x^2}.
+  \label{eq:H_TAT_drive}
+\end{align}
+Given the set of parameters in Table \ref{tab:parameters}, the
+two-axis twisting Hamiltonian $H_{\t{TAT}}^{z,x}$ can be achieved with
+$\omega=20\times2\pi$ Hz and $\beta=0.9057$.  The optimal squeezing
+time for this protocol is $t_{\t{opt}}^{\t{TAT}}\approx0.98$ seconds.
+
+
+\section{Discussions}
+
+\note{[MP: We should clarify in the notes what exactly the conditions
+  are for the effective Hamiltonians we derive, i.e.~the spin model
+  and the one-axis twisting Hamiltonian.]}
+
+\note{[MP] Future ideas:} Make use of a cavity to enhance the one-axis
+twisting strength \cite{hu2017vacuum}?
+
+
+\appendix
+
+\section{Effective spin squeezing in the presence of a drive}
+\label{sec:effective_squeezing_drive}
+
+Suppose we have a Hamiltonian of the form
+\begin{align}
+  H = H_0 + V,
+  &&
+  H_0 = - \xi\v S\c\v S,
+  &&
+  V = - \bar h S_z - \Omega S_x - \sum_n b_n s_n^z,
+\end{align}
+where the effective fields $b_n$ are mean-zero, and we consider
+initial states in the ground-state manifold $\G_0$ of $H_0$ (i.e.~with
+total spin $S=N/2$).  If the largest eigenvalue of $V$ is smaller in
+magnitude than half of the collective spin gap $N\xi$, or the energy
+gap under $H_0$ between $\G_0$ and its orthogonal complement $\E_0$,
+then we can formally develop a perturbative treatment of the action of
+$V$ on $\G_0$.  Such a treatment yields an effective Hamiltonian
+$H_{\t{eff}}=\sum_pH_{\t{eff}}^{(p)}$ on $\G_0$, where
+$H_{\t{eff}}^{(p)}$ is order $p$ in $V$.  Letting $\P_0$ ($\Q_0$) be a
+projector onto $\G_0$ ($\E_0$) and $X$ denote any operator on
+$\G_0\cup\E_0$ (i.e.~the entire Hilbert space), we define the
+superoperators
+\begin{align}
+  \D X \equiv \P_0 X \P_0 + \Q_0 X \Q_0,
+  &&
+  \O X \equiv \P_0 X \Q_0 + \Q_0 X \P_0,
+\end{align}
+which select the diagonal ($\D$) and off-diagonal ($\O$) parts of $X$
+with respect to $\G_0$ and $\E_0$, and
+\begin{align}
+  \L X \equiv \sum_{\alpha,\beta}
+  \f{\op{\alpha}\O X\op{\beta}}{E_\alpha-E_\beta},
+  &&
+  \t{where}
+  &&
+  H_0 = \sum_\alpha E_\alpha \op\alpha.
+\end{align}
+The first few terms in the expansion of the effective Hamiltonian are
+then, as derived in ref.~\cite{bravyi2011schrieffer},
+\begin{align}
+  H_{\t{eff}}^{(0)} = \P_0 H_0 \P_0,
+  &&
+  H_{\t{eff}}^{(1)} = \P_0 V \P_0,
+  &&
+  H_{\t{eff}}^{(2)} = -\f12 \P_0 \sp{\O V,\L V} \P_0.
+\end{align}
+Letting $\B_0\p{\E_0}$ denote an eigenbasis of $H_0$ for $\E_0$ and
+adding a constant shift to $H_0$ such that $E_\psi=0$ for
+$\ket\psi\in\G_0$, we additionally define
+\begin{align}
+  \I \equiv \sum_{\ket\alpha\in\B_0\p{\E_0}} \f{\op\alpha}{E_\alpha},
+\end{align}
+which sums over projections onto excited states with corresponding
+energetic suppression factors, and expand
+\begin{align}
+  \L X = \O\p{\L X}
+  = \Q_0 \L X \P_0 + \P_0 \L X \Q_0
+  = \I X \P_0 - \P_0 X \I.
+\end{align}
+The expression for $H_{\t{eff}}^{(2)}$ then simplifies to
+\begin{align}
+  H_{\t{eff}}
+  = -\f12 \P_0 \p{\sp{\O V, \I V \P_0} - \sp{\O V, \P_0 V \I}} \P_0
+  = -\P_0 V \I V \P_0.
+\end{align}
+\note{[MP: much of the text above is essentially copied from an
+  appendix of the theory paper for multi-body interactions.  As soon
+  as that paper gets posted on arXiv, we can cite it instead.]}  It
+follows that
+\begin{align}
+  H_{\t{eff}}^{(0)} = 0,
+  &&
+  H_{\t{eff}}^{(1)} = -\bar h S_z - \Omega S_x,
+\end{align}
+and, in terms of the $S=N/2$ Dicke states $\ket{m}\equiv\ket{N/2,m}$
+and the $S=N/2-1$ spin-wave states $\ket{mk}\equiv\ket{N/2-1,mk}$,
+\begin{align}
+  H_{\t{eff}}^{(2)}
+  = - \f1{N\xi} \sum_{m,k} \abs{\sum_nb_n\bk{mk|s_n^z|m}}^2 \op{m},
+  \label{eq:general_H_eff_2}
+\end{align}
+where we used the fact that the collective spin operators $S_j$
+conserve total spin $S$, while the individual spin operators $s_n^z$
+conserve the projection $m$ of collective spin onto a quantization
+axis.  The second-order effective Hamiltonian $H_{\t{eff}}^{(2)}$ in
+\eqref{eq:general_H_eff_2} is identical to that derived in Section
+\ref{sec:OAT}, which implies
+\begin{align}
+  H_{\t{eff}}^{(2)} = \chi S_z^2,
+  &&
+  \chi \equiv \f{\tilde h^2}{N\p{N-1}\xi},
+  &&
+  \tilde h^2 \equiv \f1N \sum_n b_n^2,
+\end{align}
+and in turn
+\begin{align}
+  H_{\t{eff}} = -\bar h S_z - \Omega S_x + \chi S_z^2.
+\end{align}
+
+\bibliography{\jobname}
+
+\end{document}
