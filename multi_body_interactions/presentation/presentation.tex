@@ -1,0 +1,701 @@
+\documentclass[aspectratio=43]{beamer}
+
+\setbeamertemplate{navigation symbols}{}
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+\setbeamertemplate{caption}[numbered]
+
+
+%%% beamer theme
+\usepackage{beamerthemelined}%
+\setbeamertemplate{headline}[text line]%
+{%
+  \vbox{%
+    \vskip3pt%
+    \vskip1.5pt%
+    \insertvrule{0.4pt}{beamerstructure!50!averagebackgroundcolor}%
+    \vskip1.5pt%
+    \tinyline{\color{beamerstructure}\insertsubsection\hfill}
+    \insertvrule{4pt}{beamerstructure!50!averagebackgroundcolor}%
+  }%
+}
+% \setbeamertemplate{footline}{} % clear footer
+
+%%% bibliography
+% normally cite with \footfullcite{-ref-}
+% inside column environment, cite with
+% \footnote[frame]{\fullcite{-ref-}}
+% bibtex backend necessary for using a style
+\usepackage[backend=bibtex,style=nature,isbn=false,url=false]{biblatex}
+\addbibresource{\jobname.bib}
+
+
+%%% modify indentation of footnotes
+\makeatletter
+\renewcommand<>\beamer@framefootnotetext[1]{%
+  \global\setbox\beamer@footins\vbox{%
+    \hsize\framewidth
+    \textwidth\hsize
+    \columnwidth\hsize
+    \unvbox\beamer@footins
+    \reset@font\footnotesize
+    \@parboxrestore
+    \protected@edef\@currentlabel
+         {\csname p@footnote\endcsname\@thefnmark}%
+    \color@begingroup
+      \uncover#2{\@makefntext{%
+        \rule\z@\footnotesep\ignorespaces\parbox[t]{.9\textwidth}{#1\@finalstrut\strutbox}\vskip1sp}}%
+    \color@endgroup}%
+}
+\makeatother
+
+% letters instead of numbers for marking footnotes
+\renewcommand*{\thefootnote}{\alph{footnote}}
+
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,bm,amssymb} % physics and math
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\renewcommand{\v}{\bm} % bold vectors
+\newcommand{\uv}[1]{\hat{\v{#1}}} % unit vectors
+\newcommand{\bk}{\Braket} % shorthand for braket notation
+
+\newcommand{\g}{\text{g}}
+\newcommand{\e}{\text{e}}
+\renewcommand{\c}{\hat{c}}
+\newcommand{\n}{\hat{n}}
+\renewcommand{\H}{\mathcal{H}}
+\renewcommand{\P}{\mathcal{P}}
+
+
+% color definitions (used in a figure)
+\usepackage{xcolor}
+\definecolor{orange}{RGB}{255,127,14}
+\definecolor{green}{RGB}{44,160,44}
+\newcommand{\mblue}[1]{\mathcolor{blue}{#1}}
+\newcommand{\morange}[1]{\mathcolor{orange}{#1}}
+\newcommand{\mgreen}[1]{\mathcolor{green}{#1}}
+
+% proper coloring inside math environment
+\makeatletter
+\def\mathcolor#1#{\@mathcolor{#1}}
+\def\@mathcolor#1#2#3{
+  \protect\leavevmode
+  \begingroup
+    \color#1{#2}#3
+  \endgroup
+}
+\makeatother
+
+\usefonttheme[onlymath]{serif} % math font
+
+% figures, ets.
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+\usepackage[caption=false,labelformat=empty]{subfig} % subfigures
+\usepackage{caption} % caption text options
+\captionsetup{textfont={small}}
+\captionsetup{labelformat=empty}
+
+\DeclareGraphicsRule{.ai}{pdf}{.ai}{} % treat .ai figures as .pdf
+
+% diagrams
+\usepackage{tikz,tikz-feynman}
+\tikzset{
+  baseline = (current bounding box.center)
+}
+\usetikzlibrary{math}
+\usetikzlibrary{patterns}
+\usetikzlibrary{decorations.pathmorphing}
+\tikzfeynmanset{
+  compat = 1.1.0,
+  every feynman = {/tikzfeynman/small}
+}
+\newcommand{\shrink}[1]{\scalebox{0.8}{#1}} % for smaller diagrams
+
+
+\title{Effective multi-body SU($N$)-symmetric interactions of
+  ultracold fermions on a lattice}%
+\author[M. A. Perlin]{M. A. Perlin, A. Goban, R. B. Hutson,
+  G. E. Marti, S. L. Campbell, J. Ye, and A. M. Rey}%
+\institute[JILA]{JILA, University of Colorado at Boulder, NIST, and
+  CTQM}%
+\date{May 2018}
+
+\titlegraphic{
+  ~\hfill
+  $\vcenter{\hbox{\includegraphics[width=2cm]{jila_logo.eps}}}$
+  \hfill
+  $\vcenter{\hbox{\includegraphics[width=1.5cm]{nsf_logo.ai}}}$
+  \hfill
+  $\vcenter{\hbox{\includegraphics[width=1.5cm]{afosr_logo.jpg}}}$
+  \hfill
+  $\vcenter{\hbox{\includegraphics[width=1.5cm]{darpa_logo.jpg}}}$
+  \hfill~
+}
+
+
+\begin{document}
+
+\frame{\titlepage
+}
+\begin{frame}
+  \frametitle{Alkaline-earth(-like) atoms}
+  \begin{itemize}
+  \item Ultra-narrow optical transition
+    (${}^1S_0 \leftrightarrow {}^3P_0$)
+    \begin{itemize}
+    \item Long lifetimes
+    \end{itemize}
+  \item[]
+
+  \item ${}^1S_0$, ${}^3P_0$ orbitals decoupled from $N$ nuclear spin
+    levels
+    \begin{itemize}
+    \item SU($N$)-symmetric interactions
+    \end{itemize}
+  \item[]
+
+  \item High density, ultracold fermionic samples on a 3-D
+    lattice\footnote[frame]{\fullcite{goban2018emergence}}
+    \begin{itemize}
+    \item Stongly-interacting regime
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Motivations}
+  \begin{columns}
+    \begin{column}{0.65\textwidth}
+      \begin{itemize}
+      \item Most precise atomic clocks!
+      \item[]
+
+      \item Quantum simulation of lattice gauge
+        theories\footnote[frame]{\fullcite{rico2018nuclear}}
+      \item[]
+
+      \item SU($N$) quantum magnetism
+        \begin{itemize}
+        \item Novel topological phases of
+          matter\footnote[frame]{\fullcite{hermele2011topological}}
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.35\textwidth}
+      \begin{figure}
+        \centering
+        $\vcenter{\hbox{
+            \includegraphics[width=0.8\columnwidth]{qcd.png}}}$
+        \caption{Simulating QCD?}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Two-body interactions of ultracold alkali-earth atoms}
+  \begin{itemize}
+  \item {\color{blue}{Electronic orbital}} and {\color{green}{nuclear
+        spin}} and states
+    \begin{itemize}
+    \item Number ops.~$\n_{\mblue{s}}$, fermionic
+      ops.~$\c_{\mgreen{\mu}\mblue{s}}$, $\mblue{\g}\equiv{}^1S_0$,
+      $\mblue{\e}\equiv{}^3P_0$
+    \end{itemize}
+  \end{itemize}
+  \begin{align*}
+    H_{\t{int}} = \overbrace{
+      \sum_{\mblue{s}\in\set{\mblue{\g},\mblue{\e}}} V_{\mblue{s}}
+      \underbrace{
+        \n_{\mblue{s}} \p{\n_{\mblue{s}}-1}
+      }_{\substack{\t{\# pairs with}\\\t{orbital $\mblue{s}$}}}
+    }^{\t{intra-orbital interactions}}
+    + \overbrace{
+      V_{\t{dir}} \underbrace{
+        \n_{\mblue{\e}} \n_{\mblue{\g}}
+      }_{\t{``direct''}}
+      + V_{\t{ex}} \sum_{\mgreen{\mu},\mgreen{\nu}}
+      \underbrace{
+        \c_{\mgreen{\mu},\mblue{\e}}^\dag \c_{\mgreen{\nu},\mblue{\g}}^\dag
+        \c_{\mgreen{\nu},\mblue{\e}} \c_{\mgreen{\mu},\mblue{\g}}
+      }_{\t{``exchange''}}
+    }^{\t{inter-orbital interactions}}
+  \end{align*}
+  \begin{itemize}
+  \item Exchange $\to$ two-body eigenstates
+    $\ket{\mblue{\e\g}\pm\mblue{\g\e}} \otimes
+    \ket{\mgreen{\t{nuclear~state}}}$
+  \item[]
+
+  \item SU($\mgreen{N}$) symmetry $\to$ many-body interaction energies
+    $E_{\mblue{\e\g\cdots\g}^\pm}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Electronic excitation spectrum: sketch}
+  \begin{align*}
+    \begin{tikzpicture}[
+      scale = 0.45,
+      trans/.style = {thick,<->,shorten >=2pt,shorten <=2pt,>=stealth}
+      ]
+      \tikzmath{
+        \h = 1.5; % vertical scale of lattice
+        \hh = 4*\h;
+        \gx = 1.6;
+        \ggx = 1.3;
+        \egmx = \ggx+0.1;
+        \egpx = \ggx-0.1;
+        \gggx = 1;
+        \eggmx = \gggx+0.1;
+        \eggpx = \gggx-0.1;
+        \gy = \h*cos(180*\gx/2);
+        \ggy = \h*cos(180*\ggx/2);
+        \egmy = \h*cos(180*\egmx/2);
+        \egpy = \h*cos(180*\egpx/2);
+        \gggy = \h*cos(180*\gggx/2);
+        \eggmy = \h*cos(180*\eggmx/2);
+        \eggpy = \h*cos(180*\eggpx/2);
+      }
+      % draw lattices and g energy levels
+      \foreach \y in {0,\hh}
+      \foreach \x in {0,1,2,3,4}
+      {
+        \draw (4*\x,\h+\y) cos (4*\x+1,0+\y) sin (4*\x+2,-\h+\y)
+        cos(4*\x+3,0+\y) sin (4*\x+4,\h+\y);
+        \draw (4*\x+\gx,\gy+\y) -- (4*\x+4-\gx,\gy+\y);
+      }
+      % draw gg and ggg energy levels
+      \foreach \x in {1,2}
+      {
+        \draw (4*\x+\ggx,\ggy) -- (4*\x+4-\ggx,\ggy);
+        \draw (4*\x+8+\gggx,\gggy) -- (4*\x+12-\gggx,\gggy);
+      }
+      % draw eg and egg energy levels
+      \draw (4+\egmx,\egmy+\hh) -- (8-\egmx,\egmy+\hh);
+      \draw (8+\egpx,\egpy+\hh) -- (12-\egpx,\egpy+\hh);
+      \draw (12+\eggmx,\eggmy+\hh) -- (16-\eggmx,\eggmy+\hh);
+      \draw (16+\eggpx,\eggpy+\hh) -- (20-\eggpx,\eggpy+\hh);
+      % draw g/e atoms
+      \filldraw[fill = blue] (2,\gy) circle (5pt);
+      \filldraw[fill = red] (2,\gy+\hh) circle (5pt);
+      % draw gg/eg atoms
+      \filldraw[fill = blue] (6-2/3+\ggx/3,\ggy) circle (5pt);
+      \filldraw[fill = blue] (6+2/3-\ggx/3,\ggy) circle (5pt);
+      \filldraw[fill = blue] (6-2/3+\ggx/3,\egmy+\hh) circle (5pt);
+      \filldraw[fill = red] (6+2/3-\ggx/3,\egmy+\hh) circle (5pt);
+      \filldraw[fill = blue] (10-2/3+\ggx/3,\ggy) circle (5pt);
+      \filldraw[fill = blue] (10+2/3-\ggx/3,\ggy) circle (5pt);
+      \filldraw[fill = blue] (10-2/3+\ggx/3,\egpy+\hh) circle (5pt);
+      \filldraw[fill = red] (10+2/3-\ggx/3,\egpy+\hh) circle (5pt);
+      % draw ggg/egg atoms
+      \filldraw[fill = blue] (14-1+\gggx/2,\gggy) circle (5pt);
+      \filldraw[fill = blue] (14,\gggy) circle (5pt);
+      \filldraw[fill = blue] (14+1-\gggx/2,\gggy) circle (5pt);
+      \filldraw[fill = blue] (14-1+\gggx/2,\eggmy+\hh) circle (5pt);
+      \filldraw[fill = blue] (14,\eggmy+\hh) circle (5pt);
+      \filldraw[fill = red] (14+1-\gggx/2,\eggmy+\hh) circle (5pt);
+      \filldraw[fill = blue] (18-1+\gggx/2,\gggy) circle (5pt);
+      \filldraw[fill = blue] (18,\gggy) circle (5pt);
+      \filldraw[fill = blue] (18+1-\gggx/2,\gggy) circle (5pt);
+      \filldraw[fill = blue] (18-1+\gggx/2,\eggpy+\hh) circle (5pt);
+      \filldraw[fill = blue] (18,\eggpy+\hh) circle (5pt);
+      \filldraw[fill = red] (18+1-\gggx/2,\eggpy+\hh) circle (5pt);
+      % draw arrows and labels for g --> e excitation
+      \foreach \y in {0,\hh}
+      {
+        \draw[dashed] (-1,\gy+\y) -- (\gx,\gy+\y);
+      }
+      \draw[trans] (-1,\gy) -- (-1,\gy+\hh)
+      node[midway,left]{$\omega_0$};
+      % draw state labels
+      \node[below] at (2,-\h) {$\ket{\g}$};
+      \node[below] at (2,-\h+\hh) {$\ket{\e}$};
+      \node[below] at (6,-\h) {$\ket{\g\g}$};
+      \node[below] at (6,-\h+\hh) {$\ket{\e\g^-}$};
+      \node[below] at (10,-\h) {$\ket{\g\g}$};
+      \node[below] at (10,-\h+\hh) {$\ket{\e\g^+}$};
+      \node[below] at (14,-\h) {$\ket{\g\g\g}$};
+      \node[below] at (14,-\h+\hh) {$\ket{\e\g\g^-}$};
+      \node[below] at (18,-\h) {$\ket{\g\g\g}$};
+      \node[below] at (18,-\h+\hh) {$\ket{\e\g\g^+}$};
+      % draw interaction energy labels
+    \end{tikzpicture}
+  \end{align*}
+
+  ~\hfill $\omega_0=$ single-atom ${}^1S_0\to{}^3P_0$ excitation
+  energy \hfill~
+\end{frame}
+
+\begin{frame}
+  \frametitle{Electronic excitation spectrum: data}
+  ~\vfill ~\hfill Color $=$ atom number \hfill \uncover<2>{Dashed
+    lines $=$ two-body theory} \hfill~
+  \begin{overlayarea}{\textwidth}{\textheight}
+  \begin{figure}
+    \centering
+    \includegraphics<1>[width=0.8\textwidth]%
+    {sweep_expt_V54_refs_1_blank.pdf}%
+    \includegraphics<2>[width=0.8\textwidth]%
+    {sweep_expt_V54_refs_1.pdf}
+  \end{figure}
+  \end{overlayarea}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Multi-atom interaction shifts}
+  \begin{itemize}
+  \item Experimental measurements inconsistent with {\bf two-body}
+    theory for {\bf ground-state} atoms
+  \item[]
+
+  \item Ultracold temperatures: $T\ll E_{\t{vibration}}$
+  \item[]
+
+  \item Interaction vs. vibrational energy scales:
+    $E_{\t{int}}\lesssim E_{\t{vibration}}$
+  \item[]
+
+  \item Perturbative treatment of interactions $H_{\t{int}}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Second order effects: three-body interactions}
+  ~\vfill
+  ~\hfill Color $=$ nuclear spin \hfill~
+  \begin{align*}
+    \begin{tikzpicture}
+      [int/.style={decorate, decoration=snake, color=red, ultra thick}]
+      \tikzmath{
+        \x0 = 1.5; \y0 = 2;
+        \y1 = 0.5; \y2 = 1; \y3 = 1.5;
+        \a = sqrt(\y0/\x0^2);
+        \x1 = sqrt(\y1/\a); \x2 = sqrt(\y2/\a); \x3 = sqrt(\y3/\a);
+        \xC = 0; \xL = -\x1/2; \xR = \x1/2;
+        \z1 = (\y1 + \y2) / 2;
+        \z2 = (\y2 + \y3) / 2;
+      }
+      \draw (0,0) parabola (\x0,\y0);
+      \draw (0,0) parabola (-\x0,\y0);
+      \draw (-\x1,\y1) -- (\x1,\y1);
+      \draw (-\x2,\y2) -- (\x2,\y2);
+      \draw (-\x3,\y3) -- (\x3,\y3);
+      \draw[int] (\xL,\y1) -- (\xC,\y1);
+      \filldraw[fill = blue] (\xL,\y1) circle (3pt);
+      \filldraw[fill = green] (\xC,\y1) circle (3pt);
+      \draw[dotted] (\xC,\y3) circle (3pt);
+      \draw[->] (\xC,\z1) -- (\xC,\z2);
+      \filldraw[fill = orange] (\xR,\y1) circle (3pt);
+    \end{tikzpicture}
+    \to
+    \begin{tikzpicture}
+      [int/.style={decorate, decoration=snake, color=red, ultra thick}]
+      \tikzmath{
+        \x0 = 1.5; \y0 = 2;
+        \y1 = 0.5; \y2 = 1; \y3 = 1.5;
+        \a = sqrt(\y0/\x0^2);
+        \x1 = sqrt(\y1/\a); \x2 = sqrt(\y2/\a); \x3 = sqrt(\y3/\a);
+        \xC = 0; \xL = -\x1/2; \xR = \x1/2;
+        \z1 = (\y1 + \y2) / 2;
+        \z2 = (\y2 + \y3) / 2;
+      }
+      \draw (0,0) parabola (\x0,\y0);
+      \draw (0,0) parabola (-\x0,\y0);
+      \draw (-\x1,\y1) -- (\x1,\y1);
+      \draw (-\x2,\y2) -- (\x2,\y2);
+      \draw (-\x3,\y3) -- (\x3,\y3);
+      \draw[int] (\xC,\y3) -- (\xR,\y1);
+      \filldraw[fill = blue] (\xL,\y1) circle (3pt);
+      \filldraw[fill = green] (\xC,\y3) circle (3pt);
+      \draw[dotted] (\xC,\y1) circle (3pt);
+      \draw[->] (\xC,\z2) -- (\xC,\z1);
+      \filldraw[fill = orange] (\xR,\y1) circle (3pt);
+    \end{tikzpicture}
+    \to
+    \begin{tikzpicture}
+      [int/.style={decorate, decoration=snake, color=red, thick}]
+      \tikzmath{
+        \x0 = 1.5; \y0 = 2;
+        \y1 = 0.5; \y2 = 1; \y3 = 1.5;
+        \a = sqrt(\y0/\x0^2);
+        \x1 = sqrt(\y1/\a); \x2 = sqrt(\y2/\a); \x3 = sqrt(\y3/\a);
+        \xC = 0; \xL = -\x1/2; \xR = \x1/2;
+      }
+      \draw (0,0) parabola (\x0,\y0);
+      \draw (0,0) parabola (-\x0,\y0);
+      \draw (-\x1,\y1) -- (\x1,\y1);
+      \draw (-\x2,\y2) -- (\x2,\y2);
+      \draw (-\x3,\y3) -- (\x3,\y3);
+      \filldraw[fill = blue] (\xL,\y1) circle (3pt);
+      \filldraw[fill = green] (\xC,\y1) circle (3pt);
+      \filldraw[fill = orange] (\xR,\y1) circle (3pt);
+    \end{tikzpicture}
+  \end{align*}
+  \vfill
+  \uncover<2>{
+    \begin{align*}
+      \begin{array}{ccc}
+        \overbrace{
+        \mgreen{\c}^\dag \morange{\c}^\dag
+        \morange{\c} \mgreen{\hat{\mathcal{E}}}
+        }^{\substack{\t{second}\\\t{``interaction''}}}
+        ~
+        \overbrace{
+        \mblue{\c}^\dag \mgreen{\hat{\mathcal{E}}}^\dag
+        \mgreen{\c} \mblue{\c}
+        }^{\substack{\t{first}\\\t{``interaction''}}}
+        & ~
+        & \overbrace{
+          \mblue{\c}^\dag \mgreen{\c}^\dag \morange{\c}^\dag
+          \morange{\c} \mgreen{\c} \mblue{\c}
+          }^{\substack{\t{effective ground-state}\\\t{3-body interaction}}} \\
+        ~
+        & \leftrightarrow
+        & ~ \\
+        \begin{tikzpicture}
+          \begin{feynman}[small]
+            \vertex (v1);
+            \vertex[above left = of v1] (f1);
+            \vertex[below left = of v1] (f2);
+            \vertex[right = 4em of v1] (v2);
+            \vertex[above right = of v1] (f3);
+            \vertex[below left = of v2] (f4);
+            \vertex[below right = of v2] (f5);
+            \vertex[above right = of v2] (f6);
+            \diagram* {
+              (f1) --[fermion, color = blue] (v1)
+              --[fermion, color = blue] (f3),
+              (f2) --[fermion, color = green] (v1)
+              --[charged scalar, color = green] (v2),
+              (f4) --[fermion, color = orange] (v2)
+              --[fermion, color = orange] (f5),
+              (v2) --[fermion, color = green] (f6), };
+          \end{feynman}
+        \end{tikzpicture}
+        & ~
+        & \begin{tikzpicture}
+          \begin{feynman}
+            \vertex[blob] (v) {};
+            \vertex[above left = of v] (f1);
+            \vertex[left = of v] (f2);
+            \vertex[below left = of v] (f3);
+            \vertex[above right = of v] (f4);
+            \vertex[right = of v] (f5);
+            \vertex[below right = of v] (f6);
+            \diagram* {
+              (f1) --[fermion, color = blue] (v)
+              --[fermion, color = blue] (f4),
+              (f2) --[fermion, color = green] (v)
+              --[fermion, color = green] (f5),
+              (f3) --[fermion, color = orange] (v)
+              --[fermion, color = orange] (f6) };
+          \end{feynman}
+        \end{tikzpicture}
+      \end{array}
+    \end{align*}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Higher order effects: diagram zoo}
+  ~\vfill
+  3-body
+  \hfill
+  $\sim$
+  \hfill
+  $\shrink{
+    \begin{tikzpicture}
+      \begin{feynman}
+        \vertex (v1);
+        \vertex[below right = of v1] (v2);
+        \vertex[above right = of v2] (v3);
+        \vertex[above left = of v1] (f1);
+        \vertex[left = of v1] (f2);
+        \vertex[below left = of v2] (f3);
+        \vertex[above right = of v3] (f4);
+        \vertex[right = of v3] (f5);
+        \vertex[below right = of v2] (f6);
+        \diagram* {
+          (f1) -- (v1) --[scalar] (v3) -- (f4),
+          (f2) -- (v1) --[scalar] (v2) --[scalar] (v3) -- (f5),
+          (f3) -- (v2) -- (f6), };
+      \end{feynman}
+    \end{tikzpicture}}$
+  \hfill
+  $\shrink{
+    \begin{tikzpicture}
+      \begin{feynman}
+        \vertex (v1);
+        \vertex[right = of v1] (v2);
+        \vertex[below right = of v2] (v3);
+        \vertex[above left = of v1] (f1);
+        \vertex[below left = of v1] (f2);
+        \vertex[below left = of v3] (f3);
+        \vertex[above right = of v2] (f4);
+        \vertex[above right = of v3] (f5);
+        \vertex[below right = of v3] (f6);
+        \diagram* {
+          (f1) -- (v1) --[half left, scalar] (v2) -- (f4),
+          (f2) -- (v1) --[half right, scalar] (v2) -- (v3) -- (f5),
+          (f3) -- (v3) -- (f6), };
+      \end{feynman}
+    \end{tikzpicture}}$
+  \hfill~
+  \vfill
+  4-body
+  \hfill
+  $\sim$
+  \hfill
+  $\shrink{
+    \begin{tikzpicture}
+      \begin{feynman}
+        \vertex (v1);
+        \vertex[above right = 1.5em of v1] (v2);
+        \vertex[below right = 2.5em of v1] (v3);
+        \vertex[above left = of v1] (f1);
+        \vertex[below left = of v1] (f2);
+        \vertex[above left = of v2] (f3);
+        \vertex[below left = of v3] (f4);
+        \vertex[above right = of v2] (f5);
+        \vertex[right = of v2] (f6);
+        \vertex[right = of v3] (f7);
+        \vertex[below right = of v3] (f8);
+        \diagram* {
+          (f1) -- (v1) --[scalar] (v2) -- (f6),
+          (f2) -- (v1) --[scalar] (v3) -- (f7),
+          (f3) -- (v2) -- (f5),
+          (f4) -- (v3) -- (f8),
+        };
+      \end{feynman}
+    \end{tikzpicture}}$
+  \hfill
+  $\shrink{
+    \begin{tikzpicture}
+      \begin{feynman}
+        \vertex (v1);
+        \vertex[below right = 2.5em of v1] (v3);
+        \vertex[below left = 1.7em of v3] (v2);
+        \vertex[above left = of v1] (f1);
+        \vertex[left = of v1] (f2);
+        \vertex[left = of v2] (f3);
+        \vertex[below left = of v2] (f4);
+        \vertex[above right = of v1] (f5);
+        \vertex[above right = of v3] (f6);
+        \vertex[below right = of v3] (f7);
+        \vertex[below right = of v2] (f8);
+        \diagram* {
+          (f1) -- (v1) -- (f5),
+          (f2) -- (v1) -- (v3) -- (f6),
+          (f3) -- (v2) --[scalar] (v3) -- (f7),
+          (f4) -- (v2) -- (f8), };
+      \end{feynman}
+    \end{tikzpicture}}$
+  \hfill
+  $\shrink{
+    \begin{tikzpicture}
+      \begin{feynman}
+        \vertex (v1);
+        \vertex[below right = of v1] (v2);
+        \vertex[below right = of v2] (v3);
+        \vertex[above left = of v1] (f1);
+        \vertex[below left = of v1] (f2);
+        \vertex[below left = of v2] (f3);
+        \vertex[below left = of v3] (f4);
+        \vertex[above right = of v1] (f5);
+        \vertex[above right = of v2] (f6);
+        \vertex[above right = of v3] (f7);
+        \vertex[below right = of v3] (f8);
+        \diagram* {
+          (f1) -- (v1) -- (f5),
+          (f2) -- (v1) -- (f5),
+          (v1) --[scalar] (v2) --[scalar] (v3) -- (f8),
+          (f3) -- (v2) -- (f6),
+          (f4) -- (v3) -- (f7),
+        };
+      \end{feynman}
+    \end{tikzpicture}}$
+  \hfill~
+  \vfill
+  \uncover<2->{
+    % \begin{align*}
+    %   H_{\t{int}}^{\t{eff}} = \sum_{M\ge2} H_{M\t{-body}}
+    %   &&
+    %   \t{No new free parameters!}
+    % \end{align*}
+    \begin{align*}
+      H_{M\t{-body}} =
+      \underbrace{
+        \sum_{\abs{\set{\mgreen{\mu_j}}}=M}
+      }_{\substack{\t{all nuclear spin}\\\t{combinations}}}
+      \underbrace{
+        H_{\mgreen{\mu_1},\mgreen{\mu_2}}^{(M)}
+      }_{\substack{\t{2-body}\\\t{interaction}}}
+      \times
+      \underbrace{
+        \n_{\mgreen{\mu_3},\mblue{\g}} \cdots \n_{\mgreen{\mu_M},\mblue{\g}}
+      }_{\substack{\t{ground-state}\\\t{spectator atoms}}}
+      &&
+      \t{\uncover<3>{No free parameters!}}
+    \end{align*}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Electronic excitation spectrum: theory\footnote{(To
+      appear on arXiv soon)} and
+    experiment\footfullcite{goban2018emergence}}
+  \only<1>{
+    \begin{figure}
+      \centering
+      \subfloat[Two-body theory]
+      {\includegraphics[width=0.49\textwidth]
+        {sweep_expt_V54_refs_1.pdf}}
+      \subfloat[Multi-body theory (third order)]
+      {\includegraphics[width=0.49\textwidth]
+        {sweep_expt_V54_refs_3.pdf}}
+    \end{figure}
+  }
+  \only<2>{\includegraphics[width=\textwidth]{shifts_summary.pdf}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary and outlook}
+  \begin{itemize}
+  \item Optical lattice experiments with alkaline-earth atoms:
+    low-temperature, high-density, strongly-interacting limit
+  \item[]
+
+  \item Multi-body SU($N$)-symmetric interactions
+    \begin{itemize}
+    \item Low-energy effective theory
+    \end{itemize}
+  \item[]
+
+  \item Future directions
+    \begin{itemize}
+    \item Shallow lattice, super-exchange dynamics
+    \end{itemize}
+  \end{itemize}
+  \vfill
+  \uncover<2->{~\hfill Experimental side: Q03:3 Thu.~Grand B}
+  \vfill
+  \uncover<3>{~\hfill {\bf Thank you} \hfill~}
+\end{frame}
+
+\end{document}
+
+Emmanuel
+
+Wolfram Ketter
+- Mott insulator shell structure
