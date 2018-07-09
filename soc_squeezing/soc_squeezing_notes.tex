@@ -47,7 +47,7 @@
 \usepackage{graphicx} % for figures
 \usepackage{grffile} % help latex properly identify figure extensions
 \usepackage[caption=false]{subfig} % subfigures (via \subfloat[]{})
-\graphicspath{{./plots/}} % set path for all figures
+\graphicspath{{./figures/}} % set path for all figures
 
 % for strikeout text
 % normalem included to prevent underlining titles in the bibliography
@@ -275,131 +275,6 @@ $s_n^+\equiv\hat c_{n,\e}\hat c_{n,\g}$
   nonetheless validate the spin model using numerics.]}
 
 
-\section{Mean-field treatment}
-
-To sum up our developments thus far, spin-orbit coupling gives rise to
-an effective inhomogeneous field, while $s$-wave interactions give
-rise to a collective spin interaction, which means that the system is
-characterized by the Hamiltonian \note{[MP: I removed the mention of
-  non-uniform coupling (i.e.~through $\xi_{ij}$), as I feel it is
-  unnecessary given the preceding section on the collective spin
-  model.  The uniform all-to-all coupling in \eqref{eq:H_int} is exact
-  under the assumptions of the spin model, so there is no need to
-  ``re-derive'' it by throwing out inhomogeneous couplings and taking
-  $\xi_{ij}\to\xi\equiv\overline{\xi_{ij}}$.]}
-\begin{align}
-  H = H_{\t{int}} + H_{\t{SOC}} = -\xi\v S\c\v S - \sum_q h_q s_q^z,
-  \label{eq:H_full}
-\end{align}
-
-\note{[MP] Note: ``eqnarray'' environment is generally not recommended
-  for typesetting math, as it has inconsistent spacing in addition to
-  some other problems (discussed a bit
-  \href{http://www.tug.org/pracjourn/2006-4/madsen/madsen.pdf}{here},
-  if you're interested).  The ``align'' environment, on the other
-  hand, is provided by math packages for the purposes of typesetting
-  math, lacks spacing problems, and generally has more functionality.}
-
-This collective Heisenberg model is a celebrated model for magnetism,
-and is closely related to the Richardson-Gaudin models for
-superconductivity based on the Anderson pseudo-spin mapping
-\note{[cite?]}.  So before demonstrating how to generate an effective
-one-axis squeezing Hamiltonian based on Eqn.~\eqref{eq:H_full}, we
-first try to develop better understanding of this Hamiltonian.  In
-fact, this model is well-studied at the mean-field (MF) level as given
-by
-\begin{align}
-  H_{\t{MF}} = -\sum_q \v s_q \c \v B_q,
-  &&
-  \v B_q \equiv \xi\v{\mathcal S} + \v h_q,
-  &&
-  \v{\mathcal S} \equiv \bk{\v S},
-  &&
-  \v h_q \equiv \p{0,0,h_q}.
-  \label{eq:mean_field}
-\end{align}
-\note{[MP: I removed a factor of 2 in front of $\xi$, as I believe it
-  was a mistake.  Was this correct?  If the factor of 2 was indeed
-  incorrect, please make sure that there are no extra factors of 2 in
-  Peiru's codes.]}
-% MP: as an additional side note, I personally recommend the use of
-% \braket{X} or (\bk{X}, which I defined as a shorthand) in place of
-% \langle X \rangle; I find this is a little easier to read.
-% Similarly, you can use \ket{X} (\bra{X}) in place of |X\rangle in
-% place of (\langle X|), and \op{X}{Y} in place of |X\rangle\langle Y|
-% (where "op" stands for "outer product")
-
-The behavior of this model is determined by a competition between the
-non-local MF coupling through $\xi$ and an effective inhomogeneous
-axial field $\v h_q$ whose strength has a variance
-$8J_0^2\sin^2\p{\phi/2}$.  Fig.~\ref{fig:MFcontrast} shows the
-dynamics of the system as computed by numerical simulation of
-\eqref{eq:mean_field}, after initialization with all spins pointing
-along the $x$ axis, i.e.~in the state
-$\bigotimes_q\p{\ket{q,\g}+\ket{q,\e}}/\sqrt2$. \note{[MP: I added
-  text specifying the initial state; is it correct?]}  As the
-interaction strength $\xi$ increases, the contrast
-$\mathcal C\equiv2\abs{\mathcal S_+}/N$, \note{[MP: I propose writing
-  $\mathcal C\equiv\sqrt{\mathcal S_x^2+\mathcal S_y^2}/\p{N/2}$;
-  while longer, I feel like it makes the physical interpretation of
-  $\mathcal C$ more clear.]} i.e.~the normalized magnitude of the
-collective spin vector in the $x$-$y$ plane, gets stabilized against
-dephasing induced by the effective inhomogeneous axial field $\v h_q$.
-Furthermore, when $\xi$ is below a critical value $\xi_{\t{c}}$, the
-contrast exhibits some oscillatory behavior, but ultimately decays at
-long times.  Above the critical value $\xi_{\t{c}}$, however, the
-contrast reaches a non-zero steady state, with oscillatory behavior
-that is damped with increasing $\xi$.  These two phases can be
-understood through the underlying integrability of
-\eqref{eq:mean_field}.  Using the techniques in \note{[cite]}, the
-steady state contrast $\bar{\mathcal C}$ at the MF level can be
-obtained analytically as
-\begin{align}
-  \bar{\mathcal C} =
-  \begin{cases}
-    \sqrt{1-\sp{4J_0\sin\p{\phi/2}/N\xi}^2},
-    & \text{if}~ \abs{4J_0\sin(\phi/2)/N\xi} < 1 \\
-    0,
-    & \text{otherwise}
-  \end{cases}
-\end{align}
-
-\begin{figure}
-\centering
-\includegraphics[width=3.5in]{MFcontrast.pdf}
-\caption{
-The contrast as a function of time and interaction strength.
-}
-\label{fig:MFcontrast}
-\end{figure}
-
-Comparing the MF simulation results with the quantum simulation
-results \note{[MP: In my experience, ``quantum simulation'' refers to
-  that which is performed with a quantum simulator, i.e.~via
-  experiment.  I assume that's not what you meant here, and that these
-  are actually some sort of Monte Carlo / quantum trajectory / TWA
-  simulations.  Can we specify the method?]}, however, we find that
-the contrast decreases rather than remain as a constant even if
-$\xi\gg\xi_{\t{c}}$, as shown in Fig.~\ref{fig:EffectiveSqueezing}.
-
-\begin{figure}
-\centering
-\includegraphics[width=3in]{Fig33.pdf}
-\caption{Contrast comparison among the MF simulation results, quantum simulation results and analytic expressions:
-(a) Good agreement between MF simulation (solid line) and quantum simulation (dashed line) at short time,
-while  the discrepancy occurs at longer time due to the quantum fluctuations.
-(b-c) Benchmark the approximated one-axis twisting analytical expressions (dashed line) with the quantum treatment (solid line).
-}
-\label{fig:EffectiveSqueezing}
-\end{figure}
-
-\note{[MP: While it may be nice for understanding some properties of
-  the Hamiltonian in \eqref{eq:H_full}, I do not think that this text
-  about contrast and mean-field treatment adds much to our goal of
-  spin squeezing.  Do we need to include this material here?  I would
-  cut this section out for now.]}
-
-
 \section{Effective spin squeezing}
 \label{sec:OAT}
 
@@ -621,10 +496,6 @@ ref.~\cite{huang2015twoaxis}, we now
 \item modulate the drive as $\Omega\p{t}=\beta\omega\cos\p{\omega t}$
   with $\omega\gg N\chi$, and
 \item move into the rotating frame of $-\Omega\p{t}S_x$.
-  % , and finally
-% \item shift $H_{\t{drive,eff}}$ by the constant
-  % $\p{\chi/2}\sp{\J_0\p{2\beta}-1} S^2$, where $\J_0\p{x}$ is the
-  % zero-order Bessel function of the first kind evaluated at $x$.
 \end{enumerate*}
 After a secular approximation which relies on $\omega\gg N\chi$, this
 procedure results in the effective Hamiltonian
@@ -652,6 +523,19 @@ set of parameters in Table \ref{tab:parameters}, the two-axis twisting
 Hamiltonian $H_{\t{TAT}}^{z,x}$ can be achieved with
 $\omega=20\times2\pi$ Hz and $\beta=0.906$.  The optimal squeezing
 time for this protocol is $t_{\t{opt}}^{\t{TAT}}\approx0.98$ seconds.
+A comparison of squeezing through $H_{\t{OAT}}$ and
+$H_{\t{TAT}}^{z,x}$ via the parameters in Table \ref{tab:parameters}
+is provided in Figure \ref{fig:squeezing_comparison}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{squeezing_comparison.pdf}
+  \caption{Comparison of squeezing through $H_{\t{OAT}}$ and
+    $H_{\t{TAT}}^{z,x}$ via the parameters in Table
+    \ref{tab:parameters} and the continuous two-axis twisting protocol
+    with $\omega=20\times2\pi$ Hz and $\beta=0.906$.}
+  \label{fig:parameters}
+\end{figure}
 
 
 \section{Discussions}
