@@ -5,6 +5,7 @@ import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+from scipy.stats.mstats import gmean
 
 from qubit_methods import act_on_subsets
 from interaction_sym_methods import H_2_1, H_3_2, H_3_3, H_4_3, \
@@ -58,7 +59,7 @@ def n_body_row(N):
 atom_numbers = [ 2, 3, 4, 5 ]
 data = np.loadtxt(data_file)
 data[two_body_row:,:] /= 1000
-depths = data[0,:]
+depths = data[[2,4,6],:].transpose()
 depth_err = data[1,:]
 
 kHz = recoil_energy_Hz / 1000 # conversion from lattice unit of energy to kHz
@@ -120,8 +121,7 @@ for dd in range(len(depths)):
     sys.stdout.flush()
 
     # compute spatial overlap factors
-    overlaps = energy_correction_coefficients(depths[dd] * np.ones(3),
-                                              site_number, pt_order, bands)
+    overlaps = energy_correction_coefficients(depths[dd], site_number, pt_order, bands)
     a_2_1, a_prime_2_1 = overlaps[:2]
     if pt_order > 1:
         a_3_2 = overlaps[2]
@@ -236,11 +236,11 @@ if read:
                          [ errs_ren, "errs_ren" ],
                          [ errs_tun, "errs_tun" ] ]:
         input_data = np.loadtxt(output_file_base.format(str(tag)))
-        depths = input_data[:,0]
+        depths = input_data[:,:3]
         for aa in range(len(atom_numbers)):
             for ss in range(3):
                 for dd in range(input_data.shape[0]):
-                    base_column = 1 + 3*aa + ss
+                    base_column = 3 + 3*aa + ss
                     shifts[ss,aa,dd] = input_data[dd,base_column]
 
     shifts_total = shifts_1 + shifts_2 + shifts_3_3 + shifts_3_4
@@ -248,7 +248,7 @@ if read:
 # save calculated predictions into files
 elif save: # and not read
     def write_file(shifts, output_file, experiment = False):
-        output_header = "# lattice_depth"
+        output_header = "# depth_x depth_y depth_z"
         for atom_number in atom_numbers:
             if not experiment:
                 output_header += " {0}_g".format(atom_number)
@@ -258,7 +258,7 @@ elif save: # and not read
         with open(output_file, "w") as f:
             f.write(output_header)
             for dd in range(len(depths)):
-                f.write(str(depths[dd]))
+                f.write("{} {} {}".format(*depths[dd]))
                 for aa in range(len(atom_numbers)):
                     f.write(" {}".format(shifts[0,aa,dd]))
                     f.write(" {}".format(shifts[1,aa,dd]))
@@ -282,6 +282,8 @@ elif save: # and not read
         write_file(shifts_total, output_file_base.format("total"))
         write_file(errs_ren, output_file_base.format("errs_ren"))
         write_file(errs_tun, output_file_base.format("errs_tun"))
+
+depths = gmean(depths.transpose()) # we only care about the mean depths from here on
 
 
 ##########################################################################################
@@ -394,33 +396,6 @@ def make_plot(grid, top_index, bottom_index, atom_index, sym_index,
 
     return handles, labels
 
-def make_simplified_plot(atom_index, sym_index,
-                         xlabel = True, ylabel = True, legend = True,
-                         x_range = [30,80]):
-    aa = atom_index
-    ss = sym_index
-    atom_number = atom_numbers[aa]
-
-    # identify experimental data for this number of atoms
-    data_row = n_body_row(atom_number)
-    shift_data = data[[data_row,data_row+2],:]
-    shift_data_err = data[[data_row+1,data_row+3],:]
-
-    # determine excitation energies
-    diffs_1 = shifts_1[1:,aa,:] - shifts_1[0,aa,:]
-    diffs_2 = diffs_1 + shifts_2[1:,aa,:] - shifts_2[0,aa,:]
-    diffs_3_3 = diffs_2 + shifts_3_3[1:,aa,:] - shifts_3_3[0,aa,:] # only 3-body
-    diffs_3 = diffs_3_3 + shifts_3_4[1:,aa,:] - shifts_3_4[0,aa,:] # full third order
-
-    # determine erros in excitation energies
-    diff_errs_ren = abs(errs_ren[1:,aa,:] - errs_ren[0,aa,:])
-    diff_errs_tun = abs(errs_tun[1:,aa,:]) + abs(errs_tun[0,aa,:])
-    errs = diff_errs_ren + diff_errs_tun
-
-    # determine points where the experimental data is nonzero
-    points = shift_data[ss,:] != 0
-
-
 
 ##########################################################################################
 # make figures
@@ -433,6 +408,7 @@ if save and not os.path.isdir(fig_dir):
 grid = gridspec.GridSpec
 subgrid = gridspec.GridSpecFromSubplotSpec
 
+# make all (resonance frequency) vs. (depth) plots
 plt.figure("table", figsize = table_figsize)
 table_rows = len(atom_numbers) - 1
 table_grid = grid(table_rows, 1)
@@ -440,7 +416,6 @@ table_subgrids = [ subgrid(2, 2, hspace = 0.15, height_ratios = [2,1],
                            subplot_spec = table_grid[rr])
                    for rr in range(table_rows) ]
 
-# make all N-body plots for paper
 for aa in range(len(atom_numbers)):
     plt.figure("pair"+str(aa), figsize = pair_figsize)
     pair_grid = grid(1,1)
@@ -483,7 +458,7 @@ if save:
     plt.savefig(fig_dir + "shifts_table.pdf")
     plt.close()
 
-# make summary plot
+# make summary plot of experiment vs. theory comparison
 plt.figure(figsize = summary_figsize)
 plt.plot(np.zeros(len(depths)), depths, ".", color = colors[0])
 for aa in range(len(atom_numbers)):

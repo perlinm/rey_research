@@ -170,13 +170,31 @@ def harmonic_pair_overlap_1D(lattice_depth, nn = 0, mm = 0, ll = 0, kk = 0,
 
 # ground-state finite-range overlap integral
 #   i.e. Eq. 28 in johnson2012effective, but without the factor of 4*pi
-def momentum_coupling_overlap_3D(momenta, fourier_vecs, subinterval_limit = 500):
+def momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list,
+                                 subinterval_limit = 500):
+    assert(type(momenta_list) is list or type(momenta_list) is ndarray)
+
+    if type(momenta_list) is list:
+        assert(len(momenta_list) == 3)
+        assert(len(fourier_vecs_list) == 3)
+        momenta_x, fourier_vecs_x = momenta_list[0], fourier_vecs_list[0]
+        momenta_y, fourier_vecs_y = momenta_list[1], fourier_vecs_list[1]
+        momenta_z, fourier_vecs_z = momenta_list[2], fourier_vecs_list[2]
+        assert(momenta_x.size == momenta_y.size)
+        assert(momenta_y.size == momenta_z.size)
+    else:
+        # if we specified only one set of momenta and fourier_vecs,
+        #   assume they are the same along all axes
+        momenta_x, fourier_vecs_x = momenta_list, fourier_vecs_list
+        momenta_y, fourier_vecs_y = momenta_list, fourier_vecs_list
+        momenta_z, fourier_vecs_z = momenta_list, fourier_vecs_list
+
     i = complex(0,1)
-    site_number = len(momenta)
-    fourier_terms = len(fourier_vecs[0,0,:])
+    site_number = len(momenta_x)
+    fourier_terms = len(fourier_vecs_x[0,0,:])
     k_max = fourier_terms // 2
     k_values = 2 * (arange(fourier_terms) - k_max)
-    def integrand(z):
+    def integrand(momenta, fourier_vecs, z):
         q_phases = repmat(exp(i * momenta * z), fourier_terms, 1).T
         k_phases = repmat(exp(i * k_values * z), site_number, 1)
         phases = q_phases * k_phases
@@ -188,9 +206,22 @@ def momentum_coupling_overlap_3D(momenta, fourier_vecs, subinterval_limit = 500)
 
     half_length = pi * site_number / 2
     normalization = pi * site_number**2
-    integral = 2 * quad(integrand, 0, half_length, limit = subinterval_limit)[0]
-    overlap_1D = pair_overlap_1D(momenta, fourier_vecs)
-    return 3/2 * overlap_1D**2 * integral / normalization**2
+
+    def integrand_x(x): return integrand(momenta_x, fourier_vecs_x, x)
+    def integrand_y(y): return integrand(momenta_y, fourier_vecs_y, y)
+    def integrand_z(z): return integrand(momenta_z, fourier_vecs_z, z)
+
+    integral_x = 2 * quad(integrand_x, 0, half_length, limit = subinterval_limit)[0]
+    integral_y = 2 * quad(integrand_y, 0, half_length, limit = subinterval_limit)[0]
+    integral_z = 2 * quad(integrand_z, 0, half_length, limit = subinterval_limit)[0]
+    overlap_1D_x = pair_overlap_1D(momenta_x, fourier_vecs_x)
+    overlap_1D_y = pair_overlap_1D(momenta_y, fourier_vecs_y)
+    overlap_1D_z = pair_overlap_1D(momenta_z, fourier_vecs_z)
+
+    overlaps = ( overlap_1D_x * overlap_1D_y * integral_z +
+                 overlap_1D_y * overlap_1D_z * integral_x +
+                 overlap_1D_z * overlap_1D_x * integral_y)
+    return 1/2 * overlaps / normalization**2
 
 
 ##########################################################################################

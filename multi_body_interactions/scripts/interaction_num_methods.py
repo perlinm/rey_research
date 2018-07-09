@@ -7,6 +7,7 @@ from sympy import symbols, solve, gamma
 from scipy.special import zeta
 from itertools import product as cartesian_product
 from itertools import combinations, permutations
+from scipy.stats.mstats import gmean
 
 from mathieu_methods import mathieu_solution
 from overlap_methods import pair_overlap_1D, tunneling_1D, momentum_coupling_overlap_3D
@@ -25,13 +26,16 @@ def energy_correction_coefficients(lattice_depths, site_number,
                                    pt_order = 3, bands = 13):
     assert(pt_order >= 1)
 
-    a_2_1 = 1
-    a_prime_2_1 = 1
-    for axis in range(3):
-        momenta, fourier_vecs, energies = mathieu_solution(lattice_depths[axis],
-                                                           bands, site_number)
-        a_2_1 *= pair_overlap_1D(momenta, fourier_vecs)
-        a_prime_2_1 = momentum_coupling_overlap_3D(momenta, fourier_vecs)
+    momenta_x, fourier_vecs_x, _ = mathieu_solution(lattice_depths[0], bands, site_number)
+    momenta_y, fourier_vecs_y, _ = mathieu_solution(lattice_depths[1], bands, site_number)
+    momenta_z, fourier_vecs_z, _ = mathieu_solution(lattice_depths[2], bands, site_number)
+    a_2_1 = ( pair_overlap_1D(momenta_x, fourier_vecs_x) *
+              pair_overlap_1D(momenta_y, fourier_vecs_y) *
+              pair_overlap_1D(momenta_z, fourier_vecs_z) )
+
+    momenta_list = [ momenta_x, momenta_y, momenta_z ]
+    fourier_vecs_list = [ fourier_vecs_x, fourier_vecs_y, fourier_vecs_z ]
+    a_prime_2_1 = momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list)
 
     if pt_order == 1:
         return [ a_2_1, a_prime_2_1 ]
@@ -55,6 +59,7 @@ def energy_correction_coefficients(lattice_depths, site_number,
                 t_1D[axis,:] = t_1D[axis-1,:]
             continue
 
+        # otherwise compute everything for this lattice depth
         momenta, fourier_vecs, energies = mathieu_solution(lattice_depths[axis],
                                                            bands, site_number)
         band_energies[axis,:] = mean(energies,0)
@@ -170,20 +175,22 @@ def energy_correction_coefficients(lattice_depths, site_number,
 # specifically, we use Eq. 16 with both sides of equation divided by sqrt(2/pi)
 # calculation modified to use two-body overlap integral in a lattice
 # if backwards == True, convert a renormalized scattering length into a free-space one
-def renormalized_coupling(coupling, lattice_depth,
+def renormalized_coupling(coupling, lattice_depths,
                           bands = 15, site_number = 200,
                           precision = 10, backwards = False, harmonic = False):
 
-    # effective angular harmonic trap frequency
-    w_eff = sqrt(2 * lattice_depth / m_SR87_LU)
+    mean_depth = gmean(lattice_depths) # geometric mean of lattice depths
+    w_eff = sqrt(2 * mean_depth / m_SR87_LU) # effective angular harmonic trap frequency
 
     # two-atom ground-state overlap integral
     if not harmonic:
-        momenta, fourier_vecs, _ = mathieu_solution(lattice_depth, bands, site_number)
-        overlap_factor = pair_overlap_1D(momenta, fourier_vecs)**3
+        overlap_factor = 1
+        for depth in lattice_depths:
+            momenta, fourier_vecs, _ = mathieu_solution(depth, bands, site_number)
+            overlap_factor *= pair_overlap_1D(momenta, fourier_vecs)
     else:
         # determine ground-state two-body overlap integral in a harmonic oscillator
-        HO_length = lattice_depth**(-1/4) # harmonic oscillator length in lattice units
+        HO_length = mean_depth**(-1/4) # harmonic oscillator length in lattice units
         overlap_factor = sqrt(2/pi) / (4*pi) / HO_length**3
 
     unknown_coupling = symbols("G")
@@ -230,4 +237,3 @@ def excited_state_coupling(excitation_energy, a_2_1, a_prime_2_1, coupling_gg,
                         + a_prime_2_1 * (unknown_coupling_prime - coupling_prime_gg)
                         - excitation_energy )
     return real_positive_roots(null_expression, unknown_coupling, precision)[0]
-
