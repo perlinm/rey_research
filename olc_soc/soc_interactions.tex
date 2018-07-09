@@ -1,0 +1,351 @@
+\documentclass[aps,notitlepage,nofootinbib,11pt]{revtex4-1}
+
+% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,
+  urlcolor=cyan,
+}
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,bm,commath,amssymb} % physics and math
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\renewcommand{\v}{\bm} % bold vectors
+\newcommand{\uv}[1]{\hat{\v{#1}}} % unit vectors
+\renewcommand{\d}{\partial} % partial d
+\renewcommand{\c}{\cdot} % inner product
+\newcommand{\bk}{\Braket} % shorthand for braket notation
+
+
+\usepackage[inline]{enumitem} % for inline enumeration
+
+% leave a note in the text, visible in the compiled document
+\newcommand{\note}[1]{\textcolor{red}{#1}}
+\usepackage{ulem} % for strikeout text
+
+
+\usepackage{dsfont}
+\newcommand{\1}{\mathds{1}}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+\newcommand{\E}{\mathcal{E}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\K}{\mathcal{K}}
+\newcommand{\Z}{\mathbb{Z}}
+
+
+\usepackage{accents}
+\newcommand{\utilde}[1]{\underaccent{\tilde}{#1}}
+
+\newcommand{\g}{\text{g}}
+\newcommand{\e}{\text{e}}
+
+
+\begin{document}
+
+\title{Interactions in the 1-D optical lattice clock}
+
+\author{Michael A. Perlin}
+
+\maketitle
+
+The interaction Hamiltonian for nuclear-spin polarized fermionic
+alkali-earth(-like) atoms is
+\begin{align}
+  H_{\t{int}} = G \int d^3x~
+  \psi_\e^\dag\p{x} \psi_\g^\dag\p{x} \psi_\g\p{x} \psi_\e\p{x},
+  &&
+  G \equiv \f{4\pi a_{\e\g^-}}{m_A},
+\end{align}
+where $\psi_\sigma$ is a fermionic field operator for atoms in
+electronic state $s\in\set{\g,\e}$, $a_{eg}^-$ is a scattering length,
+and $m_A$ is the mass of a single atom.  On a 1-D lattice with tight
+transverse confinement, we can expand the field operators as
+\begin{align}
+  \psi_\sigma\p{x} = \sum_{q,n} \phi_{qn}\p{x} c_{qn\sigma},
+\end{align}
+for wavefunctions $\phi_{qn}$ and annihilation operators
+$c_{qn\sigma}$ additionally indexed by quasi-momenta $q$ and band
+indices $n$.  The interaction Hamiltonian then becomes
+\begin{align}
+  H_{\t{int}} = G \sum K^{pk;q\ell}_{rm;sn}
+  c_{rm,\e}^\dag c_{sn,\g}^\dag c_{q\ell,\g} c_{pk,\e},
+  &&
+  K^{pk;q\ell}_{rm;sn} \equiv \int d^3x~
+  \phi_{rm}\p{x}^* \phi_{sn}\p{x}^* \phi_{q\ell}\p{x} \phi_{pk}\p{x}.
+\end{align}
+By conservation of momentum, we know that $K^{pk;q\ell}_{rm;sn}=0$
+unless $p+q+r+s=0$ (where we note that all quasi-momenta are defined
+modulo 2 in units of the lattice wavenumber), so we can write
+\begin{align}
+  H_{\t{int}} = G \sum K^{pk;q\ell}_{p+r,m;q-r,n}
+  c_{p+r,m,\e}^\dag c_{q-r,n,\g}^\dag c_{q\ell,\g} c_{pk,\e}
+  \approx G \sum K^{k\ell}_{mn}
+  c_{p+r,m,\e}^\dag c_{q-r,n,\g}^\dag c_{q\ell,\g} c_{pk,\e},
+  \label{eq:H_int_full}
+\end{align}
+where we made the approximation that $K^{pk;q\ell}_{p+r,m;q-r,n}$ only
+weakly depends on the quasi-momenta $\p{p,q,r}$.  We note that for the
+cases we will be considering, this approximation breaks down at the
+$\sim10\%$ level for lattices with depth $\lesssim 15 E_R$, where
+$E_R$ is the lattice recoil energy.
+
+
+\section{Single-band spin model}
+
+We now restrict ourselves to considering only atoms a single band,
+such that $K^{k\ell}_{mn}\to K$ and the single-particle energy (up to
+a global shift) takes the form $E_q=-2J\cos\p{\pi q}$, where we measure
+momenta $q$ in units of the lattice wavenumber.  If
+$\abs{J}\gg\abs{GK}$, then by the secular approximation we can neglect
+terms in $H_{\t{int}}$ which do not conserve the sum of
+single-particle energies.  By solving the single-particle energy
+conservation condition, one can find that this approximation amounts
+to neglecting terms with $\set{p,q}\ne\set{p+r,q-r}$; that is, atoms
+in different clock states can only interact via
+\begin{enumerate*}[label=(\roman*)]
+\item direct density-density terms, and
+\item terms which exchange their momenta.
+\end{enumerate*}
+The surviving terms in \eqref{eq:H_int_full} are thus
+\begin{align}
+  H_{\t{int}}^{\t{single-band}}
+  = G K \sum \p{c_{p,\e}^\dag c_{q,\g}^\dag c_{q,\g} c_{p,\e}
+    + c_{q,\e}^\dag c_{p,\g}^\dag c_{q,\g} c_{p,\e}}
+  = G K \sum \p{n_{q,\g} n_{p,\e}
+    - c_{q,\e}^\dag c_{q,\g} c_{p,\g}^\dag c_{p,\e}}.
+\end{align}
+Defining
+\begin{align}
+  \1_p \equiv c_{p,\e}^\dag c_{p,\e} + c_{p,\g}^\dag c_{p,\g},
+  &&
+  \sigma_p^j \equiv \sum_{\alpha,\beta}
+  c_{p\alpha}^\dag \sigma^j_{\alpha\beta} c_{p\beta},
+\end{align}
+for Pauli matrices $\sigma^j$, we can therefore write
+\begin{align}
+  H_{\t{int}}^{\t{single-band}} = G K \sum
+  \sp{\p{\f{\1_q+\sigma_q^z}{2}} \p{\f{\1_p-\sigma_p^z}{2}}
+    - \sigma_q^- \sigma_p^+}.
+\end{align}
+Up to a global shift in energy, this result is equivalently
+\begin{align}
+  H_{\t{int}}^{\t{single-band}}
+  = - \f14 G K \sum \v\sigma_q\c\v\sigma_p
+  = - G K \v S \c \v S,
+  &&
+  \v S \equiv \f12 \sum_p \v\sigma_p.
+\end{align}
+Note that the collective spin operators $\v S$ are extensive in the
+number of particles, $N$, and that the overlap integral $K\sim L^{-1}$
+for $L$ lattice sites, as
+\begin{align}
+  K = \int d^3x \abs{\phi_0\p{x}}^4
+  = \int d^3x \abs{\f1{\sqrt{L}}\sum_j w_j\p{x}}^4
+  \approx \f1{L^2} \sum_j \int d^3x \abs{w_j\p{x}}^4
+  = \f1L \int d^3x \abs{w_0\p{x}}^4,
+\end{align}
+where $w_j\p{x}$ is a ground-band Wannier orbital localized at site
+$j$, and the remaining overlap integral is independent of $L$.  The
+approximation above is equivalent to neglecting inter-site
+interactions and interaction-assisted hopping.  If $L\sim N$ then the
+single-band interaction Hamiltonian is extensive in the number of
+particles ($N$), as one should expect.
+
+
+\section{Inter-band interactions}
+
+We now consider interactions between atoms in two different bands, and
+define $a_{p\sigma} \equiv c_{p,0,\sigma}$ (for atoms in band 0) and
+$b_{p\sigma} \equiv c_{p,1,\sigma}$ (for atoms in band 1).  The
+single-particle energies in the first two bands take the form
+$E_{qn}=\bar E_n+2J_n\cos\p{\pi q}$ with
+$\abs{\bar E_1-\bar E_0}\gg\abs{J_1}\gg\abs{J_0}$.  In the weakly
+interacting limit, conserving single-particle energies requires
+conserving particle number within each band, so the relevant
+interactions are
+\begin{align}
+  H_{\t{int}}^{\t{inter-band}}
+  = G K_{0,1} \sum
+  \p{a_{p+r,\sigma}^\dag b_{q-r,\bar\sigma}^\dag
+    + b_{p+r,\sigma}^\dag a_{q-r,\bar\sigma}^\dag}
+  b_{q\bar\sigma} a_{p\sigma}
+\end{align}
+for $K_{0,1}\equiv K^{0,1}_{0,1}=-K^{0,0}_{1,1}>0$.  In words: atoms
+in different bands may either remain in their respective clock states,
+or swap a clock excitation.
+
+The band curvatures from nonzero $J_0,J_1$ further restrict allowed
+momentum changes (i.e. values of $r$) from inter-band interactions by
+imposing additional constraints to conserve net single-particle
+energy.  In the limit $\abs{J_1}\gg\abs{J_0}$, we find that the only
+terms which conserve net single-particle energy are proportional to
+$b_{q\tau}^\dag b_{q\sigma}$ and $b_{-q,\tau}^\dag b_{q\sigma}$, which
+gives us
+\begin{multline}
+  H_{\t{int}}^{\t{inter-band}}
+  = G K_{0,1} \sum
+  \p{a_{p\sigma}^\dag b_{q\bar\sigma}^\dag
+    + b_{q\sigma}^\dag a_{p\bar\sigma}^\dag
+    + a_{p+2q,\sigma}^\dag b_{-q,\bar\sigma}^\dag
+    + b_{-q,\sigma}^\dag a_{p+2q,\bar\sigma}^\dag}
+  b_{q\bar\sigma} a_{p\sigma} \\
+  = G K_{0,1} \sum
+  \p{b_{q\bar\sigma}^\dag b_{q\bar\sigma} a_{p\sigma}^\dag a_{p\sigma}
+    - b_{q\sigma}^\dag b_{q\bar\sigma} a_{p\bar\sigma}^\dag a_{p\sigma}
+    + b_{-q,\bar\sigma}^\dag b_{q\bar\sigma} a_{p+2q,\sigma}^\dag a_{p\sigma}
+    - b_{-q,\sigma}^\dag b_{q\bar\sigma} a_{p+2q,\bar\sigma}^\dag a_{p\sigma}}.
+\end{multline}
+The first two terms in this sum
+($\sim b_{q\bar\sigma}^\dag b_{q\bar\sigma}$ and
+$b_{q\sigma}^\dag b_{q\bar\sigma}$) correspond to density-density
+terms and an exchange of clock state between atoms in different bands.
+Unlike the single-band case, momentum-exchanging processes are now
+disallowed due to unequal band curvatures: the fact that $J_0\ne J_1$
+implies $E_{p,0}+E_{q,1}\ne E_{q,0}+E_{p,1}$.  The latter terms in the
+sum ($\sim b_{-q,\bar\sigma}^\dag b_{q\bar\sigma}$ and
+$b_{-q,\sigma}^\dag b_{q\bar\sigma}$) appear because
+$E_{q,1}=E_{-q,1}$, i.e. the excited-band atom pays no energetic
+penalty for the momentum change $q\to-q$.  To conserve net momentum in
+such a process, the ground-band atom must simultaneously change
+momentum as $p\to p+2q$.  At face value, this process does not
+conserve energy: $E_{p,0}\ne E_{p+2q,0}$, and in turn
+$E_{p,0}+E_{q,1}\ne E_{p+2q,0}+E_{-q,1}$.  For this reason, such a
+process was not allowed in the single-band case.  In the two-band case
+with $\abs{J_1}\gg\abs{J_0}$, however, small changes in the momentum
+of the excited-band atom result in large changes in its
+single-particle energy (i.e. large on the scale of conserved energy
+violation, which is $\sim J_0$).  A small momentum shift
+$-q\to-q+\delta q$ (together with a corresponding shift
+$p+2q\to p+2q-\delta q$) is therefore sufficient to restore the
+initial single-particle energy of the two atoms.
+
+We can simplify the first set of terms of the inter-band Hamiltonian
+similarly to the way that we did in the single-band case by defining
+collective (pseudo-)spin operators $\v S_n$ for band $n$.  Up to a
+global shift in energy, we can then take
+\begin{align}
+  \sum \p{b_{q\bar\sigma}^\dag b_{q\bar\sigma} a_{p\sigma}^\dag a_{p\sigma}
+    - b_{q\sigma}^\dag b_{q\bar\sigma} a_{p\bar\sigma}^\dag a_{p\sigma}}
+  \to -2\v S_0\c\v S_1,
+\end{align}
+which implies
+\begin{align}
+  H_{\t{int}}^{\t{inter-band}}
+  = -2 G K_{0,1} \v S_0\c\v S_1
+  + G K_{0,1} \sum
+  \p{b_{-q,\bar\sigma}^\dag b_{q\bar\sigma} a_{p+2q,\sigma}^\dag a_{p\sigma}
+    - b_{-q,\sigma}^\dag b_{q\bar\sigma} a_{p+2q,\bar\sigma}^\dag a_{p\sigma}}.
+\end{align}
+
+
+\section{Two-atom band-hopping}
+
+If we use driving schemes to make $\bar E_1=\bar E_0$ (discussed in a
+separate set of notes), we must also consider interaction terms which
+do not conserve particle number within each band.  Such terms take the
+form
+\begin{align}
+  H_{\t{int}}^{\t{band-hopping}} = - G K_{0,1}
+  \sum \p{b_{p+r,\e}^\dag b_{q-r,\g}^\dag a_{q,\g} a_{p,\e} + \t{h.c.}}.
+  \label{eq:H_int_band_hopping}
+\end{align}
+Energy conservation in the limit $\abs{J_1}\gg\abs{J_0}$ now forces
+$r=\p{q-p}/2\pm1/2$, such that the single-particle energies of
+excited-band states addressed by $H_{\t{int}}^{\t{band-hopping}}$ are
+\begin{multline}
+  2J_1\sp{\cos\p{\pi\sp{p+r}} + \cos\p{\pi\sp{q-r}}}
+  = 2J_1\sp{\cos\p{\pi~\f{p+q}{2}+\f{\pi}{2}}
+    + \cos\p{\pi~\f{p+q}{2}-\f{\pi}{2}}} \\
+  = 2J_1\sp{-\sin\p{\pi~\f{p+q}{2}} + \sin\p{\pi~\f{p+q}{2}}}
+  = 0.
+\end{multline}
+Similarly to the situation we encountered in the case of inter-band
+interactions, at face value a constant single-particle energy of all
+excited-band states generally implies that energy is not conserved by
+the band-hopping processes in \eqref{eq:H_int_band_hopping}.  Due to
+the strong dependence of excited-band single-particle energies
+$E_{q,1}$ on quasi-momenta $q$, however, energy conservation can be
+restored by a small shift $r\to r+\delta r$.  Keeping only terms in
+\eqref{eq:H_int_band_hopping} with $r=\p{q-p}/2\pm1/2$, we thus find
+\begin{align}
+  H_{\t{int}}^{\t{band-hopping}}
+  = - \sqrt{2} G K_{0,1} \sum
+  \p{d_{\p{p+q}/2}^\dag a_{q,\g} a_{p,\e} + \t{h.c.}},
+\end{align}
+where
+\begin{align}
+  d_s^\dag \equiv \f1{\sqrt2}
+  \p{b_{s+1/2,\e}^\dag b_{s-1/2,\g}^\dag
+    + b_{s-1/2,\e}^\dag b_{s+1/2,\g}^\dag}.
+\end{align}
+For $s\ne t$, these two-body excited-band operators satisfy the
+commutation relations of hard-core bosons, i.e.
+\begin{align}
+  \sp{d_s, d_t} = \sp{d_s^\dag, d_t^\dag} = \sp{d_s, d_t^\dag} = 0,
+\end{align}
+\begin{align}
+  \sp{d_s, d_s^\dag}
+  = 1 - \f12 \p{\tilde n_{s+1/2,\e}^\dag + \tilde n_{s-1/2,\e}^\dag
+    + \tilde n_{s+1/2,\g}^\dag + \tilde n_{s-1/2,\g}^\dag},
+  &&
+  \tilde n_{p\sigma} \equiv b_{p\sigma}^\dag b_{p\sigma}.
+\end{align}
+
+
+\section{Net interaction Hamiltonian}
+
+Putting everything together and letting $G_X\equiv G K_X$, our total
+interaction Hamiltonian is
+\begin{align}
+  H_{\t{int}}
+  &= - G_0\v S_0\c\v S_0 - G_1\v S_1\c\v S_1 - 2 G_{0,1}\v S_0\c\v S_1
+  \tag*{} \\ &\quad + G_{0,1} \sum
+  \p{b_{-q,\bar\sigma}^\dag b_{q\bar\sigma} a_{p+2q,\sigma}^\dag a_{p\sigma}
+    - b_{-q,\sigma}^\dag b_{q\bar\sigma} a_{p+2q,\bar\sigma}^\dag a_{p\sigma}}
+  \tag*{} \\ &\quad - \sqrt2 G_{0,1} \sum
+  \p{d_{\p{p+q}/2}^\dag a_{q,\g} a_{p,\e} + \t{h.c.}},
+\end{align}
+where
+\begin{align}
+  d_s^\dag \equiv \f1{\sqrt2}
+  \p{b_{s+1/2,\e}^\dag b_{s-1/2,\g}^\dag
+    + b_{s-1/2,\e}^\dag b_{s+1/2,\g}^\dag}.
+\end{align}
+Notes:
+\begin{enumerate}[label=(\roman*)]
+\item The last set of terms ($\sim d_s^\dag$ and $d_s$) appear only if
+  we use driving schemes to match the mean band energies, thereby
+  effective setting $\bar E_1=\bar E_0$; these terms can be neglected
+  in the absence of such driving.
+\item The number of nonvanishing terms in $\v S_n$ is proportional to
+  the occupation of band $n$.  If there is a large population of atoms
+  in the ground band and a small population of atoms in the excited
+  band, then we can safely neglect the $\sim\v S_1\c\v S_1$ term,
+  which is doubly small compared to e.g. $\v S_0\c\v S_1$.
+\item Similarly, if the ground band is nearly filled with atoms in one
+  clock state and the excited band only sparsely populated with atoms
+  in the opposite clock state, then we can neglect the terms
+  $\sim b_{-q,\bar\sigma}^\dag b_{q\bar\sigma} a_{p+2q,\sigma}^\dag
+  a_{p\sigma}$, as $b_{-q,\bar\sigma}^\dag b_{q\bar\sigma}$ manifestly
+  addresses a small number of atoms while
+  $a_{p+2q,\sigma}^\dag a_{p\sigma}$ is only nonzero for quasi-momenta
+  $p$ with $p+2q$ unoccupied.
+\item If there is a nonzero population of atoms in the excited band,
+  the terms
+  $\sim b_{-q,\sigma}^\dag b_{q\bar\sigma} a_{p+2q,\bar\sigma}^\dag
+  a_{p\sigma}$ will generally cause delocalization of clock
+  excitations across all quasi-momenta (on a time scale
+  $\sim1/G_{0,1}$ which is extensive with $N$).
+\end{enumerate}
+
+
+\end{document}

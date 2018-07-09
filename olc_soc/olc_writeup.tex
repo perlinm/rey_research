@@ -1,0 +1,849 @@
+\documentclass[aps,notitlepage,nofootinbib,11pt]{revtex4-1}
+
+% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,
+  urlcolor=cyan,
+}
+
+%%% header / footer
+\usepackage{fancyhdr} % easier header and footer management
+\pagestyle{fancy} % page formatting style
+\fancyhf{}
+\usepackage{lastpage} % for referencing last page
+\cfoot{\thepage~of \pageref{LastPage}} % "x of y" page labeling
+\renewcommand{\headrulewidth}{0pt} % remove horizontal line in header
+
+% figures
+\usepackage{hyperref} % for linking references
+\usepackage{graphicx,float} % for figures
+\usepackage{grffile} % help latex properly identify figure extensions
+\graphicspath{{./figures/}} % set path for all graphics
+\usepackage[caption=false]{subfig} % subfigures ("subfloat")
+\newcommand{\sref}[1]{\protect\subref{#1}}
+
+% inline lists
+\usepackage[inline]{enumitem}
+\setlist[enumerate,1]{label={(\roman*)}}
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,amssymb} % physics and math packages
+\usepackage{accents} % for resolving some accent (e.g. tilde) issues
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\newcommand{\bk}{\Braket} % shorthand
+\renewcommand{\d}{\partial} % partial d
+
+\usepackage{dsfont}
+\newcommand{\1}{\mathds{1}}
+
+\newcommand{\Z}{\mathbb Z}
+\renewcommand{\O}{\mathcal O}
+
+\usepackage{accents}
+\newcommand{\utilde}[1]{\underaccent{\tilde}{#1}}
+
+
+\begin{document}
+
+\title{Generating new forms of spin-orbit coupling with a 1-D optical
+  lattice clock}
+
+\author{Michael A. Perlin}
+
+\maketitle
+\thispagestyle{fancy}
+
+
+The primary motivation of this work is to use the ${}^{87}$Sr optical
+lattice clock (OLC) to study general forms of spin-orbit coupling.  To
+accomplish this task, we will draw analogies between the OLC and
+trapped ions, with the hope of facilitating an exchange of ideas and
+techniques between the trapped ion and optical lattice communities.
+We will map degrees of freedom between the two systems as follows: the
+quasi-momentum of an atom in the OLC corresponds to the on-site
+orbital occupied by a trapped ion in a Coulomb lattice; the band index
+of an OLC atom corresponds to a vibrational (phonon) mode of an ion;
+and the (electronic) clock states of an OLC atom constitute a
+pseudo-spin degree of freedom which corresponds to two optical states
+of an ion.  For brevity, we will sometimes refer to the clock states
+as the ``spin'' of the OLC atoms; we will not address the nuclear spin
+degree of freedom of OLC atoms, and will assume that they are
+nuclear-spin-polarized.
+
+We start by considering a two level atom in a one-dimensional (1-D)
+optical lattice interrogated by a plane-wave clock laser.  After a
+rotating wave approximation, the dynamics of this system is
+effectively described by the Hamiltonian
+\begin{align}
+  H
+  = \f{p^2}{2m} + V_0\sin^2\p{k_L z} - \f12\delta\sigma^z
+  - \f12\Omega\p{e^{ikz}\sigma^+ + e^{-ikz}\sigma^-},
+  \label{eq:start}
+\end{align}
+where $p$ and $m$ are respectively the momentum and mass of the atom,
+$V_0$ and $k_L$ are the lattice depth and wavenumber; $z$ is the
+position along the lattice; $\delta=\omega-\omega_0$ is the detuning
+of the clock laser frequency $\omega$ from the atomic clock transition
+energy $\omega_0$; $\sigma^j$ with $j\in\set{x,y,z}$ is a Pauli matrix
+addressing the spin of the atom;
+$\sigma^\pm\equiv\p{\sigma^x\pm i\sigma^y}/2$ are spin raising and
+lowering operators; $\Omega$ is the bare Rabi frequency of the clock
+laser, and $k$ is the wavenumber of the clock laser along the lattice
+axis.
+
+
+\section{Quasi-momentum expansion and diagonalization}
+
+The first two terms of the Hamiltonian in \eqref{eq:start} have
+discrete translational invariance, which means that they may be
+diagonalized with quasi-momentum and band index as good quantum
+numbers.  The spatial eigenfunctions of these terms correspond to
+solutions of the Mathieu equation, whose eigenfunctions
+$\bk{z|qn}=\phi_{qn}\p{z}$ and corresponding energy eigenvalues
+$E_{qn}$ are, in a periodic lattice with $L$ sites, indexed by a
+quasi-momentum $q$ and band index $n$, where $q/k_L\in\Z/L$ and
+$n\in\mathbb N_0$.  Additionally introducing the index
+$s\in\set{\pm 1}$ to label the ground ($s=-1$) and excited ($s=1$), we
+define field operators $c_{qns}$ which act on the vacuum as
+$c_{qns}^\dag\ket{\t{vacuum}}=\ket{qns}$ and obey the standard
+fermionic commutation relations.  The Hamiltonian in \eqref{eq:start}
+can then be written in the general form
+\begin{align}
+  H
+  = \sum_{q,n,s}\p{E_{qn}-\f12s\delta}c_{qns}^\dag c_{qns}
+  - \f12\sum_{\substack{q,n,s\\g,m,r}}
+  \Omega^{qns}_{gmr} c_{gmr}^\dag c_{qns},
+  \label{eq:field_operators}
+\end{align}
+where $\Omega^{qns}_{gmr}\equiv\Omega\bk{gmr|e^{-iskz}|qns}$ is a
+coupling constant between states $\ket{qns}$ and $\ket{gmr}$.  This
+coupling constant vanishes unless $r=\bar s\equiv-s$.  Furthermore, in
+what amounts to a stationary phase approximation (see Appendix
+\ref{sec:laser_coupling}), we can say that
+$\Omega^{qns}_{gm\bar s} \approx \Omega^{qns}_{gm\bar s}
+\delta_{g,q-sk}$, which is a result of a momentum kick $k$ imparted
+into OLC atoms when they absorb or emit a photon; this approximation
+becomes exact when the clock photon momentum $k$ is commensurate with
+the lattice.  Making this substitution, the Hamiltonian in
+\eqref{eq:field_operators} becomes
+\begin{align}
+  H
+  = \sum_{q,n,s}\p{E_{qn}-\f12s\delta}c_{qns}^\dag c_{qns}
+  - \f12\sum_{q,n,s,m}\Omega^{qns}_{q-sk,m\bar s}
+  c_{q-sk,m,\bar s}^\dag c_{qns}.
+  \label{eq:kick}
+\end{align}
+Further redefining field operators, energies, and coupling constants
+\begin{align}
+  b_{qns} \equiv c_{q+sk/2,ns},
+  &&
+  E_{qns} \equiv E_{q+sk/2,n},
+  &&
+  \Omega^{qs}_{nm} = \Omega^{q+sk/2,ns}_{q-sk/2,m\bar s},
+  \label{eq:transformation}
+\end{align}
+diagonalizes the Hamiltonian in \eqref{eq:kick} with respect to
+quasi-momentum $q$:
+\begin{align}
+  H
+  = \sum_{q,n,s}\p{E_{qns}-\f12s\delta} b_{qns}^\dag b_{qns}
+  - \f12\sum_{q,n,s,m} \Omega^{qs}_{nm} b_{qm\bar s}^\dag b_{qns}.
+  \label{eq:full_H}
+\end{align}
+This redefinition amounts to a gauge transformation of the field
+operators, which shifts the OLC band structure (i.e. dispersion
+relation; see Figure \ref{fig:bands}).  Appendix
+\ref{sec:laser_coupling} covers some useful symmetries of
+$\Omega^{qs}_{nm}$.
+
+\begin{figure}
+  \subfloat[]{
+    \includegraphics[width=0.45\textwidth]{qn_bands_V10.pdf}
+    \label{fig:before}
+  } \subfloat[]{
+    \includegraphics[width=0.45\textwidth]{qns_bands_V10.pdf}
+    \label{fig:after}
+  }
+  \caption{Band diagrams of the Sr-87 OLC with a lattice depth
+    $V_0=10E_R$ (where $E_R=k_L^2/2m\approx22~\t{kHz}$ is the lattice
+    recoil energy) \sref{fig:before} before, and \sref{fig:after}
+    after the gauge transformation in \eqref{eq:transformation}. The
+    legend in \sref{fig:after} indicates the clock state (spin) for
+    each line.}
+  \label{fig:bands}
+\end{figure}
+
+A few of observations about the Hamiltonian in \eqref{eq:full_H}.
+First, there is no coupling between states with different
+(gauge-transformed) quasi-momenta $q$.  Once initialized, therefore,
+the single-particle physics of the this OLC is reducible to the
+dynamics within each sub-manifold of states with fixed quasi-momentum
+$q$.  This fact is in analogy with trapped ions which are pinned to a
+single site of a Coulomb crystal.  Second, there is no direct coupling
+between different states with the same spin $s$; such coupling only
+occurs at second order in the coupling strength $\Omega$.  In
+principle, it is possible to introduce first-order coupling between
+states with different band index $n$ and the same spin $s$ by
+modulating the lattice in either phase or amplitude, but for now we
+leave this consideration for future work.  Third, the Hamiltonian in
+\eqref{eq:full_H} exhibits the standard type of spin-orbit coupling
+investigated in the $^{87}$Sr OLC at JILA, in which different
+quasi-momenta $q$ are energetically favorable for different spins $s$.
+This spin-orbit coupling is similar to that encountered in a condensed
+matter setting, and can lead to interesting topological physics.
+Finally, the 1-D OLC Hamiltonian exhibits a spin-phonon-like coupling
+between spin $s$ and band index $n$, which we will see more clearly in
+Section \ref{sec:ions}.
+
+
+\section{Mapping onto trapped ions}
+\label{sec:ions}
+
+In this section, we illustrate more clearly the analogy between the
+1-D optical lattice clock and a 1-D crystal of trapped ions.  To
+simplify our analysis, assume single-particle occupation each
+quasi-momentum in the OLC, which translates to having a single ion per
+site in a Coulomb crystal.  We will also only consider transitions
+between adjacent bands (i.e. vibrational modes). We now define the
+``lowering operators'' $a_{qnm}\equiv\sum_s\op{q,n-1,s}{qns}$; in
+addition to
+\begin{align}
+  \bar E_{qn} \equiv \f12\p{E_{qn,+} + E_{qn,-}},
+  &&
+  \Delta_{qn} \equiv E_{qn,+} - E_{qn,-},
+\end{align}
+which are the mean energy ($\bar E_{qn}$) and energy splitting
+($\Delta_{qn}$) between spin states within one band (i.e. between
+$\ket{qn,+}$ and $\ket{qn,-}$); and finally
+\begin{align}
+  \Omega_{qn} \equiv \Omega^{q,+}_{nn} = \Omega^{q,-}_{nn},
+  &&
+  \Lambda_{qn}^x
+  \equiv \f12\p{\Omega^{q,+}_{n-1,n} + \Omega^{q,-}_{n-1,n}},
+  &&
+  \Lambda_{qn}^y
+  \equiv \f12\p{\Omega^{q,+}_{n-1,n} - \Omega^{q,-}_{n-1,n}},
+\end{align}
+which are intra-band ($\Omega_{qn}$) and inter-band ($\Lambda_{qn}^x$,
+$\Lambda_{qn}^y$) coupling coefficients, respectively corresponding to
+coefficients for carrier and side-band transitions.  In terms of these
+quantities, the Hamiltonian from \eqref{eq:full_H} can be written as
+\begin{align}
+  H
+  = \sum_{q,n} \sp{\op{qn}
+    \p{\bar E_{qn} + \sp{\Delta_{qn}-\delta}S^z - \Omega_{qn}S^x}
+    - \Lambda_{qn}^x \p{a_{qn}^\dag + a_{qn}}S^x
+    - \Lambda_{qn}^y i\p{a_{qn}^\dag - a_{qn}}S^y},
+  \label{eq:separated}
+\end{align}
+where we have introduced the on-band spin operators
+$S^j\equiv\sigma^j/2$. The full derivation of the Hamiltonian in
+\eqref{eq:separated} from that in \eqref{eq:full_H} is provided in
+Appendix \ref{sec:spin_separation}.
+
+The operators $a_{qn}+a_{qn}^\dag$ and $i\p{a_{qn}^\dag-a_{qn}}$ in
+\eqref{eq:separated} can be identified with position and momentum
+operators in a trapped ion Hamiltonian. In this sense we are
+engineering a second type of spin-orbit coupling in the OLC: between
+spin and band modes, which is analogous to coupling between spin and
+vibrational phonon modes in a trapped ion system.
+
+
+\subsection{Deep lattice approximation}
+
+As the lattice depth $V_0$ is increased relative to the lattice recoil
+energy $E_R\equiv k_L^2/2m$, i.e. when $V_0\gg E_R$, the energies
+$E_{qns}$ and coupling coefficients $\Omega^{qs}_{nm}$ lose their
+dependence on quasi-momentum $q$, which implies that
+\begin{align}
+  \bar E_{qn} \to E_n \equiv \f1L\sum_q E_{qn},
+  &&
+  \Delta_{qn} \to 0,
+\end{align}
+\begin{align}
+  \Omega_{qn} \to \Omega_n \equiv \f1L\sum_q \Omega_{qn},
+  &&
+  \Lambda_{qn}^x \to 0,
+  &&
+  \Lambda_{qn}^y \to
+  \Lambda_n^y \equiv \f1L\sum_q \Lambda_{qn}^y,
+\end{align}
+where $L$ is the number of lattice sites in the OLC. The fact that
+$\Lambda_{qn}^x$ vanishes while $\Lambda_{qn}^y$ is preserved is a
+consequence of the symmetries of $\Omega^{qs}_{nm}$, which we derive
+in Appendix \ref{sec:laser_coupling} and summarize in
+\eqref{eq:symmetries}. With these simplifications, the single-particle
+Hamiltonian in \eqref{eq:separated} reduces to the simpler form
+\begin{align}
+  H
+  = \sum_{q,n}\sp{\op{qn}\p{E_n - \delta S^z - \Omega_n S^x}
+    - \Lambda_n^y i\p{a_{qn}^\dag - a_{qn}}S^y}.
+  \label{eq:deep}
+\end{align}
+This Hamiltonian has lost the standard type of spin-orbit coupling
+investigated in the 1-D OLC, in that there is no dependence of any
+dynamical variables on the crystal momentum $q$.  Nonetheless, the
+spin-phonon like coupling is preserved through the
+$a_{qn}^\dag-a_{qn}$ term.
+
+
+\section{Dynamics}
+\label{sec:dynamics}
+
+We now consider the OLC Hamiltonian after diagonalization in
+quasi-momentum, i.e. \eqref{eq:full_H}, in the interaction picture of
+the bare energies $E_{qns}-s\delta/2$:
+\begin{align}
+  H_I
+  = -\f12\sum_{q,n,s,m} \Omega^{qs}_{nm}
+  \exp\sp{i\p{\Delta^{qs}_{nm}+s\delta}t}
+  b_{qm\bar s}^\dag b_{qns},
+  \label{eq:full_H_I}
+\end{align}
+where $\Delta^{qs}_{nm}\equiv E_{qm\bar s}-E_{qns}$ is the energy gap
+between the single-particle states $\ket{qm\bar s}$ and $\ket{qns}$ at
+no detuning ($\delta=0$). With the ${}^{87}$Sr OLC, in practice the
+Rabi frequency $\Omega$ is much smaller than the energy difference
+between two bands, such that
+\begin{align}
+  \abs{\Omega^{qs}_{nm}} < \Omega\ll\abs{\Delta^{qs}_{nm}}
+  \label{eq:weak_laser}
+\end{align}
+for any $q,n,s$ and $m\ne n$. Without detuning, all inter-band
+couplings in \eqref{eq:full_H_I} therefore vanish by the secular
+approximation. In the trapped ion system, \eqref{eq:weak_laser}
+corresponds to having an interrogation laser which is too weak to
+excite vibrational modes of the ions. While it is possible to set a
+static detuning $\delta$ which bridges the energy difference between
+different bands, doing so will still ultimately result in dynamics
+which are reducible to that of a two-level system. In order to induce
+nontrivial multi-band dynamics, we must therefore introduce time
+dependence into the Hamiltonian. A simple means of introducing time
+dependence is to modulate the detuning $\delta$ or Rabi frequency
+$\Omega$, which respectively correspond to frequency and amplitude
+modulation of the clock-state interrogation laser.
+
+
+\subsection{Frequency modulation}
+\label{sec:freq_mod}
+
+Modulating the detuning as
+$\delta\p{t}=\delta_0-\tilde\delta\cos\p{\nu t}$ for some mean
+$\delta_0$, modulation amplitude $\tilde\delta$, and modulation
+frequency $\nu$ results in the Hamiltonian
+\begin{align}
+  H_I
+  = -\f12\sum_{\substack{q,n,s\\m,\kappa}}
+  J\p{\kappa,s\tilde\delta/\nu} \Omega^{qs}_{nm}
+  \exp\sp{i\p{\Delta^{qs}_{nm}+s\delta_0-\kappa\nu}t}
+  b_{qm\bar s}^\dag b_{qns},
+  \label{eq:freq_mod_H}
+\end{align}
+where $\kappa\in\Z$ and $J\p{n,x}$ is the $n$-th order Bessel function
+of the first kind evaluated at $x$. If $\nu\gg\Omega$ and the OLC is
+initialized in the state $\ket\phi=\ket{q_0n_0s_0}$, then the dynamics
+induced by \eqref{eq:freq_mod_H} can be equivalently realized by the
+effective time-independent Hamiltonian
+\begin{align}
+  H_I^{\t{eff}}
+  = \sum_{q,n,s} \epsilon_{qns}^\phi b_{qns}^\dag b_{qns}
+  - \f12\sum_{q,n,s,m} J\p{\kappa^{qs}_{nm},s\tilde\delta/\nu}
+  \Omega^{qs}_{nm} b_{qm\bar s}^\dag b_{qns},
+  \label{eq:freq_mod_H_eff}
+\end{align}
+where $\kappa^{qs}_{nm}\in\Z$ minimizes
+$\abs{\Delta^{qs}_{nm}+s\delta_0-\kappa^{qs}_{nm}\nu}$ and the reduced
+energies $\epsilon_{qns}^\phi$ satisfy
+\begin{align}
+  E_{qns} - \f12s\delta_0
+  = E_{q_0n_0s_0} - \f12s_0\delta_0
+  + \ell_{qns}^\phi\nu + \epsilon_{qns}^\phi
+  \label{eq:reduced_E}
+\end{align}
+with $\ell_{qns}^\phi\in\Z$ and $\abs{\epsilon_{qns}^\phi}<\nu/2$. The
+derivations of \eqref{eq:freq_mod_H} and \eqref{eq:freq_mod_H_eff} are
+provided in Appendix \ref{sec:freq_mod_derivation}.
+
+\begin{figure}[hp]
+  \captionsetup[subfloat]{farskip=1pt,captionskip=1pt}
+  \subfloat[First excited band, $V_0=80E_R$]{
+    \includegraphics[width=0.45\textwidth]{freq_mod_band_V80.pdf}
+    \label{fig:freq_mod_band_V80}
+  } \subfloat[Excited clock state, $V_0=80E_R$]{
+    \includegraphics[width=0.45\textwidth]{freq_mod_spin_V80.pdf}
+    \label{fig:freq_mod_spin_V80}
+  }
+  \\
+  \subfloat[First excited band, $V_0=40E_R$]{
+    \includegraphics[width=0.45\textwidth]{freq_mod_band_V40.pdf}
+    \label{fig:freq_mod_band_V40}
+  } \subfloat[Excited clock state, $V_0=40E_R$]{
+    \includegraphics[width=0.45\textwidth]
+    {freq_mod_spin_V40.pdf}
+    \label{fig:freq_mod_spin_V40}
+  }
+  \\
+  \subfloat[First excited band, $V_0=10E_R$]{
+    \includegraphics[width=0.45\textwidth]
+    {freq_mod_band_V10.pdf}
+    \label{fig:freq_mod_band_V10}
+  } \subfloat[Excited clock state, $V_0=10E_R$]{
+    \includegraphics[width=0.45\textwidth]
+    {freq_mod_spin_V10.pdf}
+    \label{fig:freq_mod_spin_V10}
+  }
+  \caption{Time evolution of states initially in the lowest band
+    ($n=0$) and ground clock state ($s=-1$) subject to the Hamiltonian
+    in \eqref{eq:freq_mod_H_eff} with a detuning
+    $\delta=\Delta\cos\p{\Delta t}$ for $\Delta$ equal to the mean
+    energy gap between the lowest two bands.  Color indicates the
+    population of the state specified in the captions, which also
+    indicate the lattice depths.  The interaction strength
+    $\Omega^{0,-}_{1,0}/2\pi$ is approximately $43~\t{Hz}$ in a deep
+    lattice with $V_0=80E_R$, $51~\t{Hz}$ in a medium lattice with
+    $V_0=40E_R$, and $58~\t{Hz}$ in a shallow lattice with
+    $V_0=40E_R$.  In all cases, $\Omega=1~\t{kHz}$.}
+  \label{fig:freq_mod}
+\end{figure}
+
+At zero mean detuning ($\delta_0=0$), any choice of
+$\nu=\Delta^{qs}_{nm}/\ell$ for $\ell\in\Z$ can, in principle, induce
+multi-band dynamics.  As an example, Figure \ref{fig:freq_mod} shows
+the time evolution of atoms initially in the lowest band and ground
+clock state (i.e. $\ket{q,0,-}$) subject to a detuning
+$\delta\p{t}=\Delta\cos\p{\Delta t}$, where $\Delta$ is the mean
+energy gap between the lowest two bands (vibrational modes).  The
+plots in this figure show the expectation values
+$\bk{\op{q}\otimes\O_B\otimes\O_S}$ over time for
+$\O_B,\O_S\in\set{\1,\op{1}}$ and a variety of lattice depths $V_0$.
+Here $\O_{B,S}=\1$ traces out over the corresponding degree of freedom
+(i.e. band or spin), while $\O_{B,S}=\op{1}$ appropriately selects out
+either the first excited band or the excited clock state.  The value
+of $\bk{\op{q}\otimes\op{1}\otimes\1}$ thus measures the total
+population of atoms in the first excited band (independent of clock
+state), while $\bk{\op{q}\otimes\1\otimes\op{1}}$ measures the total
+population of atoms in the excited clock state (independent of band).
+
+In a deep lattice ($V_0=80E_R$), the $q$-dependence of the energy gaps
+$\Delta^{qs}_{nm}$ vanishes. We therefore see no spin-orbit coupling
+in a deep lattice (Figures \ref{fig:freq_mod_band_V80} and
+\ref{fig:freq_mod_spin_V80}), as the modulation frequency $\nu$ is
+resonant with these gaps for all $q$. In the medium depth lattice
+($V_0=40E_R$; Figures \ref{fig:freq_mod_band_V40} and
+\ref{fig:freq_mod_spin_V40}), $\nu$ is only approximately resonant
+with the energy gaps for all $q$, leading to some spin-orbit
+coupling. Finally, spin-orbit coupling is most prominent in the
+shallow lattice ($V_0=10E_R$; Figures \ref{fig:freq_mod_band_V10} and
+\ref{fig:freq_mod_spin_V10}), in which the energy gaps, and thus OLC
+dynamics, are strongly selective on quasi-momentum. In all cases,
+there is evidence of spin-phonon-like coupling in the form of common
+features between the excited band and excited clock state populations.
+
+
+\subsection{Amplitude modulation}
+\label{sec:amp_mod}
+
+We can alternately modulate the amplitude of the clock laser as
+$\Omega\to\Omega\cos\p{\nu t}$ for some frequency $\nu$, which results
+in the Hamiltonian
+\begin{align}
+  H_I
+  = -\f14\sum_{\substack{q,n,s\\m,r}} \Omega^{qs}_{nm}
+  \exp\sp{i\p{\Delta^{qs}_{nm}+s\delta+r\nu}t}
+  b_{qm\bar s}^\dag b_{qns},
+  \label{eq:amp_mod_H}
+\end{align}
+for $r\in\set{-1,1}$. At no detuning, the amplitude modulation
+frequency $\nu$ can be chosen to bridge some particular energy gap
+$\Delta^{qs}_{nm}$ to induce transitions between different
+bands. Similarly to the restriction on dynamics induced by the
+time-independent OLC Hamiltonian in \eqref{eq:full_H_I} due to the
+limitation in \eqref{eq:weak_laser}, however, in the ${}^{87}$Sr OLC
+the differences between the different band gaps $\Delta^{qs}_{nm}$ are
+generally larger than the Rabi coupling $\Omega$. The dynamics of the
+OLC with amplitude modulation of the clock laser at no detuning thus
+generally reduces to that of a two-level system.
+
+While most choices of detuning $\delta$ do not change the above
+argument, the symmetric effect of $\delta$ on different clock states
+means that it is possible to engineer four-level dynamics in the OLC
+for quasi-momenta $q$ with
+$\Delta^{q,-}_{nm}\approx\Delta^{q,+}_{nm}$. Letting
+\begin{align}
+  \utilde\Delta^{qs}_{nm}
+  \equiv \Delta^{qs}_{nm} + s\delta
+  = \p{E_{qm\bar s} - \f12\bar s\delta} - \p{E_{qns} - \f12s\delta}
+\end{align}
+be the total band gap between $\ket{qm\bar s}$ and $\ket{qns}$ at
+detuning $\delta$, if $\Delta^{0,-}_{nm}=\Delta^{0,+}_{nm}$ and we set
+$\delta\approx\Delta^{0,\pm}_{1,0}/2$, for example, then one can work
+out that
+\begin{align}
+  \utilde\Delta^{0,+}_{0,0}
+  = \utilde\Delta^{0,-}_{1,0}
+  = \utilde\Delta^{0,+}_{1,1}
+  = \Delta^{0,\pm}_{1,0}/2
+  \approx \delta
+  \label{eq:gaps}
+\end{align}
+Setting $\nu=\delta$ then simultaneously couples
+$\ket{0,0,-}\leftrightarrow\ket{0,0,+}
+\leftrightarrow\ket{0,1,-}\leftrightarrow\ket{0,1,+}$, while coupling
+to all higher bands can be neglected by the secular approximation.
+
+\begin{figure}
+  \captionsetup[subfloat]{farskip=1pt,captionskip=1pt}
+  \subfloat[$V_0=10E_R$]{
+    \includegraphics[width=0.45\textwidth]{qns_bands_detuned_V10.pdf}
+    \label{fig:test}
+  } \subfloat[$V_0=40E_R$]{
+    \includegraphics[width=0.45\textwidth]{qns_bands_detuned_V40.pdf}
+    \label{fig:test2}
+  }
+  \caption{Band diagrams of the Sr-87 OLC with a detuning
+    $\delta=\Delta/2$ for two lattice depths $V_0$.  Legends indicate
+    the clock state (spin) for each line.}
+  \label{fig:bands_detuned}
+\end{figure}
+
+Figure \ref{fig:bands_detuned} shows the band diagrams which results
+from setting $\delta=\Delta/2$ with lattice depths of $V_0=10E_R$ and
+$V_0=40E_R$. While the energy gaps between the first four energy
+levels (corresponding to both clock states in the lowest two bands)
+are identical (at $q=0$), the gap to the fifth level (in the third
+band) is different by an amount sufficiently large to make the fifth
+level off-resonant for state transition.
+
+Figure \ref{fig:amp_mod} shows the time evolution of atoms initially
+in the lowest band and ground clock state (i.e. $\ket{q,0,-}$) subject
+to a static detuning $\delta=\Delta/2$ and amplitude modulation with
+frequency $\nu=\Delta/2$. As before, spin-orbit coupling is most
+prominent in a shallow lattice, and is suppressed in a deep lattice;
+spin-phonon-like coupling is present for all lattice depths.
+
+Note that similarly to the case in Section \ref{sec:freq_mod}, if
+$\nu\gg\Omega$ and the OLC is initialized in the state
+$\ket\phi=\ket{q_0n_0s_0}$, then dynamics induced by
+\eqref{eq:amp_mod_H} may be equivalently realized by the effective
+time-independent Hamiltonian
+\begin{align}
+  H_I^{\t{eff}}
+  = \sum_{q,n,s} \epsilon_{qns}^\phi b_{qns}^\dag b_{qns}
+  - \f14\sum_{q,n,s,m} C\p{\kappa^{qs}_{nm}} \Omega^{qs}_{nm}
+  b_{qm\bar s}^\dag b_{qns}
+\end{align}
+where $\kappa^{qs}_{nm}\in\Z$ minimizes
+$\abs{\Delta^{qs}_{nm}+s\delta_0-\kappa^{qs}_{nm}\nu}$;
+$C\p{\kappa}\equiv1$ when $\abs{\kappa}=1$ and $C\p{\kappa}\equiv0$
+otherwise; and the reduced energies $\epsilon_{qns}^\phi$ satisfy
+\eqref{eq:reduced_E} with $\ell_{qns}^\phi\in\Z$ and
+$\abs{\epsilon_{qns}^\phi}<\nu/2$.
+
+\begin{figure}[h!]
+  \captionsetup[subfloat]{farskip=1pt,captionskip=1pt}
+  \subfloat[First excited band, $V_0=80E_R$]{
+    \includegraphics[width=0.45\textwidth]{amp_mod_band_V80.pdf}
+    \label{fig:amp_mod_band_V80}
+  } \subfloat[Excited clock state, $V_0=80E_R$]{
+    \includegraphics[width=0.45\textwidth]{amp_mod_spin_V80.pdf}
+    \label{fig:amp_mod_spin_V80}
+  }
+  \\
+  \subfloat[First excited band, $V_0=40E_R$]{
+    \includegraphics[width=0.45\textwidth]{amp_mod_band_V40.pdf}
+    \label{fig:amp_mod_band_V40}
+  } \subfloat[Excited clock state, $V_0=40E_R$]{
+    \includegraphics[width=0.45\textwidth]{amp_mod_spin_V40.pdf}
+    \label{fig:amp_mod_spin_V40}
+  }
+  \\
+  \subfloat[First excited band, $V_0=10E_R$]{
+    \includegraphics[width=0.45\textwidth]{amp_mod_band_V10.pdf}
+    \label{fig:amp_mod_band_V10}
+  } \subfloat[Excited clock state, $V_0=10E_R$]{
+    \includegraphics[width=0.45\textwidth]{amp_mod_spin_V10.pdf}
+    \label{fig:amp_mod_spin_V10}
+  }
+  \caption{Plots corresponding to those in Figure \ref{fig:freq_mod},
+    but for a static detuning $\delta=-\Delta/2$ and amplitude
+    modulated clock laser which takes
+    $\Omega\to\Omega\cos\p{\Delta t}$.}
+  \label{fig:amp_mod}
+\end{figure}
+
+
+\newpage
+\appendix
+
+\section{Properties of the laser-induced coupling constants}
+\label{sec:laser_coupling}
+
+Spatial eigenfunctions of atoms on a 1-D periodic lattice are indexed
+by quasi-momentum $q$ and band $n$, and take the form
+\begin{align}
+  \bk{z|qn}
+  = \phi_{qn}\p{z}
+  = e^{iqz} u_{qn}\p{z}
+  = e^{iqz} \sum_{\kappa=-\infty}^\infty c_{qn}^{(\kappa)} e^{i2k_L z\kappa},
+\end{align}
+where $k_L$ is the wavenumber of the lattice photons, and all
+coefficients $c_{qn}^{(\kappa)}\in\mathbb R$.  We can thus expand
+\begin{align}
+  \Omega^{qns}_{gm}
+  \equiv \Omega\bk{gm|e^{-iskz}|qn}
+  = \Omega \int dz~ e^{i\p{q-sk-g}z}
+  \sum_{\kappa,\ell} e^{i2k_Lz\p{\kappa-\ell}}
+  c_{gm}^{(\ell)} c_{qn}^{(\kappa)},
+\end{align}
+which vanishes unless $g\approx q-sk$\footnote{This claim is formally
+  a stationary phase approximation, and becomes exact if $k$ is
+  commensurate with the lattice.} and $\kappa=\ell$, so
+$\Omega^{qns}_{gm}\approx\Omega^{qns}_{q-sk,m}\delta_{g,q-sk}$ only
+couples the state $\ket{qns}$ to $\ket{q-sk,m\bar s}$.  Defining
+\begin{align}
+  \Omega^{qs}_{nm}
+  \equiv \Omega^{q+sk/2,ns}_{q-sk/2,m}
+  = \Omega \sum_\kappa c_{q-sk/2,m}^{(\kappa)} c_{q+sk/2,n}^{(\kappa)},
+\end{align}
+we can say that
+\begin{align}
+  \Omega^{qs}_{nm}
+  = \Omega^{q+sk/2,ns}_{q-sk/2,m}
+  = \p{\Omega^{q+sk/2,ns}_{q-sk/2,m}}^*
+  = \Omega^{q-sk/2,m\bar s}_{q+sk/2,n}
+  = \Omega^{q+\bar sk/2,m\bar s}_{q-\bar sk/2,n}
+  = \Omega^{q\bar s}_{mn}.
+  \label{eq:flip_both}
+\end{align}
+We can also use the fact that
+$\phi_{qn}\p{z}=\p{-1}^n\phi_{-q,n}\p{z}^*$ to say
+\begin{align}
+  \Omega^{qs}_{nm}
+  = \Omega\int dz~ \phi_{q-sk/2,m}\p{z}^* \phi_{q+sk/2,n}\p{z}
+  = \p{-1}^{n+m}\Omega^{-q,s}_{mn}.
+  \label{eq:flip_bands}
+\end{align}
+To summarize \eqref{eq:flip_both} and \eqref{eq:flip_bands}:
+\begin{align}
+  \Omega^{qs}_{nm}
+  = \p{-1}^{n+m} \Omega^{-q,s}_{mn}
+  = \p{-1}^{n+m} \Omega^{-q,\bar s}_{nm}
+  = \Omega^{q\bar s}_{mn}.
+  \label{eq:symmetries}
+\end{align}
+
+
+\section{Separating out the pseudo-spin degree of freedom}
+\label{sec:spin_separation}
+
+We start with the 1-D OLC Hamiltonian after diagonalization in
+quasi-momentum, i.e.
+\begin{align}
+  H
+  = \sum_{q,n,s}\p{E_{qns}-\f12s\delta} b_{qns}^\dag b_{qns}
+  - \f12\sum_{q,n,s,m} \Omega^{qs}_{nm} b_{qm\bar s}^\dag b_{qns},
+\end{align}
+and define
+\begin{align}
+  \bar E_{qn} \equiv \f12\p{E_{qn,+} + E_{qn,-}},
+  &&
+  \Delta_{qn} \equiv E_{qn,+} - E_{qn,-},
+\end{align}
+\begin{align}
+  \Omega_{qn} \equiv \Omega^{q,+}_{nn} = \Omega^{q,-}_{nn},
+  &&
+  \Lambda^{qs}_{nm}
+  \equiv \Omega^{qs}_{n,n-m} = \Omega^{q\bar s}_{n-m,n},
+\end{align}
+in terms of which
+\begin{multline}
+  H = \sum_{q,n,s}\sp{\p{\bar E_{qn} + \f12 s \sp{\Delta_{qn}-\delta}}
+    b_{qns}^\dag b_{qns}
+    - \f12\Omega_{qn} b_{qn\bar s}^\dag b_{qns}} \\
+  - \f12\sum_{\substack{q,n,s\\0<m\le n}}\Lambda^{qs}_{nm}
+  \p{b_{q,n-m,\bar s}^\dag b_{qns} + b_{qns}^\dag b_{q,n-m,\bar s}}.
+  \label{eq:lambda}
+\end{multline}
+In order to separate out the spin degree of freedom, we consider only
+at most single-particle occupation of each quasi-momentum, and define
+the ``lowering operators'' $a_{qnm}\equiv\op{q,n-m}{qn}$ in addition
+to the on-band spin operators $S^j\equiv\sigma^j/2$ which act only on
+the spin degree of freedom.  We can rewrite \eqref{eq:lambda} in terms
+of these operators for single particles as
+\begin{align}
+  H
+  = \sum_{q,n} \op{qn}\sp{\bar E_{qn}
+    + \p{\Delta_{qn}-\delta} S^z - \Omega_{qn} S^x}
+  - \sum_{\substack{q,n\\0<m\le n}}\Lambda^{qs}_{nm}
+  \p{a_{qnm} S^{\bar s} + a_{qnm}^\dag S^s}.
+\end{align}
+We now expand
+\begin{multline}
+  \sum_s\Lambda^{qs}_{nm}\p{a_{qnm} S^{\bar s} + a_{qnm}^\dag S^s} =
+  \Lambda^{q,+}_{nm}\p{a_{qnm}S^- + a_{qnm}^\dag S^+}
+  + \Lambda^{q,-}_{nm}\p{a_{qnm}S^+ + a_{qnm}^\dag S^-} \\
+  = \f12S^x \p{\Lambda^{q,+}_{nm} + \Lambda^{q,-}_{nm}} \p{a_{qnm} +
+    a_{qnm}^\dag} + \f12 iS^y \p{\Lambda^{q,+}_{nm} -
+    \Lambda^{q,-}_{nm}} \p{-a_{qnm} + a_{qnm}^\dag},
+\end{multline}
+which motivates the definitions
+\begin{align}
+  \Lambda_{qnm}^x
+  \equiv \f12\p{\Lambda^{q,+}_{nm} + \Lambda^{q,-}_{nm}}
+  = \f12\p{\Omega^{q,+}_{n-m,n} + \Omega^{q,-}_{n-m,n}}
+  = \f12\p{\Omega^{q,+}_{n-m,n} + \p{-1}^m\Omega^{-q,+}_{n-m,n}}, \\
+  \Lambda_{qnm}^y
+  \equiv \f12\p{\Lambda^{q,+}_{nm} - \Lambda^{q,-}_{nm}}
+  = \f12\p{\Omega^{q,+}_{n-m,n} - \Omega^{q,-}_{n-m,n}}
+  = \f12\p{\Omega^{q,+}_{n-m,n} - \p{-1}^m\Omega^{-q,+}_{n-m,n}},
+\end{align}
+such that
+\begin{multline}
+  H = \sum_{q,n}\op{qn}
+  \sp{\bar E_{qn} + \p{\Delta_{qn}-\delta}S^z - \Omega_{qn}S^x} \\
+  - \sum_{\substack{q,n\\m>0}}
+  \sp{\Lambda_{qnm}^x \p{a_{qnm}^\dag + a_{qnm}}S^x
+    + \Lambda_{qnm}^y i\p{a_{qnm}^\dag - a_{qnm}}S^y}.
+\end{multline}
+Letting $a_{qn}\equiv a_{qn,1}$;
+$\Lambda_{qn}^j\equiv\Lambda_{qn,1}^j$ for $j=x,y$; and neglecting all
+inter-band (side-band) couplings beyond nearest bands, we arrive at
+the Hamiltonian given in \eqref{eq:separated}:
+\begin{align}
+  H
+  = \sum_{q,n} \sp{\op{qn}
+    \p{\bar E_{qn} + \sp{\Delta_{qn}-\delta}S^z - \Omega_{qn}S^x}
+    - \Lambda_{qn}^x \p{a_{qn}^\dag + a_{qn}}S^x
+    - \Lambda_{qn}^y i\p{a_{qn}^\dag - a_{qn}}S^y}.
+\end{align}
+
+
+\section{Frequency modulation of the clock laser}
+\label{sec:freq_mod_derivation}
+
+In the interaction picture of the single-particle state energies
+$E_{qns}-s\delta/2$, the Hamiltonian of the 1-D OLC is
+\begin{align}
+  H_I
+  = - \f12\sum_{q,n,s,m} \Omega^{qs}_{nm}
+  \exp\sp{i\p{\Delta^{qs}_{nm}+s\delta}t} b_{qm\bar s}^\dag b_{qns},
+\end{align}
+where $\Delta^{qs}_{nm}\equiv E_{qm\bar s}-E_{qns}$ is the energy gap
+between the single-particle states $\ket{qm\bar s}$ and $\ket{qns}$ at
+no detuning. If we modulate the detuning as
+$\delta\p{t}=\delta_0-\tilde\delta\cos\p{\nu t}$ for some mean
+$\delta_0$, modulation amplitude $\tilde\delta$, and modulation
+frequency $\nu$, then the Hamiltonian becomes
+\begin{align}
+  H_I
+  = - \f12\sum_{q,n,s,m} \Omega^{qs}_{nm}
+  \exp\sp{i\utilde\Delta^{qs}_{nm}t-is\tilde\delta\sin\p{\nu t}/\nu}
+  b_{qm\bar s}^\dag b_{qns},
+\end{align}
+where
+\begin{align}
+  \utilde\Delta^{qs}_{nm}
+  \equiv \Delta^{qs}_{nm} + s\delta_0
+  = \p{E_{qm\bar s}-\f12\bar s\delta_0} - \p{E_{qns}-\f12s\delta_0}
+  = \utilde E_{qm\bar s} - \utilde E_{qns}.
+\end{align}
+is the total band gap between $\ket{qm\bar s}$ and $\ket{qns}$ at the
+mean detuning $\delta_0$ and
+$\utilde E_{qns}\equiv E_{qns}-\f12s\delta_0$.
+
+Letting $\tau\equiv\nu t$ and $\beta\equiv\tilde\delta/\nu$, the
+exponential $\exp\p{is\beta\sin\tau}$ is periodic in $\tau$ with
+period $2\pi$, which means that we can expand it in a Fourier series
+as
+\begin{align}
+  e^{-is\beta\sin\tau}
+  = \sum_{\kappa=-\infty}^\infty e^{-i\kappa\tau}\f1{2\pi}
+  \int_{-\pi}^\pi dx~ e^{i\kappa x - is\beta\sin x}
+  = \sum_\kappa J\p{\kappa,s\beta} e^{-i\kappa\tau}
+\end{align}
+where $J\p{n,x}$ is the $n$-th order Bessel function of the first kind
+evaluated at $x$. It follows that
+\begin{align}
+  H_I
+  = -\f12\sum_{\substack{q,n,s\\m,\kappa}}
+  J\p{\kappa,s\tilde\delta/\nu} \Omega^{qs}_{nm}
+  \exp\sp{i\p{\utilde\Delta^{qs}_{nm}-\kappa\nu}t}
+  b_{qm\bar s}^\dag b_{qns},
+\end{align}
+which is precisely the Hamiltonian given in
+\eqref{eq:freq_mod_H}. Letting $\kappa^{qs}_{nm}\in\Z$ minimize
+$\abs{\utilde\Delta^{qs}_{nm}-\kappa^{qs}_{nm}\nu}$ and assuming that
+$\nu\gg\Omega$, by the secular approximation
+\begin{align}
+  H_I
+  = -\f12\sum_{q,n,s,m}
+  J\p{\kappa^{qs}_{nm},s\tilde\delta/\nu} \Omega^{qs}_{nm}
+  \exp\sp{i\p{\utilde\Delta^{qs}_{nm}-\kappa^{qs}_{nm}\nu}t}
+  b_{qm\bar s}^\dag b_{qns}.
+  \label{eq:freq_mod_H_derived}
+\end{align}
+If an atom in the OLC is initially in the state
+$\ket\phi=\ket{q_0n_0s_0}$, then the only relevant states for all OLC
+dynamics will be those for which
+\begin{align}
+  \utilde E_{qns}
+  = \utilde E_{q_0n_0s_0} + \ell_{qns}^\phi\nu + \epsilon_{qns}^\phi
+  \label{eq:relevant_condition}
+\end{align}
+with $\ell_{qns}^\phi\in\Z$ and reduced energies $\epsilon_{qns}^\phi$
+satisfying $\abs{\epsilon_{qns}^\phi}\lesssim\Omega\ll\nu$. For all
+relevant states, therefore,
+\begin{align}
+  \utilde\Delta^{qs}_{nm} - \kappa^{qs}_{nm}\nu
+  = \utilde E_{qm\bar s} - \utilde E_{qns} - \kappa^{qs}_{nm}\nu
+  = \p{\ell_{qm\bar s}^\phi - \ell_{qns}^\phi - \kappa^{qs}_{nm}}\nu
+  + \epsilon_{qm\bar s}^\phi - \epsilon_{qns}^\phi.
+\end{align}
+As $\abs{\epsilon_{qm\bar s}^\phi-\epsilon_{qns}^\phi}<\nu/2$ for all
+relevant $q,n,s,m$, minimizing
+$\abs{\utilde\Delta^{qs}_{nm}-\kappa^{qs}_{nm}\nu}$ forces
+$\kappa^{qs}_{nm}=\ell_{qm\bar s}^\phi-\ell_{qns}^\phi$. The
+Hamiltonian in \eqref{eq:freq_mod_H_derived} is then
+\begin{align}
+  H_I
+  = -\f12\sum_{q,n,s,m}
+  J\p{\kappa^{qs}_{nm},s\tilde\delta/\nu} \Omega^{qs}_{nm}
+  \exp\sp{i\p{\epsilon_{qm\bar s}^\phi-\epsilon_{qns}^\phi}t}
+  b_{qm\bar s}^\dag b_{qns},
+\end{align}
+and, with appropriate choice of interaction picture, is equivalent to
+the effective Hamiltonian
+\begin{align}
+  H_I^{\t{eff}}
+  = \sum_{q,n,s} \epsilon_{qns}^\phi b_{qns}^\dag b_{qns}
+  - \f12\sum_{q,n,s,m} J\p{\kappa^{qs}_{nm},s\tilde\delta/\nu}
+  \Omega^{qs}_{nm} b_{qns}^\dag b_{qm\bar s},
+  \label{eq:freq_mod_H_eff_derived}
+\end{align}
+which has the great advantage over \eqref{eq:freq_mod_H_derived} of
+lacking time dependence. In using \eqref{eq:freq_mod_H_eff_derived}
+for e.g. computing a propagator or otherwise simulating OLC dynamics,
+there is no need to actually keep track of which states are
+``relevant'', as all irrelevant states will generally have reduced
+energies $\epsilon_{qns}^\phi\sim\nu/2\gg\Omega$, and therefore
+automatically decouple from all relevant states. A similar trick can
+be used to effectively simulate OLC dynamics with amplitude modulation
+as in \eqref{eq:amp_mod_H}, which results in the Hamiltonian
+\begin{align}
+  H_I^{\t{eff}}
+  = \sum_{q,n,s} \epsilon_{qns}^\phi b_{qns}^\dag b_{qns}
+  - \f14\sum_{q,n,s,m} C\p{\kappa^{qs}_{nm}} \Omega^{qs}_{nm}
+  b_{qm\bar s}^\dag b_{qns},
+\end{align}
+for $C\p{\kappa}\equiv1$ when $\abs{\kappa}=1$ and
+$C\p{\kappa}\equiv0$ otherwise.
+
+\end{document}

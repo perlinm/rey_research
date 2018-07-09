@@ -1,0 +1,903 @@
+\documentclass[aps,notitlepage,nofootinbib,10pt]{revtex4-1}
+
+% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,
+  urlcolor=cyan,
+}
+
+%%% standard header
+% \usepackage[margin=1in]{geometry} % one inch margins
+\usepackage{fancyhdr} % easier header and footer management
+\pagestyle{fancyplain} % page formatting style
+\setlength{\parindent}{0cm} % don't indent new paragraphs...
+\parskip 6pt % ... place a space between paragraphs instead
+\usepackage[inline]{enumitem} % include for \setlist{}, use below
+%\setlist{nolistsep} % more compact spacing between environments
+\setlist[itemize]{leftmargin=*} % nice margins for itemize ...
+\setlist[enumerate]{leftmargin=*} % ... and enumerate environments
+\frenchspacing % add a single space after a period
+\usepackage{lastpage} % for referencing last page
+\cfoot{\thepage~of \pageref{LastPage}} % "x of y" page labeling
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,bm,commath,amssymb} % physics and math
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\renewcommand{\v}{\bm} % bold vectors
+\newcommand{\uv}[1]{\hat{\v{#1}}} % unit vectors
+\renewcommand{\d}{\partial} % partial d
+\renewcommand{\c}{\cdot} % inner product
+\newcommand{\bk}{\Braket} % shorthand for braket notation
+\let\vepsilon\epsilon % remap normal epsilon to vepsilon
+\let\vphi\phi % remap normal phi to vphi
+
+%%% figures
+\usepackage{graphicx,grffile,float,subcaption} % floats, etc.
+\usepackage{multirow} % multirow entries in tables
+\usepackage{footnote} % footnotes in floats
+\usepackage[font=small,labelfont=bf]{caption} % caption text options
+
+\usepackage{dsfont}
+\newcommand{\1}{\mathds{1}}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+\newcommand{\E}{\mathcal{E}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\K}{\mathcal{K}}
+\newcommand{\Z}{\mathbb{Z}}
+
+
+\usepackage{accents}
+\newcommand{\utilde}[1]{\underaccent{\tilde}{#1}}
+
+\newcommand{\g}{\text{g}}
+\newcommand{\e}{\text{e}}
+
+
+\renewcommand{\headrulewidth}{0.5pt} % horizontal line in header
+\lhead{Michael A. Perlin}
+
+\begin{document}
+% \titlespacing{\section}{0pt}{6pt}{0pt} % section title placement
+% \titlespacing{\subsection}{5mm}{6pt}{0pt} % subsection title placement
+
+\section{Particle in a lattice}
+
+In a periodic potential $V\p{x}=V\p{x+a}$, Bloch's theorem states
+that the energy eigenstates $\phi^{\p n}_q\p{x}$ take the form
+\begin{align}
+  \phi^{\p n}_q\p{x} = e^{iqx} u^{\p n}_q\p{x},
+\end{align}
+where $u^{\p n}_q\p{x}=u^{\p n}_q\p{x+a}$ has the same periodicity as
+$V$ and $\abs{q}\le\pi/a$. We can then find that
+\begin{multline}
+  \d_x^2\phi^{\p n}_q
+  = \d_x^2\p{e^{iqx} u^{\p n}_q}
+  = \d_x\sp{iqe^{iqx} u^{\p n}_q + e^{iqx}\d_xu^{\p n}_q} \\
+  = -q^2e^{iqx}u^{\p n}_q + iqe^{iqx} \d_xu^{\p n}_q
+  + iqe^{iqx} \d_xu^{\p n}_q + e^{iqx}\d_x^2u^{\p n}_q \\
+  = -\p{q^2 + 2qp + p^2}\phi^{\p n}_q
+  = -\p{q+p}^2\phi^{\p n}_q,
+\end{multline}
+which implies that the Schroedinger equation is
+\begin{align}
+  \p{-\f{\p{p+q}^2}{2m} + V - E_q^{\p n}}\phi^{\p n}_q = 0.
+\end{align}
+Alternately, letting $y=kx$ we can expand the Schroedinger equation as
+\begin{align}
+  \p{-\f{k^2}{2m}\d_y^2 + V - E_q^{\p n}}\phi^{\p n}_q = 0.
+\end{align}
+Defining the recoil energy $E_R=k^2/\p{2m}$ and using the notation
+$\tilde X\equiv X/E_R$, the Schroedinger equation becomes
+\begin{align}
+  \p{\d_y^2 - \tilde V + \tilde E_q^{\p n}}\phi^{\p n}_q = 0.
+\end{align}
+If $V=V_0\sin^2\p{kx}$, then
+\begin{align}
+  \p{\d_y^2 - \f{\tilde V_0}{2}\sp{1-\cos\p{2kx}}
+  + \tilde E_q^{\p n}}\phi^{\p n}_q
+  = \p{\d_y^2 + \sp{\tilde E_q^{\p n} - \f{\tilde V_0}{2}} -
+  2\sp{-\f{\tilde V_0}{4}}\cos\p{2y}}\phi^{\p n}_q = 0,
+\end{align}
+which is the Mathieu equation.
+
+\subsection{Wannier orbitals and tight-binding approximation}
+
+We can define the Wannier orbitals
+\begin{align}
+  w_i^{\p n}\p{x} = w_n\p{x-x_i}
+  = \f1{\sqrt{L}}\sum_q e^{-iqx_i}\phi_q^{\p n}\p{x},
+\end{align}
+which describe a localized orbital at site $x_i$ (of $L$) with
+electronic state indexed by $n$. General wavefunctions can then be
+expanded as
+\begin{align}
+  \psi\p{x,t} = \sum_{n,i}z_i^{\p n}\p{t}w_n\p{x-x_i}.
+\end{align}
+As the Wannier orbitals are orthonormal, we can project out a single
+coefficient as
+\begin{align}
+  \int dx~ \bar w_m\p{x-x_j}\psi\p{x,t} = z_j^{\p m}.
+\end{align}
+The energy eigenvalue equation for a Hamiltonian $H=H_0+V$ for the
+background periodic potential $H_0$ and perturbation $V$ is
+\begin{align}
+  i\d_t\psi = \p{H_0+V}\psi,
+\end{align}
+where we can project onto the orbital $w_j^{\p m}$ to get
+\begin{align}
+  i\d_t z_j^{\p m}
+  = \sum_{n,i}\p{\int dx~\bar w_j^{\p m} \p{H_0 + V} w_i^{\p n}}z_i^{\p n}.
+\end{align}
+Defining
+\begin{align}
+  J_{j,i}^{m,n} \equiv \int dx~\bar w_j^{\p m} H_0 w_i^{\p n}
+  && V_{j,i}^{m,n} \equiv \int dx~\bar w_j^{\p m} V w_i^{\p n},
+\end{align}
+we can express
+\begin{align}
+  i\d_t z_j^{\p m}
+  = \sum_{n,i}\p{J_{j,i}^{m,n} + V_{j,i}^{m,n}}z_i^{\p n}.
+\end{align}
+We can expand
+\begin{multline}
+  J_{j,i}^{m,n}
+  = \int dx~\f1L\sum_{p,q}
+  \p{e^{ipx_j}\bar \phi_p^{\p m}}H_0\p{e^{-iqx_i}\phi_q^{\p n}}
+  = \f1L\sum_{p,q}E_q^{\p n}e^{i\p{px_j-qx_i}}
+  \int dx~ \bar \phi_p^{\p m}\phi_q^{\p n} \\
+  = \f{E_q^{\p n}}{L}\sum_{p,q}e^{i\p{px_j-qx_i}}\delta_{m,n}
+  \equiv J_{j,i}^{\p n}\delta_{m,n},
+\end{multline}
+which means
+\begin{align}
+  i\d_t z_j^{\p m}
+  = \sum_i\p{J_{j,i}^{\p m}z_i^{\p m} + \sum_nV_{j,i}^{m,n}}z_i^{\p n}.
+\end{align}
+If the interband transitions induced by $V$ are sufficiently slow,
+i.e.
+\begin{align}
+  \sum_{n\ne m}V_{j,i}^{m,n}\ll J_{j,i}^{\p m}+V_{j,i}^{m,m},
+\end{align}
+we can make a single-band approximation by fixing $m$ and neglecting
+all $n\ne m$ to yield
+\begin{align}
+  i\d_t z_j = \sum_i \p{J_{j,i} + V_{j,i}}z_i.
+\end{align}
+Furthermore, if the lattice in $H_0$ is sufficiently deep to neglect
+tunneling induced by $J_{j,i}$ beyond nearest-neighbor and the
+perturbation $V_{j,i}$ is slowly varying enough to be considered
+constant at each lattice site and weak enough to neglect all
+$V$-induced tunneling, i.e. $V_{j,i}=V_j\delta_{j,i}$, then
+\begin{align}
+  i\d_t z_j
+  = J_{j,j-1}z_{j-1} + J_{j,j+1}z_{j+1} + V_jz_j + J_{j,j}z_j.
+\end{align}
+We can now define
+\begin{align}
+  \varepsilon_0
+  = \int dx~ \bar w_j H_0 w_j
+  = \int dx~ \bar w_0 H_0 w_0
+\end{align}
+and observe that by parity symmetry $J_{j,j-1}=J_{j,j+1}\equiv J$ to
+arrive at the discrete Schoeringer equation (DSE)
+\begin{align}
+  i\d_t z_i
+  = J\p{z_{i-1} + z_{i+1}} + V_i z_i + \varepsilon_0 z_i.
+\end{align}
+
+
+\newpage
+\section{Spin-orbit coupling in a Harmonic oscillator}
+
+Consider a two-level atom with energy splitting $\omega_0$ in a laser
+cavity with frequency $\omega$. The Hamiltonian for this system is
+\begin{align}
+  H = \omega_0S_z + \omega\p{a^\dag a+\f12} - \v d\c\v E,
+\end{align}
+where $S_z=\sigma_z/2=\p{\op e - \op g}/2$;
+\begin{align}
+  \v E\p{x,t}
+  = \sqrt{\f{\omega\bk N}{2V}} \sp{u\p{x}a^\dag+u^*\p{x}a} \uv E
+\end{align}
+with photon occupation $a^\dag a=\bk N$, cavity volume $V$, and field
+mode $u\p{x}$ (e.g. $e^{ikx}$); and
+\begin{align}
+  \v d = d_0\sigma_x\uv d = \p{\sigma_++\sigma_-}d_0\uv d.
+\end{align}
+Moving into the frame of the atom,
+\begin{align}
+  \sigma_+ \to e^{i\omega_0t}\sigma_+,
+  && \sigma_- \to e^{-i\omega_0t}\sigma_-,
+\end{align}
+which means
+\begin{align}
+  \v d \to \p{e^{i\omega_0t}\sigma_++e^{-i\omega_0t}\sigma_-}d_0\uv d.
+\end{align}
+Similarly, in the frame of the field Hamiltonian
+\begin{align}
+  a^\dag \to e^{i\omega t}a^\dag, && a \to e^{-i\omega t} a,
+\end{align}
+which means
+\begin{align}
+  \v E \to \sqrt{\f{\omega\bk N}{2V}}
+  \p{e^{i\omega t} u a^\dag + e^{-i\omega t} u^* a}u\uv E.
+\end{align}
+In the interaction picture of the atom and field, then, we have the
+Hamiltonian
+\begin{multline}
+  H_I
+  = -\tilde{\v d}\c\tilde{\v E}
+  = -d_0\p{e^{i\omega_0t}\sigma_++e^{-i\omega_0t}\sigma_-}
+  \sqrt{\f{\omega\bk N}{2V}}
+  \p{e^{i\omega t} u a^\dag + e^{-i\omega t} u^* a}\uv d\c\uv E \\
+  \equiv
+  \p{e^{i\omega_0t}\sigma_+ + e^{-i\omega_0t}\sigma_-}
+  \p{\f{\Omega}{2}e^{i\omega t}a^\dag + \f{\Omega^*}{2}e^{-i\omega t}a}
+\end{multline}
+with
+\begin{align}
+  \Omega\p{x} = -2d_0\sqrt{\f{\omega\bk N}{2V}}~u\p{x}\uv d\c\uv E.
+\end{align}
+If the detuning $\Delta=\omega-\omega_0$ is small
+(i.e. $\abs\Delta\ll\omega,\omega_0$) and
+$\abs\Omega\ll\omega+\omega_0$, then by the secular approximation
+\begin{align}
+  H_I
+  \approx \f{\Omega}{2}e^{i\Delta}\sigma_-a^\dag
+  + \f{\Omega^*}{2}e^{-i\Delta}\sigma_+a
+\end{align}
+
+
+\newpage
+\section{Periodically-driven QHO}
+
+We start with the Hamiltonian for a a periodically driven QHO,
+\begin{align}
+  H
+  = \nu\p{a^\dag a + \f12} + F_0\cos\p{ft}x
+  = \nu\p{a^\dag a + \f12} + F_0x_0\cos\p{ft}\p{a^\dag + a}.
+\end{align}
+In the interaction picture of the QHO, we have
+\begin{align}
+  H_I
+  = F_0x_0\cos\p{ft}\p{e^{i\nu t}a^\dag + e^{-i\nu t}a}
+  = \f12F_0x_0\p{e^{ift}+e^{-ift}}\p{e^{i\nu t}a^\dag + e^{-i\nu t}a}.
+\end{align}
+Defining
+\begin{align}
+  g = \f12 F_0x_0, && \xi = \nu - f,
+\end{align}
+we make the secular
+approximation ($\nu+f\gg g$) to neglect fast-oscillating terms,
+yielding
+\begin{align}
+  H_I = g\p{e^{i\xi t}a^\dag + e^{-i\xi t}a}.
+\end{align}
+The time-evolution operator for infinitesimal time $\Delta t$ is then
+\begin{align}
+  D
+  = \exp\p{iH_I\Delta t}
+  = \exp\sp{ig\p{e^{i\xi t}a^\dag + e^{-i\xi t}a}\Delta t}
+  \equiv \exp\p{\alpha a^\dag - \alpha^*a}
+  \equiv D\p\alpha,
+\end{align}
+where
+\begin{align}
+  \alpha = ige^{i\xi t}\Delta t = \f{i}2F_0x_0e^{i\p{\nu-f}t}\Delta t.
+\end{align}
+Using the identity $e^Ae^B = e^{A+B}e^{\sp{A,B}/2}$ for operators $A$
+an $B$ that commute with their commutator, we then get that
+\begin{multline}
+  D\p\beta D\p\alpha
+  = \exp\p{\p{\beta+\alpha} a^\dag - \p{\beta^*+\alpha^*}a}
+  \exp\p{\f12\sp{\beta a^\dag - \beta^*a,
+      \alpha a^\dag - \alpha^*a}} \\
+  = D\p{\beta+\alpha}
+  \exp\p{-\f12\p{\beta\alpha^*+\beta^*\alpha}}
+  = D\p{\beta+\alpha}\exp\p{i\Re\sp{\beta\alpha^*}}.
+\end{multline}
+The propagator is then
+\begin{align}
+  U\p{t} = D\p{\alpha_N}\cdots D\p{\alpha_2}D\p{\alpha_1},
+\end{align}
+where we take the limit as $N\to\infty$ and
+\begin{align}
+  \alpha_n \equiv ge^{i\xi n\Delta t}\Delta t, && \Delta t = t/N.
+\end{align}
+We thus contract as infinitesimal displacement operators to find
+\begin{multline}
+  U\p{t}
+  = D\p{\alpha_N}\cdots D\p{\alpha_3}D\p{\alpha_1+\alpha_2}
+  \exp\p{i\Re\sp{\alpha_2\alpha_1^*}} \\
+  = D\p{\alpha_N}\cdots D\p{\alpha_4}D\p{\alpha_1+\alpha_2+\alpha_3}
+  \exp\p{i\Re\sp{\alpha_3\p{\alpha_1+\alpha_2}^*}}
+  \exp\p{i\Re\sp{\alpha_2\alpha_1^*}} \\
+  = D\p{\sum_{n=1}^N\alpha_n} \prod_{n=1}^{N-1}
+  \exp\p{i\Re\sp{\alpha_{n+1}\p{\sum_{m=1}^n\alpha_m}^*}}.
+\end{multline}
+Knowing that
+\begin{align}
+  \sum_{k=1}^K x^k = x~\f{1-x^K}{1-x} = \f{1-x^K}{x^{-1}-1},
+\end{align}
+we can compute
+\begin{align}
+  \sum_{n=1}^N\alpha_n
+  = g\Delta t\sum_{n=1}^N e^{i\xi n\Delta t}
+  = g\Delta t~\f{1-e^{i\xi N\Delta t}}{e^{-i\xi\Delta t}-1}
+  = \f{ig}{\xi}\p{1-e^{i\xi t}}
+  \equiv \alpha\p{t}.
+\end{align}
+We will also need
+\begin{align}
+  \alpha_{n+1}\p{\sum_{m=1}^n\alpha_m}^*
+  = g^2\Delta t^2~e^{i\xi\p{n+1}\Delta t}\sum_{m=1}^ne^{-i\xi m\Delta t}
+  = g^2\Delta t^2~e^{i\xi n\Delta t}~
+  \f{1-e^{-i\xi n\Delta t}}{1-e^{-i\xi\Delta t}}
+  = \f{ig^2}{\xi}\Delta t\p{1-e^{-i\xi n\Delta t}},
+\end{align}
+which we can use to find
+\begin{align}
+  \sum_{n=1}^{N-1}\alpha_{n+1}\p{\sum_{m=1}^n\alpha_m}^*
+  = \f{ig^2}{\xi}\Delta t\sum_{n=1}^{N-1}\p{1-e^{i\xi n\Delta t}}
+  = \f{ig^2}{\xi}\int_0^t dt'~\p{1-e^{i\xi t'}}
+  = g\int_0^t dt~\alpha\p{t}
+\end{align}
+Observing that
+\begin{align}
+  d\alpha\p{t} = \f{ig}{\xi}\p{-i\xi dt} = g~dt,
+\end{align}
+we can say
+\begin{align}
+  \sum_{n=1}^{N-1}\alpha_{n+1}\p{\sum_{m=1}^n\alpha_m}^*
+  = \int_0^{\alpha\p{t}} d\alpha'~\alpha'
+  = \f12\alpha\p{t}^2,
+\end{align}
+and so
+\begin{align}
+  U\p{t} = D\sp{\alpha\p{t}} \exp\p{\f{i}{2}\Re\sp{\alpha\p{t}^2}}.
+\end{align}
+
+
+\newpage
+
+
+\section{Lattice Modulation}
+
+
+We begin with a ``background'' 1-D optical lattice clock Hamiltonian
+after diagonalization in quasi-momentum:
+\begin{align}
+  H_B
+  = \sum_{q,n,s}\p{E_{qns}-\f12s\delta} b_{qns}^\dag b_{qns}
+  - \f12\sum_{q,n,s,m} \Omega_{nm}^{qs} b_{qm\bar s}^\dag b_{qns}.
+  \label{eq:H_B}
+\end{align}
+If the lattice $V_0\sin^2\p{k_Lz}$ is modulated as
+$V_0\to V_0+\tilde V\cos\p{\nu t}$, then we pick up a modulation
+Hamiltonian $\tilde H = \tilde\H \cos\p{\nu t}$, where
+\begin{align}
+  \tilde\H
+  = \tilde V \sum_{\substack{q,n,s\\g,m}}
+  \bk{gms|\sin^2\p{k_Lz}|qns} b_{gms}^\dag b_{qns}
+  = \f12\tilde V\sp{1 - \sum_{\substack{q,n,s\\g,m}}
+  \bk{gms|\cos\p{2k_Lz}|qns} b_{gms}^\dag b_{qns}}.
+\end{align}
+Recalling that, due to the gauge transformation performed to get to
+\eqref{eq:H_B},
+\begin{align}
+  \bk{zs|qns} = \bk{z|q+sk/2,n}
+  = e^{i\p{q+sk/2}z} \sum_\kappa c_{q+sk/2,n}^{(\kappa)} e^{i2k_Lz\kappa},
+\end{align}
+we can expand
+\begin{multline}
+  \bk{gms|\cos\p{2k_Lz}|qns}
+  = \f12 \int dz~ \p{e^{i2k_Lz}+e^{-i2k_Lz}} e^{i\p{q-g}z}
+  \sum_{\kappa,\ell} e^{i2k_Lz\p{\kappa-\ell}}
+  c_{g+sk/2,m}^{(\ell)} c_{q+sk/2,n}^{(\kappa)} \\
+  = \f12 \sum_{\kappa,\ell} \int dz~ e^{i\p{q-g}z}
+  \p{e^{i2k_Lz\p{\kappa+1-\ell}} + e^{i2k_Lz\p{\kappa-1-\ell}}}
+  c_{g+sk/2,m}^{(\ell)} c_{q+sk/2,n}^{(\kappa)}.
+\end{multline}
+This integral is vanishes unless $g=q$ and $\ell=\kappa\pm1$, so
+\begin{align}
+  \bk{gms|\cos\p{2k_Lz}|qns}
+  \approx \delta_{gq}
+  \f12 \sum_\kappa
+  \p{c_{q+sk/2,m}^{(\kappa+1)} c_{q+sk/2,n}^{(\kappa)}
+    + c_{q+sk/2,m}^{(\kappa-1)} c_{q+sk/2,n}^{(\kappa)}}.
+\end{align}
+Letting
+\begin{align}
+  V^{qs}_{nm}
+  \equiv -\f12 \tilde V \bk{qms|\cos\p{2k_Lz}|qns}
+  = -\f14 \tilde V  \sum_\kappa
+  \p{c_{q+sk/2,m}^{(\kappa+1)} c_{q+sk/2,n}^{(\kappa)}
+    + c_{q+sk/2,m}^{(\kappa-1)} c_{q+sk/2,n}^{(\kappa)}},
+\end{align}
+the modulated Hamiltonian is thus, up to a global shift in energy,
+\begin{align}
+  \tilde\H
+  = \sum_{q,n,s,m} V^{qs}_{nm} b_{qms}^\dag b_{qns}.
+\end{align}
+
+
+\subsection{Aside: Fourier expansions}
+
+We can expand, to first Fourier order,
+\begin{align}
+  E_{qns} \approx E_n + \tilde E_n \cos\p{q + sk/2},
+\end{align}
+\begin{align}
+  \Omega^{qs}_{nm}
+  \approx \Omega_{nms} + \tilde\Omega_{nms}^C\cos q
+  + \tilde\Omega_{nm}^S\sin q,
+\end{align}
+\begin{align}
+  V^{qs}_{nm} \approx V_{nm} + \tilde V_{nm}
+  \f12\sp{e^{i\p{q+sk/2}}+\p{-1}^{n+m}e^{-i\p{q+sk/2}}},
+\end{align}
+where $X_{nms}\in\set{\Omega_{nms},\tilde\Omega_{nms}^C}$ satisfies
+\begin{align}
+  X_{nms} = \p{-1}^{n+m} X_{mns} = \p{-1}^{n+m} X_{nm\bar s} = X_{mn\bar s},
+\end{align}
+and
+\begin{align}
+  \tilde\Omega_{nm}^S = \tilde\Omega_{mn}^S,
+  && V_{nm} = V_{mn}, && \tilde V_{nm} = \tilde V_{mn}.
+\end{align}
+Observing that $\tilde\Omega_{nn}^S=0$, we can say that
+\begin{align}
+  \Omega^{qs}_{nn} \approx \Omega_n + \tilde\Omega_n\cos q.
+\end{align}
+Finally, we note that $V_{nm}=0$ when $n+m$ is odd, which means that
+\begin{align}
+  V^{qs}_{nm} \approx \left\{
+    \begin{array}{ll}
+      V_{nm} + \tilde V_{nm}\cos\p{q+sk/2} & n+m~\t{even} \\
+      \tilde V_{nm}\sin\p{q+sk/2} & n+m~\t{odd}
+    \end{array}\right..
+\end{align}
+
+
+\subsection{Interaction picture}
+
+The full Hamiltonian is now
+\begin{multline}
+  H = \sum_{q,n,s}\p{E_{qns}-\f12s\delta} b_{qns}^\dag b_{qns}
+  + \sum_{q,n,s,m} V^{qs}_{nm} \cos\p{\nu t} b_{qms}^\dag b_{qns}
+  - \f12\sum_{q,n,s,m} \Omega_{nm}^{qs} b_{qm\bar s}^\dag b_{qns} \\
+  = \sum_{q,n,s}
+  \p{E_{qns}-\f12s\delta+V^{qs}_{nn}\cos\p{\nu t}} b_{qns}^\dag b_{qns}
+  + \sum_{\substack{q,n,s\\m\ne n}}
+  V^{qs}_{nm} \cos\p{\nu t} b_{qms}^\dag b_{qns}
+  - \f12\sum_{q,n,s,m} \Omega_{nm}^{qs} b_{qm\bar s}^\dag b_{qns},
+\end{multline}
+and can be written in the interaction picture of the single-particle
+state energies as
+\begin{multline}
+  H_I = \sum_{\substack{q,n,s\\m\ne n}} V^{qs}_{nm} \cos\p{\nu t}
+  \exp\sp{i\p{E_{qms}-E_{qns}}t
+    + i\p{V^{qs}_{mm}-V^{qs}_{nn}}\sin\p{\nu t}/\nu}
+  b_{qms}^\dag b_{qns} \\
+  -\f12\sum_{q,n,s,m} \Omega_{nm}^{qs}
+  \exp\sp{i\p{E_{qm\bar s}-E_{qns}+s\delta}t
+    + i\p{V^{q\bar s}_{mm}-V^{qs}_{nn}}\sin\p{\nu t}/\nu}
+  b_{qm\bar s}^\dag b_{qns}.
+\end{multline}
+We can expand
+\begin{align}
+  \exp\p{i\beta\sin\tau}
+  = \sum_\kappa \exp\p{i\kappa\tau} \f1{2\pi}\int_{-\pi}^\pi dx~
+  \exp\p{-i\kappa x+i\beta\sin x}
+  = \sum_\kappa J_\kappa\p{\beta} \exp\p{i\kappa\tau},
+\end{align}
+where $J_n\p{x}$ is the $n$-th order Bessel function of the first
+kind. Defining
+\begin{align}
+  W^{qs}_{nm} \equiv \p{V^{qs}_{mm} - V^{qs}_{nn}}/\nu,
+  &&
+  \bar W^{qs}_{nm} \equiv \p{V^{q\bar s}_{mm} - V^{qs}_{nn}}/\nu,
+\end{align}
+the Hamiltonian is therefore
+\begin{multline}
+  H_I = \f12 \sum_{\substack{q,n,s,\\m\ne n\\\kappa,r}} V^{qs}_{nm}
+  J_\kappa\p{W^{qs}_{nm}}
+  \exp\sp{i\p{E_{qms}-E_{qns}+\sp{\kappa+r}\nu}t}
+  b_{qms}^\dag b_{qns} \\
+  -\f12\sum_{\substack{q,n,s\\m,\kappa}} \Omega_{nm}^{qs}
+  J_\kappa\p{\bar W^{qs}_{nm}}
+  \exp\sp{i\p{E_{qm\bar s}-E_{qns}+s\delta+\kappa\nu}t}
+  b_{qm\bar s}^\dag b_{qns},
+\end{multline}
+where $r=\pm1$.
+
+
+\subsection{Nontrivial topology: example}
+
+We now restrict ourselves to considering only the first two bands, set
+$\nu=\p{E_1-E_0}/2$, and $\delta=\sp{E_1-E_0}/4$. The spin-flipping
+$\Omega^{qs}_{nm}$ terms can then be neglected by the secular
+approximation, and we are left with
+\begin{align}
+  H_I = \f12 \sum_{q,s,\kappa,r}
+  \utilde V^{qs}_{0,1} J_\kappa\p{\utilde W^{qs}_{0,1}}
+  \exp\sp{i\p{\sp{E_1-E_0}\sp{1+\kappa/2+r/2}
+      + \sp{\tilde E_1-\tilde E_0}\cos q}t}
+  c_{q,1,s}^\dag c_{q,0,s} + \t{h.c.},
+\end{align}
+where for $X^{qs}_{nm}\in\set{V^{qs}_{nm},W^{qs}_{nm}}$ we define
+$\utilde X^{qs}_{nm}\equiv X^{q-sk/2,s}_{nm}$. The only nonvanishing
+terms (from the secular approximation) are those with $\kappa=r=-1$,
+so
+\begin{align}
+  H_I = -\f12 \sum_{q,s}
+  \utilde V^{qs}_{0,1} J_1\p{\utilde W^{qs}_{0,1}}
+  \exp\sp{i\p{\tilde E_1-\tilde E_0}\cos q~ t}
+  c_{q,1,s}^\dag c_{q,0,s} + \t{h.c.}.
+\end{align}
+With appropriate choice of interaction picture, this Hamiltonian is
+equivalently
+\begin{align}
+  H_I^{\t{eff}}
+  = \sum_{q,n,s}\tilde E_n\cos q~ c_{qns}^\dag c_{qns}
+  - \f12\sum_{q,n,s}
+  \utilde V^{qs}_{n\bar n} J_1\p{\abs{\utilde W^{qs}_{n\bar n}}}
+  c_{q\bar ns}^\dag c_{qns}.
+\end{align}
+Here
+$\utilde V^{qs}_{n\bar n} J_1\p{\utilde W^{qs}_{n\bar n}} \sim \sin
+q$, which implies that the energy bands of this Hamiltonian have Chern
+number $\pm1$.
+
+If we instead set $\delta=0$, we would get the effective Hamiltonian
+$H_I^{\t{eff}} = \sum_{q,n,s} h_{qns}$, where
+\begin{align}
+  h_{qns}
+  = \tilde E_{qns} b_{qns}^\dag b_{qns}
+  - \f12 V^{qs}_{n\bar n} J_1\p{\abs{W^{qs}_{n\bar n}}}
+  b_{q\bar ns}^\dag b_{qns}
+  - \f12 \Omega^{qs}_{nn} J_0\p{\bar W^{qs}_{nn}}
+  b_{qn\bar s}^\dag b_{qns}
+  + \f12 \Omega^{qs}_{nn} J_1\p{\abs{\bar W^{qs}_{n\bar n}}}
+  b_{q\bar n\bar s}^\dag b_{qns}
+\end{align}
+and $\tilde E_{qns}\equiv \tilde E_n \cos\p{q+sk/2}$.
+
+
+\newpage
+
+\subsection{Wannier basis}
+
+In terms of the field operators $\tilde a_{xns}$ for atoms localized
+on lattice sites $x\in a\Z_L$ (with $L$ sites total and lattice
+constant $a$) in bands $n\in\mathbb N_0$ with clock states
+$s\in\set{\pm 1}$, we can expand
+\begin{align}
+  b_{qns}^\dag = c_{q+sk/2,ns}^\dag
+  = \f1{\sqrt L}\sum_x e^{i\p{q+sk/2}x} \tilde a_{xns}^\dag
+  = \f1{\sqrt L}\sum_x e^{iqx} a_{xns}^\dag,
+\end{align}
+where $a_{xns}^\dag\equiv e^{iskx/2}\tilde a_{xns}^\dag$. We can also
+expand, to first Fourier order in $q$,
+\begin{align}
+  E_{qns} \approx E_n + \tilde E_n \cos\p{q+sk/2},
+\end{align}
+\begin{align}
+  \Omega^{qs}_{nm} \approx
+  \Omega^s_{nm} + \tilde\Omega^s_{nm} \cos\p{q+\alpha^s_{nm}}
+  &&
+  V^{qs}_{nm} \approx V_{nm} + \tilde V_{nm} \cos\p{q+sk/2+\beta_{nm}}
+\end{align}
+where we work in momentum units of $k_L/\pi$, such that
+$q\in\sp{-\pi,\pi}$ in the first Brillouin zone. The background
+Hamiltonian is then
+\begin{multline}
+  H_B = \sum_{x,n,s}\p{E_n - \f12s\delta} a_{xns}^\dag a_{xns}
+  - \f12 \sum_{x,n,s,m} \Omega^s_{nm} a_{xm\bar s}^\dag a_{xns} \\
+  + \f1{2L} \sum_{\substack{q,n,s\\x,y}} \tilde E_n \p{e^{isk/2}e^{iq} +
+    e^{-isk/2}e^{-iq}}
+  e^{iq\p{y-x}} a_{yns}^\dag a_{xns} \\
+  - \f1{4L} \sum_{\substack{q,n,s\\m,x,y}} \tilde\Omega^s_{nm}
+  \p{e^{i\alpha^s_{nm}}e^{iq} + e^{-i\alpha^s_{nm}}e^{-iq}}
+  e^{iq\p{y-x}} a_{ym\bar s}^\dag a_{xns},
+\end{multline}
+which simplifies to
+\begin{multline}
+  H_B = \sum_{x,n,s}\p{E_n - \f12s\delta} a_{xns}^\dag a_{xns}
+  - \f12 \sum_{x,n,s,m} \Omega^s_{nm} a_{xns}^\dag a_{xm\bar s} \\
+  + \f12 \sum_{x,n,s} \tilde E_n
+  \p{e^{-isk/2} a_{x+1,ns}^\dag a_{xns} + \t{h.c.}}
+  - \f14 \sum_{x,n,s,m} \tilde\Omega^s_{nm}
+  \p{e^{-i\alpha^s_{nm}} a_{x+1,m\bar s}^\dag a_{xns} + \t{h.c.}}.
+\end{multline}
+The modulated Hamiltonian is similarly
+\begin{align}
+  \tilde\H
+  = \sum_{x,n,s,m} V_{nm} a_{xms}^\dag a_{xns}
+  + \f12\sum_{\substack{q,n,s\\m,x,y}} \tilde V_{nm}
+  \p{e^{i\p{sk/2+\beta_{nm}}}e^{iq} + e^{-i\p{sk/2+\beta_{nm}}}e^{-iq}}
+  e^{iq\p{y-x}} a_{yms}^\dag a_{xns},
+\end{align}
+which simplifies to
+\begin{align}
+  \tilde\H
+  = \sum_{x,n,s,m}\sp{V_{nm} a_{xns}^\dag a_{xms}
+  + \f12 \tilde V_{nm}
+  \p{e^{-i\p{sk/2+\beta_{nm}}} a_{x+1,ms}^\dag a_{xns} + \t{h.c.}}}.
+\end{align}
+
+
+\newpage
+\section{Clock laser modulation}
+
+Our full 1-D OLC Hamiltonian after diagonalization in quasimomentum is
+\begin{align}
+  H = \sum_{q,n,s}\sp{E_{qns} - \f12 s\delta\p{t}} b_{qns}^\dag b_{qns}
+  - \f12 \sum_{q,n,s,m} \Omega^{qs}_{nm} b_{qm\bar s}^\dag b_{qns}.
+\end{align}
+If we expand, for $N$ drive frequencies
+\begin{align}
+  \delta\p{t} = -\sum_{j=1}^N \delta_j \cos\p{\nu_j t + \phi_j}
+  = -\sum_j \beta_j \nu_j \cos\p{\nu_j t + \phi_j},
+  &&
+  \beta_j \equiv \delta_j/\nu_j,
+\end{align}
+then we can write the Hamiltonian in the interaction picture of its diagonal elements to get
+\begin{align}
+  H_I
+  &= -\f12 \sum \Omega^{qs}_{nm}
+  \exp\sp{i\p{E_{qm\bar s} - E_{qns}} t
+    - is\sum_j\beta_j\sin\p{\nu_j t+\phi_j}
+    + is\sum_j\beta_j\sin\phi_j} b_{qm\bar s}^\dag b_{qns}.
+\end{align}
+Using the Jacobi-Anger identity, we can expand
+\begin{align}
+  \exp\sp{-is\sum_j\beta_j\sin\tau_j}
+  = \prod_j \exp\p{-is\beta_j\sin\tau_j}
+  = \prod_j \sum_{k_j} J\p{k_j,s\beta_j}
+  \exp\p{-ik_j\tau_j}
+  = \sum_{\v k} \prod_j J\p{k_j,s\beta_j}
+  \exp\p{-ik_j\tau_j},
+\end{align}
+where $J\p{n,x}$ is the first Bessel function of the first kind of
+order $n$ evaluated at $x$.  We then have that
+\begin{align}
+  H_I
+  &= -\f12\sum_{q,n,s,m,\v k} \Omega^{qs}_{nm}
+  \sp{\prod_j J\p{k_j,s\beta_j}}
+  \exp\sp{i\p{E_{qm\bar s}-E_{qns}} t
+    - i\sum_jk_j\p{\nu_jt+\phi_j}
+    + is\sum_j\beta_j\sin\phi_j}
+  b_{qm\bar s}^\dag b_{qns} \\
+  &= -\f12\sum_{q,n,s,m,\v k} f\p{\v k,\v\beta,\v\phi}
+  \Omega^{qs}_{nm}
+  \exp\sp{i\p{E_{qm\bar s}-E_{qns}-\v k\c\v\nu}t}
+  b_{qm\bar s}^\dag b_{qns},
+\end{align}
+where
+\begin{align}
+  f\p{\v k,\v\beta,\v\phi}
+  \equiv \sp{\prod_j J\p{k_j,s\beta_j}}
+  \exp\p{-i\v k\c\v\phi + is\v\beta\c\sin\v\phi}.
+\end{align}
+If we now assume that
+\begin{enumerate*}[label=(\roman*)]
+\item all drive frequencies are much larger than the clock laser Rabi
+  frequency $\Omega$, i.e. $\nu_j\gg\Omega$ for all $j$, and
+\item the difference between any two drive frequencies is much larger
+  than the Rabi frequency $\Omega$, i.e. $\abs{\nu_j-\nu_k}\gg\Omega$
+  for all $j$ and $k$,
+\end{enumerate*}
+then we can define the vector $\v k^{qs}_{nm}\in\Z^N$ which
+minimizes $\abs{E_{qm\bar s}-E_{qns}-\v k^{qs}_{nm}\c\v\nu}$, and
+by the secular approximation say that
+\begin{align}
+  H_I = -\f12\sum_{q,n,s,m} f\p{\v k^{qs}_{nm},\v\beta,\v\phi}
+  \Omega^{qs}_{nm}
+  \exp\sp{i\p{E_{qm\bar s}-E_{qns}-\v k^{qs}_{nm}\c\v\nu}t}
+  b_{qm\bar s}^\dag b_{qns}.
+\end{align}
+Fixing some initial state $\ket\phi=\ket{q_0n_0s_0}$, we now define
+the vector $\v\ell^\phi_{qns}\in\Z^N$ which minimizes
+$\abs{E_{qns}-E_\phi-\v\ell^\phi_{qns}\c\v\nu}$, and define the reduced
+energy
+\begin{align}
+  \epsilon_{qns}^\phi \equiv E_{qns} - E_\phi - \v\ell^\phi_{qns}\c\v\nu,
+  &&
+  \t{such that}
+  &&
+  E_{qns} = E_\phi + \v\ell^\phi_{qns}\c\v\nu + \epsilon_{qns}^\phi.
+\end{align}
+We can then expand
+\begin{align}
+  E_{qm\bar s} - E_{qns} - \v k^{qs}_{nm}\c\v\nu
+  = \p{\v\ell^\phi_{qm\bar s} - \v\ell^\phi_{qns}
+    - \v k^{qs}_{nm}}\c\v\nu
+  + \epsilon_{qm\bar s}^\phi - \epsilon_{qns}^\phi.
+  \label{eq:k_min}
+\end{align}
+From their definition, the reduced energies satisfy
+$\abs{\epsilon_{qm\bar s}^\phi}, \abs{\epsilon_{qns}^\phi} <
+\min_j\nu_j/2$.  If we make a stronger assumption that
+$\abs{\epsilon_{qm\bar s}^\phi}, \abs{\epsilon_{qns}^\phi} <
+\min_j\nu_j/4$, then
+$\abs{\epsilon_{qm\bar s}^\phi - \epsilon_{qns}^\phi} <
+\min_j\nu_j/2$, so minimizing the quantity in \eqref{eq:k_min} forces
+$\v k^{qs}_{nm} = \v\ell^\phi_{qm\bar s} - \v\ell^\phi_{qns}$,
+which implies
+\begin{align}
+  H_I = -\f12\sum_{q,n,s,m} f\p{\v k^{qs}_{nm},\v\beta,\v\phi}
+  \Omega^{qs}_{nm}
+  \exp\sp{i\p{\epsilon_{qm\bar s}^\phi-\epsilon_{qns}^\phi}t}
+  b_{qm\bar s}^\dag b_{qns}.
+\end{align}
+In an appropriate interaction picture this Hamiltonian is equivalent to
+\begin{align}
+  H_I^{\t{eff}} =
+  \sum_{q,n,s} \epsilon_{qns}^\phi b_{qns}^\dag b_{qns}
+  - \f12\sum_{q,n,s,m} f\p{\v k^{qs}_{nm},\v\beta,\v\phi}
+  \Omega^{qs}_{nm} b_{qm\bar s}^\dag b_{qns}.
+\end{align}
+
+
+
+\section{Interactions}
+
+The interaction Hamiltonian for fermionic AEAs on a lattice is
+\begin{align}
+  H_{\t{int}} = G \int d^3x~
+  \psi_\e^\dag\p{x} \psi_\g^\dag\p{x} \psi_\g\p{x} \psi_\e\p{x},
+  &&
+  G \equiv \f{4\pi a_{\e\g^-}}{m_A}.
+\end{align}
+Expanding the field operators for atoms in clock state $\sigma$ as
+\begin{align}
+  \psi_\sigma\p{x} = \sum_{q,n} \phi_{qn}\p{x} c_{qn\sigma},
+\end{align}
+for quasimomenta $q$ and band indices $n$, we can write
+\begin{align}
+  H_{\t{int}} = G \sum K^{pk;q\ell}_{rm;sn}
+  c_{rm,\e}^\dag c_{sn,\g}^\dag c_{q\ell,\g} c_{pk,\e},
+  &&
+  K^{pk;q\ell}_{rm;sn} \equiv \int d^3x~
+  \phi_{rm}\p{x}^* \phi_{sn}\p{x}^* \phi_{q\ell}\p{x} \phi_{pk}\p{x}.
+\end{align}
+By conservation of momentum, we know that $K^{pk;q\ell}_{rm;sn}=0$
+unless $p+q+r+s=0$ ($\t{mod}~2$ in units of the lattice wavenumber),
+so we can write
+\begin{align}
+  H_{\t{int}} = G \sum K^{pk;q\ell}_{p+r,m;q-r,n}
+  c_{p+r,m,\e}^\dag c_{q-r,n,\g}^\dag c_{q\ell,\g} c_{pk,\e}
+  \approx G \sum K^{k\ell}_{mn}
+  c_{p+r,m,\e}^\dag c_{q-r,n,\g}^\dag c_{q\ell,\g} c_{pk,\e},
+\end{align}
+where we made the approximation that $K^{pk;q\ell}_{p+r,m;q-r,n}$ only
+weakly depends on the quasi-momenta $\p{p,q,r}$.
+
+\subsection{Single-band spin model}
+
+We now restrict ourselves to considering only the lowest band, such
+that $K^{k\ell}_{mn}\to K$ and the single-particle energy takes the
+form $E_q=-4J\cos\p{\pi q}$.  If $J \gg G K$, then by the secular
+approximation we can neglect terms in $H_{\t{int}}$ which do not
+conserve the sum of single-particle energies.  By solving the
+single-particle energy conservation condition, one can find that this
+approximation amounts to neglecting terms with $r\notin\set{0,q-p}$,
+such that
+\begin{align}
+  H_{\t{int}}
+  = G K \sum \p{n_{q,\g} n_{p,\e}
+    + c_{q,\e}^\dag c_{p,\g}^\dag c_{q,\g} c_{p,\e}}
+  = G K \sum \p{n_{q,\g} n_{p,\e}
+    - c_{q,\e}^\dag c_{q,\g} c_{p,\g}^\dag c_{p,\e}}.
+\end{align}
+Defining
+\begin{align}
+  \1_p \equiv c_{p,\e}^\dag c_{p,\e} + c_{p,\g}^\dag c_{p,\g},
+  &&
+  \sigma_p^j \equiv \sum_{\alpha,\beta}
+  c_{p\alpha}^\dag \sigma^j_{\alpha\beta} \sigma_{p\beta},
+\end{align}
+for Pauli matrices $\sigma^j$, we can therefore write
+\begin{align}
+  H_{\t{int}} = G K \sum
+  \sp{\p{\f{\1_q+\sigma_q^z}{2}} \p{\f{\1_p-\sigma_p^z}{2}}
+    - \sigma_q^- \sigma_p^+}.
+\end{align}
+Up to a global shift in energy, this result is equivalently
+\begin{align}
+  H_{\t{int}}
+  = - \f14 G K \sum \v\sigma_q\c\v\sigma_p
+  = - \f14 G K \v\sigma \c \v\sigma
+  = - G K \v S \c \v S,
+  &&
+  \v S \equiv \f12 \v\sigma.
+\end{align}
+Expanding
+\begin{align}
+  K = \int d^3x \abs{\phi_0}^4
+  = \int d^3x \abs{\f1{\sqrt{N}}\sum_j\tilde\phi_j}^4
+  \approx \f1{N^2} \sum_j \int d^3x \abs{\tilde\phi_j}^4
+  = \f1N \int d^3x \abs{\tilde\phi_0}^4
+  = \f1N \tilde K,
+\end{align}
+we therefore arrive at the Hamiltonian
+\begin{align}
+  H_{\t{int}}
+  = - \f{G\tilde K}{N} \v S\c\v S
+  = -\f{\xi}{N} \v S\c\v S,
+  &&
+  \xi \equiv G \tilde K.
+\end{align}
+
+\subsection{Inter-band pair hopping}
+
+We now consider pair hopping between the lowest two bands, and define
+$a_{p\sigma} \equiv c_{p,0,\sigma}$ and
+$b_{p\sigma} \equiv c_{p,1,\sigma}$.  The relevant terms in the
+Hamiltonian are
+\begin{align}
+  H_{\t{int}}^{(0,1)} = G K^{0,0}_{1,1}
+  \sum \p{b_{p+r,\e}^\dag b_{q-r,\g}^\dag a_{q,\g} a_{p,\e} + \t{h.c.}}.
+\end{align}
+Using driving schemes, we can make the single-particle energies in the
+first two bands respectively $E_{q,0}=-4J_0\cos\p{\pi q}$ and
+$E_{q,1}=4J_1\cos\p{\pi q}$.
+
+As in the single-band case, we now assume that we can neglect hopping
+terms in $H_{\t{int}}^{(0,1)}$ which do not conserve single-particle
+energy.  By solving this energy conservation condition in the limit
+$\abs{J_1}\gg\abs{J_0}$, we find that the only terms which survive are
+those with $r=r_\pm\equiv-\p{p-q}/2\pm1/2$.  Defining
+\begin{align}
+  s \equiv \f{p+q}{2},
+  &&
+  d \equiv \f{p-q}{2},
+\end{align}
+in terms of which
+\begin{align}
+  p = s + d,
+  &&
+  q = s - d,
+  &&
+  r_\pm = -d \pm 1/2,
+\end{align}
+we can write
+\begin{align}
+  H_{\t{int}}^{(0,1)}
+  = \sqrt{2} G K^{0,0}_{1,1} \sum
+  \p{f_s^\dag a_{s-d,\g} a_{s+d,\e} + \t{h.c.}}
+  = \sqrt{2} G K^{0,0}_{1,1} \sum
+  \p{f_{\p{p+q}/2}^\dag a_{q,\g} a_{p,\e} + \t{h.c.}},
+\end{align}
+where
+\begin{align}
+  f_s^\dag \equiv \f1{\sqrt2}
+  \p{b_{s-1/2,\e}^\dag b_{s+1/2,\g}^\dag
+    + b_{s+1/2,\e}^\dag b_{s-1/2,\g}^\dag}.
+\end{align}
+For $r\ne s$, these operators satisfy the commutation relations
+\begin{align}
+  \sp{f_r, f_s} = \sp{f_r^\dag, f_s^\dag} = \sp{f_r, f_s^\dag} = 0,
+\end{align}
+\begin{align}
+  \sp{f_s, f_s^\dag}
+  = 1 - \f12 \p{\tilde n_{s+1/2,\e}^\dag + \tilde n_{s-1/2,\e}^\dag
+    + \tilde n_{s+1/2,\g}^\dag + \tilde n_{s-1/2,\g}^\dag},
+  &&
+  \tilde n_{p\sigma} \equiv b_{p\sigma}^\dag b_{p\sigma}.
+\end{align}
+
+
+
+\end{document}
