@@ -506,7 +506,7 @@ An example set of parameters and values for one-axis twisting via
 $H_{\t{OAT}}$ with strontium-87 is provided in Table
 \ref{tab:parameters}, along with the optimal one-axis twisting
 squeezing time
-$t_{\t{opt}}^{\t{OAT}}\approx1.1N^{-2/3}\chi^{-1}\sim\eta
+$t_{\t{opt}}^{\t{OAT}}\sim N^{-2/3}\chi^{-1}\sim\eta
 N^{1/3}=N^{4/3}/L$.  Lattice depths are provided in units of the
 lattice recoil energy $E_R$.
 
@@ -518,7 +518,7 @@ lattice recoil energy $E_R$.
   \begin{tabular}{|l|c|l|}
     \hline
     Parameter & Symbol & Value \\ \hline\hline
-    Primary lattice depth & $V_0$ & 3 $E_R$ \\
+    Primary lattice depth & $V_0$ & 4 $E_R$ \\
     Transverse lattice depths & $V_T$ & 80 $E_R$ \\
     Lattice sites & $L$ & 100 \\
     Atom number & $N$ & 50 \\
@@ -619,31 +619,38 @@ ref.~\cite{huang2015twoaxis}, we now
   appropriate rotating frame to eliminate the $\sim S_z$ term in
   \eqref{eq:H_drive_eff},
 \item modulate the drive as $\Omega\p{t}=\beta\omega\cos\p{\omega t}$
-  with $\omega\gg N\chi$,
-\item move into the rotating frame of $-\Omega\p{t}S_x$, and finally
-\item shift $H_{\t{drive,eff}}$ by the constant
-  $\p{\chi/2}\sp{\J_0\p{2\beta}-1} S^2$, where $\J_0\p{x}$ is the
-  zero-order Bessel function of the first kind evaluated at $x$.
+  with $\omega\gg N\chi$, and
+\item move into the rotating frame of $-\Omega\p{t}S_x$.
+  % , and finally
+% \item shift $H_{\t{drive,eff}}$ by the constant
+  % $\p{\chi/2}\sp{\J_0\p{2\beta}-1} S^2$, where $\J_0\p{x}$ is the
+  % zero-order Bessel function of the first kind evaluated at $x$.
 \end{enumerate*}
 After a secular approximation which relies on $\omega\gg N\chi$, this
 procedure results in the effective Hamiltonian
 \begin{align}
   H_{\t{drive,eff}}^{\t{mod}}
-  = \f{\chi}{2} \sp{3\J_0\p{2\beta}-1} S_z^2
-  + \f{\chi}{2} \sp{1-\J_0\p{2\beta}} \p{S_z^2 - S_x^2},
+  = \f{\chi}{2} \p{\sp{\J_0\p{2\beta}+1} S_z^2
+    - \sp{\J_0\p{2\beta}-1} S_y^2},
 \end{align}
-where choosing the modulation index $\beta$ such that
-$\J_0\p{2\beta}=1/3$ or $\J_0\p{2\beta}=-1/3$ respectively results in
-the two-axis twisting Hamiltonians
+where $\J_0$ is the zero-order Bessel function of the first kind.
+Choosing a modulation index $\beta$ such that $\J_0\p{2\beta}=1/3$ or
+$\J_0\p{2\beta}=-1/3$ then respectively results in the two-axis
+twisting Hamiltonians
 \begin{align}
-  H_{\t{TAT}}^{z,x} = \f{\chi}{3} \p{S_z^2 - S_x^2},
+  H_{\t{TAT}}^{z,x}
+  = \f{\chi}{3} \p{2 S_z^2 + S_y^2}
+  \simeq \f{\chi}{3} \p{S_z^2 - S_x^2},
   &&
-  H_{\t{TAT}}^{y,x} = \f{\chi}{3}\p{S_y^2 - S_x^2}.
+  H_{\t{TAT}}^{y,x}
+  = \f{\chi}{3} \p{S_z^2 + 2 S_y^2}
+  \simeq \f{\chi}{3}\p{S_y^2 - S_x^2},
   \label{eq:H_TAT_drive}
 \end{align}
-Given the set of parameters in Table \ref{tab:parameters}, the
-two-axis twisting Hamiltonian $H_{\t{TAT}}^{z,x}$ can be achieved with
-$\omega=20\times2\pi$ Hz and $\beta=0.9057$.  The optimal squeezing
+where $\simeq$ denotes equality up to a global energy shift. Given the
+set of parameters in Table \ref{tab:parameters}, the two-axis twisting
+Hamiltonian $H_{\t{TAT}}^{z,x}$ can be achieved with
+$\omega=20\times2\pi$ Hz and $\beta=0.906$.  The optimal squeezing
 time for this protocol is $t_{\t{opt}}^{\t{TAT}}\approx0.98$ seconds.
 
 
