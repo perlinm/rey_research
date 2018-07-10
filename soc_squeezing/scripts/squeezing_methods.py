@@ -60,7 +60,6 @@ def rotate_vector(vector, axis, angle):
 
 # coherent spin state on S = N/2 Bloch sphere
 def coherent_spin_state_angles(theta, phi, N = 10):
-    N = round(int(N))
     state = np.zeros(N+1, dtype = complex)
     for m in range(N+1):
         c_theta = np.sin(theta/2)**(N-m) * np.cos(theta/2)**m
@@ -91,8 +90,7 @@ def spin_variance(state, axis):
 #   "axis" is the axis of minimal spin variance in the plane orthogonal to <\vec S>
 #   \xi^2 = (<S_axis^2> - <S_axis>^2) / (S/2) is the spin squeezing parameter
 def spin_squeezing(state):
-    S = (state.size-1)/2
-
+    N = state.size-1
     state_axis = spin_axis(state)
     if state_axis[1] == 0 and state_axis[2] == 0:
         perp_vec = [0,1,0]
@@ -105,9 +103,12 @@ def spin_squeezing(state):
     def variance(eta):
         return spin_variance(state, squeezing_axis(eta))
 
-    optimum = optimize.minimize(variance, 0) # use 0 as a guess for eta
-    optimal_phi = optimum.x[0]
-    squeezing_parameter = optimum.fun / (S/2)
+    optimum = optimize.minimize_scalar(variance, method = "bounded", bounds = (0, np.pi))
+    if not optimum.success:
+        print("squeezing optimization failed")
+        exit()
+    optimal_phi = optimum.x
+    squeezing_parameter = optimum.fun / (N/4)
 
     return squeezing_parameter, squeezing_axis(optimal_phi)
 
@@ -117,14 +118,18 @@ def squeezing_OAT(chi_t, N):
     B = 4 * np.sin(chi_t) * np.cos(chi_t)**(N-2)
     return (1 + 1/4*(N-1)*A) - 1/4*(N-1)*np.sqrt(A*A+B*B)
 
-# squeezing parameter after orthogonal-state two-axis twisting
-def squeezing_TAT(chi_t, N):
+# propagator for z-y two-axis twisting
+def squeezing_TAT_propagator(chi_t, N):
     Sz = S_z(N)
     Sy = S_y(N)
-    H = 1/3 * ( Sz @ Sz - Sy @ Sy )
-    initial_state = coherent_spin_state([0,1,0], N)
-    final_state = linalg.expm(-1j*chi_t*H) @ initial_state
-    return spin_squeezing(final_state)[0]
+    return linalg.expm(-1j * chi_t * ( Sz @ Sz - Sy @ Sy ))
+
+# squeezing parameter after orthogonal-state two-axis twisting
+def squeezing_TAT(chi_t, N, return_propagator = False):
+    U_zy = squeezing_TAT_propagator(chi_t, N)
+    state_x = coherent_spin_state_angles(np.pi/2, 0, N)
+    return spin_squeezing(U_zy @ state_x)[0]
+
 
 ##########################################################################################
 # plotting a state on the S = N/2 Bloch sphere

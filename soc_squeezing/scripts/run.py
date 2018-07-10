@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 from pylab import *
-import scipy.linalg as linalg
 
 from mathieu_methods import mathieu_solution
 from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
-from squeezing_methods import squeezing_OAT, squeezing_TAT
+from squeezing_methods import squeezing_OAT, coherent_spin_state, \
+    squeezing_TAT_propagator, spin_squeezing
 
 # lattice bands and site number: only matters for calculations of lattice parameters
 bands = 5
@@ -16,9 +16,10 @@ tunneling_dims = 1 # number of dimensions in which to tunnel
 lattice_depth = 4 # shallow (tunneling) axis lattice depth
 c_lattice_depth = 60 # deep (confining) axis lattice depth
 phi = pi/50 # spin-orbit coupling parameter
+
 L = 100 # total number of lattice sites
-eta = 1/2 # total filling fraction
-N = eta * L # total number of atoms
+N = 50 # total number of atoms
+eta = N/L # total filling fraction
 
 c_momenta, c_fourier_vecs, c_energies = mathieu_solution(c_lattice_depth, bands, site_number)
 J_T = tunneling_1D(c_lattice_depth, c_momenta, c_fourier_vecs)
@@ -43,11 +44,19 @@ print("U (2\pi Hz):", U * recoil_energy_Hz)
 print("xi (2\pi Hz):", U/L * recoil_energy_Hz)
 print("chi (2\pi Hz):", chi * recoil_energy_Hz)
 print("omega (2\pi Hz):", N*sqrt(U/L*chi) * recoil_energy_Hz)
+print()
 
 tau_vals = np.linspace(0, 3, 100)
 chi_times = tau_vals * N**(-2/3)
 squeezing_OAT_vals = np.vectorize(squeezing_OAT)(chi_times, N)
-squeezing_TAT_vals = np.vectorize(squeezing_TAT)(chi_times, N)
+
+squeezing_TAT_vals = np.zeros(chi_times.size) # initialize vector of TAT squeezing values
+state = coherent_spin_state([0,1,0], N) # initialize state pointing in x
+d_chi_t = chi_times[1] - chi_times[0] # size of one time step
+dU_TAT = squeezing_TAT_propagator(d_chi_t/3, N) # TAT propagator for one time step
+for ii in range(squeezing_OAT_vals.size):
+    squeezing_TAT_vals[ii] = spin_squeezing(state)[0] # compute squeezing parameter
+    state = dU_TAT @ state # propagate state for one time step
 
 tau_opt_OAT = tau_vals[squeezing_OAT_vals.argmin()]
 tau_opt_TAT = tau_vals[squeezing_TAT_vals.argmin()]
@@ -58,7 +67,6 @@ times_SI = chi_times / chi / recoil_energy_NU
 squeezing_OAT_dB = -10*np.log(squeezing_OAT_vals.min())/np.log(10)
 squeezing_TAT_dB = -10*np.log(squeezing_TAT_vals.min())/np.log(10)
 
-print()
 print("t_opt_OAT (sec):", t_opt_OAT / recoil_energy_NU)
 print("t_opt_TAT (sec):", t_opt_TAT / recoil_energy_NU)
 print()
