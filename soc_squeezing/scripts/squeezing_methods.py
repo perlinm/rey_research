@@ -60,6 +60,7 @@ def rotate_vector(vector, axis, angle):
 
 # coherent spin state on S = N/2 Bloch sphere
 def coherent_spin_state_angles(theta, phi, N = 10):
+    N = round(int(N))
     state = np.zeros(N+1, dtype = complex)
     for m in range(N+1):
         c_theta = np.sin(theta/2)**(N-m) * np.cos(theta/2)**m

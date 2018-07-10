@@ -8,35 +8,41 @@ from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 from squeezing_methods import squeezing_OAT, squeezing_TAT
 
-c_lattice_depth = 60
-lattice_depth = 4
+# lattice bands and site number: only matters for calculations of lattice parameters
 bands = 5
 site_number = 100
 
+tunneling_dims = 1 # number of dimensions in which to tunnel
+lattice_depth = 4 # shallow (tunneling) axis lattice depth
+c_lattice_depth = 60 # deep (confining) axis lattice depth
+phi = pi/50 # spin-orbit coupling parameter
+L = 100 # total number of lattice sites
+eta = 1/2 # total filling fraction
+N = eta * L # total number of atoms
 
 c_momenta, c_fourier_vecs, c_energies = mathieu_solution(c_lattice_depth, bands, site_number)
 J_T = tunneling_1D(c_lattice_depth, c_momenta, c_fourier_vecs)
 K_T = pair_overlap_1D(c_momenta, c_fourier_vecs)
+momenta, fourier_vecs, _ = mathieu_solution(lattice_depth, bands, site_number)
+K_0 = pair_overlap_1D(momenta, fourier_vecs)
+J_0 = tunneling_1D(lattice_depth, momenta, fourier_vecs)
+
 print("J_T (2\pi Hz):", J_T * recoil_energy_Hz)
 print()
 
+if tunneling_dims == 1:
+    U = g_int_LU[1] * K_0 * K_T**2
+    chi = 8 * J_0**2 * sin(phi/2)**2 / ((N-1) * eta * U)
 
-depth = 4
-site_number = 100 # per axis
-eta = 1/2 # filling fraction
+elif tunneling_dims == 2:
+    U = g_int_LU[1] * K_0**2 * K_T
+    chi = 16 * J_0**2 * sin(phi/2)**2 / ((N-1) * eta * U)
 
-N = int(round(site_number * eta))
-L = site_number
-
-phi = pi/50
-
-momenta, fourier_vecs, _ = mathieu_solution(depth, bands, site_number)
-
-K_0 = pair_overlap_1D(momenta, fourier_vecs)
-J_0 = tunneling_1D(depth, momenta, fourier_vecs)
-U = g_int_LU[1] * K_0 * K_T**2
-
-chi = 8 * J_0**2 * sin(phi/2)**2 / ((N-1) * eta * U)
+print("J_0 (2\pi Hz):", J_0 * recoil_energy_Hz)
+print("U (2\pi Hz):", U * recoil_energy_Hz)
+print("xi (2\pi Hz):", U/L * recoil_energy_Hz)
+print("chi (2\pi Hz):", chi * recoil_energy_Hz)
+print("omega (2\pi Hz):", N*sqrt(U/L*chi) * recoil_energy_Hz)
 
 tau_vals = np.linspace(0, 3, 100)
 chi_times = tau_vals * N**(-2/3)
@@ -52,10 +58,7 @@ times_SI = chi_times / chi / recoil_energy_NU
 squeezing_OAT_dB = -10*np.log(squeezing_OAT_vals.min())/np.log(10)
 squeezing_TAT_dB = -10*np.log(squeezing_TAT_vals.min())/np.log(10)
 
-print("J_0 (2\pi Hz):", J_0 * recoil_energy_Hz)
-print("U (2\pi Hz):", U * recoil_energy_Hz)
-print("xi (2\pi Hz):", U/L * recoil_energy_Hz)
-print("chi (2\pi Hz):", chi * recoil_energy_Hz)
+print()
 print("t_opt_OAT (sec):", t_opt_OAT / recoil_energy_NU)
 print("t_opt_TAT (sec):", t_opt_TAT / recoil_energy_NU)
 print()
