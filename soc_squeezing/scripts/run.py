@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 from pylab import *
 
 from mathieu_methods import mathieu_solution
@@ -7,6 +8,9 @@ from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 from squeezing_methods import squeezing_OAT, coherent_spin_state, \
     squeezing_TAT_propagator, spin_squeezing
+
+show = "show" in sys.argv
+save = "save" in sys.argv
 
 # lattice bands and site number: only matters for calculations of lattice parameters
 bands = 5
@@ -17,11 +21,14 @@ lattice_depth = 4 # shallow (tunneling) axis lattice depth
 c_lattice_depth = 60 # deep (confining) axis lattice depth
 phi = pi/50 # spin-orbit coupling parameter
 
-L = 100 # total number of lattice sites
 N = 50 # total number of atoms
+L = 100 # total number of lattice sites
 eta = N/L # total filling fraction
 
-c_momenta, c_fourier_vecs, c_energies = mathieu_solution(c_lattice_depth, bands, site_number)
+max_tau = 3 # for simulation: chi * max_time = max_tau * N **(-2/3)
+time_steps = 100 # time steps in simulation
+
+c_momenta, c_fourier_vecs, _ = mathieu_solution(c_lattice_depth, bands, site_number)
 J_T = tunneling_1D(c_lattice_depth, c_momenta, c_fourier_vecs)
 K_T = pair_overlap_1D(c_momenta, c_fourier_vecs)
 momenta, fourier_vecs, _ = mathieu_solution(lattice_depth, bands, site_number)
@@ -46,7 +53,7 @@ print("chi (2\pi Hz):", chi * recoil_energy_Hz)
 print("omega (2\pi Hz):", N*sqrt(U/L*chi) * recoil_energy_Hz)
 print()
 
-tau_vals = np.linspace(0, 3, 100)
+tau_vals = np.linspace(0, max_tau, time_steps)
 chi_times = tau_vals * N**(-2/3)
 squeezing_OAT_vals = np.vectorize(squeezing_OAT)(chi_times, N)
 
@@ -73,7 +80,10 @@ print()
 print("OAT squeezing (dB):", squeezing_OAT_dB)
 print("TAT squeezing (dB):", squeezing_TAT_dB)
 
-exit()
+
+if not show or save: exit()
+
+def to_dB(x): return 10*np.log10(x)
 
 fig_dir = "../figures/"
 figsize = (3,2)
@@ -81,11 +91,13 @@ params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
 plt.figure(figsize = figsize)
-plt.plot(times_SI, -10*np.log(squeezing_OAT_vals)/np.log(10), label = "OAT")
-plt.plot(times_SI, -10*np.log(squeezing_TAT_vals)/np.log(10), label = "TAT")
+plt.plot(times_SI, to_dB(squeezing_OAT_vals), label = "OAT")
+plt.plot(times_SI, to_dB(squeezing_TAT_vals), label = "TAT")
 plt.xlim(0,times_SI[-1])
 plt.xlabel(r"Time (seconds)")
-plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
+plt.ylabel(r"Squeezing: $10\log_{10}(\xi^2)$")
 plt.legend(loc="best")
 plt.tight_layout()
-plt.savefig(fig_dir + "squeezing_comparison.pdf")
+
+if save: plt.savefig(fig_dir + "squeezing_comparison.pdf")
+if show: plt.show()
