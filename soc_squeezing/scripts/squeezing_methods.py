@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.linalg as linalg
 import scipy.optimize as optimize
+import matplotlib.pyplot as plt
 
 from scipy.special import binom as binomial
 from mpl_toolkits.mplot3d import Axes3D
@@ -111,6 +111,11 @@ def spin_squeezing(state):
     squeezing_parameter = optimum.fun / (N/4)
 
     return squeezing_parameter, squeezing_axis(optimal_phi)
+
+# propagator for z-axis twisting
+def squeezing_OAT_propagator(chi_t, N):
+    Sz = S_z(N)
+    return linalg.expm(-1j * chi_t * Sz @ Sz)
 
 # squeezing parameter after orthogonal-state one-axis twisting
 def squeezing_OAT(chi_t, N):
