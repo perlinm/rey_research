@@ -12,6 +12,8 @@ import itertools, functools, operator
 from scipy.special import binom as binomial
 from sympy.combinatorics.permutations import Permutation as sympy_permutation
 
+np.set_printoptions(linewidth = 200)
+
 # return product of items in list
 def sum(list):
     try:
@@ -218,17 +220,6 @@ class c_seq:
         num_ops = len(self.seq)
         assert(num_ops % 2 == 0) # we must have an even number of operators
 
-        # make sure all operators are within our bounds
-        assert(all( op.q_x < L_x for op in self.seq ))
-        assert(all( op.q_y < L_y for op in self.seq ))
-
-        # if it is not a vector, this is a matrix element (e.g. of a Hamiltonian)
-        # to enforce conservation of particle number, we only allow sequences in which
-        #   all annihilation operators precede all creation operators
-        #   when read read right to left
-        assert(all( op.creation for op in self.seq[:num_ops//2] ) and
-               all( not op.creation for op in self.seq[num_ops//2:] ))
-
         # dimension of hilbert space and initial zero matrix
         hilbert_dim = int(binomial(2*L_x*L_y, N))
         matrix = np.zeros((hilbert_dim,hilbert_dim), dtype = complex)
@@ -236,12 +227,22 @@ class c_seq:
         # if we have an empty sequence, return the zero matrix
         if num_ops == 0: return matrix
 
+        # make sure all operators are within our bounds
+        assert(all( op.q_x < L_x for op in self.seq ))
+        assert(all( op.q_y < L_y for op in self.seq ))
+
+        # to strictly enforce conservation of particle number, we only allow sequences
+        #   in which all annihilation operators precede all creation operators
+        #   when read read right to left
+        assert(all( op.creation for op in self.seq[:num_ops//2] ) and
+               all( not op.creation for op in self.seq[num_ops//2:] ))
+
         # creation / destruction operators and their indices
         created_states = [ op.index(L_x) for op in self.seq[:num_ops//2] ]
         destroyed_states = [ op.index(L_x) for op in self.seq[num_ops//2:] ]
 
         # if we address any states twice, return the zero matrix
-        if len(set(created_states)) + len(set(destroyed_states)) != len(self.seq):
+        if len(set(created_states)) + len(set(destroyed_states)) != num_ops:
             return matrix
 
         for index_in, states_in in fock_state_basis(L_x, L_y, N):
@@ -348,37 +349,43 @@ class c_sum:
 ##########################################################################################
 
 # collective spin operators for N particles on a 2-D lattice with (L_x,L_y) sites
-def Sz_op(L_x, L_y, N):
+def spin_op_z(L_x, L_y, N):
     return sum( ( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,1)
                   - c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,0) ) / 2
                 for q_y in range(L_y)
                 for q_x in range(L_x) ).matrix(L_x, L_y, N)
-def Sx_op(L_x, L_y, N):
+def spin_op_x(L_x, L_y, N):
     return sum( ( c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,1)
                   + c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0) ) / 2
                 for q_y in range(L_y)
                 for q_x in range(L_x) ).matrix(L_x, L_y, N)
-def Sy_op(L_x, L_y, N):
+def spin_op_y(L_x, L_y, N):
     return sum( ( c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,1)
                   - c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0) ) / 2
                 for q_y in range(L_y)
                 for q_x in range(L_x) ).matrix(L_x, L_y, N) * 1j
-def S_ops(L_x, L_y, N):
-    return Sz_op(L_x, L_y, N), Sx_op(L_x, L_y, N), Sy_op(L_x, L_y, N)
+def spin_op_vec(L_x, L_y, N):
+    return np.array([ spin_op_z(L_x, L_y, N),
+                      spin_op_x(L_x, L_y, N),
+                      spin_op_y(L_x, L_y, N) ])
 
-# determine collective spin operators from ambiguous inputs
-def get_spin_ops(Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators):
-    if operators: # the inputs are spin operators
-        return Sz_or_Lx, Sx_or_Ly, Sy_or_N
-    else: # use the inputs to compute spin operators
-        return S_ops(Sz_or_Lx, Sx_or_Ly, Sy_or_N)
-
-def Sn_op(vec, Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators = True):
-    Sz, Sx, Sy = get_spin_ops(Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators)
-    return ( vec[0] * Sz + vec[1] * Sx + vec[2] * Sy ) / np.linalg.norm(vec)
+# construct \vec S \wedge \vec S for a state
+def spin_spin_op_mat(S_op_vec):
+    Sz = S_op_vec[0]
+    Sx = S_op_vec[1]
+    Sy = S_op_vec[2]
+    Szz = Sz @ Sz
+    Sxx = Sx @ Sx
+    Syy = Sy @ Sy
+    Sxy = Sx @ Sy
+    Syz = Sy @ Sz
+    Szx = Sz @ Sx
+    return np.array([ [ Szz,          Szx,          Syz ],
+                      [ Szx.conj().T, Sxx,          Sxy ],
+                      [ Syz.conj().T, Sxy.conj().T, Syy ] ])
 
 # density operators with completely mixed spatial degees of freedom,
-#   but all spins pointing along a given axis
+#   but all spins pointing along principal axes
 def polarized_states(L_x, L_y, N):
     hilbert_dim = int(binomial(2*L_x*L_y, N))
     state_z = np.zeros((hilbert_dim,hilbert_dim), dtype = complex)
@@ -476,9 +483,6 @@ def H_int_j(L_x, L_y, N, U):
 # methods for computing spin squeezing
 ##########################################################################################
 
-# expectation value of an operator with respect to a state (i.e. density operator)
-def val(op, state): return np.real(np.trace(op @ state))
-
 # rotate a vector about an axis by a given angle
 def rotate_vector(vector, axis, angle):
     L_z = np.array([ [  0,  0,  0 ],
@@ -490,52 +494,42 @@ def rotate_vector(vector, axis, angle):
     L_y = np.array([ [  0, -1,  0 ],
                      [  1,  0,  0 ],
                      [  0,  0,  0 ] ])
-    L = ( axis[0] * L_z + axis[1] * L_x + axis[2] * L_y)  / np.linalg.norm(axis)
+    L = ( axis[0] * L_z + axis[1] * L_x + axis[2] * L_y)  / linalg.norm(axis)
     return linalg.expm(angle * L) @ vector
 
-# get spin vector <\vec S> for a state
-def spin_vec(state, Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators = True):
-    Sz, Sx, Sy = get_spin_ops(Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators)
-    def val(X): return np.real(np.trace(X @ state))
-    return np.real(np.array([ val(Sz), val(Sx), val(Sy) ]))
-
-# get normalized spin vector <\hat S> for a state
-def spin_axis(state, Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators = True):
-    vec = spin_vec(state, Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators)
-    return vec / np.linalg.norm(vec)
-
 # variance of spin state about an axis
-def spin_variance(state, axis, Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators = True):
-    Sn = Sn_op(axis, Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators)
-    def val(X): return np.real(np.trace(X @ state))
-    return abs(val(Sn @ Sn) - abs(val(Sn))**2)
+def spin_variance(state, axis, S_op_vec, SS_op_mat):
+    S_vec = np.einsum("Aij,ji->A", S_op_vec, state, optimize = True)
+    SS_mat = np.einsum("ABij,ji->AB", SS_op_mat, state, optimize = True)
+    return np.real(axis @ SS_mat @ axis - abs(S_vec @ axis)**2)
 
 # return (\xi^2, axis), where:
 #   "axis" is the axis of minimal spin variance in the plane orthogonal to <\vec S>
-#   \xi^2 = (<S_axis^2> - <S_axis>^2) / (S/2) is the spin squeezing parameter
-def spin_squeezing(state, Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators = True):
-    Sz, Sx, Sy = get_spin_ops(Sz_or_Lx, Sx_or_Ly, Sy_or_N, operators)
-    state_axis = spin_axis(state, Sz, Sx, Sy)
-    if state_axis[1] == 0 and state_axis[2] == 0:
+#   \xi^2 = N (<S_axis^2> - <S_axis>^2) / |<S>|^2 is the spin squeezing parameter
+def spin_squeezing(state, S_op_vec, SS_op_mat):
+    S_vec = np.einsum("Aij,ji->A", S_op_vec, state, optimize = True)
+    SS_mat = np.einsum("ABij,ji->AB", SS_op_mat, state, optimize = True)
+
+    if S_vec[1] == 0 and S_vec[2] == 0:
         perp_vec = [0,1,0]
     else:
-        rot_axis = np.cross([1,0,0], state_axis)
-        perp_vec = rotate_vector(state_axis, rot_axis, np.pi/2)
+        rot_axis = np.cross([1,0,0], S_vec)
+        perp_vec = rotate_vector(S_vec, rot_axis, np.pi/2) / linalg.norm(S_vec)
 
-    def squeezing_axis(eta): # eta is the angle in the plane orthogonal to the spin vector
-        return rotate_vector(perp_vec, state_axis, eta)
+    def squeezing_axis(eta): # eta = angle in plane orthogonal to the spin vector
+        return rotate_vector(perp_vec, S_vec, eta)
     def variance(eta):
-        return spin_variance(state, squeezing_axis(eta), Sz, Sx, Sy)
+        axis = squeezing_axis(eta)
+        return np.real(axis @ SS_mat @ axis)
 
     optimum = optimize.minimize_scalar(variance, method = "bounded", bounds = (0, np.pi))
     if not optimum.success:
         sys.exit("squeezing optimization failed")
     optimal_phi = optimum.x
-    squeezing_parameter = optimum.fun / (N/4)
+    minimal_variance = optimum.fun
+    squeezing_parameter = minimal_variance * N / linalg.norm(S_vec)**2
 
     return squeezing_parameter, squeezing_axis(optimal_phi)
-
-
 
 
 ##########################################################################################
@@ -546,7 +540,8 @@ L_y = 5
 N = 5
 
 J_0 = 1
-U = 31.85
+U = 25
+Omega = 35
 phi = np.pi
 
 max_time = 10
@@ -558,27 +553,26 @@ max_time = 10
 
 # J_0 = 296.6 * 2*np.pi
 # U = 1357 * 2*np.pi
+# Omega = 0
 # phi = np.pi / 50
 
 # max_time = 1
 
-##########################################################################################
+
+time_steps = 100
 
 hilbert_dim = int(binomial(2*L_x*L_y, N))
 print("hilbert_dim:",hilbert_dim)
-H = np.zeros((hilbert_dim,hilbert_dim), dtype = complex)
 
-Sz, Sx, Sy = S_ops(L_x, L_y, N)
-
+S_op_vec = spin_op_vec(L_x, L_y, N)
+SS_op_mat = spin_spin_op_mat(S_op_vec)
 state_z, state_x, state_y = polarized_states(L_x, L_y, N)
 
 
-##########################################################################################
-
-
-H_q = H_int_q(L_x, L_y, N, U) + H_lat_q(L_x, L_y, N, J_0, phi)
-H_j = H_int_j(L_x, L_y, N, U) + H_lat_j(L_x, L_y, N, J_0, phi)
-
+H_drive = - Omega * S_op_vec[2]
+# H_q = H_int_q(L_x, L_y, N, U) + H_lat_q(L_x, L_y, N, J_0, phi) + H_drive
+H_q = H_int_j(L_x, L_y, N, U) + H_lat_j(L_x, L_y, N, J_0, phi, periodic = True) + H_drive
+H_j = H_int_j(L_x, L_y, N, U) + H_lat_j(L_x, L_y, N, J_0, phi) + H_drive
 
 # q_vals = np.real(np.linalg.eigvals(H_q))
 # j_vals = np.real(np.linalg.eigvals(H_j))
@@ -592,42 +586,36 @@ H_j = H_int_j(L_x, L_y, N, U) + H_lat_j(L_x, L_y, N, J_0, phi)
 
 # exit()
 
+vals_j, vecs_j = np.linalg.eig(H_j)
+vals_j = np.real(vals_j)
+inv_vecs_j = np.linalg.inv(vecs_j)
+
+S_op_vec_j = np.einsum("Bi,Aij,jC->ABC", inv_vecs_j, S_op_vec, vecs_j, optimize = True)
+SS_op_mat_j = np.einsum("Ci,ABij,jD->ABCD", inv_vecs_j, SS_op_mat, vecs_j, optimize = True)
+state_x_j = np.einsum("Ai,ij,jB->AB", inv_vecs_j, state_x, vecs_j, optimize = True)
 
 vals_q, vecs_q = np.linalg.eig(H_q)
 vals_q = np.real(vals_q)
 inv_vecs_q = np.linalg.inv(vecs_q)
 
-vals_j, vecs_j = np.linalg.eig(H_j)
-vals_j = np.real(vals_j)
-inv_vecs_j = np.linalg.inv(vecs_j)
+S_op_vec_q = np.einsum("Bi,Aij,jC->ABC", inv_vecs_q, S_op_vec, vecs_q, optimize = True)
+SS_op_mat_q = np.einsum("Ci,ABij,jD->ABCD", inv_vecs_q, SS_op_mat, vecs_q, optimize = True)
+state_x_q = np.einsum("Ai,ij,jB->AB", inv_vecs_q, state_x, vecs_q, optimize = True)
 
-state_q_0 = inv_vecs_q @ state_x @ vecs_q
-Sz_q = inv_vecs_q @ Sz @ vecs_q
-Sx_q = inv_vecs_q @ Sx @ vecs_q
-Sy_q = inv_vecs_q @ Sy @ vecs_q
-
-state_j_0 = inv_vecs_j @ state_x @ vecs_j
-Sz_j = inv_vecs_j @ Sz @ vecs_j
-Sx_j = inv_vecs_j @ Sx @ vecs_j
-Sy_j = inv_vecs_j @ Sy @ vecs_j
-
-times = np.linspace(0, max_time, 100)
-squeezing_j = np.zeros(len(times))
-squeezing_q = np.zeros(len(times))
+times = np.linspace(0, max_time, time_steps)
+squeezing_j = np.zeros(time_steps)
+squeezing_q = np.zeros(time_steps)
 for ii in range(len(times)):
     print("{}/{}".format(ii,len(times)))
     U_q = np.exp(-1j * times[ii] * vals_q)
     U_j = np.exp(-1j * times[ii] * vals_j)
-    state_q_t = diag_mult( U_q.conj(), diag_mult(U_q, state_q_0, left = True), left = False)
-    state_j_t = diag_mult( U_j.conj(), diag_mult(U_j, state_j_0, left = True), left = False)
-    # squeezing_q[ii], _ = spin_squeezing(state_q_t, Sz_q, Sx_q, Sy_q)
-    # squeezing_j[ii], _ = spin_squeezing(state_j_t, Sz_j, Sx_j, Sy_j)
-    squeezing_q[ii] = val(Sx_q, state_q_t)
-    squeezing_j[ii] = val(Sx_j, state_j_t)
+    state_t_j = diag_mult(U_j.conj(), diag_mult(U_j, state_x_j, left = True), left = False)
+    state_t_q = diag_mult(U_q.conj(), diag_mult(U_q, state_x_q, left = True), left = False)
+    squeezing_j[ii], _ = spin_squeezing(state_t_j, S_op_vec_j, SS_op_mat_j)
+    squeezing_q[ii], _ = spin_squeezing(state_t_q, S_op_vec_q, SS_op_mat_q)
 
-# convert squeezing to dB
-# squeezing_q = -10*np.log(squeezing_q)/np.log(10)
-# squeezing_j = -10*np.log(squeezing_j)/np.log(10)
+# convert values to decibels
+def to_dB(x): return -10*np.log10(x)
 
 fig_dir = "../figures/"
 figsize = (4,3)
@@ -635,11 +623,13 @@ params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
 plt.figure(figsize = figsize)
-plt.plot(times, squeezing_q, label = "periodic")
-plt.plot(times, squeezing_j, label = "closed")
+# plt.plot(times, to_dB(squeezing_j), label = "closed")
+plt.plot(times, to_dB(squeezing_q), label = "periodic")
 plt.xlim(0, times[-1])
 plt.xlabel(r"Time (seconds)")
-plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
+plt.ylabel(r"Squeezing: $10\log_{10}(\xi^2)$")
 plt.legend(loc="best")
 plt.tight_layout()
-plt.show()
+
+import sys
+if "show" in sys.argv: plt.show()
