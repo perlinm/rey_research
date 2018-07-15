@@ -2,7 +2,7 @@
 
 # FILE CONTENTS: (symbolic) methods relating to fermion squeezing
 
-import sys
+import sys, time
 import numpy as np
 import scipy.linalg as linalg
 import scipy.optimize as optimize
@@ -134,7 +134,6 @@ class c_seq:
         else:
             self.seq = sequence
         self.prefactor = prefactor
-        self.sort()
 
     def __repr__(self):
         op_text = " * ".join([ str(item) for item in self.seq ])
@@ -144,8 +143,10 @@ class c_seq:
         assert(type(other) is c_seq)
         if len(self.seq) != len(other.seq):
             return False
-        if self.prefactor != other.prefactor:
+        if self.prefactor != other.prefactor and self.prefactor != -other.prefactor:
             return False
+        self.sort()
+        other.sort()
         return all([ self.seq[ii] == other.seq[ii] for ii in range(len(self.seq)) ])
 
     def __ne__(self, other): return not self == other
@@ -198,12 +199,19 @@ class c_seq:
     def vector(self, L_x, L_y, N):
         # assert we have the same nubmer of operators as particles
         assert(N == len(self.seq))
+
         # assert that all operators are of the same type (i.e. creation / annihilation)
         assert( len(set( op.creation for op in self.seq )) == 1 )
+
         # initialize zero state
         state = np.zeros(int(binomial(2*L_x*L_y,N)), dtype = complex)
+
+        # sort operators, picking up a sign in the prefactor if necessary
+        self.sort()
+
         # determine which sinle-particle states will be occupied
         occupied_states = tuple( op.index(L_x) for op in self.seq[::-1] )
+
         # if any operators are repeats, return the zero state
         if len(occupied_states) != len(set(occupied_states)): return state
 
@@ -231,15 +239,15 @@ class c_seq:
         assert(all( op.q_x < L_x for op in self.seq ))
         assert(all( op.q_y < L_y for op in self.seq ))
 
-        # to strictly enforce conservation of particle number, we only allow sequences
-        #   in which all annihilation operators precede all creation operators
-        #   when read read right to left
-        assert(all( op.creation for op in self.seq[:num_ops//2] ) and
-               all( not op.creation for op in self.seq[num_ops//2:] ))
+        # to strictly enforce conservation of particle number, we make sure that
+        #   we have the same number of creation operators as annihilation operators
+        assert( len([ op for op in self.seq if op.creation ]) ==
+                len([ op for op in self.seq if not op.creation ]) )
 
         # creation / destruction operators and their indices
+        self.sort()
         created_states = [ op.index(L_x) for op in self.seq[:num_ops//2] ]
-        destroyed_states = [ op.index(L_x) for op in self.seq[num_ops//2:] ]
+        destroyed_states = [ op.index(L_x) for op in self.seq[num_ops//2:][::-1] ]
 
         # if we address any states twice, return the zero matrix
         if len(set(created_states)) + len(set(destroyed_states)) != num_ops:
@@ -259,6 +267,13 @@ class c_seq:
             remaining_states_in = [ state for state in states_in
                                     if state not in destroyed_states ]
 
+            # if we are creating the same states that we destroyed,
+            #   then this is a diagonal matrix entry
+            if created_states == destroyed_states:
+                matrix[index_in, index_in] = 1
+                continue
+
+            # otherwise, we need to look at all off-diagonal matrix elements
             for index_out, states_out in fock_state_basis(L_x, L_y, N):
                 if any([ state not in states_out for state in created_states ]): continue
 
@@ -351,35 +366,48 @@ class c_sum:
 # collective spin operators for N particles on a 2-D lattice with (L_x,L_y) sites
 def spin_op_z(L_x, L_y, N):
     return sum( ( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,1)
-                  - c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,0) ) / 2
+                  - c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,0) )
                 for q_y in range(L_y)
-                for q_x in range(L_x) ).matrix(L_x, L_y, N)
+                for q_x in range(L_x) ).matrix(L_x, L_y, N) / 2
+
 def spin_op_x(L_x, L_y, N):
-    return sum( ( c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,1)
-                  + c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0) ) / 2
-                for q_y in range(L_y)
-                for q_x in range(L_x) ).matrix(L_x, L_y, N)
+    Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
+              for q_y in range(L_y)
+              for q_x in range(L_x) ).matrix(L_x, L_y, N)
+    return ( Sm + Sm.conj().T ) / 2
+
 def spin_op_y(L_x, L_y, N):
-    return sum( ( c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,1)
-                  - c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0) ) / 2
-                for q_y in range(L_y)
-                for q_x in range(L_x) ).matrix(L_x, L_y, N) * 1j
+    Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
+              for q_y in range(L_y)
+              for q_x in range(L_x) ).matrix(L_x, L_y, N)
+    return ( Sm - Sm.conj().T ) * 1j / 2
+
 def spin_op_vec(L_x, L_y, N):
-    return np.array([ spin_op_z(L_x, L_y, N),
-                      spin_op_x(L_x, L_y, N),
-                      spin_op_y(L_x, L_y, N) ])
+    Sz = sum( ( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,1)
+                - c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,0) )
+              for q_y in range(L_y)
+              for q_x in range(L_x) ).matrix(L_x, L_y, N) / 2
+
+    Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
+              for q_y in range(L_y)
+              for q_x in range(L_x) ).matrix(L_x, L_y, N)
+
+    Sx = ( Sm + Sm.conj().T ) / 2
+    Sy = ( Sm - Sm.conj().T ) * 1j / 2
+
+    return np.array([ Sz, Sx, Sy ])
 
 # construct \vec S \wedge \vec S for a state
 def spin_spin_op_mat(S_op_vec):
     Sz = S_op_vec[0]
     Sx = S_op_vec[1]
     Sy = S_op_vec[2]
-    Szz = Sz @ Sz
-    Sxx = Sx @ Sx
-    Syy = Sy @ Sy
-    Sxy = Sx @ Sy
-    Syz = Sy @ Sz
-    Szx = Sz @ Sx
+    Szz = np.einsum("Ai,iB", Sz, Sz, optimize = True)
+    Sxx = np.einsum("Ai,iB", Sx, Sx, optimize = True)
+    Syy = np.einsum("Ai,iB", Sy, Sy, optimize = True)
+    Sxy = np.einsum("Ai,iB", Sx, Sy, optimize = True)
+    Syz = np.einsum("Ai,iB", Sy, Sz, optimize = True)
+    Szx = np.einsum("Ai,iB", Sz, Sx, optimize = True)
     return np.array([ [ Szz,          Szx,          Syz ],
                       [ Szx.conj().T, Sxx,          Sxy ],
                       [ Syz.conj().T, Sxy.conj().T, Syy ] ])
@@ -535,28 +563,28 @@ def spin_squeezing(state, S_op_vec, SS_op_mat):
 ##########################################################################################
 ##########################################################################################
 
-L_x = 1
-L_y = 5
-N = 5
-
-J_0 = 1
-U = 25
-Omega = 35
-phi = np.pi
-
-max_time = 10
-
-
 # L_x = 1
 # L_y = 5
 # N = 5
 
-# J_0 = 296.6 * 2*np.pi
-# U = 1357 * 2*np.pi
-# Omega = 0
-# phi = np.pi / 50
+# J_0 = 1
+# U = 25
+# Omega = 35
+# phi = np.pi
 
-# max_time = 1
+# max_time = 10
+
+
+L_x = 1
+L_y = 5
+N = 5
+
+J_0 = 296.6 * 2*np.pi
+U = 1357 * 2*np.pi
+Omega = 0
+phi = np.pi / 50
+
+max_time = 1
 
 
 time_steps = 100
@@ -564,15 +592,23 @@ time_steps = 100
 hilbert_dim = int(binomial(2*L_x*L_y, N))
 print("hilbert_dim:",hilbert_dim)
 
+start = time.time()
+
 S_op_vec = spin_op_vec(L_x, L_y, N)
 SS_op_mat = spin_spin_op_mat(S_op_vec)
+
+
+
+print(time.time()-start)
+exit()
+
 state_z, state_x, state_y = polarized_states(L_x, L_y, N)
 
 
 H_drive = - Omega * S_op_vec[2]
-# H_q = H_int_q(L_x, L_y, N, U) + H_lat_q(L_x, L_y, N, J_0, phi) + H_drive
-H_q = H_int_j(L_x, L_y, N, U) + H_lat_j(L_x, L_y, N, J_0, phi, periodic = True) + H_drive
-H_j = H_int_j(L_x, L_y, N, U) + H_lat_j(L_x, L_y, N, J_0, phi) + H_drive
+H_q = H_drive + H_int_q(L_x, L_y, N, U) + H_lat_q(L_x, L_y, N, J_0, phi)
+# H_q = H_drive + H_int_j(L_x, L_y, N, U) + H_lat_j(L_x, L_y, N, J_0, phi, periodic = True)
+H_j = H_drive + H_int_j(L_x, L_y, N, U) + H_lat_j(L_x, L_y, N, J_0, phi)
 
 # q_vals = np.real(np.linalg.eigvals(H_q))
 # j_vals = np.real(np.linalg.eigvals(H_j))
@@ -606,7 +642,8 @@ times = np.linspace(0, max_time, time_steps)
 squeezing_j = np.zeros(time_steps)
 squeezing_q = np.zeros(time_steps)
 for ii in range(len(times)):
-    print("{}/{}".format(ii,len(times)))
+    if hilbert_dim > 500:
+        print("{}/{}".format(ii,len(times)))
     U_q = np.exp(-1j * times[ii] * vals_q)
     U_j = np.exp(-1j * times[ii] * vals_j)
     state_t_j = diag_mult(U_j.conj(), diag_mult(U_j, state_x_j, left = True), left = False)
@@ -623,7 +660,7 @@ params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
 plt.figure(figsize = figsize)
-# plt.plot(times, to_dB(squeezing_j), label = "closed")
+plt.plot(times, to_dB(squeezing_j), label = "closed")
 plt.plot(times, to_dB(squeezing_q), label = "periodic")
 plt.xlim(0, times[-1])
 plt.xlabel(r"Time (seconds)")
