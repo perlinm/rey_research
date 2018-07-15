@@ -91,6 +91,7 @@ def spin_variance(state, axis):
 #   \xi^2 = (<S_axis^2> - <S_axis>^2) / (S/2) is the spin squeezing parameter
 def spin_squeezing(state):
     N = state.size-1
+    S = N/2
     state_axis = spin_axis(state)
     if state_axis[1] == 0 and state_axis[2] == 0:
         perp_vec = [0,1,0]
@@ -108,7 +109,8 @@ def spin_squeezing(state):
         print("squeezing optimization failed")
         exit()
     optimal_phi = optimum.x
-    squeezing_parameter = optimum.fun / (N/4)
+    minimal_variance = optimum.fun
+    squeezing_parameter = minimal_variance * N / S**2
 
     return squeezing_parameter, squeezing_axis(optimal_phi)
 
