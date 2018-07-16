@@ -53,6 +53,42 @@ def c_op_by_index(index, L_x):
     q_y = (index // 2 - q_x) // L_x
     return c_op(q_x, q_y, spin_up)
 
+# get operator representation of annihilation operators in the fock basis
+# depth is the number of times we need to apply annihilation operators
+def get_c_op_mats(L_x, L_y, N, depth = 2):
+    single_particle_states = 2*L_x*L_y
+    c_op_mats = [ None ] * single_particle_states * depth
+
+    for dd in range(depth):
+        # determine dimensions of input and output hilbert spaces
+        dim_in = int(binomial(single_particle_states, N-dd))
+        dim_out = int(binomial(single_particle_states, N-dd-1))
+
+        for state_num in range(single_particle_states):
+            # initialize zero matrix for an annihilation operator addressing this state
+            matrix = np.zeros((dim_out,dim_in), dtype = int)
+
+            # loop over all states in the input fock space
+            for index_in, states_in in fock_state_basis(L_x, L_y, N-dd):
+                if state_num not in states_in: continue
+
+                # determine which single particle states are still occupied after
+                #   applying the annihilation operator
+                remaining_states = tuple( state for state in states_in
+                                          if state != state_num )
+                # determine whether we pick up a sign upon annihilation
+                sign = sum( 1 for state in states_in if state > state_num ) % 2
+
+                # loop over all states in the output fock space
+                for index_out, states_out in fock_state_basis(L_x, L_y, N-dd-1):
+                    if states_out == remaining_states:
+                        matrix[index_out, index_in] = (-1)**sign
+
+            # store the matrix for this annihilation operatorx
+            c_op_mats[single_particle_states*dd + state_num] = matrix
+
+    return c_op_mats
+
 # creation / annihilation operators
 class c_op:
     def __init__(self, q_x, q_y, spin_up, creation = False):
@@ -222,18 +258,18 @@ class c_seq:
         sys.exit("state not found in fock basis...")
 
     # return vector or matrix corresponding to this product of operators
-    def matrix(self, L_x, L_y, N):
+    def matrix(self, L_x, L_y, N, c_op_mats = None):
         assert(N <= 2*L_x*L_y) # we cannot have more particles than states
 
         num_ops = len(self.seq)
         assert(num_ops % 2 == 0) # we must have an even number of operators
 
-        # dimension of hilbert space and initial zero matrix
+        # determine dimension of hilbert space
         hilbert_dim = int(binomial(2*L_x*L_y, N))
-        matrix = np.zeros((hilbert_dim,hilbert_dim), dtype = complex)
+        matrix_shape = (hilbert_dim, hilbert_dim)
 
         # if we have an empty sequence, return the zero matrix
-        if num_ops == 0: return matrix
+        if num_ops == 0: return np.zeros(matrix_shape, dtype = complex)
 
         # make sure all operators are within our bounds
         assert(all( op.q_x < L_x for op in self.seq ))
@@ -244,34 +280,59 @@ class c_seq:
         assert( len([ op for op in self.seq if op.creation ]) ==
                 len([ op for op in self.seq if not op.creation ]) )
 
-        # creation / destruction operators and their indices
+        # sort all operators in a standard order
         self.sort()
+
+        # creation / destruction operators and their indices
         created_states = [ op.index(L_x) for op in self.seq[:num_ops//2] ]
         destroyed_states = [ op.index(L_x) for op in self.seq[num_ops//2:][::-1] ]
 
         # if we address any states twice, return the zero matrix
         if len(set(created_states)) + len(set(destroyed_states)) != num_ops:
-            return matrix
+            return np.zeros(matrix_shape, dtype = complex)
 
+        # if we provided matrix representations of the fermionic operators, use them!
+        if c_op_mats != None:
+            if len(c_op_mats) < (2*L_x*L_y)*(num_ops//2):
+                error_msg = "we need {} operators, but have only {}!"
+                sys.exit(error_msg.format((2*L_x*L_y)**(num_ops//2),len(c_op_mats)))
+
+            sum_indices = ""
+            for ii in range(num_ops-1):
+                sum_char = chr(ord("a")+ii)
+                sum_indices += "{0},{0}".format(sum_char)
+            sum_str = "A{}B->AB".format(sum_indices)
+
+            op_list = ( [ c_op_mats[(2*L_x*L_y)*ii + created_states[ii]].T
+                          for ii in range(num_ops//2) ] +
+                        [ c_op_mats[(2*L_x*L_y)*ii + destroyed_states[ii]]
+                          for ii in range(num_ops//2) ][::-1] )
+
+            return self.prefactor * np.einsum(sum_str, *op_list, optimize = True)
+
+        # we do not have a matrix representation of fermionic operators, so we have
+        #   to loop over all elements of the fock basis to construct a matrix
+        diagonal_term = created_states == destroyed_states
+        matrix = np.zeros(matrix_shape, dtype = complex)
         for index_in, states_in in fock_state_basis(L_x, L_y, N):
             # if this combination of single particle states is not addressed
             #   by the destruction operators, continue to next combination
             if any([ state not in states_in for state in destroyed_states ]): continue
 
-            # count the number of times we have to commute operators in order to
-            #   eliminate the destruction operators in this c_seq
-            comms_in = sum( sum( 1 for state in states_in
-                                 if state > destroyed_state )
-                            for destroyed_state in destroyed_states )
+            # if we are creating the same states that we destroyed,
+            #   then this is a diagonal matrix entry
+            if diagonal_term:
+                matrix[index_in, index_in] = 1
+                continue
 
+            # determine which will states remain occupied after destruction
             remaining_states_in = [ state for state in states_in
                                     if state not in destroyed_states ]
 
-            # if we are creating the same states that we destroyed,
-            #   then this is a diagonal matrix entry
-            if created_states == destroyed_states:
-                matrix[index_in, index_in] = 1
-                continue
+            # count the number of minus signs we get from applying destruction operators
+            signs_in = sum( sum( 1 for state in states_in
+                                 if state > destroyed_state )
+                            for destroyed_state in destroyed_states )
 
             # otherwise, we need to look at all off-diagonal matrix elements
             for index_out, states_out in fock_state_basis(L_x, L_y, N):
@@ -280,16 +341,16 @@ class c_seq:
                 remaining_states_out = [ state for state in states_out
                                          if state not in created_states ]
 
-                # any states not addressed by the operators in c_seq should be identical
+                # if the remaining input/output states are different
+                #   this matrix element is zero
                 if remaining_states_in != remaining_states_out: continue
 
-                comms_out = sum( sum( 1 for state in states_out
+                signs_out = sum( sum( 1 for state in states_out
                                       if state > created_state )
                                  for created_state in created_states )
 
-                # set the appropriate matrix element to 1 or -1
-                #   depening on appropriate sign from commuting operators
-                matrix[index_out, index_in] = (-1)**(comms_in + comms_out)
+                # set this matrix element to 1 or -1 appropriately
+                matrix[index_out, index_in] = (-1)**(signs_in + signs_out)
 
         return self.prefactor * matrix
 
@@ -303,9 +364,6 @@ class c_sum:
         if type(item_list[0]) is c_op:
             self.seq_list = [ c_seq(item) for item in item_list ]
         else: # if items are of type c_seq
-            # assert all nonempty sequences are of equal length
-            sequence_lengths = set( len(item.seq) for item in item_list )
-            assert(len(sequence_lengths - set([0])) in [ 1, 0 ])
             self.seq_list = item_list
 
     def __repr__(self):
@@ -355,8 +413,8 @@ class c_sum:
     def vector(self, L_x, L_y, N):
         return sum( item.vector(L_x, L_y, N) for item in self.seq_list )
 
-    def matrix(self, L_x, L_y, N):
-        return sum( item.matrix(L_x, L_y, N) for item in self.seq_list )
+    def matrix(self, L_x, L_y, N, c_op_mats = None):
+        return sum( item.matrix(L_x, L_y, N, c_op_mats) for item in self.seq_list )
 
 
 ##########################################################################################
@@ -364,33 +422,33 @@ class c_sum:
 ##########################################################################################
 
 # collective spin operators for N particles on a 2-D lattice with (L_x,L_y) sites
-def spin_op_z(L_x, L_y, N):
+def spin_op_z(L_x, L_y, N, c_op_mats = None):
     return sum( ( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,1)
                   - c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,0) )
                 for q_y in range(L_y)
-                for q_x in range(L_x) ).matrix(L_x, L_y, N) / 2
+                for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats) / 2
 
-def spin_op_x(L_x, L_y, N):
+def spin_op_x(L_x, L_y, N, c_op_mats = None):
     Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
               for q_y in range(L_y)
-              for q_x in range(L_x) ).matrix(L_x, L_y, N)
+              for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
     return ( Sm + Sm.conj().T ) / 2
 
-def spin_op_y(L_x, L_y, N):
+def spin_op_y(L_x, L_y, N, c_op_mats = None):
     Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
               for q_y in range(L_y)
-              for q_x in range(L_x) ).matrix(L_x, L_y, N)
+              for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
     return ( Sm - Sm.conj().T ) * 1j / 2
 
-def spin_op_vec(L_x, L_y, N):
+def spin_op_vec(L_x, L_y, N, c_op_mats = None):
     Sz = sum( ( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,1)
                 - c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,0) )
               for q_y in range(L_y)
-              for q_x in range(L_x) ).matrix(L_x, L_y, N) / 2
+              for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats) / 2
 
     Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
               for q_y in range(L_y)
-              for q_x in range(L_x) ).matrix(L_x, L_y, N)
+              for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
 
     Sx = ( Sm + Sm.conj().T ) / 2
     Sy = ( Sm - Sm.conj().T ) * 1j / 2
@@ -452,7 +510,7 @@ def polarized_states(L_x, L_y, N):
 ##########################################################################################
 
 # lattice Hamiltonian in quasi-momentum basis
-def H_lat_q(L_x, L_y, N, J_x, phi_x, J_y = None, phi_y = None):
+def H_lat_q(L_x, L_y, N, J_x, phi_x, J_y = None, phi_y = None, c_op_mats = None):
     if J_y == None: J_y = J_x
     if phi_y == None: phi_y = phi_x
     if L_x == 1: J_x = 0
@@ -462,49 +520,43 @@ def H_lat_q(L_x, L_y, N, J_x, phi_x, J_y = None, phi_y = None):
                     c_op(q_x,q_y,s).dag() * c_op(q_x,q_y,s)
                     for q_y in range(L_y)
                     for q_x in range(L_x)
-                    for s in range(2) ).matrix(L_x, L_y, N)
+                    for s in range(2) ).matrix(L_x, L_y, N, c_op_mats)
 
 # lattice Hamiltonian in on-site basis
-def H_lat_j(L_x, L_y, N, J_x, phi_x, J_y = None, phi_y = None, periodic = False):
+def H_lat_j(L_x, L_y, N, J_x, phi_x, J_y = None, phi_y = None,
+            c_op_mats = None, periodic = False):
     if J_y == None: J_y = J_x
     if phi_y == None: phi_y = phi_x
     if L_x == 1: J_x = 0
     if L_y == 1: J_y = 0
-    hilbert_dim = int(binomial(2*L_x*L_y, N))
-    H = np.zeros((hilbert_dim,hilbert_dim), dtype = complex)
-    for s in range(2):
-        phase_x = np.exp(1j * s * phi_x)
-        phase_y = np.exp(1j * s * phi_y)
-        for j_x in range(L_x):
-            for j_y in range(L_y):
-                tun = c_seq()
-                if j_x + 1 < L_x or periodic:
-                    tun += ( J_x * phase_x *
-                             c_op((j_x+1)%L_x, j_y, s).dag() * c_op(j_x, j_y, s) )
-                if j_y + 1 < L_y or periodic:
-                    tun += ( J_y * phase_y *
-                             c_op(j_x, (j_y+1)%L_y, s).dag() * c_op(j_x, j_y, s) )
-                H += tun.matrix(L_x, L_y, N)
-    return H + H.conjugate().T
+    H = c_seq()
+    for j_x, j_y, s in itertools.product(range(L_x), range(L_y), range(2)):
+        if j_x + 1 < L_x or periodic:
+            H += ( J_x * np.exp(1j * s * phi_x) *
+                   c_op((j_x+1)%L_x, j_y, s).dag() * c_op(j_x, j_y, s) )
+        if j_y + 1 < L_y or periodic:
+            H += ( J_y * np.exp(1j * s * phi_y) *
+                   c_op(j_x, (j_y+1)%L_y, s).dag() * c_op(j_x, j_y, s) )
+    H = H.matrix(L_x, L_y, N, c_op_mats)
+    return H + H.conj().T
 
 # interaction Hamiltonian in quasi-momentum basis
-def H_int_q(L_x, L_y, N, U):
-    hilbert_dim = int(binomial(2*L_x*L_y, N))
-    H = np.zeros((hilbert_dim,hilbert_dim), dtype = complex)
+def H_int_q(L_x, L_y, N, U, c_op_mats = None):
+    H = c_seq()
     for p_x, q_x, r_x in itertools.product(range(L_x), repeat = 3):
         s_x = (p_x + q_x - r_x ) % L_x
         for p_y, q_y, r_y in itertools.product(range(L_y), repeat = 3):
             s_y = (p_y + q_y - r_y ) % L_y
             H += ( c_op(p_x,p_y,1).dag() * c_op(q_x,q_y,0).dag() *
-                   c_op(r_x,r_y,0) * c_op(s_x,s_y,1) ).matrix(L_x, L_y, N)
-    return H * U / (L_x*L_y)
+                   c_op(r_x,r_y,0) * c_op(s_x,s_y,1) )
+    return U / (L_x*L_y) * H.matrix(L_x, L_y, N, c_op_mats)
 
 # interaction Hamiltonian in on-site basis
-def H_int_j(L_x, L_y, N, U):
+def H_int_j(L_x, L_y, N, U, c_op_mats = None):
     return U * sum( c_op(j_x, j_y, 0).dag() * c_op(j_x, j_y, 1).dag() *
                     c_op(j_x, j_y, 1) * c_op(j_x, j_y, 0)
                     for j_y in range(L_y)
-                    for j_x in range(L_x) ).matrix(L_x, L_y, N)
+                    for j_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
 
 
 ##########################################################################################
@@ -664,7 +716,7 @@ plt.plot(times, to_dB(squeezing_j), label = "closed")
 plt.plot(times, to_dB(squeezing_q), label = "periodic")
 plt.xlim(0, times[-1])
 plt.xlabel(r"Time (seconds)")
-plt.ylabel(r"Squeezing: $10\log_{10}(\xi^2)$")
+plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
 plt.legend(loc="best")
 plt.tight_layout()
 
