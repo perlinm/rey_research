@@ -19,37 +19,36 @@ np.set_printoptions(linewidth = 200)
 def sum(list):
     try:
         return functools.reduce(operator.add, list)
-    except TypeError: # for error: reduce() of empty sequence with no initial value
+    except TypeError:
         return 0
-def product(list): return functools.reduce(operator.mul, list)
+def product(list):
+    try:
+        return functools.reduce(operator.mul, list)
+    except TypeError:
+        return 1
+
+# convert value to decibels
+def to_dB(x): return 10*np.log10(x)
 
 
 ##########################################################################################
 # objects and methods for constructing operators
 ##########################################################################################
 
+# return iterator for all momentum states for given lattice dimensions
+def momenta(L): return itertools.product(*[ range(L_j) for L_j in L ])
+
 # iterable for basis of fock states; returns index of fock state
 #   and a tuple specifying the occupied single-particle states (by index)
-def fock_state_basis(L_x, L_y, N):
-    fock_states = int(binomial(2*L_x*L_y,N))
-    return zip(range(fock_states), itertools.combinations(range(2*L_x*L_y),N))
-
-# index of a single-particle state
-def single_state_index(q_x, q_y, spin_up, L_x):
-    return (q_x + q_y * L_x) * 2 + spin_up
-
-# return annihilation operator corresponding to an index of a single-particle state
-def c_op_by_index(index, L_x):
-    spin_up = index % 2
-    q_x = (index // 2 % L_x)
-    q_y = (index // 2 - q_x) // L_x
-    return c_op(q_x, q_y, spin_up)
+def fock_state_basis(L, N):
+    fock_states = int(binomial(2*product(L),N))
+    return zip(range(fock_states), itertools.combinations(range(2*product(L)),N))
 
 # get operator representation of annihilation operators in the fock basis
 # depth is the number of times we need to apply annihilation operators
-def get_c_op_mats(L_x, L_y, N, depth = None):
+def get_c_op_mats(L, N, depth = None):
     if depth == None: depth = N
-    single_particle_states = 2*L_x*L_y
+    single_particle_states = 2*product(L)
     c_op_mats = [ None ] * single_particle_states * depth
 
     for dd in range(depth):
@@ -62,7 +61,7 @@ def get_c_op_mats(L_x, L_y, N, depth = None):
             matrix = sparse.dok_matrix((dim_out,dim_in), dtype = int)
 
             # loop over all states in the input fock space
-            for index_in, states_in in fock_state_basis(L_x, L_y, N-dd):
+            for index_in, states_in in fock_state_basis(L, N-dd):
                 if state_num not in states_in: continue
 
                 # determine which single particle states are still occupied after
@@ -73,7 +72,7 @@ def get_c_op_mats(L_x, L_y, N, depth = None):
                 sign = sum( 1 for state in states_in if state > state_num ) % 2
 
                 # loop over all states in the output fock space
-                for index_out, states_out in fock_state_basis(L_x, L_y, N-dd-1):
+                for index_out, states_out in fock_state_basis(L, N-dd-1):
                     if states_out == remaining_states:
                         matrix[index_out, index_in] = (-1)**sign
 
@@ -84,18 +83,17 @@ def get_c_op_mats(L_x, L_y, N, depth = None):
 
 # creation / annihilation operator class
 class c_op:
-    def __init__(self, q_x, q_y, spin_up, creation = False):
-        self.q_x = int(q_x)
-        self.q_y = int(q_y)
+    def __init__(self, q, spin_up, creation = False):
+        self.q = np.array(q).astype(int)
         self.spin_up = bool(spin_up)
         self.creation = bool(creation)
 
     def __repr__(self):
         spin_text = "up" if self.spin_up else "dn"
         if not self.creation:
-            return str((self.q_x, self.q_y, spin_text))
+            return str((list(self.q), spin_text))
         else:
-            return str((self.q_x, self.q_y, spin_text, "dag"))
+            return str((list(self.q), spin_text, "dag"))
 
     def __eq__(self, other):
         assert(type(other) is c_op)
@@ -142,18 +140,20 @@ class c_op:
 
     def info(self):
         sign = 1 if self.creation else -1
-        return (not self.creation, sign * self.q_y, sign * self.q_x, sign * self.spin_up)
+        return (not self.creation, tuple(sign * self.q), sign * self.spin_up)
 
     # return hermitian conjugate
     def dag(self):
-        return c_op(self.q_x, self.q_y, self.spin_up, not self.creation)
+        return c_op(self.q, self.spin_up, not self.creation)
 
     # index of the state addressed by this operator
-    def index(self, L_x):
-        return single_state_index(self.q_x, self.q_y, self.spin_up, L_x)
+    def index(self, L):
+        site_index = sum( self.q[ii] * product( L[jj] for jj in range(ii+1,len(L)) )
+                          for ii in range(len(self.q)) )
+        return 2 * site_index + self.spin_up
 
-    def vector(self, L_x, L_y, N):
-        return c_seq(self).vector(L_x, L_y, N)
+    def vector(self, L, N):
+        return c_seq(self).vector(L, N)
 
 # product of creation / annihilation operators
 class c_seq:
@@ -225,14 +225,14 @@ class c_seq:
         return c_seq([ item.dag() for item in self.seq[::-1] ], np.conj(self.prefactor))
 
     # return vector or matrix corresponding to this product of operators
-    def matrix(self, L_x, L_y, N, c_op_mats = None):
-        assert(N <= 2*L_x*L_y) # we cannot have more particles than states
+    def matrix(self, L, N, c_op_mats = None):
+        assert(N <= 2*product(L)) # we cannot have more particles than states
 
         num_ops = len(self.seq)
         assert(num_ops % 2 == 0) # we must have an even number of operators
 
         # determine dimension of hilbert space
-        hilbert_dim = int(binomial(2*L_x*L_y, N))
+        hilbert_dim = int(binomial(2*product(L), N))
         matrix_shape = (hilbert_dim, hilbert_dim)
 
         # if we have an empty sequence, return the zero matrix
@@ -247,8 +247,8 @@ class c_seq:
         self.sort()
 
         # identify creation / destruction operators and their indices
-        created_states = [ op.index(L_x) for op in self.seq[:num_ops//2] ]
-        destroyed_states = [ op.index(L_x) for op in self.seq[num_ops//2:][::-1] ]
+        created_states = [ op.index(L) for op in self.seq[:num_ops//2] ]
+        destroyed_states = [ op.index(L) for op in self.seq[num_ops//2:][::-1] ]
 
         # if we address any states twice, return the zero matrix
         if len(set(created_states)) + len(set(destroyed_states)) != num_ops:
@@ -256,13 +256,13 @@ class c_seq:
 
         # if we provided matrix representations of the fermionic operators, use them!
         if c_op_mats != None:
-            if len(c_op_mats) < (2*L_x*L_y)*(num_ops//2):
+            if len(c_op_mats) < (2*product(L))*(num_ops//2):
                 error_msg = "we need {} operators, but have only {}!"
-                sys.exit(error_msg.format((2*L_x*L_y)*(num_ops//2),len(c_op_mats)))
+                sys.exit(error_msg.format((2*product(L))*(num_ops//2),len(c_op_mats)))
 
-            op_list = ( [ c_op_mats[(2*L_x*L_y)*ii + created_states[ii]].T
+            op_list = ( [ c_op_mats[(2*product(L))*ii + created_states[ii]].T
                           for ii in range(num_ops//2) ] +
-                        [ c_op_mats[(2*L_x*L_y)*ii + destroyed_states[ii]]
+                        [ c_op_mats[(2*product(L))*ii + destroyed_states[ii]]
                           for ii in range(num_ops//2) ][::-1] )
 
             matrix = functools.reduce(sparse.csr_matrix.dot, op_list)
@@ -272,7 +272,7 @@ class c_seq:
         #   to "manually" loop over all elements of the fock basis to construct a matrix
         diagonal_term = created_states == destroyed_states
         matrix = sparse.dok_matrix(matrix_shape, dtype = int)
-        for index_in, states_in in fock_state_basis(L_x, L_y, N):
+        for index_in, states_in in fock_state_basis(L, N):
             # if this combination of single particle states is not addressed
             #   by the destruction operators, continue to next combination
             if any([ state not in states_in for state in destroyed_states ]): continue
@@ -293,7 +293,7 @@ class c_seq:
                             for destroyed_state in destroyed_states )
 
             # otherwise, we need to look at all off-diagonal matrix elements
-            for index_out, states_out in fock_state_basis(L_x, L_y, N):
+            for index_out, states_out in fock_state_basis(L, N):
                 if any([ state not in states_out for state in created_states ]): continue
 
                 remaining_states_out = [ state for state in states_out
@@ -313,13 +313,13 @@ class c_seq:
         return self.prefactor * matrix.tocsr()
 
     # return fock state created or destroyed by the given sequence of fermionic operators
-    def vector(self, L_x, L_y, N):
+    def vector(self, L, N):
         num_ops = len(self.seq)
         # assert we have the same nubmer of operators as particles
         assert(N == num_ops)
 
         # determine dimension of hilbert space
-        hilbert_dim = int(binomial(2*L_x*L_y, N))
+        hilbert_dim = int(binomial(2*product(L), N))
 
         # if we have an empty sequence, return the zero matrix
         if num_ops == 0: return sparse.csr_matrix((hilbert_dim,1), dtype = int)
@@ -331,14 +331,14 @@ class c_seq:
         self.sort()
 
         # determine which sinle-particle states will be occupied
-        occupied_states = tuple( op.index(L_x) for op in self.seq[::-1] )
+        occupied_states = tuple( op.index(L) for op in self.seq[::-1] )
 
         # if any operators are repeats, return the zero state
         if len(occupied_states) != len(set(occupied_states)):
             return sparse.csr_matrix((hilbert_dim,1), dtype = int)
 
         # loop over the fock basis to determine the appropriate vector
-        for index, states in fock_state_basis(L_x, L_y, N):
+        for index, states in fock_state_basis(L, N):
             if states == occupied_states:
                 data = [self.prefactor]
                 location = ([index],[0])
@@ -405,46 +405,37 @@ class c_sum:
     def dag(self):
         return c_sum([ item.dag() for item in self.seq_list ])
 
-    def matrix(self, L_x, L_y, N, c_op_mats = None):
-        return sum( item.matrix(L_x, L_y, N, c_op_mats) for item in self.seq_list )
+    def matrix(self, L, N, c_op_mats = None):
+        return sum( item.matrix(L, N, c_op_mats) for item in self.seq_list )
 
-    def vector(self, L_x, L_y, N):
-        return sum( item.vector(L_x, L_y, N) for item in self.seq_list )
+    def vector(self, L, N):
+        return sum( item.vector(L, N) for item in self.seq_list )
 
 
 ##########################################################################################
 # useful operators
 ##########################################################################################
 
-# collective spin operators for N particles on a 2-D lattice with (L_x,L_y) sites
-def spin_op_z(L_x, L_y, N, c_op_mats = None):
-    return sum( ( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,1)
-                  - c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,0) )
-                for q_y in range(L_y)
-                for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats) / 2
+# collective spin operators for N particles on a lattice with dimensions L
+def spin_op_z(L, N, c_op_mats = None):
+    return sum( c_op(q,1).dag() * c_op(q,1) - c_op(q,0).dag() * c_op(q,0)
+                for q in momenta(L) ).matrix(L, N, c_op_mats) / 2
 
-def spin_op_x(L_x, L_y, N, c_op_mats = None):
-    Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
-              for q_y in range(L_y)
-              for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
+def spin_op_m(L, N, c_op_mats = None):
+    return sum( c_op(q,0).dag() * c_op(q,1)
+              for q in momenta(L) ).matrix(L, N, c_op_mats)
+
+def spin_op_x(L, N, c_op_mats = None):
+    Sm = spin_op_m(L, N, c_op_mats)
     return ( Sm + Sm.getH() ) / 2
 
-def spin_op_y(L_x, L_y, N, c_op_mats = None):
-    Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
-              for q_y in range(L_y)
-              for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
+def spin_op_y(L, N, c_op_mats = None):
+    Sm = spin_op_m(L, N, c_op_mats)
     return ( Sm - Sm.getH() ) * 1j / 2
 
-def spin_op_vec_mat(L_x, L_y, N, c_op_mats = None):
-    Sz = sum( ( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,1)
-                - c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,0) )
-              for q_y in range(L_y)
-              for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats) / 2
-
-    Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
-              for q_y in range(L_y)
-              for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
-
+def spin_op_vec_mat(L, N, c_op_mats = None):
+    Sz = spin_op_z(L, N, c_op_mats)
+    Sm = spin_op_m(L, N, c_op_mats)
     Sx = ( Sm + Sm.getH() ) / 2
     Sy = ( Sm - Sm.getH() ) * 1j / 2
 
@@ -464,31 +455,25 @@ def spin_op_vec_mat(L_x, L_y, N, c_op_mats = None):
 
 # density operators with completely mixed spatial degees of freedom,
 #   but all spins pointing along principal axes
-def polarized_states(L_x, L_y, N):
+def polarized_states(L, N):
     # if we are at unit filling, return a state vector, otherwise return a density operator
-    if N == L_x * L_y:
-        vec_z = product( c_op(q[0],q[1],1)
-                         for q in itertools.product(range(L_x), range(L_y)) )
-        vec_x = product( ( c_op(q[0],q[1],1) + c_op(q[0],q[1],0) ) / np.sqrt(2)
-                         for q in itertools.product(range(L_x), range(L_y)) )
-        vec_y = product( ( c_op(q[0],q[1],1) + 1j * c_op(q[0],q[1],0) ) / np.sqrt(2)
-                         for q in itertools.product(range(L_x), range(L_y)) )
-        vec_z = vec_z.vector(L_x, L_y, N)
-        vec_x = vec_x.vector(L_x, L_y, N)
-        vec_y = vec_y.vector(L_x, L_y, N)
+    if N == product(L):
+        vec_z = product( c_op(q,1) for q in momenta(L) ).vector(L, N)
+        vec_x = product( c_op(q,1) + c_op(q,0) for q in momenta(L) ).vector(L, N)
+        vec_y = product( c_op(q,1) + 1j * c_op(q,0) for q in momenta(L) ).vector(L, N)
+        vec_z = vec_z.toarray() / sparse.linalg.norm(vec_z)
+        vec_x = vec_x.toarray() / sparse.linalg.norm(vec_x)
+        vec_y = vec_y.toarray() / sparse.linalg.norm(vec_y)
         return vec_z, vec_x, vec_y
 
-    hilbert_dim = int(binomial(2*L_x*L_y, N))
+    hilbert_dim = int(binomial(2*product(L), N))
     state_z = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
     state_x = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
     state_y = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = complex)
-    for momenta in itertools.combinations(itertools.product(range(L_x), range(L_y)), N):
-        vec_z = product( c_op(q[0],q[1],1) for q in momenta ).vector(L_x, L_y, N)
-        vec_x = product( c_op(q[0],q[1],1) + c_op(q[0],q[1],0)
-                         for q in momenta ).vector(L_x, L_y, N)
-        vec_y = product( c_op(q[0],q[1],1) + 1j * c_op(q[0],q[1],0)
-                         for q in momenta ).vector(L_x, L_y, N)
-
+    for momenta_comb in itertools.combinations(momenta(L), N):
+        vec_z = product( c_op(q,1) for q in momenta_comb ).vector(L, N)
+        vec_x = product( c_op(q,1) + c_op(q,0) for q in momenta_comb ).vector(L, N)
+        vec_y = product( c_op(q,1) + 1j * c_op(q,0) for q in momenta_comb ).vector(L, N)
         state_z += vec_z * vec_z.conj().T
         state_x += vec_x * vec_x.conj().T
         state_y += vec_y * vec_y.conj().T
@@ -496,7 +481,7 @@ def polarized_states(L_x, L_y, N):
     state_z /= state_z.diagonal().sum()
     state_x /= state_x.diagonal().sum()
     state_y /= state_y.diagonal().sum()
-    return state_z, state_x, state_y
+    return state_z.toarray(), state_x.toarray(), state_y.toarray()
 
 
 ##########################################################################################
@@ -504,53 +489,47 @@ def polarized_states(L_x, L_y, N):
 ##########################################################################################
 
 # lattice Hamiltonian in quasi-momentum basis
-def H_lat_q(L_x, L_y, N, J_x, phi_x, J_y = None, phi_y = None, c_op_mats = None):
-    if J_y == None: J_y = J_x
-    if phi_y == None: phi_y = phi_x
-    if L_x == 1: J_x = 0
-    if L_y == 1: J_y = 0
-    return 2 * sum( ( J_x * np.cos(2*np.pi*q_x/L_x + s * phi_x) +
-                      J_y * np.cos(2*np.pi*q_y/L_y + s * phi_y) ) *
-                    c_op(q_x,q_y,s).dag() * c_op(q_x,q_y,s)
-                    for q_y in range(L_y)
-                    for q_x in range(L_x)
-                    for s in range(2) ).matrix(L_x, L_y, N, c_op_mats)
+def H_lat_q(L, N, J, phi, c_op_mats = None):
+    try: len(J)
+    except: J = J * np.ones(len(L))
+    try: len(phi)
+    except: phi = phi * np.ones(len(L))
+    return 2 * sum( sum( J[ii] * np.cos(2*np.pi*q[ii]/L[ii] + s * phi[ii])
+                         for ii in range(len(L)) if L[ii] > 1 ) *
+                    c_op(q,s).dag() * c_op(q,s)
+                    for q in momenta(L) for s in range(2) ).matrix(L, N, c_op_mats)
 
 # lattice Hamiltonian in on-site basis
-def H_lat_j(L_x, L_y, N, J_x, phi_x, J_y = None, phi_y = None,
-            c_op_mats = None, periodic = False):
-    if J_y == None: J_y = J_x
-    if phi_y == None: phi_y = phi_x
-    if L_x == 1: J_x = 0
-    if L_y == 1: J_y = 0
+def H_lat_j(L, N, J, phi, c_op_mats = None, periodic = False):
+    try: len(J)
+    except: J = J * np.ones(len(L))
+    try: len(phi)
+    except: phi = phi * np.ones(len(L))
     H = c_seq()
-    for j_x, j_y, s in itertools.product(range(L_x), range(L_y), range(2)):
-        if j_x + 1 < L_x or periodic:
-            H += ( J_x * np.exp(1j * s * phi_x) *
-                   c_op((j_x+1)%L_x, j_y, s).dag() * c_op(j_x, j_y, s) )
-        if j_y + 1 < L_y or periodic:
-            H += ( J_y * np.exp(1j * s * phi_y) *
-                   c_op(j_x, (j_y+1)%L_y, s).dag() * c_op(j_x, j_y, s) )
-    H = H.matrix(L_x, L_y, N, c_op_mats)
+    for j, s in itertools.product(momenta(L), range(2)):
+        for ii in range(len(j)):
+            if L[ii] > 1 and ( j[ii] + 1 < L[ii] or periodic ):
+                j_add = np.zeros(len(j))
+                j_add[ii] = 1
+                H += ( J[ii] * np.exp(1j * s * phi[ii]) *
+                       c_op(j+j_add, s).dag() * c_op(j, s) )
+    H = H.matrix(L, N, c_op_mats)
     return H + H.getH()
 
 # interaction Hamiltonian in quasi-momentum basis
-def H_int_q(L_x, L_y, N, U, c_op_mats = None):
+def H_int_q(L, N, U, c_op_mats = None):
     H = c_seq()
-    for p_x, q_x, r_x in itertools.product(range(L_x), repeat = 3):
-        s_x = (p_x + q_x - r_x ) % L_x
-        for p_y, q_y, r_y in itertools.product(range(L_y), repeat = 3):
-            s_y = (p_y + q_y - r_y ) % L_y
-            H += ( c_op(p_x,p_y,1).dag() * c_op(q_x,q_y,0).dag() *
-                   c_op(r_x,r_y,0) * c_op(s_x,s_y,1) )
-    return U / (L_x*L_y) * H.matrix(L_x, L_y, N, c_op_mats)
+    for p in momenta(L):
+        for q in momenta(L):
+            for r in momenta(L):
+                s = ( np.array(p) + np.array(q) - np.array(r) ) % np.array(L)
+                H += c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(s,1)
+    return U / (product(L)) * H.matrix(L, N, c_op_mats)
 
 # interaction Hamiltonian in on-site basis
-def H_int_j(L_x, L_y, N, U, c_op_mats = None):
-    return U * sum( c_op(j_x, j_y, 0).dag() * c_op(j_x, j_y, 1).dag() *
-                    c_op(j_x, j_y, 1) * c_op(j_x, j_y, 0)
-                    for j_y in range(L_y)
-                    for j_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
+def H_int_j(L, N, U, c_op_mats = None):
+    return U * sum( c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
+                    for j in momenta(L) ).matrix(L, N, c_op_mats)
 
 
 ##########################################################################################
@@ -612,9 +591,8 @@ def spin_squeezing(state, S_op_vec, SS_op_mat):
 
     return squeezing_parameter, squeezing_axis(optimal_phi)
 
-
 ##########################################################################################
-
+##########################################################################################
 
 def plot_eigvals(M):
     vals = sorted(np.real(np.linalg.eigvals(M.toarray())))
@@ -626,8 +604,7 @@ def plot_eigvals(M):
 time_steps = 100
 
 
-L_x = 1
-L_y = 6
+L = (1,6)
 N = 6
 
 J_0 = 1
@@ -638,59 +615,53 @@ phi = np.pi
 max_time = 10
 
 
-L_x = 1
-L_y = 6
-N = 6
+# L_x = 1
+# L_y = 6
+# N = 6
 
-J_0 = 296.6 * 2*np.pi
-U = 1357 * 2*np.pi
-Omega = 0
-phi = np.pi / 50
+# J_0 = 296.6 * 2*np.pi
+# U = 1357 * 2*np.pi
+# Omega = 0
+# phi = np.pi / 50
 
-max_time = 1
+# max_time = 1
 
 
 
-hilbert_dim = int(binomial(2*L_x*L_y, N))
+hilbert_dim = int(binomial(2*product(L), N))
 print("hilbert_dim:",hilbert_dim)
 
-c_op_mats = get_c_op_mats(L_x, L_y, N)
-S_op_vec, SS_op_mat = spin_op_vec_mat(L_x, L_y, N, c_op_mats)
-state_z, state_x, state_y = polarized_states(L_x, L_y, N)
+c_op_mats = get_c_op_mats(L, N)
+S_op_vec, SS_op_mat = spin_op_vec_mat(L, N, c_op_mats)
+state_z, state_x, state_y = polarized_states(L, N)
 
-# H_q = ( H_int_q(L_x, L_y, N, U, c_op_mats = c_op_mats) +
-        # H_lat_q(L_x, L_y, N, J_0, phi, c_op_mats = c_op_mats) )
+H_j = ( H_int_j(L, N, U, c_op_mats) +
+        H_lat_j(L, N, J_0, phi, c_op_mats) )
 
-H_q = ( H_int_j(L_x, L_y, N, U, c_op_mats = c_op_mats) +
-        H_lat_j(L_x, L_y, N, J_0, phi, c_op_mats = c_op_mats, periodic = True) )
-
-H_j = ( H_int_j(L_x, L_y, N, U, c_op_mats = c_op_mats) +
-        H_lat_j(L_x, L_y, N, J_0, phi, c_op_mats = c_op_mats) )
+H_q = ( H_int_q(L, N, U, c_op_mats) +
+        H_lat_q(L, N, J_0, phi, c_op_mats) )
 
 if Omega != 0:
     H_drive = - Omega * S_op_vec[2]
     H_q += H_drive
     H_j += H_drive
 
-
-dt = max_time / time_steps
-state_j = state_x.toarray()
-state_q = state_x.toarray()
+state_j = state_x
+state_q = state_x
 using_state_vectors = state_q.shape != H_q.shape
 
 squeezing_j = np.zeros(time_steps)
 squeezing_q = np.zeros(time_steps)
 times = np.linspace(0, max_time, time_steps)
+dt = max_time / time_steps
 for ii in range(time_steps):
-    squeezing_j[ii], _ = spin_squeezing(state_q, S_op_vec, SS_op_mat)
+    squeezing_j[ii], _ = spin_squeezing(state_j, S_op_vec, SS_op_mat)
     squeezing_q[ii], _ = spin_squeezing(state_q, S_op_vec, SS_op_mat)
     state_j = sparse.linalg.expm_multiply(-1j*dt*H_j, state_j)
     state_q = sparse.linalg.expm_multiply(-1j*dt*H_q, state_q)
     if not using_state_vectors:
         state_j = sparse.linalg.expm_multiply(-1j*dt*H_j, state_j.conj().T).conj().T
-        state_q = sparse.linalg.expm_multiply(-1j*dt*H_j, state_q.conj().T).conj().T
-
-def to_dB(x): return -10*np.log10(x)
+        state_q = sparse.linalg.expm_multiply(-1j*dt*H_q, state_q.conj().T).conj().T
 
 fig_dir = "../figures/"
 figsize = (4,3)
@@ -698,8 +669,8 @@ params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
 plt.figure(figsize = figsize)
-plt.plot(times, to_dB(squeezing_j), label = "closed")
-plt.plot(times, to_dB(squeezing_q), label = "periodic")
+plt.plot(times, -to_dB(squeezing_j), label = "closed")
+plt.plot(times, -to_dB(squeezing_q), label = "periodic")
 plt.xlim(0, times[-1])
 plt.xlabel(r"Time (seconds)")
 plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
