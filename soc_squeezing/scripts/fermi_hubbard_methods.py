@@ -4,6 +4,7 @@
 
 import sys, time
 import numpy as np
+import scipy.sparse as sparse
 import scipy.linalg as linalg
 import scipy.optimize as optimize
 import matplotlib.pyplot as plt
@@ -55,7 +56,8 @@ def c_op_by_index(index, L_x):
 
 # get operator representation of annihilation operators in the fock basis
 # depth is the number of times we need to apply annihilation operators
-def get_c_op_mats(L_x, L_y, N, depth = 2):
+def get_c_op_mats(L_x, L_y, N, depth = None):
+    if depth == None: depth = N
     single_particle_states = 2*L_x*L_y
     c_op_mats = [ None ] * single_particle_states * depth
 
@@ -66,7 +68,7 @@ def get_c_op_mats(L_x, L_y, N, depth = 2):
 
         for state_num in range(single_particle_states):
             # initialize zero matrix for an annihilation operator addressing this state
-            matrix = np.zeros((dim_out,dim_in), dtype = int)
+            matrix = sparse.dok_matrix((dim_out,dim_in), dtype = int)
 
             # loop over all states in the input fock space
             for index_in, states_in in fock_state_basis(L_x, L_y, N-dd):
@@ -84,12 +86,12 @@ def get_c_op_mats(L_x, L_y, N, depth = 2):
                     if states_out == remaining_states:
                         matrix[index_out, index_in] = (-1)**sign
 
-            # store the matrix for this annihilation operatorx
-            c_op_mats[single_particle_states*dd + state_num] = matrix
+            # store the matrix for this annihilation operator
+            c_op_mats[single_particle_states*dd + state_num] = matrix.tocsr()
 
     return c_op_mats
 
-# creation / annihilation operators
+# creation / annihilation operator class
 class c_op:
     def __init__(self, q_x, q_y, spin_up, creation = False):
         self.q_x = int(q_x)
@@ -229,33 +231,7 @@ class c_seq:
 
     # return Hermitian conjudate of this sequence
     def dag(self):
-        return c_seq([ item.dag() for item in self.seq[::-1] ], self.prefactor)
-
-    # return fock state created or destroyed by the given sequence of fermionic operators
-    def vector(self, L_x, L_y, N):
-        # assert we have the same nubmer of operators as particles
-        assert(N == len(self.seq))
-
-        # assert that all operators are of the same type (i.e. creation / annihilation)
-        assert( len(set( op.creation for op in self.seq )) == 1 )
-
-        # initialize zero state
-        state = np.zeros(int(binomial(2*L_x*L_y,N)), dtype = complex)
-
-        # sort operators, picking up a sign in the prefactor if necessary
-        self.sort()
-
-        # determine which sinle-particle states will be occupied
-        occupied_states = tuple( op.index(L_x) for op in self.seq[::-1] )
-
-        # if any operators are repeats, return the zero state
-        if len(occupied_states) != len(set(occupied_states)): return state
-
-        for index, states in fock_state_basis(L_x, L_y, N):
-            if occupied_states == states:
-                state[index] = self.prefactor
-                return state
-        sys.exit("state not found in fock basis...")
+        return c_seq([ item.dag() for item in self.seq[::-1] ], np.conj(self.prefactor))
 
     # return vector or matrix corresponding to this product of operators
     def matrix(self, L_x, L_y, N, c_op_mats = None):
@@ -269,11 +245,7 @@ class c_seq:
         matrix_shape = (hilbert_dim, hilbert_dim)
 
         # if we have an empty sequence, return the zero matrix
-        if num_ops == 0: return np.zeros(matrix_shape, dtype = complex)
-
-        # make sure all operators are within our bounds
-        assert(all( op.q_x < L_x for op in self.seq ))
-        assert(all( op.q_y < L_y for op in self.seq ))
+        if num_ops == 0: return sparse.csr_matrix(matrix_shape, dtype = int)
 
         # to strictly enforce conservation of particle number, we make sure that
         #   we have the same number of creation operators as annihilation operators
@@ -283,44 +255,39 @@ class c_seq:
         # sort all operators in a standard order
         self.sort()
 
-        # creation / destruction operators and their indices
+        # identify creation / destruction operators and their indices
         created_states = [ op.index(L_x) for op in self.seq[:num_ops//2] ]
         destroyed_states = [ op.index(L_x) for op in self.seq[num_ops//2:][::-1] ]
 
         # if we address any states twice, return the zero matrix
         if len(set(created_states)) + len(set(destroyed_states)) != num_ops:
-            return np.zeros(matrix_shape, dtype = complex)
+            return sparse.csr_matrix(matrix_shape, dtype = int)
 
         # if we provided matrix representations of the fermionic operators, use them!
         if c_op_mats != None:
             if len(c_op_mats) < (2*L_x*L_y)*(num_ops//2):
                 error_msg = "we need {} operators, but have only {}!"
-                sys.exit(error_msg.format((2*L_x*L_y)**(num_ops//2),len(c_op_mats)))
-
-            sum_indices = ""
-            for ii in range(num_ops-1):
-                sum_char = chr(ord("a")+ii)
-                sum_indices += "{0},{0}".format(sum_char)
-            sum_str = "A{}B->AB".format(sum_indices)
+                sys.exit(error_msg.format((2*L_x*L_y)*(num_ops//2),len(c_op_mats)))
 
             op_list = ( [ c_op_mats[(2*L_x*L_y)*ii + created_states[ii]].T
                           for ii in range(num_ops//2) ] +
                         [ c_op_mats[(2*L_x*L_y)*ii + destroyed_states[ii]]
                           for ii in range(num_ops//2) ][::-1] )
 
-            return self.prefactor * np.einsum(sum_str, *op_list, optimize = True)
+            matrix = functools.reduce(sparse.csr_matrix.dot, op_list)
+            return self.prefactor * matrix
 
         # we do not have a matrix representation of fermionic operators, so we have
-        #   to loop over all elements of the fock basis to construct a matrix
+        #   to "manually" loop over all elements of the fock basis to construct a matrix
         diagonal_term = created_states == destroyed_states
-        matrix = np.zeros(matrix_shape, dtype = complex)
+        matrix = sparse.dok_matrix(matrix_shape, dtype = int)
         for index_in, states_in in fock_state_basis(L_x, L_y, N):
             # if this combination of single particle states is not addressed
             #   by the destruction operators, continue to next combination
             if any([ state not in states_in for state in destroyed_states ]): continue
 
-            # if we are creating the same states that we destroyed,
-            #   then this is a diagonal matrix entry
+            # if this term is diagonal in the fock basis and we address this state,
+            #   set the diagonal matrix element to 1
             if diagonal_term:
                 matrix[index_in, index_in] = 1
                 continue
@@ -352,11 +319,48 @@ class c_seq:
                 # set this matrix element to 1 or -1 appropriately
                 matrix[index_out, index_in] = (-1)**(signs_in + signs_out)
 
-        return self.prefactor * matrix
+        return self.prefactor * matrix.tocsr()
+
+    # return fock state created or destroyed by the given sequence of fermionic operators
+    def vector(self, L_x, L_y, N):
+        num_ops = len(self.seq)
+        # assert we have the same nubmer of operators as particles
+        assert(N == num_ops)
+
+        # determine dimension of hilbert space
+        hilbert_dim = int(binomial(2*L_x*L_y, N))
+
+        # if we have an empty sequence, return the zero matrix
+        if num_ops == 0: return sparse.csr_matrix((hilbert_dim,1), dtype = int)
+
+        # assert that all operators are of the same type (i.e. creation / annihilation)
+        assert( len(set( op.creation for op in self.seq )) == 1 )
+
+        # sort operators, picking up a sign in the prefactor if necessary
+        self.sort()
+
+        # determine which sinle-particle states will be occupied
+        occupied_states = tuple( op.index(L_x) for op in self.seq[::-1] )
+
+        # if any operators are repeats, return the zero state
+        if len(occupied_states) != len(set(occupied_states)):
+            return sparse.csr_matrix((hilbert_dim,1), dtype = int)
+
+        # loop over the fock basis to determine the appropriate vector
+        for index, states in fock_state_basis(L_x, L_y, N):
+            if states == occupied_states:
+                data = [self.prefactor]
+                location = ([index],[0])
+                return sparse.csr_matrix((data, location), (hilbert_dim,1))
+
+        sys.exit("state not found in fock basis...")
 
 # sum of products of creation / annihilation operators
 class c_sum:
-    def __init__(self, item_list):
+    def __init__(self, item_list = None):
+        if item_list == None or item_list == []:
+            self.seq_list = []
+            return None
         # assert that either all items are operators (c_op)
         #   or all items are sequences of operators (c_seq)
         assert(all( type(item) is c_op for item in item_list ) or
@@ -410,11 +414,11 @@ class c_sum:
     def dag(self):
         return c_sum([ item.dag() for item in self.seq_list ])
 
-    def vector(self, L_x, L_y, N):
-        return sum( item.vector(L_x, L_y, N) for item in self.seq_list )
-
     def matrix(self, L_x, L_y, N, c_op_mats = None):
         return sum( item.matrix(L_x, L_y, N, c_op_mats) for item in self.seq_list )
+
+    def vector(self, L_x, L_y, N):
+        return sum( item.vector(L_x, L_y, N) for item in self.seq_list )
 
 
 ##########################################################################################
@@ -432,15 +436,15 @@ def spin_op_x(L_x, L_y, N, c_op_mats = None):
     Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
               for q_y in range(L_y)
               for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
-    return ( Sm + Sm.conj().T ) / 2
+    return ( Sm + Sm.getH() ) / 2
 
 def spin_op_y(L_x, L_y, N, c_op_mats = None):
     Sm = sum( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,0)
               for q_y in range(L_y)
               for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
-    return ( Sm - Sm.conj().T ) * 1j / 2
+    return ( Sm - Sm.getH() ) * 1j / 2
 
-def spin_op_vec(L_x, L_y, N, c_op_mats = None):
+def spin_op_vec_mat(L_x, L_y, N, c_op_mats = None):
     Sz = sum( ( c_op(q_x,q_y,1).dag() * c_op(q_x,q_y,1)
                 - c_op(q_x,q_y,0).dag() * c_op(q_x,q_y,0) )
               for q_y in range(L_y)
@@ -450,58 +454,57 @@ def spin_op_vec(L_x, L_y, N, c_op_mats = None):
               for q_y in range(L_y)
               for q_x in range(L_x) ).matrix(L_x, L_y, N, c_op_mats)
 
-    Sx = ( Sm + Sm.conj().T ) / 2
-    Sy = ( Sm - Sm.conj().T ) * 1j / 2
+    Sx = ( Sm + Sm.getH() ) / 2
+    Sy = ( Sm - Sm.getH() ) * 1j / 2
 
-    return np.array([ Sz, Sx, Sy ])
+    Szz = sparse.csr_matrix.dot(Sz, Sz)
+    Sxx = sparse.csr_matrix.dot(Sx, Sx)
+    Syy = sparse.csr_matrix.dot(Sy, Sy)
+    Sxy = sparse.csr_matrix.dot(Sx, Sy)
+    Syz = sparse.csr_matrix.dot(Sy, Sz)
+    Szx = sparse.csr_matrix.dot(Sz, Sx)
 
-# construct \vec S \wedge \vec S for a state
-def spin_spin_op_mat(S_op_vec):
-    Sz = S_op_vec[0]
-    Sx = S_op_vec[1]
-    Sy = S_op_vec[2]
-    Szz = np.einsum("Ai,iB", Sz, Sz, optimize = True)
-    Sxx = np.einsum("Ai,iB", Sx, Sx, optimize = True)
-    Syy = np.einsum("Ai,iB", Sy, Sy, optimize = True)
-    Sxy = np.einsum("Ai,iB", Sx, Sy, optimize = True)
-    Syz = np.einsum("Ai,iB", Sy, Sz, optimize = True)
-    Szx = np.einsum("Ai,iB", Sz, Sx, optimize = True)
-    return np.array([ [ Szz,          Szx,          Syz ],
-                      [ Szx.conj().T, Sxx,          Sxy ],
-                      [ Syz.conj().T, Sxy.conj().T, Syy ] ])
+    S_op_vec = [ Sz, Sx, Sy ]
+    SS_op_mat = [ [ Szz,        Szx,        Syz.getH() ],
+                  [ Szx.getH(), Sxx,        Sxy        ],
+                  [ Syz,        Sxy.getH(), Syy        ] ]
+
+    return S_op_vec, SS_op_mat
 
 # density operators with completely mixed spatial degees of freedom,
 #   but all spins pointing along principal axes
 def polarized_states(L_x, L_y, N):
+    # if we are at unit filling, return a state vector, otherwise return a density operator
+    if N == L_x * L_y:
+        vec_z = product( c_op(q[0],q[1],1)
+                         for q in itertools.product(range(L_x), range(L_y)) )
+        vec_x = product( ( c_op(q[0],q[1],1) + c_op(q[0],q[1],0) ) / np.sqrt(2)
+                         for q in itertools.product(range(L_x), range(L_y)) )
+        vec_y = product( ( c_op(q[0],q[1],1) + 1j * c_op(q[0],q[1],0) ) / np.sqrt(2)
+                         for q in itertools.product(range(L_x), range(L_y)) )
+        vec_z = vec_z.vector(L_x, L_y, N)
+        vec_x = vec_x.vector(L_x, L_y, N)
+        vec_y = vec_y.vector(L_x, L_y, N)
+        return vec_z, vec_x, vec_y
+
     hilbert_dim = int(binomial(2*L_x*L_y, N))
-    state_z = np.zeros((hilbert_dim,hilbert_dim), dtype = complex)
-    state_x = np.zeros((hilbert_dim,hilbert_dim), dtype = complex)
-    state_y = np.zeros((hilbert_dim,hilbert_dim), dtype = complex)
-    for qs_in in itertools.combinations(itertools.product(range(L_x),range(L_y)),N):
-        state_z_in = product( c_op(q[0],q[1],1) for q in qs_in ).vector(L_x, L_y, N)
+    state_z = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
+    state_x = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
+    state_y = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = complex)
+    for momenta in itertools.combinations(itertools.product(range(L_x), range(L_y)), N):
+        vec_z = product( c_op(q[0],q[1],1) for q in momenta ).vector(L_x, L_y, N)
+        vec_x = product( c_op(q[0],q[1],1) + c_op(q[0],q[1],0)
+                         for q in momenta ).vector(L_x, L_y, N)
+        vec_y = product( c_op(q[0],q[1],1) + 1j * c_op(q[0],q[1],0)
+                         for q in momenta ).vector(L_x, L_y, N)
 
-        state_x_in = product( c_op(q[0],q[1],1) + c_op(q[0],q[1],0)
-                              for q in qs_in ).vector(L_x, L_y, N)
+        state_z += vec_z * vec_z.conj().T
+        state_x += vec_x * vec_x.conj().T
+        state_y += vec_y * vec_y.conj().T
 
-        state_y_in = product( c_op(q[0],q[1],1) + 1j * c_op(q[0],q[1],0)
-                              for q in qs_in ).vector(L_x, L_y, N)
-
-        for qs_out in itertools.combinations(itertools.product(range(L_x),range(L_y)),N):
-            state_z_out = product( c_op(q[0],q[1],1) for q in qs_out ).vector(L_x, L_y, N)
-
-            state_x_out = product( c_op(q[0],q[1],1) + c_op(q[0],q[1],0)
-                                   for q in qs_out ).vector(L_x, L_y, N)
-
-            state_y_out = product( c_op(q[0],q[1],1) + 1j * c_op(q[0],q[1],0)
-                                   for q in qs_out ).vector(L_x, L_y, N)
-
-            state_z += np.outer(state_z_out, state_z_in.conj())
-            state_x += np.outer(state_x_out, state_x_in.conj())
-            state_y += np.outer(state_y_out, state_y_in.conj())
-
-    state_z /= np.trace(state_z)
-    state_x /= np.trace(state_x)
-    state_y /= np.trace(state_y)
+    state_z /= state_z.diagonal().sum()
+    state_x /= state_x.diagonal().sum()
+    state_y /= state_y.diagonal().sum()
     return state_z, state_x, state_y
 
 
@@ -538,7 +541,7 @@ def H_lat_j(L_x, L_y, N, J_x, phi_x, J_y = None, phi_y = None,
             H += ( J_y * np.exp(1j * s * phi_y) *
                    c_op(j_x, (j_y+1)%L_y, s).dag() * c_op(j_x, j_y, s) )
     H = H.matrix(L_x, L_y, N, c_op_mats)
-    return H + H.conj().T
+    return H + H.getH()
 
 # interaction Hamiltonian in quasi-momentum basis
 def H_int_q(L_x, L_y, N, U, c_op_mats = None):
@@ -563,6 +566,13 @@ def H_int_j(L_x, L_y, N, U, c_op_mats = None):
 # methods for computing spin squeezing
 ##########################################################################################
 
+# expectation value with sparse matrices
+def val(X, state):
+    if X.shape != state.shape: # we have a state vector
+        return state.conj().T.dot(X.dot(state)).sum()
+    else: # we have a density operator
+        return X.multiply(state).sum()
+
 # rotate a vector about an axis by a given angle
 def rotate_vector(vector, axis, angle):
     L_z = np.array([ [  0,  0,  0 ],
@@ -579,16 +589,16 @@ def rotate_vector(vector, axis, angle):
 
 # variance of spin state about an axis
 def spin_variance(state, axis, S_op_vec, SS_op_mat):
-    S_vec = np.einsum("Aij,ji->A", S_op_vec, state, optimize = True)
-    SS_mat = np.einsum("ABij,ji->AB", SS_op_mat, state, optimize = True)
+    S_vec = np.array([ np.real(val(X,state)) for X in S_op_vec ])
+    SS_mat = np.array([ [ np.real(val(X,state)) for X in XS ] for XS in SS_op_mat ])
     return np.real(axis @ SS_mat @ axis - abs(S_vec @ axis)**2)
 
 # return (\xi^2, axis), where:
 #   "axis" is the axis of minimal spin variance in the plane orthogonal to <\vec S>
 #   \xi^2 = N (<S_axis^2> - <S_axis>^2) / |<S>|^2 is the spin squeezing parameter
 def spin_squeezing(state, S_op_vec, SS_op_mat):
-    S_vec = np.einsum("Aij,ji->A", S_op_vec, state, optimize = True)
-    SS_mat = np.einsum("ABij,ji->AB", SS_op_mat, state, optimize = True)
+    S_vec = np.array([ np.real(val(X,state)) for X in S_op_vec ])
+    SS_mat = np.array([ [ np.real(val(X,state)) for X in XS ] for XS in SS_op_mat ])
 
     if S_vec[1] == 0 and S_vec[2] == 0:
         perp_vec = [0,1,0]
@@ -603,8 +613,8 @@ def spin_squeezing(state, S_op_vec, SS_op_mat):
         return np.real(axis @ SS_mat @ axis)
 
     optimum = optimize.minimize_scalar(variance, method = "bounded", bounds = (0, np.pi))
-    if not optimum.success:
-        sys.exit("squeezing optimization failed")
+    if not optimum.success: sys.exit("squeezing optimization failed")
+
     optimal_phi = optimum.x
     minimal_variance = optimum.fun
     squeezing_parameter = minimal_variance * N / linalg.norm(S_vec)**2
@@ -613,23 +623,33 @@ def spin_squeezing(state, S_op_vec, SS_op_mat):
 
 
 ##########################################################################################
-##########################################################################################
 
-# L_x = 1
-# L_y = 5
-# N = 5
 
-# J_0 = 1
-# U = 25
-# Omega = 35
-# phi = np.pi
+def plot_eigvals(M):
+    vals = sorted(np.real(np.linalg.eigvals(M.toarray())))
+    vals -= np.mean(vals)
+    plt.plot(vals)
+    return vals
 
-# max_time = 10
+
+time_steps = 100
 
 
 L_x = 1
-L_y = 5
-N = 5
+L_y = 6
+N = 6
+
+J_0 = 1
+U = 25
+Omega = 35
+phi = np.pi
+
+max_time = 10
+
+
+L_x = 1
+L_y = 6
+N = 6
 
 J_0 = 296.6 * 2*np.pi
 U = 1357 * 2*np.pi
@@ -639,71 +659,46 @@ phi = np.pi / 50
 max_time = 1
 
 
-time_steps = 100
 
 hilbert_dim = int(binomial(2*L_x*L_y, N))
 print("hilbert_dim:",hilbert_dim)
 
-start = time.time()
-
-S_op_vec = spin_op_vec(L_x, L_y, N)
-SS_op_mat = spin_spin_op_mat(S_op_vec)
-
-
-
-print(time.time()-start)
-exit()
-
+c_op_mats = get_c_op_mats(L_x, L_y, N)
+S_op_vec, SS_op_mat = spin_op_vec_mat(L_x, L_y, N, c_op_mats)
 state_z, state_x, state_y = polarized_states(L_x, L_y, N)
 
+# H_q = ( H_int_q(L_x, L_y, N, U, c_op_mats = c_op_mats) +
+        # H_lat_q(L_x, L_y, N, J_0, phi, c_op_mats = c_op_mats) )
 
-H_drive = - Omega * S_op_vec[2]
-H_q = H_drive + H_int_q(L_x, L_y, N, U) + H_lat_q(L_x, L_y, N, J_0, phi)
-# H_q = H_drive + H_int_j(L_x, L_y, N, U) + H_lat_j(L_x, L_y, N, J_0, phi, periodic = True)
-H_j = H_drive + H_int_j(L_x, L_y, N, U) + H_lat_j(L_x, L_y, N, J_0, phi)
+H_q = ( H_int_j(L_x, L_y, N, U, c_op_mats = c_op_mats) +
+        H_lat_j(L_x, L_y, N, J_0, phi, c_op_mats = c_op_mats, periodic = True) )
 
-# q_vals = np.real(np.linalg.eigvals(H_q))
-# j_vals = np.real(np.linalg.eigvals(H_j))
-# q_vals -= np.mean(q_vals)
-# j_vals -= np.mean(j_vals)
+H_j = ( H_int_j(L_x, L_y, N, U, c_op_mats = c_op_mats) +
+        H_lat_j(L_x, L_y, N, J_0, phi, c_op_mats = c_op_mats) )
 
-# plt.plot(sorted(q_vals), label = "Q")
-# plt.plot(sorted(j_vals), label = "J")
-# plt.legend(loc = "best")
-# plt.show()
+if Omega != 0:
+    H_drive = - Omega * S_op_vec[2]
+    H_q += H_drive
+    H_j += H_drive
 
-# exit()
 
-vals_j, vecs_j = np.linalg.eig(H_j)
-vals_j = np.real(vals_j)
-inv_vecs_j = np.linalg.inv(vecs_j)
+dt = max_time / time_steps
+state_j = state_x.toarray()
+state_q = state_x.toarray()
+using_state_vectors = state_q.shape != H_q.shape
 
-S_op_vec_j = np.einsum("Bi,Aij,jC->ABC", inv_vecs_j, S_op_vec, vecs_j, optimize = True)
-SS_op_mat_j = np.einsum("Ci,ABij,jD->ABCD", inv_vecs_j, SS_op_mat, vecs_j, optimize = True)
-state_x_j = np.einsum("Ai,ij,jB->AB", inv_vecs_j, state_x, vecs_j, optimize = True)
-
-vals_q, vecs_q = np.linalg.eig(H_q)
-vals_q = np.real(vals_q)
-inv_vecs_q = np.linalg.inv(vecs_q)
-
-S_op_vec_q = np.einsum("Bi,Aij,jC->ABC", inv_vecs_q, S_op_vec, vecs_q, optimize = True)
-SS_op_mat_q = np.einsum("Ci,ABij,jD->ABCD", inv_vecs_q, SS_op_mat, vecs_q, optimize = True)
-state_x_q = np.einsum("Ai,ij,jB->AB", inv_vecs_q, state_x, vecs_q, optimize = True)
-
-times = np.linspace(0, max_time, time_steps)
 squeezing_j = np.zeros(time_steps)
 squeezing_q = np.zeros(time_steps)
-for ii in range(len(times)):
-    if hilbert_dim > 500:
-        print("{}/{}".format(ii,len(times)))
-    U_q = np.exp(-1j * times[ii] * vals_q)
-    U_j = np.exp(-1j * times[ii] * vals_j)
-    state_t_j = diag_mult(U_j.conj(), diag_mult(U_j, state_x_j, left = True), left = False)
-    state_t_q = diag_mult(U_q.conj(), diag_mult(U_q, state_x_q, left = True), left = False)
-    squeezing_j[ii], _ = spin_squeezing(state_t_j, S_op_vec_j, SS_op_mat_j)
-    squeezing_q[ii], _ = spin_squeezing(state_t_q, S_op_vec_q, SS_op_mat_q)
+times = np.linspace(0, max_time, time_steps)
+for ii in range(time_steps):
+    squeezing_j[ii], _ = spin_squeezing(state_q, S_op_vec, SS_op_mat)
+    squeezing_q[ii], _ = spin_squeezing(state_q, S_op_vec, SS_op_mat)
+    state_j = sparse.linalg.expm_multiply(-1j*dt*H_j, state_j)
+    state_q = sparse.linalg.expm_multiply(-1j*dt*H_q, state_q)
+    if not using_state_vectors:
+        state_j = sparse.linalg.expm_multiply(-1j*dt*H_j, state_j.conj().T).conj().T
+        state_q = sparse.linalg.expm_multiply(-1j*dt*H_j, state_q.conj().T).conj().T
 
-# convert values to decibels
 def to_dB(x): return -10*np.log10(x)
 
 fig_dir = "../figures/"
