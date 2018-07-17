@@ -23,15 +23,6 @@ def sum(list):
         return 0
 def product(list): return functools.reduce(operator.mul, list)
 
-# multiply a matrix M by a diagonal matrix with entries in the vector D
-def diag_mult(D, M, left):
-    if left:
-        # multiply by D on the left: np.diag(D) @ M
-        return ( D * M.T ).T
-    else:
-        # multiply by D on the right: M @ np.diag(D)
-        return D * M
-
 
 ##########################################################################################
 # objects and methods for constructing operators
