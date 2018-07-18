@@ -187,12 +187,10 @@ $\delta_{p+q,r+s}$ enforcing $p+q=r+s$, it follows that
 which motivates the definitions
 \begin{align}
   U \equiv G \int \d^3x~ \abs{w_0\p{x}}^4,
-  &&
-  \xi \equiv \f{U}{L},
 \end{align}
 in order to express the interaction Hamiltonian in the simple form
 \begin{align}
-  H_{\t{int}} = \xi \sum_{p,q,r,s}
+  H_{\t{int}} = \f{U}{L} \sum_{p,q,r,s}
   \delta_{p+q,r+s} \hat c_{r,\e}^\dag \hat c_{s,\g}^\dag
   \hat c_{q,\g} \hat c_{p,\e}.
   \label{eq:H_int_full}
@@ -215,26 +213,26 @@ is, atoms in different clock states can only interact via
 The surviving terms in \eqref{eq:H_int_full} are thus
 \begin{align}
   H_{\t{int}}
-  = \xi \sum_{p,q}
+  = \f{U}{L} \sum_{p,q}
   \p{\hat c_{p,\e}^\dag \hat c_{q,\g}^\dag \hat c_{q,\g} \hat c_{p,\e}
     + \hat c_{q,\e}^\dag \hat c_{p,\g}^\dag \hat c_{q,\g} \hat c_{p,\e}}
-  = \xi \sum_{p,q}
+  = \f{U}{L} \sum_{p,q}
   \p{\hat c_{q,\g}^\dag \hat c_{q,\g} \hat c_{p,\e}^\dag \hat c_{p,\e}
     - \hat c_{q,\e}^\dag \hat c_{q,\g} \hat c_{p,\g}^\dag \hat c_{p,\e}},
 \end{align}
 where we can use the single-particle pseudo-spin-1/2 Pauli operators
 in \eqref{eq:pseudospin} to write
 \begin{align}
-  H_{\t{int}} = \xi \sum_{p,q}
+  H_{\t{int}} = \f{U}{L} \sum_{p,q}
   \sp{\p{\f{\1_q-\sigma_q^z}{2}} \p{\f{\1_p+\sigma_p^z}{2}}
     - \sigma_q^+ \sigma_p^-}.
 \end{align}
 Up to a global shift in energy, this result is equivalently
 \begin{align}
   H_{\t{int}}
-  = - \f14 \xi \sum_{p,q} \v{\sigma}_q\c\v{\sigma}_p
-  = - \xi \sum_{p,q} \v s_q \c\v s_p
-  = - \xi \v S \c \v S,
+  = - \f14 \f{U}{L} \sum_{p,q} \v{\sigma}_q\c\v{\sigma}_p
+  = - \f{U}{L} \sum_{p,q} \v s_q \c\v s_p
+  = - \f{U}{L} \v S \c \v S,
 \end{align}
 where
 \begin{align}
@@ -249,7 +247,7 @@ where
 For a fixed particle number $N$, the collective spin Hamiltonian
 $H_{\t{int}}$ has electronic eigenstates $\set{\ket{Sm}}$ with total
 (pseudo-)spin $S$ and projection $m$ onto a quantization axis; the
-corresponding energies are $\bk{Sm|H_{\t{int}}|S,m}=-\xi S\p{S+1}$.
+corresponding energies are $\bk{Sm|H_{\t{int}}|S,m}=-\p{U/L}S\p{S+1}$.
 The ground-state $S=N/2$ manifold is spanned by the Dicke states
 \begin{align}
   \ket{m} \equiv \ket{N/2,m}
@@ -259,9 +257,9 @@ The ground-state $S=N/2$ manifold is spanned by the Dicke states
 \end{align}
 for which we note that $N/2+m=0,1,\cdots,N$ is the number of
 electronic state excitations in the state $\ket{m}$.  Above this
-ground-state manifold with an energy gap of $N\xi$ lies the manifold
-of $S=N/2-1$ states, which is spanned by the orthonormal spin-wave
-states
+ground-state manifold with an energy gap of $NU/L=\eta U$ lies the
+manifold of $S=N/2-1$ states, which is spanned by the orthonormal
+spin-wave states
 \begin{align}
   \ket{mk}
   \equiv \ket{N/2-1,m,k}
@@ -270,9 +268,9 @@ states
 \end{align}
 where $k=1,2,\cdots,N-1$; $n$ indices an individual atom; and
 $s_n^+\equiv\hat c_{n,\e}\hat c_{n,\g}$
-\cite{swallows2011suppression}.  \note{[We should comment about how we
-  do not actually achieve $J_0\gg U$ in practice, but that we can
-  nonetheless validate the spin model using numerics.]}
+\cite{swallows2011suppression}.  \note{[We should comment about or
+  otherwise modify the text to reflect the fact that do not actually
+  achieve $J_0\gg U$ in practice.]}
 
 
 \section{Effective spin squeezing}
@@ -284,8 +282,8 @@ states with total spin $S=N/2$, and write the total system Hamiltonian
 as
 \begin{align}
   H_{\t{free}} = H_{\t{int}} + H_{\t{SOC}}
-  = -\xi\v S\c\v S - \sum_n h_n s_n^z
-  = -\xi\v S\c\v S - \bar h S_z - \sum_n b_n s_n^z,
+  = -\f{U}{L} \v S\c\v S - \sum_n h_n s_n^z
+  = -\f{U}{L} \v S\c\v S - \bar h S_z - \sum_n b_n s_n^z,
 \end{align}
 where we have separated out the mean and residual effective fields
 \begin{align}
@@ -303,14 +301,14 @@ residual effective field term $\sum_n b_n s_n^z$ generally takes
 states outside the $S=N/2$ manifold, we can treat this spin-changing
 process perturbatively when the residual effective fields $b_n$ are
 small compared to the collective spin gap, i.e.~when
-$\max_n\abs{b_n}\ll N\abs{\xi}$.  Such a perturbative treatment yields
-an effective Hamiltonian of the form
+$\max_n\abs{b_n}\ll \eta\abs{U}$.  Such a perturbative treatment
+yields an effective Hamiltonian of the form
 $H_{\t{free,eff}} = H_{\t{free,eff}}^{(1)} + H_{\t{free,eff}}^{(2)}$
 with
 \begin{align}
   H_{\t{free,eff}}^{(1)}
   &= \sum_m \op{m} H \op{m}
-  = -\xi \v S \c \v S - \bar h S_z, \\
+  = -\f{U}{L} \v S \c \v S - \bar h S_z, \\
   H_{\t{free,eff}}^{(2)}
   &= -\sum_{\substack{m\\S<N/2}}
   \frac{\abs{\bk{Sm|H|m}}^2}{E_{Sm}^{\t{free}}-E_m^{\t{free}}} \op{m}
@@ -333,8 +331,8 @@ which implies
 \begin{align}
   H_{\t{free,eff}}^{(2)}
   = -\sum_{m,k}
-  \frac{\abs{\sum_n b_n \bk{mk|s_n^z|m}}^2}{N\xi} \op{m}
-  = -\sum_m \f{(N/2)^2-m^2}{N^3(N-1)\xi}
+  \frac{\abs{\sum_n b_n \bk{mk|s_n^z|m}}^2}{\eta U} \op{m}
+  = -\sum_m \f{(N/2)^2-m^2}{N^2\p{N-1}\eta U}
   \sum_k \abs{\sum_n b_n e^{2\pi ikn/N}}^2 \op{m}.
 \end{align}
 Using the fact that $\sum_nb_n=0$, we can expand
@@ -355,16 +353,16 @@ $n=n'$, so
 We therefore have that
 \begin{align}
   H_{\t{free,eff}}^{(2)}
-  = -\sum_m \f{\p{N/2}^2-m^2}{N\p{N-1}\xi}~ \tilde h^2 \op{m},
+  = -\sum_m \f{\p{N/2}^2-m^2}{\p{N-1}\eta U}~ \tilde h^2 \op{m},
 \end{align}
 where the term $\p{N/2}^2$ term contributes a global energy shift
 which we can neglect, while the $m^2$ term is proportional to
 $m^2\op{m}=S_z^2$.  In total, the effective Hamiltonian is thus
 \begin{align}
   H_{\t{free,eff}}
-  = -\xi \v S \c \v S - \bar h S_z + \chi S_z^2,
+  = -\f{U}{L} \v S \c \v S - \bar h S_z + \chi S_z^2,
   &&
-  \chi \equiv \f{\tilde h^2}{N\p{N-1}\xi}.
+  \chi \equiv \f{\tilde h^2}{\p{N-1}\eta U}.
 \end{align}
 This effective Hamiltonian preserves total spin $S$, which means that
 the $\v S\c\v S$ term contributes only a constant energy shift which
@@ -374,11 +372,11 @@ rotation due to the $S_z$ term can be neglected by use of a rotating
 frame.  The effective Hamiltonian therefore simplifies to the one-axis
 twisting Hamiltonian
 \begin{align}
-  H_{\t{OAT}} = \chi S_z^2.
+  H_{\t{OAT}}^z = \chi S_z^2.
   \label{eq:H_OAT}
 \end{align}
 An example set of parameters and values for one-axis twisting via
-$H_{\t{OAT}}$ with strontium-87 is provided in Table
+$H_{\t{OAT}}^z$ with strontium-87 is provided in Table
 \ref{tab:parameters}, along with the optimal one-axis twisting
 squeezing time
 $t_{\t{opt}}^{\t{OAT}}\sim N^{-2/3}\chi^{-1}\sim\eta
@@ -400,11 +398,9 @@ lattice recoil energy $E_R$.
     SOC strength & $\phi$ & $\pi/50$ \\ \hline\hline
     Tunneling rate & $J_0$ & $\approx300\times2\pi$ Hz \\
     On-site interaction strength & $U$ & $\approx1.4\times2\pi$ kHz \\
-    Collective interaction strength & $\xi$
-    & $\approx14\times2\pi$ Hz \\
     Squeezing strength & $\chi$ & $\approx21\times2\pi$ mHz \\
     Optimal squeezing time & $t_{\t{opt}}^{\t{OAT}}$
-    & $\approx0.66$ seconds \\ \hline
+    & $\approx0.59$ seconds \\ \hline
   \end{tabular}
 \end{table}
 
@@ -426,9 +422,14 @@ Hamiltonian
 If $\abs{\Omega}\gg N\chi$, then we can apply $H_{\t{clock}}$ for
 short times $\theta/\abs{\Omega}\ll\p{N\chi}^{-1}$ (during which we
 can neglect $H_{\t{eff}}$) to realize collective rotations of the form
-$\exp\p{\pm i\theta S_x}$.  Thus acting with $\exp\sp{i\p{\pi/2}S_x}$,
-waiting for a time $2\tau$, acting with $\exp\sp{-i\p{\pi/2}S_x}$, and
-waiting for a time $\tau$ then realizes the unitary
+$\exp\p{\pm i\theta S_x}$.  Thus
+\begin{enumerate*}[label=(\roman*)]
+\item acting with $\exp\sp{i\p{\pi/2}S_x}$,
+\item waiting for a time $2\tau$,
+\item acting with $\exp\sp{-i\p{\pi/2}S_x}$, and
+\item waiting for a time $\tau$
+\end{enumerate*}
+realizes the unitary
 \begin{align}
   U_1 = \exp\p{-i\tau\chi S_z^2} \exp\p{-i\f{\pi}{2}S_x}
   \exp\p{-i2\tau\chi S_z^2} \exp\p{i\f{\pi}{2}S_x}
@@ -442,31 +443,35 @@ If $\tau\chi\ll1$, then
 \end{align}
 where $\simeq$ denotes equality up to an overall phase, which holds
 above because $S^2$ is conserved by all dynamics.  Repeating the above
-sequence $n$ times for a time $t=3n\tau$ thus results in the two-axis
-twisting unitary
+sequence $n$ times for a time $t=3n\tau$ thus results in the unitary
 \begin{align}
   U = \exp\sp{-in\tau\chi\p{S_y^2 - S_x^2}}
   = \exp\sp{-i\p{t/3}\chi\p{S_y^2 - S_x^2}},
 \end{align}
-which is equivalent to evolving for a time $t$ under the two-axis
-twisting Hamiltonian
+which is equivalently generated by evolution for a time $t$ under the
+two-axis twisting Hamiltonian
 \begin{align}
   H_{\t{TAT}}^{y,x} = \f{\chi}{3}\p{S_y^2 - S_x^2}.
   \label{eq:H_TAT_pulse}
 \end{align}
 Despite the factor of 1/3 in the effective two-axis twisting strength,
 the optimal squeezing time for this two-axis twisting Hamiltonian is
-generally close to that for one-axis twisting with $H_{\t{OAT}}$ in
+generally close to that for one-axis twisting with $H_{\t{OAT}}^z$ in
 \eqref{eq:H_OAT} \cite{liu2011spin}.
 
 \note{[MP: In practice, of course, the gates $\exp\p{i\theta S_x}$
   take a nonzero amount of time to implement.  For the purposes of
   simulation, we can probably approximate these gates by square pulses
-  centered on the appropriate time.  I believe that experiments are
-  capable of achieving $\Omega\sim1\times2\pi~\t{kHz}$.  I can do an
-  error analysis on this sequence to determine the effect of the
-  $\O\p{\tau^2\chi^2}$ terms in the exponent of $U_1$, but it is
-  probably simpler to just try this out in simulations.]}
+  centered on the appropriate time.  I can do an error analysis on
+  this sequence to determine the effect of the $\O\p{\tau^2\chi^2}$
+  terms in the exponent of $U_1$, but it is probably simpler to just
+  try this out in simulations.]}
+
+\note{[MP: I expect this pulsed-drive protocol to be worse than the
+  continuous-drive protocol below.  If we decide that we are not
+  interested in the pulsed drive, we can merely mention it and throw
+  in a citation of ref.~\cite{liu2011spin} without devoting an entire
+  section to the subject.]}
 
 
 \section{Two-axis twisting: continuous drive}
@@ -475,12 +480,12 @@ Rather than pulsing the clock laser, we can apply a continuous drive
 to realize the Hamiltonian
 \begin{align}
   H_{\t{drive}} = H_{\t{free}} + H_{\t{clock}}
-  = -\xi\v S\c\v S - \bar h S_z - \Omega S_x - \sum_n b_n s_n^z,
+  = -\f{U}{L} \v S\c\v S - \bar h S_z - \Omega S_x - \sum_n b_n s_n^z,
 \end{align}
 where the drive strength $\Omega$ may generally depend on time.  As
 shown in Appendix \ref{sec:effective_squeezing_drive}, the addition of
-a drive with $\abs{\Omega}\ll N\abs{\xi}$ does not modify the
-squeezing behavior of the spin-orbit coupling terms in
+a drive with $\abs{\Omega}\ll\eta\abs{U}=N\abs{U}/L$ does not modify
+the squeezing behavior of the spin-orbit coupling terms in
 $H_{\t{drive}}$, whose effective action on the $S=N/2$ manifold is
 captured by
 \begin{align}
@@ -520,23 +525,34 @@ twisting Hamiltonians
 \end{align}
 where $\simeq$ denotes equality up to a global energy shift. Given the
 set of parameters in Table \ref{tab:parameters}, the two-axis twisting
-Hamiltonian $H_{\t{TAT}}^{z,x}$ can be achieved with
-$\omega=N\abs{\xi\chi}^{1/2}\approx27\times2\pi$ Hz and $\beta=0.906$.
-The optimal squeezing time for this protocol is
-$t_{\t{opt}}^{\t{TAT}}\approx0.98$ seconds.  A comparison of squeezing
-through $H_{\t{OAT}}$ and $H_{\t{TAT}}^{z,x}$ via the parameters in
-Table \ref{tab:parameters} is provided in Figure
-\ref{fig:squeezing_comparison}.
+Hamiltonian $H_{\t{TAT}}^{z,x}$ can be achieved with a drive frequency
+$\omega=N\abs{\chi U/L}^{1/2}\approx27\times2\pi$ Hz and modulation
+index $\beta=0.906$.  The optimal squeezing time for this protocol is
+$t_{\t{opt}}^{\t{TAT}}\approx0.82$ seconds.  A comparison of squeezing
+through $H_{\t{OAT}}^z$ and $H_{\t{TAT}}^{z,x}$ for the initial state
+$\ket{Y}\equiv\bigotimes_n\p{\ket{\g}_n+i\ket{\e}_n}/\sqrt2$ via the
+parameters in Table \ref{tab:parameters} is provided in Figure
+\ref{fig:squeezing_comparison}.  The figure of merit for squeezing is
+the normalized minimal variance of spin in the plane orthogonal to the
+mean spin vector $\bk{\v S}$:
+\begin{align}
+  \xi^2 \equiv \f{N}{\abs{\bk{\v S}}^2}
+  \min_{\hat{\v n}\perp\bk{\v S}} \bk{\p{\v S\c\hat{\v n}}^2}
+\end{align}
+for $\abs{\hat{\v n}}=1$.
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics{squeezing_comparison.pdf}
-  \caption{Comparison of squeezing through $H_{\t{OAT}}$ and
+  \caption{Comparison of squeezing through $H_{\t{OAT}}^z$ and
     $H_{\t{TAT}}^{z,x}$ via the parameters in Table
     \ref{tab:parameters} and the continuous two-axis twisting protocol
     with $\omega=27\times2\pi$ Hz and $\beta=0.906$.}
   \label{fig:squeezing_comparison}
 \end{figure}
+
+
+
 
 
 \section{Discussions}
