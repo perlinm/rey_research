@@ -5,6 +5,8 @@ import numpy as np
 import scipy.sparse as sparse
 import matplotlib.pyplot as plt
 
+from scipy.special import binom
+
 from mathieu_methods import mathieu_solution
 from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
@@ -27,6 +29,7 @@ plt.rcParams.update(params)
 N = 6 # atoms
 L = 6 # lattice sites
 phi = np.pi / 50 # spin-orbit coupling parameter
+fermi_N_limit = 7
 
 lattice_depth = 4 # shallow (tunneling) axis lattice depth
 
@@ -92,32 +95,31 @@ def to_dB(x): return 10*np.log10(x)
 
 plt.figure(figsize = figsize)
 
-##########################################################################################
-##########################################################################################
-
-c_op_mats = get_c_op_mats(L, N)
-S_op_vec, SS_op_mat = spin_op_vec_mat(L, N, c_op_mats)
-state_z, state_x, state_y = polarized_states(L, N)
-
-H = H_lat_q(L, N, J_0, phi, c_op_mats) + H_int_q(L, N, U, c_op_mats)
-
-state = state_x
-using_state_vectors = state.shape != H.shape
-
-dt = times[-1] / time_steps
-squeezing_fermi_vals = np.zeros(time_steps)
-for ii in range(time_steps):
-    squeezing_fermi_vals[ii], _ = spin_squeezing_fermi(state, S_op_vec, SS_op_mat, N)
-    state = sparse.linalg.expm_multiply(-1j*dt*H, state)
-    if not using_state_vectors:
-        state = sparse.linalg.expm_multiply(-1j*dt*H, state.conj().T).conj().T
-
-##########################################################################################
-##########################################################################################
-
 plt.plot(times_SI, -to_dB(squeezing_OAT_vals), label = "OAT")
 plt.plot(times_SI, -to_dB(squeezing_TAT_vals), label = "TAT")
-plt.plot(times_SI, -to_dB(squeezing_fermi_vals), label = "FH")
+
+if N <= fermi_N_limit:
+    print()
+    print("Fermi-Hubbard hilbert space dimension:", int(binom(2*product(L),N)))
+    c_op_mats = get_c_op_mats(L, N, depth = 2)
+    S_op_vec, SS_op_mat = spin_op_vec_mat(L, N, c_op_mats)
+    state_z, state_x, state_y = polarized_states(L, N)
+
+    state = state_x
+    H = H_lat_q(L, N, J_0, phi, c_op_mats) + H_int_q(L, N, U, c_op_mats)
+    using_state_vectors = state.shape != H.shape
+
+    dt = times[-1] / time_steps
+    squeezing_fermi_vals = np.zeros(time_steps)
+    for ii in range(time_steps):
+        print("{}/{}".format(ii,time_steps))
+        squeezing_fermi_vals[ii], _ = spin_squeezing_fermi(state, S_op_vec, SS_op_mat, N)
+        state = sparse.linalg.expm_multiply(-1j*dt*H, state)
+        if not using_state_vectors:
+            state = sparse.linalg.expm_multiply(-1j*dt*H, state.conj().T).conj().T
+
+    plt.plot(times_SI, -to_dB(squeezing_fermi_vals), label = "FH")
+
 plt.xlim(0,times_SI[-1])
 plt.xlabel(r"Time (seconds)")
 plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
