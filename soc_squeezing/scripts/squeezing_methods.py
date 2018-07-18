@@ -15,25 +15,32 @@ np.set_printoptions(linewidth = 200)
 # collective spin vectors in Dicke basis
 ##########################################################################################
 
-def S_z(N): return np.diag(np.arange(N+1)-N/2)
+def spin_op_z(N): return np.diag(np.arange(N+1)-N/2)
 
-def S_p(N):
+def spin_op_m(N):
     S = N/2
     m_z = np.arange(N) - N/2
-    return np.diag(np.sqrt((S-m_z)*(S+m_z+1)),-1)
+    return np.diag(np.sqrt((S-m_z)*(S+m_z+1)),1)
 
-def S_m(N): return S_p(N).transpose()
+def spin_op_p(N): return spin_op_m(N).transpose()
 
-def S_x(N):
-    Sp = S_p(N)
+def spin_op_x(N):
+    Sp = spin_op_p(N)
     return 1/2 * ( Sp + Sp.transpose() )
 
-def S_y(N):
-    Sp = S_p(N)
+def spin_op_y(N):
+    Sp = spin_op_p(N)
     return -1j/2 * ( Sp - Sp.transpose() )
 
-def S_n(vec, N):
-    return ( vec[0] * S_z(N) + vec[1] * S_x(N) + vec[2] * S_y(N) ) / np.linalg.norm(vec)
+def spin_op_vec(N):
+    Sz = spin_op_z(N)
+    Sp = spin_op_p(N)
+    Sx = 1/2 * ( Sp + Sp.transpose() )
+    Sy = -1j/2 * ( Sp - Sp.transpose() )
+    return np.array([ Sz, Sx, Sy ])
+
+def spin_op_n(vec, N):
+    return np.einsum("i,iAB->AB", vec, spin_op_vec(N)) / np.linalg.norm(vec)
 
 
 ##########################################################################################
@@ -46,17 +53,17 @@ def vec_theta_phi(v):
 
 # rotate a vector about an axis by a given angle
 def rotate_vector(vector, axis, angle):
-    L_z = np.array([ [  0,  0,  0 ],
+    g_z = np.array([ [  0,  0,  0 ],
                      [  0,  0, -1 ],
                      [  0,  1,  0 ] ])
-    L_x = np.array([ [  0,  0,  1 ],
+    g_x = np.array([ [  0,  0,  1 ],
                      [  0,  0,  0 ],
                      [ -1,  0,  0 ] ])
-    L_y = np.array([ [  0, -1,  0 ],
+    g_y = np.array([ [  0, -1,  0 ],
                      [  1,  0,  0 ],
                      [  0,  0,  0 ] ])
-    L = ( axis[0] * L_z + axis[1] * L_x + axis[2] * L_y)  / np.linalg.norm(axis)
-    return linalg.expm(angle * L) @ vector
+    g = ( axis[0] * g_z + axis[1] * g_x + axis[2] * g_y)  / np.linalg.norm(axis)
+    return linalg.expm(angle * g) @ vector
 
 # coherent spin state on S = N/2 Bloch sphere
 def coherent_spin_state_angles(theta, phi, N = 10):
@@ -73,8 +80,8 @@ def coherent_spin_state(vec, N = 10):
 # get spin vector <\vec S> for a state
 def spin_vec(state):
     N = state.size-1
-    def val(X): return state.conjugate() @ X @ state
-    return np.real(np.array([ val(S_z(N)), val(S_x(N)), val(S_y(N)) ]))
+    def val(X): return state.conj() @ X @ state
+    return np.real(np.array([ val(spin_op_z(N)), val(spin_op_x(N)), val(spin_op_y(N)) ]))
 
 # get normalized spin vector <\hat S> for a state
 def spin_axis(state): return spin_vec(state) / ( (state.size-1) / 2)
@@ -82,8 +89,8 @@ def spin_axis(state): return spin_vec(state) / ( (state.size-1) / 2)
 # variance of spin state about an axis
 def spin_variance(state, axis):
     N = state.size - 1
-    Sn = S_n(axis, N)
-    def val(X): return state.conjugate() @ X @ state
+    Sn = spin_op_n(axis, N)
+    def val(X): return state.conj() @ X @ state
     return abs(val(Sn @ Sn) - abs(val(Sn))**2)
 
 # return (\xi^2, axis), where:
@@ -110,25 +117,28 @@ def spin_squeezing(state):
         exit()
     optimal_phi = optimum.x
     minimal_variance = optimum.fun
-    squeezing_parameter = minimal_variance * N / S**2
+
+    S_vec = np.einsum("i,Aij,j->A", state.conj(), spin_op_vec(N), state, optimize = True)
+    squeezing_parameter = minimal_variance * N / abs(S_vec @ S_vec)
 
     return squeezing_parameter, squeezing_axis(optimal_phi)
 
 # propagator for z-axis twisting
 def squeezing_OAT_propagator(chi_t, N):
-    Sz = S_z(N)
+    Sz = spin_op_z(N)
     return linalg.expm(-1j * chi_t * Sz @ Sz)
 
 # squeezing parameter after orthogonal-state one-axis twisting
 def squeezing_OAT(chi_t, N):
     A = 1 - np.cos(2*chi_t)**(N-2)
     B = 4 * np.sin(chi_t) * np.cos(chi_t)**(N-2)
-    return (1 + 1/4*(N-1)*A) - 1/4*(N-1)*np.sqrt(A*A+B*B)
+    mag = np.cos(chi_t)**(N-1)
+    return ( (1 + 1/4*(N-1)*A) - 1/4*(N-1)*np.sqrt(A*A+B*B) ) / mag**2
 
 # propagator for z-y two-axis twisting
 def squeezing_TAT_propagator(chi_t, N):
-    Sz = S_z(N)
-    Sy = S_y(N)
+    Sz = spin_op_z(N)
+    Sy = spin_op_y(N)
     return linalg.expm(-1j * chi_t * ( Sz @ Sz - Sy @ Sy ))
 
 # squeezing parameter after orthogonal-state two-axis twisting

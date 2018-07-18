@@ -2,12 +2,11 @@
 
 # FILE CONTENTS: (symbolic) methods relating to fermion squeezing
 
-import sys, time
+import sys
 import numpy as np
 import scipy.sparse as sparse
 import scipy.linalg as linalg
 import scipy.optimize as optimize
-import matplotlib.pyplot as plt
 import itertools, functools, operator
 
 from scipy.special import binom as binomial
@@ -18,14 +17,16 @@ np.set_printoptions(linewidth = 200)
 # return product of items in list
 def sum(list):
     try:
-        return functools.reduce(operator.add, list)
-    except TypeError:
-        return 0
+        len(list)
+        try: return functools.reduce(operator.add, list) # sum all elements in list
+        except: return 0 # we probably have an empty list
+    except: return list # list is probably just a number
 def product(list):
     try:
-        return functools.reduce(operator.mul, list)
-    except TypeError:
-        return 1
+        len(list)
+        try: return functools.reduce(operator.mul, list) # muliply all elements in list
+        except: return 1 # we probably have an empty list
+    except: return list # list is probably just a number
 
 # convert value to decibels
 def to_dB(x): return 10*np.log10(x)
@@ -36,7 +37,12 @@ def to_dB(x): return 10*np.log10(x)
 ##########################################################################################
 
 # return iterator for all momentum states for given lattice dimensions
-def momenta(L): return itertools.product(*[ range(L_j) for L_j in L ])
+def momenta(L):
+    try:
+        len(L)
+        return itertools.product(*[ range(L_j) for L_j in L ])
+    except:
+        return range(L)
 
 # iterable for basis of fock states; returns index of fock state
 #   and a tuple specifying the occupied single-particle states (by index)
@@ -69,7 +75,7 @@ def get_c_op_mats(L, N, depth = None):
                 remaining_states = tuple( state for state in states_in
                                           if state != state_num )
                 # determine whether we pick up a sign upon annihilation
-                sign = sum( 1 for state in states_in if state > state_num ) % 2
+                sign = sum([ 1 for state in states_in if state > state_num ]) % 2
 
                 # loop over all states in the output fock space
                 for index_out, states_out in fock_state_basis(L, N-dd-1):
@@ -84,7 +90,7 @@ def get_c_op_mats(L, N, depth = None):
 # creation / annihilation operator class
 class c_op:
     def __init__(self, q, spin_up, creation = False):
-        self.q = np.array(q).astype(int)
+        self.q = np.array(q, ndmin = 1).astype(int)
         self.spin_up = bool(spin_up)
         self.creation = bool(creation)
 
@@ -148,8 +154,9 @@ class c_op:
 
     # index of the state addressed by this operator
     def index(self, L):
-        site_index = sum( self.q[ii] * product( L[jj] for jj in range(ii+1,len(L)) )
-                          for ii in range(len(self.q)) )
+        L = np.array(L, ndmin = 1)
+        site_index = sum([ self.q[ii] * product([ L[jj] for jj in range(ii+1,len(L)) ])
+                           for ii in range(len(self.q)) ])
         return 2 * site_index + self.spin_up
 
     def vector(self, L, N):
@@ -288,9 +295,9 @@ class c_seq:
                                     if state not in destroyed_states ]
 
             # count the number of minus signs we get from applying destruction operators
-            signs_in = sum( sum( 1 for state in states_in
-                                 if state > destroyed_state )
-                            for destroyed_state in destroyed_states )
+            signs_in = sum([ sum([ 1 for state in states_in
+                                   if state > destroyed_state ])
+                             for destroyed_state in destroyed_states ])
 
             # otherwise, we need to look at all off-diagonal matrix elements
             for index_out, states_out in fock_state_basis(L, N):
@@ -303,9 +310,9 @@ class c_seq:
                 #   this matrix element is zero
                 if remaining_states_in != remaining_states_out: continue
 
-                signs_out = sum( sum( 1 for state in states_out
-                                      if state > created_state )
-                                 for created_state in created_states )
+                signs_out = sum([ sum([ 1 for state in states_out
+                                        if state > created_state ])
+                                  for created_state in created_states ])
 
                 # set this matrix element to 1 or -1 appropriately
                 matrix[index_out, index_in] = (-1)**(signs_in + signs_out)
@@ -406,10 +413,10 @@ class c_sum:
         return c_sum([ item.dag() for item in self.seq_list ])
 
     def matrix(self, L, N, c_op_mats = None):
-        return sum( item.matrix(L, N, c_op_mats) for item in self.seq_list )
+        return sum([ item.matrix(L, N, c_op_mats) for item in self.seq_list ])
 
     def vector(self, L, N):
-        return sum( item.vector(L, N) for item in self.seq_list )
+        return sum([ item.vector(L, N) for item in self.seq_list ])
 
 
 ##########################################################################################
@@ -418,12 +425,12 @@ class c_sum:
 
 # collective spin operators for N particles on a lattice with dimensions L
 def spin_op_z(L, N, c_op_mats = None):
-    return sum( c_op(q,1).dag() * c_op(q,1) - c_op(q,0).dag() * c_op(q,0)
-                for q in momenta(L) ).matrix(L, N, c_op_mats) / 2
+    return sum([ c_op(q,1).dag() * c_op(q,1) - c_op(q,0).dag() * c_op(q,0)
+                 for q in momenta(L) ]).matrix(L, N, c_op_mats) / 2
 
 def spin_op_m(L, N, c_op_mats = None):
-    return sum( c_op(q,0).dag() * c_op(q,1)
-              for q in momenta(L) ).matrix(L, N, c_op_mats)
+    return sum([ c_op(q,0).dag() * c_op(q,1)
+                 for q in momenta(L) ]).matrix(L, N, c_op_mats)
 
 def spin_op_x(L, N, c_op_mats = None):
     Sm = spin_op_m(L, N, c_op_mats)
@@ -458,9 +465,9 @@ def spin_op_vec_mat(L, N, c_op_mats = None):
 def polarized_states(L, N):
     # if we are at unit filling, return a state vector, otherwise return a density operator
     if N == product(L):
-        vec_z = product( c_op(q,1) for q in momenta(L) ).vector(L, N)
-        vec_x = product( c_op(q,1) + c_op(q,0) for q in momenta(L) ).vector(L, N)
-        vec_y = product( c_op(q,1) + 1j * c_op(q,0) for q in momenta(L) ).vector(L, N)
+        vec_z = product([ c_op(q,1) for q in momenta(L) ]).vector(L, N)
+        vec_x = product([ c_op(q,1) + c_op(q,0) for q in momenta(L) ]).vector(L, N)
+        vec_y = product([ c_op(q,1) + 1j * c_op(q,0) for q in momenta(L) ]).vector(L, N)
         vec_z = vec_z.toarray() / sparse.linalg.norm(vec_z)
         vec_x = vec_x.toarray() / sparse.linalg.norm(vec_x)
         vec_y = vec_y.toarray() / sparse.linalg.norm(vec_y)
@@ -471,9 +478,9 @@ def polarized_states(L, N):
     state_x = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
     state_y = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = complex)
     for momenta_comb in itertools.combinations(momenta(L), N):
-        vec_z = product( c_op(q,1) for q in momenta_comb ).vector(L, N)
-        vec_x = product( c_op(q,1) + c_op(q,0) for q in momenta_comb ).vector(L, N)
-        vec_y = product( c_op(q,1) + 1j * c_op(q,0) for q in momenta_comb ).vector(L, N)
+        vec_z = product([ c_op(q,1) for q in momenta_comb ]).vector(L, N)
+        vec_x = product([ c_op(q,1) + c_op(q,0) for q in momenta_comb ]).vector(L, N)
+        vec_y = product([ c_op(q,1) + 1j * c_op(q,0) for q in momenta_comb ]).vector(L, N)
         state_z += vec_z * vec_z.conj().T
         state_x += vec_x * vec_x.conj().T
         state_y += vec_y * vec_y.conj().T
@@ -490,17 +497,19 @@ def polarized_states(L, N):
 
 # lattice Hamiltonian in quasi-momentum basis
 def H_lat_q(L, N, J, phi, c_op_mats = None):
+    L = np.array(L, ndmin = 1)
     try: len(J)
     except: J = J * np.ones(len(L))
     try: len(phi)
     except: phi = phi * np.ones(len(L))
-    return 2 * sum( sum( J[ii] * np.cos(2*np.pi*q[ii]/L[ii] + s * phi[ii])
-                         for ii in range(len(L)) if L[ii] > 1 ) *
-                    c_op(q,s).dag() * c_op(q,s)
-                    for q in momenta(L) for s in range(2) ).matrix(L, N, c_op_mats)
+    return 2 * sum([ sum([ J[ii] * np.cos(2*np.pi*q[ii]/L[ii] + s * phi[ii])
+                           for ii in range(len(L)) if L[ii] > 1 ]) *
+                     c_op(q,s).dag() * c_op(q,s)
+                     for q in momenta(L) for s in range(2) ]).matrix(L, N, c_op_mats)
 
 # lattice Hamiltonian in on-site basis
 def H_lat_j(L, N, J, phi, c_op_mats = None, periodic = False):
+    L = np.array(L, ndmin = 1)
     try: len(J)
     except: J = J * np.ones(len(L))
     try: len(phi)
@@ -509,10 +518,10 @@ def H_lat_j(L, N, J, phi, c_op_mats = None, periodic = False):
     for j, s in itertools.product(momenta(L), range(2)):
         for ii in range(len(j)):
             if L[ii] > 1 and ( j[ii] + 1 < L[ii] or periodic ):
-                j_add = np.zeros(len(j))
-                j_add[ii] = 1
+                j_next = j
+                j_next[ii] += 1
                 H += ( J[ii] * np.exp(1j * s * phi[ii]) *
-                       c_op(j+j_add, s).dag() * c_op(j, s) )
+                       c_op(j_next, s).dag() * c_op(j, s) )
     H = H.matrix(L, N, c_op_mats)
     return H + H.getH()
 
@@ -528,8 +537,8 @@ def H_int_q(L, N, U, c_op_mats = None):
 
 # interaction Hamiltonian in on-site basis
 def H_int_j(L, N, U, c_op_mats = None):
-    return U * sum( c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
-                    for j in momenta(L) ).matrix(L, N, c_op_mats)
+    return U * sum([ c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
+                     for j in momenta(L) ]).matrix(L, N, c_op_mats)
 
 
 ##########################################################################################
@@ -545,17 +554,17 @@ def val(X, state):
 
 # rotate a vector about an axis by a given angle
 def rotate_vector(vector, axis, angle):
-    L_z = np.array([ [  0,  0,  0 ],
+    g_z = np.array([ [  0,  0,  0 ],
                      [  0,  0, -1 ],
                      [  0,  1,  0 ] ])
-    L_x = np.array([ [  0,  0,  1 ],
+    g_x = np.array([ [  0,  0,  1 ],
                      [  0,  0,  0 ],
                      [ -1,  0,  0 ] ])
-    L_y = np.array([ [  0, -1,  0 ],
+    g_y = np.array([ [  0, -1,  0 ],
                      [  1,  0,  0 ],
                      [  0,  0,  0 ] ])
-    L = ( axis[0] * L_z + axis[1] * L_x + axis[2] * L_y)  / linalg.norm(axis)
-    return linalg.expm(angle * L) @ vector
+    g = ( axis[0] * g_z + axis[1] * g_x + axis[2] * g_y)  / linalg.norm(axis)
+    return linalg.expm(angle * g) @ vector
 
 # variance of spin state about an axis
 def spin_variance(state, axis, S_op_vec, SS_op_mat):
@@ -566,7 +575,7 @@ def spin_variance(state, axis, S_op_vec, SS_op_mat):
 # return (\xi^2, axis), where:
 #   "axis" is the axis of minimal spin variance in the plane orthogonal to <\vec S>
 #   \xi^2 = N (<S_axis^2> - <S_axis>^2) / |<S>|^2 is the spin squeezing parameter
-def spin_squeezing(state, S_op_vec, SS_op_mat):
+def spin_squeezing(state, S_op_vec, SS_op_mat, N):
     S_vec = np.array([ np.real(val(X,state)) for X in S_op_vec ])
     SS_mat = np.array([ [ np.real(val(X,state)) for X in XS ] for XS in SS_op_mat ])
 
@@ -590,92 +599,3 @@ def spin_squeezing(state, S_op_vec, SS_op_mat):
     squeezing_parameter = minimal_variance * N / linalg.norm(S_vec)**2
 
     return squeezing_parameter, squeezing_axis(optimal_phi)
-
-##########################################################################################
-##########################################################################################
-
-def plot_eigvals(M):
-    vals = sorted(np.real(np.linalg.eigvals(M.toarray())))
-    vals -= np.mean(vals)
-    plt.plot(vals)
-    return vals
-
-
-time_steps = 100
-
-
-L = (1,6)
-N = 6
-
-J_0 = 1
-U = 25
-Omega = 35
-phi = np.pi
-
-max_time = 10
-
-
-# L_x = 1
-# L_y = 6
-# N = 6
-
-# J_0 = 296.6 * 2*np.pi
-# U = 1357 * 2*np.pi
-# Omega = 0
-# phi = np.pi / 50
-
-# max_time = 1
-
-
-
-hilbert_dim = int(binomial(2*product(L), N))
-print("hilbert_dim:",hilbert_dim)
-
-c_op_mats = get_c_op_mats(L, N)
-S_op_vec, SS_op_mat = spin_op_vec_mat(L, N, c_op_mats)
-state_z, state_x, state_y = polarized_states(L, N)
-
-H_j = ( H_int_j(L, N, U, c_op_mats) +
-        H_lat_j(L, N, J_0, phi, c_op_mats) )
-
-H_q = ( H_int_q(L, N, U, c_op_mats) +
-        H_lat_q(L, N, J_0, phi, c_op_mats) )
-
-if Omega != 0:
-    H_drive = - Omega * S_op_vec[2]
-    H_q += H_drive
-    H_j += H_drive
-
-state_j = state_x
-state_q = state_x
-using_state_vectors = state_q.shape != H_q.shape
-
-squeezing_j = np.zeros(time_steps)
-squeezing_q = np.zeros(time_steps)
-times = np.linspace(0, max_time, time_steps)
-dt = max_time / time_steps
-for ii in range(time_steps):
-    squeezing_j[ii], _ = spin_squeezing(state_j, S_op_vec, SS_op_mat)
-    squeezing_q[ii], _ = spin_squeezing(state_q, S_op_vec, SS_op_mat)
-    state_j = sparse.linalg.expm_multiply(-1j*dt*H_j, state_j)
-    state_q = sparse.linalg.expm_multiply(-1j*dt*H_q, state_q)
-    if not using_state_vectors:
-        state_j = sparse.linalg.expm_multiply(-1j*dt*H_j, state_j.conj().T).conj().T
-        state_q = sparse.linalg.expm_multiply(-1j*dt*H_q, state_q.conj().T).conj().T
-
-fig_dir = "../figures/"
-figsize = (4,3)
-params = { "text.usetex" : True }
-plt.rcParams.update(params)
-
-plt.figure(figsize = figsize)
-plt.plot(times, -to_dB(squeezing_j), label = "closed")
-plt.plot(times, -to_dB(squeezing_q), label = "periodic")
-plt.xlim(0, times[-1])
-plt.xlabel(r"Time (seconds)")
-plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
-plt.legend(loc="best")
-plt.tight_layout()
-
-import sys
-if "show" in sys.argv: plt.show()
