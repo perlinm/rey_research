@@ -37,7 +37,7 @@ def to_dB(x): return 10*np.log10(x)
 ##########################################################################################
 
 # return iterator for all momentum states for given lattice dimensions
-def momenta(L):
+def spacial_basis(L):
     try:
         len(L)
         return itertools.product(*[ range(L_j) for L_j in L ])
@@ -426,11 +426,11 @@ class c_sum:
 # collective spin operators for N particles on a lattice with dimensions L
 def spin_op_z(L, N, c_op_mats = None):
     return sum([ c_op(q,1).dag() * c_op(q,1) - c_op(q,0).dag() * c_op(q,0)
-                 for q in momenta(L) ]).matrix(L, N, c_op_mats) / 2
+                 for q in spacial_basis(L) ]).matrix(L, N, c_op_mats) / 2
 
 def spin_op_m(L, N, c_op_mats = None):
     return sum([ c_op(q,0).dag() * c_op(q,1)
-                 for q in momenta(L) ]).matrix(L, N, c_op_mats)
+                 for q in spacial_basis(L) ]).matrix(L, N, c_op_mats)
 
 def spin_op_x(L, N, c_op_mats = None):
     Sm = spin_op_m(L, N, c_op_mats)
@@ -465,9 +465,10 @@ def spin_op_vec_mat(L, N, c_op_mats = None):
 def polarized_states(L, N):
     # if we are at unit filling, return a state vector, otherwise return a density operator
     if N == product(L):
-        vec_z = product([ c_op(q,1) for q in momenta(L) ]).vector(L, N)
-        vec_x = product([ c_op(q,1) + c_op(q,0) for q in momenta(L) ]).vector(L, N)
-        vec_y = product([ c_op(q,1) + 1j * c_op(q,0) for q in momenta(L) ]).vector(L, N)
+        vec_z = product([ c_op(q,1) for q in spacial_basis(L) ]).vector(L, N)
+        vec_x = product([ c_op(q,1) + c_op(q,0) for q in spacial_basis(L) ]).vector(L, N)
+        vec_y = product([ c_op(q,1) + 1j * c_op(q,0)
+                          for q in spacial_basis(L) ]).vector(L, N)
         vec_z = vec_z.toarray() / sparse.linalg.norm(vec_z)
         vec_x = vec_x.toarray() / sparse.linalg.norm(vec_x)
         vec_y = vec_y.toarray() / sparse.linalg.norm(vec_y)
@@ -477,10 +478,10 @@ def polarized_states(L, N):
     state_z = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
     state_x = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
     state_y = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = complex)
-    for momenta_comb in itertools.combinations(momenta(L), N):
-        vec_z = product([ c_op(q,1) for q in momenta_comb ]).vector(L, N)
-        vec_x = product([ c_op(q,1) + c_op(q,0) for q in momenta_comb ]).vector(L, N)
-        vec_y = product([ c_op(q,1) + 1j * c_op(q,0) for q in momenta_comb ]).vector(L, N)
+    for momenta in itertools.combinations(spacial_basis(L), N):
+        vec_z = product([ c_op(q,1) for q in momenta ]).vector(L, N)
+        vec_x = product([ c_op(q,1) + c_op(q,0) for q in momenta ]).vector(L, N)
+        vec_y = product([ c_op(q,1) + 1j * c_op(q,0) for q in momenta ]).vector(L, N)
         state_z += vec_z * vec_z.conj().T
         state_x += vec_x * vec_x.conj().T
         state_y += vec_y * vec_y.conj().T
@@ -496,16 +497,25 @@ def polarized_states(L, N):
 ##########################################################################################
 
 # lattice Hamiltonian in quasi-momentum basis
-def H_lat_q(L, N, J, phi, c_op_mats = None):
+def H_lat_q(L, N, J, phi, c_op_mats = None, periodic = True):
     L = np.array(L, ndmin = 1)
     try: len(J)
     except: J = J * np.ones(len(L))
     try: len(phi)
     except: phi = phi * np.ones(len(L))
-    return 2 * sum([ sum([ J[ii] * np.cos(2*np.pi*q[ii]/L[ii] + s * phi[ii])
-                           for ii in range(len(L)) if L[ii] > 1 ]) *
-                     c_op(q,s).dag() * c_op(q,s)
-                     for q in momenta(L) for s in range(2) ]).matrix(L, N, c_op_mats)
+
+    # determine energy associated with each quasimomentum state along each axis
+    if periodic:
+        def energy(q,s,ii):
+            return -2 * J[ii] * np.cos(2*np.pi/L[ii] * q[ii] + s*phi[ii])
+    else:
+        def energy(q,s,ii):
+            return -2 * J[ii] * np.sin(np.pi/(L[ii]+1) * (q[ii]-(L[ii]-1)/2) + s*phi[ii])
+
+
+    return sum([ sum([ energy(q,s,ii) for ii in range(len(L)) if L[ii] > 1 ]) *
+                 c_op(q,s).dag() * c_op(q,s)
+                 for q in spacial_basis(L) for s in range(2) ]).matrix(L, N, c_op_mats)
 
 # lattice Hamiltonian in on-site basis
 def H_lat_j(L, N, J, phi, c_op_mats = None, periodic = False):
@@ -514,36 +524,43 @@ def H_lat_j(L, N, J, phi, c_op_mats = None, periodic = False):
     except: J = J * np.ones(len(L))
     try: len(phi)
     except: phi = phi * np.ones(len(L))
-    H = c_seq()
-    for j, s in itertools.product(momenta(L), range(2)):
-        for ii in range(len(j)):
-            if L[ii] > 1 and ( j[ii] + 1 < L[ii] or periodic ):
-                j_next = j
-                j_next[ii] += 1
-                H += ( J[ii] * np.exp(1j * s * phi[ii]) *
-                       c_op(j_next, s).dag() * c_op(j, s) )
-    H = H.matrix(L, N, c_op_mats)
-    return H + H.getH()
+    H_forward = c_seq()
+    for ii in range(len(L)):
+        if L[ii] == 1: continue
+        for j, s in itertools.product(spacial_basis(L), range(2)):
+            if j[ii] + 1 < L[ii] or periodic:
+                j_next = np.array(j)
+                j_next[ii] = ( j_next[ii] + 1 ) % L[ii]
+                H_forward -= ( J[ii] * np.exp(1j * s * phi[ii]) *
+                               c_op(j_next, s).dag() * c_op(j, s) )
+    H_forward = H_forward.matrix(L, N, c_op_mats)
+    return H_forward + H_forward.getH()
 
 # interaction Hamiltonian in quasi-momentum basis
 def H_int_q(L, N, U, c_op_mats = None):
     H = c_seq()
-    for p in momenta(L):
-        for q in momenta(L):
-            for r in momenta(L):
-                s = ( np.array(p) + np.array(q) - np.array(r) ) % np.array(L)
-                H += c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(s,1)
+    for p, q, r in itertools.product(spacial_basis(L), repeat = 3):
+        s = ( np.array(p) + np.array(q) - np.array(r) ) % np.array(L)
+        H += c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(s,1)
     return U / (product(L)) * H.matrix(L, N, c_op_mats)
 
 # interaction Hamiltonian in on-site basis
 def H_int_j(L, N, U, c_op_mats = None):
     return U * sum([ c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
-                     for j in momenta(L) ]).matrix(L, N, c_op_mats)
+                     for j in spacial_basis(L) ]).matrix(L, N, c_op_mats)
 
 
 ##########################################################################################
 # methods for computing spin squeezing
 ##########################################################################################
+
+# time evolution of a state
+def evolve(state, time, hamiltonian):
+    new_state = sparse.linalg.expm_multiply(-1j * time * hamiltonian, state)
+    if state.shape == hamiltonian.shape: # i.e. if the state is a density operator
+        new_state = sparse.linalg.expm_multiply(-1j * time * hamiltonian,
+                                                new_state.conj().T).conj().T
+    return new_state
 
 # expectation value with sparse matrices
 def val(X, state):
@@ -575,7 +592,7 @@ def spin_variance(state, axis, S_op_vec, SS_op_mat):
 # return (\xi^2, axis), where:
 #   "axis" is the axis of minimal spin variance in the plane orthogonal to <\vec S>
 #   \xi^2 = N (<S_axis^2> - <S_axis>^2) / |<S>|^2 is the spin squeezing parameter
-def spin_squeezing(state, S_op_vec, SS_op_mat, N):
+def spin_squeezing_FH(state, S_op_vec, SS_op_mat, N):
     S_vec = np.array([ np.real(val(X,state)) for X in S_op_vec ])
     SS_mat = np.array([ [ np.real(val(X,state)) for X in XS ] for XS in SS_op_mat ])
 
