@@ -38,7 +38,7 @@
 \newcommand{\Q}{\mathcal{Q}}
 
 \usepackage{dsfont} % for identity operator
-\newcommand{\1}{\hat{\mathds{1}}}
+\newcommand{\1}{\mathds{1}}
 
 
 \usepackage[inline]{enumitem} % for inline enumeration
@@ -67,9 +67,9 @@
 
 \maketitle
 
-These are some notes about trying to induce squeezing in an optical
-lattice clock by combining spin-orbit coupling and interactions.  We
-assume, for now, that
+These are some notes about trying to induce spin squeezing in an
+optical lattice clock by combining spin-orbit coupling, interactions,
+and external drives.  We assume, for now, that
 \begin{enumerate*}[label=(\roman*)]
 \item atoms are fermionic in nature with an alkali-earth(-like)
   electronic structure,
@@ -199,10 +199,10 @@ in order to express the interaction Hamiltonian in the simple form
 
 \section{Collective spin model}
 
-If the single-particle energy spacings are much greater than the
+If the single-particle energy spacings are large compared to the
 strength of inter-particle interactions, or equivalently if
-$J_0\gg U$, then by the secular approximation we can neglect terms in
-$H_{\t{int}}$ which do not conserve the sum of single-particle
+$J_0\gtrsim U$, then by the secular approximation we can neglect terms
+in $H_{\t{int}}$ which do not conserve the sum of single-particle
 energies.  By solving this single-particle energy conservation
 condition, one finds that we must have $\set{p,q}\ne\set{r,s}$; that
 is, atoms in different clock states can only interact via
@@ -248,137 +248,64 @@ For a fixed particle number $N$, the collective spin Hamiltonian
 $H_{\t{int}}$ has electronic eigenstates $\set{\ket{Sm}}$ with total
 (pseudo-)spin $S$ and projection $m$ onto a quantization axis; the
 corresponding energies are $\bk{Sm|H_{\t{int}}|S,m}=-\p{U/L}S\p{S+1}$.
-The ground-state $S=N/2$ manifold is spanned by the Dicke states
+In particular, the ground-state $S=N/2$ manifold is spanned by the
+Dicke states
 \begin{align}
   \ket{m} \equiv \ket{N/2,m}
   = {N \choose N/2+m}^{-1/2} S_+^{N/2+m} \ket{\g}^{\otimes N},
   &&
   S_+ \equiv \sum_n \sigma_n^+,
+  \label{eq:dicke_states}
 \end{align}
-for which we note that $N/2+m=0,1,\cdots,N$ is the number of
-electronic state excitations in the state $\ket{m}$.  Above this
-ground-state manifold with an energy gap of $NU/L=\eta U$ lies the
-manifold of $S=N/2-1$ states, which is spanned by the orthonormal
-spin-wave states
-\begin{align}
-  \ket{mk}
-  \equiv \ket{N/2-1,m,k}
-  \equiv {N-1 \choose \p{N/2-m}\p{N/2-m+1}}^{-1/2}
-  \sum_{n=1}^N e^{2\pi ikn/N} s_n^+ \ket{N/2,m-1},
-\end{align}
-where $k=1,2,\cdots,N-1$; $n$ indices an individual atom; and
-$s_n^+\equiv\hat c_{n,\e}\hat c_{n,\g}$
-\cite{swallows2011suppression}.  \note{[We should comment about or
-  otherwise modify the text to reflect the fact that do not actually
-  achieve $J_0\gg U$ in practice.]}
+where $n$ indexes an individual atom,
+$\sigma_n^+\equiv\hat c_{n,\e}\hat c_{n,\g}$ is an individual
+spin-raising operator, and $N/2+m=0,1,\cdots,N$ is the number of
+electronic state excitations in the state $\ket{m}$
+\cite{swallows2011suppression}.  In words, the Dicke state $\ket{m}$
+is a uniform superposition of all states with $N/2+m$ total electronic
+excitations.
 
 
 \section{Effective spin squeezing}
 \label{sec:OAT}
 
-In order to demonstrate spin squeezing behavior induced by spin-orbit
-coupling, we fix the total particle number $N$, consider initial
-states with total spin $S=N/2$, and write the total system Hamiltonian
-as
+In total, free evolution of atoms on a lattice is governed by the
+Hamiltonian
 \begin{align}
-  H_{\t{free}} = H_{\t{int}} + H_{\t{SOC}}
-  = -\f{U}{L} \v S\c\v S - \sum_n h_n s_n^z
-  = -\f{U}{L} \v S\c\v S - \bar h S_z - \sum_n b_n s_n^z,
+  H_{\t{free}}
+  = H_{\t{int}} + H_{\t{SOC}}
+  = -\f{U}{L} \v S\c\v S - \sum_n h_n s_n^z,
 \end{align}
-where we have separated out the mean and residual effective fields
+for $n$ indexing an individual atom.  When the ``local'' fields $h_n$
+are small in magnitude compared to the collective spin gap $\eta U$
+and we initialize all atoms in the ground-state subspace of
+$H_{\t{int}}$, we can treat the action of the spin-orbit coupling
+Hamiltonian perturbatively, which yields the effective free-evolution
+Hamiltonian (see Appendix \ref{sec:squeezing_derivation} or Peiru's
+notes)
+\begin{align}
+  H_{\t{free,eff}} = -\bar h S_z + \chi S_z^2,
+\end{align}
+where
 \begin{align}
   \bar h \equiv \f1N \sum_n h_n,
   &&
-  b_n \equiv h_n - \bar h.
-\end{align}
-The subscript on $H_{\t{free}}$ refers to the fact that this
-Hamiltonian corresponds to free, undriven evolution of (interacting)
-atoms on the lattice.  The collective spin operators $\v S\c\v S$ and
-$S_z$ both preserve total spin $S$ and its projection $m$ onto a
-quantization axis, which makes the Dicke states a good basis for
-treating $H_{\t{free}}$ (i.e.~within the $S=N/2$ manifold).  While the
-residual effective field term $\sum_n b_n s_n^z$ generally takes
-states outside the $S=N/2$ manifold, we can treat this spin-changing
-process perturbatively when the residual effective fields $b_n$ are
-small compared to the collective spin gap, i.e.~when
-$\max_n\abs{b_n}\ll \eta\abs{U}$.  Such a perturbative treatment
-yields an effective Hamiltonian of the form
-$H_{\t{free,eff}} = H_{\t{free,eff}}^{(1)} + H_{\t{free,eff}}^{(2)}$
-with
-\begin{align}
-  H_{\t{free,eff}}^{(1)}
-  &= \sum_m \op{m} H \op{m}
-  = -\f{U}{L} \v S \c \v S - \bar h S_z, \\
-  H_{\t{free,eff}}^{(2)}
-  &= -\sum_{\substack{m\\S<N/2}}
-  \frac{\abs{\bk{Sm|H|m}}^2}{E_{Sm}^{\t{free}}-E_m^{\t{free}}} \op{m}
-  = -\sum_{\substack{m\\S<N/2}}
-  \frac{\abs{\sum_n b_n \bk{Sm|s_n^z|m}}^2}
-  {E_{Sm}^{\t{free}}-E_m^{\t{free}}} \op{m},
-\end{align}
-where $E_\psi^{\t{free}}\equiv\bk{\psi|H_{\t{free}}|\psi}$ and we have
-used the fact the spin projection $m$ is conserved by $H$.  As the
-individual spin operators $s_n^z$ cannot change the total spin $S$ by
-more than 1, we need only consider $S=N/2-1$ spin-wave states when
-evaluating the sum over $S<N/2$ in $H_{\t{free,eff}}^{(2)}$ above.
-These spin-wave states couple to the Dicke states via the matrix
-elements of the form (see section 2 in the supporting materials of
-\cite{swallows2011suppression})
-\begin{align}
-  \bk{m|s_n^z|mk} = e^{2\pi i k n/N} \sqrt{\f{(N/2)^2-m^2}{N^2 (N-1)}},
-\end{align}
-which implies
-\begin{align}
-  H_{\t{free,eff}}^{(2)}
-  = -\sum_{m,k}
-  \frac{\abs{\sum_n b_n \bk{mk|s_n^z|m}}^2}{\eta U} \op{m}
-  = -\sum_m \f{(N/2)^2-m^2}{N^2\p{N-1}\eta U}
-  \sum_k \abs{\sum_n b_n e^{2\pi ikn/N}}^2 \op{m}.
-\end{align}
-Using the fact that $\sum_nb_n=0$, we can expand
-\begin{align}
-  \sum_k \abs{\sum_n b_n e^{2\pi ikn/N}}^2
-  = \sum_{k=1}^{N-1} \sum_{n,n'} b_n b_{n'} e^{2\pi ik\p{n-n'}/N}
-  = \sum_{n,n'} b_n b_{n'} \sum_{k=0}^{N-1} e^{2\pi ik\p{n-n'}/N},
-\end{align}
-where the sum over $k$ vanishes for $n\ne n'$ and equals $N$ when
-$n=n'$, so
-\begin{align}
-  \sum_k \abs{\sum_n b_n e^{2\pi ikn/N}}^2
-  = N \sum_n b_n^2 = N^2 \tilde h^2,
-  &&
-  \tilde h^2 \equiv \f1N \sum_n b_n^2 = \f1N \sum_n \p{h_n - \bar h}^2.
-  \label{eq:sum_knn}
-\end{align}
-We therefore have that
-\begin{align}
-  H_{\t{free,eff}}^{(2)}
-  = -\sum_m \f{\p{N/2}^2-m^2}{\p{N-1}\eta U}~ \tilde h^2 \op{m},
-\end{align}
-where the term $\p{N/2}^2$ term contributes a global energy shift
-which we can neglect, while the $m^2$ term is proportional to
-$m^2\op{m}=S_z^2$.  In total, the effective Hamiltonian is thus
-\begin{align}
-  H_{\t{free,eff}}
-  = -\f{U}{L} \v S \c \v S - \bar h S_z + \chi S_z^2,
+  \tilde h^2 \equiv \f1N \sum_n \p{h_n - \bar h}^2,
   &&
   \chi \equiv \f{\tilde h^2}{\p{N-1}\eta U}.
 \end{align}
-This effective Hamiltonian preserves total spin $S$, which means that
-the $\v S\c\v S$ term contributes only a constant energy shift which
-we can neglect.  Furthermore, at temperatures $T\gg J_0$ the mean
-effective field $\bar h=0$, while for $T\sim J_0$ the collective
-rotation due to the $S_z$ term can be neglected by use of a rotating
-frame.  The effective Hamiltonian therefore simplifies to the one-axis
-twisting Hamiltonian
+At temperatures $T\gg J_0$, the mean effective field $\bar h=0$, while
+for $T\sim J_0$ the collective rotation due to the $S_z$ term can be
+eliminated by use of a rotating frame.  The free-evolution Hamiltonian
+thus simplifies further to the one-axis twisting Hamiltonian
 \begin{align}
   H_{\t{OAT}}^z = \chi S_z^2.
   \label{eq:H_OAT}
 \end{align}
 An example set of parameters and values for one-axis twisting via
-$H_{\t{OAT}}^z$ with strontium-87 is provided in Table
-\ref{tab:parameters}, along with the optimal one-axis twisting
-squeezing time
+$H_{\t{OAT}}^z$ with strontium-87 in a 1-D magic-wavelength lattice is
+provided in Table \ref{tab:parameters}, along with the optimal
+one-axis twisting squeezing time
 $t_{\t{opt}}^{\t{OAT}}\sim N^{-2/3}\chi^{-1}\sim\eta
 N^{1/3}=N^{4/3}/L$.  Lattice depths are provided in units of the
 lattice recoil energy $E_R$.
@@ -449,15 +376,15 @@ sequence $n$ times for a time $t=3n\tau$ thus results in the unitary
   = \exp\sp{-i\p{t/3}\chi\p{S_y^2 - S_x^2}},
 \end{align}
 which is equivalently generated by evolution for a time $t$ under the
-two-axis twisting Hamiltonian
+two-axis countertwisting Hamiltonian
 \begin{align}
   H_{\t{TAT}}^{y,x} = \f{\chi}{3}\p{S_y^2 - S_x^2}.
   \label{eq:H_TAT_pulse}
 \end{align}
-Despite the factor of 1/3 in the effective two-axis twisting strength,
-the optimal squeezing time for this two-axis twisting Hamiltonian is
-generally close to that for one-axis twisting with $H_{\t{OAT}}^z$ in
-\eqref{eq:H_OAT} \cite{liu2011spin}.
+Despite the factor of 1/3 in the effective two-axis countertwisting
+strength, the optimal squeezing time for this two-axis twisting
+Hamiltonian is generally close to that for one-axis twisting with
+$H_{\t{OAT}}^z$ in \eqref{eq:H_OAT} \cite{liu2011spin}.
 
 \note{[MP: In practice, of course, the gates $\exp\p{i\theta S_x}$
   take a nonzero amount of time to implement.  For the purposes of
@@ -542,8 +469,7 @@ mean spin vector $\bk{\v S}$:
 for $\abs{\hat{\v n}}=1$.
 
 \begin{figure}
-  \centering
-  \includegraphics{squeezing_comparison.pdf}
+  \centering \includegraphics{squeezing_comparison_TAT.pdf}
   \caption{Comparison of squeezing through $H_{\t{OAT}}^z$ and
     $H_{\t{TAT}}^{z,x}$ via the parameters in Table
     \ref{tab:parameters} and the continuous two-axis twisting protocol
@@ -567,25 +493,25 @@ twisting strength \cite{hu2017vacuum}?
 
 \appendix
 
-\section{Effective spin squeezing in the presence of a drive}
-\label{sec:effective_squeezing_drive}
+\section{Effective spin squeezing in the presence of a weak drive}
+\label{sec:squeezing_derivation}
 
 Suppose we have a Hamiltonian of the form
 \begin{align}
   H = H_0 + V,
   &&
-  H_0 = - \xi\v S\c\v S,
+  H_0 = - \f{U}{L} \v S\c\v S,
   &&
-  V = - \bar h S_z - \Omega S_x - \sum_n b_n s_n^z,
+  V = - \sum_n h_n s_n^z - \Omega S_x,
 \end{align}
-where the effective fields $b_n$ are mean-zero, and we consider
-initial states in the ground-state manifold $\G_0$ of $H_0$ (i.e.~with
-total spin $S=N/2$).  If the largest eigenvalue of $V$ is smaller in
-magnitude than half of the collective spin gap $N\xi$, or the energy
-gap under $H_0$ between $\G_0$ and its orthogonal complement $\E_0$,
-then we can formally develop a perturbative treatment of the action of
-$V$ on $\G_0$.  Such a treatment yields an effective Hamiltonian
-$H_{\t{eff}}=\sum_pH_{\t{eff}}^{(p)}$ on $\G_0$, where
+and we consider $N$-particle states initially in the ground-state
+manifold $\G_0$ of $H_0$, which have total spin $S=N/2$.  If the
+largest eigenvalue of $V$ is smaller in magnitude than half of the
+collective spin gap $N\abs{U}/L=\eta\abs{U}$, i.e.~the energy gap
+under $H_0$ between $\G_0$ and its orthogonal complement $\E_0$, then
+we can formally develop a perturbative treatment for the action of $V$
+on $\G_0$.  Such a treatment yields an effective Hamiltonian on $\G_0$
+of the form $H_{\t{eff}}=\sum_pH_{\t{eff}}^{(p)}$, where
 $H_{\t{eff}}^{(p)}$ is order $p$ in $V$.  Letting $\P_0$ ($\Q_0$) be a
 projector onto $\G_0$ ($\E_0$) and $X$ denote any operator on
 $\G_0\cup\E_0$ (i.e.~the entire Hilbert space), we define the
@@ -605,18 +531,63 @@ with respect to $\G_0$ and $\E_0$, and
   &&
   H_0 = \sum_\alpha E_\alpha \op\alpha.
 \end{align}
-The first few terms in the expansion of the effective Hamiltonian are
-then, as derived in ref.~\cite{bravyi2011schrieffer},
+The first few terms in the expansion of the effective Hamiltonian
+$H_{\t{eff}}$ are then, as derived in
+ref.~\cite{bravyi2011schrieffer},
 \begin{align}
   H_{\t{eff}}^{(0)} = \P_0 H_0 \P_0,
   &&
   H_{\t{eff}}^{(1)} = \P_0 V \P_0,
   &&
   H_{\t{eff}}^{(2)} = -\f12 \P_0 \sp{\O V,\L V} \P_0.
+  \label{eq:H_eff_012}
 \end{align}
-Letting $\B_0\p{\E_0}$ denote an eigenbasis of $H_0$ for $\E_0$ and
-adding a constant shift to $H_0$ such that $E_\psi=0$ for
-$\ket\psi\in\G_0$, we additionally define
+If we add a constant to $H_0$ such that $E_\psi=0$ for all
+$\ket\psi\in\G_0$, or equivalently we measure all energies relative to
+that of the ground-state manifold $\G_0$ with respect to $H_0$, it
+immediately follows that $H_{\t{eff}}^{(0)}=0$.  To calculate
+$H_{\t{eff}}^{(1)}$, we note that the ground-state manifold $\G_0$ is
+spanned by the Dicke states $\ket{m}$ defined in
+\eqref{eq:dicke_states}, in terms of which we can expand the
+collective spin-$z$ operator as $S_z=\sum_mm\op{m}$.  We can likewise
+expand the collective spin-$x$ operator $S_x$ in terms of $x$-oriented
+Dicke states $\ket{m_x}$ as $S_x=\sum_mm\op{m_x}$.  The ground-state
+projector $\P_0$ onto $\G_0$ can be expanded in either basis as
+$\P_0=\sum_m\op{m}=\sum_m\op{m_x}$.  Defining the mean and residual
+fields
+\begin{align}
+  \bar h \equiv \f1N \sum_n h_n,
+  &&
+  b_n \equiv h_n - \bar h,
+\end{align}
+we can then write
+\begin{align}
+  V = -\sum_n \p{b_n+\bar h} s_n^z - \Omega S_x
+  = -\sum_n b_n s_n^z - \bar h S_z - \Omega S_x,
+\end{align}
+and in turn
+\begin{align}
+  H_{\t{eff}}^{(1)}
+  = \P_0\p{-\sum_n b_n s_n^z - \bar h S_z - \Omega S_x} \P_0
+  = -\sum_n b_n \P_0 s_n^z\P_0 - \bar h S_z - \Omega S_x,
+\end{align}
+where we used the fact that $\P_0 S_{j=z,x} \P_0 = S_j$.  By
+construction, the residual fields are mean-zero, i.e.~$\sum_nb_n=0$.
+Using the particle-exchange symmetry of the Dicke states, we can thus
+expand
+\begin{align}
+  \sum_n b_n \P_0 s_n^z \P_0
+  = \sum_{n,m,m'} b_n \op{m} s_n^z \op{m'}
+  = \sum_n b_n \sum_{m,m'} \op{m} s_1^z \op{m'}
+  = 0,
+\end{align}
+which implies
+\begin{align}
+  H_{\t{eff}}^{(1)} = - \bar h S_z - \Omega S_x.
+\end{align}
+To calculate the second-order effective Hamiltonian
+$H_{\t{eff}}^{(2)}$, we let $\B_0\p{\E_0}$ denote an eigenbasis of
+$H_0$ for the excited subspace $\E_0$, define the operator
 \begin{align}
   \I \equiv \sum_{\ket\alpha\in\B_0\p{\E_0}} \f{\op\alpha}{E_\alpha},
 \end{align}
@@ -627,44 +598,71 @@ energetic suppression factors, and expand
   = \Q_0 \L X \P_0 + \P_0 \L X \Q_0
   = \I X \P_0 - \P_0 X \I.
 \end{align}
-The expression for $H_{\t{eff}}^{(2)}$ then simplifies to
+The expression for $H_{\t{eff}}^{(2)}$ in \eqref{eq:H_eff_012} then
+simplifies to
 \begin{align}
   H_{\t{eff}}
   = -\f12 \P_0 \p{\sp{\O V, \I V \P_0} - \sp{\O V, \P_0 V \I}} \P_0
   = -\P_0 V \I V \P_0.
 \end{align}
-\note{[MP: much of the text above is essentially copied from an
-  appendix of the theory paper for multi-body interactions.  As soon
-  as that paper gets posted on arXiv, we can cite it instead.]}  It
-follows that
+The only part of $V$ which is off-diagonal with respect to the ground-
+and excited-state manifolds $\G_0$ and $\E_0$ is $-\sum_nb_ns_n^z$,
+and the individual operators in this term can only change the total
+spin $S$ by at most 1.  It is therefore sufficient to expand $\I$ in a
+basis for states with total spin $S=N/2-1$, which is provided by the
+spin-wave states
 \begin{align}
-  H_{\t{eff}}^{(0)} = 0,
-  &&
-  H_{\t{eff}}^{(1)} = -\bar h S_z - \Omega S_x,
+  \ket{mk}
+  \equiv \ket{N/2-1,m,k}
+  \equiv {N-1 \choose \p{N/2-m}\p{N/2-m+1}}^{-1/2}
+  \sum_{n=1}^N e^{2\pi ikn/N} s_n^+ \ket{N/2,m-1},
 \end{align}
-and, in terms of the $S=N/2$ Dicke states $\ket{m}\equiv\ket{N/2,m}$
-and the $S=N/2-1$ spin-wave states $\ket{mk}\equiv\ket{N/2-1,mk}$,
+for $k=1,2,\cdots,N-1$ \cite{swallows2011suppression}.  Using the fact that all spin-$z$ operators preserve the projection of total spin onto the $z$ axis, we then have that
 \begin{align}
   H_{\t{eff}}^{(2)}
-  = - \f1{N\xi} \sum_{m,k} \abs{\sum_nb_n\bk{mk|s_n^z|m}}^2 \op{m},
+  = -\f1{\eta U} \sum_{m,m',k,n,n'} b_n b_{n'}
+  \Bk{m| s_n^z \op{m'k} s_{n'}^z |m} \op{m}.
   \label{eq:general_H_eff_2}
 \end{align}
-where we used the fact that the collective spin operators $S_j$
-conserve total spin $S$, while the individual spin operators $s_n^z$
-conserve the projection $m$ of collective spin onto a quantization
-axis.  The second-order effective Hamiltonian $H_{\t{eff}}^{(2)}$ in
-\eqref{eq:general_H_eff_2} is identical to that derived in Section
-\ref{sec:OAT}, which implies
+The relevant matrix elements between the Dicke states and the
+spin-wave states are \cite{swallows2011suppression}
 \begin{align}
-  H_{\t{eff}}^{(2)} = \chi S_z^2,
-  &&
-  \chi \equiv \f{\tilde h^2}{N\p{N-1}\xi},
-  &&
-  \tilde h^2 \equiv \f1N \sum_n b_n^2,
+  \bk{m|s_n^z|m'k}
+  = e^{2\pi i k n/N} \sqrt{\f{(N/2)^2-m^2}{N^2 (N-1)}}~ \delta_{m,m'},
 \end{align}
-and in turn
+which implies
 \begin{align}
-  H_{\t{eff}} = -\bar h S_z - \Omega S_x + \chi S_z^2.
+  H_{\t{free,eff}}^{(2)}
+  = -\f1{\eta U} \sum_m \f{(N/2)^2-m^2}{N^2 (N-1)} \op{m}
+  \sum_{k,n,n'} b_n b_{n'} e^{2\pi ik\p{n-n'}/N}.
+\end{align}
+Using the fact that $\sum_nb_n=0$, we can expand
+\begin{align}
+  \sum_{k,n,n'} b_n b_{n'} e^{2\pi ik\p{n-n'}/N}
+  = \sum_{n,n'} b_n b_{n'} \sum_{k=1}^{N-1} e^{2\pi ik\p{n-n'}/N}
+  = \sum_{n,n'} b_n b_{n'} \sum_{k=0}^{N-1} e^{2\pi ik\p{n-n'}/N},
+\end{align}
+where the sum over $k$ vanishes for $n\ne n'$ and equals $N$ when
+$n=n'$, so
+\begin{align}
+  \sum_{k,n,n'} b_n b_{n'} e^{2\pi ik\p{n-n'}/N}
+  = N \sum_n b_n^2 = N^2 \tilde h^2,
+  &&
+  \tilde h^2 \equiv \f1N \sum_n b_n^2 = \f1N \sum_n \p{h_n - \bar h}^2.
+  \label{eq:sum_knn}
+\end{align}
+We therefore have that
+\begin{align}
+  H_{\t{free,eff}}^{(2)}
+  = -\sum_m \f{\p{N/2}^2-m^2}{\p{N-1}\eta U}~ \tilde h^2 \op{m},
+\end{align}
+where the term $\p{N/2}^2$ term contributes a global energy shift
+which we can neglect, while the $m^2$ term is proportional to
+$m^2\op{m}=S_z^2$.  In total, the effective Hamiltonian is thus
+\begin{align}
+  H_{\t{free,eff}} = - \bar h S_z - \Omega S_x + \chi S_z^2,
+  &&
+  \chi \equiv \f{\tilde h^2}{\p{N-1}\eta U}.
 \end{align}
 
 \bibliography{\jobname}
