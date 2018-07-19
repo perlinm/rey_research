@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
+import scipy.sparse as sparse
 import scipy.linalg as linalg
 import scipy.optimize as optimize
 import matplotlib.pyplot as plt
@@ -15,37 +16,56 @@ np.set_printoptions(linewidth = 200)
 # collective spin vectors in Dicke basis
 ##########################################################################################
 
-def spin_op_z(N): return np.diag(np.arange(N+1)-N/2)
+def spin_op_z(N):
+    Sz = sparse.lil_matrix((N+1,N+1))
+    Sz.setdiag(np.arange(N+1)-N/2)
+    return Sz.tocsr()
 
 def spin_op_m(N):
     S = N/2
     m_z = np.arange(N) - N/2
-    return np.diag(np.sqrt((S-m_z)*(S+m_z+1)),1)
-
-def spin_op_p(N): return spin_op_m(N).transpose()
+    Sm = sparse.lil_matrix((N+1,N+1))
+    Sm.setdiag(np.sqrt((S-m_z)*(S+m_z+1)),1)
+    return Sm.tocsr()
 
 def spin_op_x(N):
-    Sp = spin_op_p(N)
-    return 1/2 * ( Sp + Sp.transpose() )
+    Sp = spin_op_m(N)
+    return ( Sm + Sm.transpose() ) / 2
 
 def spin_op_y(N):
     Sp = spin_op_p(N)
-    return -1j/2 * ( Sp - Sp.transpose() )
+    return ( Sm - Sm.transpose() ) * 1j / 2
 
-def spin_op_vec(N):
+def spin_op_vec_mat(N):
     Sz = spin_op_z(N)
-    Sp = spin_op_p(N)
-    Sx = 1/2 * ( Sp + Sp.transpose() )
-    Sy = -1j/2 * ( Sp - Sp.transpose() )
-    return np.array([ Sz, Sx, Sy ])
+    Sm = spin_op_m(N)
+    Sx = ( Sm + Sm.transpose() ) / 2
+    Sy = ( Sm - Sm.transpose() ) * 1j / 2
 
-def spin_op_n(vec, N):
-    return np.einsum("i,iAB->AB", vec, spin_op_vec(N)) / np.linalg.norm(vec)
+    Szz = sparse.csr_matrix.dot(Sz, Sz)
+    Sxx = sparse.csr_matrix.dot(Sx, Sx)
+    Syy = sparse.csr_matrix.dot(Sy, Sy)
+    Sxy = sparse.csr_matrix.dot(Sx, Sy)
+    Syz = sparse.csr_matrix.dot(Sy, Sz)
+    Szx = sparse.csr_matrix.dot(Sz, Sx)
+
+    S_op_vec = [ Sz, Sx, Sy ]
+    SS_op_mat = [ [ Szz,        Szx,        Syz.getH() ],
+                  [ Szx.getH(), Sxx,        Sxy        ],
+                  [ Syz,        Sxy.getH(), Syy        ] ]
+
+    return S_op_vec, SS_op_mat
 
 
 ##########################################################################################
 # coherent states and squeezing
-##########################################################################################
+
+# expectation value with sparse matrices
+def val(X, state):
+    if X.shape != state.shape: # we have a state vector
+        return state.conj().T.dot(X.dot(state)).sum()
+    else: # we have a density operator
+        return X.multiply(state).sum()
 
 # get polar and azimulthal angles of a vector (v_z, v_x, v_y)
 def vec_theta_phi(v):
@@ -77,56 +97,51 @@ def coherent_spin_state(vec, N = 10):
     theta, phi = vec_theta_phi(vec)
     return coherent_spin_state_angles(theta, phi, N)
 
-# get spin vector <\vec S> for a state
-def spin_vec(state):
-    N = state.size-1
-    def val(X): return state.conj() @ X @ state
-    return np.real(np.array([ val(spin_op_z(N)), val(spin_op_x(N)), val(spin_op_y(N)) ]))
-
-# get normalized spin vector <\hat S> for a state
-def spin_axis(state): return spin_vec(state) / ( (state.size-1) / 2)
+# take expectation values of spin operator and matrix
+def spin_vec_mat_vals(state, S_op_vec, SS_op_mat):
+    S_vec = np.array([ np.real(val(X,state)) for X in S_op_vec ])
+    SS_mat = np.array([ [ np.real(val(X,state)) for X in XS ] for XS in SS_op_mat ])
+    return S_vec, SS_mat
 
 # variance of spin state about an axis
-def spin_variance(state, axis):
-    N = state.size - 1
-    Sn = spin_op_n(axis, N)
-    def val(X): return state.conj() @ X @ state
-    return abs(val(Sn @ Sn) - abs(val(Sn))**2)
+def spin_variance(axis, S_vec, SS_mat, state = None):
+    if state != None: S_vec, SS_mat = spin_vec_mat_vals(state, S_vec, SS_mat)
+    return np.real(axis @ SS_mat @ axis - abs(S_vec @ axis)**2)
 
 # return (\xi^2, axis), where:
 #   "axis" is the axis of minimal spin variance in the plane orthogonal to <\vec S>
 #   \xi^2 = (<S_axis^2> - <S_axis>^2) / (S/2) is the spin squeezing parameter
-def spin_squeezing(state):
-    N = state.size-1
-    S = N/2
-    state_axis = spin_axis(state)
-    if state_axis[1] == 0 and state_axis[2] == 0:
+def spin_squeezing(state, S_op_vec, SS_op_mat, N):
+    S_vec, SS_mat = spin_vec_mat_vals(state, S_op_vec, SS_op_mat)
+
+    if S_vec[1] == 0 and S_vec[2] == 0:
         perp_vec = [0,1,0]
     else:
-        rot_axis = np.cross([1,0,0], state_axis)
-        perp_vec = rotate_vector(state_axis, rot_axis, np.pi/2)
+        rot_axis = np.cross([1,0,0], S_vec)
+        perp_vec = rotate_vector(S_vec, rot_axis, np.pi/2) / linalg.norm(S_vec)
 
-    def squeezing_axis(eta): # eta is the angle in the plane orthogonal to the spin vector
-        return rotate_vector(perp_vec, state_axis, eta)
+    def squeezing_axis(eta): # eta = angle in plane orthogonal to the spin vector
+        return rotate_vector(perp_vec, S_vec, eta)
     def variance(eta):
-        return spin_variance(state, squeezing_axis(eta))
+        axis = squeezing_axis(eta)
+        return np.real(axis @ SS_mat @ axis)
 
     optimum = optimize.minimize_scalar(variance, method = "bounded", bounds = (0, np.pi))
-    if not optimum.success:
-        print("squeezing optimization failed")
-        exit()
+    if not optimum.success: sys.exit("squeezing optimization failed")
+
     optimal_phi = optimum.x
     minimal_variance = optimum.fun
-
-    S_vec = np.einsum("i,Aij,j->A", state.conj(), spin_op_vec(N), state, optimize = True)
-    squeezing_parameter = minimal_variance * N / abs(S_vec @ S_vec)
+    squeezing_parameter = minimal_variance * N / linalg.norm(S_vec)**2
 
     return squeezing_parameter, squeezing_axis(optimal_phi)
 
-# propagator for z-axis twisting
-def squeezing_OAT_propagator(chi_t, N):
-    Sz = spin_op_z(N)
-    return linalg.expm(-1j * chi_t * Sz @ Sz)
+# time evolution of a state
+def evolve(state, time, hamiltonian):
+    new_state = sparse.linalg.expm_multiply(-1j * time * hamiltonian, state)
+    if state.shape == hamiltonian.shape: # i.e. if the state is a density operator
+        new_state = sparse.linalg.expm_multiply(-1j * time * hamiltonian,
+                                                new_state.conj().T).conj().T
+    return new_state
 
 # squeezing parameter after orthogonal-state one-axis twisting
 def squeezing_OAT(chi_t, N):
@@ -134,18 +149,6 @@ def squeezing_OAT(chi_t, N):
     B = 4 * np.sin(chi_t) * np.cos(chi_t)**(N-2)
     mag = np.cos(chi_t)**(N-1)
     return ( (1 + 1/4*(N-1)*A) - 1/4*(N-1)*np.sqrt(A*A+B*B) ) / mag**2
-
-# propagator for z-y two-axis twisting
-def squeezing_TAT_propagator(chi_t, N):
-    Sz = spin_op_z(N)
-    Sy = spin_op_y(N)
-    return linalg.expm(-1j * chi_t * ( Sz @ Sz - Sy @ Sy ))
-
-# squeezing parameter after orthogonal-state two-axis twisting
-def squeezing_TAT(chi_t, N, return_propagator = False):
-    U_zy = squeezing_TAT_propagator(chi_t, N)
-    state_x = coherent_spin_state_angles(np.pi/2, 0, N)
-    return spin_squeezing(U_zy @ state_x)[0]
 
 
 ##########################################################################################

@@ -10,8 +10,9 @@ from scipy.special import binom
 from mathieu_methods import mathieu_solution
 from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
-from squeezing_methods import squeezing_OAT, coherent_spin_state, \
-    squeezing_OAT_propagator, squeezing_TAT_propagator, spin_squeezing
+from squeezing_methods import squeezing_OAT, coherent_spin_state, spin_squeezing
+from squeezing_methods import spin_op_vec_mat as spin_op_vec_mat_dicke
+from squeezing_methods import evolve as evolve_dicke
 
 from fermi_hubbard_methods import get_c_op_mats, spin_op_vec_mat, polarized_states, \
     H_lat_q, H_int_q, spin_squeezing_FH, evolve, product, spacial_basis
@@ -78,14 +79,16 @@ chi_times = tau_vals * N**(-2/3)
 times = chi_times / chi
 times_SI = times / recoil_energy_NU
 
+S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
+H = 1/3 * ( SS_op_mat[0][0] - SS_op_mat[2][2] )
+state = coherent_spin_state([0,1,0], N)
+
 squeezing_OAT_vals = np.vectorize(squeezing_OAT)(chi_times, N)
-squeezing_TAT_vals = np.zeros(chi_times.size) # initialize vector of TAT squeezing values
-state = coherent_spin_state([0,1,0], N) # initialize state pointing in x
+squeezing_TAT_vals = np.zeros(time_steps) # initialize vector of TAT squeezing values
 d_chi_t = chi_times[1] - chi_times[0] # size of one time step
-dU_TAT = squeezing_TAT_propagator(d_chi_t/3, N) # TAT propagator for one time step
-for ii in range(squeezing_OAT_vals.size):
-    squeezing_TAT_vals[ii] = spin_squeezing(state)[0] # compute squeezing parameter
-    state = dU_TAT @ state # propagate state for one time step
+for ii in range(time_steps):
+    squeezing_TAT_vals[ii], _ = spin_squeezing(state, S_op_vec, SS_op_mat, N)
+    state = evolve_dicke(state, d_chi_t, H)
 
 tau_opt_OAT = tau_vals[squeezing_OAT_vals.argmin()]
 tau_opt_TAT = tau_vals[squeezing_TAT_vals.argmin()]
