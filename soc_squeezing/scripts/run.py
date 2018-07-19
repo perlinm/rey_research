@@ -10,13 +10,11 @@ from scipy.special import binom
 from mathieu_methods import mathieu_solution
 from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
-from squeezing_methods import squeezing_OAT, coherent_spin_state, spin_squeezing
-from squeezing_methods import spin_op_vec_mat as spin_op_vec_mat_dicke
-from squeezing_methods import evolve as evolve_dicke
 
-from fermi_hubbard_methods import get_c_op_mats, spin_op_vec_mat, polarized_states, \
-    H_lat_q, H_int_q, spin_squeezing_FH, evolve, product, spacial_basis
-
+from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state, squeezing_OAT
+from fermi_hubbard_methods import product, spacial_basis, get_c_op_mats, \
+    spin_op_vec_mat_FH, polarized_states_FH, H_int_q, H_lat_q
+from squeezing_methods import spin_squeezing, evolve
 
 show = "show" in sys.argv
 save = "save" in sys.argv
@@ -26,8 +24,8 @@ fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-L = 100 # lattice sites
-N = int(product(L) / 2) # atoms
+L = 6 # lattice sites
+N = 6 # atoms
 phi = np.pi / 50 # spin-orbit coupling parameter
 fermi_N_limit = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
 periodic = True # use periodic boundary conditions?
@@ -88,7 +86,7 @@ squeezing_TAT_vals = np.zeros(time_steps) # initialize vector of TAT squeezing v
 d_chi_t = chi_times[1] - chi_times[0] # size of one time step
 for ii in range(time_steps):
     squeezing_TAT_vals[ii], _ = spin_squeezing(state, S_op_vec, SS_op_mat, N)
-    state = evolve_dicke(state, d_chi_t, H)
+    state = evolve(state, H, d_chi_t)
 
 tau_opt_OAT = tau_vals[squeezing_OAT_vals.argmin()]
 tau_opt_TAT = tau_vals[squeezing_TAT_vals.argmin()]
@@ -111,8 +109,8 @@ if N <= fermi_N_limit:
     print()
     print("Fermi-Hubbard hilbert space dimension:", int(binom(2*product(L),N)))
     c_op_mats = get_c_op_mats(L, N, depth = 2)
-    S_op_vec, SS_op_mat = spin_op_vec_mat(L, N, c_op_mats)
-    state_z, state_x, state_y = polarized_states(L, N)
+    S_op_vec, SS_op_mat = spin_op_vec_mat_FH(L, N, c_op_mats)
+    state_z, state_x, state_y = polarized_states_FH(L, N)
 
     state_free = state_x
     state_drive = state_x
@@ -129,15 +127,16 @@ if N <= fermi_N_limit:
     for ii in range(time_steps):
         print("{}/{}".format(ii,time_steps))
         H_drive = H_free + H_laser(times[ii]+dt/2)
-        squeezing_free_vals[ii], _ = spin_squeezing_FH(state_free, S_op_vec, SS_op_mat, N)
-        squeezing_drive_vals[ii], _ = spin_squeezing_FH(state_drive, S_op_vec, SS_op_mat, N)
-        state_free = evolve(state_free, dt, H_free)
-        state_drive = evolve(state_drive, dt, H_drive)
+        squeezing_free_vals[ii], _ = spin_squeezing(state_free, S_op_vec, SS_op_mat, N)
+        squeezing_drive_vals[ii], _ = spin_squeezing(state_drive, S_op_vec, SS_op_mat, N)
+        state_free = evolve(state_free, H_free, dt)
+        state_drive = evolve(state_drive, H_drive, dt)
 
     plt.plot(times_SI, -to_dB(squeezing_free_vals), label = "FH (free)")
     plt.plot(times_SI, -to_dB(squeezing_drive_vals), label = "FH (driven)")
 
 plt.xlim(0,times_SI[-1])
+plt.ylim(0,plt.gca().get_ylim()[1])
 plt.xlabel(r"Time (seconds)")
 plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
 plt.legend(loc="best")

@@ -12,8 +12,6 @@ import itertools, functools, operator
 from scipy.special import binom as binomial
 from sympy.combinatorics.permutations import Permutation as sympy_permutation
 
-np.set_printoptions(linewidth = 200)
-
 # return product of items in list
 def sum(list):
     try:
@@ -27,9 +25,6 @@ def product(list):
         try: return functools.reduce(operator.mul, list) # muliply all elements in list
         except: return 1 # we probably have an empty list
     except: return list # list is probably just a number
-
-# convert value to decibels
-def to_dB(x): return 10*np.log10(x)
 
 
 ##########################################################################################
@@ -424,25 +419,25 @@ class c_sum:
 ##########################################################################################
 
 # collective spin operators for N particles on a lattice with dimensions L
-def spin_op_z(L, N, c_op_mats = None):
+def spin_op_z_FH(L, N, c_op_mats = None):
     return sum([ c_op(q,1).dag() * c_op(q,1) - c_op(q,0).dag() * c_op(q,0)
                  for q in spacial_basis(L) ]).matrix(L, N, c_op_mats) / 2
 
-def spin_op_m(L, N, c_op_mats = None):
+def spin_op_m_FH(L, N, c_op_mats = None):
     return sum([ c_op(q,0).dag() * c_op(q,1)
                  for q in spacial_basis(L) ]).matrix(L, N, c_op_mats)
 
-def spin_op_x(L, N, c_op_mats = None):
-    Sm = spin_op_m(L, N, c_op_mats)
+def spin_op_x_FH(L, N, c_op_mats = None):
+    Sm = spin_op_m_FH(L, N, c_op_mats)
     return ( Sm + Sm.getH() ) / 2
 
-def spin_op_y(L, N, c_op_mats = None):
-    Sm = spin_op_m(L, N, c_op_mats)
+def spin_op_y_FH(L, N, c_op_mats = None):
+    Sm = spin_op_m_FH(L, N, c_op_mats)
     return ( Sm - Sm.getH() ) * 1j / 2
 
-def spin_op_vec_mat(L, N, c_op_mats = None):
-    Sz = spin_op_z(L, N, c_op_mats)
-    Sm = spin_op_m(L, N, c_op_mats)
+def spin_op_vec_mat_FH(L, N, c_op_mats = None):
+    Sz = spin_op_z_FH(L, N, c_op_mats)
+    Sm = spin_op_m_FH(L, N, c_op_mats)
     Sx = ( Sm + Sm.getH() ) / 2
     Sy = ( Sm - Sm.getH() ) * 1j / 2
 
@@ -462,7 +457,7 @@ def spin_op_vec_mat(L, N, c_op_mats = None):
 
 # density operators with completely mixed spatial degees of freedom,
 #   but all spins pointing along principal axes
-def polarized_states(L, N):
+def polarized_states_FH(L, N):
     # if we are at unit filling, return a state vector, otherwise return a density operator
     if N == product(L):
         vec_z = product([ c_op(q,1) for q in spacial_basis(L) ]).vector(L, N)
@@ -548,71 +543,3 @@ def H_int_q(L, N, U, c_op_mats = None):
 def H_int_j(L, N, U, c_op_mats = None):
     return U * sum([ c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
                      for j in spacial_basis(L) ]).matrix(L, N, c_op_mats)
-
-
-##########################################################################################
-# methods for computing spin squeezing
-##########################################################################################
-
-# time evolution of a state
-def evolve(state, time, hamiltonian):
-    new_state = sparse.linalg.expm_multiply(-1j * time * hamiltonian, state)
-    if state.shape == hamiltonian.shape: # i.e. if the state is a density operator
-        new_state = sparse.linalg.expm_multiply(-1j * time * hamiltonian,
-                                                new_state.conj().T).conj().T
-    return new_state
-
-# expectation value with sparse matrices
-def val(X, state):
-    if X.shape != state.shape: # we have a state vector
-        return state.conj().T.dot(X.dot(state)).sum()
-    else: # we have a density operator
-        return X.multiply(state).sum()
-
-# rotate a vector about an axis by a given angle
-def rotate_vector(vector, axis, angle):
-    g_z = np.array([ [  0,  0,  0 ],
-                     [  0,  0, -1 ],
-                     [  0,  1,  0 ] ])
-    g_x = np.array([ [  0,  0,  1 ],
-                     [  0,  0,  0 ],
-                     [ -1,  0,  0 ] ])
-    g_y = np.array([ [  0, -1,  0 ],
-                     [  1,  0,  0 ],
-                     [  0,  0,  0 ] ])
-    g = ( axis[0] * g_z + axis[1] * g_x + axis[2] * g_y)  / linalg.norm(axis)
-    return linalg.expm(angle * g) @ vector
-
-# variance of spin state about an axis
-def spin_variance(state, axis, S_op_vec, SS_op_mat):
-    S_vec = np.array([ np.real(val(X,state)) for X in S_op_vec ])
-    SS_mat = np.array([ [ np.real(val(X,state)) for X in XS ] for XS in SS_op_mat ])
-    return np.real(axis @ SS_mat @ axis - abs(S_vec @ axis)**2)
-
-# return (\xi^2, axis), where:
-#   "axis" is the axis of minimal spin variance in the plane orthogonal to <\vec S>
-#   \xi^2 = N (<S_axis^2> - <S_axis>^2) / |<S>|^2 is the spin squeezing parameter
-def spin_squeezing_FH(state, S_op_vec, SS_op_mat, N):
-    S_vec = np.array([ np.real(val(X,state)) for X in S_op_vec ])
-    SS_mat = np.array([ [ np.real(val(X,state)) for X in XS ] for XS in SS_op_mat ])
-
-    if S_vec[1] == 0 and S_vec[2] == 0:
-        perp_vec = [0,1,0]
-    else:
-        rot_axis = np.cross([1,0,0], S_vec)
-        perp_vec = rotate_vector(S_vec, rot_axis, np.pi/2) / linalg.norm(S_vec)
-
-    def squeezing_axis(eta): # eta = angle in plane orthogonal to the spin vector
-        return rotate_vector(perp_vec, S_vec, eta)
-    def variance(eta):
-        axis = squeezing_axis(eta)
-        return np.real(axis @ SS_mat @ axis)
-
-    optimum = optimize.minimize_scalar(variance, method = "bounded", bounds = (0, np.pi))
-    if not optimum.success: sys.exit("squeezing optimization failed")
-
-    optimal_phi = optimum.x
-    minimal_variance = optimum.fun
-    squeezing_parameter = minimal_variance * N / linalg.norm(S_vec)**2
-
-    return squeezing_parameter, squeezing_axis(optimal_phi)
