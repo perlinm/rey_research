@@ -14,8 +14,7 @@ from squeezing_methods import squeezing_OAT, coherent_spin_state, \
     squeezing_OAT_propagator, squeezing_TAT_propagator, spin_squeezing
 
 from fermi_hubbard_methods import get_c_op_mats, spin_op_vec_mat, polarized_states, \
-    H_lat_q, H_int_q, H_lat_j, H_int_j, product
-from fermi_hubbard_methods import spin_squeezing as spin_squeezing_fermi
+    H_lat_q, H_int_q, spin_squeezing_FH, evolve, product, spacial_basis
 
 
 show = "show" in sys.argv
@@ -26,16 +25,16 @@ fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-N = 6 # atoms
-L = 6 # lattice sites
+L = 100 # lattice sites
+N = int(product(L) / 2) # atoms
 phi = np.pi / 50 # spin-orbit coupling parameter
-fermi_N_limit = 7
+fermi_N_limit = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
+periodic = True # use periodic boundary conditions?
 
 lattice_depth = 4 # shallow (tunneling) axis lattice depth
 
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
-time_steps = 100 # time steps in simulation
-
+time_steps = 1000 # time steps in simulation
 
 # lattice bands and site number: only matters for calculations of lattice parameters
 bands = 5
@@ -55,16 +54,23 @@ print()
 
 if type(L) == int:
     U = g_int_LU[1] * K_0 * K_T**2
-    chi = 8 * J_0**2 * np.sin(phi/2)**2 / ((N-1) * eta * U)
 elif len(L) == 2:
     U = g_int_LU[1] * K_0**2 * K_T
-    chi = 16 * J_0**2 * np.sin(phi/2)**2 / ((N-1) * eta * U)
+
+L = np.array(L, ndmin = 1)
+soc_field_vals = -4 * J_0 * np.sin(phi/2) * np.array([ np.sin(2*np.pi*q[ii]/L[ii])
+                                                       for ii in range(len(L)) if L[ii] > 2
+                                                       for q in spacial_basis(L) ])
+soc_field_mean = np.mean(soc_field_vals)
+soc_field_variance = np.mean( (soc_field_vals - soc_field_mean)**2 )
+chi = soc_field_variance / ( (N-1) * eta * U )
+if chi < 1e-10: sys.exit("there is no spin squeezing with the given parameters!")
 
 print("J_0 (2\pi Hz):", J_0 * recoil_energy_Hz)
 print("U (2\pi Hz):", U * recoil_energy_Hz)
 print("U/L (2\pi Hz):", U / product(L) * recoil_energy_Hz)
 print("chi (2\pi Hz):", chi * recoil_energy_Hz)
-print("omega (2\pi Hz):", N * np.sqrt(chi*U/product(L)) * recoil_energy_Hz)
+print("omega (2\pi Hz):", N * np.sqrt(abs(chi*U/product(L))) * recoil_energy_Hz)
 print()
 
 tau_vals = np.linspace(0, max_tau, time_steps)
@@ -105,20 +111,28 @@ if N <= fermi_N_limit:
     S_op_vec, SS_op_mat = spin_op_vec_mat(L, N, c_op_mats)
     state_z, state_x, state_y = polarized_states(L, N)
 
-    state = state_x
-    H = H_lat_q(L, N, J_0, phi, c_op_mats) + H_int_q(L, N, U, c_op_mats)
-    using_state_vectors = state.shape != H.shape
+    state_free = state_x
+    state_drive = state_x
+    H_free = H_int_q(L, N, U, c_op_mats) + H_lat_q(L, N, J_0, phi, c_op_mats, periodic)
+
+    omega = N * np.sqrt(abs(chi*U/product(L)))
+    beta = 0.90572
+    def H_laser(t):
+        return -beta * omega * np.cos(omega * t) * S_op_vec[2]
 
     dt = times[-1] / time_steps
-    squeezing_fermi_vals = np.zeros(time_steps)
+    squeezing_free_vals = np.zeros(time_steps)
+    squeezing_drive_vals = np.zeros(time_steps)
     for ii in range(time_steps):
         print("{}/{}".format(ii,time_steps))
-        squeezing_fermi_vals[ii], _ = spin_squeezing_fermi(state, S_op_vec, SS_op_mat, N)
-        state = sparse.linalg.expm_multiply(-1j*dt*H, state)
-        if not using_state_vectors:
-            state = sparse.linalg.expm_multiply(-1j*dt*H, state.conj().T).conj().T
+        H_drive = H_free + H_laser(times[ii]+dt/2)
+        squeezing_free_vals[ii], _ = spin_squeezing_FH(state_free, S_op_vec, SS_op_mat, N)
+        squeezing_drive_vals[ii], _ = spin_squeezing_FH(state_drive, S_op_vec, SS_op_mat, N)
+        state_free = evolve(state_free, dt, H_free)
+        state_drive = evolve(state_drive, dt, H_drive)
 
-    plt.plot(times_SI, -to_dB(squeezing_fermi_vals), label = "FH")
+    plt.plot(times_SI, -to_dB(squeezing_free_vals), label = "FH (free)")
+    plt.plot(times_SI, -to_dB(squeezing_drive_vals), label = "FH (driven)")
 
 plt.xlim(0,times_SI[-1])
 plt.xlabel(r"Time (seconds)")
