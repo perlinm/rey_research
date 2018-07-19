@@ -326,9 +326,9 @@ lattice recoil energy $E_R$.
     Parameter & Symbol & Value \\ \hline\hline
     Primary lattice depth & $V_0$ & 4 $E_R$ \\
     Transverse lattice depths & $V_T$ & 60 $E_R$ \\
+    SOC strength & $\phi$ & $\pi/50$ \\
     Lattice sites & $L$ & 100 \\
-    Atom number & $N$ & 50 \\
-    SOC strength & $\phi$ & $\pi/50$ \\ \hline\hline
+    Atom number & $N$ & 50 \\ \hline\hline
     Tunneling rate & $J_0$ & $\approx300\times2\pi$ Hz \\
     On-site interaction strength & $U$ & $\approx1.4\times2\pi$ kHz \\
     Squeezing strength & $\chi$ & $\approx21\times2\pi$ mHz \\
@@ -442,14 +442,14 @@ $H_{\t{TAT}}^{y,x}$.
 
 For small system sizes, we can verify the validity of the effective
 one- and two-axis twisting Hamiltonians via direct simulations of a
-Fermi-Hubbard (FH) model, using the spin-orbit coupling Hamiltonian
-$H_{\t{SOC}}$ and interaction Hamiltonian $H_{\t{int}}$ respectively
-given in \eqref{eq:H_SOC_start} and \eqref{eq:H_int_full}.  Figure
-\ref{fig:squeezing_comparison_FH} shows a comparison of the squeezing
-parameter $\xi^2$ after evolution of the initial state $\ket{Y}$ for
-$N=8$ particles in a 1-D lattice with $L=8$ sites (and all remaining
-parameters as given in Table \ref{tab:parameters}) after evolution
-under
+single-band Fermi-Hubbard (FH) model, using the spin-orbit coupling
+Hamiltonian $H_{\t{SOC}}$ and interaction Hamiltonian $H_{\t{int}}$
+respectively given in \eqref{eq:H_SOC_start} and
+\eqref{eq:H_int_full}.  Figure \ref{fig:squeezing_comparison_FH} shows
+a comparison of the squeezing parameter $\xi^2$ after evolution of the
+initial state $\ket{Y}$ for $N=8$ particles in a 1-D lattice with
+$L=8$ sites (and all remaining parameters as given in Table
+\ref{tab:parameters}) after evolution under
 \begin{enumerate*}[label=(\roman*)]
 \item the one-axis twisting Hamiltonian $H_{\t{OAT}}^z$,
 \item the two-axis twisting Hamiltonian $H_{\t{OAT}}^{z,x}$,
@@ -462,20 +462,39 @@ under
 \end{enumerate*}
 These simulation results show essentially perfect agreement between
 the Fermi-Hubbard model and the one- and two-axis twisting
-Hamiltonians.
+Hamiltonians for the given parameters.
 
 \begin{figure}
-  \centering \includegraphics{squeezing_comparison_FH.pdf}
-  \caption{Benchmarking squeezing under the effective one- and
-    two-axis Hamiltonians $H_{\t{OAT}}^z$ and $H_{\t{TAT}}^{z,x}$
-    against direct simulations of the Fermi-Hubbard model with
-    $N=L=8$.}
+  \centering
+  \includegraphics{squeezing_comparison_FH.pdf}
+  \caption{Benchmarking squeezing under the one- and two-axis
+    Hamiltonians $H_{\t{OAT}}^z$ and $H_{\t{TAT}}^{z,x}$ against
+    direct simulations of the Fermi-Hubbard model with $N=L=8$ and the
+    remaining lattice/SOC parameters as given in Table
+    \ref{tab:parameters}.}
   \label{fig:squeezing_comparison_FH}
 \end{figure}
 
 
-% \note{[MP] Future ideas:} Make use of a cavity to enhance the
-% one-axis twisting strength \cite{hu2017vacuum}?
+\section{Last thoughts}
+
+It may be possible to further enhance the twisting strength $\chi$ by
+placing the atoms in an optical cavity, as in
+ref.~\cite{hu2017vacuum}.  Both squeezing times and squeezing
+strengths might also be further enhanced by using a 2-D lattice,
+although more benchmarking is necessary to verify the validity of the
+collective spin model in 2-D.  As shown in Figure
+\ref{fig:squeezing_comparison_2D},
+
+\begin{figure}
+  \centering
+  \includegraphics{squeezing_comparison_2D.pdf}
+  \caption{Squeezing via one- and two-axis twisting in a 2-D lattice
+    with $100\times100$ sites at half filling, with the remaining
+    lattice/SOC parameters given in Table \ref{tab:parameters}.}
+  \label{fig:squeezing_comparison_2D}
+\end{figure}
+
 
 \newpage
 \appendix
