@@ -55,13 +55,26 @@ def spin_op_vec_mat_dicke(N):
 def vec_theta_phi(v):
     return np.arccos(v[0]/linalg.norm(v)), np.arctan2(v[2],v[1])
 
+# use stirling's approximation to compute ln(n!)
+def ln_factorial(n):
+    if n == 0: return 0
+    return ( n * np.log(n) - n + 1/2 * np.log(np.pi) +
+             1/6 * np.log( 8*n**3 + 4*n**2 + n + 1/30 ) )
+
+# return logarithm of binomial coefficient, using an approximation if necessary
+def ln_binomial(N,m):
+    binomial_coeff = binomial(N,m)
+    if binomial_coeff != np.inf: return np.log(binomial_coeff)
+    else: return ln_factorial(N) - ln_factorial(m) - ln_factorial(N-m)
+
 # coherent spin state on S = N/2 Bloch sphere
 def coherent_spin_state_angles(theta, phi, N = 10):
     state = np.zeros(N+1, dtype = complex)
     for m in range(N+1):
-        c_theta = np.sin(theta/2)**(N-m) * np.cos(theta/2)**m
-        c_phi = np.exp(1j * (N/2-m) * phi)
-        state[m] = np.sqrt(binomial(N,m)) * c_theta * c_phi
+        ln_c_theta = (N-m) * np.log(np.sin(theta/2)) + m * np.log(np.cos(theta/2))
+        ln_c_phi = 1j * (N/2-m) * phi
+        ln_state_m = 1/2 * ln_binomial(N,m) + ln_c_theta + ln_c_phi
+        state[m] = np.exp(ln_state_m)
     return state
 def coherent_spin_state(vec, N = 10):
     theta, phi = vec_theta_phi(vec)

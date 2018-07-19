@@ -14,7 +14,7 @@ from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state, squeezing_OAT
 from fermi_hubbard_methods import product, spacial_basis, get_c_op_mats, \
     spin_op_vec_mat_FH, polarized_states_FH, H_int_q, H_lat_q
-from squeezing_methods import spin_squeezing, evolve
+from squeezing_methods import spin_vec_mat_vals, spin_squeezing, evolve
 
 show = "show" in sys.argv
 save = "save" in sys.argv
@@ -24,8 +24,8 @@ fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-L = 6 # lattice sites
-N = 6 # atoms
+L = (10,10) # lattice sites
+N = product(L) // 2 # atoms
 phi = np.pi / 50 # spin-orbit coupling parameter
 fermi_N_limit = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
 periodic = True # use periodic boundary conditions?
@@ -56,10 +56,11 @@ if type(L) == int:
 elif len(L) == 2:
     U = g_int_LU[1] * K_0**2 * K_T
 
-L = np.array(L, ndmin = 1)
-soc_field_vals = -4 * J_0 * np.sin(phi/2) * np.array([ np.sin(2*np.pi*q[ii]/L[ii])
-                                                       for ii in range(len(L)) if L[ii] > 2
-                                                       for q in spacial_basis(L) ])
+L_array = np.array(L, ndmin = 1)
+sin_vals = np.array([ np.sin(2*np.pi*q[ii]/L_array[ii])
+                      for ii in range(len(L_array)) if L_array[ii] > 2
+                      for q in spacial_basis(L) ])
+soc_field_vals = -4 * J_0 * np.sin(phi/2) * sin_vals
 soc_field_mean = np.mean(soc_field_vals)
 soc_field_variance = np.mean( (soc_field_vals - soc_field_mean)**2 )
 chi = soc_field_variance / ( (N-1) * eta * U )
@@ -135,6 +136,7 @@ if N <= fermi_N_limit:
     plt.plot(times_SI, -to_dB(squeezing_free_vals), label = "FH (free)")
     plt.plot(times_SI, -to_dB(squeezing_drive_vals), label = "FH (driven)")
 
+plt.title(r"$N={},~L={}$".format(N,L))
 plt.xlim(0,times_SI[-1])
 plt.ylim(0,plt.gca().get_ylim()[1])
 plt.xlabel(r"Time (seconds)")
