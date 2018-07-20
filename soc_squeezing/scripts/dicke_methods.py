@@ -19,9 +19,8 @@ def spin_op_z_dicke(N):
 def spin_op_m_dicke(N):
     S = N/2
     m_z = np.arange(N) - N/2
-    Sm = sparse.lil_matrix((N+1,N+1))
-    Sm.setdiag(np.sqrt((S-m_z)*(S+m_z+1)),1)
-    return Sm.tocsr()
+    diag_vals = np.sqrt((S-m_z)*(S+m_z+1))
+    return sparse.diags(diag_vals, 1, format = "csr")
 
 def spin_op_x_dicke(N):
     Sp = spin_op_m_dicke(N)
