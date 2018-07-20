@@ -537,9 +537,33 @@ def H_int_q(L, N, U, c_op_mats = None):
     for p, q, r in itertools.product(spacial_basis(L), repeat = 3):
         s = ( np.array(p) + np.array(q) - np.array(r) ) % np.array(L)
         H += c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(s,1)
-    return U / (product(L)) * H.matrix(L, N, c_op_mats)
+    return U / product(L) * H.matrix(L, N, c_op_mats)
 
 # interaction Hamiltonian in on-site basis
 def H_int_j(L, N, U, c_op_mats = None):
     return U * sum([ c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
                      for j in spacial_basis(L) ]).matrix(L, N, c_op_mats)
+
+##########################################################################################
+# Dicke manifold objects and methods
+##########################################################################################
+
+# projector onto Dicke manifold
+def dicke_projector(L, N, c_op_mats = None):
+    hilbert_dim = int(binomial(2*product(L), N))
+
+    # collective spin raising operator and its m-th power (initially m = 0)
+    S_p = spin_op_m_FH(L, N, c_op_mats).getH()
+    S_p_m = sparse.eye(hilbert_dim).tocsr()
+
+    # build projector by looping over all projections m of collective spin onto the z axis
+    projector = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
+    for m in range(N+1):
+        norm = 1 / binomial(N, m)
+        for momenta in itertools.combinations(spacial_basis(L), N):
+            vec_m = product([ c_op(q,0) for q in momenta ]).vector(L,N)
+            vec_m = S_p_m.dot(vec_m)
+            projector += vec_m * vec_m.getH() / (vec_m.getH().dot(vec_m)[0,0])
+        S_p_m = S_p.dot(S_p_m)
+
+    return projector
