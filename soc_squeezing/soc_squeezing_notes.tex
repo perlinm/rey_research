@@ -225,31 +225,27 @@ in \eqref{eq:pseudospin} to write
 \begin{align}
   H_{\t{int}} = \f{U}{L} \sum_{p,q}
   \sp{\p{\f{\1_q-\sigma_q^z}{2}} \p{\f{\1_p+\sigma_p^z}{2}}
-    - \sigma_q^+ \sigma_p^-}.
+    - \sigma_q^+ \sigma_p^-}
+  = \f{U}{L} \sum_{p,q}\f14\p{\1_q \1_p - \v\sigma_q\c\v\sigma_p},
+  \label{eq:H_int_pauli}
 \end{align}
-Up to a global shift in energy, this result is equivalently
+with
 \begin{align}
-  H_{\t{int}}
-  = - \f14 \f{U}{L} \sum_{p,q} \v{\sigma}_q\c\v{\sigma}_p
-  = - \f{U}{L} \sum_{p,q} \v s_q \c\v s_p
-  = - \f{U}{L} \v S \c \v S,
+  \v{\sigma}_p \equiv \p{\sigma_p^x,\sigma_p^y,\sigma_p^z}.
 \end{align}
-where
+For a fixed total particle number $N$, the identity operators in
+\eqref{eq:H_int_pauli} contribute only a global shift in energy, which
+allows us to more simply write
 \begin{align}
-  \v{\sigma}_p
-  \equiv \p{\sigma_p^x,\sigma_p^y,\sigma_p^z},
-  &&
-  \v s_p \equiv \p{s_p^x,s_P^y,s_p^z},
+  H_{\t{int}} = - \f{U}{L} \v S\c\v S,
   &&
   \v S \equiv \f12 \sum_p \v{\sigma}_p.
-  \label{eq:H_int}
 \end{align}
-For a fixed particle number $N$, the collective spin Hamiltonian
-$H_{\t{int}}$ has electronic eigenstates $\set{\ket{Sm}}$ with total
-(pseudo-)spin $S$ and projection $m$ onto a quantization axis; the
-corresponding energies are $\bk{Sm|H_{\t{int}}|S,m}=-\p{U/L}S\p{S+1}$.
-In particular, the ground-state $S=N/2$ manifold is spanned by the
-Dicke states
+This Hamiltonian has electronic eigenstates $\set{\ket{Sm}}$ with
+total (pseudo-)spin $S$ and projection $m$ onto a quantization axis;
+the corresponding energies are
+$\bk{Sm|H_{\t{int}}|S,m}=-\p{U/L}S\p{S+1}$.  In particular, the
+ground-state $S=N/2$ manifold is spanned by the Dicke states
 \begin{align}
   \ket{m} \equiv \ket{N/2,m} \propto S_+^{N/2+m} \ket{\g}^{\otimes N},
   &&

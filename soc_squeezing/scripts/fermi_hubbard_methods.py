@@ -42,8 +42,8 @@ def spacial_basis(L):
 # iterable for basis of fock states; returns index of fock state
 #   and a tuple specifying the occupied single-particle states (by index)
 def fock_state_basis(L, N):
-    fock_states = int(binomial(2*product(L),N))
-    return zip(range(fock_states), itertools.combinations(range(2*product(L)),N))
+    hilbert_dim = int(binomial(2*product(L),N))
+    return zip(range(hilbert_dim), itertools.combinations(range(2*product(L)),N))
 
 # get operator representation of annihilation operators in the fock basis
 # depth is the number of times we need to apply annihilation operators
@@ -150,12 +150,26 @@ class c_op:
     # index of the state addressed by this operator
     def index(self, L):
         L = np.array(L, ndmin = 1)
-        site_index = sum([ self.q[ii] * product([ L[jj] for jj in range(ii+1,len(L)) ])
+        site_index = sum([ ( self.q[ii] % L[ii] )
+                           * product([ L[jj] for jj in range(ii+1,len(L)) ])
                            for ii in range(len(self.q)) ])
         return 2 * site_index + self.spin_up
 
     def vector(self, L, N):
         return c_seq(self).vector(L, N)
+
+# return a fermionic operator by the value of its index in a given lattice geometry
+def c_op_idx(index, L):
+    L = np.array(L, ndmin = 1)
+    dim = len(L)
+    spin_up = index % 2
+    q = np.zeros(dim)
+    for ii in range(dim-1,-1,-1):
+        q_gtr_cont = sum([ q[jj] * product([ L[kk] for kk in range(jj+1,dim) ])
+                           for jj in range(ii+1,dim) ])
+        q[ii] = ( ( index // 2 - q_gtr_cont )
+                  // product([ L[jj] for jj in range(ii+1,dim) ]) ) % L[ii]
+    return c_op(q,spin_up)
 
 # product of creation / annihilation operators
 class c_seq:
@@ -213,6 +227,8 @@ class c_seq:
             sys.exit("error: adding invalid type to c_seq:", type(other))
 
     def __sub__(self, other): return self + (-1) * other
+
+    def __neg__(self): return -1 * self
 
     # sort operators change sign of prefactor if appropriate
     def sort(self):
@@ -404,6 +420,8 @@ class c_sum:
 
     def __sub__(self, other): return self + (-1) * other
 
+    def __neg__(self): return -1 * self
+
     def dag(self):
         return c_sum([ item.dag() for item in self.seq_list ])
 
@@ -448,10 +466,10 @@ def spin_op_vec_mat_FH(L, N, c_op_mats = None):
     Syz = sparse.csr_matrix.dot(Sy, Sz)
     Szx = sparse.csr_matrix.dot(Sz, Sx)
 
-    S_op_vec = [ Sz, Sx, Sy ]
-    SS_op_mat = [ [ Szz,        Szx,        Syz.getH() ],
-                  [ Szx.getH(), Sxx,        Sxy        ],
-                  [ Syz,        Sxy.getH(), Syy        ] ]
+    S_op_vec = np.array([ Sz, Sx, Sy ])
+    SS_op_mat = np.array([ [ Szz,        Szx,        Syz.getH() ],
+                           [ Szx.getH(), Sxx,        Sxy        ],
+                           [ Syz,        Sxy.getH(), Syy        ] ])
 
     return S_op_vec, SS_op_mat
 
@@ -477,9 +495,9 @@ def polarized_states_FH(L, N):
         vec_z = product([ c_op(q,1) for q in momenta ]).vector(L, N)
         vec_x = product([ c_op(q,1) + c_op(q,0) for q in momenta ]).vector(L, N)
         vec_y = product([ c_op(q,1) + 1j * c_op(q,0) for q in momenta ]).vector(L, N)
-        state_z += vec_z * vec_z.conj().T
-        state_x += vec_x * vec_x.conj().T
-        state_y += vec_y * vec_y.conj().T
+        state_z += vec_z * vec_z.getH()
+        state_x += vec_x * vec_x.getH()
+        state_y += vec_y * vec_y.getH()
 
     state_z /= state_z.diagonal().sum()
     state_x /= state_x.diagonal().sum()
@@ -492,7 +510,7 @@ def polarized_states_FH(L, N):
 ##########################################################################################
 
 # lattice Hamiltonian in quasi-momentum basis
-def H_lat_q(L, N, J, phi, c_op_mats = None, periodic = True):
+def H_lat_q(J, phi, L, N, c_op_mats = None, periodic = True):
     L = np.array(L, ndmin = 1)
     try: len(J)
     except: J = J * np.ones(len(L))
@@ -513,7 +531,7 @@ def H_lat_q(L, N, J, phi, c_op_mats = None, periodic = True):
                  for q in spacial_basis(L) for s in range(2) ]).matrix(L, N, c_op_mats)
 
 # lattice Hamiltonian in on-site basis
-def H_lat_j(L, N, J, phi, c_op_mats = None, periodic = False):
+def H_lat_j(J, phi, L, N, c_op_mats = None, periodic = False):
     L = np.array(L, ndmin = 1)
     try: len(J)
     except: J = J * np.ones(len(L))
@@ -532,7 +550,7 @@ def H_lat_j(L, N, J, phi, c_op_mats = None, periodic = False):
     return H_forward + H_forward.getH()
 
 # interaction Hamiltonian in quasi-momentum basis
-def H_int_q(L, N, U, c_op_mats = None):
+def H_int_q(U, L, N, c_op_mats = None):
     H = c_seq()
     for p, q, r in itertools.product(spacial_basis(L), repeat = 3):
         s = ( np.array(p) + np.array(q) - np.array(r) ) % np.array(L)
@@ -540,12 +558,12 @@ def H_int_q(L, N, U, c_op_mats = None):
     return U / product(L) * H.matrix(L, N, c_op_mats)
 
 # interaction Hamiltonian in on-site basis
-def H_int_j(L, N, U, c_op_mats = None):
+def H_int_j(U, L, N, c_op_mats = None):
     return U * sum([ c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
                      for j in spacial_basis(L) ]).matrix(L, N, c_op_mats)
 
 ##########################################################################################
-# Dicke manifold objects and methods
+# projectors
 ##########################################################################################
 
 # projector onto Dicke manifold
@@ -567,3 +585,15 @@ def dicke_projector(L, N, c_op_mats = None):
         S_p_m = S_p.dot(S_p_m)
 
     return projector
+
+# projector onto states with an atom on a given (numbered) lattice site
+def site_projector(site, L, N, c_op_mats = None):
+    # determine index of the given lattice site
+    try:
+        len(site)
+        site_index = c_op(site,0).index() // 2
+    except:
+        site_index == site
+    # return the appropriate projector
+    return sum([ c_op_s.dag() * c_op_s for s in range(2)
+                 for c_op_s in [ c_op_idx(2*site+s,L) ]  ]).matrix(L, N, c_op_mats)
