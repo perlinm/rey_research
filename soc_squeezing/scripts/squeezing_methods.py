@@ -26,7 +26,10 @@ def val(X, state):
     if X.shape != state.shape: # we have a state vector
         return state.conj().T.dot(X.dot(state)).sum()
     else: # we have a density operator
-        return X.multiply(state).sum()
+        if sparse.issparse(X):
+            return X.T.multiply(state).sum()
+        else:
+            return (X.T*state).sum()
 
 # take expectation values of spin operator and matrix
 def spin_vec_mat_vals(state, S_op_vec, SS_op_mat):
