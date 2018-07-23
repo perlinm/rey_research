@@ -32,7 +32,7 @@ def product(list):
 ##########################################################################################
 
 # return iterator for all momentum states for given lattice dimensions
-def spacial_basis(L):
+def spatial_basis(L):
     try:
         len(L)
         return itertools.product(*[ range(L_j) for L_j in L ])
@@ -439,11 +439,11 @@ class c_sum:
 # collective spin operators for N particles on a lattice with dimensions L
 def spin_op_z_FH(L, N, c_op_mats = None):
     return sum([ c_op(q,1).dag() * c_op(q,1) - c_op(q,0).dag() * c_op(q,0)
-                 for q in spacial_basis(L) ]).matrix(L, N, c_op_mats) / 2
+                 for q in spatial_basis(L) ]).matrix(L, N, c_op_mats) / 2
 
 def spin_op_m_FH(L, N, c_op_mats = None):
     return sum([ c_op(q,0).dag() * c_op(q,1)
-                 for q in spacial_basis(L) ]).matrix(L, N, c_op_mats)
+                 for q in spatial_basis(L) ]).matrix(L, N, c_op_mats)
 
 def spin_op_x_FH(L, N, c_op_mats = None):
     Sm = spin_op_m_FH(L, N, c_op_mats)
@@ -478,10 +478,10 @@ def spin_op_vec_mat_FH(L, N, c_op_mats = None):
 def polarized_states_FH(L, N):
     # if we are at unit filling, return a state vector, otherwise return a density operator
     if N == product(L):
-        vec_z = product([ c_op(q,1) for q in spacial_basis(L) ]).vector(L, N)
-        vec_x = product([ c_op(q,1) + c_op(q,0) for q in spacial_basis(L) ]).vector(L, N)
+        vec_z = product([ c_op(q,1) for q in spatial_basis(L) ]).vector(L, N)
+        vec_x = product([ c_op(q,1) + c_op(q,0) for q in spatial_basis(L) ]).vector(L, N)
         vec_y = product([ c_op(q,1) + 1j * c_op(q,0)
-                          for q in spacial_basis(L) ]).vector(L, N)
+                          for q in spatial_basis(L) ]).vector(L, N)
         vec_z = vec_z.toarray() / sparse.linalg.norm(vec_z)
         vec_x = vec_x.toarray() / sparse.linalg.norm(vec_x)
         vec_y = vec_y.toarray() / sparse.linalg.norm(vec_y)
@@ -491,7 +491,7 @@ def polarized_states_FH(L, N):
     state_z = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
     state_x = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
     state_y = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = complex)
-    for momenta in itertools.combinations(spacial_basis(L), N):
+    for momenta in itertools.combinations(spatial_basis(L), N):
         vec_z = product([ c_op(q,1) for q in momenta ]).vector(L, N)
         vec_x = product([ c_op(q,1) + c_op(q,0) for q in momenta ]).vector(L, N)
         vec_y = product([ c_op(q,1) + 1j * c_op(q,0) for q in momenta ]).vector(L, N)
@@ -528,10 +528,10 @@ def H_lat_q(J, phi, L, N, c_op_mats = None, periodic = True):
 
     return sum([ sum([ energy(q,s,ii) for ii in range(len(L)) if L[ii] > 1 ]) *
                  c_op(q,s).dag() * c_op(q,s)
-                 for q in spacial_basis(L) for s in range(2) ]).matrix(L, N, c_op_mats)
+                 for q in spatial_basis(L) for s in range(2) ]).matrix(L, N, c_op_mats)
 
 # lattice Hamiltonian in on-site basis
-def H_lat_j(J, phi, L, N, c_op_mats = None, periodic = False):
+def H_lat_j(J, phi, L, N, c_op_mats = None, periodic = True):
     L = np.array(L, ndmin = 1)
     try: len(J)
     except: J = J * np.ones(len(L))
@@ -540,7 +540,7 @@ def H_lat_j(J, phi, L, N, c_op_mats = None, periodic = False):
     H_forward = c_seq()
     for ii in range(len(L)):
         if L[ii] == 1: continue
-        for j, s in itertools.product(spacial_basis(L), range(2)):
+        for j, s in itertools.product(spatial_basis(L), range(2)):
             if j[ii] + 1 < L[ii] or periodic:
                 j_next = np.array(j)
                 j_next[ii] = ( j_next[ii] + 1 ) % L[ii]
@@ -552,7 +552,7 @@ def H_lat_j(J, phi, L, N, c_op_mats = None, periodic = False):
 # interaction Hamiltonian in quasi-momentum basis
 def H_int_q(U, L, N, c_op_mats = None):
     H = c_seq()
-    for p, q, r in itertools.product(spacial_basis(L), repeat = 3):
+    for p, q, r in itertools.product(spatial_basis(L), repeat = 3):
         s = ( np.array(p) + np.array(q) - np.array(r) ) % np.array(L)
         H += c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(s,1)
     return U / product(L) * H.matrix(L, N, c_op_mats)
@@ -560,7 +560,7 @@ def H_int_q(U, L, N, c_op_mats = None):
 # interaction Hamiltonian in on-site basis
 def H_int_j(U, L, N, c_op_mats = None):
     return U * sum([ c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
-                     for j in spacial_basis(L) ]).matrix(L, N, c_op_mats)
+                     for j in spatial_basis(L) ]).matrix(L, N, c_op_mats)
 
 ##########################################################################################
 # projectors
@@ -578,7 +578,7 @@ def dicke_projector(L, N, c_op_mats = None):
     projector = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
     for m in range(N+1):
         norm = 1 / binomial(N, m)
-        for momenta in itertools.combinations(spacial_basis(L), N):
+        for momenta in itertools.combinations(spatial_basis(L), N):
             vec_m = product([ c_op(q,0) for q in momenta ]).vector(L,N)
             vec_m = S_p_m.dot(vec_m)
             projector += vec_m * vec_m.getH() / (vec_m.getH().dot(vec_m)[0,0])

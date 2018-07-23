@@ -12,9 +12,9 @@ from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 
 from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state, squeezing_OAT
-from fermi_hubbard_methods import product, spacial_basis, get_c_op_mats, \
+from fermi_hubbard_methods import product, spatial_basis, get_c_op_mats, \
     spin_op_vec_mat_FH, polarized_states_FH, H_int_q, H_lat_q
-from squeezing_methods import spin_vec_mat_vals, spin_squeezing, evolve
+from squeezing_methods import spin_vec_mat_vals, spin_squeezing, evolve, val
 
 show = "show" in sys.argv
 save = "save" in sys.argv
@@ -59,7 +59,7 @@ elif len(L) == 2:
 L_array = np.array(L, ndmin = 1)
 sin_vals = np.array([ np.sin(2*np.pi*q[ii]/L_array[ii])
                       for ii in range(len(L_array)) if L_array[ii] > 2
-                      for q in spacial_basis(L) ])
+                      for q in spatial_basis(L_array) ])
 soc_field_vals = -4 * J_0 * np.sin(phi/2) * sin_vals
 soc_field_mean = np.mean(soc_field_vals)
 soc_field_variance = np.mean( (soc_field_vals - soc_field_mean)**2 )
@@ -115,7 +115,7 @@ if N <= fermi_N_limit:
 
     state_free = state_x
     state_drive = state_x
-    H_free = H_int_q(L, N, U, c_op_mats) + H_lat_q(L, N, J_0, phi, c_op_mats, periodic)
+    H_free = H_int_q(U, L, N, c_op_mats) + H_lat_q(J_0, phi, L, N, c_op_mats, periodic)
 
     omega = N * np.sqrt(abs(chi*U/product(L)))
     beta = 0.90572
