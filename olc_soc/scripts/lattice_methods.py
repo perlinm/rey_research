@@ -2,7 +2,7 @@
 
 import numpy as np
 from numpy.matlib import repmat
-import scipy.integrate
+from scipy.integrate import quad
 
 from mathieu_methods import mathieu_solution
 from overlap_methods import pair_overlap_1D
@@ -17,10 +17,9 @@ def symmetric_integral(integrand, site_number, subinterval_limit = 500):
     def real_integrand(z): return np.real(integrand(z))
     def imag_integrand(z): return np.imag(integrand(z))
 
-    real_half = scipy.integrate.quad(real_integrand, 0, lattice_length/2,
-                                     limit = subinterval_limit)
-    imag_half = scipy.integrate.quad(imag_integrand, -lattice_length/4, lattice_length/4,
-                                     limit = subinterval_limit)
+    real_half = quad(real_integrand, 0, lattice_length/2, limit = subinterval_limit)
+    imag_half = quad(imag_integrand, -lattice_length/4, lattice_length/4,
+                     limit = subinterval_limit)
 
     return 2 * (real_half[0] + 1j * imag_half[0])
 
@@ -152,51 +151,3 @@ def lattice_overlap(q, s, n, m, momenta, fourier_vecs):
     q += s*k_clock_LU/2
     return 1/4 * ( vector_overlap(q, n, q+2, m, momenta, fourier_vecs) +
                    vector_overlap(q, n, q-2, m, momenta, fourier_vecs) )
-
-
-##########################################################################################
-# two-body overlap methods
-##########################################################################################
-
-# two-body overlap quasi-momentum overlap in shallow lattice axis
-# overlap for (kk,aa) + (ll,bb) <--> (pp,cc) + (qq,dd) coupling,
-# where kk, ll, pp, qq are quasi-momenta, and aa, bb, cc, dd are band indices
-def full_pair_overlap(momenta, fourier_vecs, kk, ll, pp, qq,
-                      aa = 0, bb = 0, cc = 0, dd = 0, subinterval_limit = 500):
-    if ( lattice_q(kk,momenta) + lattice_q(ll,momenta)
-         - lattice_q(pp,momenta) - lattice_q(qq,momenta) ) != 0:
-        return 0 # enforce conservation of momentum
-    if (aa + bb + cc + dd) % 2:
-        return 0 # enforce conservation of parity
-
-    site_number = len(momenta)
-    kk = lattice_q(kk, momenta)
-    ll = lattice_q(ll, momenta)
-    pp = lattice_q(pp, momenta)
-    qq = lattice_q(qq, momenta)
-
-    ka_vecs = qn_vectors(kk, aa, momenta, fourier_vecs)
-    lb_vecs = qn_vectors(ll, bb, momenta, fourier_vecs)
-    pc_vecs = qn_vectors(pp, cc, momenta, fourier_vecs)
-    qd_vecs = qn_vectors(qq, dd, momenta, fourier_vecs)
-
-    fourier_terms = len(fourier_vecs[0,0,:])
-    k_max = fourier_terms // 2
-    k_values = 2 * (np.arange(fourier_terms) - k_max)
-    def integrand(z):
-        q_phases = np.exp(1j * (pp + qq - kk - ll) * z)
-        k_phases = np.exp(1j * k_values * z)
-
-        phi_ka = ka_vecs @ k_phases
-        phi_lb = lb_vecs @ k_phases
-        phi_pc = pc_vecs @ k_phases
-        phi_qd = qd_vecs @ k_phases
-
-        return q_phases * ( np.conj(phi_ka * phi_lb) * phi_pc * phi_qd )
-
-    # make sure that the integral is real (as it must be)
-    overlap = symmetric_integral(integrand, site_number)
-    assert(np.imag(overlap) < 1e-15)
-
-    normalization = (np.pi * site_number)**2
-    return np.real(overlap) / normalization
