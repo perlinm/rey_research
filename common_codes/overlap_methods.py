@@ -25,7 +25,6 @@ def harmonic_wavefunction(z, n, lattic_depth):
     return normalization * np.exp(-mw*z**2/2) * hermite.hermval(np.sqrt(mw)*z, n_vec)
 
 def lattice_wavefunction(z, n, momenta, fourier_vecs, neighbor = False):
-
     site_number = len(momenta)
     fourier_terms = len(fourier_vecs[0,0,:])
     k_offset = int(fourier_terms)//2
