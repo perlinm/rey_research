@@ -4,13 +4,16 @@
 
 import numpy, scipy.linalg
 
-# this method computes eigenvalues and corresponding eigenstates of the Mathieu equation
-# solutions to (i.e. eigenfunctions of) the Mathieu equation take the form:
-#           \phi_{qn}(z) = e^{iqz} \sum_k c_{qn}^{(k)} e^{2ikz}
-# in the method below, "energies" are the eigenvalues of these solutions,
-#   while the c_{qn}^{(k)} which uniquely identify a solution are "fourier vectors"
+# this method computes eigenvalues and corresponding eigenstates of the Mathieu equation.
+# solutions to (i.e. eigenfunctions of) the Mathieu equation take the form
+#   \phi_{qn}(z) = e^{iqz} \sum_k c_{qn}^{(k)} e^{i2kz},
+#   where q is a quasi-momentum and n is a band index.
 # we solve the Mathieu equation numerically using a method outlined in:
-#   Coisson, Roberto, Graziano Vernizzi, and Xiaoke Yang (OSSC, 2009)
+#   Coisson, Roberto, Graziano Vernizzi, and Xiaoke Yang (OSSC, 2009).
+# the constants c_{qn}^{(k)} are collected into an object called "fourier_vecs",
+#   which is indexed respectively by q, n, and k, such that fourier_vecs[q,n,:]
+#   is a fourier-space vector representation of \phi_{qn}
+# "energies" is indexed by q and n, and contains the energies corresponding to \phi_{qn}
 def single_mathieu_solution(q, lattice_depth, bands, fourier_order):
     mathieu_q = -lattice_depth / 4
 
@@ -22,14 +25,21 @@ def single_mathieu_solution(q, lattice_depth, bands, fourier_order):
                          numpy.diag(off_diagonal, 1) )
 
     # sort solutions by increasing eigenvalue
-    energies, fourier_vecs = scipy.linalg.eig(mathieu_operator)
-    sort_order = energies.argsort()
-    energies = numpy.real(energies[sort_order][:bands]) + lattice_depth / 2
+    eig_vals, fourier_vecs = scipy.linalg.eig(mathieu_operator)
+    sort_order = eig_vals.argsort()
+    energies = numpy.real(eig_vals[sort_order][:bands]) + lattice_depth / 2
     fourier_vecs = numpy.real(fourier_vecs[:,sort_order][:,:bands])
 
     return fourier_vecs, energies
 
-# energies and fourier components of lattice eigenstates for all quasi-momenta
+# this method computes momenta, fourier_vecs, and energies of all single-particle
+#   eigenstates on a lattice.
+# "momenta[q]" is a quasi-momentum in units with the lattice wavenumber equal to 1
+# "fourier_vecs[q,n,:]" is a fourier-space vector representing the eigenfunction \phi_{qn}
+# "energies[q,n]" is the single-particle energy corresponding to \phi_{qn}
+# "symmetric" controls whether quasi-momenta are distributed symetrically about 0.
+# "fourier_order" is a number passed so single_mathieu_solution (see method above);
+#   it is generally advised to leave this variable alone.
 def mathieu_solution(lattice_depth, bands, site_number,
                      symmetric = True, fourier_order = None):
     energies = []

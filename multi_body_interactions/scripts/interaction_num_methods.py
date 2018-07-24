@@ -2,8 +2,8 @@
 
 # FILE CONTENTS: (numerical) methods relating to interaction Hamiltonians on a 3-D lattice
 
-from numpy import *
-from sympy import symbols, solve, gamma
+import numpy as np
+import sympy as sym
 from scipy.special import zeta
 from itertools import product as cartesian_product
 from itertools import combinations, permutations
@@ -16,7 +16,7 @@ from sr87_olc_constants import k_lattice_AU, m_SR87_AU, m_SR87_LU, C6_AU
 # return real and positive roots of a null equation of one variable
 def real_positive_roots(null_expression, variable, precision):
     return [ float(root.as_real_imag()[0])
-             for root in solve(null_expression, variable)
+             for root in sym.solve(null_expression, variable)
              if abs(root.as_real_imag()[1]) < precision
              if root.as_real_imag()[0] > 0 ]
 
@@ -41,14 +41,14 @@ def energy_correction_coefficients(lattice_depths, site_number,
         return [ a_2_1, a_prime_2_1 ]
 
     x, y, z = 0, 1, 2 # axis indices
-    lattice_depths = sort(lattice_depths)
+    lattice_depths = np.sort(lattice_depths)
 
     # compute all 1-D band energies, spatial wavefunction overlaps, and tunneling rates
-    band_energies = zeros((3,bands))
-    K_1D = zeros((3,bands,bands))
+    band_energies = np.zeros((3,bands))
+    K_1D = np.zeros((3,bands,bands))
     if pt_order > 2:
-        K_t_1D = zeros((3,bands,bands))
-        t_1D = zeros((3,bands))
+        K_t_1D = np.zeros((3,bands,bands))
+        t_1D = np.zeros((3,bands))
     for axis in range(3):
         # if any of the lattice depths are the same, we can recycle our calculations
         if axis > 0 and lattice_depths[axis] == lattice_depths[axis-1]:
@@ -62,7 +62,7 @@ def energy_correction_coefficients(lattice_depths, site_number,
         # otherwise compute everything for this lattice depth
         momenta, fourier_vecs, energies = mathieu_solution(lattice_depths[axis],
                                                            bands, site_number)
-        band_energies[axis,:] = mean(energies,0)
+        band_energies[axis,:] = np.mean(energies,0)
         band_energies[axis,:] -= band_energies[axis,0]
 
         for nn in range(bands):
@@ -103,7 +103,7 @@ def energy_correction_coefficients(lattice_depths, site_number,
                   for n_x in range(n_y,bands) )
 
     # second and third order spatial overlap factors
-    a_3_2, a_3_3, a_4_3_1, a_4_3_2, a_4_3_3, a_5_3, g_2_2, g_3_1_2, g_3_2_2 = zeros(9)
+    a_3_2, a_3_3, a_4_3_1, a_4_3_2, a_4_3_3, a_5_3, g_2_2, g_3_1_2, g_3_2_2 = np.zeros(9)
     for n_x, n_y, n_z in all_bands:
         n_permutations = len(set(permutations([n_x,n_y,n_z])))
         E_n = band_energies[x,n_x] + band_energies[y,n_y] + band_energies[z,n_z]
@@ -180,7 +180,7 @@ def renormalized_coupling(coupling, lattice_depths,
                           precision = 10, backwards = False, harmonic = False):
 
     mean_depth = gmean(lattice_depths) # geometric mean of lattice depths
-    w_eff = sqrt(2 * mean_depth / m_SR87_LU) # effective angular harmonic trap frequency
+    w_eff = np.sqrt(2 * mean_depth / m_SR87_LU) # effective angular harmonic trap frequency
 
     # two-atom ground-state overlap integral
     if not harmonic:
@@ -191,9 +191,9 @@ def renormalized_coupling(coupling, lattice_depths,
     else:
         # determine ground-state two-body overlap integral in a harmonic oscillator
         HO_length = mean_depth**(-1/4) # harmonic oscillator length in lattice units
-        overlap_factor = sqrt(2/pi) / (4*pi) / HO_length**3
+        overlap_factor = np.sqrt(2/np.pi) / (4*np.pi) / HO_length**3
 
-    unknown_coupling = symbols("G")
+    unknown_coupling = sym.symbols("G")
     if not backwards: # compute an in-trap scattering length from a harmonic one
         E_free = coupling * overlap_factor / w_eff
         E_lattice = unknown_coupling * overlap_factor / w_eff
@@ -203,8 +203,8 @@ def renormalized_coupling(coupling, lattice_depths,
 
     # coefficients of series expansion of the right hand side of our expression
     c_0 = 1
-    c_1 = 1 - log(2)
-    c_2 = -pi**2/24 - log(2) + 1/2 * log(2)**2
+    c_1 = 1 - np.log(2)
+    c_2 = -np.pi**2/24 - np.log(2) + 1/2 * np.log(2)**2
     series = c_0 + c_1 * E_lattice + c_2 * E_lattice**2
     null_expression = 1/E_free - 1/E_lattice * series
 
@@ -213,20 +213,20 @@ def renormalized_coupling(coupling, lattice_depths,
 
 # effective coupling constant for momentum-dependent interactions
 def momentum_coupling(coupling_LU, C6_AU):
-    a_LU = coupling_LU / (4*pi/m_SR87_LU) # scattering length
+    a_LU = coupling_LU / (4*np.pi/m_SR87_LU) # scattering length
     a_AU = a_LU / k_lattice_AU # scattering length in atomic units
 
-    gamma_ratio = gamma(3/4) / gamma(1/4)
+    gamma_ratio = sym.gamma(3/4) / sym.gamma(1/4)
     chi = gamma_ratio * (4 * m_SR87_AU * C6_AU)**(1/4) / a_AU
 
     r_eff_LU = 1/3 * gamma_ratio**(-2) * chi * (1 - 2*chi + 2*chi**2) * a_LU
-    return (4*pi/m_SR87_LU) * (1/2 * r_eff_LU * a_LU**2)
+    return (4*np.pi/m_SR87_LU) * (1/2 * r_eff_LU * a_LU**2)
 
 # extract two-body excited-state coupling constant from excitation energy
 def excited_state_coupling(excitation_energy, a_2_1, a_prime_2_1, coupling_gg,
                            precision = 10):
 
-    unknown_coupling = symbols("G")
+    unknown_coupling = sym.symbols("G")
 
     # primed coupling constants
     coupling_prime_gg = momentum_coupling(coupling_gg, C6_AU[0])

@@ -2,7 +2,7 @@
 
 # FILE CONTENTS: (symbolic) methods relating to interaction Hamiltonians on a 3-D lattice
 
-from sympy import *
+import sympy as sym
 from sympy.physics.quantum import TensorProduct as tensor
 from mpmath import factorial
 from itertools import permutations
@@ -91,7 +91,7 @@ class c_vec:
         sign = 1
         current_spin = [ 0 for n in range(atom_number) ]
         current_band = [ 0 for n in range(atom_number) ]
-        zero_matrix = zeros(2**atom_number)
+        zero_matrix = sym.zeros(2**atom_number)
         while len(vec) > 0:
 
             if vec[0].create: return zero_matrix
@@ -137,7 +137,7 @@ class c_vec:
             print(self)
 
         # individual effective spin operators
-        spin_ops = [ eye(2) for n in range(atom_number) ]
+        spin_ops = [ sym.eye(2) for n in range(atom_number) ]
         for nuclear_spin in set([ operator.nuclear_spin for operator in self.vec ]):
             # loop over annihilation operators
             for operator in self.vec:
@@ -204,7 +204,7 @@ def H_2_1(couplings):
 
 def H_3_2(couplings):
 
-    H_3_2 = zeros(8)
+    H_3_2 = sym.zeros(8)
 
     mu, nu, rho = 0, 1, 2
     for s, t in qubit_states(2):
@@ -221,8 +221,8 @@ def H_3_2(couplings):
 
 def H_3_3(couplings):
 
-    H_3_3_S = zeros(8) # "star" diagram Hamiltonian
-    H_3_3_O = zeros(8) # "OX" diagram Hamiltonian
+    H_3_3_S = sym.zeros(8) # "star" diagram Hamiltonian
+    H_3_3_O = sym.zeros(8) # "OX" diagram Hamiltonian
 
     k, l, m = range(3)
     for r, s, t in qubit_states(3):
@@ -253,8 +253,8 @@ def H_3_3(couplings):
 
 def H_4_3(couplings):
 
-    H_4_3_B = zeros(16) # "branch" diagram Hamiltonian
-    H_4_3_C = zeros(16) # "chain" diagram Hamiltonian
+    H_4_3_B = sym.zeros(16) # "branch" diagram Hamiltonian
+    H_4_3_C = sym.zeros(16) # "chain" diagram Hamiltonian
 
     k, l, m, n = range(4)
     for q, r, s, t in qubit_states(4):
@@ -288,14 +288,14 @@ def H_4_3(couplings):
 # M-body Hamiltonian coefficients and eigenvalues
 ##########################################################################################
 
-# factorial and choose functions
+# choose function
 def nCk(n,k):
     if k > n: return 0
     if k == n: return 1
-    return factorial(n) // factorial(k) // factorial(n-k)
+    return int(factorial(n)) // int(factorial(k)) // int(factorial(n-k))
 
 def coefficients_to_eigenvalues_sym(same = False):
-    s = symbols
+    s = sym.symbols
     if same:
         mat = [ [ s(r"M!"), 0, 0 ],
                 [ 0, s(r"(M-1)!"), -s(r"(M-2)!") ],
@@ -308,16 +308,15 @@ def coefficients_to_eigenvalues_sym(same = False):
                 [ s(r"M!") * s(r"nCk(N-1_M)"),
                   s(r"(M-1)!") * s(r"nCk(N-1_M-1)"),
                   s(r"(M-1)!") * s(r"nCk(N-1_M-1)") ] ]
-    return Matrix(mat)
+    return sym.Matrix(mat)
 
 def coefficients_to_eigenvalues(M, N = None):
     f = factorial
-    if N == None:
-        N = M
+    if N == None: N = M
     mat = [ [ f(M) * nCk(N,M), 0, 0 ],
             [ f(M) * nCk(N-1,M), f(M-1) * nCk(N-1,M-1), -f(M-2) * nCk(N-2,M-2) ],
             [ f(M) * nCk(N-1,M), f(M-1) * nCk(N-1,M-1), f(M-1) * nCk(N-1,M-1) ] ]
-    return simplify(Matrix(mat))
+    return sym.simplify(sym.Matrix(mat))
 
 # convert M-body eigenvalues to N-body eigenvalues
 def convert_eigenvalues(M, N):
@@ -325,12 +324,12 @@ def convert_eigenvalues(M, N):
 
 # coefficients of an M-body Hamiltonian, sorted as [ U_g, U_D, U_X ]
 def sorted_coefficients(H_M):
-    M = simplify(log(H_M.shape[0])/log(2))
-    return Matrix([ 1/Integer(factorial(M)) * simplify(H_M[0,0]),
-                    1/Integer(factorial(M-1)) * simplify(H_M[1,1]),
-                    1/Integer(factorial(M-2)) * simplify(H_M[1,2]) ])
+    M = sym.simplify(sym.log(H_M.shape[0])/sym.log(2))
+    return sym.Matrix([ 1/sym.Integer(factorial(M)) * sym.simplify(H_M[0,0]),
+                        1/sym.Integer(factorial(M-1)) * sym.simplify(H_M[1,1]),
+                        1/sym.Integer(factorial(M-2)) * sym.simplify(H_M[1,2]) ])
 
 # eigenvalues of an M-body Hamiltonian, sorted as [ E_g, E_A, E_S ]
 def sorted_eigenvalues(H_M):
-    M = simplify(log(H_M.shape[0])/log(2))
+    M = sym.simplify(sym.log(H_M.shape[0])/sym.log(2))
     return coefficients_to_eigenvalues(M) @ sorted_coefficients(H_M)

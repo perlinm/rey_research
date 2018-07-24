@@ -2,7 +2,7 @@
 
 import sys
 import numpy as np
-import sympy as sp
+import sympy as sym
 from itertools import permutations
 
 from qubit_methods import act_on_subsets, print_eigensystem
@@ -21,26 +21,26 @@ use_eigenvalues = False
 ##########################################################################################
 
 # collect vectors of coefficients and eigenvalues
-U_g = sp.symbols("U_g")
-U_X = sp.symbols("U_X")
-U_D = sp.symbols("U_D")
-E_0 = sp.symbols("E_0")
-E_A = sp.symbols("E_A")
-E_S = sp.symbols("E_S")
-coefficients_sym = sp.Matrix([ U_g, U_X, U_D ])
-eigenvalues_sym = sp.Matrix([ E_0, E_A, E_S ])
+U_g = sym.symbols("U_g")
+U_X = sym.symbols("U_X")
+U_D = sym.symbols("U_D")
+E_0 = sym.symbols("E_0")
+E_A = sym.symbols("E_A")
+E_S = sym.symbols("E_S")
+coefficients_sym = sym.Matrix([ U_g, U_X, U_D ])
+eigenvalues_sym = sym.Matrix([ E_0, E_A, E_S ])
 
 coefficients_table = coefficients_to_eigenvalues_sym()
-eigenvalues_table = sp.simplify(coefficients_to_eigenvalues_sym() @
+eigenvalues_table = sym.simplify(coefficients_to_eigenvalues_sym() @
                                 coefficients_to_eigenvalues_sym(True).inv())
 
 print("N-body eigenvalues of M-body Hamiltonian")
 print()
 print("  in terms of M-body coefficients:")
-sp.pprint(coefficients_table)
+sym.pprint(coefficients_table)
 print()
 print("  in terms of M-body eigenvalues:")
-sp.pprint(eigenvalues_table)
+sym.pprint(eigenvalues_table)
 
 print()
 print("-"*80)
@@ -58,7 +58,7 @@ else:
     coefficients = coefficients_sym
 
 eigenvalues = coefficients_to_eigenvalues(M,N) @ coefficients
-eigenvalues = sp.factor(eigenvalues)
+eigenvalues = sym.factor(eigenvalues)
 
 print("ground:",eigenvalues[0])
 print("excited, asymmetric:",eigenvalues[1])
@@ -69,7 +69,7 @@ print("-"*80)
 print()
 
 # construct M-body Hamiltonian
-H_M = sp.zeros(2**M)
+H_M = sym.zeros(2**M)
 for mu_vec in permutations(range(M)):
     mu, nu = mu_vec[:2]
     spectators = []
