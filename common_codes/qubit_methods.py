@@ -27,7 +27,7 @@ def qubit_matrix_entry(initial, final):
     state_out = (up if final == 1 else dn)
     return tensor(state_out, state_in.H)
 
-# generate a matrix which acts A on the qubits indixed by ns (out of N qubits total)
+# generate a matrix which acts A on target qubits (out of N qubits total)
 def act(A, N, target_qubits):
     ancilla_qubits = [ n for n in range(N) if n not in target_qubits ]
     D = 2**N

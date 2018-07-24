@@ -26,7 +26,7 @@ def harmonic_wavefunction(z, n, lattic_depth):
 
 def lattice_wavefunction(z, n, momenta, fourier_vecs, neighbor = False):
 
-    site_number = len(fourier_vecs[:,0,0])
+    site_number = len(momenta)
     fourier_terms = len(fourier_vecs[0,0,:])
     k_offset = int(fourier_terms)//2
     k_values = 2 * (np.arange(fourier_terms) - k_offset)
@@ -45,6 +45,7 @@ def lattice_wavefunction(z, n, momenta, fourier_vecs, neighbor = False):
 
 ##########################################################################################
 # single-particle overlap integrals
+# nn and mm are and indices
 ##########################################################################################
 
 # 1-D single-particle wannier orbital kinetic overlap integral
@@ -88,7 +89,7 @@ def lattice_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, neighbor_site =
 
     return ( 1/2 * direct - 1/4 * (above + below) ) / site_number
 
-# 1-D nearest-neighbor tunneling rate: - J c_j^\dag c_{j+1} + h.c.
+# 1-D nearest-neighbor tunneling rate: - J \sum_j c_j^\dag c_{j+1} + h.c.
 def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None):
     kinetic_overlap = kinetic_overlap_1D(momenta, fourier_vecs, nn, mm, True)
     lattice_overlap = lattice_overlap_1D(momenta, fourier_vecs, nn, mm, True)
@@ -97,10 +98,13 @@ def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None):
 
 ##########################################################################################
 # two-particle overlap integrals
+# kk, ll, mm, and nn are and indices
 ##########################################################################################
 
-# 1-D two-particle wavefunction overlap integral K^{kk ll}_{mm nn}
-# if neighbor_site is True, overlap wimm be between two atoms in neighboring lattice sites
+# 1-D two-body on-site wavefunction overlap integral
+#   K^{kk ll}_{mm nn} = \int \d z \phi_{kk}^* \phi_{ll}^* \phi_{mm} \phi_{nn}
+# if "neighbors" is 1, \phi_{nn} is evaluated at an adjacent lattice site
+# if "neighbors" is 2, both \phi_{nn} and \phi_{mm} are evaluated at an adjacent site
 def pair_overlap_1D(momenta, fourier_vecs, kk = 0, ll = 0, mm = 0, nn = 0,
                     neighbors = 0, subinterval_limit = 500):
     if (kk + ll + mm + nn) % 2 != 0: return 0 # odd integrals vanish
@@ -219,11 +223,11 @@ def momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list,
                  overlap_1D_z * overlap_1D_x * integral_y)
     return 1/2 * overlaps / normalization**2
 
-# two-body overlap for (pp,aa) + (qq,bb) <--> (rr,cc) + (ss,dd) coupling,
-# where pp, qq, rr, ss are quasi-momentum indices and aa, bb, cc, dd are band indices
+# two-body overlap for (pp,kk) + (qq,ll) <--> (rr,mm) + (ss,nn) coupling,
+# where pp, qq, rr, ss are quasi-momentum indices and kk, ll, mm, nn are band indices
 def momentum_pair_overlap_1D(momenta, fourier_vecs,
                              pp = None, qq = None, rr = None, ss = None,
-                             aa = 0, bb = 0, cc = 0, dd = 0,
+                             kk = 0, ll = 0, mm = 0, nn = 0,
                              subinterval_limit = 500):
     site_number = len(momenta)
 
@@ -235,7 +239,7 @@ def momentum_pair_overlap_1D(momenta, fourier_vecs,
 
     # enforce conservation of momentum and parity
     if ( pp + qq - rr - ss ) % site_number != 0: return 0
-    if ( aa + bb + cc + dd ) % 2 != 0: return 0
+    if ( kk + ll + mm + nn ) % 2 != 0: return 0
 
     # get fourier vectors corresponding to these momentum / band indices,
     #   but shifted left / right appropriately to account for momenta
@@ -252,10 +256,10 @@ def momentum_pair_overlap_1D(momenta, fourier_vecs,
             qq += site_number
         return vecs
 
-    pa_vecs = vecs(pp, aa)
-    qb_vecs = vecs(qq, bb)
-    rc_vecs = vecs(rr, cc)
-    sd_vecs = vecs(ss, dd)
+    pk_vecs = vecs(pp, kk)
+    ql_vecs = vecs(qq, ll)
+    rm_vecs = vecs(rr, mm)
+    sn_vecs = vecs(ss, nn)
 
     fourier_terms = len(fourier_vecs[0,0,:])
     k_max = fourier_terms // 2
@@ -267,41 +271,16 @@ def momentum_pair_overlap_1D(momenta, fourier_vecs,
         momentum_phase = np.exp(1j * net_momentum * z)
         k_phases = np.exp(1j * k_values * z)
         # individual wavefunctions at position z
-        phi_pa = pa_vecs @ k_phases
-        phi_qb = qb_vecs @ k_phases
-        phi_rc = rc_vecs @ k_phases
-        phi_sd = sd_vecs @ k_phases
+        phi_pk = pk_vecs @ k_phases
+        phi_ql = ql_vecs @ k_phases
+        phi_rm = rm_vecs @ k_phases
+        phi_sn = sn_vecs @ k_phases
         # due to the choice of gauge in mathieu_solution and conservation of parity,
         #   the integrand should always be real
-        return np.real(momentum_phase * np.conj(phi_pa * phi_qb) * phi_rc * phi_sd)
+        return np.real(momentum_phase * np.conj(phi_pk * phi_ql) * phi_rm * phi_sn)
 
     # the integral is even about z = 0, so only compute half of it
     lattice_length = np.pi * site_number
     overlap = 2 * quad(integrand, 0, lattice_length/2, limit = subinterval_limit)[0]
     normalization = (np.pi * site_number)**2
     return overlap / normalization
-
-
-##########################################################################################
-# three-particle overlap integrals
-##########################################################################################
-
-# 1-D three-particle overlap with lattice for a given depth
-def triplet_ground_overlap_1D(lattice_depth, bands, site_number, subinterval_limit = 500):
-    momenta, fourier_vecs, _ = mathieu_solution(lattice_depth, bands, site_number)
-
-    site_number = len(momenta)
-    fourier_terms = len(fourier_vecs[0,0,:])
-    k_max = fourier_terms // 2
-    k_values = 2 * (np.arange(fourier_terms) - k_max)
-    normalized_fourier_vecs = fourier_vecs
-    def integrand(z):
-        q_phases = repmat(np.exp(1j * momenta * z), fourier_terms, 1).T
-        k_phases = repmat(np.exp(1j * k_values * z), site_number, 1)
-        phases = np.real(q_phases * k_phases)
-        return np.sum(normalized_fourier_vecs[:,0,:] * phases)**6
-
-    half_length = np.pi * site_number / 2
-    normalization = np.pi * site_number**2
-    integral = quad(integrand, -half_length, half_length, limit = subinterval_limit)[0]
-    return integral / normalization**3

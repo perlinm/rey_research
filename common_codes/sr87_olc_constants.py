@@ -16,14 +16,14 @@ a_eg_p_AU = 160 # (0.5)stat (4.4)sys
 a_ee_AU = 176 # +/- 11
 a_int_AU = array([ a_gg_AU, a_eg_m_AU, a_eg_p_AU, a_ee_AU ])
 
-# p-wave interaction lengths for Sr-87 atoms in bohr obtained from zhang2014spectroscopic
+# p-wave interaction volumes for Sr-87 atoms in bohr; obtained from zhang2014spectroscopic
 b_gg_AU = 74.6 # +/- 0.4
 b_eg_m_AU = -42 # +103 / -22
 b_eg_p_AU = -169 # +/- 23
 b_ee_AU = -119 # +/- 18
 b_int_AU = array([ b_gg_AU, b_eg_p_AU, b_eg_m_AU, b_ee_AU ])
 
-# van der Waals interaction coefficients obtained from zhang2014spectroscopic
+# van der Waals interaction coefficients; obtained from zhang2014spectroscopic
 C6_gg_AU = 3107
 C6_eg_AU = 3880 # +/- 80
 C6_ee_AU = 5360 # +/- 200
