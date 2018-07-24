@@ -192,8 +192,7 @@ def full_pair_overlap(momenta, fourier_vecs, kk, ll, pp, qq,
         phi_pc = pc_vecs @ k_phases
         phi_qd = qd_vecs @ k_phases
 
-        return q_phases * ( np.conj((ka_vecs @ k_phases) * (lb_vecs @ k_phases))
-                            * (pc_vecs @ k_phases) * (qd_vecs @ k_phases) )
+        return q_phases * ( np.conj(phi_ka * phi_lb) * phi_pc * phi_qd )
 
     # make sure that the integral is real (as it must be)
     overlap = symmetric_integral(integrand, site_number)

@@ -15,7 +15,7 @@ from interaction_num_methods import energy_correction_coefficients, \
 from sr87_olc_constants import colors, recoil_energy_Hz, g_int_LU, C6_AU
 
 # simulation and plotting options
-site_number = 200
+site_number = 121
 bands = 15
 pt_order = 3
 single_figsize = np.array([3.3,2.7])
