@@ -9,7 +9,7 @@ import itertools
 from scipy.special import binom
 
 from mathieu_methods import mathieu_solution
-from overlap_methods import tunneling_1D, momentum_pair_overlap_1D, pair_overlap_1D
+from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 
 from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state, squeezing_OAT
@@ -47,38 +47,32 @@ J_0 = [ None ] * len(L)
 K_0 = [ None ] * len(L)
 
 c_momenta, c_fourier_vecs, _ = mathieu_solution(c_lattice_depth, bands, site_number)
-K_T = momentum_pair_overlap_1D(c_momenta, c_fourier_vecs) * site_number
 J_T = tunneling_1D(c_lattice_depth, c_momenta, c_fourier_vecs)
+K_T = pair_overlap_1D(c_momenta, c_fourier_vecs)
 
 for ii in range(len(L)):
     momenta[ii], vecs[ii], _ = mathieu_solution(lattice_depth, bands, L[ii])
     J_0[ii] = tunneling_1D(lattice_depth, momenta[ii], vecs[ii])
+    K_0[ii] = pair_overlap_1D(momenta[ii], vecs[ii])
 
-    if N <= fermi_N_cap:
-        K_vals = []
-        for p, q in itertools.product(spatial_basis(L[ii]), repeat = 2):
-            K_vals.append(momentum_pair_overlap_1D(momenta[ii], vecs[ii], p, q, p, q))
-        K_0[ii] = np.mean(K_vals)
-    else:
-        K_0[ii] = momentum_pair_overlap_1D(momenta[ii], vecs[ii])
-
-U_L = g_int_LU[1] * K_T**(3-len(L)) * product(K_0)
+U = g_int_LU[1] * K_T**(3-len(L)) * product(K_0)
 
 tun_sin_vals = np.array([ J_0[ii] * np.sin(2*np.pi/L[ii] * (q[ii]-(L[ii]-1)/2))
                           for ii in range(len(L)) if L[ii] > 2
                           for q in spatial_basis(L) ])
 soc_field_vals = -4 * np.sin(phi/2) * tun_sin_vals
 soc_field_variance = np.mean( ( soc_field_vals - np.mean(soc_field_vals) )**2 )
-chi = soc_field_variance / ( N * (N-1) * U_L )
+chi = soc_field_variance / ( N * (N-1) * U / product(L) )
 if chi < 1e-10: sys.exit("there is no spin squeezing with the given parameters!")
+omega = N * np.sqrt(abs(chi*U/product(L)))
 
 print("J_T (2\pi Hz):", J_T * recoil_energy_Hz)
 print()
 for ii in range(len(J_0)):
     print("J_{} (2\pi Hz):".format(ii), J_0[ii] * recoil_energy_Hz)
-print("U (2\pi Hz):", U_L * product(L) * recoil_energy_Hz)
+print("U (2\pi Hz):", U * recoil_energy_Hz)
 print("chi (2\pi Hz):", chi * recoil_energy_Hz)
-print("omega (2\pi Hz):", N * np.sqrt(abs(chi*U_L)) * recoil_energy_Hz)
+print("omega (2\pi Hz):", omega * recoil_energy_Hz)
 print()
 
 tau_vals = np.linspace(0, max_tau, time_steps)
@@ -125,7 +119,6 @@ if N <= fermi_N_cap:
     state_drive = state_x
     H_free = H_full(lattice_depth, c_lattice_depth, phi, L, N, c_op_mats)
 
-    omega = N * np.sqrt(abs(chi*U_L))
     beta = 0.90572
     def H_laser(t):
         return -beta * omega * np.cos(omega * t) * S_op_vec[2]
