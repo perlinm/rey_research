@@ -229,6 +229,8 @@ def momentum_pair_overlap_1D(momenta, fourier_vecs,
                              aa = 0, bb = 0, cc = 0, dd = 0,
                              subinterval_limit = 500):
     site_number = len(momenta)
+
+    # set default index values for momenta at / near 0
     if pp == None: pp = site_number // 2
     if qq == None: qq = ( site_number - 1) // 2
     if rr == None: rr = site_number // 2
@@ -238,6 +240,9 @@ def momentum_pair_overlap_1D(momenta, fourier_vecs,
     if ( pp + qq - rr - ss ) % site_number != 0: return 0
     if ( aa + bb + cc + dd ) % 2 != 0: return 0
 
+    # get fourier vectors corresponding to these momentum / band indices,
+    #   but shifted left / right appropriately to account for momenta
+    #   outside the first brillouin zone
     def vecs(qq, nn):
         vecs = fourier_vecs[qq % site_number, nn, :]
         while qq >= site_number:
@@ -260,17 +265,20 @@ def momentum_pair_overlap_1D(momenta, fourier_vecs,
     k_values = 2 * (arange(fourier_terms) - k_max)
     net_momentum = ( momenta[pp % site_number] + momenta[qq % site_number]
                      - momenta[rr % site_number] - momenta[ss % site_number] )
+    # determine integrand at position z
     def integrand(z):
         momentum_phase = exp(1j * net_momentum * z)
         k_phases = exp(1j * k_values * z)
-
+        # individual wavefunctions at position z
         phi_pa = pa_vecs @ k_phases
         phi_qb = qb_vecs @ k_phases
         phi_rc = rc_vecs @ k_phases
         phi_sd = sd_vecs @ k_phases
-
+        # due to the choice of gauge in mathieu_solution and conservation of parity,
+        #   the integrand should always be real
         return real(momentum_phase * conj(phi_pa * phi_qb) * phi_rc * phi_sd)
 
+    # the integral is even about z = 0, so only compute half of it
     lattice_length = pi * site_number
     overlap = 2 * quad(integrand, 0, lattice_length/2, limit = subinterval_limit)[0]
     normalization = (pi * site_number)**2

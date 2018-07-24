@@ -153,6 +153,7 @@ class c_op:
 
     # index of the state addressed by this operator
     def index(self, L):
+        # 2 * \sum_i q_i \prod_{j>i} L_j + spin_up
         site_index = sum([ ( self.q[ii] % L[ii] )
                            * product([ L[jj] for jj in range(ii+1,len(L)) ])
                            for ii in range(len(self.q)) ])
@@ -167,10 +168,15 @@ def c_op_idx(index, L):
     spin_up = index % 2
     q = np.zeros(dim)
     for ii in range(dim-1,-1,-1):
+        # determine numerical contribution to the site index from q_j with j > i,
+        #   namely \sum_{j>i} q_j \prod_{k>j} L_k
         q_gtr_cont = sum([ q[jj] * product([ L[kk] for kk in range(jj+1,dim) ])
                            for jj in range(ii+1,dim) ])
-        q[ii] = ( ( index // 2 - q_gtr_cont )
-                  // product([ L[jj] for jj in range(ii+1,dim) ]) ) % L[ii]
+        # parts of the site index unaccounted for after considering all q_j with j > i
+        remainder = index // 2 - q_gtr_cont
+        # q_i is then ( remainder / \prod_{j>i} L_i ) \mod L_i,
+        #   as all preceding q indices are multiplied by L_i
+        q[ii] = ( remainder // product([ L[jj] for jj in range(ii+1,dim) ]) ) % L[ii]
     return c_op(q,spin_up)
 
 # product of creation / annihilation operators
