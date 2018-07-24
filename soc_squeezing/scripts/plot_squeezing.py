@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 
-import sys
+import sys, scipy
 import numpy as np
-import scipy.sparse as sparse
 import matplotlib.pyplot as plt
-import itertools
-
-from scipy.special import binom
 
 from mathieu_methods import mathieu_solution
 from overlap_methods import tunneling_1D, pair_overlap_1D
@@ -15,7 +11,7 @@ from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state, squeezing_OAT
 from fermi_hubbard_methods import product, spatial_basis, \
     get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, H_full
-from squeezing_methods import spin_vec_mat_vals, spin_squeezing, evolve, val
+from squeezing_methods import spin_vec_mat_vals, spin_squeezing, evolve
 
 show = "show" in sys.argv
 save = "save" in sys.argv
@@ -25,7 +21,7 @@ fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-L = [ 100, 100 ] # lattice sites
+L = [ 100 ] * 2 # lattice sites
 N = product(L) # atoms
 phi = np.pi / 30 # spin-orbit coupling parameter
 fermi_N_cap = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
@@ -110,10 +106,11 @@ plt.plot(times_SI, -to_dB(squeezing_TAT_vals), label = "TAT")
 
 if N <= fermi_N_cap:
     print()
-    print("Fermi-Hubbard hilbert space dimension:", int(binom(2*product(L),N)))
+    hilbert_dim = int(scipy.special.binom(2*product(L),N))
+    print("Fermi-Hubbard hilbert space dimension:", hilbert_dim)
     c_op_mats = get_c_op_mats(L, N, depth = 2)
     S_op_vec, SS_op_mat = spin_op_vec_mat_FH(L, N, c_op_mats)
-    state_z, state_x, state_y = polarized_states_FH(L, N)
+    _, state_x, _ = polarized_states_FH(L, N)
 
     state_free = state_x
     state_drive = state_x
