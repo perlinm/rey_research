@@ -48,7 +48,7 @@ def lattice_wavefunction(z, n, momenta, fourier_vecs, neighbor = False):
 # single-particle overlap integrals
 ##########################################################################################
 
-# 1-D single-particle wannier orbital kinetic overlap
+# 1-D single-particle wannier orbital kinetic overlap integral
 def kinetic_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, neighbor_site = False):
     if mm == None: mm = nn
 
@@ -67,7 +67,7 @@ def kinetic_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, neighbor_site =
         return sum(fourier_vecs[:,nn,:] * fourier_vecs[:,mm,:] *
                    qk_mat**2 * site_shift) / site_number
 
-# 1-D single-particle wannier orbital lattice overlap
+# 1-D single-particle wannier orbital lattice overlap integral
 def lattice_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, neighbor_site = False):
     if mm == None: mm = nn
 
@@ -100,19 +100,17 @@ def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None):
 # two-particle overlap integrals
 ##########################################################################################
 
-# 1-D two-particle wavefunction overlap integral K^{nn mm}_{ll kk}
-# if neighbor_site is True, overlap will be between two atoms in neighboring lattice sites
-def pair_overlap_1D(momenta, fourier_vecs, nn = 0, mm = 0, ll = 0, kk = 0,
+# 1-D two-particle wavefunction overlap integral K^{kk ll}_{mm nn}
+# if neighbor_site is True, overlap wimm be between two atoms in neighboring lattice sites
+def pair_overlap_1D(momenta, fourier_vecs, kk = 0, ll = 0, mm = 0, nn = 0,
                     neighbors = 0, subinterval_limit = 500):
-    if (nn + mm + ll + kk) % 2 != 0: return 0 # odd integrals vanish
+    if (kk + ll + mm + nn) % 2 != 0: return 0 # odd integrals vanish
     assert(neighbors in [0,1,2]) # 3 and 4 are the same as 1 and 0
-    if nn < mm: nn, mm = mm, nn # enforce nn >= mm
-    if ll < kk: ll, kk = kk, ll # enforce ll >= kk
 
     # the wannier orbitals are
-    #   \phi_nn(z) = \sum_{q,k} c_{qk}^{(nn)} e^{i(q+2k)z} = c_nn \cdot E
-    # where c_nn and E are Q x K matrices (for Q quasimomenta and K fourier components)
-    #   - c_nn contains the fourier coefficients c_{qk}^{(nn)}
+    #   \phi_n(z) = \sum_{q,k} c_{qk}^{(n)} e^{i(q+2k)z} = c_n \cdot E
+    # where c_n and E are Q x K matrices (for Q quasimomenta and K fourier components)
+    #   - c_n contains the fourier coefficients c_{qk}^{(n)}
     #   - and E contains the phases e^{i(q+2k)z}
     # and \cdot denotes the scalar product, much like (a,b) \cdot (x,y) = ax + by
     i = complex(0,1)
@@ -124,17 +122,17 @@ def pair_overlap_1D(momenta, fourier_vecs, nn = 0, mm = 0, ll = 0, kk = 0,
         q_phases = repmat(exp(i * momenta * z), fourier_terms, 1).T
         k_phases = repmat(exp(i * k_values * z), site_number, 1)
         phases = q_phases * k_phases
-        phases_kk = phases
-        phases_ll = phases
+        phases_nn = phases
+        phases_mm = phases
         if neighbors != 0:
             site_shift = repmat(exp(i * momenta * pi), fourier_terms, 1).T
             neighbor_phases = phases * site_shift
-            phases_kk = neighbor_phases
-            phases_ll = neighbor_phases if neighbors == 2 else phases
-        return real(conj(sum(fourier_vecs[:,nn,:] * phases) *
-                         sum(fourier_vecs[:,mm,:] * phases)) *
-                        sum(fourier_vecs[:,ll,:] * phases_ll) *
-                        sum(fourier_vecs[:,kk,:] * phases_kk))
+            phases_nn = neighbor_phases
+            phases_mm = neighbor_phases if neighbors == 2 else phases
+        return real(conj(sum(fourier_vecs[:,kk,:] * phases) *
+                         sum(fourier_vecs[:,ll,:] * phases)) *
+                        sum(fourier_vecs[:,mm,:] * phases_mm) *
+                        sum(fourier_vecs[:,nn,:] * phases_nn))
 
     half_length = pi * site_number / 2
     shift = 0 if (neighbors == 0) else -pi/2
@@ -143,32 +141,33 @@ def pair_overlap_1D(momenta, fourier_vecs, nn = 0, mm = 0, ll = 0, kk = 0,
                     limit = subinterval_limit)[0]
     return integral / normalization**2
 
-def harmonic_pair_overlap_1D(lattice_depth, nn = 0, mm = 0, ll = 0, kk = 0,
+# like pair_overlap_1D, but with harmonic oscillator wavefunctions
+def harmonic_pair_overlap_1D(lattice_depth, kk = 0, ll = 0, mm = 0, nn = 0,
                              neighbors = 0, subinterval_limit = 500):
-    if (nn + mm + ll + kk) % 2!= 0: return 0 # odd integrals vanish
+    if (kk + ll + mm + nn) % 2!= 0: return 0 # odd integrals vanish
     assert(neighbors in [0,1,2]) # 3 and 4 are the same as 1 and 0
 
     site_shift = 0 if not neighbors else pi
     def integrand(z):
-        shift_kk = site_shift if neighbors > 0 else 0
-        shift_ll = site_shift if neighbors > 1 else 0
-        return ( harmonic_wavefunction(z, nn, lattice_depth) *
-                 harmonic_wavefunction(z, mm, lattice_depth) *
-                 harmonic_wavefunction(z + shift_ll, ll, lattice_depth) *
-                 harmonic_wavefunction(z + shift_kk, kk, lattice_depth) )
+        shift_nn = site_shift if neighbors > 0 else 0
+        shift_mm = site_shift if neighbors > 1 else 0
+        return ( harmonic_wavefunction(z, kk, lattice_depth) *
+                 harmonic_wavefunction(z, ll, lattice_depth) *
+                 harmonic_wavefunction(z + shift_mm, mm, lattice_depth) *
+                 harmonic_wavefunction(z + shift_nn, nn, lattice_depth) )
 
     # mass * trap frequency in lattice units (explained in "harmonic_wavefunction" method)
     mw = sqrt(lattice_depth)
     # all wavefunctions decay exponentially past the position
     #   z_n at which 1/2 m w^2 z_n^2 = E_n = w*(n+1/2),
-    # where n = max(nn,mm,ll,kk)
+    # where n = max(kk,ll,mm,nn)
     # working it out, we get z_n = sqrt( (2*n+1) / (m*w) )
     # we integrate two lattice sites (lattice constant = pi) past this position
-    z_max = sqrt( (2*max(nn,mm,ll,kk) + 1) / mw ) + 2*pi
+    z_max = sqrt( (2*max(kk,ll,mm,nn) + 1) / mw ) + 2*pi
 
     return quad(integrand, -z_max, z_max, limit = subinterval_limit)[0]
 
-# ground-state finite-range overlap integral
+# ground-state momentum-dependent coupling overlap integral
 #   i.e. Eq. 28 in johnson2012effective, but without the factor of 4*pi
 def momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list,
                                  subinterval_limit = 500):
@@ -184,7 +183,7 @@ def momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list,
         assert(momenta_y.size == momenta_z.size)
     else:
         # if we specified only one set of momenta and fourier_vecs,
-        #   assume they are the same along all axes
+        #   assume they are the same along amm axes
         momenta_x, fourier_vecs_x = momenta_list, fourier_vecs_list
         momenta_y, fourier_vecs_y = momenta_list, fourier_vecs_list
         momenta_z, fourier_vecs_z = momenta_list, fourier_vecs_list
@@ -222,6 +221,60 @@ def momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list,
                  overlap_1D_y * overlap_1D_z * integral_x +
                  overlap_1D_z * overlap_1D_x * integral_y)
     return 1/2 * overlaps / normalization**2
+
+# two-body overlap for (pp,aa) + (qq,bb) <--> (rr,cc) + (ss,dd) coupling,
+# where pp, qq, rr, ss are quasi-momentum indices and aa, bb, cc, dd are band indices
+def momentum_pair_overlap_1D(momenta, fourier_vecs,
+                             pp = None, qq = None, rr = None, ss = None,
+                             aa = 0, bb = 0, cc = 0, dd = 0,
+                             subinterval_limit = 500):
+    site_number = len(momenta)
+    if pp == None: pp = site_number // 2
+    if qq == None: qq = ( site_number - 1) // 2
+    if rr == None: rr = site_number // 2
+    if ss == None: ss = ( site_number - 1) // 2
+
+    # enforce conservation of momentum and parity
+    if ( pp + qq - rr - ss ) % site_number != 0: return 0
+    if ( aa + bb + cc + dd ) % 2 != 0: return 0
+
+    def vecs(qq, nn):
+        vecs = fourier_vecs[qq % site_number, nn, :]
+        while qq >= site_number:
+            vecs = roll(vecs, -1) # "rotate" vectors to the left
+            vecs[-1] = 0 # clear rightmost entry
+            qq -= site_number
+        while qq < 0:
+            vecs = roll(vecs, 1) # "rotate" vectors to the right
+            vecs[0] = 0 # clear leftmost entry
+            qq += site_number
+        return vecs
+
+    pa_vecs = vecs(pp, aa)
+    qb_vecs = vecs(qq, bb)
+    rc_vecs = vecs(rr, cc)
+    sd_vecs = vecs(ss, dd)
+
+    fourier_terms = len(fourier_vecs[0,0,:])
+    k_max = fourier_terms // 2
+    k_values = 2 * (arange(fourier_terms) - k_max)
+    net_momentum = ( momenta[pp % site_number] + momenta[qq % site_number]
+                     - momenta[rr % site_number] - momenta[ss % site_number] )
+    def integrand(z):
+        momentum_phase = exp(1j * net_momentum * z)
+        k_phases = exp(1j * k_values * z)
+
+        phi_pa = pa_vecs @ k_phases
+        phi_qb = qb_vecs @ k_phases
+        phi_rc = rc_vecs @ k_phases
+        phi_sd = sd_vecs @ k_phases
+
+        return real(momentum_phase * conj(phi_pa * phi_qb) * phi_rc * phi_sd)
+
+    lattice_length = pi * site_number
+    overlap = 2 * quad(integrand, 0, lattice_length/2, limit = subinterval_limit)[0]
+    normalization = (pi * site_number)**2
+    return overlap / normalization
 
 
 ##########################################################################################

@@ -31,11 +31,10 @@ def single_mathieu_solution(q, lattice_depth, bands, fourier_order):
 
 # energies and fourier components of lattice eigenstates for all quasi-momenta
 def mathieu_solution(lattice_depth, bands, site_number,
-                     symmetric = True, fourier_order = 0):
+                     symmetric = True, fourier_order = None):
     energies = []
     fourier_vecs = []
-    if fourier_order == 0:
-        fourier_order = 2 * bands
+    if fourier_order == None: fourier_order = 2 * bands
 
     # allowed quasi-momenta with a given number of lattice sites
     #   (in units of the lattice wavenumber)
