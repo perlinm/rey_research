@@ -4,16 +4,17 @@ import sys
 import numpy as np
 import scipy.sparse as sparse
 import matplotlib.pyplot as plt
+import itertools
 
 from scipy.special import binom
 
 from mathieu_methods import mathieu_solution
-from overlap_methods import tunneling_1D, pair_overlap_1D
+from overlap_methods import tunneling_1D, momentum_pair_overlap_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 
 from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state, squeezing_OAT
-from fermi_hubbard_methods import product, spatial_basis, get_c_op_mats, \
-    spin_op_vec_mat_FH, polarized_states_FH, H_int_q, H_lat_q
+from fermi_hubbard_methods import product, spatial_basis, \
+    get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, H_full
 from squeezing_methods import spin_vec_mat_vals, spin_squeezing, evolve, val
 
 show = "show" in sys.argv
@@ -24,10 +25,10 @@ fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-L = (10,10) # lattice sites
-N = product(L) // 2 # atoms
-phi = np.pi / 50 # spin-orbit coupling parameter
-fermi_N_limit = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
+L = [ 100, 100 ] # lattice sites
+N = product(L) # atoms
+phi = np.pi / 30 # spin-orbit coupling parameter
+fermi_N_cap = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
 periodic = True # use periodic boundary conditions?
 
 lattice_depth = 4 # shallow (tunneling) axis lattice depth
@@ -37,40 +38,47 @@ time_steps = 1000 # time steps in simulation
 
 # lattice bands and site number: only matters for calculations of lattice parameters
 bands = 5
-site_number = 100
-c_lattice_depth = 60 # deep (confining) axis lattice depth
-eta = N / product(L) # total filling fraction
+site_number = 121
+c_lattice_depth = 60 # lattice depth along confining axes
+
+momenta = [ None ] * len(L)
+vecs = [ None ] * len(L)
+J_0 = [ None ] * len(L)
+K_0 = [ None ] * len(L)
 
 c_momenta, c_fourier_vecs, _ = mathieu_solution(c_lattice_depth, bands, site_number)
+K_T = momentum_pair_overlap_1D(c_momenta, c_fourier_vecs) * site_number
 J_T = tunneling_1D(c_lattice_depth, c_momenta, c_fourier_vecs)
-K_T = pair_overlap_1D(c_momenta, c_fourier_vecs)
-momenta, fourier_vecs, _ = mathieu_solution(lattice_depth, bands, site_number)
-K_0 = pair_overlap_1D(momenta, fourier_vecs)
-J_0 = tunneling_1D(lattice_depth, momenta, fourier_vecs)
+
+for ii in range(len(L)):
+    momenta[ii], vecs[ii], _ = mathieu_solution(lattice_depth, bands, L[ii])
+    J_0[ii] = tunneling_1D(lattice_depth, momenta[ii], vecs[ii])
+
+    if N <= fermi_N_cap:
+        K_vals = []
+        for p, q in itertools.product(spatial_basis(L[ii]), repeat = 2):
+            K_vals.append(momentum_pair_overlap_1D(momenta[ii], vecs[ii], p, q, p, q))
+        K_0[ii] = np.mean(K_vals)
+    else:
+        K_0[ii] = momentum_pair_overlap_1D(momenta[ii], vecs[ii])
+
+U_L = g_int_LU[1] * K_T**(3-len(L)) * product(K_0)
+
+tun_sin_vals = np.array([ J_0[ii] * np.sin(2*np.pi/L[ii] * (q[ii]-(L[ii]-1)/2))
+                          for ii in range(len(L)) if L[ii] > 2
+                          for q in spatial_basis(L) ])
+soc_field_vals = -4 * np.sin(phi/2) * tun_sin_vals
+soc_field_variance = np.mean( ( soc_field_vals - np.mean(soc_field_vals) )**2 )
+chi = soc_field_variance / ( N * (N-1) * U_L )
+if chi < 1e-10: sys.exit("there is no spin squeezing with the given parameters!")
 
 print("J_T (2\pi Hz):", J_T * recoil_energy_Hz)
 print()
-
-if type(L) == int:
-    U = g_int_LU[1] * K_0 * K_T**2
-elif len(L) == 2:
-    U = g_int_LU[1] * K_0**2 * K_T
-
-L_array = np.array(L, ndmin = 1)
-sin_vals = np.array([ np.sin(2*np.pi*q[ii]/L_array[ii])
-                      for ii in range(len(L_array)) if L_array[ii] > 2
-                      for q in spatial_basis(L_array) ])
-soc_field_vals = -4 * J_0 * np.sin(phi/2) * sin_vals
-soc_field_mean = np.mean(soc_field_vals)
-soc_field_variance = np.mean( (soc_field_vals - soc_field_mean)**2 )
-chi = soc_field_variance / ( (N-1) * eta * U )
-if chi < 1e-10: sys.exit("there is no spin squeezing with the given parameters!")
-
-print("J_0 (2\pi Hz):", J_0 * recoil_energy_Hz)
-print("U (2\pi Hz):", U * recoil_energy_Hz)
-print("U/L (2\pi Hz):", U / product(L) * recoil_energy_Hz)
+for ii in range(len(J_0)):
+    print("J_{} (2\pi Hz):".format(ii), J_0[ii] * recoil_energy_Hz)
+print("U (2\pi Hz):", U_L * product(L) * recoil_energy_Hz)
 print("chi (2\pi Hz):", chi * recoil_energy_Hz)
-print("omega (2\pi Hz):", N * np.sqrt(abs(chi*U/product(L))) * recoil_energy_Hz)
+print("omega (2\pi Hz):", N * np.sqrt(abs(chi*U_L)) * recoil_energy_Hz)
 print()
 
 tau_vals = np.linspace(0, max_tau, time_steps)
@@ -106,7 +114,7 @@ plt.figure(figsize = figsize)
 plt.plot(times_SI, -to_dB(squeezing_OAT_vals), label = "OAT")
 plt.plot(times_SI, -to_dB(squeezing_TAT_vals), label = "TAT")
 
-if N <= fermi_N_limit:
+if N <= fermi_N_cap:
     print()
     print("Fermi-Hubbard hilbert space dimension:", int(binom(2*product(L),N)))
     c_op_mats = get_c_op_mats(L, N, depth = 2)
@@ -115,9 +123,9 @@ if N <= fermi_N_limit:
 
     state_free = state_x
     state_drive = state_x
-    H_free = H_int_q(U, L, N, c_op_mats) + H_lat_q(J_0, phi, L, N, c_op_mats, periodic)
+    H_free = H_full(lattice_depth, c_lattice_depth, phi, L, N, c_op_mats)
 
-    omega = N * np.sqrt(abs(chi*U/product(L)))
+    omega = N * np.sqrt(abs(chi*U_L))
     beta = 0.90572
     def H_laser(t):
         return -beta * omega * np.cos(omega * t) * S_op_vec[2]
@@ -136,7 +144,6 @@ if N <= fermi_N_limit:
     plt.plot(times_SI, -to_dB(squeezing_free_vals), label = "FH (free)")
     plt.plot(times_SI, -to_dB(squeezing_drive_vals), label = "FH (driven)")
 
-plt.title(r"$N={},~L={}$".format(N,L))
 plt.xlim(0,times_SI[-1])
 plt.ylim(0,plt.gca().get_ylim()[1])
 plt.xlabel(r"Time (seconds)")

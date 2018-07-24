@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# FILE CONTENTS: model-independent methods for computing spin squeezing
+
 import numpy as np
 import scipy.sparse as sparse
 import scipy.linalg as linalg

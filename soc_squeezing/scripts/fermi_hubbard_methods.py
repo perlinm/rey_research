@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# FILE CONTENTS: (symbolic) methods relating to fermion squeezing
+# FILE CONTENTS: methods for simulating the Fermi-Hubbard model
 
 import sys
 import numpy as np
@@ -11,6 +11,10 @@ import itertools, functools, operator
 
 from scipy.special import binom as binomial
 from sympy.combinatorics.permutations import Permutation as sympy_permutation
+
+from mathieu_methods import mathieu_solution
+from overlap_methods import tunneling_1D, pair_overlap_1D, momentum_pair_overlap_1D
+from sr87_olc_constants import g_int_LU
 
 # return product of items in list
 def sum(list):
@@ -149,7 +153,6 @@ class c_op:
 
     # index of the state addressed by this operator
     def index(self, L):
-        L = np.array(L, ndmin = 1)
         site_index = sum([ ( self.q[ii] % L[ii] )
                            * product([ L[jj] for jj in range(ii+1,len(L)) ])
                            for ii in range(len(self.q)) ])
@@ -160,7 +163,6 @@ class c_op:
 
 # return a fermionic operator by the value of its index in a given lattice geometry
 def c_op_idx(index, L):
-    L = np.array(L, ndmin = 1)
     dim = len(L)
     spin_up = index % 2
     q = np.zeros(dim)
@@ -511,7 +513,6 @@ def polarized_states_FH(L, N):
 
 # lattice Hamiltonian in quasi-momentum basis
 def H_lat_q(J, phi, L, N, c_op_mats = None, periodic = True):
-    L = np.array(L, ndmin = 1)
     try: len(J)
     except: J = J * np.ones(len(L))
     try: len(phi)
@@ -520,7 +521,7 @@ def H_lat_q(J, phi, L, N, c_op_mats = None, periodic = True):
     # determine energy associated with each quasimomentum state along each axis
     if periodic:
         def energy(q,s,ii):
-            return -2 * J[ii] * np.cos(2*np.pi/L[ii] * q[ii] + s*phi[ii])
+            return -2 * J[ii] * np.cos(2*np.pi/L[ii] * (q[ii]-(L[ii]-1)/2) + s*phi[ii])
     else:
         def energy(q,s,ii):
             return -2 * J[ii] * np.sin(np.pi/(L[ii]+1) * (q[ii]-(L[ii]-1)/2) + s*phi[ii])
@@ -532,7 +533,6 @@ def H_lat_q(J, phi, L, N, c_op_mats = None, periodic = True):
 
 # lattice Hamiltonian in on-site basis
 def H_lat_j(J, phi, L, N, c_op_mats = None, periodic = True):
-    L = np.array(L, ndmin = 1)
     try: len(J)
     except: J = J * np.ones(len(L))
     try: len(phi)
@@ -553,7 +553,7 @@ def H_lat_j(J, phi, L, N, c_op_mats = None, periodic = True):
 def H_int_q(U, L, N, c_op_mats = None):
     H = c_seq()
     for p, q, r in itertools.product(spatial_basis(L), repeat = 3):
-        s = ( np.array(p) + np.array(q) - np.array(r) ) % np.array(L)
+        s = ( np.array(p) + np.array(q) - np.array(r) ) % L
         H += c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(s,1)
     return U / product(L) * H.matrix(L, N, c_op_mats)
 
@@ -561,6 +561,49 @@ def H_int_q(U, L, N, c_op_mats = None):
 def H_int_j(U, L, N, c_op_mats = None):
     return U * sum([ c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
                      for j in spatial_basis(L) ]).matrix(L, N, c_op_mats)
+
+# full interaction Hamiltonian in quasi-momentum basis,
+#   accounting for variation in two-body overlap integrals
+def H_full(lattice_depth, transverse_lattice_depth, phi, L, N, c_op_mats = None,
+           periodic = True, bands = 5, site_number = 121):
+
+    # compute overlap integral in transverse directions
+    momenta, vecs, _ = mathieu_solution(transverse_lattice_depth, bands, site_number)
+    K_T = pair_overlap_1D(momenta, vecs)**(3 - len(L))
+
+    # compute tunneling rates and overlap integral along lattice axes
+    lattice_depths = np.array(lattice_depth, ndmin = 1)
+    while lattice_depths.size < len(L):
+        lattice_depths = np.append(lattice_depths, lattice_depths[-1])
+
+    momenta = [ None ] * len(L)
+    vecs = [ None ] * len(L)
+    J_0 = [ None ] * len(L)
+
+    for ii in range(len(L)):
+        momenta[ii], vecs[ii], _ = mathieu_solution(lattice_depths[ii], bands, L[ii])
+        J_0[ii] = tunneling_1D(lattice_depths[ii], momenta[ii], vecs[ii])
+
+    def overlap(p, q, r, s):
+        overlaps = [ momentum_pair_overlap_1D(momenta[ii], vecs[ii],
+                                              p[ii], q[ii], r[ii], s[ii])
+                     for ii in range(len(L)) ]
+        return product(overlaps)
+
+    # compute interaction Hamiltonian
+    H_int = c_seq()
+    for p, q, r in itertools.product(spatial_basis(L), repeat = 3):
+        p, q, r = np.array(p, ndmin = 1), np.array(q, ndmin = 1), np.array(r, ndmin = 1)
+        s = p + q - r
+        U_L = g_int_LU[1] * K_T * overlap(p, q, r, s)
+        H_int += U_L * c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(s,1)
+    H_int = H_int.matrix(L, N, c_op_mats)
+
+    # compute lattice Hamiltonian
+    H_lat = H_lat_q(J_0, phi, L, N, c_op_mats, periodic)
+
+    return H_int + H_lat
+
 
 ##########################################################################################
 # projectors

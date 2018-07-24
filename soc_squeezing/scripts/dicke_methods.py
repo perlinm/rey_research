@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# FILE CONTENTS: methods for simulating dynamics in the Dicke manifold
+
 import numpy as np
 import scipy.sparse as sparse
 import scipy.linalg as linalg
