@@ -44,8 +44,7 @@ def single_mathieu_solution(q, lattice_depth, bands, fourier_order):
 def mathieu_solution(lattice_depth, bands, site_number,
                      symmetric = True, fourier_order = None):
 
-    if fourier_order == None:
-        fourier_order = max(2 * bands, 4)
+    if fourier_order == None: fourier_order = max(2*bands, 10)
 
     # allowed quasi-momenta with a given number of lattice sites
     #   (in units of the lattice wavenumber)
