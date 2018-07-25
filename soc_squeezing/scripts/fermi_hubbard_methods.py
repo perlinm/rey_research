@@ -30,6 +30,42 @@ def product(list):
         except: return 1 # we probably have an empty list
     except: return list # list is probably just a number
 
+def get_simulation_parameters(L, phi, lattice_depths, confining_depth,
+                              site_number = 121):
+    L = np.array(L, ndmin = 1)
+    L = L[L>1]
+    phi = np.array(phi, ndmin = 1)
+    while phi.size < L.size:
+        lattice_depths = np.append(phi, phi[-1])
+    lattice_depths = np.array(lattice_depths, ndmin = 1)
+    while lattice_depths.size < L.size:
+        lattice_depths = np.append(lattice_depths, lattice_depths[-1])
+
+    # compute tunneling and two-body overlap in confinind directions
+    confining_momenta, confining_fourier_vecs, _ = \
+        mathieu_solution(confining_depth, 1, site_number)
+    J_T = tunneling_1D(confining_depth, confining_momenta, confining_fourier_vecs)
+    K_T = pair_overlap_1D(confining_momenta, confining_fourier_vecs)
+
+    # compute everything we need along the business directions
+    momenta = [ None ] * L.size
+    fourier_vecs = [ None ] * L.size
+    energies = [ None ] * L.size
+    J_0 = np.zeros(L.size)
+    K_0 = np.zeros(L.size)
+
+    for ii in range(L.size):
+        momenta[ii], fourier_vecs[ii], energies[ii] = \
+            mathieu_solution(lattice_depths[ii], 1, site_number)
+        energies[ii] -= np.mean(energies[ii],0)
+        J_0[ii] = tunneling_1D(lattice_depths[ii], momenta[ii], fourier_vecs[ii])
+        K_0[ii] = pair_overlap_1D(momenta[ii], fourier_vecs[ii])
+    momenta = np.array(momenta)
+    fourier_vecs = np.array(fourier_vecs)
+    energies = np.array(energies)
+
+    return L, J_0, phi, K_0, momenta, fourier_vecs, energies, J_T, K_T
+
 
 ##########################################################################################
 # objects and methods for constructing operators
@@ -37,11 +73,7 @@ def product(list):
 
 # return iterator for all momentum states for given lattice dimensions
 def spatial_basis(L):
-    try:
-        len(L)
-        return itertools.product(*[ range(L_j) for L_j in L ])
-    except:
-        return range(L)
+    return itertools.product(*[ range(L_j) for L_j in L ])
 
 # iterable for basis of fock states; returns index of fock state
 #   and a tuple specifying the occupied single-particle states (by index)
@@ -155,7 +187,7 @@ class c_op:
     def index(self, L):
         # 2 * \sum_i q_i \prod_{j>i} L_j + spin_up
         site_index = sum([ ( self.q[ii] % L[ii] )
-                           * product([ L[jj] for jj in range(ii+1,len(L)) ])
+                           * product([ L[jj] for jj in range(ii+1,L.size) ])
                            for ii in range(len(self.q)) ])
         return 2 * site_index + self.spin_up
 
@@ -164,7 +196,7 @@ class c_op:
 
 # return a fermionic operator by the value of its index in a given lattice geometry
 def c_op_idx(index, L):
-    dim = len(L)
+    dim = L.size
     spin_up = index % 2
     q = np.zeros(dim)
     for ii in range(dim-1,-1,-1):
@@ -514,37 +546,53 @@ def polarized_states_FH(L, N):
 
 
 ##########################################################################################
-# Hamiltonians
+# Hamiltonians and methods to construct them
 ##########################################################################################
+
+# map momentum index on small lattice onto momentum index on large lattice
+def scale_index(q, L, site_number):
+    return ( ( q + 1/2 ) * site_number / L ).round().astype(int)
+
+# return energy of a single-particle state
+def gauged_energy(q, s, phi, L, energies_or_J):
+    phase = (s-1/2) * phi
+    if energies_or_J.shape == L.shape: # energies_or_J is the tunneling rate J
+        return -2 * ( energies_or_J * np.cos(2*np.pi/L * (q-(L-1)/2) + phase) )[L>1].sum()
+
+    else: # energies_or_J is a table of single-particle energies
+        site_number = energies_or_J[0,:,0].size
+        shifted_index = q + phase * L / (2*np.pi)
+        q = scale_index(shifted_index, L, site_number)
+        return sum([ energies_or_J[ii,q[ii],0] for ii in range(L.size) if L[ii] > 1 ])
+
+# return two-body overlap integral for (p,q) <--> (r,p+q-r) coupling
+def couping_overlap(p, q, r, L, momenta, fourier_vecs):
+    site_number = momenta[0].size
+    p, q, r = [ scale_index(k, L, site_number) for k in [ p, q, r ] ]
+    s = p + q - r
+    overlaps = [ momentum_pair_overlap_1D(momenta[ii], fourier_vecs[ii],
+                                          p[ii], q[ii], r[ii], s[ii])
+                 for ii in range(L.size) ]
+    return product(overlaps) * product(site_number/L)
 
 # lattice Hamiltonian in quasi-momentum basis
 def H_lat_q(J, phi, L, N, c_op_mats = None, periodic = True):
-    try: len(J)
-    except: J = J * np.ones(len(L))
-    try: len(phi)
-    except: phi = phi * np.ones(len(L))
-
     # determine energy associated with each quasimomentum state along each axis
     if periodic:
-        def energy(q,s,ii):
-            return -2 * J[ii] * np.cos(2*np.pi/L[ii] * (q[ii]-(L[ii]-1)/2) + s*phi[ii])
+        def energy(q, s):
+            return gauged_energy(q, s, phi, L, J)
     else:
         def energy(q,s,ii):
-            return -2 * J[ii] * np.sin(np.pi/(L[ii]+1) * (q[ii]-(L[ii]-1)/2) + s*phi[ii])
+            phase = (s-1/2) * phi
+            return -2 * ( J * np.sin(np.pi/(L+1) * (q-(L-1)/2) + phase) ).sum()
 
-
-    return sum([ sum([ energy(q,s,ii) for ii in range(len(L)) if L[ii] > 1 ]) *
-                 c_op(q,s).dag() * c_op(q,s)
+    return sum([ energy(q,s) * c_op(q,s).dag() * c_op(q,s)
                  for q in spatial_basis(L) for s in range(2) ]).matrix(L, N, c_op_mats)
 
 # lattice Hamiltonian in on-site basis
 def H_lat_j(J, phi, L, N, c_op_mats = None, periodic = True):
-    try: len(J)
-    except: J = J * np.ones(len(L))
-    try: len(phi)
-    except: phi = phi * np.ones(len(L))
     H_forward = c_seq()
-    for ii in range(len(L)):
+    for ii in range(L.size):
         if L[ii] == 1: continue
         for j, s in itertools.product(spatial_basis(L), range(2)):
             if j[ii] + 1 < L[ii] or periodic:
@@ -568,45 +616,26 @@ def H_int_j(U, L, N, c_op_mats = None):
     return U * sum([ c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
                      for j in spatial_basis(L) ]).matrix(L, N, c_op_mats)
 
-# full interaction Hamiltonian in quasi-momentum basis,
-#   accounting for variation in two-body overlap integrals
-def H_full(lattice_depth, transverse_lattice_depth, phi, L, N, c_op_mats = None,
-           periodic = True, bands = 5, site_number = 121):
-
-    # compute overlap integral in transverse directions
-    momenta, vecs, _ = mathieu_solution(transverse_lattice_depth, bands, site_number)
-    K_T = pair_overlap_1D(momenta, vecs)**(3 - len(L))
-
-    # compute tunneling rates and overlap integral along lattice axes
-    lattice_depths = np.array(lattice_depth, ndmin = 1)
-    while lattice_depths.size < len(L):
-        lattice_depths = np.append(lattice_depths, lattice_depths[-1])
-
-    momenta = [ None ] * len(L)
-    vecs = [ None ] * len(L)
-    J_0 = [ None ] * len(L)
-
-    for ii in range(len(L)):
-        momenta[ii], vecs[ii], _ = mathieu_solution(lattice_depths[ii], bands, L[ii])
-        J_0[ii] = tunneling_1D(lattice_depths[ii], momenta[ii], vecs[ii])
-
-    def overlap(p, q, r, s):
-        overlaps = [ momentum_pair_overlap_1D(momenta[ii], vecs[ii],
-                                              p[ii], q[ii], r[ii], s[ii])
-                     for ii in range(len(L)) ]
-        return product(overlaps)
+# full Hamiltonian in quasi-momentum basis,
+#   accounting for deviation from idealized Hubbard and tight-binding parameters
+def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats = None,
+           use_hubbard = True, site_number = 121):
+    L, J_0, phi, _, momenta, fourier_vecs, energies, _, K_T = \
+        get_simulation_parameters(L, phi, lattice_depth, confining_depth)
 
     # compute interaction Hamiltonian
     H_int = c_seq()
     for p, q, r in itertools.product(spatial_basis(L), repeat = 3):
-        p, q, r = np.array(p, ndmin = 1), np.array(q, ndmin = 1), np.array(r, ndmin = 1)
-        s = p + q - r
-        U_L = g_int_LU[1] * K_T * overlap(p, q, r, s)
-        H_int += U_L * c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(s,1)
+        p, q, r = [ np.array(k, ndmin = 1) for k in [ p, q, r ] ]
+        overlap = K_T**(3-L.size) * couping_overlap(p, q, r, L, momenta, fourier_vecs)
+        U = g_int_LU[1] * overlap
+        H_int += U * c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(p+q-r,1)
     H_int = H_int.matrix(L, N, c_op_mats)
 
     # compute lattice Hamiltonian
-    H_lat = H_lat_q(J_0, phi, L, N, c_op_mats, periodic)
+    energies_or_J = J_0 if use_hubbard else energies
+    H_lat = sum([ gauged_energy(q, s, phi, L, energies_or_J) * c_op(q,s).dag() * c_op(q,s)
+                  for q in spatial_basis(L) for s in range(2) ]).matrix(L, N, c_op_mats)
 
     return H_int + H_lat
 
