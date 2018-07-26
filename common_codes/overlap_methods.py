@@ -96,8 +96,8 @@ def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None):
 
 
 ##########################################################################################
-# two-particle overlap integrals
-# kk, ll, mm, and nn are and indices
+# two-particle on-site overlap integrals
+# kk, ll, mm, nn are band indices
 ##########################################################################################
 
 # 1-D two-body on-site wavefunction overlap integral
@@ -105,7 +105,7 @@ def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None):
 # if "neighbors" is 1, \phi_{nn} is evaluated at an adjacent lattice site
 # if "neighbors" is 2, both \phi_{nn} and \phi_{mm} are evaluated at an adjacent site
 def pair_overlap_1D(momenta, fourier_vecs, kk = 0, ll = 0, mm = 0, nn = 0,
-                    neighbors = 0, subinterval_limit = 500):
+                    neighbors = 0, subinterval_limit = 1000):
     if (kk + ll + mm + nn) % 2 != 0: return 0 # odd integrals vanish
     assert(neighbors in [0,1,2]) # 3 and 4 are the same as 1 and 0
 
@@ -144,7 +144,7 @@ def pair_overlap_1D(momenta, fourier_vecs, kk = 0, ll = 0, mm = 0, nn = 0,
 
 # like pair_overlap_1D, but with harmonic oscillator wavefunctions
 def harmonic_pair_overlap_1D(lattice_depth, kk = 0, ll = 0, mm = 0, nn = 0,
-                             neighbors = 0, subinterval_limit = 500):
+                             neighbors = 0, subinterval_limit = 1000):
     if (kk + ll + mm + nn) % 2!= 0: return 0 # odd integrals vanish
     assert(neighbors in [0,1,2]) # 3 and 4 are the same as 1 and 0
 
@@ -171,7 +171,7 @@ def harmonic_pair_overlap_1D(lattice_depth, kk = 0, ll = 0, mm = 0, nn = 0,
 # ground-state momentum-dependent coupling overlap integral
 #   i.e. Eq. 28 in johnson2012effective, but without the factor of 4*pi
 def momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list,
-                                 subinterval_limit = 500):
+                                 subinterval_limit = 1000):
     assert(type(momenta_list) is list or type(momenta_list) is ndarray)
 
     if type(momenta_list) is list:
@@ -222,12 +222,41 @@ def momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list,
                  overlap_1D_z * overlap_1D_x * integral_y)
     return 1/2 * overlaps / normalization**2
 
+
+##########################################################################################
+# momentum-space overlap integrals
+# pp, qq, rr, ss index quasi-momentum
+# kk, ll, mm, nn index band
+##########################################################################################
+
+# get fourier vectors corresponding to given momentum / band indices,
+#   shift fourier vectors left / right appropriately to account
+#   for momenta outside the first brillouin zone
+def state_fourier_vec(qq, nn, fourier_vecs):
+    site_number = fourier_vecs[:,0,0].size
+    vecs = fourier_vecs[qq % site_number, nn, :]
+    while qq >= site_number:
+        vecs = np.roll(vecs, -1) # "rotate" vectors to the left
+        vecs[-1] = 0 # clear rightmost entry
+        qq -= site_number
+    while qq < 0:
+        vecs = np.roll(vecs, 1) # "rotate" vectors to the right
+        vecs[0] = 0 # clear leftmost entry
+        qq += site_number
+    return vecs
+
+# overlap between two states after their quasi-momentum phases have been cancelled out
+#   (e.g. by the clock laser)
+def state_vector_overlap_1D(qq, nn, gg, mm, fourier_vecs):
+    return ( state_fourier_vec(qq, nn, fourier_vecs)
+             @ state_fourier_vec(gg, mm, fourier_vecs) )
+
 # two-body overlap for (pp,kk) + (qq,ll) <--> (rr,mm) + (ss,nn) coupling,
 # where pp, qq, rr, ss are quasi-momentum indices and kk, ll, mm, nn are band indices
 def momentum_pair_overlap_1D(momenta, fourier_vecs,
                              pp = None, qq = None, rr = None, ss = None,
                              kk = 0, ll = 0, mm = 0, nn = 0,
-                             subinterval_limit = 500):
+                             subinterval_limit = 1000):
     site_number = len(momenta)
 
     # set default index values for momenta at / near 0
@@ -240,43 +269,34 @@ def momentum_pair_overlap_1D(momenta, fourier_vecs,
     if ( pp + qq - rr - ss ) % site_number != 0: return 0
     if ( kk + ll + mm + nn ) % 2 != 0: return 0
 
-    # get fourier vectors corresponding to these momentum / band indices,
-    #   but shifted left / right appropriately to account for momenta
-    #   outside the first brillouin zone
-    def vecs(qq, nn):
-        vecs = fourier_vecs[qq % site_number, nn, :]
-        while qq >= site_number:
-            vecs = np.roll(vecs, -1) # "rotate" vectors to the left
-            vecs[-1] = 0 # clear rightmost entry
-            qq -= site_number
-        while qq < 0:
-            vecs = np.roll(vecs, 1) # "rotate" vectors to the right
-            vecs[0] = 0 # clear leftmost entry
-            qq += site_number
-        return vecs
+    def net_momentum(pp, qq, rr, ss):
+        bare_momentum = ( momenta[pp % site_number] + momenta[qq % site_number]
+                          - momenta[rr % site_number] - momenta[ss % site_number] )
+        shift_momentum = ( ( pp + qq - rr - ss ) // site_number ) * 2
+        return bare_momentum + shift_momentum
 
-    pk_vecs = vecs(pp, kk)
-    ql_vecs = vecs(qq, ll)
-    rm_vecs = vecs(rr, mm)
-    sn_vecs = vecs(ss, nn)
+    while round(net_momentum(pp, qq, rr, ss)) > 0: pp -= site_number
+    while round(net_momentum(pp, qq, rr, ss)) < 0: pp += site_number
+
+    pk_vec = state_fourier_vec(pp, kk, fourier_vecs)
+    ql_vec = state_fourier_vec(qq, ll, fourier_vecs)
+    rm_vec = state_fourier_vec(rr, mm, fourier_vecs)
+    sn_vec = state_fourier_vec(ss, nn, fourier_vecs)
 
     fourier_terms = len(fourier_vecs[0,0,:])
     k_max = fourier_terms // 2
     k_values = 2 * (np.arange(fourier_terms) - k_max)
-    net_momentum = ( momenta[pp % site_number] + momenta[qq % site_number]
-                     - momenta[rr % site_number] - momenta[ss % site_number] )
     # determine integrand at position z
     def integrand(z):
-        momentum_phase = np.exp(1j * net_momentum * z)
         k_phases = np.exp(1j * k_values * z)
         # individual wavefunctions at position z
-        phi_pk = pk_vecs @ k_phases
-        phi_ql = ql_vecs @ k_phases
-        phi_rm = rm_vecs @ k_phases
-        phi_sn = sn_vecs @ k_phases
+        phi_pk = pk_vec @ k_phases
+        phi_ql = ql_vec @ k_phases
+        phi_rm = rm_vec @ k_phases
+        phi_sn = sn_vec @ k_phases
         # due to the choice of gauge in mathieu_solution and conservation of parity,
         #   the integrand should always be real
-        return np.real(momentum_phase * np.conj(phi_pk * phi_ql) * phi_rm * phi_sn)
+        return np.real(np.conj(phi_pk * phi_ql) * phi_rm * phi_sn)
 
     # the integral is even about z = 0, so only compute half of it
     lattice_length = np.pi * site_number
