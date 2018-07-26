@@ -13,6 +13,7 @@ from fermi_hubbard_methods import product, get_simulation_parameters, spatial_ba
     get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, gauged_energy, H_full
 from squeezing_methods import spin_vec_mat_vals, spin_squeezing, evolve
 
+compute_TAT = "tat" in sys.argv
 show = "show" in sys.argv
 save = "save" in sys.argv
 
@@ -21,20 +22,21 @@ fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-L = 5 # lattice sites
+L = 100 # lattice sites
 N = product(L) # atoms
 phi = np.pi / 50 # spin-orbit coupling parameter
 fermi_N_cap = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
-use_hubbard = True # use the hubbard model?
+use_hubbard = False # use the hubbard model?
 
-lattice_depth = 4 # shallow (tunneling) axis lattice depth
-confining_depth = 60 # lattice depth along confining axes
+lattice_depth = 5 # shallow (tunneling) axis lattice depth
+confining_depth = 50 # lattice depth along confining axes
+site_number = 400 # number of lattice sites
 
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
 time_steps = 1000 # time steps in simulation
 
 L, J_0, phi, K_0, momenta, fourier_vecs, energies, J_T, K_T = \
-    get_simulation_parameters(L, phi, lattice_depth, confining_depth)
+    get_simulation_parameters(L, phi, lattice_depth, confining_depth, site_number)
 
 U = g_int_LU[1] * K_T**(3-L.size) * product(K_0)
 energies_or_J = J_0 if use_hubbard else energies
@@ -70,6 +72,8 @@ squeezing_OAT_vals = np.vectorize(squeezing_OAT)(chi_times, N)
 t_opt_OAT = times[squeezing_OAT_vals.argmin()]
 print("t_opt_OAT (sec):", t_opt_OAT / recoil_energy_NU)
 
+if not (compute_TAT or show or save): exit()
+
 squeezing_TAT_vals = np.zeros(time_steps) # initialize vector of TAT squeezing values
 d_chi_t = chi_times[1] - chi_times[0] # size of one time step
 for ii in range(time_steps):
@@ -93,15 +97,17 @@ if N <= fermi_N_cap:
     print("Fermi-Hubbard hilbert space dimension:", hilbert_dim)
     c_op_mats = get_c_op_mats(L, N, depth = 2)
     S_op_vec, SS_op_mat = spin_op_vec_mat_FH(L, N, c_op_mats)
-    _, state_x, _ = polarized_states_FH(L, N)
+    _, _, state_y = polarized_states_FH(L, N)
 
-    state_free = state_x
-    state_drive = state_x
-    H_free = H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats, use_hubbard)
+    state_free = state_y
+    state_drive = state_y
+    H_lat, H_int, H_clock = H_full(N, L, phi, lattice_depth, confining_depth,
+                                   c_op_mats, site_number, use_hubbard)
+    H_free = H_lat + H_int
 
     beta = 0.90572
     def H_laser(t):
-        return -beta * omega * np.cos(omega * t) * S_op_vec[2]
+        return -beta * omega * np.cos(omega * t) * H_clock
 
     dt = times[-1] / time_steps
     squeezing_free_vals = np.zeros(time_steps)

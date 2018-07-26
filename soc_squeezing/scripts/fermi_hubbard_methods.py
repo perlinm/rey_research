@@ -13,7 +13,8 @@ from scipy.special import binom as binomial
 from sympy.combinatorics.permutations import Permutation as sympy_permutation
 
 from mathieu_methods import mathieu_solution
-from overlap_methods import tunneling_1D, pair_overlap_1D, momentum_pair_overlap_1D
+from overlap_methods import tunneling_1D, pair_overlap_1D, \
+    state_vector_overlap_1D, momentum_pair_overlap_1D
 from sr87_olc_constants import g_int_LU
 
 # return product of items in list
@@ -30,13 +31,12 @@ def product(list):
         except: return 1 # we probably have an empty list
     except: return list # list is probably just a number
 
-def get_simulation_parameters(L, phi, lattice_depths, confining_depth,
-                              site_number = 121):
+def get_simulation_parameters(L, phi, lattice_depths, confining_depth, site_number = 100):
     L = np.array(L, ndmin = 1)
     L = L[L>1]
     phi = np.array(phi, ndmin = 1)
     while phi.size < L.size:
-        lattice_depths = np.append(phi, phi[-1])
+        phi = np.append(phi, phi[-1])
     lattice_depths = np.array(lattice_depths, ndmin = 1)
     while lattice_depths.size < L.size:
         lattice_depths = np.append(lattice_depths, lattice_depths[-1])
@@ -477,23 +477,23 @@ class c_sum:
 ##########################################################################################
 
 # collective spin operators for N particles on a lattice with dimensions L
-def spin_op_z_FH(L, N, c_op_mats = None):
+def spin_op_z_FH(L, N, c_op_mats):
     return sum([ c_op(q,1).dag() * c_op(q,1) - c_op(q,0).dag() * c_op(q,0)
                  for q in spatial_basis(L) ]).matrix(L, N, c_op_mats) / 2
 
-def spin_op_m_FH(L, N, c_op_mats = None):
+def spin_op_m_FH(L, N, c_op_mats):
     return sum([ c_op(q,0).dag() * c_op(q,1)
                  for q in spatial_basis(L) ]).matrix(L, N, c_op_mats)
 
-def spin_op_x_FH(L, N, c_op_mats = None):
+def spin_op_x_FH(L, N, c_op_mats):
     Sm = spin_op_m_FH(L, N, c_op_mats)
     return ( Sm + Sm.getH() ) / 2
 
-def spin_op_y_FH(L, N, c_op_mats = None):
+def spin_op_y_FH(L, N, c_op_mats):
     Sm = spin_op_m_FH(L, N, c_op_mats)
     return ( Sm - Sm.getH() ) * 1j / 2
 
-def spin_op_vec_mat_FH(L, N, c_op_mats = None):
+def spin_op_vec_mat_FH(L, N, c_op_mats):
     Sz = spin_op_z_FH(L, N, c_op_mats)
     Sm = spin_op_m_FH(L, N, c_op_mats)
     Sx = ( Sm + Sm.getH() ) / 2
@@ -551,19 +551,18 @@ def polarized_states_FH(L, N):
 
 # map momentum index on small lattice onto momentum index on large lattice
 def scale_index(q, L, site_number):
-    return ( ( q + 1/2 ) * site_number / L ).round().astype(int)
+    return ( ( np.array(q) + 1/2 ) * site_number / L ).round().astype(int) % site_number
 
 # return energy of a single-particle state
 def gauged_energy(q, s, phi, L, energies_or_J):
-    phase = (s-1/2) * phi
     if energies_or_J.shape == L.shape: # energies_or_J is the tunneling rate J
-        return -2 * ( energies_or_J * np.cos(2*np.pi/L * (q-(L-1)/2) + phase) )[L>1].sum()
+        return -2 * ( energies_or_J * np.cos(2*np.pi/L * (q-(L-1)/2) + s*phi) ).sum()
 
     else: # energies_or_J is a table of single-particle energies
         site_number = energies_or_J[0,:,0].size
-        shifted_index = q + phase * L / (2*np.pi)
+        shifted_index = q + s*phi * L / (2*np.pi)
         q = scale_index(shifted_index, L, site_number)
-        return sum([ energies_or_J[ii,q[ii],0] for ii in range(L.size) if L[ii] > 1 ])
+        return sum([ energies_or_J[ii,q[ii],0] for ii in range(L.size) ])
 
 # return two-body overlap integral for (p,q) <--> (r,p+q-r) coupling
 def couping_overlap(p, q, r, L, momenta, fourier_vecs):
@@ -576,21 +575,20 @@ def couping_overlap(p, q, r, L, momenta, fourier_vecs):
     return product(overlaps) * product(site_number/L)
 
 # lattice Hamiltonian in quasi-momentum basis
-def H_lat_q(J, phi, L, N, c_op_mats = None, periodic = True):
+def H_lat_q(J, phi, L, N, c_op_mats, periodic = True):
     # determine energy associated with each quasimomentum state along each axis
     if periodic:
         def energy(q, s):
             return gauged_energy(q, s, phi, L, J)
     else:
         def energy(q,s,ii):
-            phase = (s-1/2) * phi
-            return -2 * ( J * np.sin(np.pi/(L+1) * (q-(L-1)/2) + phase) ).sum()
+            return -2 * ( J * np.sin(np.pi/(L+1) * (q-(L-1)/2) + s*phi) ).sum()
 
     return sum([ energy(q,s) * c_op(q,s).dag() * c_op(q,s)
                  for q in spatial_basis(L) for s in range(2) ]).matrix(L, N, c_op_mats)
 
 # lattice Hamiltonian in on-site basis
-def H_lat_j(J, phi, L, N, c_op_mats = None, periodic = True):
+def H_lat_j(J, phi, L, N, c_op_mats, periodic = True):
     H_forward = c_seq()
     for ii in range(L.size):
         if L[ii] == 1: continue
@@ -604,7 +602,7 @@ def H_lat_j(J, phi, L, N, c_op_mats = None, periodic = True):
     return H_forward + H_forward.getH()
 
 # interaction Hamiltonian in quasi-momentum basis
-def H_int_q(U, L, N, c_op_mats = None):
+def H_int_q(U, L, N, c_op_mats):
     H = c_seq()
     for p, q, r in itertools.product(spatial_basis(L), repeat = 3):
         s = ( np.array(p) + np.array(q) - np.array(r) ) % L
@@ -612,16 +610,21 @@ def H_int_q(U, L, N, c_op_mats = None):
     return U / product(L) * H.matrix(L, N, c_op_mats)
 
 # interaction Hamiltonian in on-site basis
-def H_int_j(U, L, N, c_op_mats = None):
+def H_int_j(U, L, N, c_op_mats):
     return U * sum([ c_op(j, 0).dag() * c_op(j, 1).dag() * c_op(j, 1) * c_op(j, 0)
                      for j in spatial_basis(L) ]).matrix(L, N, c_op_mats)
 
-# full Hamiltonian in quasi-momentum basis,
+# lattice, interaction, and clock laser Hamiltonians in quasi-momentum basis,
 #   accounting for deviation from idealized Hubbard and tight-binding parameters
-def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats = None,
-           use_hubbard = True, site_number = 121):
+def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats,
+           site_number = 100, use_hubbard = True):
     L, J_0, phi, _, momenta, fourier_vecs, energies, _, K_T = \
-        get_simulation_parameters(L, phi, lattice_depth, confining_depth)
+        get_simulation_parameters(L, phi, lattice_depth, confining_depth, site_number)
+
+    # compute lattice Hamiltonian
+    energies_or_J = J_0 if use_hubbard else energies
+    H_lat = sum([ gauged_energy(q, s, phi, L, energies_or_J) * c_op(q,s).dag() * c_op(q,s)
+                  for q in spatial_basis(L) for s in range(2) ])
 
     # compute interaction Hamiltonian
     H_int = c_seq()
@@ -630,14 +633,25 @@ def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats = None,
         overlap = K_T**(3-L.size) * couping_overlap(p, q, r, L, momenta, fourier_vecs)
         U = g_int_LU[1] * overlap
         H_int += U * c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(p+q-r,1)
-    H_int = H_int.matrix(L, N, c_op_mats)
 
-    # compute lattice Hamiltonian
-    energies_or_J = J_0 if use_hubbard else energies
-    H_lat = sum([ gauged_energy(q, s, phi, L, energies_or_J) * c_op(q,s).dag() * c_op(q,s)
-                  for q in spatial_basis(L) for s in range(2) ]).matrix(L, N, c_op_mats)
+    # compute Hamiltonnian induced by clock laser at unit Rabi frequency
+    momenta = [ [ q, q + phi * L / (2*np.pi) ] for q in spatial_basis(L) ]
+    scaled_momenta = [ [ scale_index(qq[0], L, site_number),
+                         scale_index(qq[1], L, site_number) ]
+                       for qq in momenta ]
 
-    return H_int + H_lat
+    def overlap(qq,ii):
+        return state_vector_overlap_1D(qq[0][ii], 0, qq[1][ii], 0, fourier_vecs[ii])
+    def spin_x(ii):
+        return sum([ c_op(momenta[ii][0],1-s).dag() * c_op(momenta[ii][0],s)
+                     for s in range(2) ]) / 2
+
+    couplings = np.array([ product([ overlap(qq,ii) for ii in range(L.size) ])
+                           for qq in scaled_momenta ])
+    couplings /= np.mean(couplings)
+    H_clock = sum([ couplings[ii] * spin_x(ii) for ii in range(len(momenta)) ])
+
+    return [ H.matrix(L, N, c_op_mats) for H in [ H_lat, H_int, H_clock ] ]
 
 
 ##########################################################################################
@@ -645,7 +659,7 @@ def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats = None,
 ##########################################################################################
 
 # projector onto Dicke manifold
-def dicke_projector(L, N, c_op_mats = None):
+def dicke_projector(L, N, c_op_mats):
     hilbert_dim = int(binomial(2*product(L), N))
 
     # collective spin raising operator and its m-th power (initially m = 0)
@@ -665,7 +679,7 @@ def dicke_projector(L, N, c_op_mats = None):
     return projector
 
 # projector onto states with an atom on a given (numbered) lattice site
-def site_projector(site, L, N, c_op_mats = None):
+def site_projector(site, L, N, c_op_mats):
     # determine index of the given lattice site
     try:
         len(site)

@@ -64,7 +64,7 @@ for nn in range(len(particle_nums)):
     H_TAT = 1/3 * np.real( SS_op_mat[0][0] - SS_op_mat[2][2] )
     state = coherent_spin_state([0,1,0], N)
 
-    if N < N_crossover and False:
+    if N < N_crossover:
         vals, vecs = linalg.eigh(H_TAT.toarray())
         state = vecs.T @ state
         S_op_vec = np.array([ vecs.T @ X @ vecs for X in S_op_vec ])
