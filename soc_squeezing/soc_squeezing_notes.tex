@@ -91,7 +91,9 @@ eliminating (i.e.~turning off) the interrogation laser, one can arrive
 at the Hamiltonian
 \begin{align}
   H_{\t{SOC}}
-  = -2J_0\sum_{q,s} \cos\p{q+s\phi/2} \hat c_{qs}^\dag \hat c_{qs}
+  = \sum_{q,s} E_{qs\phi} \hat c_{qs}^\dag \hat c_{qs}
+  \approx -2 J_0\sum_{q,s} \cos\p{q+s\phi/2}
+  \hat c_{qs}^\dag \hat c_{qs}
   \label{eq:H_SOC_start}
 \end{align}
 where $q$ indexes quasi-momentum along the lattice axis,
@@ -140,6 +142,7 @@ $s$-wave collisions, which are captured by the Hamiltonian
   \hat\psi_\g\p{x} \hat\psi_\e\p{x},
   &&
   G \equiv \f{4\pi a_{\e\g^-}}{m_A},
+  \label{eq:H_int_full}
 \end{align}
 where $\hat\psi_\sigma$ is a fermionic field operator for atoms in
 electronic state $\sigma\in\set{\g,\e}$, $a_{eg}^-$ is an scattering
@@ -184,7 +187,7 @@ $\delta_{p+q,r+s}$ enforcing $p+q=r+s$, it follows that
   \sum_j \int \d^3x~ \abs{w_j\p{x}}^4
   = \delta_{p+q,r+s} L^{-1} \int \d^3x~ \abs{w_0\p{x}}^4,
 \end{align}
-which motivates the definitions
+which motivates the definition
 \begin{align}
   U \equiv G \int \d^3x~ \abs{w_0\p{x}}^4,
 \end{align}
@@ -193,7 +196,7 @@ in order to express the interaction Hamiltonian in the simple form
   H_{\t{int}} = \f{U}{L} \sum_{p,q,r,s}
   \delta_{p+q,r+s} \hat c_{r,\e}^\dag \hat c_{s,\g}^\dag
   \hat c_{q,\g} \hat c_{p,\e}.
-  \label{eq:H_int_full}
+  \label{eq:H_int_uniform}
 \end{align}
 
 
@@ -210,7 +213,7 @@ is, atoms in different clock states can only interact via
 \item direct density-density terms, and
 \item terms which exchange their momenta.
 \end{enumerate*}
-The surviving terms in \eqref{eq:H_int_full} are thus
+The surviving terms in \eqref{eq:H_int_uniform} are thus
 \begin{align}
   H_{\t{int}}
   = \f{U}{L} \sum_{p,q}
@@ -319,16 +322,16 @@ lattice recoil energy $E_R$.
   \begin{tabular}{|l|c|l|}
     \hline
     Parameter & Symbol & Value \\ \hline\hline
-    Primary lattice depth & $V_0$ & 4 $E_R$ \\
-    Transverse lattice depths & $V_T$ & 60 $E_R$ \\
+    Primary lattice depth & $V_0$ & 5 $E_R$ \\
+    Transverse lattice depths & $V_T$ & 50 $E_R$ \\
     SOC strength & $\phi$ & $\pi/50$ \\
     Lattice sites & $L$ & 100 \\
-    Atom number & $N$ & 50 \\ \hline\hline
-    Tunneling rate & $J_0$ & $\approx300\times2\pi$ Hz \\
-    On-site interaction strength & $U$ & $\approx1.4\times2\pi$ kHz \\
-    Squeezing strength & $\chi$ & $\approx21\times2\pi$ mHz \\
-    Optimal squeezing time & $t_{\t{opt}}^{\t{OAT}}$
-    & $\approx0.59$ seconds \\ \hline
+    Atom number & $N$ & 100 \\ \hline\hline
+    Tunneling rate & $J_0$ & $\approx230\times2\pi$ Hz \\
+    On-site interaction strength & $U$ & $\approx1.3\times2\pi$ kHz \\
+    Twisting strength & $\chi$ & $\approx3.2\times2\pi$ mHz \\
+    Optimal OAT squeezing time & $t_{\t{opt}}^{\t{OAT}}$
+    & $\approx2.5$ seconds \\ \hline
   \end{tabular}
 \end{table}
 
@@ -377,9 +380,9 @@ twisting Hamiltonians
 where $\simeq$ denotes equality up to a global energy shift.  Given
 the set of parameters in Table \ref{tab:parameters}, the two-axis
 twisting Hamiltonian $H_{\t{TAT}}^{z,x}$ can be achieved with a drive
-frequency $\omega=\abs{\eta U\chi}^{1/2}\approx27\times2\pi$ Hz and
+frequency $\omega=\abs{\eta U\chi}^{1/2}\approx20\times2\pi$ Hz and
 modulation index $\beta\approx0.906$, and has an optimal squeezing
-time of $t_{\t{opt}}^{\t{TAT}}\approx0.82$ seconds.  The figure of
+time of $t_{\t{opt}}^{\t{TAT}}\approx3.2$ seconds.  The figure of
 merit for squeezing is the normalized minimal variance of spin in the
 plane orthogonal to the mean spin vector $\bk{\v S}$:
 \begin{align}
@@ -397,7 +400,7 @@ parameters in Table \ref{tab:parameters} is provided in Figure
   \caption{Comparison of squeezing through $H_{\t{OAT}}^z$ and
     $H_{\t{TAT}}^{z,x}$ via the parameters in Table
     \ref{tab:parameters} and the continuous two-axis twisting protocol
-    with $\omega=27\times2\pi$ Hz and $\beta=0.906$.}
+    with $\omega\approx\abs{\eta U\chi}^{1/2}$ and $\beta=0.906$.}
   \label{fig:squeezing_comparison_TAT}
 \end{figure}
 
@@ -443,8 +446,8 @@ respectively given in \eqref{eq:H_SOC_start} and
 \eqref{eq:H_int_full}.  Figure \ref{fig:squeezing_comparison_FH} shows
 a comparison of the squeezing parameter $\xi^2$ after evolution of the
 initial state $\ket{Y}$ for $N=8$ particles in a 1-D lattice with
-$L=8$ sites (and all remaining parameters as given in Table
-\ref{tab:parameters}) after evolution under
+$L=8$ sites (and remaining system parameters as given in the top half
+of Table \ref{tab:parameters}) after evolution under
 \begin{enumerate*}[label=(\roman*)]
 \item the one-axis twisting Hamiltonian $H_{\t{OAT}}^z$,
 \item the two-axis twisting Hamiltonian $H_{\t{OAT}}^{z,x}$,
@@ -465,7 +468,7 @@ Hamiltonians for the given parameters.
   \caption{Benchmarking squeezing under the one- and two-axis
     Hamiltonians $H_{\t{OAT}}^z$ and $H_{\t{TAT}}^{z,x}$ against
     direct simulations of the Fermi-Hubbard model with $N=L=8$ and the
-    remaining lattice/SOC parameters as given in Table
+    remaining system parameters as given in the top half of Table
     \ref{tab:parameters}.}
   \label{fig:squeezing_comparison_FH}
 \end{figure}
@@ -475,17 +478,17 @@ Hamiltonians for the given parameters.
 
 It may be possible to further enhance the twisting strength $\chi$ by
 placing the atoms in an optical cavity, as in
-ref.~\cite{hu2017vacuum}.  Both squeezing times and squeezing
-strengths might also be further enhanced by using a 2-D lattice,
-although more benchmarking is necessary to verify the validity of the
-collective spin model in 2-D.  As shown in Figure
+ref.~\cite{hu2017vacuum}.  Both squeezing times and twisting strengths
+might also be further enhanced by using a 2-D lattice, although more
+benchmarking is necessary to verify the validity of the collective
+spin model in 2-D.  As shown in Figure
 \ref{fig:squeezing_comparison_2D},
 
 \begin{figure}
   \centering
   \includegraphics{squeezing_comparison_2D.pdf}
   \caption{Squeezing via one- and two-axis twisting in a 2-D lattice
-    with $100\times100$ sites at half filling, with the remaining
+    with $100\times100$ sites at unit filling, with the remaining
     lattice/SOC parameters given in Table \ref{tab:parameters}.}
   \label{fig:squeezing_comparison_2D}
 \end{figure}
