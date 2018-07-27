@@ -9,7 +9,7 @@ from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 
 from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state, squeezing_OAT
-from fermi_hubbard_methods import product, get_simulation_parameters, spatial_basis, \
+from fermi_hubbard_methods import prod, get_simulation_parameters, spatial_basis, \
     get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, gauged_energy, H_full
 from squeezing_methods import spin_vec_mat_vals, spin_squeezing, evolve
 
@@ -22,31 +22,30 @@ fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-L = 100 # lattice sites
-N = product(L) # atoms
+L = 6 # lattice sites
+N = prod(L) # atoms
 phi = np.pi / 50 # spin-orbit coupling parameter
 fermi_N_cap = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
 use_hubbard = False # use the hubbard model?
 
 lattice_depth = 5 # shallow (tunneling) axis lattice depth
 confining_depth = 50 # lattice depth along confining axes
-site_number = 400 # number of lattice sites
 
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
 time_steps = 1000 # time steps in simulation
 
 L, J_0, phi, K_0, momenta, fourier_vecs, energies, J_T, K_T = \
-    get_simulation_parameters(L, phi, lattice_depth, confining_depth, site_number)
+    get_simulation_parameters(L, phi, lattice_depth, confining_depth)
 
-U = g_int_LU[1] * K_T**(3-L.size) * product(K_0)
+U = g_int_LU[1] * K_T**(3-L.size) * prod(K_0)
 energies_or_J = J_0 if use_hubbard else energies
 soc_field_variance = np.var([ ( gauged_energy(q, 1, phi, L, energies_or_J)
                                 - gauged_energy(q, 0, phi, L, energies_or_J) )
                               for q in spatial_basis(L) ])
 if soc_field_variance/U**2 < 1e-10:
     sys.exit("there is no spin squeezing with the given parameters!")
-chi = soc_field_variance / ( N * (N-1) * U / product(L) )
-omega = N * np.sqrt(abs(chi*U/product(L)))
+chi = soc_field_variance / ( N * (N-1) * U / prod(L) )
+omega = N * np.sqrt(abs(chi*U/prod(L)))
 
 print(r"J_T (2\pi Hz):", J_T * recoil_energy_Hz)
 print()
@@ -93,7 +92,7 @@ plt.plot(times_SI, -to_dB(squeezing_TAT_vals), label = "TAT")
 
 if N <= fermi_N_cap:
     print()
-    hilbert_dim = int(scipy.special.binom(2*product(L),N))
+    hilbert_dim = int(scipy.special.binom(2*prod(L),N))
     print("Fermi-Hubbard hilbert space dimension:", hilbert_dim)
     c_op_mats = get_c_op_mats(L, N, depth = 2)
     S_op_vec, SS_op_mat = spin_op_vec_mat_FH(L, N, c_op_mats)
@@ -102,7 +101,7 @@ if N <= fermi_N_cap:
     state_free = state_y
     state_drive = state_y
     H_lat, H_int, H_clock = H_full(N, L, phi, lattice_depth, confining_depth,
-                                   c_op_mats, site_number, use_hubbard)
+                                   c_op_mats, use_hubbard)
     H_free = H_lat + H_int
 
     beta = 0.90572

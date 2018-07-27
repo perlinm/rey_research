@@ -24,7 +24,7 @@ def sum(list):
         try: return functools.reduce(operator.add, list) # sum all elements in list
         except: return 0 # we probably have an empty list
     except: return list # list is probably just a number
-def product(list):
+def prod(list):
     try:
         len(list)
         try: return functools.reduce(operator.mul, list) # muliply all elements in list
@@ -32,7 +32,7 @@ def product(list):
     except: return list # list is probably just a number
 
 def get_simulation_parameters(L, phi, lattice_depths, confining_depth, site_number = 100):
-    L = np.array(L, ndmin = 1)
+    L = np.array(L, ndmin = 1).round().astype(int)
     L = L[L>1]
     phi = np.array(phi, ndmin = 1)
     while phi.size < L.size:
@@ -78,14 +78,14 @@ def spatial_basis(L):
 # iterable for basis of fock states; returns index of fock state
 #   and a tuple specifying the occupied single-particle states (by index)
 def fock_state_basis(L, N):
-    hilbert_dim = int(binomial(2*product(L),N))
-    return zip(range(hilbert_dim), itertools.combinations(range(2*product(L)),N))
+    hilbert_dim = int(binomial(2*prod(L),N))
+    return zip(range(hilbert_dim), itertools.combinations(range(2*prod(L)),N))
 
 # get operator representation of annihilation operators in the fock basis
 # depth is the number of times we need to apply annihilation operators
 def get_c_op_mats(L, N, depth = None):
     if depth == None: depth = N
-    single_particle_states = 2*product(L)
+    single_particle_states = 2*prod(L)
     c_op_mats = [ None ] * single_particle_states * depth
 
     for dd in range(depth):
@@ -187,7 +187,7 @@ class c_op:
     def index(self, L):
         # 2 * \sum_i q_i \prod_{j>i} L_j + spin_up
         site_index = sum([ ( self.q[ii] % L[ii] )
-                           * product([ L[jj] for jj in range(ii+1,L.size) ])
+                           * prod([ L[jj] for jj in range(ii+1,L.size) ])
                            for ii in range(len(self.q)) ])
         return 2 * site_index + self.spin_up
 
@@ -202,13 +202,13 @@ def c_op_idx(index, L):
     for ii in range(dim-1,-1,-1):
         # determine numerical contribution to the site index from q_j with j > i,
         #   namely \sum_{j>i} q_j \prod_{k>j} L_k
-        q_gtr_cont = sum([ q[jj] * product([ L[kk] for kk in range(jj+1,dim) ])
+        q_gtr_cont = sum([ q[jj] * prod([ L[kk] for kk in range(jj+1,dim) ])
                            for jj in range(ii+1,dim) ])
         # parts of the site index unaccounted for after considering all q_j with j > i
         remainder = index // 2 - q_gtr_cont
         # q_i is then ( remainder / \prod_{j>i} L_i ) \mod L_i,
         #   as all preceding q indices are multiplied by L_i
-        q[ii] = ( remainder // product([ L[jj] for jj in range(ii+1,dim) ]) ) % L[ii]
+        q[ii] = ( remainder // prod([ L[jj] for jj in range(ii+1,dim) ]) ) % L[ii]
     return c_op(q,spin_up)
 
 # product of creation / annihilation operators
@@ -284,13 +284,13 @@ class c_seq:
 
     # return vector or matrix corresponding to this product of operators
     def matrix(self, L, N, c_op_mats = None):
-        assert(N <= 2*product(L)) # we cannot have more particles than states
+        assert(N <= 2*prod(L)) # we cannot have more particles than states
 
         num_ops = len(self.seq)
         assert(num_ops % 2 == 0) # we must have an even number of operators
 
         # determine dimension of hilbert space
-        hilbert_dim = int(binomial(2*product(L), N))
+        hilbert_dim = int(binomial(2*prod(L), N))
         matrix_shape = (hilbert_dim, hilbert_dim)
 
         # if we have an empty sequence, return the zero matrix
@@ -314,13 +314,13 @@ class c_seq:
 
         # if we provided matrix representations of the fermionic operators, use them!
         if c_op_mats != None:
-            if len(c_op_mats) < (2*product(L))*(num_ops//2):
+            if len(c_op_mats) < (2*prod(L))*(num_ops//2):
                 error_msg = "we need {} operators, but have only {}!"
-                sys.exit(error_msg.format((2*product(L))*(num_ops//2),len(c_op_mats)))
+                sys.exit(error_msg.format((2*prod(L))*(num_ops//2),len(c_op_mats)))
 
-            op_list = ( [ c_op_mats[(2*product(L))*ii + created_states[ii]].T
+            op_list = ( [ c_op_mats[(2*prod(L))*ii + created_states[ii]].T
                           for ii in range(num_ops//2) ] +
-                        [ c_op_mats[(2*product(L))*ii + destroyed_states[ii]]
+                        [ c_op_mats[(2*prod(L))*ii + destroyed_states[ii]]
                           for ii in range(num_ops//2) ][::-1] )
 
             matrix = functools.reduce(sparse.csr_matrix.dot, op_list)
@@ -377,7 +377,7 @@ class c_seq:
         assert(N == num_ops)
 
         # determine dimension of hilbert space
-        hilbert_dim = int(binomial(2*product(L), N))
+        hilbert_dim = int(binomial(2*prod(L), N))
 
         # if we have an empty sequence, return the zero matrix
         if num_ops == 0: return sparse.csr_matrix((hilbert_dim,1), dtype = int)
@@ -517,24 +517,24 @@ def spin_op_vec_mat_FH(L, N, c_op_mats):
 #   but all spins pointing along principal axes
 def polarized_states_FH(L, N):
     # if we are at unit filling, return a state vector, otherwise return a density operator
-    if N == product(L):
-        vec_z = product([ c_op(q,1) for q in spatial_basis(L) ]).vector(L, N)
-        vec_x = product([ c_op(q,1) + c_op(q,0) for q in spatial_basis(L) ]).vector(L, N)
-        vec_y = product([ c_op(q,1) + 1j * c_op(q,0)
+    if N == prod(L):
+        vec_z = prod([ c_op(q,1) for q in spatial_basis(L) ]).vector(L, N)
+        vec_x = prod([ c_op(q,1) + c_op(q,0) for q in spatial_basis(L) ]).vector(L, N)
+        vec_y = prod([ c_op(q,1) + 1j * c_op(q,0)
                           for q in spatial_basis(L) ]).vector(L, N)
         vec_z = vec_z.toarray() / sparse.linalg.norm(vec_z)
         vec_x = vec_x.toarray() / sparse.linalg.norm(vec_x)
         vec_y = vec_y.toarray() / sparse.linalg.norm(vec_y)
         return vec_z, vec_x, vec_y
 
-    hilbert_dim = int(binomial(2*product(L), N))
+    hilbert_dim = int(binomial(2*prod(L), N))
     state_z = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
     state_x = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = float)
     state_y = sparse.csr_matrix((hilbert_dim,hilbert_dim), dtype = complex)
     for momenta in itertools.combinations(spatial_basis(L), N):
-        vec_z = product([ c_op(q,1) for q in momenta ]).vector(L, N)
-        vec_x = product([ c_op(q,1) + c_op(q,0) for q in momenta ]).vector(L, N)
-        vec_y = product([ c_op(q,1) + 1j * c_op(q,0) for q in momenta ]).vector(L, N)
+        vec_z = prod([ c_op(q,1) for q in momenta ]).vector(L, N)
+        vec_x = prod([ c_op(q,1) + c_op(q,0) for q in momenta ]).vector(L, N)
+        vec_y = prod([ c_op(q,1) + 1j * c_op(q,0) for q in momenta ]).vector(L, N)
         state_z += vec_z * vec_z.getH()
         state_x += vec_x * vec_x.getH()
         state_y += vec_y * vec_y.getH()
@@ -572,7 +572,7 @@ def couping_overlap(p, q, r, L, momenta, fourier_vecs):
     overlaps = [ momentum_pair_overlap_1D(momenta[ii], fourier_vecs[ii],
                                           p[ii], q[ii], r[ii], s[ii])
                  for ii in range(L.size) ]
-    return product(overlaps) * product(site_number/L)
+    return prod(overlaps) * prod(site_number/L)
 
 # lattice Hamiltonian in quasi-momentum basis
 def H_lat_q(J, phi, L, N, c_op_mats, periodic = True):
@@ -607,7 +607,7 @@ def H_int_q(U, L, N, c_op_mats):
     for p, q, r in itertools.product(spatial_basis(L), repeat = 3):
         s = ( np.array(p) + np.array(q) - np.array(r) ) % L
         H += c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(s,1)
-    return U / product(L) * H.matrix(L, N, c_op_mats)
+    return U / prod(L) * H.matrix(L, N, c_op_mats)
 
 # interaction Hamiltonian in on-site basis
 def H_int_j(U, L, N, c_op_mats):
@@ -617,7 +617,7 @@ def H_int_j(U, L, N, c_op_mats):
 # lattice, interaction, and clock laser Hamiltonians in quasi-momentum basis,
 #   accounting for deviation from idealized Hubbard and tight-binding parameters
 def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats,
-           site_number = 100, use_hubbard = True):
+           use_hubbard = False, site_number = 100):
     L, J_0, phi, _, momenta, fourier_vecs, energies, _, K_T = \
         get_simulation_parameters(L, phi, lattice_depth, confining_depth, site_number)
 
@@ -646,7 +646,7 @@ def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats,
         return sum([ c_op(momenta[ii][0],1-s).dag() * c_op(momenta[ii][0],s)
                      for s in range(2) ]) / 2
 
-    couplings = np.array([ product([ overlap(qq,ii) for ii in range(L.size) ])
+    couplings = np.array([ prod([ overlap(qq,ii) for ii in range(L.size) ])
                            for qq in scaled_momenta ])
     couplings /= np.mean(couplings)
     H_clock = sum([ couplings[ii] * spin_x(ii) for ii in range(len(momenta)) ])
@@ -660,7 +660,7 @@ def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats,
 
 # projector onto Dicke manifold
 def dicke_projector(L, N, c_op_mats):
-    hilbert_dim = int(binomial(2*product(L), N))
+    hilbert_dim = int(binomial(2*prod(L), N))
 
     # collective spin raising operator and its m-th power (initially m = 0)
     S_p = spin_op_m_FH(L, N, c_op_mats).getH()
@@ -671,7 +671,7 @@ def dicke_projector(L, N, c_op_mats):
     for m in range(N+1):
         norm = 1 / binomial(N, m)
         for momenta in itertools.combinations(spatial_basis(L), N):
-            vec_m = product([ c_op(q,0) for q in momenta ]).vector(L,N)
+            vec_m = prod([ c_op(q,0) for q in momenta ]).vector(L,N)
             vec_m = S_p_m.dot(vec_m)
             projector += vec_m * vec_m.getH() / (vec_m.getH().dot(vec_m)[0,0])
         S_p_m = S_p.dot(S_p_m)
