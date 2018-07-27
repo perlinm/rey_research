@@ -18,7 +18,7 @@ from sr87_olc_constants import g_int_LU, C6_AU
 save = "save" in sys.argv
 
 max_bands = 15
-site_number = 121
+site_number = 100
 figsize = (4,3)
 params = { "text.usetex" : True,
            "text.latex.preamble" : [ r"\usepackage{dsfont}" ],

@@ -176,7 +176,7 @@ def energy_correction_coefficients(lattice_depths, site_number,
 # calculation modified to use two-body overlap integral in a lattice
 # if backwards == True, convert a renormalized scattering length into a free-space one
 def renormalized_coupling(coupling, lattice_depths,
-                          bands = 15, site_number = 121,
+                          bands = 15, site_number = 100,
                           precision = 10, backwards = False, harmonic = False):
 
     mean_depth = gmean(lattice_depths) # geometric mean of lattice depths

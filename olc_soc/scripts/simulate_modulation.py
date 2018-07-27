@@ -22,7 +22,7 @@ data_dir = "../data/"
 
 
 bands = 3
-site_number = 121
+site_number = 100
 time_steps = 500
 
 rabi_coupling_NU = 1000 # Hz
