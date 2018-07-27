@@ -560,8 +560,8 @@ def gauged_energy(q, s, phi, L, energies_or_J):
 
     else: # energies_or_J is a table of single-particle energies
         site_number = energies_or_J[0,:,0].size
-        shifted_index = q + s*phi * L / (2*np.pi)
-        q = scale_index(shifted_index, L, site_number)
+        index_shift = (s*np.array(phi) * site_number / (2*np.pi)).round().astype(int)
+        q = ( scale_index(q, L, site_number) + index_shift ) % site_number
         return sum([ energies_or_J[ii,q[ii],0] for ii in range(L.size) ])
 
 # return two-body overlap integral for (p,q) <--> (r,p+q-r) coupling
