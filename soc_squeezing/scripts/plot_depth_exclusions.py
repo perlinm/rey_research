@@ -12,9 +12,6 @@ from dicke_methods import squeezing_OAT
 from fermi_hubbard_methods import get_simulation_parameters, spatial_basis, gauged_energy
 from sr87_olc_constants import g_int_LU, recoil_energy_NU
 
-color_mesh = False
-
-fig_dpi = 600
 figsize = (4.2,3)
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
@@ -132,32 +129,23 @@ def make_plot(h_std, U, t_opt, J_T, time_scaling = 1):
     depths = h_std_U.index.values
     confinements = pd.to_numeric(h_std_U.columns).values
 
-    if color_mesh:
-        mesh_figsize = (figsize[0]*1.1, figsize[1])
-        plt.figure(figsize = mesh_figsize)
-        mesh = plt.pcolormesh(depths, confinements, t_opt_SI.T,
-                              vmin = 0, vmax = t_opt_SI_cap, zorder = 0)
-        mesh.cmap.set_over("grey")
-        plt.colorbar(label = r"$t_{\mathrm{opt}}$")
-
-    else:
-        plt.figure(figsize = figsize)
-        plt.contourf(depths, confinements, -t_shade_vals.T,
-                     cmap = plt.get_cmap("binary"), vmin = -1, vmax = 1)
+    plt.figure(figsize = figsize)
+    plt.contourf(depths, confinements, -t_shade_vals.T,
+                 cmap = plt.get_cmap("binary"), vmin = -1, vmax = 1)
 
     fill_regions = 2
     plt.contourf(depths, confinements, -h_hatch_vals.T, fill_regions,
-                 colors = "none", hatches = [ None, None, "/" ], zorder = 1)
+                 colors = "none", hatches = [ None, None, "/" ])
     plt.contourf(depths, confinements, -tJ_hatch_vals.T, fill_regions,
-                 colors = "none", hatches = [ None, None, "\\" ], zorder = 1)
+                 colors = "none", hatches = [ None, None, "\\" ])
 
     contour_level = [ 0.5 ]
     plt.contour(depths, confinements, t_shade_vals.T, contour_level,
-                colors = "black", linewidths = (2,), zorder = 1)
+                colors = "black", linewidths = (2,),)
     plt.contour(depths, confinements, h_hatch_vals.T, contour_level,
-                colors = "black", linewidths = (2,), zorder = 1)
+                colors = "black", linewidths = (2,))
     plt.contour(depths, confinements, tJ_hatch_vals.T, contour_level,
-                colors = "black", linewidths = (2,), zorder = 1)
+                colors = "black", linewidths = (2,))
 
     colors = [ "#888888", "#FFFFFF", "#FFFFFF" ]
     labels = [ r"$t_{{\mathrm{{opt}}}} > {}$ seconds".format(t_opt_SI_cap),
@@ -174,8 +162,8 @@ def make_plot(h_std, U, t_opt, J_T, time_scaling = 1):
 
     plt.legend(handles = handles, framealpha = 1, loc = "lower right")
 
-    plt.xlabel(r"$V_0/E_R$", zorder = 1)
-    plt.ylabel(r"$V_T/E_R$", zorder = 1)
+    plt.xlabel(r"$V_0/E_R$")
+    plt.ylabel(r"$V_T/E_R$")
     plt.tight_layout()
 
 
@@ -237,11 +225,7 @@ for dims, scaling_TAT in zip(dim_vals, scaling_TAT_vals):
 
     # make and save viability plots
     make_plot(h_std, U, t_opt, J_T)
-    plt.gca().set_rasterization_zorder(1)
-    plt.savefig(fig_dir + "viability_L{}_{}D_OAT.pdf".format(lattice_sites,dims),
-                rasterized = True, dpi = fig_dpi)
+    plt.savefig(fig_dir + "viability_L{}_{}D_OAT.pdf".format(lattice_sites,dims))
 
     make_plot(h_std, U, t_opt, J_T, scaling_TAT)
-    plt.gca().set_rasterization_zorder(1)
-    plt.savefig(fig_dir + "viability_L{}_{}D_TAT.pdf".format(lattice_sites,dims),
-                rasterized = True, dpi = fig_dpi)
+    plt.savefig(fig_dir + "viability_L{}_{}D_TAT.pdf".format(lattice_sites,dims))
