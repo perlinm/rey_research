@@ -516,7 +516,7 @@ def spin_op_vec_mat_FH(L, N, c_op_mats):
 # density operators with completely mixed spatial degees of freedom,
 #   but all spins pointing along principal axes
 def polarized_states_FH(L, N):
-    # if we are at unit filling, return a state vector, otherwise return a density operator
+    # if we are at (below) unit filling, return a state vector (density operator)
     if N == prod(L):
         vec_z = prod([ c_op(q,1) for q in spatial_basis(L) ]).vector(L, N)
         vec_x = prod([ c_op(q,1) + c_op(q,0) for q in spatial_basis(L) ]).vector(L, N)

@@ -35,7 +35,7 @@ def single_mathieu_solution(q, lattice_depth, bands, fourier_order):
 # this method computes momenta, fourier_vecs, and energies of all single-particle
 #   eigenstates on a lattice.
 # "momenta[q]" is a quasi-momentum in units with the lattice wavenumber equal to 1
-# "fourier_vecs[q,n,:]" is a fourier-space vector representing the eigenfunction \phi_{qn}.
+# "fourier_vecs[q,n,:]" is a fourier-space vector representing the function \phi_{qn}.
 #   \phi_{qn}(z) = e^{i q z} \sum_k fourier_vecs[q,n,k] * e^{i 2 (k - k_mean)}
 # "energies[q,n]" is the single-particle energy corresponding to \phi_{qn}
 # "symmetric" controls whether quasi-momenta are distributed symetrically about 0.

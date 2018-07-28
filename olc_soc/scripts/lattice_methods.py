@@ -92,7 +92,8 @@ def qn_state_z(q, n, z, momenta, fourier_vecs):
 
     k_max = len(fourier_vecs[qi,n,:]) // 2
     exponentials = np.exp(2 * 1j * np.arange(-k_max,k_max+1) * z)
-    magnitude = sum(fourier_vecs[qi,n,:] * exponentials) / np.sqrt(np.pi * len(momenta))
+    normalization = np.sqrt(np.pi * len(momenta))
+    magnitude = np.sum(fourier_vecs[qi,n,:] * exponentials) / normalization
 
     return phase * magnitude
 
