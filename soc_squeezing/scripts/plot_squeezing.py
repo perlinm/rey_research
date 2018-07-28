@@ -22,18 +22,19 @@ fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-L = 6 # lattice sites
-N = prod(L) # atoms
-phi = np.pi / 50 # spin-orbit coupling parameter
-fermi_N_cap = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
-use_hubbard = False # use the hubbard model?
+L = 100 # lattice sites
+phi = np.pi/25 # spin-orbit coupling parameter
 
 lattice_depth = 5 # shallow (tunneling) axis lattice depth
-confining_depth = 50 # lattice depth along confining axes
+confining_depth = 60 # lattice depth along confining axes
+
+fermi_N_cap = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
+use_hubbard = False # use the hubbard model?
 
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
 time_steps = 1000 # time steps in simulation
 
+N = prod(L)
 L, J_0, phi, K_0, momenta, fourier_vecs, energies, J_T, K_T = \
     get_simulation_parameters(L, phi, lattice_depth, confining_depth)
 
@@ -42,7 +43,7 @@ energies_or_J = J_0 if use_hubbard else energies
 soc_field_variance = np.var([ ( gauged_energy(q, 1, phi, L, energies_or_J)
                                 - gauged_energy(q, 0, phi, L, energies_or_J) )
                               for q in spatial_basis(L) ])
-if soc_field_variance/U**2 < 1e-10:
+if np.sqrt(soc_field_variance)/U < 1e-5:
     sys.exit("there is no spin squeezing with the given parameters!")
 chi = soc_field_variance / ( N * (N-1) * U / prod(L) )
 omega = N * np.sqrt(abs(chi*U/prod(L)))
@@ -51,8 +52,8 @@ print(r"J_T (2\pi Hz):", J_T * recoil_energy_Hz)
 print()
 for ii in range(len(J_0)):
     print("J_{} (2\pi Hz):".format(ii), J_0[ii] * recoil_energy_Hz)
-print(r"U (2\pi Hz):", U * recoil_energy_Hz)
-print(r"chi (2\pi Hz):", chi * recoil_energy_Hz)
+print(r"U (2\pi kHz):", U * recoil_energy_Hz)
+print(r"chi (2\pi mHz):", chi * recoil_energy_Hz * 1e3)
 print(r"omega (2\pi Hz):", omega * recoil_energy_Hz)
 print()
 print(r"\tilde{h}/U:", np.sqrt(soc_field_variance) / U) # needs to be < 0.05
