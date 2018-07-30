@@ -522,9 +522,9 @@ def polarized_states_FH(L, N):
         vec_x = prod([ c_op(q,1) + c_op(q,0) for q in spatial_basis(L) ]).vector(L, N)
         vec_y = prod([ c_op(q,1) + 1j * c_op(q,0)
                           for q in spatial_basis(L) ]).vector(L, N)
-        vec_z = vec_z.toarray() / sparse.linalg.norm(vec_z)
-        vec_x = vec_x.toarray() / sparse.linalg.norm(vec_x)
-        vec_y = vec_y.toarray() / sparse.linalg.norm(vec_y)
+        vec_z = vec_z / sparse.linalg.norm(vec_z)
+        vec_x = vec_x / sparse.linalg.norm(vec_x)
+        vec_y = vec_y / sparse.linalg.norm(vec_y)
         return vec_z, vec_x, vec_y
 
     hilbert_dim = int(binomial(2*prod(L), N))
@@ -542,7 +542,7 @@ def polarized_states_FH(L, N):
     state_z /= state_z.diagonal().sum()
     state_x /= state_x.diagonal().sum()
     state_y /= state_y.diagonal().sum()
-    return state_z.toarray(), state_x.toarray(), state_y.toarray()
+    return state_z, state_x, state_y
 
 
 ##########################################################################################

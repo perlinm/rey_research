@@ -56,7 +56,7 @@ print(r"U (2\pi kHz):", U * recoil_energy_Hz)
 print(r"chi (2\pi mHz):", chi * recoil_energy_Hz * 1e3)
 print(r"omega (2\pi Hz):", omega * recoil_energy_Hz)
 print()
-print(r"\tilde{h}/U:", np.sqrt(soc_field_variance) / U) # needs to be < 0.05
+print(r"\tilde{h}/U:", np.sqrt(soc_field_variance) / U)
 print()
 
 tau_vals = np.linspace(0, max_tau, time_steps)
@@ -97,10 +97,8 @@ if N <= fermi_N_cap:
     print("Fermi-Hubbard hilbert space dimension:", hilbert_dim)
     c_op_mats = get_c_op_mats(L, N, depth = 2)
     S_op_vec, SS_op_mat = spin_op_vec_mat_FH(L, N, c_op_mats)
-    _, _, state_y = polarized_states_FH(L, N)
+    state_z, _, _ = polarized_states_FH(L, N)
 
-    state_free = state_y
-    state_drive = state_y
     H_lat, H_int, H_clock = H_full(N, L, phi, lattice_depth, confining_depth,
                                    c_op_mats, use_hubbard)
     H_free = H_lat + H_int
@@ -112,6 +110,8 @@ if N <= fermi_N_cap:
     dt = times[-1] / time_steps
     squeezing_free_vals = np.zeros(time_steps)
     squeezing_drive_vals = np.zeros(time_steps)
+    state_free = evolve(state_z, H_clock, -np.pi/2)
+    state_drive = state_free.copy()
     counter = 0
     for ii in range(time_steps):
         if ii * 10 // time_steps >= counter:
