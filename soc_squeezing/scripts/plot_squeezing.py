@@ -38,25 +38,25 @@ N = prod(L)
 L, J_0, phi, K_0, momenta, fourier_vecs, energies, J_T, K_T = \
     get_simulation_parameters(L, phi, lattice_depth, confining_depth)
 
-U = g_int_LU[1] * K_T**(3-L.size) * prod(K_0)
+U_int = g_int_LU[1] * K_T**(3-L.size) * prod(K_0)
 energies_or_J = J_0 if use_hubbard else energies
 soc_field_variance = np.var([ ( gauged_energy(q, 1, phi, L, energies_or_J)
                                 - gauged_energy(q, 0, phi, L, energies_or_J) )
                               for q in spatial_basis(L) ])
-if np.sqrt(soc_field_variance)/U < 1e-5:
+if np.sqrt(soc_field_variance)/U_int < 1e-5:
     sys.exit("there is no spin squeezing with the given parameters!")
-chi = soc_field_variance / ( N * (N-1) * U / prod(L) )
-omega = N * np.sqrt(abs(chi*U/prod(L)))
+chi = soc_field_variance / ( N * (N-1) * U_int / prod(L) )
+omega = N * np.sqrt(abs(chi*U_int/prod(L)))
 
 print(r"J_T (2\pi Hz):", J_T * recoil_energy_Hz)
 print()
 for ii in range(len(J_0)):
     print("J_{} (2\pi Hz):".format(ii), J_0[ii] * recoil_energy_Hz)
-print(r"U (2\pi kHz):", U * recoil_energy_Hz)
+print(r"U_int (2\pi kHz):", U_int * recoil_energy_Hz)
 print(r"chi (2\pi mHz):", chi * recoil_energy_Hz * 1e3)
 print(r"omega (2\pi Hz):", omega * recoil_energy_Hz)
 print()
-print(r"\tilde{h}/U:", np.sqrt(soc_field_variance) / U)
+print(r"h_std/U_int:", np.sqrt(soc_field_variance) / U_int)
 print()
 
 tau_vals = np.linspace(0, max_tau, time_steps)
@@ -81,6 +81,7 @@ for ii in range(time_steps):
     state = evolve(state, H, d_chi_t)
 t_opt_TAT = times[squeezing_TAT_vals.argmin()]
 print("t_opt_TAT (sec):", t_opt_TAT / recoil_energy_NU)
+print()
 
 if not (show or save): exit()
 
@@ -92,9 +93,9 @@ plt.plot(times_SI, -to_dB(squeezing_OAT_vals), label = "OAT")
 plt.plot(times_SI, -to_dB(squeezing_TAT_vals), label = "TAT")
 
 if N <= fermi_N_cap:
-    print()
     hilbert_dim = int(scipy.special.binom(2*prod(L),N))
     print("Fermi-Hubbard hilbert space dimension:", hilbert_dim)
+
     c_op_mats = get_c_op_mats(L, N, depth = 2)
     S_op_vec, SS_op_mat = spin_op_vec_mat_FH(L, N, c_op_mats)
     state_z, _, _ = polarized_states_FH(L, N)
