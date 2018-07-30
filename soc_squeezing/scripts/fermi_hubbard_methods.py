@@ -31,12 +31,9 @@ def prod(list):
         except: return 1 # we probably have an empty list
     except: return list # list is probably just a number
 
-def get_simulation_parameters(L, phi, lattice_depths, confining_depth, site_number = 100):
+def get_simulation_parameters(L, lattice_depths, confining_depth, site_number = 100):
     L = np.array(L, ndmin = 1).round().astype(int)
     L = L[L>1]
-    phi = np.array(phi, ndmin = 1)
-    while phi.size < L.size:
-        phi = np.append(phi, phi[-1])
     lattice_depths = np.array(lattice_depths, ndmin = 1)
     while lattice_depths.size < L.size:
         lattice_depths = np.append(lattice_depths, lattice_depths[-1])
@@ -64,7 +61,7 @@ def get_simulation_parameters(L, phi, lattice_depths, confining_depth, site_numb
     fourier_vecs = np.array(fourier_vecs)
     energies = np.array(energies)
 
-    return L, J_0, phi, K_0, momenta, fourier_vecs, energies, J_T, K_T
+    return L, J_0, J_T, K_0, K_T, momenta, fourier_vecs, energies
 
 
 ##########################################################################################
@@ -589,9 +586,11 @@ def H_lat_q(J, phi, L, N, c_op_mats, periodic = True):
 
 # lattice Hamiltonian in on-site basis
 def H_lat_j(J, phi, L, N, c_op_mats, periodic = True):
+    phi = np.array(phi, ndmin = 1)
+    while phi.size < L.size:
+        phi = np.append(phi, phi[-1])
     H_forward = c_seq()
     for ii in range(L.size):
-        if L[ii] == 1: continue
         for j, s in itertools.product(spatial_basis(L), range(2)):
             if j[ii] + 1 < L[ii] or periodic:
                 j_next = np.array(j)
@@ -618,8 +617,8 @@ def H_int_j(U, L, N, c_op_mats):
 #   accounting for deviation from idealized Hubbard and tight-binding parameters
 def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats,
            use_hubbard = False, site_number = 100):
-    L, J_0, phi, _, momenta, fourier_vecs, energies, _, K_T = \
-        get_simulation_parameters(L, phi, lattice_depth, confining_depth, site_number)
+    L, J_0, _, _, K_T, momenta, fourier_vecs, energies = \
+        get_simulation_parameters(L, lattice_depth, confining_depth, site_number)
 
     # compute lattice Hamiltonian
     energies_or_J = J_0 if use_hubbard else energies
@@ -631,8 +630,8 @@ def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats,
     for p, q, r in itertools.product(spatial_basis(L), repeat = 3):
         p, q, r = [ np.array(k, ndmin = 1) for k in [ p, q, r ] ]
         overlap = K_T**(3-L.size) * couping_overlap(p, q, r, L, momenta, fourier_vecs)
-        U = g_int_LU[1] * overlap
-        H_int += U * c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(p+q-r,1)
+        U_int = g_int_LU[1] * overlap
+        H_int += U_int * c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(p+q-r,1)
 
     # compute Hamiltonnian induced by clock laser at unit Rabi frequency
     momenta = [ [ q, q + phi * L / (2*np.pi) ] for q in spatial_basis(L) ]

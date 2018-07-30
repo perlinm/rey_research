@@ -24,7 +24,7 @@ plt.rcParams.update(params)
 data_dir = "../data/"
 fig_dir = "../figures/"
 
-sites_1D = 100 # number of lattice sites along each axis of the lattice
+sites_1D = 30 # number of lattice sites along each axis of the lattice
 lattice_dimensions = [ 1, 2 ] # dimensions of lattice
 
 # min / max primary lattice depths
@@ -38,7 +38,7 @@ confinement_max = 200
 confinement_step_size = 1
 
 # squeezing protocol requirements
-h_std_U_target = 0.05
+h_U_target = 0.05
 t_J_T_cap = 0.05
 U_J_cap = 10
 t_opt_SI_cap = 1
@@ -57,15 +57,15 @@ confinements = np.arange(confinement_min,
 # method to compute relevant parameters in an optimal squeezing protocol
 ##########################################################################################
 
-def get_single_optimal_parameters(L, depth, confinement):
-    L, J_0, _, K_0, _, _, _, J_T, K_T = \
-        get_simulation_parameters(L, 0, depth, confinement, sites_1D)
+def get_single_optimum_parameters(L, depth, confinement):
+    L, J_0, J_T, K_0, K_T, _, _, _ = \
+        get_simulation_parameters(L, depth, confinement, sites_1D)
 
     N = np.prod(L)
     U_int = g_int_LU[1] * K_T**(3-L.size) * np.prod(K_0)
 
     def h_std(phi): return 2**(1+L.size/2)*J_0[0]*np.sin(phi/2)
-    phi_opt = minimize_scalar(lambda x: abs(h_std(x)/U_int-h_std_U_target),
+    phi_opt = minimize_scalar(lambda x: abs(h_std(x)/U_int-h_U_target),
                               method = "bounded", bounds = (0, np.pi)).x
 
     def squeezing_OAT_val(tau):
@@ -79,7 +79,7 @@ def get_single_optimal_parameters(L, depth, confinement):
 
     return U_int, phi_opt, t_opt, J_0[0], J_T
 
-def get_optimal_parameters(lattice_dim):
+def get_optimum_parameters(lattice_dim):
     L = sites_1D * np.ones(lattice_dim)
     zero_frame = pd.DataFrame(data = np.zeros((len(depths),len(confinements))),
                               index = depths, columns = confinements)
@@ -96,7 +96,7 @@ def get_optimal_parameters(lattice_dim):
         print(" depth: {}/{}".format(dd,dd_cap))
         dd += 1
         for confinement in confinements:
-            params = get_single_squeezing_parameters(L, depth, confinement)
+            params = get_single_optimum_parameters(L, depth, confinement)
             U_int.at[depth, confinement] = params[0]
             phi_opt.at[depth, confinement] = params[1]
             t_opt.at[depth, confinement] = params[2]
@@ -213,18 +213,18 @@ for lattice_dim in lattice_dimensions:
         U_int = pd.read_csv(U_int_fname, comment = "#", header = 0, index_col = 0)
         f_depths = U_int.index.values
         f_confinements = pd.to_numeric(U_int.columns).values
-        depth_test = ( f_depths[0] <= depths[0] and
-                       f_depths[-1] >= depths[-1] and
-                       f_depths.size >= depths.size )
-        confinement_test = ( f_confinements[0] <= confinements[0] and
-                             f_confinements[-1] >= confinements[-1] and
-                             f_confinements.size >= confinements.size )
+        depth_test = ( f_depths[0] == depths[0] and
+                       f_depths[-1] == depths[-1] and
+                       f_depths.size == depths.size )
+        confinement_test = ( f_confinements[0] == confinements[0] and
+                             f_confinements[-1] == confinements[-1] and
+                             f_confinements.size == confinements.size )
         if not depth_test or not confinement_test:
             compute_lattice_params = True
 
     # get optimal parameters, writing them to a file if we compute them
     if compute_lattice_params:
-        U_int, phi_opt, t_opt, J_0, J_T = get_optimal_parameters(lattice_dim)
+        U_int, phi_opt, t_opt, J_0, J_T = get_optimum_parameters(lattice_dim)
 
         if save:
             for frame_2D, name_2D in zip([ U_int, phi_opt, t_opt ],

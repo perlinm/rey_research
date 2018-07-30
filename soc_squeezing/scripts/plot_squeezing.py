@@ -4,6 +4,8 @@ import sys, scipy
 import numpy as np
 import matplotlib.pyplot as plt
 
+from scipy.optimize import minimize_scalar
+
 from mathieu_methods import mathieu_solution
 from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
@@ -22,11 +24,11 @@ fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-L = 100 # lattice sites
-phi = np.pi/25 # spin-orbit coupling parameter
+L = [30,30] # lattice sites
+h_U_target = 0.05 # target value of h_std / U_int
 
-lattice_depth = 5 # shallow (tunneling) axis lattice depth
-confining_depth = 60 # lattice depth along confining axes
+lattice_depth = 10.3 # shallow (tunneling) axis lattice depth
+confining_depth = 200 # lattice depth along confining axes
 
 fermi_N_cap = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
 use_hubbard = False # use the hubbard model?
@@ -34,11 +36,19 @@ use_hubbard = False # use the hubbard model?
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
 time_steps = 1000 # time steps in simulation
 
+# get simulation parameters
 N = prod(L)
-L, J_0, phi, K_0, momenta, fourier_vecs, energies, J_T, K_T = \
-    get_simulation_parameters(L, phi, lattice_depth, confining_depth)
-
+L, J_0, J_T, K_0, K_T, momenta, fourier_vecs, energies = \
+    get_simulation_parameters(L, lattice_depth, confining_depth)
 U_int = g_int_LU[1] * K_T**(3-L.size) * prod(K_0)
+
+# determine optial SOC angle
+def h_std(phi): return 2**(1+L.size/2)*J_0[0]*np.sin(phi/2)
+phi = minimize_scalar(lambda x: abs(h_std(x)/U_int-h_U_target),
+                      method = "bounded", bounds = (0, np.pi)).x
+
+# compute variance of SOC field,
+#   in addition to OAT strength chi and TAT drive frequency omega
 energies_or_J = J_0 if use_hubbard else energies
 soc_field_variance = np.var([ ( gauged_energy(q, 1, phi, L, energies_or_J)
                                 - gauged_energy(q, 0, phi, L, energies_or_J) )
