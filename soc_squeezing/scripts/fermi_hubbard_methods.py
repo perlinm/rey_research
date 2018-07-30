@@ -551,7 +551,7 @@ def polarized_states_FH(L, N):
 
 # map momentum index on small lattice onto momentum index on large lattice
 def scale_index(q, L, site_number):
-    return ( ( np.array(q) + 1/2 ) * site_number / L ).round().astype(int) % site_number
+    return ( ( np.array(q) + 1/2 ) * site_number / L ).round().astype(int)
 
 # return energy of a single-particle state
 def gauged_energy(q, s, phi, L, energies_or_J):
