@@ -24,8 +24,8 @@ plt.rcParams.update(params)
 data_dir = "../data/"
 fig_dir = "../figures/"
 
-sites_1D = 30 # number of lattice sites along each axis of the lattice
-lattice_dimensions = [ 1, 2 ] # dimensions of lattice
+sites_1D = 100 # number of lattice sites along each axis of the lattice
+lattice_dim = 1 # dimensions of lattice
 
 # min / max primary lattice depths
 depth_min = 1
@@ -79,7 +79,7 @@ def get_single_optimum_parameters(L, depth, confinement):
 
     return U_int, phi_opt, t_opt, J_0[0], J_T
 
-def get_optimum_parameters(lattice_dim):
+def get_optimum_parameters():
     L = sites_1D * np.ones(lattice_dim)
     zero_frame = pd.DataFrame(data = np.zeros((len(depths),len(confinements))),
                               index = depths, columns = confinements)
@@ -90,10 +90,9 @@ def get_optimum_parameters(lattice_dim):
     J_0 = pd.DataFrame(data = np.zeros(len(depths)), index = depths)
     J_T = pd.DataFrame(data = np.zeros(len(confinements)), index = confinements)
 
-    print("lattice_dim:",lattice_dim)
     dd, dd_cap = 0, len(depths)
     for depth in depths:
-        print(" depth: {}/{}".format(dd,dd_cap))
+        print("{}/{}".format(dd,dd_cap))
         dd += 1
         for confinement in confinements:
             params = get_single_optimum_parameters(L, depth, confinement)
@@ -132,7 +131,7 @@ def make_plot(U_int, phi_opt, t_opt, J_0, J_T, time_ratio = 1):
     plt.figure(figsize = figsize)
 
     vmax = min(t_opt_SI.values.max(), t_opt_SI_cap)
-    plt.pcolormesh(depths, confinements, t_opt_SI.T, vmax = vmax, zorder = 0)
+    plt.pcolormesh(depths, confinements, t_opt_SI.T, vmin = 0, vmax = vmax, zorder = 0)
     plt.colorbar(label = r"$t_{\mathrm{opt}}$ (seconds)")
 
     contour_level = [ 0.5 ]
@@ -192,76 +191,73 @@ header_1D = "# first column = lattice depth\n"
 header_units = "# values in units with the recoil energy"
 header_units += r" E_R \approx 3.47 x 2\pi kHz equal to 1" + "\n"
 
-# loop over all lattice dimensions
-for lattice_dim in lattice_dimensions:
+# set data file names and header identifying this simulation
+fname_suffix = "_L{}_{}D".format(sites_1D,lattice_dim)
+base_fname = data_dir + "{}" + fname_suffix + ".txt"
+U_int_fname = base_fname.format("U_int")
+phi_opt_fname = base_fname.format("phi_opt")
+t_opt_fname = base_fname.format("t_opt")
+J_0_fname = data_dir + "J_0.txt"
+J_T_fname = data_dir + "J_T.txt"
 
-    # set data file names and header identifying this simulation
-    fname_suffix = "_L{}_{}D".format(sites_1D,lattice_dim)
-    base_fname = data_dir + "{}" + fname_suffix + ".txt"
-    U_int_fname = base_fname.format("U_int")
-    phi_opt_fname = base_fname.format("phi_opt")
-    t_opt_fname = base_fname.format("t_opt")
-    J_0_fname = data_dir + "J_0.txt"
-    J_T_fname = data_dir + "J_T.txt"
-
-    # determine whether we need to compute optimal protocol parameters,
-    #   or whether we can simply read in a data file
-    compute_lattice_params = False
-    if not os.path.isfile(U_int_fname):
+# determine whether we need to compute optimal protocol parameters,
+#   or whether we can simply read in a data file
+compute_lattice_params = False
+if not os.path.isfile(U_int_fname):
+    compute_lattice_params = True
+else:
+    U_int = pd.read_csv(U_int_fname, comment = "#", header = 0, index_col = 0)
+    f_depths = U_int.index.values
+    f_confinements = pd.to_numeric(U_int.columns).values
+    depth_test = ( f_depths[0] == depths[0] and
+                   f_depths[-1] == depths[-1] and
+                   f_depths.size == depths.size )
+    confinement_test = ( f_confinements[0] == confinements[0] and
+                         f_confinements[-1] == confinements[-1] and
+                         f_confinements.size == confinements.size )
+    if not depth_test or not confinement_test:
         compute_lattice_params = True
-    else:
-        U_int = pd.read_csv(U_int_fname, comment = "#", header = 0, index_col = 0)
-        f_depths = U_int.index.values
-        f_confinements = pd.to_numeric(U_int.columns).values
-        depth_test = ( f_depths[0] == depths[0] and
-                       f_depths[-1] == depths[-1] and
-                       f_depths.size == depths.size )
-        confinement_test = ( f_confinements[0] == confinements[0] and
-                             f_confinements[-1] == confinements[-1] and
-                             f_confinements.size == confinements.size )
-        if not depth_test or not confinement_test:
-            compute_lattice_params = True
 
-    # get optimal parameters, writing them to a file if we compute them
-    if compute_lattice_params:
-        U_int, phi_opt, t_opt, J_0, J_T = get_optimum_parameters(lattice_dim)
+# get optimal parameters, writing them to a file if we compute them
+if compute_lattice_params:
+    U_int, phi_opt, t_opt, J_0, J_T = get_optimum_parameters(lattice_dim)
 
-        if save:
-            for frame_2D, name_2D in zip([ U_int, phi_opt, t_opt ],
-                                         [ U_int_fname, phi_opt_fname, t_opt_fname ]):
-                with open(name_2D, "w") as f:
-                    f.write(header_2D + header_units)
-                frame_2D.to_csv(name_2D, mode = "a")
-
-            for frame_1D, name_1D in zip([ J_0, J_T ], [ J_0_fname, J_T_fname ]):
-                with open(name_1D, "w") as f:
-                    f.write(header_1D + header_units)
-                frame_1D.to_csv(name_1D, header = False, mode = "a")
-
-    else:
-        U_int = pd_read_2D(U_int_fname)
-        phi_opt = pd_read_2D(phi_opt_fname)
-        t_opt = pd_read_2D(t_opt_fname)
-        J_0 = pd_read_1D(J_0_fname)
-        J_T = pd_read_1D(J_T_fname)
-
-    # make and save OAT time plot
-    make_plot(U_int, phi_opt, t_opt, J_0, J_T)
     if save:
-        plt.gca().set_rasterization_zorder(1)
-        plt.savefig(fig_dir + "t_opt_OAT" + fname_suffix + ".pdf",
-                    rasterized = True, dpi = dpi)
+        for frame_2D, name_2D in zip([ U_int, phi_opt, t_opt ],
+                                     [ U_int_fname, phi_opt_fname, t_opt_fname ]):
+            with open(name_2D, "w") as f:
+                f.write(header_2D + header_units)
+            frame_2D.to_csv(name_2D, mode = "a")
 
-    # determine TAT : OAT optimal squeezing time ratio
-    N = sites_1D**lattice_dim
-    ratio_index = time_ratios.index.get_loc(N, method = "nearest")
-    time_ratio = time_ratios.iat[ratio_index]
+        for frame_1D, name_1D in zip([ J_0, J_T ], [ J_0_fname, J_T_fname ]):
+            with open(name_1D, "w") as f:
+                f.write(header_1D + header_units)
+            frame_1D.to_csv(name_1D, header = False, mode = "a")
 
-    # make and save TAT time plot
-    make_plot(U_int, phi_opt, t_opt, J_0, J_T, time_ratio)
-    if save:
-        plt.gca().set_rasterization_zorder(1)
-        plt.savefig(fig_dir + "t_opt_TAT" + fname_suffix + ".pdf",
-                    rasterized = True, dpi = dpi)
+else:
+    U_int = pd_read_2D(U_int_fname)
+    phi_opt = pd_read_2D(phi_opt_fname)
+    t_opt = pd_read_2D(t_opt_fname)
+    J_0 = pd_read_1D(J_0_fname)
+    J_T = pd_read_1D(J_T_fname)
+
+# make and save OAT time plot
+make_plot(U_int, phi_opt, t_opt, J_0, J_T)
+if save:
+    plt.gca().set_rasterization_zorder(1)
+    plt.savefig(fig_dir + "t_opt_OAT" + fname_suffix + ".pdf",
+                rasterized = True, dpi = dpi)
+
+# determine TAT : OAT optimal squeezing time ratio
+N = sites_1D**lattice_dim
+ratio_index = time_ratios.index.get_loc(N, method = "nearest")
+time_ratio = time_ratios.iat[ratio_index]
+
+# make and save TAT time plot
+make_plot(U_int, phi_opt, t_opt, J_0, J_T, time_ratio)
+if save:
+    plt.gca().set_rasterization_zorder(1)
+    plt.savefig(fig_dir + "t_opt_TAT" + fname_suffix + ".pdf",
+                rasterized = True, dpi = dpi)
 
 if show: plt.show()
