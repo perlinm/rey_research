@@ -81,12 +81,27 @@ def coherent_spin_state(vec, N = 10):
     theta, phi = vec_theta_phi(vec)
     return coherent_spin_state_angles(theta, phi, N)
 
-# squeezing parameter after orthogonal-state one-axis twisting
-def squeezing_OAT(chi_t, N):
-    A = 1 - np.cos(2*chi_t)**(N-2)
-    B = 4 * np.sin(chi_t) * np.cos(chi_t)**(N-2)
+# squeezing parameter from one-axis twisting, optionally accounting for e --> g decay
+def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
+    S = N/2
+
+    A = S/2 * (S-1/2) * (1 - np.cos(2*chi_t)**(2*S-2))
+    B = 2*S * (S-1/2) * np.sin(chi_t) * np.cos(chi_t)**(2*S-2)
+    C = S + A
+
+    # account for decay of states from the excited state to the ground state
+    decay_exps = np.exp(-decay_rate_over_chi*chi_t)
+    dSz2_decay = N/2 * decay_exps * (1 - decay_exps)
+    A -= dSz2_decay
+    C += dSz2_decay
+
+    # minimal spin variance in the plane orthogonal to the mean spin vector
+    V_m = 1/2 * ( C - np.sqrt(A**2 + B**2))
+
+    # normalized magnitude of spin vector
     mag = np.cos(chi_t)**(N-1)
-    return ( (1 + 1/4*(N-1)*A) - 1/4*(N-1)*np.sqrt(A*A+B*B) ) / mag**2
+
+    return V_m / (S*mag)**2 * N
 
 # plot a state on the S = N/2 Bloch sphere
 def plot_dicke_state(state, grid_size = 51, single_sphere = False):
