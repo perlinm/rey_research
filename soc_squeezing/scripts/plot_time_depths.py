@@ -24,8 +24,8 @@ plt.rcParams.update(params)
 data_dir = "../data/"
 fig_dir = "../figures/"
 
-sites_1D = 100 # number of lattice sites along each axis of the lattice
-lattice_dim = 1 # dimensions of lattice
+size_1D = int(sys.argv[1]) # lattice size (i.e. number of lattice sites along each axis)
+lattice_dim = int(sys.argv[2]) # dimensions of lattice
 
 # min / max primary lattice depths
 depth_min = 1
@@ -45,6 +45,7 @@ t_opt_SI_cap = 1
 
 max_tau = 2 # maximum value of reduced time in OAT squeezing minimization
 
+L = size_1D * np.ones(lattice_dim)
 depths = np.arange(depth_min,
                    depth_max + depth_step_size/2,
                    depth_step_size)
@@ -57,14 +58,14 @@ confinements = np.arange(confinement_min,
 # method to compute relevant parameters in an optimal squeezing protocol
 ##########################################################################################
 
-def get_single_optimum_parameters(L, depth, confinement):
-    L, J_0, J_T, K_0, K_T, _, _, _ = \
-        get_simulation_parameters(L, depth, confinement, sites_1D)
+def get_single_optimum_parameters(depth, confinement):
+    _, J_0, J_T, K_0, K_T, _, _, _ = \
+        get_simulation_parameters(L, depth, confinement, size_1D)
 
     N = np.prod(L)
-    U_int = g_int_LU[1] * K_T**(3-L.size) * np.prod(K_0)
+    U_int = g_int_LU[1] * K_T**(3-lattice_dim) * np.prod(K_0)
 
-    def h_std(phi): return 2**(1+L.size/2)*J_0[0]*np.sin(phi/2)
+    def h_std(phi): return 2**(1+lattice_dim/2)*J_0[0]*np.sin(phi/2)
     phi_opt = minimize_scalar(lambda x: abs(h_std(x)/U_int-h_U_target),
                               method = "bounded", bounds = (0, np.pi)).x
 
@@ -80,7 +81,6 @@ def get_single_optimum_parameters(L, depth, confinement):
     return U_int, phi_opt, t_opt, J_0[0], J_T
 
 def get_optimum_parameters():
-    L = sites_1D * np.ones(lattice_dim)
     zero_frame = pd.DataFrame(data = np.zeros((len(depths),len(confinements))),
                               index = depths, columns = confinements)
 
@@ -95,7 +95,7 @@ def get_optimum_parameters():
         print("{}/{}".format(dd,dd_cap))
         dd += 1
         for confinement in confinements:
-            params = get_single_optimum_parameters(L, depth, confinement)
+            params = get_single_optimum_parameters(depth, confinement)
             U_int.at[depth, confinement] = params[0]
             phi_opt.at[depth, confinement] = params[1]
             t_opt.at[depth, confinement] = params[2]
@@ -131,7 +131,8 @@ def make_plot(U_int, phi_opt, t_opt, J_0, J_T, time_ratio = 1):
     plt.figure(figsize = figsize)
 
     vmax = min(t_opt_SI.values.max(), t_opt_SI_cap)
-    plt.pcolormesh(depths, confinements, t_opt_SI.T, vmin = 0, vmax = vmax, zorder = 0)
+    plt.pcolormesh(depths, confinements, t_opt_SI.T, vmin = 0, vmax = vmax, zorder = 0,
+                   cmap = plt.get_cmap("jet"))
     plt.colorbar(label = r"$t_{\mathrm{opt}}$ (seconds)")
 
     contour_level = [ 0.5 ]
@@ -192,7 +193,7 @@ header_units = "# values in units with the recoil energy"
 header_units += r" E_R \approx 3.47 x 2\pi kHz equal to 1" + "\n"
 
 # set data file names and header identifying this simulation
-fname_suffix = "_L{}_{}D".format(sites_1D,lattice_dim)
+fname_suffix = "_L{}_{}D".format(size_1D,lattice_dim)
 base_fname = data_dir + "{}" + fname_suffix + ".txt"
 U_int_fname = base_fname.format("U_int")
 phi_opt_fname = base_fname.format("phi_opt")
@@ -220,7 +221,7 @@ else:
 
 # get optimal parameters, writing them to a file if we compute them
 if compute_lattice_params:
-    U_int, phi_opt, t_opt, J_0, J_T = get_optimum_parameters(lattice_dim)
+    U_int, phi_opt, t_opt, J_0, J_T = get_optimum_parameters()
 
     if save:
         for frame_2D, name_2D in zip([ U_int, phi_opt, t_opt ],
@@ -249,7 +250,7 @@ if save:
                 rasterized = True, dpi = dpi)
 
 # determine TAT : OAT optimal squeezing time ratio
-N = sites_1D**lattice_dim
+N = size_1D**lattice_dim
 ratio_index = time_ratios.index.get_loc(N, method = "nearest")
 time_ratio = time_ratios.iat[ratio_index]
 
