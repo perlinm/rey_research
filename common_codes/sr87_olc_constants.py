@@ -22,7 +22,7 @@ m_e_SI = 9.10938291e-31 # mass of electron
 bohr_SI = 5.2917721067e-11 # bohr radius
 
 m_SR87_SI = 1.4431558e-25 # mass of strontium-87
-decay_rate_SI = 6e-3 # g --> e decay rate
+decay_rate_SI = 6e-3 # g --> e decay rate by spontaneous emission
 
 l_clock_SI = 698e-9 # clock laser wavelength
 l_lattice_SI = 813.4e-9 # lattice laser wavelength
