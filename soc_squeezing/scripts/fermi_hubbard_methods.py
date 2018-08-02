@@ -38,13 +38,12 @@ def get_simulation_parameters(L, lattice_depths, confining_depth, site_number = 
     while lattice_depths.size < L.size:
         lattice_depths = np.append(lattice_depths, lattice_depths[-1])
 
-    # compute tunneling and two-body overlap in confinind directions
-    confining_momenta, confining_fourier_vecs, _ = \
-        mathieu_solution(confining_depth, 1, site_number)
-    J_T = tunneling_1D(confining_depth, confining_momenta, confining_fourier_vecs)
-    K_T = pair_overlap_1D(confining_momenta, confining_fourier_vecs)
+    # compute transverse tunneling and on-site overlap integral
+    momenta, fourier_vecs, _ = mathieu_solution(confining_depth, 1, site_number)
+    J_T = tunneling_1D(confining_depth, momenta, fourier_vecs)
+    K_T = pair_overlap_1D(momenta, fourier_vecs)
 
-    # compute everything we need along the business directions
+    # compute everything we need along the primary axes
     momenta = [ None ] * L.size
     fourier_vecs = [ None ] * L.size
     energies = [ None ] * L.size
@@ -562,7 +561,7 @@ def gauged_energy(q, s, phi, L, energies_or_J):
         return sum([ energies_or_J[ii,q[ii],0] for ii in range(L.size) ])
 
 # return two-body overlap integral for (p,q) <--> (r,p+q-r) coupling
-def couping_overlap(p, q, r, L, momenta, fourier_vecs):
+def coupling_overlap(p, q, r, L, momenta, fourier_vecs):
     site_number = momenta[0].size
     p, q, r = [ scale_index(k, L, site_number) for k in [ p, q, r ] ]
     s = p + q - r
@@ -615,22 +614,20 @@ def H_int_j(U, L, N, c_op_mats):
 
 # lattice, interaction, and clock laser Hamiltonians in quasi-momentum basis,
 #   accounting for deviation from idealized Hubbard and tight-binding parameters
-def H_full(N, L, phi, lattice_depth, confining_depth, c_op_mats,
-           use_hubbard = False, site_number = 100):
-    L, J_0, _, _, K_T, momenta, fourier_vecs, energies = \
+def hamiltonians(N, L, phi, lattice_depth, confining_depth, c_op_mats, site_number = 100):
+    L, J_0, J_T, K_0, K_T, momenta, fourier_vecs, energies = \
         get_simulation_parameters(L, lattice_depth, confining_depth, site_number)
 
     # compute lattice Hamiltonian
-    energies_or_J = J_0 if use_hubbard else energies
-    H_lat = sum([ gauged_energy(q, s, phi, L, energies_or_J) * c_op(q,s).dag() * c_op(q,s)
+    H_lat = sum([ gauged_energy(q, s, phi, L, energies) * c_op(q,s).dag() * c_op(q,s)
                   for q in spatial_basis(L) for s in range(2) ])
 
     # compute interaction Hamiltonian
     H_int = c_seq()
     for p, q, r in itertools.product(spatial_basis(L), repeat = 3):
         p, q, r = [ np.array(k, ndmin = 1) for k in [ p, q, r ] ]
-        overlap = K_T**(3-L.size) * couping_overlap(p, q, r, L, momenta, fourier_vecs)
-        U_int = g_int_LU[1] * overlap
+        overlap_0 = coupling_overlap(p, q, r, L, momenta, fourier_vecs)
+        U_int = g_int_LU[1] * K_T**(3-L.size) * overlap_0
         H_int += U_int * c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(p+q-r,1)
 
     # compute Hamiltonnian induced by clock laser at unit Rabi frequency

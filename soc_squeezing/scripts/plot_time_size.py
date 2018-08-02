@@ -17,7 +17,7 @@ save = "save" in sys.argv
 assert(show or save)
 
 dpi = 600
-figsize = (4.2,3)
+figsize = (5,4)
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
@@ -29,8 +29,19 @@ confinement = 200 # # confinement lattice depth
 
 # squeezing protocol requirements
 h_U_target = 0.05
-U_J_cap = 10
-t_opt_SI_cap = 1
+t_J_T_cap = 0.05
+U_J_caps = [ 20, 25, 40 ]
+
+t_J_hatch = "|"
+U_J_hatches = [ "/", "\\", "-" ]
+
+depth_min = 2
+if lattice_dim == 1:
+    depth_max = 10
+    t_opt_SI_cap = 0.16
+elif lattice_dim == 2:
+    depth_max = 14
+    t_opt_SI_cap = 1
 
 max_tau = 2 # maximum value of reduced time in OAT squeezing minimization
 
@@ -120,46 +131,45 @@ def make_plot(U_int, phi_opt, t_opt, time_ratios = None):
     else:
         N_ratios = np.ones(len(N_vals))
     t_opt_SI = t_opt.values * N_ratios / recoil_energy_NU
-
-    U_J_shade_vals = np.ones(U_int.shape)
-
-    U_J_shade_vals[(U_int.values.T / J_0.values.T).T > 10] = 0
+    U_J_vals = (U_int.values.T / J_0.values.T).T
 
     depths = U_int.index.values
     sizes_1D = pd.to_numeric(U_int.columns).values
 
     plt.figure(figsize = figsize)
 
-    vmax = min(t_opt_SI.max(), t_opt_SI_cap)
-    plt.pcolormesh(depths, sizes_1D, t_opt_SI.T, vmin = 0, vmax = vmax, zorder = 0,
-                   cmap = plt.get_cmap("jet"))
+    plt.pcolormesh(depths, sizes_1D, t_opt_SI.T, vmin = 0, vmax = t_opt_SI_cap,
+                   cmap = plt.get_cmap("jet"), zorder = 0)
     plt.colorbar(label = r"$t_{\mathrm{opt}}$ (seconds)")
 
     contour_level = [ 0.5 ]
     fill_regions = 2
-    colors = []
     labels = []
     hatches = []
-    if 0 in U_J_shade_vals:
+
+    # shade U_J exclusion zones
+    for U_J_cap, hatch in zip(U_J_caps, U_J_hatches):
+        U_J_shade_vals = np.ones(U_int.shape)
+        U_J_shade_vals[U_J_vals > U_J_cap] = 0
         plt.contour(depths, sizes_1D, U_J_shade_vals.T, contour_level,
                     colors = "black", linewidths = (2,), zorder = 1)
         plt.contourf(depths, sizes_1D, U_J_shade_vals.T, fill_regions,
-                     colors = "none", hatches = [ "/", None, None ], zorder = 1)
-        colors.append("#FFFFFF")
+                     colors = "none", hatches = [ hatch, None, None ], zorder = 1)
         labels.append(r"$U_{{\mathrm{{int}}}}/J_0 > {}$".format(U_J_cap))
-        hatches.append("///")
-    handles = [ mpatches.Rectangle([0,0], 0, 0, edgecolor = "black",
-                                   facecolor = colors[ii],
-                                   hatch = hatches[ii],
-                                   label = labels[ii])
-                for ii in range(len(colors)) ]
-    if len(handles) > 0:
-        legend = plt.legend(handles = handles, ncol = len(handles), framealpha = 0,
-                            loc = "upper center", bbox_to_anchor = (0.5,1.2))
-        legend.set_zorder(1)
+        hatches.append(4*hatch)
+
+    # make fake handles for the legend
+    handles = [ mpatches.Rectangle([0,0], 0, 0,
+                                   edgecolor = "black", facecolor = "#FFFFFF",
+                                   hatch = hatches[ii], label = labels[ii])
+                for ii in range(len(labels)) ]
+    legend = plt.legend(handles = handles, ncol = 3, framealpha = 0,
+                        loc = "upper center", bbox_to_anchor = (0.5,1.15))
+    legend.set_zorder(1)
 
     plt.xlabel(r"$V_0/E_R$", zorder = 1)
     plt.ylabel(r"$L$", zorder = 1)
+    plt.xlim(depth_min,depth_max)
     plt.tight_layout(pad = 0.5)
 
 

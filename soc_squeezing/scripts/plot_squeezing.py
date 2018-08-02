@@ -6,150 +6,229 @@ import matplotlib.pyplot as plt
 
 from scipy.optimize import minimize_scalar
 
+from mathieu_methods import mathieu_solution
+from overlap_methods import pair_overlap_1D, tunneling_1D
 from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state, squeezing_OAT
-from fermi_hubbard_methods import prod, get_simulation_parameters, spatial_basis, \
-    get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, gauged_energy, H_full
+from fermi_hubbard_methods import sum, prod, get_simulation_parameters, spatial_basis, \
+    get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, gauged_energy, hamiltonians
 from squeezing_methods import spin_squeezing, evolve
 
-from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz, decay_rate_LU
+from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 
-compute_TAT = "tat" in sys.argv
 show = "show" in sys.argv
 save = "save" in sys.argv
+compute_TAT = len(sys.argv) > 1
 
 figsize = (4,3)
 fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-L = [30,30] # lattice sites
+
+##########################################################################################
+# simulation options
+##########################################################################################
+
+L = 6 # lattice sites
+U_J_target = 10 # target value of U_int / J_0
 h_U_target = 0.05 # target value of h_std / U_int
+excited_lifetime_SI = 10 # seconds; lifetime of excited state (from e --> g decay)
 
-lattice_depth = 14.5 # shallow (tunneling) axis lattice depth
-confining_depth = 200 # lattice depth along confining axes
-
-fermi_N_cap = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
-use_hubbard = False # use the hubbard model?
+site_number = 100 # number of sites in lattice calculations
+confining_depth = 200 # lattice depth along confining axis
+lattice_depth_bounds = (1,15) # min / max lattice depths we will allow
 
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
 time_steps = 1000 # time steps in simulation
 
-# get simulation parameters
+fermi_N_max = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
+
+
+##########################################################################################
+# compute all experimental parameters
+##########################################################################################
+
 N = prod(L)
+lattice_dim = np.array(L, ndmin = 1).size
+
+# determine primary lattice depth which optimally satisfies our target U_int / J_0
+momenta, fourier_vecs, _ = mathieu_solution(confining_depth, 1, site_number)
+K_T = pair_overlap_1D(momenta, fourier_vecs)
+J_T = tunneling_1D(confining_depth, momenta, fourier_vecs)
+def U_J(depth):
+    momenta, fourier_vecs, _ = mathieu_solution(depth, 1, site_number)
+    J_0 = tunneling_1D(depth, momenta, fourier_vecs)
+    K_0 = pair_overlap_1D(momenta, fourier_vecs)
+    return g_int_LU[1] * K_0**lattice_dim * K_T**(3-lattice_dim) / J_0
+lattice_depth = minimize_scalar(lambda x: abs(U_J(x)-U_J_target),
+                                method = "bounded", bounds = lattice_depth_bounds).x
+
+# get simulation parameters and on-site interaction energy
 L, J_0, J_T, K_0, K_T, momenta, fourier_vecs, energies = \
     get_simulation_parameters(L, lattice_depth, confining_depth)
-U_int = g_int_LU[1] * K_T**(3-L.size) * prod(K_0)
+U_int = g_int_LU[1] * K_T**(3-lattice_dim) * prod(K_0)
 
-# determine optimal SOC angle
-def h_std(phi): return 2**(1+L.size/2)*J_0[0]*np.sin(phi/2)
+# determine optimal SOC angle using hubbard approximation
+def h_std(phi): return 2**(1+lattice_dim/2)*J_0[0]*np.sin(phi/2)
 phi = minimize_scalar(lambda x: abs(h_std(x)/U_int-h_U_target),
                       method = "bounded", bounds = (0, np.pi)).x
 
-# compute variance of SOC field, OAT strength (chi), and TAT drive frequency (omega)
-energies_or_J = J_0 if use_hubbard else energies
-soc_field_variance = np.var([ ( gauged_energy(q, 1, phi, L, energies_or_J)
-                                - gauged_energy(q, 0, phi, L, energies_or_J) )
+# SOC field variance (h_std^2), OAT strength (chi), and TAT drive frequency (omega)
+soc_field_variance = np.var([ ( gauged_energy(q, 1, phi, L, energies)
+                                - gauged_energy(q, 0, phi, L, energies) )
                               for q in spatial_basis(L) ])
-if np.sqrt(soc_field_variance)/U_int < 1e-5:
-    sys.exit("there is no spin squeezing with the given parameters!")
 chi = soc_field_variance / ( N * (N-1) * U_int / prod(L) )
 omega = N * np.sqrt(abs(chi*U_int/prod(L)))
 
+print(r"V_0 (E_R):", lattice_depth)
+print(r"V_T (E_R):", confining_depth)
 print(r"J_T (2\pi Hz):", J_T * recoil_energy_Hz)
 print()
 for ii in range(len(J_0)):
     print("J_{} (2\pi Hz):".format(ii), J_0[ii] * recoil_energy_Hz)
-print(r"U_int (2\pi kHz):", U_int * recoil_energy_Hz)
+print(r"U_int (2\pi Hz):", U_int * recoil_energy_Hz)
 print(r"phi/pi:", phi / np.pi)
-print(r"chi (2\pi mHz):", chi * recoil_energy_Hz * 1e3)
+print(r"chi (2\pi Hz):", chi * recoil_energy_Hz)
 print(r"omega (2\pi Hz):", omega * recoil_energy_Hz)
 print()
+print(r"U_int/J_0:", U_int / J_0[0])
 print(r"h_std/U_int:", np.sqrt(soc_field_variance) / U_int)
 print()
 
+
+##########################################################################################
+# compute squeezing parameters
+##########################################################################################
+
+# convert value to decibels (dB)
+def to_dB(x): return 10*np.log10(x)
+
+# determine simulation times and the size of a single time step
 tau_vals = np.linspace(0, max_tau, time_steps)
 chi_times = tau_vals * N**(-2/3)
 times = chi_times / chi
 times_SI = times / recoil_energy_NU
+d_chi_t = chi_times[-1] / time_steps
+dt = times[-1] / time_steps
 
+# compute OAT spin vector, spin-spin matrix, and initial state
 S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
-H = 1/3 * ( SS_op_mat[0][0] - SS_op_mat[2][2] )
-state = coherent_spin_state([0,1,0], N)
+H_static = SS_op_mat[0][0] + N/2 * S_op_vec[1]
+H_periodic = 1/3 * ( SS_op_mat[0][0] - SS_op_mat[2][2] )
+state_static = coherent_spin_state([0,1,0], N)
+state_periodic = state_static.copy()
 
+# determine excited-state decay rate in units of the OAT strength
+decay_rate_LU = 1/excited_lifetime_SI / recoil_energy_NU
+decay_rate_over_chi = decay_rate_LU / chi
+
+# compute OAT squeezing parameters both with and without decay
 squeezing_OAT_vectorized = np.vectorize(squeezing_OAT)
-squeezing_OAT_vals = squeezing_OAT_vectorized(chi_times, N)
-squeezing_OAT_decay_vals = squeezing_OAT_vectorized(chi_times, N, decay_rate_LU/chi)
-t_opt_OAT = times[squeezing_OAT_vals.argmin()]
+sqz_OAT = squeezing_OAT_vectorized(chi_times, N)
+sqz_OAT_decay = squeezing_OAT_vectorized(chi_times, N, decay_rate_over_chi)
+t_opt_OAT = times[sqz_OAT.argmin()]
+sqz_opt_OAT = -to_dB(sqz_OAT.min())
 print("t_opt_OAT (sec):", t_opt_OAT / recoil_energy_NU)
+print("sqz_opt_OAT:", sqz_opt_OAT)
 
-if not (compute_TAT or show or save): exit()
+# we only need to go on if we will compute TAT squeezing parameters
+if not compute_TAT: exit()
+print()
 
-squeezing_TAT_vals = np.zeros(time_steps) # initialize vector of TAT squeezing values
-d_chi_t = chi_times[1] - chi_times[0] # size of one time step
+# compute modified OAT squeezing parameters
+sqz_static = np.zeros(time_steps)
+sqz_periodic = np.zeros(time_steps)
 for ii in range(time_steps):
-    squeezing_TAT_vals[ii], _ = spin_squeezing(state, S_op_vec, SS_op_mat, N)
-    state = evolve(state, H, d_chi_t)
-t_opt_TAT = times[squeezing_TAT_vals.argmin()]
-print("t_opt_TAT (sec):", t_opt_TAT / recoil_energy_NU)
+    sqz_static[ii], _ = spin_squeezing(state_static, S_op_vec, SS_op_mat, N)
+    sqz_periodic[ii], _ = spin_squeezing(state_periodic, S_op_vec, SS_op_mat, N)
+    state_static = evolve(state_static, H_static, d_chi_t)
+    state_periodic = evolve(state_periodic, H_periodic, d_chi_t)
+t_opt_static = times[sqz_static.argmin()]
+t_opt_periodic = times[sqz_periodic.argmin()]
+sqz_opt_static = -to_dB(sqz_static.min())
+sqz_opt_periodic = -to_dB(sqz_periodic.min())
+print("t_opt_static (sec):", t_opt_static / recoil_energy_NU)
+print("sqz_opt_static:", sqz_opt_static)
+print()
+print("t_opt_periodic (sec):", t_opt_periodic / recoil_energy_NU)
+print("sqz_opt_periodic:", sqz_opt_periodic)
 
+# we do only need to go on if we will make plots
 if not (show or save): exit()
+print()
 
-def to_dB(x): return 10*np.log10(x)
-
-plt.figure(figsize = figsize)
-
-plt.plot(times_SI, -to_dB(squeezing_OAT_vals), label = "OAT")
-plt.plot(times_SI, -to_dB(squeezing_TAT_vals), label = "TAT")
-
-plt.gca().set_prop_cycle(None) # reset color cycle
-plt.plot(times_SI, -to_dB(squeezing_OAT_decay_vals), "--")
-
-decay_squeezing = 2 * ( np.exp(-decay_rate_LU * times)
-                        - np.exp(-2 * decay_rate_LU * times) )
-plt.plot(times_SI, -to_dB(squeezing_TAT_vals + decay_squeezing), "--")
-
-
-if N <= fermi_N_cap:
+# if we have few enough particles, compute FH squeezing
+if N <= fermi_N_max:
     hilbert_dim = int(scipy.special.binom(2*prod(L),N))
-    print()
     print("Fermi-Hubbard hilbert space dimension:", hilbert_dim)
 
     c_op_mats = get_c_op_mats(L, N, depth = 2)
     S_op_vec, SS_op_mat = spin_op_vec_mat_FH(L, N, c_op_mats)
-    state_z, _, _ = polarized_states_FH(L, N)
-
-    H_lat, H_int, H_clock = H_full(N, L, phi, lattice_depth, confining_depth,
-                                   c_op_mats, use_hubbard)
+    state_z, state_X, state_y = polarized_states_FH(L, N)
+    H_lat, H_int, H_clock = hamiltonians(N, L, phi, lattice_depth,
+                                         confining_depth, c_op_mats)
+    H_SS = H_lat - U_int / prod(L) * sum([ SS_op_mat[ii][ii] for ii in range(3) ])
     H_free = H_lat + H_int
 
-    beta = 0.90572
-    def H_laser(t):
-        return -beta * omega * np.cos(omega * t) * H_clock
+    state_SS = state_y
+    state_free = evolve(state_z, H_clock, np.pi/2) # state pointing in y
+    state_static = evolve(state_free, S_op_vec[0], np.pi/2) # state pointing in x
+    state_periodic = state_free.copy() # state pointing in y
 
-    dt = times[-1] / time_steps
-    squeezing_free_vals = np.zeros(time_steps)
-    squeezing_drive_vals = np.zeros(time_steps)
-    state_free = evolve(state_z, H_clock, -np.pi/2)
-    state_drive = state_free.copy()
+    H_static = H_free + chi * N/2 * H_clock
+    modulation_index = 0.90572
+    def H_periodic(t):
+        return H_free + modulation_index * omega * np.cos(omega * t) * H_clock
+
     counter = 0
+    sqz_SS = np.zeros(time_steps)
+    sqz_FH_free = np.zeros(time_steps)
+    sqz_FH_static = np.zeros(time_steps)
+    sqz_FH_periodic = np.zeros(time_steps)
     for ii in range(time_steps):
         if ii * 10 // time_steps >= counter:
             counter += 1
             print("{}/{}".format(ii,time_steps))
-        H_drive = H_free + H_laser(times[ii]+dt/2)
-        squeezing_free_vals[ii], _ = spin_squeezing(state_free, S_op_vec, SS_op_mat, N)
-        squeezing_drive_vals[ii], _ = spin_squeezing(state_drive, S_op_vec, SS_op_mat, N)
+        sqz_SS[ii], _ = spin_squeezing(state_SS, S_op_vec, SS_op_mat, N)
+        sqz_FH_free[ii], _ = spin_squeezing(state_free, S_op_vec, SS_op_mat, N)
+        sqz_FH_static[ii], _ = spin_squeezing(state_static, S_op_vec, SS_op_mat, N)
+        sqz_FH_periodic[ii], _ = spin_squeezing(state_periodic, S_op_vec, SS_op_mat, N)
+        state_SS = evolve(state_SS, H_SS, dt)
         state_free = evolve(state_free, H_free, dt)
-        state_drive = evolve(state_drive, H_drive, dt)
+        state_static = evolve(state_static, H_static, dt)
+        state_periodic = evolve(state_periodic, H_periodic(times[ii]+dt/2), dt)
 
-    plt.plot(times_SI, -to_dB(squeezing_free_vals), label = "FH (free)")
-    plt.plot(times_SI, -to_dB(squeezing_drive_vals), label = "FH (driven)")
+
+##########################################################################################
+# make squeezing plot
+##########################################################################################
+
+plt.figure(figsize = figsize)
+
+##########################################################################################
+##########################################################################################
+plt.title(r"$U/J$: {}".format(U_J_target))
+##########################################################################################
+##########################################################################################
+
+plt.plot(times_SI, -to_dB(sqz_OAT), label = "OAT")
+if N > fermi_N_max:
+    plt.gca().set_prop_cycle(None) # reset color cycle
+    plt.plot(times_SI, -to_dB(sqz_OAT_decay), "--")
+plt.plot(times_SI, -to_dB(sqz_static), label = "static")
+plt.plot(times_SI, -to_dB(sqz_periodic), label = "periodic")
+
+if N <= fermi_N_max:
+    plt.plot(times_SI, -to_dB(sqz_SS), label = "SS")
+    plt.plot(times_SI, -to_dB(sqz_FH_free), label = "FH (free)")
+    plt.plot(times_SI, -to_dB(sqz_FH_static), label = "FH (static)")
+    plt.plot(times_SI, -to_dB(sqz_FH_periodic), label = "FH (periodic)")
 
 plt.xlim(0,times_SI[-1])
-plt.ylim(0,plt.gca().get_ylim()[1])
+plt.ylim(0,-to_dB(sqz_periodic).min()*1.2)
 plt.xlabel(r"Time (seconds)")
 plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
-plt.legend(loc="best")
+plt.legend(loc = "best")
 plt.tight_layout()
 
 if save: plt.savefig(fig_dir + "squeezing_comparison.pdf")
