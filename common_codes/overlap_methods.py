@@ -269,15 +269,6 @@ def momentum_pair_overlap_1D(momenta, fourier_vecs,
     if ( pp + qq - rr - ss ) % site_number != 0: return 0
     if ( kk + ll + mm + nn ) % 2 != 0: return 0
 
-    def net_momentum(pp, qq, rr, ss):
-        bare_momentum = ( momenta[pp % site_number] + momenta[qq % site_number]
-                          - momenta[rr % site_number] - momenta[ss % site_number] )
-        shift_momentum = ( ( pp + qq - rr - ss ) // site_number ) * 2
-        return bare_momentum + shift_momentum
-
-    while round(net_momentum(pp, qq, rr, ss)) > 0: pp -= site_number
-    while round(net_momentum(pp, qq, rr, ss)) < 0: pp += site_number
-
     pk_vec = state_fourier_vec(pp, kk, fourier_vecs)
     ql_vec = state_fourier_vec(qq, ll, fourier_vecs)
     rm_vec = state_fourier_vec(rr, mm, fourier_vecs)
