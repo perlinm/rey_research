@@ -95,7 +95,7 @@ def compute_squeezing():
             d_chi_t = ( chi_times[-1] - chi_times[0] ) / time_steps
             last_squeezing_val = 2
             for ii in range(time_steps):
-                squeezing_val, _ = spin_squeezing(state, S_op_vec, SS_op_mat, N)
+                squeezing_val = spin_squeezing(state, S_op_vec, SS_op_mat, N)
                 if squeezing_val > last_squeezing_val:
                     squeezing_TAT_vals.at[N] = -to_dB(last_squeezing_val)
                     time_TAT_vals.at[N] = chi_times[ii-1]

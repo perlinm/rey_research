@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+##########################################################################################
+# FILE CONTENTS:
+# plots optimal OAT and TAT squeezing times as a function of
+# primary and confinind lattice depths,
+# keeping system size fixed
+##########################################################################################
+
 import os, sys
 import numpy as np
 import pandas as pd
@@ -22,7 +29,7 @@ params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
 data_dir = "../data/"
-fig_dir = "../figures/"
+fig_dir = "../figures/optimal_time_plots/"
 
 lattice_dim = int(sys.argv[1]) # dimensions of lattice
 size_1D = int(sys.argv[2]) # lattice size (i.e. number of lattice sites along each axis)
@@ -30,17 +37,17 @@ size_1D = int(sys.argv[2]) # lattice size (i.e. number of lattice sites along ea
 # squeezing protocol requirements
 h_U_target = 0.05
 t_J_T_cap = 0.05
-U_J_caps = [ 20, 25, 40 ]
+U_J_caps = [ 10, 15, 20 ]
 
 t_J_hatch = "|"
 U_J_hatches = [ "/", "\\", "-" ]
 
 depth_min = 2
 if lattice_dim == 1:
-    depth_max = 12
+    depth_max = 10
     t_opt_SI_cap = 0.3
 elif lattice_dim == 2:
-    depth_max = 14
+    depth_max = 12
     t_opt_SI_cap = 1
 
 max_tau = 2 # maximum value of reduced time in OAT squeezing minimization
@@ -66,13 +73,13 @@ confinements = J_T.index
 
 def get_single_optimum_parameters(depth, confinement):
     L = size_1D * np.ones(lattice_dim)
-    _, _, _, K_0, K_T, _, _, _ = \
+    _, J_0_here, _, K_0, K_T, _, _, _ = \
         get_simulation_parameters(L, depth, confinement, size_1D)
 
     N = np.prod(L)
     U_int = g_int_LU[1] * K_T**(3-lattice_dim) * np.prod(K_0)
 
-    def h_std(phi): return 2**(1+lattice_dim/2)*J_0[0]*np.sin(phi/2)
+    def h_std(phi): return 2**(1+lattice_dim/2)*J_0_here[0]*np.sin(phi/2)
     phi_opt = minimize_scalar(lambda x: abs(h_std(x)/U_int-h_U_target),
                               method = "bounded", bounds = (0, np.pi)).x
 
@@ -191,7 +198,7 @@ header_units = "# values in units with the recoil energy"
 header_units += r" E_R \approx 3.47 x 2\pi kHz equal to 1" + "\n"
 
 # set data file names and header identifying this simulation
-fname_suffix = "_L{}_{}D".format(size_1D,lattice_dim)
+fname_suffix = "_{}D_L{}".format(lattice_dim,size_1D)
 base_fname = data_dir + "{}" + fname_suffix + ".txt"
 U_int_fname = base_fname.format("U_int")
 phi_opt_fname = base_fname.format("phi_opt")
@@ -217,7 +224,7 @@ else:
 make_plot(U_int, phi_opt, t_opt)
 if save:
     plt.gca().set_rasterization_zorder(1)
-    plt.savefig(fig_dir + "t_opt_OAT" + fname_suffix + ".pdf",
+    plt.savefig(fig_dir + "t_opt" + fname_suffix + "_OAT.pdf",
                 rasterized = True, dpi = dpi)
 
 # determine TAT : OAT optimal squeezing time ratio
@@ -229,7 +236,7 @@ time_ratio = time_ratios.iat[ratio_index]
 make_plot(U_int, phi_opt, t_opt, time_ratio)
 if save:
     plt.gca().set_rasterization_zorder(1)
-    plt.savefig(fig_dir + "t_opt_TAT" + fname_suffix + ".pdf",
+    plt.savefig(fig_dir + "t_opt" + fname_suffix + "_TAT.pdf",
                 rasterized = True, dpi = dpi)
 
 if show: plt.show()

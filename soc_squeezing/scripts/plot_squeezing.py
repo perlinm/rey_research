@@ -29,7 +29,7 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-L = 6 # lattice sites
+L = [20,20] # lattice sites
 U_J_target = 10 # target value of U_int / J_0
 h_U_target = 0.05 # target value of h_std / U_int
 excited_lifetime_SI = 10 # seconds; lifetime of excited state (from e --> g decay)
@@ -123,9 +123,8 @@ decay_rate_LU = 1/excited_lifetime_SI / recoil_energy_NU
 decay_rate_over_chi = decay_rate_LU / chi
 
 # compute OAT squeezing parameters both with and without decay
-squeezing_OAT_vectorized = np.vectorize(squeezing_OAT)
-sqz_OAT = squeezing_OAT_vectorized(chi_times, N)
-sqz_OAT_decay = squeezing_OAT_vectorized(chi_times, N, decay_rate_over_chi)
+sqz_OAT = squeezing_OAT(chi_times, N)
+sqz_OAT_decay = squeezing_OAT(chi_times, N, decay_rate_over_chi)
 t_opt_OAT = times[sqz_OAT.argmin()]
 sqz_opt_OAT = -to_dB(sqz_OAT.min())
 print("t_opt_OAT (sec):", t_opt_OAT / recoil_energy_NU)
@@ -139,8 +138,8 @@ print()
 sqz_static = np.zeros(time_steps)
 sqz_periodic = np.zeros(time_steps)
 for ii in range(time_steps):
-    sqz_static[ii], _ = spin_squeezing(state_static, S_op_vec, SS_op_mat, N)
-    sqz_periodic[ii], _ = spin_squeezing(state_periodic, S_op_vec, SS_op_mat, N)
+    sqz_static[ii] = spin_squeezing(state_static, S_op_vec, SS_op_mat, N)
+    sqz_periodic[ii] = spin_squeezing(state_periodic, S_op_vec, SS_op_mat, N)
     state_static = evolve(state_static, H_static, d_chi_t)
     state_periodic = evolve(state_periodic, H_periodic, d_chi_t)
 t_opt_static = times[sqz_static.argmin()]
@@ -189,10 +188,10 @@ if N <= fermi_N_max:
         if ii * 10 // time_steps >= counter:
             counter += 1
             print("{}/{}".format(ii,time_steps))
-        sqz_SS[ii], _ = spin_squeezing(state_SS, S_op_vec, SS_op_mat, N)
-        sqz_FH_free[ii], _ = spin_squeezing(state_free, S_op_vec, SS_op_mat, N)
-        sqz_FH_static[ii], _ = spin_squeezing(state_static, S_op_vec, SS_op_mat, N)
-        sqz_FH_periodic[ii], _ = spin_squeezing(state_periodic, S_op_vec, SS_op_mat, N)
+        sqz_SS[ii] = spin_squeezing(state_SS, S_op_vec, SS_op_mat, N)
+        sqz_FH_free[ii] = spin_squeezing(state_free, S_op_vec, SS_op_mat, N)
+        sqz_FH_static[ii] = spin_squeezing(state_static, S_op_vec, SS_op_mat, N)
+        sqz_FH_periodic[ii] = spin_squeezing(state_periodic, S_op_vec, SS_op_mat, N)
         state_SS = evolve(state_SS, H_SS, dt)
         state_free = evolve(state_free, H_free, dt)
         state_static = evolve(state_static, H_static, dt)
@@ -205,11 +204,9 @@ if N <= fermi_N_max:
 
 plt.figure(figsize = figsize)
 
-##########################################################################################
-##########################################################################################
-plt.title(r"$U/J$: {}".format(U_J_target))
-##########################################################################################
-##########################################################################################
+if L.size == 1: L_text = str(L[0])
+else: L_text = "(" + ",".join([ str(L_j) for L_j in L ]) + ")"
+plt.title(r"$L={},~U/J={}$".format(L_text,U_J_target))
 
 plt.plot(times_SI, -to_dB(sqz_OAT), label = "OAT")
 if N > fermi_N_max:
@@ -231,5 +228,5 @@ plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
 plt.legend(loc = "best")
 plt.tight_layout()
 
-if save: plt.savefig(fig_dir + "squeezing_comparison.pdf")
+if save: plt.savefig(fig_dir + "squeezing_N{}_U{}.png".format(N, U_J_target))
 if show: plt.show()

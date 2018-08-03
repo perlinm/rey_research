@@ -8,7 +8,7 @@ import scipy.linalg as linalg
 import scipy.optimize as optimize
 import matplotlib.pyplot as plt
 
-from squeezing_methods import spin_vec_mat_vals
+from squeezing_methods import minimal_orthogonal_variance
 
 from scipy.special import binom as binomial
 
@@ -24,12 +24,15 @@ def spin_op_m_dicke(N):
     diag_vals = np.sqrt((S-m_z)*(S+m_z+1))
     return sparse.diags(diag_vals, 1, format = "csr")
 
+def spin_op_p_dicke(N):
+    return spin_op_m_dicke(N).T
+
 def spin_op_x_dicke(N):
-    Sp = spin_op_m_dicke(N)
+    Sm = spin_op_m_dicke(N)
     return ( Sm + Sm.T ) / 2
 
 def spin_op_y_dicke(N):
-    Sp = spin_op_m_dicke(N)
+    Sm = spin_op_m_dicke(N)
     return ( Sm - Sm.T ) * 1j / 2
 
 def spin_op_vec_mat_dicke(N):
@@ -81,27 +84,62 @@ def coherent_spin_state(vec, N = 10):
     theta, phi = vec_theta_phi(vec)
     return coherent_spin_state_angles(theta, phi, N)
 
-# squeezing parameter from one-axis twisting, optionally accounting for e --> g decay
+# squeezing parameter from one-axis twisting, accounting for e --> g decay
+# spin correlators retrieved from foss-feig2013nonequilibrium
 def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
-    S = N/2
+    g = decay_rate_over_chi
+    t = chi_t
 
-    A = S/2 * (S-1/2) * (1 - np.cos(2*chi_t)**(2*S-2))
-    B = 2*S * (S-1/2) * np.sin(chi_t) * np.cos(chi_t)**(2*S-2)
-    C = S + A
+    def s(J): return J + 1j*g/2
+    def Phi(J): return np.exp(-g*t/2) * ( np.cos(s(J)*t) + g*t/2 * np.sinc(s(J)*t/np.pi) )
+    def Psi(J): return np.exp(-g*t/2) * (1j*s(J)-g/2) * t * np.sinc(s(J)*t/np.pi)
 
-    # account for decay of states from the excited state to the ground state
-    decay_exps = np.exp(-decay_rate_over_chi*chi_t)
-    dSz2_decay = N/2 * decay_exps * (1 - decay_exps)
-    A -= dSz2_decay
-    C += dSz2_decay
+    # spin magnitude and variance along z is determined classically
+    #   by uncorrelated decay events
+    decay_prob = 1 - np.exp(-g*t)
+    Sz = -N/2 * decay_prob # < Sz >
+    dSz_2 = N/4 + N/2 * decay_prob * (1-decay_prob) # < Sz^2 > - < Sz >^2
+    Sz_2 = dSz_2 + Sz**2 # < Sz^2 >
+
+    # remaining mean spin values
+    Sp = N/2 * np.exp(-g*t/2) * Phi(1)**(N-1) # < S+ >
+    Sx = np.real(Sp) # < Sx >
+    Sy = np.imag(Sp) # < Sy >
+
+    # symmetrized two-spin correlators
+    Sp_2 = 1/4 * N * (N-1) * np.exp(-g*t) * Phi(2)**(N-2) # < S+ S+ >
+    Sm_2 = 1/4 * N * (N-1) * np.exp(-g*t) * Phi(-2)**(N-2) # < S- S- >
+    Sp_Sm_sym = N/2 + 1/4 * N * (N-1) * np.exp(-g*t) * Phi(0)**(N-2) # < S+ S- >
+    Sp_Sz_sym = 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi(1) * Phi(1)**(N-2) # < S+ Sz >
+
+    Sx_2 = 1/4 * np.real( Sp_2 + Sm_2 + 2 * Sp_Sm_sym ) # < Sx Sx >
+    Sy_2 = -1/4 * np.real( Sp_2 + Sm_2 - 2 * Sp_Sm_sym ) # < Sy Sy >
+    Sx_Sz_sym = np.real(Sp_Sz_sym)  # < Sx Sz >
+    Sy_Sz_sym = np.imag(Sp_Sz_sym) # < Sy Sz >
+    Sx_Sy_sym = 1/4 * np.imag(Sp_2 - Sm_2) # < Sx Sy >
+
+    # spin variances in x and y
+    dSx_2 = Sx_2 - Sx**2 # < Sx^2 > - < Sx >^2
+    dSy_2 = Sy_2 - Sy**2 # < Sy^2 > - < Sy >^2
 
     # minimal spin variance in the plane orthogonal to the mean spin vector
-    V_m = 1/2 * ( C - np.sqrt(A**2 + B**2))
+    if g == 0:
+        # if there is no decay, we have simple analytical formulas
+        A = dSy_2 - dSz_2
+        B = 2 * Sy_Sz_sym
+        C = dSy_2 + dSz_2
+        var_min = 1/2 * ( C - np.sqrt(A**2 + B**2) )
+    else:
+        # otherwise perform a numerical minimization of the spin variance
+        S_vec = np.array([ Sz, Sx, Sy ]).T
+        SS_mat = np.array([ [ Sz_2,      Sx_Sz_sym, Sy_Sz_sym ],
+                            [ Sx_Sz_sym, Sx_2,      Sx_Sy_sym ],
+                            [ Sy_Sz_sym, Sx_Sy_sym, Sy_2      ] ]).T
+        var_min = np.array([ minimal_orthogonal_variance(S_vec[ii], SS_mat[ii])
+                             for ii in range(len(t)) ])
 
-    # normalized magnitude of spin vector
-    mag = np.cos(chi_t)**(N-1)
-
-    return V_m / (S*mag)**2 * N
+    # return squeezing parameter: \xi^2 = var_min \times N / |<S>|^2
+    return var_min * N / (Sz*Sz + Sx*Sx + Sy*Sy)
 
 # plot a state on the S = N/2 Bloch sphere
 def plot_dicke_state(state, grid_size = 51, single_sphere = False):
