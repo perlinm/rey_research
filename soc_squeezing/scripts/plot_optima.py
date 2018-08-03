@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# FILE CONTENTS: plots optimal squeezing times and values as a function of system size
+
 import os, sys, itertools
 import numpy as np
 import pandas as pd

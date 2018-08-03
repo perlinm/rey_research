@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# FILE CONTENTS: computes tunneling rate at various lattice depths
+
 import numpy as np
 import pandas as pd
 
