@@ -87,8 +87,8 @@ def coherent_spin_state(vec, N = 10):
 # squeezing parameter from one-axis twisting, accounting for e --> g decay
 # spin correlators retrieved from foss-feig2013nonequilibrium
 def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
-    g = decay_rate_over_chi
-    t = chi_t
+    g = decay_rate_over_chi # shorthand for decay rate in units with \chi = 1
+    t = chi_t # shorthand for time in units with \chi = 1
 
     def s(J): return J + 1j*g/2
     def Phi(J): return np.exp(-g*t/2) * ( np.cos(s(J)*t) + g*t/2 * np.sinc(s(J)*t/np.pi) )
@@ -124,7 +124,7 @@ def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
 
     # minimal spin variance in the plane orthogonal to the mean spin vector
     if g == 0:
-        # if there is no decay, we have simple analytical formulas
+        # if there is no spin decay, we have simple analytical formulas
         A = dSy_2 - dSz_2
         B = 2 * Sy_Sz_sym
         C = dSy_2 + dSz_2
@@ -135,8 +135,11 @@ def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
         SS_mat = np.array([ [ Sz_2,      Sx_Sz_sym, Sy_Sz_sym ],
                             [ Sx_Sz_sym, Sx_2,      Sx_Sy_sym ],
                             [ Sy_Sz_sym, Sx_Sy_sym, Sy_2      ] ]).T
-        var_min = np.array([ minimal_orthogonal_variance(S_vec[ii], SS_mat[ii])
-                             for ii in range(len(t)) ])
+        if type(t) == np.ndarray:
+            var_min = np.array([ minimal_orthogonal_variance(S_vec[ii], SS_mat[ii])
+                                 for ii in range(len(t)) ])
+        else:
+            var_min = minimal_orthogonal_variance(S_vec, SS_mat)
 
     # return squeezing parameter: \xi^2 = var_min \times N / |<S>|^2
     return var_min * N / (Sz*Sz + Sx*Sx + Sy*Sy)
