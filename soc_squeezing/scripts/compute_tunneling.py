@@ -38,7 +38,8 @@ header = "# first column = lattice depth\n"
 header += "# values in units with the recoil energy"
 header += r" E_R \approx 3.47 x 2\pi kHz equal to 1" + "\n"
 
-for data, name in zip([ J_0, J_T ], [ "J_0", "J_T" ]):
+for data, name in [ [ J_0, "J_0" ],
+                    [ J_T, "J_T" ] ]:
     file_name = data_dir + name + ".txt"
     with open(file_name, "w") as f:
         f.write(header)
