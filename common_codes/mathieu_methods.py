@@ -17,15 +17,12 @@ import numpy, scipy.linalg
 def single_mathieu_solution(q, lattice_depth, bands, fourier_order):
     mathieu_q = -lattice_depth / 4
 
-    # construct Mathieu operator
+    # determine diagonal bands of Mathieu operator
     diagonal = (2 * numpy.arange(-fourier_order, fourier_order+1) + q)**2
     off_diagonal = mathieu_q * numpy.ones(len(diagonal)-1)
-    mathieu_operator = ( numpy.diag(diagonal) +
-                         numpy.diag(off_diagonal, -1) +
-                         numpy.diag(off_diagonal, 1) )
 
     # sort solutions by increasing eigenvalue
-    eig_vals, eig_vecs = scipy.linalg.eig(mathieu_operator)
+    eig_vals, eig_vecs = scipy.linalg.eigh_tridiagonal(diagonal, off_diagonal)
     sort_order = eig_vals.argsort()
     q_energies = numpy.real(eig_vals[sort_order][:bands]) + lattice_depth / 2
     q_fourier_vecs = numpy.real(eig_vecs[:,sort_order][:,:bands]).T
