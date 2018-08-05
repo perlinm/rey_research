@@ -17,7 +17,7 @@ import numpy, scipy.linalg
 def single_mathieu_solution(q, lattice_depth, bands, fourier_order):
     mathieu_q = -lattice_depth / 4
 
-    # determine diagonal bands of Mathieu operator
+    # determine diagonal and off-diagonal bands of Mathieu operator
     diagonal = (2 * numpy.arange(-fourier_order, fourier_order+1) + q)**2
     off_diagonal = mathieu_q * numpy.ones(len(diagonal)-1)
 
