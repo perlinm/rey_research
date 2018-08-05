@@ -29,13 +29,13 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-L = [20,20] # lattice sites
+L = 6 # lattice sites
 U_J_target = 10 # target value of U_int / J_0
 h_U_target = 0.05 # target value of h_std / U_int
 excited_lifetime_SI = 10 # seconds; lifetime of excited state (from e --> g decay)
 
 site_number = 100 # number of sites in lattice calculations
-confining_depth = 200 # lattice depth along confining axis
+confining_depth = 300 # lattice depth along confining axis
 lattice_depth_bounds = (1,15) # min / max lattice depths we will allow
 
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
@@ -103,6 +103,10 @@ print()
 # convert value to decibels (dB)
 def to_dB(x): return 10*np.log10(x)
 
+# determine excited-state decay rate in units of the OAT strength
+decay_rate_LU = 1/excited_lifetime_SI / recoil_energy_NU
+decay_rate_over_chi = decay_rate_LU / chi
+
 # determine simulation times and the size of a single time step
 tau_vals = np.linspace(0, max_tau, time_steps)
 chi_times = tau_vals * N**(-2/3)
@@ -111,46 +115,48 @@ times_SI = times / recoil_energy_NU
 d_chi_t = chi_times[-1] / time_steps
 dt = times[-1] / time_steps
 
-# compute OAT spin vector, spin-spin matrix, and initial state
-S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
-H_static = SS_op_mat[0][0] + N/2 * S_op_vec[1]
-H_periodic = 1/3 * ( SS_op_mat[0][0] - SS_op_mat[2][2] )
-state_static = coherent_spin_state([0,1,0], N)
-state_periodic = state_static.copy()
-
-# determine excited-state decay rate in units of the OAT strength
-decay_rate_LU = 1/excited_lifetime_SI / recoil_energy_NU
-decay_rate_over_chi = decay_rate_LU / chi
-
 # compute OAT squeezing parameters both with and without decay
 sqz_OAT = squeezing_OAT(chi_times, N)
-sqz_OAT_decay = squeezing_OAT(chi_times, N, decay_rate_over_chi)
 t_opt_OAT = times[sqz_OAT.argmin()]
 sqz_opt_OAT = -to_dB(sqz_OAT.min())
 print("t_opt_OAT (sec):", t_opt_OAT / recoil_energy_NU)
 print("sqz_opt_OAT:", sqz_opt_OAT)
 
+sqz_OAT_D = squeezing_OAT(chi_times, N, decay_rate_over_chi)
+t_opt_OAT_D = times[sqz_OAT_D.argmin()]
+sqz_opt_OAT_D = -to_dB(sqz_OAT_D.min())
+print()
+print("t_opt_OAT_D (sec):", t_opt_OAT_D / recoil_energy_NU)
+print("sqz_opt_OAT_D:", sqz_opt_OAT_D)
+
 # we only need to go on if we will compute TAT squeezing parameters
 if not compute_TAT: exit()
 print()
 
+# compute OAT spin vector, spin-spin matrix, and initial state
+S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
+H_TF = SS_op_mat[0][0] + N/2 * S_op_vec[1]
+H_TAT = 1/3 * ( SS_op_mat[0][0] - SS_op_mat[2][2] )
+state_TF = coherent_spin_state([0,1,0], N)
+state_TAT = state_TF.copy()
+
 # compute modified OAT squeezing parameters
-sqz_static = np.zeros(time_steps)
-sqz_periodic = np.zeros(time_steps)
+sqz_TF = np.zeros(time_steps)
+sqz_TAT = np.zeros(time_steps)
 for ii in range(time_steps):
-    sqz_static[ii] = spin_squeezing(state_static, S_op_vec, SS_op_mat, N)
-    sqz_periodic[ii] = spin_squeezing(state_periodic, S_op_vec, SS_op_mat, N)
-    state_static = evolve(state_static, H_static, d_chi_t)
-    state_periodic = evolve(state_periodic, H_periodic, d_chi_t)
-t_opt_static = times[sqz_static.argmin()]
-t_opt_periodic = times[sqz_periodic.argmin()]
-sqz_opt_static = -to_dB(sqz_static.min())
-sqz_opt_periodic = -to_dB(sqz_periodic.min())
-print("t_opt_static (sec):", t_opt_static / recoil_energy_NU)
-print("sqz_opt_static:", sqz_opt_static)
+    sqz_TF[ii] = spin_squeezing(state_TF, S_op_vec, SS_op_mat, N)
+    sqz_TAT[ii] = spin_squeezing(state_TAT, S_op_vec, SS_op_mat, N)
+    state_TF = evolve(state_TF, H_TF, d_chi_t)
+    state_TAT = evolve(state_TAT, H_TAT, d_chi_t)
+t_opt_TF = times[sqz_TF.argmin()]
+t_opt_TAT = times[sqz_TAT.argmin()]
+sqz_opt_TF = -to_dB(sqz_TF.min())
+sqz_opt_TAT = -to_dB(sqz_TAT.min())
+print("t_opt_TF (sec):", t_opt_TF / recoil_energy_NU)
+print("sqz_opt_TF:", sqz_opt_TF)
 print()
-print("t_opt_periodic (sec):", t_opt_periodic / recoil_energy_NU)
-print("sqz_opt_periodic:", sqz_opt_periodic)
+print("t_opt_TAT (sec):", t_opt_TAT / recoil_energy_NU)
+print("sqz_opt_TAT:", sqz_opt_TAT)
 
 # we do only need to go on if we will make plots
 if not (show or save): exit()
@@ -208,12 +214,12 @@ if L.size == 1: L_text = str(L[0])
 else: L_text = "(" + ",".join([ str(L_j) for L_j in L ]) + ")"
 plt.title(r"$L={},~U/J={}$".format(L_text,U_J_target))
 
-plt.plot(times_SI, -to_dB(sqz_OAT), label = "OAT")
+plt.plot(times_SI, -to_dB(sqz_OAT), label = r"OAT")
 if N > fermi_N_max:
     plt.gca().set_prop_cycle(None) # reset color cycle
-    plt.plot(times_SI, -to_dB(sqz_OAT_decay), "--")
-plt.plot(times_SI, -to_dB(sqz_static), label = "static")
-plt.plot(times_SI, -to_dB(sqz_periodic), label = "periodic")
+    plt.plot(times_SI, -to_dB(sqz_OAT_D), "--")
+plt.plot(times_SI, -to_dB(sqz_TF), label = "TF")
+plt.plot(times_SI, -to_dB(sqz_TAT), label = "TAT")
 
 if N <= fermi_N_max:
     plt.plot(times_SI, -to_dB(sqz_SS), label = "SS")
@@ -222,7 +228,7 @@ if N <= fermi_N_max:
     plt.plot(times_SI, -to_dB(sqz_FH_periodic), label = "FH (periodic)")
 
 plt.xlim(0,times_SI[-1])
-plt.ylim(0,-to_dB(sqz_periodic).min()*1.2)
+plt.ylim(0,plt.gca().get_ylim()[1])
 plt.xlabel(r"Time (seconds)")
 plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
 plt.legend(loc = "best")
