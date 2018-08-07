@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from squeezing_methods import minimal_orthogonal_variance
 
-from scipy.special import binom as binomial
+from scipy.special import binom, factorial
 
 # spin operators for N particles in the S = N/2 Dicke manifold
 def spin_op_z_dicke(N):
@@ -66,8 +66,8 @@ def ln_factorial(n):
              1/6 * np.log( 8*n**3 + 4*n**2 + n + 1/30 ) )
 
 # return logarithm of binomial coefficient, using an approximation if necessary
-def ln_binomial(N,m):
-    binomial_coeff = binomial(N,m)
+def ln_binom(N,m):
+    binomial_coeff = binom(N,m)
     if binomial_coeff != np.inf: return np.log(binomial_coeff)
     else: return ln_factorial(N) - ln_factorial(m) - ln_factorial(N-m)
 
@@ -77,12 +77,58 @@ def coherent_spin_state_angles(theta, phi, N = 10):
     for m in range(N+1):
         ln_c_theta = (N-m) * np.log(np.sin(theta/2)) + m * np.log(np.cos(theta/2))
         ln_c_phi = 1j * (N/2-m) * phi
-        ln_state_m = 1/2 * ln_binomial(N,m) + ln_c_theta + ln_c_phi
+        ln_state_m = 1/2 * ln_binom(N,m) + ln_c_theta + ln_c_phi
         state[m] = np.exp(ln_state_m)
     return state
 def coherent_spin_state(vec, N = 10):
     theta, phi = vec_theta_phi(vec)
     return coherent_spin_state_angles(theta, phi, N)
+
+##########################################################################################
+# plotting states on the S = N/2 Bloch sphere
+##########################################################################################
+
+def plot_dicke_state(state, grid_size = 51, single_sphere = False):
+    N = state.size-1
+    if single_sphere:
+        fig = plt.figure(figsize=plt.figaspect(1))
+    else:
+        fig = plt.figure(figsize=plt.figaspect(0.5))
+    ax = Axes3D(fig)
+
+    theta, phi = np.mgrid[0:np.pi:(grid_size*1j), 0:2*np.pi:(grid_size*1j)]
+    z_vals = np.cos(theta)
+    x_vals = np.sin(theta) * np.cos(phi)
+    y_vals = np.sin(theta) * np.sin(phi)
+
+    def color_val(theta, phi):
+        angle_state = coherent_spin_state_angles(theta, phi, N)
+        return abs(angle_state.conjugate() @ state)**2
+    color_vals = np.vectorize(color_val)(theta, phi)
+    norm = colors.Normalize(vmin = np.min(color_vals),
+                            vmax = np.max(color_vals), clip = False)
+    color_map = cm.inferno(norm(color_vals))
+
+    ax.set_xlim(-1,1)
+    ax.set_ylim(-1,1)
+    ax.set_zlim(-1,1)
+    if single_sphere:
+        ax.plot_surface(x_vals, y_vals, z_vals, rstride = 1, cstride = 1,
+                        facecolors = color_map, shade = False)
+    else:
+        ax.plot_surface(x_vals, y_vals-1.5, z_vals, rstride = 1, cstride = 1,
+                        facecolors = color_map, shade = False)
+        ax.plot_surface(-x_vals, y_vals+1.5, z_vals, rstride = 1, cstride = 1,
+                        facecolors = color_map, shade = False)
+        ax.set_ylim(-2,2)
+
+    ax.set_axis_off()
+    ax.view_init(elev = 0, azim = 0)
+    return fig, ax
+
+##########################################################################################
+# analytical solutions to special cases
+##########################################################################################
 
 # squeezing parameter from one-axis twisting, accounting for e --> g decay
 # spin correlators retrieved from foss-feig2013nonequilibrium
@@ -144,41 +190,73 @@ def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
     # return squeezing parameter: \xi^2 = var_min \times N / |<S>|^2
     return var_min * N / (Sz*Sz + Sx*Sx + Sy*Sy)
 
-# plot a state on the S = N/2 Bloch sphere
-def plot_dicke_state(state, grid_size = 51, single_sphere = False):
-    N = state.size-1
-    if single_sphere:
-        fig = plt.figure(figsize=plt.figaspect(1))
-    else:
-        fig = plt.figure(figsize=plt.figaspect(0.5))
-    ax = Axes3D(fig)
+# return eigenvalues and eigenvectors for TAT Hamiltonian Sz^2 - Sx^2
+def vals_vecs_TAT(N):
+    Sz = spin_op_z_dicke(N)
+    Sx = spin_op_x_dicke(N)
+    H_TAT = Sz.dot(Sz) - Sx.dot(Sx)
 
-    theta, phi = np.mgrid[0:np.pi:(grid_size*1j), 0:2*np.pi:(grid_size*1j)]
-    z_vals = np.cos(theta)
-    x_vals = np.sin(theta) * np.cos(phi)
-    y_vals = np.sin(theta) * np.sin(phi)
+    c = -3 + 2*np.sqrt(2)
 
-    def color_val(theta, phi):
-        angle_state = coherent_spin_state_angles(theta, phi, N)
-        return abs(angle_state.conjugate() @ state)**2
-    color_vals = np.vectorize(color_val)(theta, phi)
-    norm = colors.Normalize(vmin = np.min(color_vals),
-                            vmax = np.max(color_vals), clip = False)
-    color_map = cm.inferno(norm(color_vals))
+    def rec_mat(k,n_a,n_b):
+        J = k + (n_a+n_b)/2
+        j = np.arange(k+1)
+        alpha = c**2 * (n_a - J + 1) + n_b - J + 1
 
-    ax.set_xlim(-1,1)
-    ax.set_ylim(-1,1)
-    ax.set_zlim(-1,1)
-    if single_sphere:
-        ax.plot_surface(x_vals, y_vals, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, shade = False)
-    else:
-        ax.plot_surface(x_vals, y_vals-1.5, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, shade = False)
-        ax.plot_surface(-x_vals, y_vals+1.5, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, shade = False)
-        ax.set_ylim(-2,2)
+        diagonal = j * ( (c**2 + 1) * (j - 1) + alpha )
+        above = ( J - j - 1/2 ) * ( j + 1 )
+        below = c**2 * ( k + 1 - j) * ( n_a + n_b + k + j - J - 1/2 )
 
-    ax.set_axis_off()
-    ax.view_init(elev = 0, azim = 0)
-    return fig, ax
+        return np.diag(diagonal) + np.diag(above[:-1],1) + np.diag(below[1:],-1)
+
+    def B(rho,vec):
+        k = vec.size-1
+        return sum( vec[q] * sum( binom(q,mu) * binom(k-q,rho-mu) * c**(-2*mu)
+                                  for mu in range(min(rho,q)+1) )
+                    for q in range(k+1) )
+
+    def amp(rho,n_a,n_b,vec):
+        k = N//2
+        facs = factorial(2*k-2*rho+n_a-2*n_a*n_b) * factorial(2*rho+n_b)
+        return B(rho,vec) * c**rho * np.sqrt(facs)
+
+    def state(rho,n_a,n_b):
+        m_z = N//2 - 2*rho + 1/2*(n_a-n_b) - n_a*n_b
+        state = np.zeros(N+1)
+        state[int(round(m_z+N/2))] = 1
+        return state
+
+    vals_TAT = np.zeros(N+1)
+    vecs_TAT = np.zeros((N+1,N+1))
+
+    if N % 2 == 0: # if N is even --> the total spin is an integer
+        n_a, n_b = 0, 0
+        vals_F, vecs_F = linalg.eig(rec_mat(N//2,n_a,n_b))
+        for ii in range(N//2+1):
+            vecs_TAT[:,ii] = sum( amp(rho,n_a,n_b,vecs_F[:,ii]) * state(rho,n_a,n_b)
+                                  for rho in range(N//2+1) )
+            vecs_TAT[:,ii] /= linalg.norm(vecs_TAT[:,ii])
+            vals_TAT[ii] = vecs_TAT[:,ii] @ H_TAT @ vecs_TAT[:,ii]
+
+        n_a, n_b = 1, 1
+        vals_F, vecs_F = linalg.eig(rec_mat(N//2-1,n_a,n_b))
+        for ii in range(N//2):
+            jj = ii + N//2 + 1
+            vecs_TAT[:,jj] = sum( amp(rho,n_a,n_b,vecs_F[:,ii]) * state(rho,n_a,n_b)
+                                  for rho in range(N//2) )
+            vecs_TAT[:,jj] /= linalg.norm(vecs_TAT[:,jj])
+            vals_TAT[jj] = vecs_TAT[:,jj] @ H_TAT @ vecs_TAT[:,jj]
+
+    else: # if N is odd --> the total spin is a half-integer
+        n_a, n_b = 1, 0
+        vals_F, vecs_F = linalg.eig(rec_mat(N//2,n_a,n_b))
+        for ii in range(N//2+1):
+            vecs_TAT[:,2*ii] = sum( amp(rho,n_a,n_b,vecs_F[:,ii]) * state(rho,n_a,n_b)
+                                    for rho in range(N//2+1) )
+            vecs_TAT[:,2*ii] /= linalg.norm(vecs_TAT[:,2*ii])
+            vals_TAT[2*ii] = vecs_TAT[:,2*ii] @ H_TAT @ vecs_TAT[:,2*ii]
+
+            vecs_TAT[:,2*ii+1] = vecs_TAT[:,2*ii][::-1]
+            vals_TAT[2*ii+1] = vals_TAT[2*ii]
+
+    return vals_TAT, vecs_TAT
