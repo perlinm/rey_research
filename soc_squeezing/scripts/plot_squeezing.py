@@ -29,8 +29,8 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-L = 6 # lattice sites
-U_J_target = 10 # target value of U_int / J_0
+L = 100 # lattice sites
+U_J_target = 5 # target value of U_int / J_0
 h_U_target = 0.05 # target value of h_std / U_int
 excited_lifetime_SI = 10 # seconds; lifetime of excited state (from e --> g decay)
 
@@ -135,25 +135,25 @@ print()
 
 # compute OAT spin vector, spin-spin matrix, and initial state
 S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
-H_TF = SS_op_mat[0][0] + N/2 * S_op_vec[1]
+H_TVF = SS_op_mat[0][0] + N/2 * S_op_vec[1]
 H_TAT = 1/3 * ( SS_op_mat[0][0] - SS_op_mat[2][2] )
-state_TF = coherent_spin_state([0,1,0], N)
-state_TAT = state_TF.copy()
+state_TVF = coherent_spin_state([0,1,0], N)
+state_TAT = state_TVF.copy()
 
 # compute modified OAT squeezing parameters
-sqz_TF = np.zeros(time_steps)
+sqz_TVF = np.zeros(time_steps)
 sqz_TAT = np.zeros(time_steps)
 for ii in range(time_steps):
-    sqz_TF[ii] = spin_squeezing(state_TF, S_op_vec, SS_op_mat, N)
+    sqz_TVF[ii] = spin_squeezing(state_TVF, S_op_vec, SS_op_mat, N)
     sqz_TAT[ii] = spin_squeezing(state_TAT, S_op_vec, SS_op_mat, N)
-    state_TF = evolve(state_TF, H_TF, d_chi_t)
+    state_TVF = evolve(state_TVF, H_TVF, d_chi_t)
     state_TAT = evolve(state_TAT, H_TAT, d_chi_t)
-t_opt_TF = times[sqz_TF.argmin()]
+t_opt_TVF = times[sqz_TVF.argmin()]
 t_opt_TAT = times[sqz_TAT.argmin()]
-sqz_opt_TF = -to_dB(sqz_TF.min())
+sqz_opt_TVF = -to_dB(sqz_TVF.min())
 sqz_opt_TAT = -to_dB(sqz_TAT.min())
-print("t_opt_TF (sec):", t_opt_TF / recoil_energy_NU)
-print("sqz_opt_TF:", sqz_opt_TF)
+print("t_opt_TVF (sec):", t_opt_TVF / recoil_energy_NU)
+print("sqz_opt_TVF:", sqz_opt_TVF)
 print()
 print("t_opt_TAT (sec):", t_opt_TAT / recoil_energy_NU)
 print("sqz_opt_TAT:", sqz_opt_TAT)
@@ -218,7 +218,7 @@ plt.plot(times_SI, -to_dB(sqz_OAT), label = r"OAT")
 if N > fermi_N_max:
     plt.gca().set_prop_cycle(None) # reset color cycle
     plt.plot(times_SI, -to_dB(sqz_OAT_D), "--")
-plt.plot(times_SI, -to_dB(sqz_TF), label = "TF")
+plt.plot(times_SI, -to_dB(sqz_TVF), label = "TVF")
 plt.plot(times_SI, -to_dB(sqz_TAT), label = "TAT")
 
 if N <= fermi_N_max:

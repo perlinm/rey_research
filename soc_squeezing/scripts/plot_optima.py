@@ -53,10 +53,10 @@ def to_dB(x): return 10*np.log10(x)
 def compute_squeezing():
     zero_frame = pd.Series(np.zeros(len(particle_nums)), index = particle_nums)
     squeezing_OAT_vals = zero_frame.copy(deep = True)
-    squeezing_TF_vals = zero_frame.copy(deep = True)
+    squeezing_TVF_vals = zero_frame.copy(deep = True)
     squeezing_TAT_vals = zero_frame.copy(deep = True)
     time_OAT_vals = zero_frame.copy(deep = True)
-    time_TF_vals = zero_frame.copy(deep = True)
+    time_TVF_vals = zero_frame.copy(deep = True)
     time_TAT_vals = zero_frame.copy(deep = True)
     for N in particle_nums:
         print("N:",N)
@@ -73,25 +73,25 @@ def compute_squeezing():
 
         # construct TAT Hamiltonian and spin operator vector / matrix
         S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
-        H_TF = SS_op_mat[0][0] + N/2 * S_op_vec[1]
+        H_TVF = SS_op_mat[0][0] + N/2 * S_op_vec[1]
         H_TAT = 1/3 * np.real( SS_op_mat[0][0] - SS_op_mat[2][2] )
-        state_TF = coherent_spin_state([0,1,0],N)
-        state_TAT = state_TF.copy()
+        state_TVF = coherent_spin_state([0,1,0],N)
+        state_TAT = state_TVF.copy()
 
         if N < N_crossover:
-            vals_TF, vecs_TF = linalg.eigh(H_TF.toarray())
-            state_TF = vecs_TF.T @ state_TF
-            S_op_vec_TF = np.array([ vecs_TF.T @ X @ vecs_TF for X in S_op_vec ])
-            SS_op_mat_TF = np.array([ [ vecs_TF.T @ X @ vecs_TF for X in XS ]
+            vals_TVF, vecs_TVF = linalg.eigh(H_TVF.toarray())
+            state_TVF = vecs_TVF.T @ state_TVF
+            S_op_vec_TVF = np.array([ vecs_TVF.T @ X @ vecs_TVF for X in S_op_vec ])
+            SS_op_mat_TVF = np.array([ [ vecs_TVF.T @ X @ vecs_TVF for X in XS ]
                                       for XS in SS_op_mat ])
 
-            def squeezing_TF_val(chi_t):
-                state_t =  np.exp(-1j * chi_t * vals_TF) * state_TF
-                return to_dB(spin_squeezing(state_t, S_op_vec_TF, SS_op_mat_TF, N))
-            optimum_TF = minimize_scalar(squeezing_TF_val, method = "bounded",
+            def squeezing_TVF_val(chi_t):
+                state_t =  np.exp(-1j * chi_t * vals_TVF) * state_TVF
+                return to_dB(spin_squeezing(state_t, S_op_vec_TVF, SS_op_mat_TVF, N))
+            optimum_TVF = minimize_scalar(squeezing_TVF_val, method = "bounded",
                                          bounds = (0,time_OAT_vals.at[N]))
-            time_TF_vals.at[N] = optimum_TF.x
-            squeezing_TF_vals.at[N] = -optimum_TF.fun
+            time_TVF_vals.at[N] = optimum_TVF.x
+            squeezing_TVF_vals.at[N] = -optimum_TVF.fun
 
             vals_TAT, vecs_TAT = linalg.eigh(H_TAT.toarray())
             state_TAT = vecs_TAT.T @ state_TAT
@@ -113,12 +113,12 @@ def compute_squeezing():
 
             last_squeezing_val = 2
             for ii in range(time_steps):
-                squeezing_val = spin_squeezing(state_TF, S_op_vec, SS_op_mat, N)
+                squeezing_val = spin_squeezing(state_TVF, S_op_vec, SS_op_mat, N)
                 if squeezing_val > last_squeezing_val:
-                    squeezing_TF_vals.at[N] = -to_dB(last_squeezing_val)
-                    time_TF_vals.at[N] = chi_times[ii-1]
+                    squeezing_TVF_vals.at[N] = -to_dB(last_squeezing_val)
+                    time_TVF_vals.at[N] = chi_times[ii-1]
                     break
-                state_TF = evolve(state_TF, H_TF, d_chi_t)
+                state_TVF = evolve(state_TVF, H_TVF, d_chi_t)
                 last_squeezing_val = squeezing_val
 
             last_squeezing_val = 2
@@ -131,8 +131,8 @@ def compute_squeezing():
                 state_TAT = evolve(state_TAT, H_TAT, d_chi_t)
                 last_squeezing_val = squeezing_val
 
-    return [ squeezing_OAT_vals, squeezing_TF_vals, squeezing_TAT_vals,
-             time_OAT_vals, time_TF_vals, time_TAT_vals ]
+    return [ squeezing_OAT_vals, squeezing_TVF_vals, squeezing_TAT_vals,
+             time_OAT_vals, time_TVF_vals, time_TAT_vals ]
 
 
 ##########################################################################################
@@ -140,10 +140,10 @@ def compute_squeezing():
 ##########################################################################################
 
 squeezing_OAT_fname = data_dir + "squeezing_OAT.txt"
-squeezing_TF_fname = data_dir + "squeezing_TF.txt"
+squeezing_TVF_fname = data_dir + "squeezing_TVF.txt"
 squeezing_TAT_fname = data_dir + "squeezing_TAT.txt"
 time_OAT_fname = data_dir + "time_OAT.txt"
-time_TF_fname = data_dir + "time_TF.txt"
+time_TVF_fname = data_dir + "time_TVF.txt"
 time_TAT_fname = data_dir + "time_TAT.txt"
 
 header_common = "# first column = particle number\n"
@@ -154,15 +154,15 @@ def pd_read_csv(fname):
 
 # determine whether we can compute squeezing and time values
 if not os.path.isfile(squeezing_OAT_fname):
-    squeezing_OAT_vals, squeezing_TF_vals, squeezing_TAT_vals, \
-        time_OAT_vals, time_TF_vals, time_TAT_vals = \
+    squeezing_OAT_vals, squeezing_TVF_vals, squeezing_TAT_vals, \
+        time_OAT_vals, time_TVF_vals, time_TAT_vals = \
             compute_squeezing()
     if save:
         for frame, fname in [ [ squeezing_OAT_vals, squeezing_OAT_fname ],
-                              [ squeezing_TF_vals, squeezing_TF_fname ],
+                              [ squeezing_TVF_vals, squeezing_TVF_fname ],
                               [ squeezing_TAT_vals, squeezing_TAT_fname ],
                               [ time_OAT_vals, time_OAT_fname ],
-                              [ time_TF_vals, time_TF_fname ],
+                              [ time_TVF_vals, time_TVF_fname ],
                               [ time_TAT_vals, time_TAT_fname ] ]:
             with open(fname, "w") as f:
                 f.write(header_common)
@@ -171,17 +171,17 @@ if not os.path.isfile(squeezing_OAT_fname):
             frame.to_csv(fname, header = False, mode = "a")
 else:
     squeezing_OAT_vals = pd_read_csv(squeezing_OAT_fname)
-    squeezing_TF_vals = pd_read_csv(squeezing_TF_fname)
+    squeezing_TVF_vals = pd_read_csv(squeezing_TVF_fname)
     squeezing_TAT_vals = pd_read_csv(squeezing_TAT_fname)
     time_OAT_vals = pd_read_csv(time_OAT_fname)
-    time_TF_vals = pd_read_csv(time_TF_fname)
+    time_TVF_vals = pd_read_csv(time_TVF_fname)
     time_TAT_vals = pd_read_csv(time_TAT_fname)
 
 N_min, N_max = time_OAT_vals.index[0], time_OAT_vals.index[-1]
 
 plt.figure(figsize = figsize)
 plt.semilogx(squeezing_OAT_vals, label = "OAT")
-plt.semilogx(squeezing_TF_vals, label = "TF")
+plt.semilogx(squeezing_TVF_vals, label = "TVF")
 plt.semilogx(squeezing_TAT_vals, label = "TAT")
 plt.xlim(N_min, N_max)
 plt.xlabel(r"$N$")
@@ -192,7 +192,7 @@ if save: plt.savefig(fig_dir + "optimal_squeezing.pdf")
 
 plt.figure(figsize = figsize)
 plt.loglog(time_OAT_vals, label = "OAT")
-plt.loglog(time_TF_vals, label = "TF")
+plt.loglog(time_TVF_vals, label = "TVF")
 plt.loglog(time_TAT_vals, label = "TAT")
 plt.xlim(N_min, N_max)
 plt.xlabel(r"$N$")
