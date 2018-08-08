@@ -119,6 +119,7 @@ def plot_dicke_state(state, grid_size = 51, single_sphere = False):
     ax.set_xlim(-1,1)
     ax.set_ylim(-1,1)
     ax.set_zlim(-1,1)
+
     if single_sphere:
         ax.plot_surface(x_vals, y_vals, z_vals, rstride = 1, cstride = 1,
                         facecolors = color_map, shade = False)
@@ -197,75 +198,3 @@ def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
 
     # return squeezing parameter: \xi^2 = var_min \times N / |<S>|^2
     return var_min * N / (Sz*Sz + Sx*Sx + Sy*Sy)
-
-# return eigenvalues and eigenvectors for TAT Hamiltonian chi ( Sz^2 - Sx^2 )
-def vals_vecs_TAT(N, chi = 1):
-    Sz = spin_op_z_dicke(N)
-    Sx = spin_op_x_dicke(N)
-    H_TAT = Sz.dot(Sz) - Sx.dot(Sx)
-
-    c = -3 + 2*np.sqrt(2)
-
-    def rec_mat(k,n_a,n_b):
-        J = k + (n_a+n_b)/2
-        j = np.arange(k+1)
-        alpha = c**2 * (n_a - J + 1) + n_b - J + 1
-
-        diagonal = j * ( (c**2 + 1) * (j - 1) + alpha )
-        above = ( J - j - 1/2 ) * ( j + 1 )
-        below = c**2 * ( k + 1 - j) * ( n_a + n_b + k + j - J - 1/2 )
-
-        return np.diag(diagonal) + np.diag(above[:-1],1) + np.diag(below[1:],-1)
-
-    def B(rho,vec):
-        k = vec.size-1
-        return sum( vec[q] * sum( binom(q,mu) * binom(k-q,rho-mu) * c**(-2*mu)
-                                  for mu in range(min(rho,q)+1) )
-                    for q in range(k+1) )
-
-    def amp(rho,n_a,n_b,vec):
-        k = N//2
-        facs = factorial(2*k-2*rho+n_a-2*n_a*n_b) * factorial(2*rho+n_b)
-        return B(rho,vec) * c**rho * np.sqrt(facs)
-
-    def state(rho,n_a,n_b):
-        m_z = N//2 - 2*rho + 1/2*(n_a-n_b) - n_a*n_b
-        state = np.zeros(N+1)
-        state[int(round(m_z+N/2))] = 1
-        return state
-
-    vals_TAT = np.zeros(N+1)
-    vecs_TAT = np.zeros((N+1,N+1))
-
-    if N % 2 == 0: # if N is even --> the total spin is an integer
-        n_a, n_b = 0, 0
-        vals_F, vecs_F = linalg.eig(rec_mat(N//2,n_a,n_b))
-        for ii in range(N//2+1):
-            vecs_TAT[:,ii] = sum( amp(rho,n_a,n_b,vecs_F[:,ii]) * state(rho,n_a,n_b)
-                                  for rho in range(N//2+1) )
-            vecs_TAT[:,ii] /= linalg.norm(vecs_TAT[:,ii])
-            vals_TAT[ii] = vecs_TAT[:,ii] @ H_TAT @ vecs_TAT[:,ii]
-
-        n_a, n_b = 1, 1
-        vals_F, vecs_F = linalg.eig(rec_mat(N//2-1,n_a,n_b))
-        for ii in range(N//2):
-            jj = ii + N//2 + 1
-            vecs_TAT[:,jj] = sum( amp(rho,n_a,n_b,vecs_F[:,ii]) * state(rho,n_a,n_b)
-                                  for rho in range(N//2) )
-            vecs_TAT[:,jj] /= linalg.norm(vecs_TAT[:,jj])
-            vals_TAT[jj] = vecs_TAT[:,jj] @ H_TAT @ vecs_TAT[:,jj]
-
-    else: # if N is odd --> the total spin is a half-integer
-        n_a, n_b = 1, 0
-        vals_F, vecs_F = linalg.eig(rec_mat(N//2,n_a,n_b))
-        for ii in range(N//2+1):
-            vecs_TAT[:,2*ii] = sum( amp(rho,n_a,n_b,vecs_F[:,ii]) * state(rho,n_a,n_b)
-                                    for rho in range(N//2+1) )
-            vecs_TAT[:,2*ii] /= linalg.norm(vecs_TAT[:,2*ii])
-            vals_TAT[2*ii] = vecs_TAT[:,2*ii] @ H_TAT @ vecs_TAT[:,2*ii]
-
-            vecs_TAT[:,2*ii+1] = vecs_TAT[:,2*ii][::-1]
-            vals_TAT[2*ii+1] = vals_TAT[2*ii]
-
-    idx = vals_TAT.argsort()
-    return chi * vals_TAT[idx], vecs_TAT[:,idx]
