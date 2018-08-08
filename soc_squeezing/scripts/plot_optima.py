@@ -71,7 +71,7 @@ def compute_squeezing():
         time_OAT_vals.at[N] = optimum_OAT.x
         squeezing_OAT_vals.at[N] = -optimum_OAT.fun
 
-        # compute spin vector, spin-spin matrix, Hamiltonians, and initial states,
+        # compute spin vectors, spin-spin matrices, Hamiltonians, and initial states,
         #   exploiting parity symmetries to reduce the size of the Hilbert space
         S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
         S_op_vec = [ X[::2,::2] for X in S_op_vec ]
@@ -87,11 +87,14 @@ def compute_squeezing():
         axis_TAT = [0,1,-1] # TAT squeezing axis
 
         if N < N_crossover:
-            vals_TVF, vecs_TVF = linalg.eigh(H_TVF.toarray())
-            state_TVF = vecs_TVF.T @ state_TVF
+            H_TVF = H_TVF.toarray().real
+            diags_TVF = np.diag(H_TVF)
+            off_diags_TVF = np.diag(H_TVF,1)
+            vals_TVF, vecs_TVF = linalg.eigh_tridiagonal(diags_TVF, off_diags_TVF)
             S_op_vec_TVF = np.array([ vecs_TVF.T @ X @ vecs_TVF for X in S_op_vec ])
             SS_op_mat_TVF = np.array([ [ vecs_TVF.T @ X @ vecs_TVF for X in XS ]
                                       for XS in SS_op_mat ])
+            state_TVF = vecs_TVF.T @ state_TVF
 
             def squeezing_TVF_val(chi_t):
                 state_t =  np.exp(-1j * chi_t * vals_TVF) * state_TVF
@@ -101,11 +104,14 @@ def compute_squeezing():
             time_TVF_vals.at[N] = optimum_TVF.x
             squeezing_TVF_vals.at[N] = -optimum_TVF.fun
 
-            vals_TAT, vecs_TAT = linalg.eigh(H_TAT.toarray())
-            state_TAT = vecs_TAT.T @ state_TAT
+            H_TAT = H_TAT.toarray().real
+            diags_TAT = np.diag(H_TAT)
+            off_diags_TAT = np.diag(H_TAT,1)
+            vals_TAT, vecs_TAT = linalg.eigh_tridiagonal(diags_TAT, off_diags_TAT)
             S_op_vec_TAT = np.array([ vecs_TAT.T @ X @ vecs_TAT for X in S_op_vec ])
             SS_op_mat_TAT = np.array([ [ vecs_TAT.T @ X @ vecs_TAT for X in XS ]
                                        for XS in SS_op_mat ])
+            state_TAT = vecs_TAT.T @ state_TAT
 
             def squeezing_TAT_val(chi_t):
                 state_t =  np.exp(-1j * chi_t * vals_TAT) * state_TAT
