@@ -73,16 +73,23 @@ def ln_binom(N,m):
 
 # coherent spin state on S = N/2 Bloch sphere
 def coherent_spin_state_angles(theta, phi, N = 10):
-    state = np.zeros(N+1, dtype = complex)
-    for m in range(N+1):
-        ln_c_theta = (N-m) * np.log(np.sin(theta/2)) + m * np.log(np.cos(theta/2))
-        ln_c_phi = 1j * (N/2-m) * phi
-        ln_state_m = 1/2 * ln_binom(N,m) + ln_c_theta + ln_c_phi
-        state[m] = np.exp(ln_state_m)
-    return state
+    if theta == 0:
+        state = np.zeros(N+1, dtype=complex)
+        state[-1] = 1
+        return state
+    if theta == np.pi:
+        state = np.zeros(N+1, dtype=complex)
+        state[0] = 1
+        return state
+    return np.exp(np.array([ 1/2 * ln_binom(N,m)
+                             + (N-m) * np.log(np.sin(theta/2))
+                             + m * np.log(np.cos(theta/2))
+                             + 1j * (N/2-m) * phi
+                             for m in range(N+1) ]))
 def coherent_spin_state(vec, N = 10):
     theta, phi = vec_theta_phi(vec)
     return coherent_spin_state_angles(theta, phi, N)
+
 
 ##########################################################################################
 # plotting states on the S = N/2 Bloch sphere
@@ -125,6 +132,7 @@ def plot_dicke_state(state, grid_size = 51, single_sphere = False):
     ax.set_axis_off()
     ax.view_init(elev = 0, azim = 0)
     return fig, ax
+
 
 ##########################################################################################
 # analytical solutions to special cases
@@ -190,8 +198,8 @@ def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
     # return squeezing parameter: \xi^2 = var_min \times N / |<S>|^2
     return var_min * N / (Sz*Sz + Sx*Sx + Sy*Sy)
 
-# return eigenvalues and eigenvectors for TAT Hamiltonian Sz^2 - Sx^2
-def vals_vecs_TAT(N):
+# return eigenvalues and eigenvectors for TAT Hamiltonian chi ( Sz^2 - Sx^2 )
+def vals_vecs_TAT(N, chi = 1):
     Sz = spin_op_z_dicke(N)
     Sx = spin_op_x_dicke(N)
     H_TAT = Sz.dot(Sz) - Sx.dot(Sx)
@@ -259,4 +267,5 @@ def vals_vecs_TAT(N):
             vecs_TAT[:,2*ii+1] = vecs_TAT[:,2*ii][::-1]
             vals_TAT[2*ii+1] = vals_TAT[2*ii]
 
-    return vals_TAT, vecs_TAT
+    idx = vals_TAT.argsort()
+    return chi * vals_TAT[idx], vecs_TAT[:,idx]
