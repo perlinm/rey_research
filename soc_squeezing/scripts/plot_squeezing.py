@@ -11,7 +11,7 @@ from overlap_methods import pair_overlap_1D, tunneling_1D
 from dicke_methods import squeezing_OAT, spin_op_vec_mat_dicke, coherent_spin_state
 from fermi_hubbard_methods import sum, prod, get_simulation_parameters, spatial_basis, \
     get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, gauged_energy, hamiltonians
-from squeezing_methods import spin_squeezing, evolve
+from squeezing_methods import spin_squeezing, evolve, val
 
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 
@@ -31,7 +31,7 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-L = 100 # lattice sites
+L = 30 # lattice sites
 U_J_target = 5 # target value of U_int / J_0
 h_U_target = 0.05 # target value of h_std / U_int
 excited_lifetime_SI = 10 # seconds; lifetime of excited state (from e --> g decay)
@@ -135,28 +135,29 @@ print("sqz_opt_OAT_D:", sqz_opt_OAT_D)
 if not compute_TAT: exit()
 print()
 
-# compute spin vector, spin-spin matrix, Hamiltonians, and initial states for TVF and TAT,
+# compute Hamiltonian, spin vector, spin-spin matrix, and initial states for TVF and TAT,
 #   exploiting a parity symmetry in both cases to reduce the size of the Hilbert space
 S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
 S_op_vec = [ X[::2,::2] for X in S_op_vec ]
 SS_op_mat = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
 
 H_TVF = SS_op_mat[1][1] - N/2 * S_op_vec[0]
-H_TAT = 1/3 * ( SS_op_mat[1][1] - SS_op_mat[2][2] )
+H_TAT = 1/3 * ( SS_op_mat[1][2] + SS_op_mat[2][1] )
 
 state_TVF = np.zeros(N//2+1)
 state_TVF[0] = 1
 state_TAT = np.copy(state_TVF)
 
-axis_TAT = [0,1,-1] # TAT squeezing axis
-
 # compute modified OAT squeezing parameters
 sqz_TVF = np.zeros(time_steps)
 sqz_TAT = np.zeros(time_steps)
 for ii in range(time_steps):
-    print("{}/{}".format(ii,time_steps))
     sqz_TVF[ii] = spin_squeezing(state_TVF, S_op_vec, SS_op_mat, N)
-    sqz_TAT[ii] = spin_squeezing(state_TAT, S_op_vec, SS_op_mat, N, axis_TAT)
+
+    XX_TAT = np.real(val(SS_op_mat[1][1],state_TAT))
+    Z_TAT = np.real(val(S_op_vec[0],state_TAT))
+    sqz_TAT[ii] = XX_TAT * N / Z_TAT**2
+
     state_TVF = evolve(state_TVF, H_TVF, d_chi_t)
     state_TAT = evolve(state_TAT, H_TAT, d_chi_t)
 

@@ -15,7 +15,7 @@ from overlap_methods import tunneling_1D, pair_overlap_1D
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 
 from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state, squeezing_OAT
-from squeezing_methods import spin_vec_mat_vals, spin_squeezing, evolve
+from squeezing_methods import spin_vec_mat_vals, spin_squeezing, evolve, val
 from fermi_hubbard_methods import spatial_basis
 
 show = "show" in sys.argv
@@ -78,13 +78,11 @@ def compute_squeezing():
         SS_op_mat = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
 
         H_TVF = SS_op_mat[1][1] - N/2 * S_op_vec[0]
-        H_TAT = 1/3 * ( SS_op_mat[1][1] - SS_op_mat[2][2] )
+        H_TAT = 1/3 * ( SS_op_mat[1][2] + SS_op_mat[2][1] )
 
         state_TVF = np.zeros(N//2+1)
         state_TVF[0] = 1
         state_TAT = np.copy(state_TVF)
-
-        axis_TAT = [0,1,-1] # TAT squeezing axis
 
         if N < N_crossover:
             H_TVF = H_TVF.toarray().real
@@ -137,8 +135,9 @@ def compute_squeezing():
 
             last_squeezing_val = 2
             for ii in range(time_steps):
-                squeezing_val = \
-                    spin_squeezing(state_TAT, S_op_vec, SS_op_mat, N, axis_TAT)
+                XX_TAT = np.real(val(SS_op_mat[1][1],state_TAT))
+                Z_TAT = np.real(val(S_op_vec[0],state_TAT))
+                squeezing_val = XX_TAT * N / Z_TAT**2
                 if squeezing_val > last_squeezing_val:
                     squeezing_TAT_vals.at[N] = -to_dB(last_squeezing_val)
                     time_TAT_vals.at[N] = chi_times[ii-1]
