@@ -41,9 +41,11 @@ def spin_vec_mat_vals(state, S_op_vec, SS_op_mat):
 
 # variance of spin state about an axis
 def spin_variance(axis, S_vec, SS_mat, state = None):
+    axis = np.array(axis)
     # if we were given a state, then S_vec and SS_mat are operator-valued,
     #   so we need to compute their expectation values
-    if state != None: S_vec, SS_mat = spin_vec_mat_vals(state, S_vec, SS_mat)
+    if type(state) != type(None):
+        S_vec, SS_mat = spin_vec_mat_vals(state, S_vec, SS_mat)
     return np.real(axis @ SS_mat @ axis - abs(S_vec @ axis)**2) / (axis @ axis)
 
 # return minimum spin variance in the plane orthogonal to the mean spin vector
@@ -63,13 +65,15 @@ def minimal_orthogonal_variance(S_vec, SS_mat):
 
     return optimum.fun
 
-# return (\xi^2, axis), where:
-#   "axis" is the axis of minimal spin variance in the plane orthogonal to <\vec S>
-#   \xi^2 = (<S_axis^2> - <S_axis>^2) * N / |<S>|^2 is the spin squeezing parameter
-def spin_squeezing(state, S_op_vec, SS_op_mat, N):
+# return spin squeezing parameter
+def spin_squeezing(state, S_op_vec, SS_op_mat, N, axis = None):
     S_vec, SS_mat = spin_vec_mat_vals(state, S_op_vec, SS_op_mat)
-    minimal_variance = minimal_orthogonal_variance(S_vec, SS_mat)
-    return minimal_variance * N / linalg.norm(S_vec)**2
+    if type(axis) == type(None):
+        variance = minimal_orthogonal_variance(S_vec, SS_mat)
+    else:
+        axis = np.array(axis)
+        variance = np.real(axis @ SS_mat @ axis) / (axis @ axis)
+    return variance * N / linalg.norm(S_vec)**2
 
 # time evolution of a state with a sparse hamiltonian
 def evolve(state, hamiltonian, time):
