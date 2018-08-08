@@ -37,7 +37,7 @@ N_max = 1e4
 N_vals = 200
 
 # value of N at which we switch methods for determining optimal TAT parameters
-N_crossover = 1500
+N_crossover = 700
 
 tau_vals = np.linspace(0, max_tau, time_steps)
 particle_nums = np.logspace(np.log10(N_min), np.log10(N_max), N_vals)
@@ -71,17 +71,19 @@ def compute_squeezing():
         time_OAT_vals.at[N] = optimum_OAT.x
         squeezing_OAT_vals.at[N] = -optimum_OAT.fun
 
-        # compute spin vector, spin-spin matrix, Hamiltonian, and initial state for TVF
+        # compute spin vector, spin-spin matrix, Hamiltonians, and initial states,
+        #   exploiting parity symmetries to reduce the size of the Hilbert space
         S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
-        H_TVF = SS_op_mat[0][0] + N/2 * S_op_vec[1]
-        state_TVF = coherent_spin_state([0,1,0], N)
+        S_op_vec = [ X[::2,::2] for X in S_op_vec ]
+        SS_op_mat = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
 
-        # compute the same quantities for TAT, but exploit a parity symmetry
-        S_op_vec_TAT = [ X[::2,::2] for X in S_op_vec ]
-        SS_op_mat_TAT = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
-        H_TAT = 1/3 * ( SS_op_mat[1][1] - SS_op_mat[2][2] )[::2,::2]
-        state_TAT = np.zeros(N//2+1)
-        state_TAT[0] = 1
+        H_TVF = SS_op_mat[1][1] - N/2 * S_op_vec[0]
+        H_TAT = 1/3 * ( SS_op_mat[1][1] - SS_op_mat[2][2] )
+
+        state_TVF = np.zeros(N//2+1)
+        state_TVF[0] = 1
+        state_TAT = np.copy(state_TVF)
+
         axis_TAT = [0,1,-1] # TAT squeezing axis
 
         if N < N_crossover:
@@ -101,9 +103,9 @@ def compute_squeezing():
 
             vals_TAT, vecs_TAT = linalg.eigh(H_TAT.toarray())
             state_TAT = vecs_TAT.T @ state_TAT
-            S_op_vec_TAT = np.array([ vecs_TAT.T @ X @ vecs_TAT for X in S_op_vec_TAT ])
+            S_op_vec_TAT = np.array([ vecs_TAT.T @ X @ vecs_TAT for X in S_op_vec ])
             SS_op_mat_TAT = np.array([ [ vecs_TAT.T @ X @ vecs_TAT for X in XS ]
-                                       for XS in SS_op_mat_TAT ])
+                                       for XS in SS_op_mat ])
 
             def squeezing_TAT_val(chi_t):
                 state_t =  np.exp(-1j * chi_t * vals_TAT) * state_TAT
@@ -130,7 +132,7 @@ def compute_squeezing():
             last_squeezing_val = 2
             for ii in range(time_steps):
                 squeezing_val = \
-                    spin_squeezing(state_TAT, S_op_vec_TAT, SS_op_mat_TAT, N, axis_TAT)
+                    spin_squeezing(state_TAT, S_op_vec, SS_op_mat, N, axis_TAT)
                 if squeezing_val > last_squeezing_val:
                     squeezing_TAT_vals.at[N] = -to_dB(last_squeezing_val)
                     time_TAT_vals.at[N] = chi_times[ii-1]

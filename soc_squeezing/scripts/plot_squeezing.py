@@ -135,25 +135,28 @@ print("sqz_opt_OAT_D:", sqz_opt_OAT_D)
 if not compute_TAT: exit()
 print()
 
-# compute spin vector, spin-spin matrix, Hamiltonian, and initial state for TVF
+# compute spin vector, spin-spin matrix, Hamiltonians, and initial states for TVF and TAT,
+#   exploiting a parity symmetry in both cases to reduce the size of the Hilbert space
 S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
-H_TVF = SS_op_mat[0][0] + N/2 * S_op_vec[1]
-state_TVF = coherent_spin_state([0,1,0], N)
+S_op_vec = [ X[::2,::2] for X in S_op_vec ]
+SS_op_mat = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
 
-# compute the same quantities for TAT, but exploit a parity symmetry of the TAT Hamiltonian
-S_op_vec_TAT = [ X[::2,::2] for X in S_op_vec ]
-SS_op_mat_TAT = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
-H_TAT = 1/3 * ( SS_op_mat[1][1] - SS_op_mat[2][2] )[::2,::2]
-state_TAT = np.zeros(N//2+1)
-state_TAT[0] = 1
+H_TVF = SS_op_mat[1][1] - N/2 * S_op_vec[0]
+H_TAT = 1/3 * ( SS_op_mat[1][1] - SS_op_mat[2][2] )
+
+state_TVF = np.zeros(N//2+1)
+state_TVF[0] = 1
+state_TAT = np.copy(state_TVF)
+
 axis_TAT = [0,1,-1] # TAT squeezing axis
 
 # compute modified OAT squeezing parameters
 sqz_TVF = np.zeros(time_steps)
 sqz_TAT = np.zeros(time_steps)
 for ii in range(time_steps):
+    print("{}/{}".format(ii,time_steps))
     sqz_TVF[ii] = spin_squeezing(state_TVF, S_op_vec, SS_op_mat, N)
-    sqz_TAT[ii] = spin_squeezing(state_TAT, S_op_vec_TAT, SS_op_mat_TAT, N, axis_TAT)
+    sqz_TAT[ii] = spin_squeezing(state_TAT, S_op_vec, SS_op_mat, N, axis_TAT)
     state_TVF = evolve(state_TVF, H_TVF, d_chi_t)
     state_TAT = evolve(state_TAT, H_TAT, d_chi_t)
 
