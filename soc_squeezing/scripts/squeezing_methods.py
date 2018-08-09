@@ -35,15 +35,15 @@ def val(X, state):
 
 # expectation value of vector spin operator
 def spin_vec_vals(state, S_op_vec):
-    return np.array([ np.real(val(X,state)) for X in S_op_vec ])
+    return np.array([ val(X,state) for X in S_op_vec ])
 
 # expectation value of matrix spin-spin operator
 def spin_mat_vals(state, SS_op_mat):
     SS_mat = np.zeros((3,3))
     for ii in range(3):
         for jj in range(ii+1):
-            SS_mat[ii,jj] = np.real(val(SS_op_mat[ii][jj],state))
-            SS_mat[jj,ii] = SS_mat[ii,jj]
+            SS_mat[ii,jj] = val(SS_op_mat[ii][jj],state)
+            SS_mat[jj,ii] = np.conj(SS_mat[ii,jj])
     return SS_mat
 
 # expectation values of spin operator and spin-spin matrix
@@ -77,23 +77,9 @@ def minimal_orthogonal_variance(S_vec, SS_mat):
     return optimum.fun
 
 # return spin squeezing parameter
-def spin_squeezing(state, S_op_vec, SS_op_mat, N, var_axis = None):
-    if type(var_axis) == type(None):
-        S_vec, SS_mat = spin_vec_mat_vals(state, S_op_vec, SS_op_mat)
-        variance = minimal_orthogonal_variance(S_vec, SS_mat)
-    else:
-        S_vec = np.zeros(3)
-        SS_mat = np.zeros((3,3))
-        for ii in range(3):
-            if var_axis[ii] == 0:
-                S_vec[ii] = np.real(val(S_op_vec[ii],state))
-                continue
-            for jj in range(ii+1):
-                if var_axis[jj] == 0: continue
-                SS_mat[ii,jj] = np.real(val(SS_op_mat[ii][jj],state))
-                SS_mat[jj,ii] = SS_mat[ii,jj]
-        var_axis = np.array(var_axis)
-        variance = np.real(var_axis @ SS_mat @ var_axis) / (var_axis @ var_axis)
+def spin_squeezing(state, S_op_vec, SS_op_mat, N):
+    S_vec, SS_mat = spin_vec_mat_vals(state, S_op_vec, SS_op_mat)
+    variance = minimal_orthogonal_variance(S_vec, SS_mat)
     return variance * N / linalg.norm(S_vec)**2
 
 # time evolution of a state with a sparse hamiltonian
