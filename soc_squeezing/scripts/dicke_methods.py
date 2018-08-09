@@ -14,9 +14,7 @@ from scipy.special import binom, factorial
 
 # spin operators for N particles in the S = N/2 Dicke manifold
 def spin_op_z_dicke(N):
-    Sz = sparse.lil_matrix((N+1,N+1))
-    Sz.setdiag(np.arange(N+1)-N/2)
-    return Sz.tocsr()
+    return sparse.diags(np.arange(N+1)-N/2, format = "csr")
 
 def spin_op_m_dicke(N):
     S = N/2
@@ -41,12 +39,12 @@ def spin_op_vec_mat_dicke(N):
     Sx = ( Sm + Sm.T ) / 2
     Sy = ( Sm - Sm.T ) * 1j / 2
 
-    Szz = sparse.csr_matrix.dot(Sz, Sz)
-    Sxx = sparse.csr_matrix.dot(Sx, Sx)
-    Syy = sparse.csr_matrix.dot(Sy, Sy)
-    Sxy = sparse.csr_matrix.dot(Sx, Sy)
-    Syz = sparse.csr_matrix.dot(Sy, Sz)
-    Szx = sparse.csr_matrix.dot(Sz, Sx)
+    Szz = Sz.dot(Sz)
+    Sxx = Sx.dot(Sx)
+    Syy = Sy.dot(Sy)
+    Sxy = Sx.dot(Sy)
+    Syz = Sy.dot(Sz)
+    Szx = Sz.dot(Sx)
 
     S_op_vec = [ Sz, Sx, Sy ]
     SS_op_mat = [ [ Szz,        Szx,        Syz.getH() ],
