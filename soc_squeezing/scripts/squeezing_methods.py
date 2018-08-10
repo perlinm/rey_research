@@ -39,7 +39,7 @@ def spin_vec_vals(state, S_op_vec):
 
 # expectation value of matrix spin-spin operator
 def spin_mat_vals(state, SS_op_mat):
-    SS_mat = np.zeros((3,3))
+    SS_mat = np.zeros((3,3), dtype = complex)
     for ii in range(3):
         for jj in range(ii+1):
             SS_mat[ii,jj] = val(SS_op_mat[ii][jj],state)
