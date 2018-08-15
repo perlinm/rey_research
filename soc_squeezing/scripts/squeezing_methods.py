@@ -55,7 +55,7 @@ def spin_variance(axis, S_vec, SS_mat, state = None):
     axis = np.array(axis)
     # if we were given a state, then S_vec and SS_mat are operator-valued,
     #   so we need to compute their expectation values
-    if type(state) != type(None):
+    if state is not None:
         S_vec, SS_mat = spin_vec_mat_vals(state, S_vec, SS_mat)
     return np.real(axis @ SS_mat @ axis - abs(S_vec @ axis)**2) / (axis @ axis)
 
@@ -82,11 +82,20 @@ def spin_squeezing(state, S_op_vec, SS_op_mat, N):
     variance = minimal_orthogonal_variance(S_vec, SS_mat)
     return variance * N / linalg.norm(S_vec)**2
 
+# act with a time-evolution unitary from the left, right, or both sides
+def evolve_left(state, hamiltonian, time):
+    return sparse.linalg.expm_multiply(-1j * time * hamiltonian, state)
+def evolve_right(state, hamiltonian, time):
+    return evolve_left(state.conj().T, hamiltonian, time).conj().T
+def evolve_left_right(state, hamiltonian, time):
+    return evolve_right(evolve_left(state, hamiltonian, time), hamiltonian, time)
+
 # time evolution of a state with a sparse hamiltonian
 def evolve(state, hamiltonian, time):
     assert(sparse.issparse(hamiltonian))
-    new_state = sparse.linalg.expm_multiply(-1j * time * hamiltonian, state)
-    if state.shape == hamiltonian.shape: # the state is a density operator
-        new_state = sparse.linalg.expm_multiply(-1j * time * hamiltonian,
-                                                new_state.conj().T).conj().T
-    return new_state
+    assert(state.shape[0] == hamiltonian.shape[0])
+
+    if state.shape != hamiltonian.shape: # state is a vector
+        return evolve_left(state, hamiltonian, time)
+    else: # state is a density operator
+        return evolve_left_right(state, hamiltonian, time)
