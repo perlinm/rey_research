@@ -8,7 +8,7 @@ from scipy.optimize import minimize_scalar
 
 from mathieu_methods import mathieu_solution
 from overlap_methods import pair_overlap_1D, tunneling_1D
-from dicke_methods import squeezing_OAT, spin_op_vec_mat_dicke, coherent_spin_state
+from dicke_methods import squeezing_OAT, spin_op_vec_mat_dicke
 from fermi_hubbard_methods import sum, prod, get_simulation_parameters, spatial_basis, \
     get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, gauged_energy, hamiltonians
 from squeezing_methods import spin_squeezing, evolve, val
@@ -182,7 +182,7 @@ if N <= fermi_N_max:
 
     c_op_mats = get_c_op_mats(L, N, depth = 2)
     S_op_vec, SS_op_mat = spin_op_vec_mat_FH(L, N, c_op_mats)
-    state_z, state_X, state_y = polarized_states_FH(L, N)
+    state_z, state_x, state_y = polarized_states_FH(L, N)
     H_lat, H_int, H_clock = hamiltonians(N, L, phi, lattice_depth,
                                          confining_depth, c_op_mats)
     H_SS = H_lat - U_int / prod(L) * sum([ SS_op_mat[ii][ii] for ii in range(3) ])
