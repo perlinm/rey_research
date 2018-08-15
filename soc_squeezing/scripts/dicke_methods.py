@@ -5,7 +5,6 @@
 import numpy as np
 import scipy.sparse as sparse
 import scipy.linalg as linalg
-import scipy.optimize as optimize
 import matplotlib.pyplot as plt
 
 from scipy.special import binom, factorial
@@ -57,7 +56,7 @@ def spin_op_vec_mat_dicke(N):
 
 # get polar and azimulthal angles of a vector (v_z, v_x, v_y)
 def vec_theta_phi(v):
-    return np.arccos(v[0]/linalg.norm(v)), np.arctan2(v[2],v[1])
+    return np.array([ np.arccos(v[0]/linalg.norm(v)), np.arctan2(v[2],v[1]) ])
 
 # use stirling's approximation to compute ln(n!)
 def ln_factorial(n):
@@ -162,16 +161,15 @@ def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
         return var_min * N / Sx**2
 
     # otherwise, we compute the spin correlators derived in foss-feig2013nonequilibrium
-
     def s(J): return J + 1j*g/2
     def Phi(J): return np.exp(-g*t/2) * ( np.cos(s(J)*t) + g*t/2 * np.sinc(s(J)*t/np.pi) )
     def Psi(J): return np.exp(-g*t/2) * (1j*s(J)-g/2) * t * np.sinc(s(J)*t/np.pi)
 
     # spin magnitude and variance along z is determined classically
     #   by uncorrelated decay events
-    Sz = -N/2 * (1-np.exp(-g*t))
-    Sz_Sz = N/4 * np.exp(-2*g*t) + Sz**2
-    var_Sz = Sz_Sz - Sz**2
+    Sz = N/2 * (np.exp(-g*t)-1)
+    var_Sz = N/2 * (1 - np.exp(-g*t)/2) * np.exp(-g*t)
+    Sz_Sz = var_Sz + Sz**2
 
     # mean spin values
     Sp = N/2 * np.exp(-g*t/2) * Phi(1)**(N-1)
@@ -180,25 +178,25 @@ def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
     Sy = np.imag(Sp)
 
     # two-spin correlators
-    Sp_Sz = -1/2 * Sp + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi(1) * Phi(1)**(N-2)
-    Sm_Sz = 1/2 * Sm + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi(-1) * Phi(1)**(N-2)
-    Sp_Sp = 1/4 * N * (N-1) * np.exp(-g*t) * Phi(2)**(N-2)
+    Sp_Sz = -1/2 * Sp + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi( 1) * Phi( 1)**(N-2)
+    Sm_Sz =  1/2 * Sm + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi(-1) * Phi(-1)**(N-2)
+    Sp_Sp = 1/4 * N * (N-1) * np.exp(-g*t) * Phi( 2)**(N-2)
     Sm_Sm = 1/4 * N * (N-1) * np.exp(-g*t) * Phi(-2)**(N-2)
-    Sp_Sm = N/2 + Sz + 1/4 * N * (N-1) * np.exp(-g*t) * Phi(0)**(N-2)
-    Sm_Sp = N/2 - Sz + 1/4 * N * (N-1) * np.exp(-g*t) * Phi(0)**(N-2)
+    Sp_Sm = N/2 + Sz + 1/4 * N * (N-1) * np.exp(-g*t) # note that Phi(0) == 1
+    Sm_Sp = N/2 - Sz + 1/4 * N * (N-1) * np.exp(-g*t)
 
-    Sx_Sz = 1/2 * ( Sp_Sz + Sm_Sz )
+    Sx_Sz =   1/2 * ( Sp_Sz + Sm_Sz )
     Sy_Sz = -1j/2 * ( Sp_Sz - Sm_Sz )
     Sz_Sx = np.conj(Sx_Sz)
     Sz_Sy = np.conj(Sy_Sz)
 
-    Sx_Sx = 1/4 * ( Sp_Sp + Sm_Sm + Sp_Sm + Sm_Sp )
-    Sy_Sy = -1/4 * ( Sp_Sp + Sm_Sm - Sp_Sm - Sm_Sp )
-    Sx_Sy = -1j/4 * ( Sp_Sp - Sm_Sm + Sp_Sm - Sm_Sp )
+    Sx_Sx =   1/4 * ( Sp_Sp + Sm_Sm + Sp_Sm + Sm_Sp )
+    Sy_Sy =  -1/4 * ( Sp_Sp + Sm_Sm - Sp_Sm - Sm_Sp )
+    Sx_Sy = -1j/4 * ( Sp_Sp - Sm_Sm - Sp_Sm + Sm_Sp )
     Sy_Sx = np.conj(Sx_Sy)
 
     # otherwise perform a numerical minimization of the spin variance
-    S_vec = np.real(np.array([ Sz, Sx, Sy ])).T
+    S_vec = np.array([ Sz, Sx, Sy ]).T
     SS_mat = np.array([ [ Sz_Sz, Sz_Sx, Sz_Sy ],
                         [ Sx_Sz, Sx_Sx, Sx_Sy ],
                         [ Sy_Sz, Sy_Sx, Sy_Sy ] ]).T
