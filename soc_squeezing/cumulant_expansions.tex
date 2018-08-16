@@ -70,7 +70,7 @@ twisting (TAT), and transverse field (TVF) Hamiltonians of the form
 \end{align}
 for spins which decay in an uncorrelated manner at a rate $\gamma$.
 The evolution of any Heisenburg operator $\O$ with a Hamiltonian $H$
-is thus given by
+is given by
 \begin{align}
   \f{d}{dt} \O
   = i\sp{H,\O}_- + \gamma\D\p{\O},
@@ -240,7 +240,7 @@ collect some particularly useful identities here for reference.
   \sp{S_z,\sigma_j^\mu}_- = \f12 \sp{\sigma_j^z,S_\mu}_-
   = \mu \sigma_j^\mu,
   &&
-  \sp{S_z,S_\mu}_- = \mu S_\mu.
+  \sp{S_z,S_\mu}_- = \mu S_\mu
   \label{eq:comm_z_mu}
 \end{align}
 \begin{align}
@@ -250,7 +250,7 @@ collect some particularly useful identities here for reference.
   \sp{S_\mu,\sigma_j^\nu}_- = \sp{\sigma_j^\mu,S_\nu}_-
   = \delta_{\mu,-\nu} \mu \sigma_j^z,
   &&
-  \sp{S_+,S_-}_- = 2 S_z.
+  \sp{S_\mu,S_\nu}_- = 2\delta_{\mu,-\nu} \mu S_z
   \label{eq:comm_mu_nu}
 \end{align}
 \begin{align}
@@ -258,11 +258,11 @@ collect some particularly useful identities here for reference.
   = \p{\mu S_\mu + S_\mu S_z} S_\mu^{n-1}
   = \mu S_\mu^n + S_\mu S_z S_\mu^{n-1}
   = 2\mu S_\mu^n + S_\mu^2 S_z S_\mu^{n-2}
-  = S_\mu^n \p{\mu n + S_z},
+  = S_\mu^n \p{\mu n + S_z}
   \label{eq:comm_z_mu_n}
 \end{align}
 \begin{align}
-  \sigma_j^+ \sigma_j^- = \f12\p{\1_j+\sigma_j^z},
+  \sigma_j^+ \sigma_j^- = \f12\p{\1_j+\sigma_j^z}
   &&
   \sum_j \sigma_j^+ \sigma_j^- = S + S_z.
 \end{align}
@@ -298,9 +298,9 @@ as
   = S_+^\ell \p{S + S_z} S_-^m
   \sum_{k=0}^n { n \choose k } \p{-1}^{n-k} S_z^k.
 \end{align}
-We now need to push the middle $S_z$ operator to the right, which we
-can do using the commutation relation $\sp{S_z,S_\mu^m}=\mu mS_\mu$
-derived in \eqref{eq:comm_z_mu_n}:
+We now need to push the $S_-^m$ to the left, which we can do using the
+commutation relation $\sp{S_z,S_\mu^m}=\mu mS_\mu$ derived in
+\eqref{eq:comm_z_mu_n}:
 \begin{align}
   \sum_j \sigma_j^+ S_+^\ell S_-^m S_z^n \sigma_j^-
   = S_+^\ell S_-^m \p{S - m + S_z}
@@ -311,17 +311,16 @@ Considering now the last term in \eqref{eq:D_z+-}, we can expand
   \f12 \sp{S_z, S_+^\ell S_-^m S_z^n}_+
   = \f12 \p{S_z S_+^\ell S_-^m + S_+^\ell S_-^m S_z} S_z^n,
 \end{align}
-where we can again use commutation relation in \eqref{eq:comm_z_mu_n}
-to push $S_z$ to the right and get
+where we can again use commutation relation
+$\sp{S_z,S_\mu^m}=\mu mS_\mu$ to push $S_z$ to the right and get
 \begin{align}
   S_z S_+^\ell S_-^m
   = S_+^\ell \p{\ell + S_z} S_-^m
-  = \ell S_+^\ell S_-^m + S_+^\ell S_z S_-^m
   = S_+^\ell S_-^m \p{\ell - m + S_z},
 \end{align}
 which implies
 \begin{align}
-  \f12 \sp{S_z, S_z^\ell S_+^m S_-^n}_+
+  \f12 \sp{S_z, S_+^\ell S_-^m S_z^n}_+
   = \f12 S_+^\ell S_-^m \p{\ell - m + 2 S_z} S_z^n
   = S_+^\ell S_-^m \p{\f12\sp{\ell-m} + S_z} S_z^n.
 \end{align}
