@@ -43,10 +43,10 @@ t_J_hatch = "|"
 U_J_hatches = [ "/", "\\", "-" ]
 
 sqz_dB_floor = 5
-sqz_dB_cap = 11
+sqz_dB_cap = 14
 
 t_SI_floor = 0
-t_SI_cap = 0.4
+t_SI_cap = 0.6
 
 depth_min = 2
 if lattice_dim == 1:
@@ -97,7 +97,7 @@ def get_single_optimum_parameters(depth, confinement):
 
     def squeezing_OAT_val(tau):
         chi_t = tau * N**(-2/3)
-        return squeezing_OAT(chi_t, N, decay_rate / chi)
+        return squeezing_OAT(N, chi_t, decay_rate / chi)
     optimum = minimize_scalar(squeezing_OAT_val,
                               method = "bounded", bounds = (0, max_tau))
     tau_opt = optimum.x

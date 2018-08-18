@@ -11,7 +11,7 @@ from scipy.special import binom, factorial
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
-from squeezing_methods import minimal_orthogonal_variance
+from squeezing_methods import squeezing_from_correlators
 
 # spin operators for N particles in the S = N/2 Dicke manifold
 def spin_op_z_dicke(N):
@@ -136,16 +136,39 @@ def plot_dicke_state(state, grid_size = 51, single_sphere = False):
 
 
 ##########################################################################################
-# analytical solutions to special cases
+# analytical solutions
 ##########################################################################################
 
-# squeezing parameter from one-axis twisting, accounting for e --> g decay
-def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
+# exact correlators for OAT with decoherence
+# derivations in foss-feig2013nonequilibrium
+def correlators_OAT_exact(N, chi_t, decay_rate_over_chi):
     g = decay_rate_over_chi # shorthand for decay rate in units with \chi = 1
     t = chi_t # shorthand for time in units with \chi = 1
 
+    Sz = N/2 * (np.exp(-g*t)-1)
+    var_Sz = N/2 * (1 - np.exp(-g*t)/2) * np.exp(-g*t)
+    Sz_Sz = var_Sz + Sz**2
+
+    def s(J): return J + 1j*g/2
+    def Phi(J): return np.exp(-g*t/2) * ( np.cos(s(J)*t) + g*t/2 * np.sinc(s(J)*t/np.pi) )
+    def Psi(J): return np.exp(-g*t/2) * (1j*s(J)-g/2) * t * np.sinc(s(J)*t/np.pi)
+
+    Sp = N/2 * np.exp(-g*t/2) * Phi(1)**(N-1)
+    Sm = np.conj(Sp)
+
+    Sp_Sz = -1/2 * Sp + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi( 1) * Phi( 1)**(N-2)
+    Sm_Sz =  1/2 * Sm + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi(-1) * Phi(-1)**(N-2)
+    Sp_Sp = 1/4 * N * (N-1) * np.exp(-g*t) * Phi( 2)**(N-2)
+    Sp_Sm = N/2 + Sz + 1/4 * N * (N-1) * np.exp(-g*t) # note that Phi(0) == 1
+
+    return Sz, Sz_Sz, Sp, Sp_Sz, Sm_Sz, Sp_Sp, Sp_Sm
+
+
+# squeezing parameter from one-axis twisting, accounting for e --> g decay
+def squeezing_OAT(N, chi_t, decay_rate_over_chi = 0):
+
     # if there is no spin decay, we have simple analytical formulas
-    if g == 0:
+    if decay_rate_over_chi == 0:
 
         S = N/2
         var_Sy = S/2 + S/2 * (S-1/2) * ( 1 - np.cos(2*chi_t)**(N-2) )
@@ -160,51 +183,7 @@ def squeezing_OAT(chi_t, N, decay_rate_over_chi = 0):
 
         return var_min * N / Sx**2
 
-    # otherwise, we compute the spin correlators derived in foss-feig2013nonequilibrium
-    def s(J): return J + 1j*g/2
-    def Phi(J): return np.exp(-g*t/2) * ( np.cos(s(J)*t) + g*t/2 * np.sinc(s(J)*t/np.pi) )
-    def Psi(J): return np.exp(-g*t/2) * (1j*s(J)-g/2) * t * np.sinc(s(J)*t/np.pi)
+    # otherwise, use more complex but exact spin correlators to compute squeezing
+    correlators = correlators_OAT_exact(chi_t, N, decay_rate_over_chi)
 
-    # spin magnitude and variance along z is determined classically
-    #   by uncorrelated decay events
-    Sz = N/2 * (np.exp(-g*t)-1)
-    var_Sz = N/2 * (1 - np.exp(-g*t)/2) * np.exp(-g*t)
-    Sz_Sz = var_Sz + Sz**2
-
-    # mean spin values
-    Sp = N/2 * np.exp(-g*t/2) * Phi(1)**(N-1)
-    Sm = np.conj(Sp)
-    Sx = np.real(Sp)
-    Sy = np.imag(Sp)
-
-    # two-spin correlators
-    Sp_Sz = -1/2 * Sp + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi( 1) * Phi( 1)**(N-2)
-    Sm_Sz =  1/2 * Sm + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi(-1) * Phi(-1)**(N-2)
-    Sp_Sp = 1/4 * N * (N-1) * np.exp(-g*t) * Phi( 2)**(N-2)
-    Sm_Sm = 1/4 * N * (N-1) * np.exp(-g*t) * Phi(-2)**(N-2)
-    Sp_Sm = N/2 + Sz + 1/4 * N * (N-1) * np.exp(-g*t) # note that Phi(0) == 1
-    Sm_Sp = N/2 - Sz + 1/4 * N * (N-1) * np.exp(-g*t)
-
-    Sx_Sz =   1/2 * ( Sp_Sz + Sm_Sz )
-    Sy_Sz = -1j/2 * ( Sp_Sz - Sm_Sz )
-    Sz_Sx = np.conj(Sx_Sz)
-    Sz_Sy = np.conj(Sy_Sz)
-
-    Sx_Sx =   1/4 * ( Sp_Sp + Sm_Sm + Sp_Sm + Sm_Sp )
-    Sy_Sy =  -1/4 * ( Sp_Sp + Sm_Sm - Sp_Sm - Sm_Sp )
-    Sx_Sy = -1j/4 * ( Sp_Sp - Sm_Sm - Sp_Sm + Sm_Sp )
-    Sy_Sx = np.conj(Sx_Sy)
-
-    # otherwise perform a numerical minimization of the spin variance
-    S_vec = np.array([ Sz, Sx, Sy ]).T
-    SS_mat = np.array([ [ Sz_Sz, Sz_Sx, Sz_Sy ],
-                        [ Sx_Sz, Sx_Sx, Sx_Sy ],
-                        [ Sy_Sz, Sy_Sx, Sy_Sy ] ]).T
-
-    if type(t) == np.ndarray:
-        var_min = np.array([ minimal_orthogonal_variance(S_vec[ii], SS_mat[ii])
-                             for ii in range(len(t)) ])
-    else:
-        var_min = minimal_orthogonal_variance(S_vec, SS_mat)
-
-    return var_min * N / np.real(Sz*Sz + Sx*Sx + Sy*Sy)
+    return squeezing_from_correlators(N, *correlators)

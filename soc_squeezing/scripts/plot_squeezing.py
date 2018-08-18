@@ -118,13 +118,13 @@ d_chi_t = chi_times[-1] / time_steps
 dt = times[-1] / time_steps
 
 # compute OAT squeezing parameters both with and without decay
-sqz_OAT = squeezing_OAT(chi_times, N)
+sqz_OAT = squeezing_OAT(N, chi_times)
 t_opt_OAT = times[sqz_OAT.argmin()]
 sqz_opt_OAT = -to_dB(sqz_OAT.min())
 print("t_opt_OAT (sec):", t_opt_OAT / recoil_energy_NU)
 print("sqz_opt_OAT:", sqz_opt_OAT)
 
-sqz_OAT_D = squeezing_OAT(chi_times, N, decay_rate_over_chi)
+sqz_OAT_D = squeezing_OAT(N, chi_times, decay_rate_over_chi)
 t_opt_OAT_D = times[sqz_OAT_D.argmin()]
 sqz_opt_OAT_D = -to_dB(sqz_OAT_D.min())
 print()

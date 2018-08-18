@@ -82,6 +82,38 @@ def spin_squeezing(state, S_op_vec, SS_op_mat, N):
     variance = minimal_orthogonal_variance(S_vec, SS_mat)
     return variance * N / linalg.norm(S_vec)**2
 
+# return  from a set of spin correlators
+def squeezing_from_correlators(N, Sz, Sz_Sz, Sp, Sp_Sz, Sm_Sz, Sp_Sp, Sp_Sm):
+
+    Sx = np.real(Sp)
+    Sy = np.imag(Sp)
+
+    Sm_Sm = np.conj(Sp_Sp)
+    Sm_Sp = Sp_Sm - 2 * Sz
+
+    Sx_Sz =   1/2 * ( Sp_Sz + Sm_Sz )
+    Sy_Sz = -1j/2 * ( Sp_Sz - Sm_Sz )
+    Sz_Sx = np.conj(Sx_Sz)
+    Sz_Sy = np.conj(Sy_Sz)
+
+    Sx_Sx =   1/4 * ( Sp_Sp + Sm_Sm + Sp_Sm + Sm_Sp )
+    Sy_Sy =  -1/4 * ( Sp_Sp + Sm_Sm - Sp_Sm - Sm_Sp )
+    Sx_Sy = -1j/4 * ( Sp_Sp - Sm_Sm - Sp_Sm + Sm_Sp )
+    Sy_Sx = np.conj(Sx_Sy)
+
+    S_vec = np.array([ Sz, Sx, Sy ]).T
+    SS_mat = np.array([ [ Sz_Sz, Sz_Sx, Sz_Sy ],
+                        [ Sx_Sz, Sx_Sx, Sx_Sy ],
+                        [ Sy_Sz, Sy_Sx, Sy_Sy ] ]).T
+
+    if type(Sz) == np.ndarray:
+        var_min = np.array([ minimal_orthogonal_variance(S_vec[ii], SS_mat[ii])
+                             for ii in range(len(Sz)) ])
+    else:
+        var_min = minimal_orthogonal_variance(S_vec, SS_mat)
+
+    return var_min * N / np.real(Sz*Sz + Sx*Sx + Sy*Sy)
+
 # act with a time-evolution unitary from the left, right, or both sides
 def evolve_left(state, hamiltonian, time):
     return sparse.linalg.expm_multiply(-1j * time * hamiltonian, state)

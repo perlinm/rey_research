@@ -65,7 +65,7 @@ def compute_squeezing():
 
         # determine optimal OAT squeezing parameters
         def squeezing_OAT_val(chi_t):
-            return to_dB(squeezing_OAT(chi_t,N))
+            return to_dB(squeezing_OAT(N,chi_t))
         optimum_OAT = minimize_scalar(squeezing_OAT_val, method = "bounded",
                                       bounds = (0,time_bound))
         time_OAT_vals.at[N] = optimum_OAT.x
