@@ -256,12 +256,7 @@ $S_\mu^m S_\nu^n S_z^n$, we now need to compute
   = \chi \sp{S_z^2, S_\mu^m S_\nu^n S_z^n}_-
   - \Omega \sp{S_x, S_\mu^m S_\nu^n S_z^n}_-.
 \end{align}
-Here first commutator is identical to that for OAT, while for the
-second we need to compute
-\begin{align}
-  \sp{S_\rho, S_\mu^m S_\nu^n S_z^n}_-
-\end{align}
-for $\rho\in\set{+1,-1}$.
+Here first commutator is identical to that for OAT, while
 
 
 \bibliography{\jobname}
@@ -451,13 +446,13 @@ substitution yields the expansion
   = C_{\mu mn}^{(0)}
   = D_{\mu mn}
   + \sum_{p=1}^{\min\set{m,n}-1} E_{\mu mn}^{(p)},
+  \label{eq:C_mn_E}
 \end{align}
 where the first terms in the sum over $p$ is
 \begin{align}
   E_{\mu mn}^{(1)}
   = n \sum_{k=0}^{m-2} D_{\mu,m-1,n-1}^{(k)}
   \p{2k+1-n+2\mu S_z},
-  \label{eq:E_mn_1_first}
 \end{align}
 the second
 \begin{align}
@@ -469,32 +464,41 @@ the second
 and more generally for $p>1$,
 \begin{align}
   E_{\mu mn}^{(p)}
-  = n^{\underline{p}}
+  = \f{n!}{\p{n-p}!}
   \sum_{k_1=0}^{m-2}\cdots\sum_{k_p=k_{p-1}}^{m-p-1}
-  D_{\mu,m-p,n-p}^{(k_p)} \prod_{j=1}^p \p{2k_j+j-n+2\mu S_z},
+  D_{\mu,m-p,n-p}^{(k_p)} \prod_{j=1}^p \p{2k_j+j-n+2\mu S_z}.
+  \label{eq:E_mn_p}
 \end{align}
-with $n^{\underline{p}}\equiv n\p{n-1}\cdots\p{n-p+1}$.  Observing
-that we always have $k_1\le k_2\le\cdots\le k_p$, we can rearrange the
-sums to get that
+In principle, the expressions in \eqref{eq:D_mn} and
+\eqref{eq:C_mn_E}-\eqref{eq:E_mn_p} provide a well-defined expansion
+for the commutator $\sp{S_\mu^m,S_\nu^n}_- = C_{\mu mn}$, but the
+expression for $E_{\mu mn}^{(p)}$ in \eqref{eq:E_mn_p} is -- put it
+lightly -- quite a mess, involving a sum over $p$ mutually related
+intermediate variables!  We therefore devote the rest of this section
+to simplifying $E_{\mu mn}^{(p)}$.
+
+Observing that we always have $k_1\le k_2\le\cdots\le k_p$, we can
+reverse the order of the sums in \eqref{eq:E_mn_p} and re-index
+$k_p\to\ell$ to get
 \begin{align}
   E_{\mu mn}^{(p)}
-  = n^{\underline{p}}
+  = \f{n!}{\p{n-p}!}
   \sum_{\ell=0}^{m-p-1} D_{\mu,m-p,n-p}^{(\ell)} \p{2\ell+p-n+2\mu S_z}
-  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_1\le\cdots\le k_{p-1}}}
+  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_{p-1}\ge\cdots\ge k_1}}
   \prod_{j=1}^{p-1} \p{2k_j+j-n+2\mu S_z},
 \end{align}
 where $\Z_q$ denotes the set of $q$ smallest non-negative integers,
 e.g.~$\Z_{\ell+1}=\set{0,1,\cdots,\ell}$.  Defining for shorthand
 \begin{align}
   \sum_{\p{\v k,p,\ell}} X \equiv
-  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_1\le\cdots\le k_{p-1}}} X,
+  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_{p-1}\ge\cdots\ge k_1}} X,
   &&
   F_{\mu np} \equiv p - n + 2\mu S_z,
 \end{align}
 we can say
 \begin{align}
   E_{\mu mn}^{(p)}
-  = n^{\underline{p}}
+  = \f{n!}{\p{n-p}!}
   \sum_{\ell=0}^{m-p-1} D_{\mu,m-p,n-p}^{(\ell)} \p{2\ell+F_{\mu np}}
   \sum_{\p{\v k,p,\ell}} \prod_{j=1}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}.
   \label{eq:E_mn_p_k_sum}
@@ -503,7 +507,8 @@ We now define
 \begin{align}
   f_{\mu np\ell}\p{k,q} \equiv \p{\ell-k+q} \p{\ell+k-q+F_{\mu np}},
 \end{align}
-and simplify
+and evaluate sums successively over $k_{p-1},k_{p-2},\cdots,k_2,k_1$
+respectively from $k_{p-2},k_{p-3},\cdots,k_1,0$ to $\ell$, finding
 \begin{align}
   \sum_{\p{\v k,p,\ell}} \prod_{j=1}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}
   &= \sum_{\p{\v k;p-1;\ell}}
@@ -512,82 +517,54 @@ and simplify
   &= \f12 \sum_{\p{\v k,p-2,\ell}}
   \prod_{j=3}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}
   f_{\mu np\ell}\p{k_{p-3},1} f_{\mu np\ell}\p{k_{p-3},2} \\
-  &\qquad \vdots \tag*{} \\
   &= \f1{r!} \sum_{\p{\v k,p-r,\ell}}
   \prod_{j=1+r}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}
   \prod_{q=1}^r f_{\mu np\ell}\p{k_{p-1-r},q} \\
-  &\qquad \vdots \tag*{} \\
   &= \f1{\p{p-1}!} \prod_{q=1}^{p-1} f_{\mu np\ell}\p{0,q} \\
   &= { \ell + p - 1 \choose p - 1 }
   \prod_{q=1}^{p-1} \p{\ell-q+F_{\mu np}}.
 \end{align}
-Substitution into \eqref{eq:E_mn_p_k_sum} yields
+Substitution of this result together with $D_{\mu,m-p,n-p}^{(\ell)}$
+as given in using \eqref{eq:D_mn_k} into $E_{\mu mn}^{(p)}$ as
+expressed in \eqref{eq:E_mn_p_k_sum} then gives us
 \begin{align}
   E_{\mu mn}^{(p)}
-  = n^{\underline{p}} \sum_{\ell=0}^{m-p-1} D_{\mu,m-p,n-p}^{(\ell)}
-  { \ell + p - 1 \choose p - 1 }
-  \prod_{q=0}^{p-1} \p{\ell-q+F_{\mu np}}
-  = n^{\underline{p}} S_\bmu^{n-1} S_\mu^{m-1} G_{\mu mnp}
+  = \f{n!}{\p{n-p-1}!} S_\bmu^{n-p-1} S_\mu^{m-p-1} G_{\mu mnp}
+  \label{eq:E_mn_p_G}
 \end{align}
-for
+with
 \begin{align}
   G_{\mu mnp}
-  \equiv \sum_{\ell=0}^{m-p-1} \p{m-p-\ell} \p{n-p}
-  \p{\ell+m-p+F_{\mu np}}
-  { \ell + p - 1 \choose p - 1 }
-  \prod_{q=0}^{p-1} \p{\ell-q+F_{\mu np}}.
+  \equiv
+  \sum_{\ell=0}^{m-p-1} { \ell + p - 1 \choose p - 1 }
+  \p{m-p-\ell} \p{\ell+m-p+F_{\mu np}}
+  \p{2\ell + F_{\mu np}}
+  \prod_{q=1}^{p-1} \p{\ell-q+F_{\mu np}}.
 \end{align}
 
 
-\vspace{3cm}
+% \vspace{3cm}
 
-\begin{align}
-  \prod_{j=1}^{p-1} \p{2k_j+j-n+2\mu S_z}
-  = \sum_{q=0}^{p-1} \p{2\mu S_z}^q
-  \sum_{c\in\C_{p-1-q}\p{\Z_{p-1}}} \prod_{j\in c} \p{2k_{j+1}+j+1-n},
-  \label{eq:product_expansion}
-\end{align}
-where $\C\p{k,\S}$ denotes the set of $k$-combinations (i.e.~subsets
-with $k$ elements) of $\S$; the number of elements in
-$\C_{p-1-q}\p{\Z_{p-1}}$ is
-${ p-1 \choose p-1-q } = { p-1 \choose q }$.  Substituting
-\eqref{eq:D_mn_k} and \eqref{eq:product_expansion} into
-\eqref{eq:E_mn_p_semifinal}, we get that for $p>1$,
-\begin{align}
-  E_{\mu mn}^{(p)}
-  = n^{\underline{p}} S_\bmu^{n-p-1} S_\mu^{m-p-1}
-  \sum_{s=0}^2 f_{mnp\ell}^{(s)} \p{2\mu S_z}^s
-  \sum_{q=0}^{p-1} g_{np\ell q} \p{2\mu S_z}^q,
-  \label{eq:E_mn_p}
-\end{align}
-where
-\begin{align}
-  f_{mnp\ell}^{(0)}
-  &= \p{m-p-\ell} \p{n-p} \p{\ell+m-n} \p{2\ell-n+p}, \\
-  f_{mnp\ell}^{(1)}
-  &= \p{m-p-\ell} \p{n-p} \p{3\ell+m-2n+p}, \\
-  f_{mnp\ell}^{(2)}
-  &= \p{m-p-\ell} \p{n-p}, \\
-  g_{np\ell q}
-  &=
-  \sum_{c\in\C_{p-1-q}\p{\Z_{p-1}}}
-  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_1\le k_2\le\cdots\le k_{p-1}}}
-  \prod_{j\in c} \p{2k_{j+1}+j+1-n},
-\end{align}
-and for $p=1$ we can resolve \eqref{eq:E_mn_1_first} to get
-\begin{align}
-  E_{\mu mn}^{(1)}
-  = \f16 mn \p{m-1} \p{3n-m-1} S_\bmu^{n-1} S_\mu ^{m-1} \p{m+2\mu S_z}.
-  \label{eq:E_mn_1}
-\end{align}
-With reference to \eqref{eq:E_mn_p}-\eqref{eq:E_mn_1}, we finally have
-\begin{align}
-  \sp{S_\mu^m, S_\bmu^n}_-
-  = C_{\mu mn}
-  = mn S_\bmu^{n-1} S_\mu^{m-1}
-  \sum_{q\in\set{0,1}} \p{m-n}^{1-q}\p{2\mu S_z}^q
-  + \sum_{p=1}^{\min\set{m,n}-1} E_{\mu mn}^{(p)}.
-\end{align}
+% With reference to \eqref{eq:E_mn_p_G}, we finally have
+% \begin{align}
+%   \sp{S_\mu^m, S_\bmu^n}_-
+%   = C_{\mu mn}
+%   = mn S_\bmu^{n-1} S_\mu^{m-1}
+%   \sum_{q\in\set{0,1}} \p{m-n}^{1-q}\p{2\mu S_z}^q
+%   + \sum_{p=1}^{\min\set{m,n}-1} E_{\mu mn}^{(p)}.
+% \end{align}
+
+
+% \begin{align}
+%   \prod_{j=1}^{p-1} \p{2k_j+j-n+2\mu S_z}
+%   = \sum_{q=0}^{p-1} \p{2\mu S_z}^q
+%   \sum_{c\in\C_{p-1-q}\p{\Z_{p-1}}} \prod_{j\in c} \p{2k_{j+1}+j+1-n},
+%   \label{eq:product_expansion}
+% \end{align}
+% where $\C\p{k,\S}$ denotes the set of $k$-combinations (i.e.~subsets
+% with $k$ elements) of $\S$; the number of elements in
+% $\C_{p-1-q}\p{\Z_{p-1}}$ is
+% ${ p-1 \choose p-1-q } = { p-1 \choose q }$.
 
 \vspace{3cm}
 
