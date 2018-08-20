@@ -26,6 +26,9 @@
 \newcommand{\C}{\mathcal{C}}
 \newcommand{\D}{\mathcal{D}}
 \renewcommand{\O}{\mathcal{O}}
+\renewcommand{\S}{\mathcal{S}}
+
+\newcommand{\Z}{\mathbb{Z}}
 
 \newcommand{\bmu}{{\bar\mu}}
 
@@ -371,35 +374,35 @@ As the next logical step, we take on the task of computing
     + S_\bmu^n S_\mu} \\
   &= n \sp{S_\mu^{m-1} S_\bmu^{n-1} \p{1 - n + 2\mu S_z}}
   + S_\mu^{m-1} S_\bmu^n S_\mu \\
-  &= n \sum_{\ell=0}^{m-1} S_\mu^{m-\ell-1} S_\bmu^{n-1}
-  \p{1 - n + 2\mu S_z} S_\mu^\ell + S_\bmu^n S_\mu^m,
+  &= n \sum_{k=0}^{m-1} S_\mu^{m-k-1} S_\bmu^{n-1}
+  \p{1 - n + 2\mu S_z} S_\mu^k + S_\bmu^n S_\mu^m,
 \end{align}
 which implies
 \begin{align}
   \sp{S_\mu^m, S_\bmu^n}_-
   = C_{\mu mn}
-  \equiv n \sum_{\ell=0}^{m-1} S_\mu^{m-\ell-1} S_\bmu^{n-1}
-  \p{1 - n + 2\mu S_z} S_\mu^\ell.
+  \equiv n \sum_{k=0}^{m-1} S_\mu^{m-k-1} S_\bmu^{n-1}
+  \p{1 - n + 2\mu S_z} S_\mu^k.
 \end{align}
 We now need rearrange the operators in $C_{\mu mn}$ into a standard
 order, which means pushing all $S_z$ operators to the right and, for
 the purposes of this calculation, all $S_\bmu$ operators on the left.
-We begin by pushing $S_\mu^\ell$ to the left of $S_z$, which takes
-$2\mu S_z\to 2\mu S_z+2\ell$, and then push $S_\mu^{m-\ell-1}$ to the
-right of $S_\bmu^{n-1}$, giving us
+We begin by pushing $S_\mu^k$ to the left of $S_z$, which takes
+$2\mu S_z\to 2\mu S_z+2k$, and then push $S_\mu^{m-k-1}$ to the right
+of $S_\bmu^{n-1}$, giving us
 \begin{align}
   C_{\mu mn}
-  &= n \sum_{\ell=0}^{m-1}
-  \p{S_\bmu^{n-1} S_\mu^{m-\ell-1} + C_{\mu,m-\ell-1,n-1}} S_\mu^\ell
-  \p{2\ell + 1 - n + 2\mu S_z} \\
+  &= n \sum_{k=0}^{m-1}
+  \p{S_\bmu^{n-1} S_\mu^{m-k-1} + C_{\mu,m-k-1,n-1}} S_\mu^k
+  \p{2k + 1 - n + 2\mu S_z} \\
   &= D_{\mu mn}
-  + n \sum_{\ell=0}^{m-2} C_{\mu,m-\ell-1,n-1}
-  S_\mu^\ell \p{2\ell + 1 - n + 2\mu S_z},
+  + n \sum_{k=0}^{m-2} C_{\mu,m-k-1,n-1}
+  S_\mu^k \p{2k + 1 - n + 2\mu S_z},
   \label{eq:C_mn}
 \end{align}
 where we have dropped the last term in the final sum because
-$C_{\mu,m-\ell-1,n-1}=\sp{S_\mu^{m-\ell-1},S_\bmu^{n-1}}_-=0$ if
-$\ell=m-1$, and
+$C_{\mu,m-k-1,n-1}=\sp{S_\mu^{m-k-1},S_\bmu^{n-1}}_-=0$ if $k=m-1$,
+and
 \begin{align}
   D_{\mu mn}
   \equiv mn S_\bmu^{n-1} S_\mu^{m-1} \p{m - n + 2\mu S_z}.
@@ -407,114 +410,134 @@ $\ell=m-1$, and
 \end{align}
 To our despair, we have arrived in \eqref{eq:C_mn} to a {\it
   recursive} expression for $C_{\mu mn}$, and we have not even managed
-to order the spin operators, as $C_{\mu,m-\ell-1,n-1}$ contains $S_z$
-operators which are to the left of $S_\mu^\ell$.  To sort all spin
+to order the spin operators, as $C_{\mu,m-k-1,n-1}$ contains $S_z$
+operators which are to the left of $S_\mu^k$.  To sort all spin
 operators once and for all, we define
 \begin{align}
-  C_{\mu mn}^{(\ell)} \equiv C_{\mu,m-\ell,n} S_\mu^\ell,
+  C_{\mu mn}^{(k)} \equiv C_{\mu,m-k,n} S_\mu^k,
   &&
-  D_{\mu mn}^{(\ell)} \equiv D_{\mu,m-\ell,n} S_\mu^\ell,
+  D_{\mu mn}^{(k)} \equiv D_{\mu,m-k,n} S_\mu^k,
 \end{align}
 which we can expand as
 \begin{align}
-  D_{\mu mn}^{(\ell)}
-  &\equiv D_{\mu,m-\ell,n}S_\mu^\ell \\
-  &= \p{m-\ell}n S_\bmu^{n-1} S_\mu^{m-\ell-1}
-  \p{m-\ell-n+2\mu S_z} S_\mu^\ell \\
-  &= \p{m-\ell}n S_\bmu^{n-1} S_\mu^{m-1} \p{\ell+m-n+2\mu S_z},
-  \label{eq:D_mn_ell}
+  D_{\mu mn}^{(k)}
+  &\equiv D_{\mu,m-k,n}S_\mu^k \\
+  &= \p{m-k}n S_\bmu^{n-1} S_\mu^{m-k-1}
+  \p{m-k-n+2\mu S_z} S_\mu^k \\
+  &= \p{m-k}n S_\bmu^{n-1} S_\mu^{m-1} \p{k+m-n+2\mu S_z},
+  \label{eq:D_mn_k}
 \end{align}
 and
 \begin{align}
-  C_{\mu mn}^{(\ell)}
-  &= D_{\mu,m-\ell,n} S_\mu^\ell + n \sum_{k=0}^{m-\ell-2}
-  C_{\mu,m-\ell-k-1,n-1} S_\mu^k \p{2k+1-n+2\mu S_z} S_\mu^\ell \\
-  &= D_{\mu mn}^{(\ell)} + n \sum_{k=0}^{m-\ell-2}
-  C_{\mu,m-\ell-k-1,n-1} S_\mu^{k+\ell} \p{2k+2\ell+1-n+2\mu S_z} \\
-  &= D_{\mu mn}^{(\ell)} + n \sum_{k=0}^{m-\ell-2}
-  C_{\mu,m-1,n-1}^{(\ell+k)} \p{2\sp{k+\ell}+1-n+2\mu S_z} \\
-  &= D_{\mu mn}^{(\ell)} + n \sum_{k=\ell}^{m-2}
-  C_{\mu,m-1,n-1}^{(k)} \p{2k+1-n+2\mu S_z}.
-  \label{eq:C_mn_ell}
+  C_{\mu mn}^{(k)}
+  &= D_{\mu,m-k,n} S_\mu^k + n \sum_{j=0}^{m-k-2}
+  C_{\mu,m-k-j-1,n-1} S_\mu^j \p{2j+1-n+2\mu S_z} S_\mu^k \\
+  &= D_{\mu mn}^{(k)} + n \sum_{j=0}^{m-k-2}
+  C_{\mu,m-k-j-1,n-1} S_\mu^{j+k} \p{2j+2k+1-n+2\mu S_z} \\
+  &= D_{\mu mn}^{(k)} + n \sum_{j=0}^{m-k-2}
+  C_{\mu,m-1,n-1}^{(k+j)} \p{2\sp{j+k}+1-n+2\mu S_z} \\
+  &= D_{\mu mn}^{(k)} + n \sum_{j=k}^{m-2}
+  C_{\mu,m-1,n-1}^{(j)} \p{2j+1-n+2\mu S_z}.
+  \label{eq:C_mn_k}
 \end{align}
 While the resulting expression strongly resembles that in
 \eqref{eq:C_mn}, there is one crucial difference: all spin operators
-in \eqref{eq:C_mn_ell} have been ordered.  We can now repeatedly
-substitute $C_{\mu mn}^{(\ell)}$ into itself, each time decreasing $m$
+in \eqref{eq:C_mn_k} have been ordered.  We can now repeatedly
+substitute $C_{\mu mn}^{(k)}$ into itself, each time decreasing $m$
 and $n$ by 1, until one of $m$ or $n$ reaches zero.  Such repeated
 substitution yields the expansion
 \begin{align}
-  C_{\mu mn}^{(\ell)}
-  = D_{\mu mn}^{(\ell)}
-  + \sum_{p=1}^{\min\set{m,n}-1} E_{\mu mn}^{(\ell,p)},
+  C_{\mu mn}
+  = C_{\mu mn}^{(0)}
+  = D_{\mu mn}
+  + \sum_{p=1}^{\min\set{m,n}-1} E_{\mu mn}^{(p)},
 \end{align}
-where the first terms in the sum are
+where the first terms in the sum over $p$ is
 \begin{align}
-  E_{\mu mn}^{(\ell,1)}
-  = n \sum_{k=\ell}^{m-2} D_{\mu,m-1,n-1}^{(k)}
+  E_{\mu mn}^{(1)}
+  = n \sum_{k=0}^{m-2} D_{\mu,m-1,n-1}^{(k)}
   \p{2k+1-n+2\mu S_z},
+  \label{eq:E_mn_1_first}
 \end{align}
+the second
 \begin{align}
-  E_{\mu mn}^{(\ell,2)}
-  = n \sum_{k_1=\ell}^{m-2} \p{n-1} \sum_{k_2=k_1}^{m-3}
+  E_{\mu mn}^{(2)}
+  = n \sum_{k_1=0}^{m-2} \p{n-1} \sum_{k_2=k_1}^{m-3}
   D_{\mu,m-2,n-2}^{(k_2)}
   \p{2k_2+2-n+2\mu S_z} \p{2k_1+1-n+2\mu S_z},
 \end{align}
-and more generally
+and more generally for $p>1$,
 \begin{align}
-  E_{\mu mn}^{(k_0,p)}
-  = n^{\underline{p}} \sum_{\p{\v k,k_0,m,p}}
-  D_{\mu,m-p,n-p}^{(k_p)} \prod_{j=1}^p \p{2k_j+j-n+2\mu S_z}.
-  \label{eq:E_mn_kp}
+  E_{\mu mn}^{(p)}
+  = n^{\underline{p}}
+  \sum_{k_1=0}^{m-2}\cdots\sum_{k_p=k_{p-1}}^{m-p-1}
+  D_{\mu,m-p,n-p}^{(k_p)} \prod_{j=1}^p \p{2k_j+j-n+2\mu S_z},
 \end{align}
-with
-$n^{\underline{p}}\equiv
-n\p{n-1}\cdots\p{n-p+1}=\prod_{j=0}^{p-1}\p{n-j}$ and
+with $n^{\underline{p}}\equiv n\p{n-1}\cdots\p{n-p+1}$.  Observing
+that we always have $k_1\le k_2\le\cdots\le k_p$, we can rearrange the
+sums to get that for $p>1$
 \begin{align}
-  \sum_{\p{\v k,k_0,m,p}}
-  \equiv \sum_{k_1=k_0}^{m-2} \cdots \sum_{k_p=k_{p-1}}^{m-p-1}.
+  E_{\mu mn}^{(p)}
+  = n^{\underline{p}}
+  \sum_{\ell=0}^{m-p-1} D_{\mu,m-p,n-p}^{(\ell)} \p{2\ell+p-n+2\mu S_z}
+  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_1\le k_2\le\cdots\le k_{p-1}}}
+  \prod_{j=1}^{p-1} \p{2k_j+j-n+2\mu S_z},
+  \label{eq:E_mn_p_semifinal}
 \end{align}
-Using \eqref{eq:D_mn_ell} to substitute $D_{\mu,m-p,n-p}^{(k_p)}$ into
-\eqref{eq:E_mn_kp} gives us
+where $\Z_q$ denotes the set of $q$ smallest non-negative integers,
+e.g.~$\Z_{\ell+1}=\set{0,1,\cdots,\ell}$.  We now expand
 \begin{align}
-  E_{\mu mn}^{(k_0,p)}
-  &= n^{\underline{p}} S_\bmu^{n-p-1} S_\mu^{m-p-1} \tag*{} \\
-  &\qquad \times \sum_{\p{\v k,k_0,m,p}}
-  \p{m-p-k_p} \p{n-p} \p{k_p+m-n+2\mu S_z} \tag*{} \\
-  &\qquad \times \prod_{j=1}^p \p{2k_j+j-n+2\mu S_z}.
-\end{align}
-We now wish to pick off the coefficients of each operator in
-$E_{\mu mn}^{\p{k_0,p}}$, so we express
-\begin{align}
-  \prod_{j=1}^p \p{2k_j+p-n+2\mu S_z}
-  = \sum_{q=0}^p \p{2\mu S_z}^q
-  \sum_{c\in\C\p{q,p}} \prod_{\alpha\notin c} \p{2k_\alpha+\alpha-n},
+  \prod_{j=1}^{p-1} \p{2k_j+j-n+2\mu S_z}
+  = \sum_{q=0}^{p-1} \p{2\mu S_z}^q
+  \sum_{c\in\C_{p-1-q}\p{\Z_{p-1}}} \prod_{j\in c} \p{2k_{j+1}+j+1-n},
   \label{eq:product_expansion}
 \end{align}
-where implicitly $\alpha\in\set{1,2,\cdots,p}$, and $\C\p{q,p}$
-denotes the set of $q$-combinations (i.e.~subsets with $q$ elements)
-of $\set{1,2,\cdots,p}$; the number of elements in $\C\p{q,p}$ is
-${p \choose q}$.  Note that for the expansion in
-\eqref{eq:product_expansion} to hold, we require that the empty
-product
-$\prod_{\alpha\notin\set{1,\cdots,p}}\p{2k_\alpha+\alpha-n}=1$.  We
-can now write
+where $\C\p{k,\S}$ denotes the set of $k$-combinations (i.e.~subsets
+with $k$ elements) of $\S$; the number of elements in
+$\C_{p-1-q}\p{\Z_{p-1}}$ is
+${ p-1 \choose p-1-q } = { p-1 \choose q }$.  Substituting
+\eqref{eq:D_mn_k} and \eqref{eq:product_expansion} into
+\eqref{eq:E_mn_p_semifinal}, we get that for $p>1$,
 \begin{align}
-  E_{\mu mn}^{\p{k_0,p}}
-  &= n^{\underline{p}} S_\bmu^{n-p-1} S_\mu^{m-p-1}
-  \sum_{q=0}^p \p{2\mu}^q S_z^q \tag*{} \\
-  &\qquad \times \sum_{c\in\C\p{q,p}} \sum_{\p{\v k,k_0,m,p}}
-  \p{m-p-k_p} \p{n-p} \p{k_p+m-n+2\mu S_z}
-  \prod_{\alpha\notin c} \p{2k_\alpha+\alpha-n}.
+  E_{\mu mn}^{(p)}
+  = n^{\underline{p}} S_\bmu^{n-p-1} S_\mu^{m-p-1}
+  \sum_{s=0}^2 f_{mnp\ell}^{(s)} \p{2\mu S_z}^s
+  \sum_{q=0}^{p-1} g_{np\ell q} \p{2\mu S_z}^q,
+  \label{eq:E_mn_p}
 \end{align}
-
+where
+\begin{align}
+  f_{mnp\ell}^{(0)}
+  &= \p{m-p-\ell} \p{n-p} \p{\ell+m-n} \p{2\ell-n+p}, \\
+  f_{mnp\ell}^{(1)}
+  &= \p{m-p-\ell} \p{n-p} \p{3\ell+m-2n+p}, \\
+  f_{mnp\ell}^{(2)}
+  &= \p{m-p-\ell} \p{n-p}, \\
+  g_{np\ell q}
+  &=
+  \sum_{c\in\C_{p-1-q}\p{\Z_{p-1}}}
+  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_1\le k_2\le\cdots\le k_{p-1}}}
+  \prod_{j\in c} \p{2k_{j+1}+j+1-n},
+\end{align}
+and for $p=1$ we can resolve \eqref{eq:E_mn_1_first} to get
+\begin{align}
+  E_{\mu mn}^{(1)}
+  = \f16 mn \p{m-1} \p{3n-m-1} S_\bmu^{n-1} S_\mu ^{m-1} \p{m+2\mu S_z}.
+  \label{eq:E_mn_1}
+\end{align}
+With reference to \eqref{eq:E_mn_p}-\eqref{eq:E_mn_1}, we finally have
+\begin{align}
+  \sp{S_\mu^m, S_\bmu^n}_-
+  = C_{\mu mn}
+  = mn S_\bmu^{n-1} S_\mu^{m-1}
+  \sum_{q\in\set{0,1}} \p{m-n}^{1-q}\p{2\mu S_z}^q
+  + \sum_{p=1}^{\min\set{m,n}-1} E_{\mu mn}^{(p)}.
+\end{align}
 
 \vspace{3cm}
 
-Solving \eqref{eq:C_mn_ell} may be more trouble than it's worth
-right now, but to derive a system of equations for the two-axis
-twisting Hamiltonian we need to know $\sp{S_\mu^2,S_\bmu^n}_-$, so we
-expand
+To derive a system of equations for the two-axis twisting Hamiltonian
+we need to know $\sp{S_\mu^2,S_\bmu^n}_-$, so we expand
 \begin{align}
   \sp{S_\mu^2,S_\bmu^n}_-
   = C_{\mu mn}
