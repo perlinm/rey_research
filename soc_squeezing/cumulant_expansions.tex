@@ -475,17 +475,72 @@ and more generally for $p>1$,
 \end{align}
 with $n^{\underline{p}}\equiv n\p{n-1}\cdots\p{n-p+1}$.  Observing
 that we always have $k_1\le k_2\le\cdots\le k_p$, we can rearrange the
-sums to get that for $p>1$
+sums to get that
 \begin{align}
   E_{\mu mn}^{(p)}
   = n^{\underline{p}}
   \sum_{\ell=0}^{m-p-1} D_{\mu,m-p,n-p}^{(\ell)} \p{2\ell+p-n+2\mu S_z}
-  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_1\le k_2\le\cdots\le k_{p-1}}}
+  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_1\le\cdots\le k_{p-1}}}
   \prod_{j=1}^{p-1} \p{2k_j+j-n+2\mu S_z},
-  \label{eq:E_mn_p_semifinal}
 \end{align}
 where $\Z_q$ denotes the set of $q$ smallest non-negative integers,
-e.g.~$\Z_{\ell+1}=\set{0,1,\cdots,\ell}$.  We now expand
+e.g.~$\Z_{\ell+1}=\set{0,1,\cdots,\ell}$.  Defining for shorthand
+\begin{align}
+  \sum_{\p{\v k,p,\ell}} X \equiv
+  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_1\le\cdots\le k_{p-1}}} X,
+  &&
+  F_{\mu np} \equiv p - n + 2\mu S_z,
+\end{align}
+we can say
+\begin{align}
+  E_{\mu mn}^{(p)}
+  = n^{\underline{p}}
+  \sum_{\ell=0}^{m-p-1} D_{\mu,m-p,n-p}^{(\ell)} \p{2\ell+F_{\mu np}}
+  \sum_{\p{\v k,p,\ell}} \prod_{j=1}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}.
+  \label{eq:E_mn_p_k_sum}
+\end{align}
+We now define
+\begin{align}
+  f_{\mu np\ell}\p{k,q} \equiv \p{\ell-k+q} \p{\ell+k-q+F_{\mu np}},
+\end{align}
+and simplify
+\begin{align}
+  \sum_{\p{\v k,p,\ell}} \prod_{j=1}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}
+  &= \sum_{\p{\v k;p-1;\ell}}
+  \prod_{j=2}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}
+  f_{\mu n\ell}\p{k_{p-2},1} \\
+  &= \f12 \sum_{\p{\v k,p-2,\ell}}
+  \prod_{j=3}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}
+  f_{\mu np\ell}\p{k_{p-3},1} f_{\mu np\ell}\p{k_{p-3},2} \\
+  &\qquad \vdots \tag*{} \\
+  &= \f1{r!} \sum_{\p{\v k,p-r,\ell}}
+  \prod_{j=1+r}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}
+  \prod_{q=1}^r f_{\mu np\ell}\p{k_{p-1-r},q} \\
+  &\qquad \vdots \tag*{} \\
+  &= \f1{\p{p-1}!} \prod_{q=1}^{p-1} f_{\mu np\ell}\p{0,q} \\
+  &= { \ell + p - 1 \choose p - 1 }
+  \prod_{q=1}^{p-1} \p{\ell-q+F_{\mu np}}.
+\end{align}
+Substitution into \eqref{eq:E_mn_p_k_sum} yields
+\begin{align}
+  E_{\mu mn}^{(p)}
+  = n^{\underline{p}} \sum_{\ell=0}^{m-p-1} D_{\mu,m-p,n-p}^{(\ell)}
+  { \ell + p - 1 \choose p - 1 }
+  \prod_{q=0}^{p-1} \p{\ell-q+F_{\mu np}}
+  = n^{\underline{p}} S_\bmu^{n-1} S_\mu^{m-1} G_{\mu mnp}
+\end{align}
+for
+\begin{align}
+  G_{\mu mnp}
+  \equiv \sum_{\ell=0}^{m-p-1} \p{m-p-\ell} \p{n-p}
+  \p{\ell+m-p+F_{\mu np}}
+  { \ell + p - 1 \choose p - 1 }
+  \prod_{q=0}^{p-1} \p{\ell-q+F_{\mu np}}.
+\end{align}
+
+
+\vspace{3cm}
+
 \begin{align}
   \prod_{j=1}^{p-1} \p{2k_j+j-n+2\mu S_z}
   = \sum_{q=0}^{p-1} \p{2\mu S_z}^q
