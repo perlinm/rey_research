@@ -184,6 +184,6 @@ def squeezing_OAT(N, chi_t, decay_rate_over_chi = 0):
         return var_min * N / Sx**2
 
     # otherwise, use more complex but exact spin correlators to compute squeezing
-    correlators = correlators_OAT_exact(chi_t, N, decay_rate_over_chi)
+    correlators = correlators_OAT_exact(N, chi_t, decay_rate_over_chi)
 
     return squeezing_from_correlators(N, *correlators)
