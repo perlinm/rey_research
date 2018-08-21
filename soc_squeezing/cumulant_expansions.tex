@@ -559,18 +559,25 @@ By substitution of $F_{mu np}=p-n+2\mu S_z$, we can expand
 where $m-n-\Z_{p+1}=\set{m-n-j:j\in\Z_{p+1}}$ and $e_k\p{\S}$ is the
 elementary symmetric polynomial of degree $k$ in elements of $\S$,
 i.e.~the sum of all products of $k$ distinct elements chosen from
-$\S$.  Putting everything together, we have that
+$\S$.  Among other ways, the elementary symmetric polynomial
+$e_k\p{\S_n}$ for $\S_n\equiv\set{x_1,x_2,\cdots,x_n}$ can be simply
+computed via the recurrence relation
 \begin{align}
-  E_{\mu mn}^{(p)}
-  = { m \choose p + 1 } { n \choose p + 1 } \p{p+1}!
-  S_\bmu^{n-p-1} S_\mu^{m-p-1}
-  \sum_{q=0}^{p+1} \p{2\mu}^q e_{p+1-q}\p{m-n-\Z_{p+1}} S_z^q,
+  e_k\p{\S_n} = e_k\p{\S_{n-1}} + x_n e_{k-1}\p{\S_{n-1}}
 \end{align}
-where in the expressed form we have $E_{\mu mn}^{(0)} = D_{\mu mn}$,
-so finally
+together with the terminal conditions $e_k\p{\S_k}=\prod_{j=1}^k x_j$
+and $e_0\p{\S_n}=1$.  Putting everything together, we have
+\begin{align}
+  E_{\mu mn}^{(p-1)}
+  = p! { m \choose p } { n \choose p }
+  S_\bmu^{n-p} S_\mu^{m-p}
+  \sum_{q=0}^p \p{2\mu}^q e_{p-q}\p{m-n-\Z_p} S_z^q,
+\end{align}
+where in the expressed form, $E_{\mu mn}^{(0)} = D_{\mu mn}$, so
+finally
 \begin{align}
   \sp{S_\mu^m, S_\bmu^n}_-
-  = \sum_{p=0}^{\min\set{m,n}-1} E_{\mu mn}^{(p)}.
+  = \sum_{p=1}^{\min\set{m,n}} E_{\mu mn}^{(p-1)}.
 \end{align}
 
 
