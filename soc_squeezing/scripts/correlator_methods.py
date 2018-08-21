@@ -6,14 +6,16 @@ import numpy as np
 import scipy.sparse as sparse
 import scipy.linalg as linalg
 
-from scipy.special import binom, factorial
+from scipy.special import binom
+
+from squeezing_methods import ln_binom
 
 # correlator < X | S_\mu S_z^n | X > for \mu \in \set{+1,-1}
 def val_mu_X(N, n, mu):
     assert(mu == 1 or mu == -1)
     S = N/2
-    return 1/2**N * sum([ m**n * binom(N,S+m) * abs( m - mu*S )
-                          for m in np.arange(-S,S+1/4) ])
+    return sum([ m**n * np.exp( ln_binom(N,S+m) - N*np.log(2) ) * abs( m - mu*S )
+                 for m in np.arange(-S,S+1) ])
 
 # correlator < X | S_\mu S_\nu S_z^n | X > for \mu,\nu \in \set{+1,-1} and \mu >= \nu
 def val_mu_nu_X(N, n, mu, nu):
@@ -21,16 +23,16 @@ def val_mu_nu_X(N, n, mu, nu):
     assert(nu == 1 or nu == -1)
     assert(mu >= nu)
     S = N/2
-    return 1/2**N * sum([ m**n
-                          * np.sqrt(binom(N,S+m) * binom(N,S+m+mu+nu))
-                          * np.sqrt((S-mu*(m+nu))*(S+mu*(m+nu)+1))
-                          * np.sqrt((S-nu*m)*(S+nu*m+1))
-                          for m in np.arange(-S,S+1/4)
-                          if abs(m+mu+nu)+1/4 < S+1/2 ])
+    return sum([ m**n
+                 * np.exp( ln_binom(N,S+m)/2 + ln_binom(N,S+m+mu+nu)/2 - N*np.log(2) )
+                 * np.sqrt( (S-mu*(m+nu)) * (S+mu*(m+nu)+1) * (S-nu*m) * (S+nu*m+1) )
+                 for m in np.arange(-S,S-mu-nu+1) ])
 
 # return correlators after regular one-axis twisting protocol
-def correlators_OAT(N, chi_t, decay_rate_over_chi, max_weight = None, print_updates = False):
-    if max_weight == None: max_weight = N
+def correlators_OAT(N, chi_t, decay_rate_over_chi,
+                    max_weight = None, print_updates = False):
+    # set a default number of operators in+ea+h vector
+    if max_weight == None: max_weight = 10
 
     # shorthand for time and decay rate in units with \chi = 1
     t, g = chi_t, decay_rate_over_chi
