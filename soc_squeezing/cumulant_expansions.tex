@@ -323,9 +323,16 @@ which implies
   \p{\mu m + \nu n}^{\ell-k} S_z^k.
   \label{eq:comm_z_mu_nu_pow}
 \end{align}
+Similarly finding commutation relations between high-weight transverse
+spin operators, i.e.~$S_\mu^m$ and $S_\nu^n$, turns out to be
+considerably more difficult than the cases we have worked out thus
+far.  We therefore save this case for Appendix
+\ref{sec:comm_transverse}.
 
 
+\newpage
 \section{Commutators between high-weight transverse spin operators}
+\label{sec:comm_transverse}
 
 To determine commutation relations between high-weight operators
 transverse to the decoherence (i.e.~$z$) axis, we compute (with
@@ -348,7 +355,7 @@ $\bmu\equiv-\mu$ for brevity)
 While \eqref{eq:comm_mu_nu_single} gives us the commutator
 $\sp{S_\mu,S_\bmu^n}_-$, we would like to enforce an ordering on
 products of collective spin operators, which allows us to only keep
-track of high-weight operators which are linearly independent.  We
+track of high-weight operators that are linearly independent.  We
 (arbitrarily) choose to impose an ordering with all $S_z$ operators on
 the right.  This choice of ordering compels us to expand
 \begin{align}
@@ -404,10 +411,10 @@ and
   \label{eq:D_mn}
 \end{align}
 To our despair, we have arrived in \eqref{eq:C_mn} to a {\it
-  recursive} expression for $C_{\mu mn}$, and we have not even managed
-to order the spin operators, as $C_{\mu,m-k-1,n-1}$ contains $S_z$
-operators which are to the left of $S_\mu^k$.  To sort all spin
-operators once and for all, we define
+  recursive} expression for $C_{\mu mn}$.  Furthermore, we have not
+even managed to order the spin operators, as $C_{\mu,m-k-1,n-1}$
+contains $S_z$ operators which are to the left of $S_\mu^k$.  To sort
+all spin operators once and for all, we define
 \begin{align}
   C_{\mu mn}^{(k)} \equiv C_{\mu,m-k,n} S_\mu^k,
   &&
@@ -435,12 +442,12 @@ and
   C_{\mu,m-1,n-1}^{(j)} \p{2j+1-n+2\mu S_z}.
   \label{eq:C_mn_k}
 \end{align}
-While the resulting expression strongly resembles that in
-\eqref{eq:C_mn}, there is one crucial difference: all spin operators
-in \eqref{eq:C_mn_k} have been ordered.  We can now repeatedly
-substitute $C_{\mu mn}^{(k)}$ into itself, each time decreasing $m$
-and $n$ by 1, until one of $m$ or $n$ reaches zero.  Such repeated
-substitution yields the expansion
+While the resulting expression in \eqref{eq:C_mn_k} strongly resembles
+that in \eqref{eq:C_mn}, there is one crucial difference: all spin
+operators in \eqref{eq:C_mn_k} have been sorted into a standard order.
+We can now repeatedly substitute $C_{\mu mn}^{(k)}$ into itself, each
+time decreasing $m$ and $n$ by 1, until one of $m$ or $n$ reaches
+zero.  Such repeated substitution yields the expansion
 \begin{align}
   C_{\mu mn}
   = C_{\mu mn}^{(0)}
@@ -470,28 +477,31 @@ and more generally for $p>1$,
   \label{eq:E_mn_p}
 \end{align}
 In principle, the expressions in \eqref{eq:D_mn} and
-\eqref{eq:C_mn_E}-\eqref{eq:E_mn_p} provide a well-defined expansion
-for the commutator $\sp{S_\mu^m,S_\nu^n}_- = C_{\mu mn}$, but the
-expression for $E_{\mu mn}^{(p)}$ in \eqref{eq:E_mn_p} is -- put it
-lightly -- quite a mess, involving a sum over $p$ mutually related
-intermediate variables!  We therefore devote the rest of this section
-to simplifying $E_{\mu mn}^{(p)}$.
+\eqref{eq:C_mn_E}-\eqref{eq:E_mn_p} provide a complete expansion for
+the commutator $\sp{S_\mu^m,S_\nu^n}_- = C_{\mu mn}$, but the result
+is -- to put it lightly -- quite a mess: the expression for
+$E_{\mu mp}^{(p)}$ in \eqref{eq:E_mn_p} involves a sum over $p$
+mutually dependent intermediate variables!  We therefore devote the
+rest of this section to simplifying our result for the commutator
+$\sp{S_\mu^m,S_\nu^n}_-$.
 
 Observing that we always have $k_1\le k_2\le\cdots\le k_p$, we can
-reverse the order of the sums in \eqref{eq:E_mn_p} and re-index
+reverse the order of the sums in \eqref{eq:E_mn_p} and relabel
 $k_p\to\ell$ to get
 \begin{align}
   E_{\mu mn}^{(p)}
   = \f{n!}{\p{n-p}!}
   \sum_{\ell=0}^{m-p-1} D_{\mu,m-p,n-p}^{(\ell)} \p{2\ell+p-n+2\mu S_z}
-  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_{p-1}\ge\cdots\ge k_1}}
+  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\
+      k_{p-2}\ge k_{p-1}\ge\cdots\ge k_1}}
   \prod_{j=1}^{p-1} \p{2k_j+j-n+2\mu S_z},
 \end{align}
 where $\Z_q$ denotes the set of $q$ smallest non-negative integers,
 e.g.~$\Z_{\ell+1}=\set{0,1,\cdots,\ell}$.  Defining for shorthand
 \begin{align}
   \sum_{\p{\v k,p,\ell}} X \equiv
-  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\k_{p-1}\ge\cdots\ge k_1}} X,
+  \sum_{\substack{\v k\in\Z_{\ell+1}^{p-1}\\
+      k_{p-1}\ge k_{p-2}\ge\cdots\ge k_1}} X,
   &&
   F_{\mu np} \equiv p - n + 2\mu S_z,
 \end{align}
@@ -501,7 +511,7 @@ we can say
   = \f{n!}{\p{n-p}!}
   \sum_{\ell=0}^{m-p-1} D_{\mu,m-p,n-p}^{(\ell)} \p{2\ell+F_{\mu np}}
   \sum_{\p{\v k,p,\ell}} \prod_{j=1}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}.
-  \label{eq:E_mn_p_k_sum}
+  \label{eq:E_mn_p_sum}
 \end{align}
 We now define
 \begin{align}
@@ -526,59 +536,45 @@ respectively from $k_{p-2},k_{p-3},\cdots,k_1,0$ to $\ell$, finding
 \end{align}
 Substitution of this result together with $D_{\mu,m-p,n-p}^{(\ell)}$
 as given in using \eqref{eq:D_mn_k} into $E_{\mu mn}^{(p)}$ as
-expressed in \eqref{eq:E_mn_p_k_sum} then gives us
+expressed in \eqref{eq:E_mn_p_sum} then gives us
 \begin{align}
   E_{\mu mn}^{(p)}
   = \f{n!}{\p{n-p-1}!} S_\bmu^{n-p-1} S_\mu^{m-p-1} G_{\mu mnp}
-  \label{eq:E_mn_p_G}
 \end{align}
 with
 \begin{align}
   G_{\mu mnp}
-  \equiv
-  \sum_{\ell=0}^{m-p-1} { \ell + p - 1 \choose p - 1 }
+  &\equiv \sum_{\ell=0}^{m-p-1} { \ell + p - 1 \choose p - 1 }
   \p{m-p-\ell} \p{\ell+m-p+F_{\mu np}}
   \p{2\ell + F_{\mu np}}
-  \prod_{q=1}^{p-1} \p{\ell-q+F_{\mu np}}.
+  \prod_{q=1}^{p-1} \p{\ell-q+F_{\mu np}} \\
+  &= { m \choose p + 1 } \prod_{q=0}^p \p{m-p-q+F_{\mu np}}.
 \end{align}
-
-
-% \vspace{3cm}
-
-% With reference to \eqref{eq:E_mn_p_G}, we finally have
-% \begin{align}
-%   \sp{S_\mu^m, S_\bmu^n}_-
-%   = C_{\mu mn}
-%   = mn S_\bmu^{n-1} S_\mu^{m-1}
-%   \sum_{q\in\set{0,1}} \p{m-n}^{1-q}\p{2\mu S_z}^q
-%   + \sum_{p=1}^{\min\set{m,n}-1} E_{\mu mn}^{(p)}.
-% \end{align}
-
-
-% \begin{align}
-%   \prod_{j=1}^{p-1} \p{2k_j+j-n+2\mu S_z}
-%   = \sum_{q=0}^{p-1} \p{2\mu S_z}^q
-%   \sum_{c\in\C_{p-1-q}\p{\Z_{p-1}}} \prod_{j\in c} \p{2k_{j+1}+j+1-n},
-%   \label{eq:product_expansion}
-% \end{align}
-% where $\C\p{k,\S}$ denotes the set of $k$-combinations (i.e.~subsets
-% with $k$ elements) of $\S$; the number of elements in
-% $\C_{p-1-q}\p{\Z_{p-1}}$ is
-% ${ p-1 \choose p-1-q } = { p-1 \choose q }$.
-
-\vspace{3cm}
-
-To derive a system of equations for the two-axis twisting Hamiltonian
-we need to know $\sp{S_\mu^2,S_\bmu^n}_-$, so we expand
+By substitution of $F_{mu np}=p-n+2\mu S_z$, we can expand
 \begin{align}
-  \sp{S_\mu^2,S_\bmu^n}_-
-  = C_{\mu mn}
-  = D_{\mu,2,n} + n D_{\mu,1,n-1} \p{1 - n + 2\mu S_z}
+  \prod_{q=0}^p \p{m-p-q+F_{\mu np}}
+  = \prod_{q=0}^p \p{m-n-q+2\mu S_z}
+  = \sum_{q=0}^{p+1} \p{2\mu S_z}^q e_{p+1-q}\p{m-n-\Z_{p+1}},
+\end{align}
+where $m-n-\Z_{p+1}=\set{m-n-j:j\in\Z_{p+1}}$ and $e_k\p{\S}$ is the
+elementary symmetric polynomial of degree $k$ in elements of $\S$,
+i.e.~the sum of all products of $k$ distinct elements chosen from
+$\S$.  Putting everything together, we have that
+\begin{align}
+  E_{\mu mn}^{(p)}
+  = { m \choose p + 1 } { n \choose p + 1 } \p{p+1}!
+  S_\bmu^{n-p-1} S_\mu^{m-p-1}
+  \sum_{q=0}^{p+1} \p{2\mu}^q e_{p+1-q}\p{m-n-\Z_{p+1}} S_z^q,
+\end{align}
+in terms of which
+\begin{align}
+  \sp{S_\mu^m, S_\bmu^n}_-
+  = mn S_\bmu^{n-1} S_\mu^{m-1} \p{m-n+2\mu S_z}
+  + \sum_{p=1}^{\min\set{m,n}-1} E_{\mu mn}^{(p)}.
 \end{align}
 
 
 \newpage
-
 \section{Decoherence of Heisenberg spin operators}
 \label{sec:decoherence}
 
@@ -635,7 +631,7 @@ do using \eqref{eq:push_z_mu}:
   = S_+^\ell S_-^m \p{S - m + S_z}
   \sum_{k=0}^n \p{-1}^{n-k} { n \choose k } S_z^k.
 \end{align}
-Putting everything together, we have that
+Altogether, we have that
 \begin{align}
   \D\p{S_+^\ell S_-^m S_z^n}
   &= S_+^\ell S_-^m \sp{\p{S - m + S_z} \sum_{k=0}^n
