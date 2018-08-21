@@ -7,11 +7,10 @@ import scipy.sparse as sparse
 import scipy.linalg as linalg
 import matplotlib.pyplot as plt
 
-from scipy.special import binom, factorial
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
-from squeezing_methods import squeezing_from_correlators
+from squeezing_methods import ln_binom, squeezing_from_correlators
 
 # spin operators for N particles in the S = N/2 Dicke manifold
 def spin_op_z_dicke(N):
@@ -57,18 +56,6 @@ def spin_op_vec_mat_dicke(N):
 # get polar and azimulthal angles of a vector (v_z, v_x, v_y)
 def vec_theta_phi(v):
     return np.array([ np.arccos(v[0]/linalg.norm(v)), np.arctan2(v[2],v[1]) ])
-
-# use stirling's approximation to compute ln(n!)
-def ln_factorial(n):
-    if n == 0: return 0
-    return ( n * np.log(n) - n + 1/2 * np.log(np.pi) +
-             1/6 * np.log( 8*n**3 + 4*n**2 + n + 1/30 ) )
-
-# return logarithm of binomial coefficient, using an approximation if necessary
-def ln_binom(N,m):
-    binomial_coeff = binom(N,m)
-    if binomial_coeff != np.inf: return np.log(binomial_coeff)
-    else: return ln_factorial(N) - ln_factorial(m) - ln_factorial(N-m)
 
 # coherent spin state on S = N/2 Bloch sphere
 def coherent_spin_state_angles(theta, phi, N = 10):
