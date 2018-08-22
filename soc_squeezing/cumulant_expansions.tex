@@ -455,16 +455,13 @@ zero.  Such repeated substitution yields the expansion
   + \sum_{p=1}^{\min\set{m,n}-1} E_{\mu mn}^{(p)},
   \label{eq:C_mn_E}
 \end{align}
-where the first terms in the sum over $p$ is
+where the first two terms in the sum over $p$ are
 \begin{align}
   E_{\mu mn}^{(1)}
-  = n \sum_{k=0}^{m-2} D_{\mu,m-1,n-1}^{(k)}
-  \p{2k+1-n+2\mu S_z},
-\end{align}
-the second
-\begin{align}
+  &= n \sum_{k=0}^{m-2} D_{\mu,m-1,n-1}^{(k)}
+  \p{2k+1-n+2\mu S_z}, \\
   E_{\mu mn}^{(2)}
-  = n \sum_{k_1=0}^{m-2} \p{n-1} \sum_{k_2=k_1}^{m-3}
+  &= n \sum_{k_1=0}^{m-2} \p{n-1} \sum_{k_2=k_1}^{m-3}
   D_{\mu,m-2,n-2}^{(k_2)}
   \p{2k_2+2-n+2\mu S_z} \p{2k_1+1-n+2\mu S_z},
 \end{align}
@@ -477,17 +474,17 @@ and more generally for $p>1$,
   \label{eq:E_mn_p}
 \end{align}
 In principle, the expressions in \eqref{eq:D_mn} and
-\eqref{eq:C_mn_E}-\eqref{eq:E_mn_p} provide a complete expansion for
-the commutator $\sp{S_\mu^m,S_\nu^n}_- = C_{\mu mn}$, but the result
-is -- to put it lightly -- quite a mess: the expression for
+\eqref{eq:C_mn_E}-\eqref{eq:E_mn_p} can be used to evaluate the
+commutator $\sp{S_\mu^m,S_\nu^n}_- = C_{\mu mn}$, but these result are
+-- to put it lightly -- quite a mess: the expression for
 $E_{\mu mp}^{(p)}$ in \eqref{eq:E_mn_p} involves a sum over $p$
 mutually dependent intermediate variables!  We therefore devote the
 rest of this section to simplifying our result for the commutator
 $\sp{S_\mu^m,S_\nu^n}_-$.
 
 Observing that we always have
-$0\le k_1\le k_2\le\cdots\le k_p\le m-p-1$, we can rearrange the order
-of the sums in \eqref{eq:E_mn_p} and relabel $k_p\to\ell$ to get
+$0\le k_1\le k_2\le\cdots\le k_p\le m-p-1$ in \eqref{eq:E_mn_p}, we
+can rearrange the order of the sums and relabel $k_p\to\ell$ to get
 \begin{align}
   E_{\mu mn}^{(p)}
   = \f{n!}{\p{n-p}!}
@@ -511,6 +508,9 @@ and evaluate sums successively over $k_{p-1},k_{p-2},\cdots,k_1$,
 finding
 \begin{align}
   \sum_{\p{\v k,p,\ell}} \prod_{j=1}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}
+  &= \sum_{\p{\v k,p-1,\ell}}
+  \prod_{j=2}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}
+  f_{\mu np\ell}\p{k_{p-2},1} \\
   &= \f1{r!} \sum_{\p{\v k,p-r,\ell}}
   \prod_{j=1+r}^{p-1} \p{2k_{p-j}-j+F_{\mu np}}
   \prod_{q=1}^r f_{\mu np\ell}\p{k_{p-1-r},q} \\
@@ -531,18 +531,22 @@ with
   \p{m-p-\ell} \p{\ell+m-p+F_{\mu np}}
   \p{2\ell + F_{\mu np}}
   \prod_{q=1}^{p-1} \p{\ell-q+F_{\mu np}} \\
-  &= { m \choose p + 1 } \prod_{q=0}^p \p{m-p-q+F_{\mu np}} \\
-  &= { m \choose p + 1 } \prod_{q=0}^p \p{m-n-q+2\mu S_z} \\
-  &= { m \choose p + 1 } \sum_{q=0}^{p+1} \p{2\mu S_z}^q
-  e_{p+1-q}\p{m-n-\Z_{p+1}},
+  &= { m \choose p + 1 } \prod_{q=0}^p \p{m-p-q+F_{\mu np}}.
 \end{align}
-where $\Z_k$ denotes the set of $k$ smallest non-negative integers;
+where we can expand
+\begin{align}
+  \prod_{q=0}^p \p{m-p-q+F_{\mu np}}
+  = \sum_{q=0}^{p+1} \p{2\mu S_z}^q
+  = \sum_{q=0}^{p+1} \p{2\mu S_z}^q
+  e_{p+1-q}\p{m-n-\Z_{p+1}}.
+\end{align}
+Here $\Z_k$ denotes the set of $k$ smallest non-negative integers;
 $m-n-\Z_{p+1}\equiv\set{m-n-j:j\in\Z_{p+1}}$; and $e_k\p{\S}$ is the
 elementary symmetric polynomial of degree $k$ in elements of $\S$,
 i.e.~the sum of all products of $k$ distinct elements chosen from
-$\S$.  Among other ways, the elementary symmetric polynomial
-$e_k\p{\S_n}$ for $\S_n\equiv\set{x_1,x_2,\cdots,x_n}$ can be computed
-via the recurrence relation
+$\S$.  The elementary symmetric polynomial $e_k\p{\S_n}$ for
+$\S_n\equiv\set{x_1,x_2,\cdots,x_n}$ can be computed (among other
+ways) via the recurrence relation
 \begin{align}
   e_k\p{\S_n} = e_k\p{\S_{n-1}} + x_n e_{k-1}\p{\S_{n-1}}
 \end{align}
