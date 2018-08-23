@@ -25,6 +25,7 @@
 
 \newcommand{\C}{\mathcal{C}}
 \newcommand{\D}{\mathcal{D}}
+\newcommand{\I}{\mathcal{I}}
 \renewcommand{\O}{\mathcal{O}}
 \renewcommand{\S}{\mathcal{S}}
 
@@ -70,7 +71,7 @@ twisting (TAT), and transverse field (TVF) Hamiltonians of the form
 \begin{align}
   H_{\t{OAT}} = \chi S_z^2,
   &&
-  H_{\t{TAT}} = \chi \p{S_z^2 - S_y^2},
+  H_{\t{TAT}}^{z,y} = \chi \p{S_z^2 - S_y^2},
   &&
   H_{\t{TVF}} = \chi S_z^2 - \Omega S_x,
 \end{align}
@@ -205,16 +206,20 @@ we therefore need to solve the systems of equations defined by
   = i\chi S_\mu \p{1 + 2\mu S_z} S_z^n
   + \gamma S_\mu \sp{\p{S - \delta_{\mu,-1} + S_z} \sum_{k=0}^{n-1}
     \p{-1}^{n-k} { n \choose k } S_z^k - \f12 S_z^n}
+  \label{eq:evolution_OAT_single}
 \end{align}
 and
-\begin{multline}
+\begin{align}
   \f{d}{dt} \p{S_\mu S_\nu S_z^n}
-  = i\chi S_\mu S_\nu \p{\sp{\mu+\nu}^2 + 2 \sp{\mu+\nu} S_z} S_z^n \\
-  + \gamma S_\mu S_\nu
+  &= i\chi S_\mu S_\nu \p{\sp{\mu+\nu}^2 + 2 \sp{\mu+\nu} S_z} S_z^n
+  \tag*{} \\
+  &\quad + \gamma S_\mu S_\nu
   \sp{\p{S - \delta_{\mu,-1} - \delta_{\nu,-1} + S_z} \sum_{k=0}^{n-1}
     \p{-1}^{n-k} { n \choose k } S_z^k - S_z^n},
-\end{multline}
-for $\mu\ge\nu$.  The initial conditions for these systems of equations can be determined from the expansions
+  \eqref{eq:evolution_OAT_pair}
+\end{align}
+for $\mu\ge\nu$.  The initial conditions for these systems of
+equations can be determined from the expansions
 \begin{align}
   S_\mu = \sum_{m=-S}^S \sqrt{\p{S-\mu m}\p{S+\mu m+1}} \op{m+\mu}{m},
   &&
@@ -241,82 +246,136 @@ and
     \p{S-\nu m}\p{S+\nu m+1}}^{1/2}.
 \end{multline}
 
+\subsection{Operator imbalance, conservation laws, and time evolution}
 
-% \section{One-axis twisting with a transverse field}
+For convenience of language, for collective spin operators of the form
+$S_+^\ell S_-^m S_z^n$ we respectively define the {\it upper}, {\it
+  lower}, and {\it net imbalance}
+\begin{align}
+  \I_+\p{S_+^\ell S_-^m S_z^n} \equiv \ell,
+  &&
+  \I_-\p{S_+^\ell S_-^m S_z^n} \equiv m,
+  &&
+  \I\p{S_+^\ell S_-^m S_z^n} \equiv \ell - m.
+\end{align}
+In the case of one-axis twisting, both upper and lower (and net)
+imbalances are {\it conserved}, meaning that operators with upper and
+lower imbalances $\p{\ell,m}$ depend only on other operators with the
+same imbalances.  We can therefore divide the task of operator time
+evolution into sectors of constant imbalances, which greatly reduces
+computational overhead.  Specifically, operator time evolution now
+involves evolving ``operator vectors''
+\begin{align}
+  \v V_{\t{OAT}}^{(\ell,m)}
+  \equiv S_+^\ell S_-^m \sum_{n\ge0} S_z^n \uv x_n,
+\end{align}
+which in practice must be truncated at some maximal $n=M$.  In the
+case of OAT, the time derivative of $S_+^\ell S_-^m S_z^n$ depends on
+$S_+^\ell S_-^m S_z^{n+1}$ which implies that we can only trust the
+value of $S_+^\ell S_-^m S_z^n$ up to the time at which the initial
+value of $S_+^\ell S_-^m S_z^M$ has (conservatively) an $\O\p{1}$
+contribution to $S_+^\ell S_-^m S_z^n$.
 
-% We now consider again squeezing the initial state $\ket{X}$, but this
-% time with the transverse field Hamiltonian
-% \begin{align}
-%   H_{\t{TVF}}
-%   \equiv \chi S_z^2- \Omega S_x
-%   = \chi S_z^2- \f{\Omega}{2} \p{S_+ + S_-}.
-% \end{align}
-% To determine the coherent evolution of the operator
-% $S_+^\ell S_-^m S_z^n$, we now need to compute
-% \begin{align}
-%   \sp{H_{\t{TVF}}, S_+^\ell S_-^m S_z^n}_-
-%   = \chi \sp{S_z^2, S_+^\ell S_-^m S_z^n}_-
-%   - \f{\Omega}{2} \sp{S_+, S_+^\ell S_-^m S_z^n}_-
-%   - \f{\Omega}{2} \sp{S_-, S_+^\ell S_-^m S_z^n}_-.
-% \end{align}
-% The first commutator above is identical to that for OAT, and is given
-% in \eqref{eq:S_z^2_comm}.  For the second commutator, we expand
-% \begin{align}
-%   \sp{S_+, S_+^\ell S_-^m S_z^n}_-
-%   = S_+^{\ell+1} S_-^m S_z^n - S_+^\ell S_-^m S_z^n S_+,
-% \end{align}
-% where
-% \begin{align}
-%   S_-^m S_z^n S_+
-%   = S_-^m S_+ \p{1 + S_z}^n
-%   = \sp{S_+ S_-^m - m S_-^{m-1} \p{1 - m + 2 S_z}}
-%   \sum_{k=0}^n { n \choose k } S_z^k,
-% \end{align}
-% so
-% \begin{align}
-%   \sp{S_+, S_+^\ell S_-^m S_z^n}_-
-%   = S_+^{\ell+1} S_-^m S_z^n
-%   - S_+^\ell \sp{S_+ S_-^m - m S_-^{m-1} \p{1 - m + 2 S_z}}
-%   \sum_{k=0}^n { n \choose k } S_z^k.
-% \end{align}
-% Similarly,
-% \begin{align}
-%   \sp{S_-, S_+^\ell S_-^m S_z^n}_-
-%   = S_- S_+^\ell S_-^m S_z^n - S_+^\ell S_-^m S_z^n S_-,
-% \end{align}
-% where
-% \begin{align}
-%   S_- S_+^\ell S_-^m
-%   = S_+^\ell S_-^{m+1} + \ell S_+^{\ell-1}\p{1-\ell-2S_z} S_-^m
-%   = S_+^\ell S_-^{m+1} + \ell S_+^{\ell-1} S_-^m \p{1-m-\ell-2S_z},
-% \end{align}
-%   and
-% \begin{align}
-%   S_z^n S_- = S_- \p{1 - S_z}^n
-%   = S_- \sum_{k=0}^n \p{-1}^k { n \choose k } S_z^k,
-% \end{align}
-% so
-% \begin{align}
-%   \sp{S_-, S_+^\ell S_-^m S_z^n}_-
-%   = S_+^\ell S_-^{m+1} S_z^n
-%   + \ell S_+^{\ell-1} S_-^m \p{1-m-\ell-2S_z} S_z^n
-%   - S_+^\ell S_-^{m+1} \sum_{k=0}^n \p{-1}^k { n \choose k } S_z^k.
-% \end{align}
+In order to compute squeezing from OAT, we need only need to evolve
+$\v V_{\t{OAT}}^{(1,0)}$, $\v V_{\t{OAT}}^{(0,1)}$,
+$\v V_{\t{OAT}}^{(1,1)}$, and $\v V_{\t{OAT}}^{(2,0)}$.  The values of
+axial spin operators $S_z$ and $S_z^2$ are known exactly at all times
+from \eqref{eq:Sz_OAT}.
 
 
-\section{Evolution under general Hamiltonians with decoherence}
+\section{Transverse-field and two-axis twisting}
 
 All collective spin Hamiltonians can be written in the form
 \begin{align}
-  H = \sum_{p,q,r} h_{pqr} S_+^p S_-^q S_z^r,
+  H = \sum_{p,q,r} h_{pqr} S_+^p S_-^q S_z^r.
+  \label{eq:H_general}
 \end{align}
-for which the coherent evolution of a general operator
-$S_+^\ell S_-^m S_z^n$ is given by
+The evolution of a general operator $S_+^\ell S_-^m S_z^n$ under a
+Hamiltonian of the form in \eqref{eq:H_general} is given by
 \begin{align}
   \f{d}{dt} \p{S_+^\ell S_-^m S_z^n}
   = i\sum_{p,q,r} h_{pqr} \sp{S_+^p S_-^q S_z^r, S_+^\ell S_-^m S_z^n}_-
-  + \D_-\p{S_+^\ell S_-^m S_z^n}.
+  + \gamma \D_-\p{S_+^\ell S_-^m S_z^n},
 \end{align}
+where the commutator is given in Appendix \ref{sec:comm_general}, and
+the decoherence operator in Appendix \ref{sec:decoherence}.
+
+\subsection{Transverse-field Hamiltonian}
+
+The transverse-field (TVF) twisting Hamiltonian with unit twisting
+strength is
+\begin{align}
+  H_{\t{TVF}}
+  = S_z^2 - \Omega S_x
+  = S_z^2 - \f{\Omega}{2} S_+ - \f{\Omega}{2} S_-.
+\end{align}
+Unlike in the case of OAT, we now cannot divide all operators of the
+form $S_+^\ell S_-^m S_z^n$ into independent sectors of constant
+imbalances $\ell,m$.  We therefore need to keep track of all operators
+in one vector $\v V_{\t{TVF}}$, which in turn requires imposing an
+ordering on all operators of the form $S_+^\ell S_-^m S_z^n$.  Such an
+ordering is provided by the one-to-one map
+$p:\mathbb{N}_0^3\to\mathbb{N}_0$, where $\mathbb{N}_0$ denotes the
+set of non-negative integers, given by
+\begin{align}
+  v\p{\ell,m,n} = B\p{T_{\ell mn}} + R\p{T_{\ell mn},\ell} + m,
+  \label{eq:vec_map}
+\end{align}
+where
+\begin{align}
+  T_{\ell mn} \equiv \ell + m + n,
+  &&
+  B\p{T} \equiv \f16 T \p{T+1} \p{T+2},
+  &&
+  R\p{T,\ell} \equiv \f12 \ell \p{2 T - \ell + 3}.
+\end{align}
+This map is designed to sort integers $\p{\ell,m,n}$ first by their
+sum $T_{\ell mn}$ (i.e.~the total weight of $S_+^\ell S_-^m S_z^n$),
+and then in turn by the values of $\ell$, $m$, and $n$, such that
+$v\p{\ell,m,n}<v\p{\ell',m',n'}$ if
+\begin{enumerate*}[label=(\roman*)]
+\item $T_{\ell mn}<T_{\ell'm'n'}$,
+\item $T_{\ell mn}=T_{\ell'm'n'}$ and $\ell<\ell'$,
+\item $\p{T_{\ell mn},\ell}=\p{T_{\ell'm'n'},\ell'}$ and $m<m'$, or
+\item $\p{T_{\ell mn},\ell,m}=\p{T_{\ell'm'n'},\ell',m'}$ and $n<n'$.
+\end{enumerate*}
+Fixing a maximal operator weight $M$, the vector keeping track of all
+operators is then
+\begin{align}
+  \v V_{\t{TVF}}
+  \equiv \sum_{\ell+m+n\le M} S_+^\ell S_-^m S_z^n \uv x_{v\p{\ell,m,n}}.
+\end{align}
+
+
+\subsection{Two-axis twisting in-plane with the decoherence axis}
+
+The two-axis twisting Hamiltonian one axis oriented along the
+decoherence axis is
+\begin{align}
+  H_{\t{TAT}}^{z,y}
+  = S_z^2 - S_y^2
+  = S_z^2 + \f14 S_+^2 + \f14 S_-^2 - \f12 S_+ S_- + \f12 S_z.
+\end{align}
+While upper and lower imbalances are not conserved by this
+Hamiltonians, the parity of the net imbalance, i.e.~$\ell-m~\t{mod}~2$
+for an operator $S_+^\ell S_-^m S_z^n$, is conserved.  There are
+therefore two sectors of operators which we can evolve independently
+to save computational overhead.
+
+
+\subsection{Two-axis twisting transverse to the decoherence axis}
+
+
+The two-axis twisting Hamiltonian with both axes transverse to the
+decoherence axis is
+\begin{align}
+  H_{\t{TAT}}^{y,x}
+  = S_y^2 - S_x^2
+  = - \f12 S_+^2 - \f12 S_-^2.
+\end{align}
+Just as with the previous TAT Hamiltonian, the parity of the net
+imbalance of operators is conserved by $H_{\t{TAT}}^{y,x}$, implying
+that there are two independent sectors of operators to evolve.
 
 
 \bibliography{\jobname}
@@ -352,8 +411,8 @@ operators are, with $\bmu\equiv-\mu\in\set{+1,-1}$ for brevity,
   \label{eq:comm_mu_base}
 \end{align}
 These relations can be used to inductively determine commutation
-relations between higher-weight spin operators.  In particular, we can
-find that
+relations with higher-weight spin operators.  For example, we can find
+that
 \begin{align}
   S_z S_\mu^m
   = \p{\mu S_\mu + S_\mu S_z} S_\mu^{m-1}
@@ -385,85 +444,16 @@ which implies
 Similarly finding commutation relations between high-weight transverse
 spin operators, i.e.~$S_\mu^m$ and $S_\bmu^n$, turns out to be
 considerably more difficult than the cases we have worked out thus
-far.  We therefore save this case for Appendix
+far.  We therefore save this work for Appendix
 \ref{sec:comm_transverse}.
 
 
-\section{Decoherence of Heisenberg spin operators}
-\label{sec:decoherence}
-
-The decoherence operator for uncorrelated incoherent decay ($\mu=-1$)
-or excitation ($\mu=1$) of individual spins is, with $\bmu\equiv-\mu$,
-\begin{align}
-  \D_\mu\p{\O}
-  \equiv \sum_j\p{\sigma_j^\bmu \O \sigma_j^\mu
-    - \f12\sp{\sigma_j^\bmu \sigma_j^\mu,\O}_+},
-\end{align}
-where
-\begin{align}
-  \sum_j \f12\sp{\sigma_j^\bmu \sigma_j^\mu,\O}_+
-  = \f12\sp{S-\mu S_z,\O}_+
-  = S\O - \f{\mu}{2}\sp{S_z,\O}_+
-  = \O\p{S-\mu S_z} - \f{\mu}{2}\sp{S_z,\O}_-,
-\end{align}
-so
-\begin{align}
-  \D_\mu\p{\O}
-  = \sum_j \sigma_j^\bmu \O \sigma_j^\mu
-  - \O\p{S - \mu S_z} + \f{\mu}{2} \sp{S_z,\O}_-.
-\end{align}
-We are interested in the effect of this decoherence on the dynamics of
-collective spin operators of the form $S_\bmu^\ell S_\mu^m S_z^n$.  We
-thus expand
-\begin{align}
-  \D_\mu\p{S_\bmu^\ell S_\mu^m S_z^n}
-  = \sum_j \sigma_j^\bmu S_\bmu^\ell S_\mu^m S_z^n \sigma_j^\mu
-  - S_\bmu^\ell S_\mu^m S_z^n \p{S - \mu S_z}
-  + \f{\mu}{2} \sp{S_z, S_\bmu^\ell S_\mu^m S_z^n}_-.
-  \label{eq:D_z+-}
-\end{align}
-The commutator in \eqref{eq:D_z+-} is straightforward to simplify
-using \eqref{eq:comm_z_mu}:
-\begin{align}
-  \mu \sp{S_z, S_\bmu^\ell S_\mu^m S_z^n}_-
-  = \mu \sp{S_z, S_\bmu^\ell S_\mu^m}_- S_z^n
-  = \mu\bmu \p{\ell-m} S_\bmu^\ell S_\mu^m S_z^n
-  = - \p{\ell-m} S_\bmu^\ell S_\mu^m S_z^n,
-\end{align}
-while the first term in \eqref{eq:D_z+-} can be written in terms of
-collective spin operators if we use
-\eqref{eq:comm_z_mu_base}-\eqref{eq:comm_mu_base} to push the jump
-operators together:
-\begin{align}
-  \sum_j \sigma_j^\bmu S_\bmu^\ell S_\mu^m S_z^n \sigma_j^\mu
-  = \sum_j S_\bmu^\ell \sigma_j^\bmu \sigma_j^\mu S_\mu^m \p{\mu+S_z}^n
-  = S_\bmu^\ell \p{S - \mu S_z} S_\mu^m
-  \sum_{k=0}^n \mu^{n-k} { n \choose k } S_z^k.
-\end{align}
-Finally, we need to push the middle $S_z$ to the right, which we can
-do using \eqref{eq:push_z_mu_single}:
-\begin{align}
-  \sum_j \sigma_j^\bmu S_\bmu^\ell S_\mu^m S_z^n \sigma_j^\mu
-  = S_\bmu^\ell S_\mu^m \p{S - m - \mu S_z}
-  \sum_{k=0}^n \mu^{n-k} { n \choose k } S_z^k.
-\end{align}
-Altogether, we have that
-\begin{align}
-  \D_\mu\p{S_\bmu^\ell S_\mu^m S_z^n}
-  &= S_\bmu^\ell S_\mu^m \sp{\p{S - m - \mu S_z} \sum_{k=0}^n
-    \mu^{n-k} { n \choose k } S_z^k
-    - \p{S - \mu S_z + \f12\sp{\ell-m}} S_z^n} \\
-  &= S_\bmu^\ell S_\mu^m \sp{\p{S - m - \mu S_z} \sum_{k=0}^{n-1}
-    \mu^{n-k} { n \choose k } S_z^k - \f12 \p{\ell+m} S_z^n}.
-\end{align}
-
-
-\section{Commutators between high-weight transverse spin operators}
+\section{Commutator between powers of two transverse spin operators}
 \label{sec:comm_transverse}
 
-To determine commutation relations between high-weight operators
-transverse to the decoherence (i.e.~$z$) axis, we compute (with
-$\bmu\equiv-\mu\in\set{+1,-1}$)
+To determine commutation relations between high-weight collective spin
+operators transverse to the decoherence (i.e.~$z$) axis, we compute
+(with $\bmu\equiv-\mu\in\set{+1,-1}$)
 \begin{align}
   S_\mu S_\bmu^n
   &= S_\bmu S_\mu S_\bmu^{n-1} + 2\mu S_z S_\bmu^{n-1} \\
@@ -664,22 +654,21 @@ kind, and finally
 \begin{align}
   \sum_{q=0}^p \p{-1}^{p-q} { p \brack q } \p{m-n+2\mu S_z}^q
   &= \sum_{q=0}^p \p{-1}^{p-q} { p \brack q } \sum_{\ell=0}^q
-  { q \choose \ell } \p{2\mu S_z}^\ell \p{m-n}^{q-\ell} \\
-  &= \sum_{\ell=0}^p \p{2\mu}^\ell S_z^\ell
-  \sum_{q=\ell}^p \p{-1}^{p-q}
-  { p \brack q } { q \choose \ell } \p{m-n}^{q-\ell}.
+  { q \choose \ell } \p{m-n}^{q-\ell} \p{2\mu S_z}^\ell \\
+  &= \sum_{\ell=0}^p \p{2\mu}^\ell \sum_{q=\ell}^p \p{-1}^{p-q}
+  { p \brack q } { q \choose \ell } \p{m-n}^{q-\ell} S_z^\ell.
 \end{align}
 Putting everything together, we finally have
 \begin{align}
   E_{mn;\mu}^{(p-1)}
   = p! { m \choose p } { n \choose p }
-  S_\bmu^{n-p} S_\mu^{m-p}
-  \sum_{\ell=0}^p \p{2\mu}^\ell \epsilon_{mnp}^{(\ell)} S_z^\ell,
+  S_\bmu^{n-p} S_\mu^{m-p} \sum_{\ell=0}^p
+  \mu^\ell \epsilon_{mnp}^{(\ell)} S_z^\ell,
 \end{align}
 with
 \begin{align}
   \epsilon_{mnp}^{(\ell)}
-  \equiv \sum_{q=\ell}^p \p{-1}^{p-q}
+  \equiv 2^\ell \sum_{q=\ell}^p \p{-1}^{p-q}
   { p \brack q } { q \choose \ell } \p{m-n}^{q-\ell},
   \label{eq:epsilon}
 \end{align}
@@ -689,9 +678,18 @@ together with \eqref{eq:C_mn_E} implies that
   \sp{S_\mu^m, S_\bmu^n}_-
   = \sum_{p=1}^{\min\set{m,n}}
   p! { m \choose p } { n \choose p } S_\bmu^{n-p} S_\mu^{m-p}
-  \sum_{\ell=0}^p \p{2\mu}^\ell \epsilon_{mnp}^{(\ell)} S_z^\ell.
+  \sum_{\ell=0}^p \mu^\ell \epsilon_{mnp}^{(\ell)} S_z^\ell,
   \label{eq:comm_mu}
 \end{align}
+and
+\begin{align}
+  S_\mu^m S_\bmu^n
+  = \sum_{p=0}^{\min\set{m,n}}
+  p! { m \choose p } { n \choose p } S_\bmu^{n-p} S_\mu^{m-p}
+  \sum_{\ell=0}^p \mu^\ell \epsilon_{mnp}^{(\ell)} S_z^\ell.
+  \label{eq:push_mu_nu}
+\end{align}
+
 
 
 \section{Commutator between general ordered collective spin operators}
@@ -714,12 +712,12 @@ $S_\mu^r S_\bmu^s$ to get
   \S^{pqa}_{rsb;\mu}
   = S_\mu^p S_\bmu^q S_\mu^r S_\bmu^s  \p{\mu\sp{r-s}+S_z}^a S_z^b,
 \end{align}
-then commute $S_\bmu^q,S_\mu^r$ to expand
+then reorder $S_\bmu^q S_\mu^r$ with \eqref{eq:push_mu_nu} to expand
 \begin{align}
   S_\mu^p S_\bmu^q S_\mu^r S_\bmu^s
-  = S_\mu^{p+r} S_\bmu^{q+s} + \sum_{k=1}^{\min\set{q,r}}
+  = \sum_{k=0}^{\min\set{q,r}}
   k! { q \choose k } { r \choose k } S_\mu^{p+r-k} S_\bmu^{q-k}
-  \sum_{\ell=0}^k \p{-2\mu}^\ell \epsilon_{qrk}^{(\ell)}
+  \sum_{\ell=0}^k \p{-\mu}^\ell \epsilon_{qrk}^{(\ell)}
   S_z^\ell S_\bmu^s,
 \end{align}
 and finally push $S_z^\ell$ to the right through $S_\bmu^s$, finding
@@ -727,16 +725,116 @@ and finally push $S_z^\ell$ to the right through $S_\bmu^s$, finding
   \S^{pqa}_{rsb;\mu}
   = \sum_{k=0}^{\min\set{q,r}} k! { q \choose k } { r \choose k }
   S_\mu^{p+r-k} S_\bmu^{q+s-k}
-  \sum_{\ell=0}^k \p{-2\mu}^\ell \epsilon_{qrk}^{(\ell)}
+  \sum_{\ell=0}^k \p{-\mu}^\ell \epsilon_{qrk}^{(\ell)}
   Z_{abrs;\mu}^{(\ell)},
 \end{align}
 where $\epsilon_{qrk}^{(\ell)}$ is defined in \eqref{eq:epsilon} and
 \begin{align}
   Z_{abrs;\mu}^{(\ell)}
-  \equiv \p{-\mu s+S_z}^\ell \p{\mu\sp{r-s}+S_z}^a S_z^b
-  = \sum_{m=0}^\ell { \ell \choose m } \p{-\mu s}^{\ell-m}
+  &\equiv \p{-\mu s+S_z}^\ell \p{\mu\sp{r-s}+S_z}^a S_z^b \\
+  &= \sum_{m=0}^\ell { \ell \choose m } \p{-\mu s}^{\ell-m}
   \sum_{n=0}^a { a \choose n } \p{\mu\sp{r-s}}^{a-n} S_z^{b+m+n}.
 \end{align}
 
+
+\section{Decoherence of collective spin operators through individual
+  spin decay}
+\label{sec:decoherence}
+
+The decoherence operator for uncorrelated decay ($\mu=-1$) or
+excitation ($\mu=1$) of individual spins is, with $\bmu\equiv-\mu$,
+\begin{align}
+  \D_\mu\p{\O}
+  \equiv \sum_j\p{\sigma_j^\bmu \O \sigma_j^\mu
+    - \f12\sp{\sigma_j^\bmu \sigma_j^\mu,\O}_+},
+\end{align}
+where
+\begin{align}
+  \sum_j \f12\sp{\sigma_j^\bmu \sigma_j^\mu,\O}_+
+  = \f12\sp{S-\mu S_z,\O}_+
+  = S\O - \f{\mu}{2}\sp{S_z,\O}_+
+  = \O\p{S-\mu S_z} - \f{\mu}{2}\sp{S_z,\O}_-,
+\end{align}
+so
+\begin{align}
+  \D_\mu\p{\O}
+  = \sum_j \sigma_j^\bmu \O \sigma_j^\mu
+  - \O\p{S - \mu S_z} + \f{\mu}{2} \sp{S_z,\O}_-.
+\end{align}
+
+\subsection{The simple case}
+
+If we consider only ordered collective spin operators, there are two
+cases to work out: the effect of decoherence through $\D_\mu$ on
+$S_\mu^\ell S_\bmu^m S_z^n$, and the effect on
+$S_\bmu^\ell S_\mu^m S_z^n$.  We work out the latter case first,
+namely
+\begin{align}
+  \D_\mu\p{S_\bmu^\ell S_\mu^m S_z^n}
+  = \sum_j \sigma_j^\bmu S_\bmu^\ell S_\mu^m S_z^n \sigma_j^\mu
+  - S_\bmu^\ell S_\mu^m S_z^n \p{S - \mu S_z}
+  + \f{\mu}{2} \sp{S_z, S_\bmu^\ell S_\mu^m S_z^n}_-.
+  \label{eq:D_mu_nu}
+\end{align}
+The commutator in \eqref{eq:D_mu_nu} is straightforward to simplify
+using \eqref{eq:comm_z_mu}:
+\begin{align}
+  \mu \sp{S_z, S_\bmu^\ell S_\mu^m S_z^n}_-
+  = \mu \sp{S_z, S_\bmu^\ell S_\mu^m}_- S_z^n
+  = \mu\bmu \p{\ell-m} S_\bmu^\ell S_\mu^m S_z^n
+  = - \p{\ell-m} S_\bmu^\ell S_\mu^m S_z^n,
+\end{align}
+while the first term in \eqref{eq:D_mu_nu} can be written in terms of
+collective spin operators if we use \eqref{eq:comm_z_mu_base} to push
+the jump operators together, noting that $\sigma_j^\mu$ commutes with
+$S_\mu$:
+\begin{align}
+  \sum_j \sigma_j^\bmu S_\bmu^\ell S_\mu^m S_z^n \sigma_j^\mu
+  = \sum_j S_\bmu^\ell \sigma_j^\bmu \sigma_j^\mu S_\mu^m \p{\mu+S_z}^n
+  = S_\bmu^\ell \p{S - \mu S_z} S_\mu^m
+  \sum_{k=0}^n \mu^{n-k} { n \choose k } S_z^k.
+  \label{eq:combine_jumps}
+\end{align}
+Finally, we push the middle $S_z$ to the right using
+\eqref{eq:push_z_mu_single}:
+\begin{align}
+  \sum_j \sigma_j^\bmu S_\bmu^\ell S_\mu^m S_z^n \sigma_j^\mu
+  = S_\bmu^\ell S_\mu^m \p{S - m - \mu S_z}
+  \sum_{k=0}^n \mu^{n-k} { n \choose k } S_z^k.
+\end{align}
+Altogether, we have that
+\begin{align}
+  \D_\mu\p{S_\bmu^\ell S_\mu^m S_z^n}
+  &= S_\bmu^\ell S_\mu^m \sp{\p{S - m - \mu S_z} \sum_{k=0}^n
+    \mu^{n-k} { n \choose k } S_z^k
+    - \p{S - \mu S_z + \f12\sp{\ell-m}} S_z^n} \\
+  &= S_\bmu^\ell S_\mu^m \sp{\p{S - m - \mu S_z} \sum_{k=0}^{n-1}
+    \mu^{n-k} { n \choose k } S_z^k - \f12 \p{\ell+m} S_z^n}.
+\end{align}
+Decoherence through $\D_\mu$ only couples operators of the form
+$S_\bmu^\ell S_\mu^m S_z^n$ to operators of the (almost identical)
+form $S_\bmu^\ell S_\mu^m S_z^{n'}$ with $n'\le n$.
+
+
+\subsection{The harder case}
+
+The second case to consider for the decoherence of general ordered
+collective spin operators is
+\begin{align}
+  \D_\mu\p{S_\mu^\ell S_\bmu^m S_z^n}
+  = \sum_j \sigma_j^\bmu S_\mu^\ell S_\bmu^m S_z^n \sigma_j^\mu
+  - S_\mu^\ell S_\bmu^m S_z^n \p{S - \mu S_z}
+  + \f{\mu}{2} \sp{S_z, S_\mu^\ell S_\bmu^m S_z^n}_-.
+  \label{eq:D_mu_mu}
+\end{align}
+Similarly to before, the commutator in \eqref{eq:D_mu_mu} is
+\begin{align}
+  \mu \sp{S_z, S_\mu^\ell S_\bmu^m S_z^n}_-
+  = \mu \sp{S_z, S_\mu^\ell S_\bmu^m}_- S_z^n
+  = \mu\mu \p{\ell-m} S_\mu^\ell S_\bmu^m S_z^n
+  = \p{\ell-m} S_\mu^\ell S_\bmu^m S_z^n.
+\end{align}
+The difficulty now is with the first term in \eqref{eq:D_mu_mu}, as
+$\sigma_j^\bmu$ and $S_\mu$ do not commute.
 
 \end{document}
