@@ -4,9 +4,8 @@
 
 import numpy as np
 import scipy.sparse as sparse
-import scipy.linalg as linalg
-
 import itertools
+
 from scipy.special import factorial, binom
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 
@@ -39,9 +38,6 @@ def op_val_nZ(N, l, m, n):
                   * np.prod([ transverse_elem(-1,S,k-p) for p in range(m) ])
                   for k in np.arange(-S+m,S-l) ])
     return z_fac * t_fac
-
-# number of operators with weight less than T
-def operators_below_weight(T): return T * (T+1) * (T+2) // 6
 
 # collective spin operator commutator coefficient (see notes)
 def epsilon(M,N,P,L):
