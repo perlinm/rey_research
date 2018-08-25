@@ -47,6 +47,7 @@ def epsilon(M,N,P,L):
 # compute pre-image of a single operator from coherent evolution
 # operators in (L,M,N) format, and pre-image in dictionary format
 def coherent_op_image(op, h_vals):
+    if op == (0,0,0): return {}
     L, M, N = op
     image = {}
     for P,Q,A in h_vals.keys():
@@ -69,40 +70,42 @@ def coherent_op_image(op, h_vals):
     for key in null_keys: del image[key]
     return image
 
-# super-operator for coherent evolution of spin operators
-def coherent_evolution_operator(vec_terms, idx, h_vals):
+# compute pre-image of a single operator from decoherence
+# operators in (L,M,N) format, and pre-image in dictionary format
+def decoherence_op_image(op, spin_number):
+    if op == (0,0,0): return {}
+    L, M, N = op
+    val_kk = np.array([ (-1)**(N-kk) * binom(N,kk) for kk in range(N) ])
+    image = { (L,M,kk) : (spin_number/2-M) * val_kk[kk] for kk in range(N) }
+    image[(L,M,N)] = -1/2*(L+M)
+    for kk in range(N): image[(L,M,kk+1)] += val_kk[kk]
+    return image
+
+# compute pre-image of a single operator from infinitesimal time evolution
+# operators in (L,M,N) format, and pre-image in dictionary format
+def op_image(op, h_vals, spin_number, decay_rate_over_chi):
+    op_image_im = coherent_op_image(op, h_vals)
+    op_image_re = decoherence_op_image(op, spin_number)
+    op_image = { op : 1j * op_image_im[op] for op in op_image_im.keys() }
+    for key in op_image_re.keys():
+        try:
+            op_image[key] += decay_rate_over_chi * op_image_re[key]
+        except:
+            op_image[key] = decay_rate_over_chi * op_image_re[key]
+    return op_image
+
+# generator of time translation for a vector of spin operators
+def evolution_operator(vec_terms, idx, h_vals,  spin_number, decay_rate_over_chi):
     vec_dim = len(vec_terms)
-    op_mat = sparse.dok_matrix((vec_dim,vec_dim))
+    op_mat = sparse.dok_matrix((vec_dim,vec_dim), dtype = complex)
     for op_out in vec_terms:
         idx_out = idx(*op_out)
-        image = coherent_op_image(op_out, h_vals)
+        image = op_image(op_out, h_vals, spin_number, decay_rate_over_chi)
         for op_in in image.keys():
             idx_in = idx(*op_in)
             if idx_in < vec_dim:
                 op_mat[idx_out,idx_in] += image[op_in]
-    op_mat = op_mat.tocsr()
-    op_mat.eliminate_zeros()
-    return op_mat
-
-# super-operator for decoherence of spin operators
-def decoherence_evolution_operator(vec_terms, idx, spin_num):
-    vec_dim = len(vec_terms)
-    op_mat = sparse.dok_matrix((vec_dim,vec_dim))
-    for l, m, n in vec_terms:
-        idx_out = idx(l,m,n)
-        for kk in range(n):
-            val = (-1)**(n-kk) * binom(n,kk)
-            op_mat[idx_out,idx(l,m,kk)] += (spin_num/2-m) * val
-            if kk+1 < vec_dim:
-                op_mat[idx_out,idx(l,m,kk+1)] += val
-        op_mat[idx_out,idx_out] += -1/2 * (l+m)
     return op_mat.tocsr()
-
-# net super-operator for evolution of spin operators
-def evolution_operator(vec_terms, idx, N, h_vals, decay_rate_over_chi):
-    op_mat_im = coherent_evolution_operator(vec_terms, idx, h_vals)
-    op_mat_re = decoherence_evolution_operator(vec_terms, idx, N)
-    return 1j * op_mat_im + decay_rate_over_chi * op_mat_re
 
 # return correlators from evolution under a general Hamiltonian
 def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state,
@@ -113,37 +116,30 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
     if initial_state == "-Z":
         initial_val = op_val_nZ
 
-    # list of "seed" squeezing operators: S_z^2, S_+ S_z, S_- S_z, S_+^2, and S_+ S_-
+    # list of "seed" operators necessary for computing squeezing, namely:
+    #                  S_z^2,  S_+ S_z  S_- S_z   S_+^2   S_+ S_-
     squeezing_ops = [ (0,0,2), (1,0,1), (0,1,1), (2,0,0), (1,1,0) ]
 
     # pre-images of operators under infinitesimal time evolution
     images = { op : set([op]) for op in squeezing_ops }
 
+    image_args = ( h_vals, N, decay_rate_over_chi )
     new_img_ops = { op : set([op]) for op in squeezing_ops }
-    p_img_ops = {}
-    for p in range(max_order):
+    pp_img_ops = {}
+    for order in range(max_order):
         for sqz_op in images.keys():
-            p_img_ops[sqz_op] = set()
+            pp_img_ops[sqz_op] = set()
             for new_img_op in new_img_ops[sqz_op]:
-                p_img_ops[sqz_op] |= coherent_op_image(new_img_op, h_vals).keys()
-            new_img_ops[sqz_op] = set([ op for op in p_img_ops[sqz_op]
+                pp_img_ops[sqz_op] |= op_image(new_img_op, *image_args).keys()
+            new_img_ops[sqz_op] = set([ op for op in pp_img_ops[sqz_op]
                                         if op not in images[sqz_op] ])
             images[sqz_op] |= new_img_ops[sqz_op]
 
-    # add pre-images from decoherence
-    # WARNING: assumes e --> g decay is the only source of decoherence
-    for sqz_op in images.keys():
-        for img_op in list(images[sqz_op]):
-            images[sqz_op] |= set([ (img_op[0],img_op[1],kk) for kk in range(img_op[2]) ])
-
-    transverse_images = { sqz_op: set([ (op[0],op[1]) for op in images[sqz_op] ])
-                          for sqz_op in images.keys() }
-
-    # combine intersecting pre-images
+    # combine pre-images which have nonzero overlap
     for op_B in squeezing_ops[::-1]:
         for op_A in squeezing_ops:
             if op_A == op_B: break
-            if len( transverse_images[op_A] & transverse_images[op_B] ) != 0:
+            if len( images[op_A] & images[op_B] ) != 0:
                 images[op_A] |= images[op_B]
                 del images[op_B]
                 break
@@ -173,7 +169,7 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
 
         # construct generator of time translation for this vector of operators
         diff_ops[seed] \
-            = evolution_operator(seed_ops[seed], idx, N, h_vals, decay_rate_over_chi)
+            = evolution_operator(seed_ops[seed], idx, h_vals, N, decay_rate_over_chi)
 
     # simulate!
     for ii in range(1,len(chi_times)):
