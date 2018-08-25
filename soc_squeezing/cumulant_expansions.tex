@@ -29,9 +29,11 @@
 \renewcommand{\O}{\mathcal{O}}
 \renewcommand{\S}{\mathcal{S}}
 
+\newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
 
 \newcommand{\bmu}{{\bar\mu}}
+\newcommand{\floor}[1]{\left\lfloor{#1}\right\rfloor}
 
 \usepackage{dsfont} % for identity operator
 \newcommand{\1}{\mathds{1}}
@@ -71,9 +73,9 @@ twisting (TAT), and transverse field (TVF) Hamiltonians of the form
 \begin{align}
   H_{\t{OAT}} = \chi S_z^2,
   &&
-  H_{\t{TAT}}^{z,y} = \chi \p{S_z^2 - S_y^2},
+  H_{\t{TAT}}^{\p{z,y}} = \chi \p{S_z^2 - S_y^2},
   &&
-  H_{\t{TVF}} = \chi S_z^2 - \Omega S_x,
+  H_{\t{TVF}} = \chi S_z^2 + \Omega S_x,
 \end{align}
 for spins which decay in an uncorrelated manner at a rate $\gamma$.
 The evolution of any Heisenburg operator $\O$ with a Hamiltonian $H$
@@ -113,9 +115,9 @@ write the Hamiltonian in the form
 \end{align}
 which admits an exact solution previously worked out by Foss-Feig et
 al.~in ref.~\cite{foss-feig2013nonequilibrium}.  Adapting exact
-expectation values with respect to the initial state $\ket{X}$ which
-has all spins pointing in $x$, in terms of $\mu,\nu\in\set{+1,-1}$ we
-find that
+expectation values with respect to the initial state $\ket{X}$
+satisfying $S_x\ket{X}=S\ket{X}$, in terms of $\mu,\nu\in\set{+1,-1}$
+we find that
 \begin{align}
   \bk{S_+}
   &= \sum_j\bk{\sigma_j^+}
@@ -209,21 +211,25 @@ we therefore need to solve the systems of equations defined by
   \label{eq:evolution_OAT_single}
 \end{align}
 and
-\begin{align}
+\begin{multline}
   \f{d}{dt} \p{S_\mu S_\nu S_z^n}
-  &= i\chi S_\mu S_\nu \p{\sp{\mu+\nu}^2 + 2 \sp{\mu+\nu} S_z} S_z^n
-  \tag*{} \\
-  &\quad + \gamma S_\mu S_\nu
+  = i\chi S_\mu S_\nu \p{\sp{\mu+\nu}^2 + 2 \sp{\mu+\nu} S_z} S_z^n \\
+  + \gamma S_\mu S_\nu
   \sp{\p{S - \delta_{\mu,-1} - \delta_{\nu,-1} + S_z} \sum_{k=0}^{n-1}
     \p{-1}^{n-k} { n \choose k } S_z^k - S_z^n},
-  \eqref{eq:evolution_OAT_pair}
-\end{align}
+  \label{eq:evolution_OAT_pair}
+\end{multline}
 for $\mu\ge\nu$.  The initial conditions for these systems of
 equations can be determined from the expansions
 \begin{align}
-  S_\mu = \sum_{m=-S}^S \sqrt{\p{S-\mu m}\p{S+\mu m+1}} \op{m+\mu}{m},
-  &&
   S_z^n = \sum_{m=-S}^S m^n \op{m},
+  &&
+  S_\mu = \sum_{m=-S}^S g_\mu\p{m} \op{m+\mu}{m},
+\end{align}
+with
+\begin{align}
+  g_\mu\p{S,m} \equiv \sqrt{\p{S-\mu m}\p{S+\mu m+1}},
+  \label{eq:transverse_elem}
 \end{align}
 and the initial state
 \begin{align}
@@ -232,19 +238,17 @@ and the initial state
 from which we can determine
 \begin{align}
   \bk{S_\mu S_z^n}_{t=0}
-  &= 2^{-N} \sum_{m=-S}^S m^n
-  \sp{{ N \choose S+m } { N \choose S+m+\mu }
-    \p{S-\mu m}\p{S+\mu m+1}}^{1/2} \\
-  &= 2^{-N} \sum_{m=-S}^S m^n { N \choose S+m } \abs{m - \mu S},
+  = 2^{-N} \sum_{m=-S}^S m^n { N \choose S+m } \abs{m - \mu S},
 \end{align}
 and
-\begin{multline}
+\begin{align}
   \bk{S_\mu S_\nu S_z^n}_{t=0}
-  = 2^{-N} \sum_{m=-S}^S m^n
-  \sp{{ N \choose S+m } { N \choose S+m+\mu+\nu }}^{1/2} \\
-  \times \sp{\p{S-\nu\sp{m+\nu}}\p{S+\mu\sp{m+\nu}+1}
-    \p{S-\nu m}\p{S+\nu m+1}}^{1/2}.
-\end{multline}
+  = 2^{-N} \sum_{m=-S+\delta_{\mu,-1}+\delta_{\nu,-1}}
+  ^{S-\delta_{\mu,1}-\delta_{\nu,1}}
+  m^n \sp{{ N \choose S+m+\mu+\nu } { N \choose S+m }}^{1/2}
+  g_\mu\p{S,m+\nu} g_\nu\p{S,m}.
+\end{align}
+
 
 \subsection{Operator imbalance, conservation laws, and time evolution}
 
@@ -298,7 +302,27 @@ Hamiltonian of the form in \eqref{eq:H_general} is given by
   + \gamma \D_-\p{S_+^\ell S_-^m S_z^n},
 \end{align}
 where the commutator is given in Appendix \ref{sec:comm_general}, and
-the decoherence operator in Appendix \ref{sec:decoherence}.
+the decoherence operator in Appendix \ref{sec:decoherence}.  We will
+be considering evolution of the initial states
+$\ket{X}:S_x\ket{X}=S\ket{X}$ and $\ket{-Z}:S_z\ket{-Z}=-S\ket{-Z}$,
+for which initial conditions are given by
+\begin{multline}
+  \bk{X|S_+^\ell S_-^m S_z^n|X}
+  =  2^{-N} \sum_{k=-S+m}^{S-\ell} k^n
+  \sp{{ N \choose S+k+\ell-m } { N \choose S+k }}^{1/2} \\
+  \times \prod_{p=0}^{\ell-1} g_+\p{S,k-m+p}
+  \prod_{q=0}^{m-1} g_-\p{S,k-q}
+\end{multline}
+and
+\begin{multline}
+  \bk{-Z|S_+^\ell S_-^m S_z^n|-Z}
+  = \p{-S}^n 2^{-N} \sum_{k=-S+m}^{S-\ell}
+  \sp{{ N \choose S+k+\ell-m } { N \choose S+k }}^{1/2} \\
+  \times \prod_{p=0}^{\ell-1} g_+\p{S,k-m+p}
+  \prod_{q=0}^{m-1} g_-\p{S,k-q}.
+\end{multline}
+
+
 
 \subsection{Transverse-field Hamiltonian}
 
@@ -306,44 +330,38 @@ The transverse-field (TVF) twisting Hamiltonian with unit twisting
 strength is
 \begin{align}
   H_{\t{TVF}}
-  = S_z^2 - \Omega S_x
-  = S_z^2 - \f{\Omega}{2} S_+ - \f{\Omega}{2} S_-.
+  = S_z^2 + \Omega S_x
+  = S_z^2 + \f{\Omega}{2} S_+ + \f{\Omega}{2} S_-.
 \end{align}
 Unlike in the case of OAT, we now cannot divide all operators of the
 form $S_+^\ell S_-^m S_z^n$ into independent sectors of constant
 imbalances $\ell,m$.  We therefore need to keep track of all operators
 in one vector $\v V_{\t{TVF}}$, which in turn requires imposing an
 ordering on all operators of the form $S_+^\ell S_-^m S_z^n$.  Such an
-ordering is provided by the one-to-one map
-$p:\mathbb{N}_0^3\to\mathbb{N}_0$, where $\mathbb{N}_0$ denotes the
-set of non-negative integers, given by
+ordering is provided by the one-to-one map $u:\N_0^3\to\N_0$, where$
+\N_0$ denotes the set of non-negative integers, given by
 \begin{align}
-  v\p{\ell,m,n} = B\p{T_{\ell mn}} + R\p{T_{\ell mn},\ell} + m,
+  u\p{\ell,m,n} = B\p{T_{\ell mn}} + R\p{T_{\ell mn},\ell} + m,
   \label{eq:vec_map}
 \end{align}
-where
+where $T_{\ell mn}\equiv\ell+m+n$ for shorthand and
 \begin{align}
-  T_{\ell mn} \equiv \ell + m + n,
-  &&
-  B\p{T} \equiv \f16 T \p{T+1} \p{T+2},
-  &&
-  R\p{T,\ell} \equiv \f12 \ell \p{2 T - \ell + 3}.
+  B\p{T}
+  \equiv \abs{\set{\p{\ell,m,n}\in\N_0^3 : T_{\ell mn}<T}}
+  = \f16 T \p{T+1} \p{T+2},
 \end{align}
-This map is designed to sort integers $\p{\ell,m,n}$ first by their
-sum $T_{\ell mn}$ (i.e.~the total weight of $S_+^\ell S_-^m S_z^n$),
-and then in turn by the values of $\ell$, $m$, and $n$, such that
-$v\p{\ell,m,n}<v\p{\ell',m',n'}$ if
-\begin{enumerate*}[label=(\roman*)]
-\item $T_{\ell mn}<T_{\ell'm'n'}$,
-\item $T_{\ell mn}=T_{\ell'm'n'}$ and $\ell<\ell'$,
-\item $\p{T_{\ell mn},\ell}=\p{T_{\ell'm'n'},\ell'}$ and $m<m'$, or
-\item $\p{T_{\ell mn},\ell,m}=\p{T_{\ell'm'n'},\ell',m'}$ and $n<n'$.
-\end{enumerate*}
-Fixing a maximal operator weight $M$, the vector keeping track of all
-operators is then
+\begin{align}
+  R\p{T,L}
+  \equiv \abs{\set{\p{\ell,m,n}\in\N_0^3 : T_{\ell mn}=T , \ell<L}}
+  = \f12 \ell \p{2 T - \ell + 3}.
+\end{align}
+In words, $u\p{\ell,m,n}$ sorts the collection non-negative integers
+$\p{\ell,m,n}$ first by their sum $T_{\ell mn}$, and then in turn by
+the values of $\ell$ and $m$.  Fixing a maximal operator weight $M$,
+the vector keeping track of all operators is then
 \begin{align}
   \v V_{\t{TVF}}
-  \equiv \sum_{\ell+m+n\le M} S_+^\ell S_-^m S_z^n \uv x_{v\p{\ell,m,n}}.
+  \equiv \sum_{\ell+m+n\le M} S_+^\ell S_-^m S_z^n \uv x_{u\p{\ell,m,n}}.
 \end{align}
 
 
@@ -352,7 +370,7 @@ operators is then
 The two-axis twisting Hamiltonian one axis oriented along the
 decoherence axis is
 \begin{align}
-  H_{\t{TAT}}^{z,y}
+  H_{\t{TAT}}^{\p{z,y}}
   = S_z^2 - S_y^2
   = S_z^2 + \f14 S_+^2 + \f14 S_-^2 - \f12 S_+ S_- + \f12 S_z.
 \end{align}
@@ -360,7 +378,36 @@ While upper and lower imbalances are not conserved by this
 Hamiltonians, the parity of the net imbalance, i.e.~$\ell-m~\t{mod}~2$
 for an operator $S_+^\ell S_-^m S_z^n$, is conserved.  There are
 therefore two sectors of operators which we can evolve independently
-to save computational overhead.
+to save computational overhead.  To keep track of these operators in
+one-dimensional vectors, we define the onto maps $v_p:\N_0^3\to\N_0$
+for $p\in\set{0,1}$ given by
+\begin{align}
+  v_p\p{\ell,m,n} = B_p\p{T_{\ell mn}} + R_p\p{T_{\ell mn},n} + m,
+\end{align}
+where
+\begin{align}
+  B_p\p{T}
+  &\equiv \abs{\set{\p{\ell,m,n}\in\N_0^3 :
+      T_{\ell mn}<T, \ell-m=p~\t{mod}~2}} \\
+  &= \f12 B\p{T} + \f14 \p{T+1} \p{T~\t{mod}~2} \p{1-2p},
+\end{align}
+\begin{align}
+  R_p\p{T,N}
+  &\equiv \abs{\set{\p{\ell,m,n}\in\N_0^3 :
+      T_{\ell mn}=T, \ell-m=p~\t{mod}~2, n < N }} \\
+  &= \floor{\f{n}{2}}
+  \p{T - \floor{\f{n}{2}} + 2 - \p{T+p~\t{mod}~2}}.
+\end{align}
+The map $v_p\p{\ell,m,n}$ sorts the collection non-negative integers
+$\p{\ell,m,n}$ with $\ell-m=p~\t{mod}~2$ first by their sum
+$T_{\ell mn}$, and then in turn by the values of $n$ and $m$.  Fixing
+a maximum operator weight $M$, the vectors keeping track of all
+operators are then
+\begin{align}
+  \v V_{\t{TAT}}^{\p{z,y,p}}
+  \equiv \sum_{\substack{\ell,m,n\le M\\\ell-m=p~\t{mod}~2}}
+  S_+^\ell S_-^m S_z^n \uv x_{v_p\p{\ell,m,n}}.
+\end{align}
 
 
 \subsection{Two-axis twisting transverse to the decoherence axis}
