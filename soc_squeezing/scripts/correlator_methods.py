@@ -19,8 +19,9 @@ def transverse_elem(mu, S, m):
     return np.sqrt((S-mu*m)*(S+mu*m+1))
 
 # correlator < X | S_+^l S_-^m S_z^n | X >
-def op_val_X(N, l, m, n):
-    if (l,m,n) == (0,0,0): return 1
+def op_val_X(N, op):
+    if op == (0,0,0): return 1
+    l, m, n = op
     S = N/2
     return sum([ k**n
                  * np.exp( ln_binom(N,S+k)/2 + ln_binom(N,S+k+l-m)/2 - N*np.log(2) )
@@ -29,8 +30,9 @@ def op_val_X(N, l, m, n):
                  for k in np.arange(-S+m,S-l) ])
 
 # correlator < -Z | S_+^l S_-^m S_z^n | -Z >
-def op_val_nZ(N, l, m, n):
-    if (l,m,n) == (0,0,0): return 1
+def op_val_nZ(N, op):
+    if op == (0,0,0): return 1
+    l, m, n = op
     S = N/2
     z_fac = (-S)**n
     t_fac = sum([ np.exp( ln_binom(N,S+k)/2 + ln_binom(N,S+k+l-m)/2 - N*np.log(2) )
@@ -62,10 +64,9 @@ def coherent_op_image(op, h_vals):
                         for nn in range(aa+1):
                             val = val_mm * binom(aa,nn) * (rr-ss)**(aa-nn)
                             op_in = (pp+rr-kk, qq+ss-kk, bb+mm+nn)
-                            if op_in not in image.keys():
-                                image[op_in] = val
-                            else:
-                                image[op_in] += val
+                            try: image[op_in]
+                            except: image[op_in] = 0
+                            image[op_in] += val
     null_keys = [ key for key in image.keys() if image[key] == 0 ]
     for key in null_keys: del image[key]
     return image
@@ -87,11 +88,11 @@ def op_image(op, h_vals, spin_number, decay_rate_over_chi):
     op_image_im = coherent_op_image(op, h_vals)
     op_image_re = decoherence_op_image(op, spin_number)
     op_image = { op : 1j * op_image_im[op] for op in op_image_im.keys() }
-    for key in op_image_re.keys():
-        try:
+    if decay_rate_over_chi != 0:
+        for key in op_image_re.keys():
+            try: op_image[key]
+            except: op_image[key] = 0
             op_image[key] += decay_rate_over_chi * op_image_re[key]
-        except:
-            op_image[key] = decay_rate_over_chi * op_image_re[key]
     return op_image
 
 # generator of time translation for a vector of spin operators
@@ -123,14 +124,14 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
     # pre-images of operators under infinitesimal time evolution
     images = { op : set([op]) for op in squeezing_ops }
 
-    image_args = ( h_vals, N, decay_rate_over_chi )
+    op_image_args = ( h_vals, N, decay_rate_over_chi )
     new_img_ops = { op : set([op]) for op in squeezing_ops }
     pp_img_ops = {}
     for order in range(max_order):
         for sqz_op in images.keys():
             pp_img_ops[sqz_op] = set()
             for new_img_op in new_img_ops[sqz_op]:
-                pp_img_ops[sqz_op] |= op_image(new_img_op, *image_args).keys()
+                pp_img_ops[sqz_op] |= op_image(new_img_op, *op_image_args).keys()
             new_img_ops[sqz_op] = set([ op for op in pp_img_ops[sqz_op]
                                         if op not in images[sqz_op] ])
             images[sqz_op] |= new_img_ops[sqz_op]
@@ -157,15 +158,13 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
         for ii in range(len(seed_ops[seed])):
             idx_dict[seed_ops[seed][ii]] = ii
             # set initial values in operator vector
-            op_vecs[seed][0,ii] = initial_val(N, *seed_ops[seed][ii])
+            op_vecs[seed][0,ii] = initial_val(N, seed_ops[seed][ii])
 
         # construct function taking operator --> index
         number_of_ops = len(seed_ops[seed])
         def idx(l,m,n):
-            try:
-                return idx_dict[(l,m,n)]
-            except:
-                return number_of_ops
+            try: return idx_dict[(l,m,n)]
+            except: return number_of_ops
 
         # construct generator of time translation for this vector of operators
         diff_ops[seed] \
