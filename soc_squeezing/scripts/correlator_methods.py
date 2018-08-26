@@ -108,88 +108,56 @@ def evolution_operator(vec_terms, idx, h_vals,  spin_number, decay_rate_over_chi
                 op_mat[idx_out,idx_in] += image[op_in]
     return op_mat.tocsr()
 
+# compute time derivative of a given vector of spin operators
+def compute_time_derivative(diff_op, input_vector, op_image_args):
+    output_vector = {}
+    for input_op in input_vector.keys():
+        try: diff_op[input_op]
+        except: diff_op[input_op] = op_image(input_op, *op_image_args)
+        for output_op in diff_op[input_op]:
+            try: output_vector[output_op]
+            except: output_vector[output_op] = 0
+            output_vector[output_op] \
+                += diff_op[input_op][output_op] * input_vector[input_op]
+    return output_vector
+
 # return correlators from evolution under a general Hamiltonian
 def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state,
-                        max_order = 30, print_updates = False):
+                        max_order = 30):
     assert(initial_state in [ "X", "-Z" ])
     if initial_state == "X":
         initial_val = op_val_X
     if initial_state == "-Z":
         initial_val = op_val_nZ
 
-    # list of "seed" operators necessary for computing squeezing, namely:
-    #                  S_z^2,  S_+ S_z  S_- S_z   S_+^2   S_+ S_-
-    squeezing_ops = [ (0,0,2), (1,0,1), (0,1,1), (2,0,0), (1,1,0) ]
+    # list of operators necessary for computing squeezing, namely:
+    #                    Sz     S_z^2,     Sp    S_+ S_z  S_- S_z   S_+^2   S_+ S_-
+    squeezing_ops = [ (0,0,1), (0,0,2), (1,0,0), (1,0,1), (0,1,1), (2,0,0), (1,1,0) ]
 
-    # pre-images of operators under infinitesimal time evolution
-    images = { op : set([op]) for op in squeezing_ops }
-
+    # arguments for computing operator pre-image under infinitesimal time translation
     op_image_args = ( h_vals, N, decay_rate_over_chi )
-    new_img_ops = { op : set([op]) for op in squeezing_ops }
-    pp_img_ops = {}
-    for order in range(max_order):
-        for sqz_op in images.keys():
-            pp_img_ops[sqz_op] = set()
-            for new_img_op in new_img_ops[sqz_op]:
-                pp_img_ops[sqz_op] |= op_image(new_img_op, *op_image_args).keys()
-            new_img_ops[sqz_op] = set([ op for op in pp_img_ops[sqz_op]
-                                        if op not in images[sqz_op] ])
-            images[sqz_op] |= new_img_ops[sqz_op]
 
-    # combine pre-images which have nonzero overlap
-    for op_B in squeezing_ops[::-1]:
-        for op_A in squeezing_ops:
-            if op_A == op_B: break
-            if len( images[op_A] & images[op_B] ) != 0:
-                images[op_A] |= images[op_B]
-                del images[op_B]
-                break
+    diff_op = {} # generator of time translations
+    time_derivatives = {} # [ sqz_op ][ derivative_order ][ operator ] --> value
+    relevant_ops = set(squeezing_ops) # set of operators relevant for time evolution
+    for sqz_op in squeezing_ops:
+        time_derivatives[sqz_op] = { 0 : { sqz_op : 1 } }
+        for order in range(1,max_order+1):
+            time_derivatives[sqz_op][order] \
+                = compute_time_derivative(diff_op,
+                                          time_derivatives[sqz_op][order-1],
+                                          op_image_args)
+            relevant_ops |= time_derivatives[sqz_op][order].keys()
 
-    seed_ops, diff_ops, op_vecs = {}, {}, {}
-    for seed in images.keys():
-        # determine which operators are associated with this seed
-        seed_ops[seed] = sorted(images[seed], key = lambda x: (x[0]+x[1]+x[2],x[0],x[1]))
+    initial_vals = { op : initial_val(N, op) for op in relevant_ops }
 
-        # initialize vector of operators for this seed
-        op_vecs[seed] = np.zeros((len(chi_times),len(seed_ops[seed])), dtype = complex)
+    T = np.array([ chi_times**kk / factorial(kk) for kk in range(max_order+1) ])
+    Q = {} # dictionary (l,m,n) --> < D_t^k S_+^l S_-^m S_z^n >_0
+    vals = {}
+    for sqz_op in squeezing_ops:
+        Q[sqz_op] = np.array([ sum([ time_derivatives[sqz_op][order][op] * initial_vals[op]
+                                     for op in time_derivatives[sqz_op][order].keys() ])
+                               for order in range(max_order+1) ])
+        vals[sqz_op] = Q[sqz_op] @ T
 
-        # construct dictionary taking operator --> index
-        idx_dict = {}
-        for ii in range(len(seed_ops[seed])):
-            idx_dict[seed_ops[seed][ii]] = ii
-            # set initial values in operator vector
-            op_vecs[seed][0,ii] = initial_val(N, seed_ops[seed][ii])
-
-        # construct function taking operator --> index
-        number_of_ops = len(seed_ops[seed])
-        def idx(l,m,n):
-            try: return idx_dict[(l,m,n)]
-            except: return number_of_ops
-
-        # construct generator of time translation for this vector of operators
-        diff_ops[seed] \
-            = evolution_operator(seed_ops[seed], idx, h_vals, N, decay_rate_over_chi)
-
-    # simulate!
-    for ii in range(1,len(chi_times)):
-        if print_updates:
-            print(f"{ii}/{len(chi_times)}")
-        dt = chi_times[ii] - chi_times[ii-1]
-        for seed in images.keys():
-            op_vecs[seed][ii] \
-                = sparse.linalg.expm_multiply(dt * diff_ops[seed], op_vecs[seed][ii-1])
-
-    # extract the correlators we need from the simulations
-    for seed in images.keys():
-        ops = seed_ops[seed]
-        for ii in range(len(ops)):
-            if sum(ops[ii]) > 2: break
-            if ops[ii] == (0,0,1): Sz    = op_vecs[seed][:,ii]
-            if ops[ii] == (0,0,2): Sz_Sz = op_vecs[seed][:,ii]
-            if ops[ii] == (1,0,0): Sp    = op_vecs[seed][:,ii]
-            if ops[ii] == (1,0,1): Sp_Sz = op_vecs[seed][:,ii]
-            if ops[ii] == (0,1,1): Sm_Sz = op_vecs[seed][:,ii]
-            if ops[ii] == (2,0,0): Sp_Sp = op_vecs[seed][:,ii]
-            if ops[ii] == (1,1,0): Sp_Sm = op_vecs[seed][:,ii]
-
-    return Sz, Sz_Sz, Sp, Sp_Sz, Sm_Sz, Sp_Sp, Sp_Sm
+    return [ vals[sqz_op] for sqz_op in squeezing_ops ]
