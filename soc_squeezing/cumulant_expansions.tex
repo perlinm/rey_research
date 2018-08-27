@@ -73,7 +73,7 @@ twisting (TAT), and transverse field (TVF) Hamiltonians of the form
 \begin{align}
   H_{\t{OAT}} = \chi S_z^2,
   &&
-  H_{\t{TAT}}^{\p{z,y}} = \chi \p{S_z^2 - S_y^2},
+  H_{\t{TAT}}^{z,y} = \chi \p{S_z^2 - S_y^2},
   &&
   H_{\t{TVF}} = \chi S_z^2 + \Omega S_x,
 \end{align}
@@ -208,19 +208,20 @@ we therefore need to solve the systems of equations defined by
   = i\chi S_\mu \p{1 + 2\mu S_z} S_z^n
   + \gamma S_\mu \sp{\p{S - \delta_{\mu,-1} + S_z} \sum_{k=0}^{n-1}
     \p{-1}^{n-k} { n \choose k } S_z^k - \f12 S_z^n}
-  \label{eq:evolution_OAT_single}
 \end{align}
-and
-\begin{multline}
-  \f{d}{dt} \p{S_\mu S_\nu S_z^n}
-  = i\chi S_\mu S_\nu \p{\sp{\mu+\nu}^2 + 2 \sp{\mu+\nu} S_z} S_z^n \\
-  + \gamma S_\mu S_\nu
-  \sp{\p{S - \delta_{\mu,-1} - \delta_{\nu,-1} + S_z} \sum_{k=0}^{n-1}
+for $\mu\in\set{+1,-1}$, and
+\begin{align}
+  \f{d}{dt} \p{S_+^2 S_z^n}
+  = 4i\chi S_\mu S_\nu \p{1 + S_z} S_z^n
+  + \gamma S_\mu S_\nu \sp{\p{S + S_z} \sum_{k=0}^{n-1}
     \p{-1}^{n-k} { n \choose k } S_z^k - S_z^n},
-  \label{eq:evolution_OAT_pair}
-\end{multline}
-for $\mu\ge\nu$.  The initial conditions for these systems of
-equations can be determined from the expansions
+\end{align}
+while $d/dt\p{S_\pm S_\mp}=0$, so
+\begin{align}
+  \bk{S_\pm S_\mp} = \bk{S_\pm S_\mp}_{t=0} e^{-\gamma t}.
+\end{align}
+The initial conditions for these systems of equations can be
+determined from the expansions
 \begin{align}
   S_z^n = \sum_{m=-S}^S m^n \op{m},
   &&
@@ -250,56 +251,40 @@ and
 \end{align}
 
 
-\subsection{Operator imbalance, conservation laws, and time evolution}
-
-For convenience of language, for collective spin operators of the form
-$S_+^\ell S_-^m S_z^n$ we respectively define the {\it upper}, {\it
-  lower}, and {\it net imbalance}
-\begin{align}
-  \I_+\p{S_+^\ell S_-^m S_z^n} \equiv \ell,
-  &&
-  \I_-\p{S_+^\ell S_-^m S_z^n} \equiv m,
-  &&
-  \I\p{S_+^\ell S_-^m S_z^n} \equiv \ell - m.
-\end{align}
-In the case of one-axis twisting, both upper and lower (and net)
-imbalances are {\it conserved}, meaning that operators with upper and
-lower imbalances $\p{\ell,m}$ depend only on other operators with the
-same imbalances.  We can therefore divide the task of operator time
-evolution into sectors of constant imbalances, which greatly reduces
-computational overhead.  Specifically, operator time evolution now
-involves evolving ``operator vectors''
-\begin{align}
-  \v V_{\t{OAT}}^{(\ell,m)}
-  \equiv S_+^\ell S_-^m \sum_{n\ge0} S_z^n \uv x_n,
-\end{align}
-which in practice must be truncated at some maximal $n=M$.  In the
-case of OAT, the time derivative of $S_+^\ell S_-^m S_z^n$ depends on
-$S_+^\ell S_-^m S_z^{n+1}$ which implies that we can only trust the
-value of $S_+^\ell S_-^m S_z^n$ up to the time at which the initial
-value of $S_+^\ell S_-^m S_z^M$ has (conservatively) an $\O\p{1}$
-contribution to $S_+^\ell S_-^m S_z^n$.
-
-In order to compute squeezing from OAT, we need only need to evolve
-$\v V_{\t{OAT}}^{(1,0)}$, $\v V_{\t{OAT}}^{(0,1)}$,
-$\v V_{\t{OAT}}^{(1,1)}$, and $\v V_{\t{OAT}}^{(2,0)}$.  The values of
-axial spin operators $S_z$ and $S_z^2$ are known exactly at all times
-from \eqref{eq:Sz_OAT}.
-
-
-\section{Transverse-field and two-axis twisting}
+\section{The general case}
 
 All collective spin Hamiltonians can be written in the form
 \begin{align}
   H = \sum_{p,q,r} h_{pqr} S_+^p S_-^q S_z^r.
   \label{eq:H_general}
 \end{align}
+The Hamiltonian for one-axis twisting with a transverse-field, for
+example, is
+\begin{align}
+  H_{\t{TVF}}
+  = \chi S_z^2 + \Omega S_x
+  = \chi S_z^2 + \f{\Omega}{2} S_+ + \f{\Omega}{2} S_-,
+\end{align}
+while the two-axis twisting Hamiltonians about $\p{z,y}$ and $\p{y,x}$
+are
+\begin{align}
+  H_{\t{TAT}}^{z,y}
+  = \chi \p{S_z^2 - S_y^2}
+  = \chi \p{S_z^2 + \f14 S_+^2 + \f14 S_-^2 - \f12 S_+ S_- + \f12 S_z},
+\end{align}
+and
+\begin{align}
+  H_{\t{TAT}}^{y,x}
+  = \chi\p{S_y^2 - S_x^2}
+  = -\f{\chi}{2} \p{S_+^2 + S_-^2}.
+\end{align}
 The evolution of a general operator $S_+^\ell S_-^m S_z^n$ under a
 Hamiltonian of the form in \eqref{eq:H_general} is given by
 \begin{align}
   \f{d}{dt} \p{S_+^\ell S_-^m S_z^n}
   = i\sum_{p,q,r} h_{pqr} \sp{S_+^p S_-^q S_z^r, S_+^\ell S_-^m S_z^n}_-
-  + \gamma \D_-\p{S_+^\ell S_-^m S_z^n},
+  + \gamma \D_-\p{S_+^\ell S_-^m S_z^n}
+  = \sum_{p,q,r} T^{\ell m n}_{pqr} S_+^p S_-^q S_z^r,
 \end{align}
 where the commutator is given in Appendix \ref{sec:comm_general}, and
 the decoherence operator in Appendix \ref{sec:decoherence}.  We will
@@ -321,108 +306,25 @@ and
   \times \prod_{p=0}^{\ell-1} g_+\p{S,k-m+p}
   \prod_{q=0}^{m-1} g_-\p{S,k-q}.
 \end{multline}
+Equipped with these initial conditions, we can expand
+\begin{align}
+  \bk{S_+^\ell S_-^m S_z^n}
+  = \sum_{k\ge0} \f{t^k}{k!}
+  \bk{\f{d^k}{dt^k}\p{S_+^\ell S_-^m S_z^n}}_{t=0}
+  \approx \sum_{k=0}^M \f{t^k}{k!}
+  \bk{\f{d^k}{dt^k}\p{S_+^\ell S_-^m S_z^n}}_{t=0},
+\end{align}
+where $M$ is chosen such that
+\begin{align}
+  \f{t^M}{M!} \bk{\f{d^M}{dt^M}\p{S_+^\ell S_-^m S_z^n}}_{t=0}
+  \ll S^{\ell+m+n}.
+\end{align}
+% comment on explosion of operators
 
 
 
-\subsection{Transverse-field Hamiltonian}
-
-The transverse-field (TVF) twisting Hamiltonian with unit twisting
-strength is
-\begin{align}
-  H_{\t{TVF}}
-  = S_z^2 + \Omega S_x
-  = S_z^2 + \f{\Omega}{2} S_+ + \f{\Omega}{2} S_-.
-\end{align}
-Unlike in the case of OAT, we now cannot divide all operators of the
-form $S_+^\ell S_-^m S_z^n$ into independent sectors of constant
-imbalances $\ell,m$.  We therefore need to keep track of all operators
-in one vector $\v V_{\t{TVF}}$, which in turn requires imposing an
-ordering on all operators of the form $S_+^\ell S_-^m S_z^n$.  Such an
-ordering is provided by the one-to-one map $u:\N_0^3\to\N_0$, where$
-\N_0$ denotes the set of non-negative integers, given by
-\begin{align}
-  u\p{\ell,m,n} = B\p{T_{\ell mn}} + R\p{T_{\ell mn},\ell} + m,
-  \label{eq:vec_map}
-\end{align}
-where $T_{\ell mn}\equiv\ell+m+n$ for shorthand and
-\begin{align}
-  B\p{T}
-  \equiv \abs{\set{\p{\ell,m,n}\in\N_0^3 : T_{\ell mn}<T}}
-  = \f16 T \p{T+1} \p{T+2},
-\end{align}
-\begin{align}
-  R\p{T,L}
-  \equiv \abs{\set{\p{\ell,m,n}\in\N_0^3 : T_{\ell mn}=T , \ell<L}}
-  = \f12 \ell \p{2 T - \ell + 3}.
-\end{align}
-In words, $u\p{\ell,m,n}$ sorts the collection non-negative integers
-$\p{\ell,m,n}$ first by their sum $T_{\ell mn}$, and then in turn by
-the values of $\ell$ and $m$.  Fixing a maximal operator weight $M$,
-the vector keeping track of all operators is then
-\begin{align}
-  \v V_{\t{TVF}}
-  \equiv \sum_{\ell+m+n\le M} S_+^\ell S_-^m S_z^n \uv x_{u\p{\ell,m,n}}.
-\end{align}
 
 
-\subsection{Two-axis twisting in-plane with the decoherence axis}
-
-The two-axis twisting Hamiltonian one axis oriented along the
-decoherence axis is
-\begin{align}
-  H_{\t{TAT}}^{\p{z,y}}
-  = S_z^2 - S_y^2
-  = S_z^2 + \f14 S_+^2 + \f14 S_-^2 - \f12 S_+ S_- + \f12 S_z.
-\end{align}
-While upper and lower imbalances are not conserved by this
-Hamiltonians, the parity of the net imbalance, i.e.~$\ell-m~\t{mod}~2$
-for an operator $S_+^\ell S_-^m S_z^n$, is conserved.  There are
-therefore two sectors of operators which we can evolve independently
-to save computational overhead.  To keep track of these operators in
-one-dimensional vectors, we define the onto maps $v_p:\N_0^3\to\N_0$
-for $p\in\set{0,1}$ given by
-\begin{align}
-  v_p\p{\ell,m,n} = B_p\p{T_{\ell mn}} + R_p\p{T_{\ell mn},n} + m,
-\end{align}
-where
-\begin{align}
-  B_p\p{T}
-  &\equiv \abs{\set{\p{\ell,m,n}\in\N_0^3 :
-      T_{\ell mn}<T, \ell-m=p~\t{mod}~2}} \\
-  &= \f12 B\p{T} + \f14 \p{T+1} \p{T~\t{mod}~2} \p{1-2p},
-\end{align}
-\begin{align}
-  R_p\p{T,N}
-  &\equiv \abs{\set{\p{\ell,m,n}\in\N_0^3 :
-      T_{\ell mn}=T, \ell-m=p~\t{mod}~2, n < N }} \\
-  &= \floor{\f{n}{2}}
-  \p{T - \floor{\f{n}{2}} + 2 - \p{T+p~\t{mod}~2}}.
-\end{align}
-The map $v_p\p{\ell,m,n}$ sorts the collection non-negative integers
-$\p{\ell,m,n}$ with $\ell-m=p~\t{mod}~2$ first by their sum
-$T_{\ell mn}$, and then in turn by the values of $n$ and $m$.  Fixing
-a maximum operator weight $M$, the vectors keeping track of all
-operators are then
-\begin{align}
-  \v V_{\t{TAT}}^{\p{z,y,p}}
-  \equiv \sum_{\substack{\ell,m,n\le M\\\ell-m=p~\t{mod}~2}}
-  S_+^\ell S_-^m S_z^n \uv x_{v_p\p{\ell,m,n}}.
-\end{align}
-
-
-\subsection{Two-axis twisting transverse to the decoherence axis}
-
-
-The two-axis twisting Hamiltonian with both axes transverse to the
-decoherence axis is
-\begin{align}
-  H_{\t{TAT}}^{y,x}
-  = S_y^2 - S_x^2
-  = - \f12 S_+^2 - \f12 S_-^2.
-\end{align}
-Just as with the previous TAT Hamiltonian, the parity of the net
-imbalance of operators is conserved by $H_{\t{TAT}}^{y,x}$, implying
-that there are two independent sectors of operators to evolve.
 
 
 \bibliography{\jobname}
