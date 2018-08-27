@@ -208,6 +208,7 @@ we therefore need to solve the systems of equations defined by
   = i\chi S_\mu \p{1 + 2\mu S_z} S_z^n
   + \gamma S_\mu \sp{\p{S - \delta_{\mu,-1} + S_z} \sum_{k=0}^{n-1}
     \p{-1}^{n-k} { n \choose k } S_z^k - \f12 S_z^n}
+  \label{eq:diff_mu_OAT}
 \end{align}
 for $\mu\in\set{+1,-1}$, and
 \begin{align}
@@ -215,40 +216,15 @@ for $\mu\in\set{+1,-1}$, and
   = 4i\chi S_\mu S_\nu \p{1 + S_z} S_z^n
   + \gamma S_\mu S_\nu \sp{\p{S + S_z} \sum_{k=0}^{n-1}
     \p{-1}^{n-k} { n \choose k } S_z^k - S_z^n},
+  \label{eq:diff_pp_OAT}
 \end{align}
 while $d/dt\p{S_\pm S_\mp}=0$, so
 \begin{align}
   \bk{S_\pm S_\mp} = \bk{S_\pm S_\mp}_{t=0} e^{-\gamma t}.
 \end{align}
-The initial conditions for these systems of equations can be
-determined from the expansions
-\begin{align}
-  S_z^n = \sum_{m=-S}^S m^n \op{m},
-  &&
-  S_\mu = \sum_{m=-S}^S g_\mu\p{m} \op{m+\mu}{m},
-\end{align}
-with
-\begin{align}
-  g_\mu\p{S,m} \equiv \sqrt{\p{S-\mu m}\p{S+\mu m+1}},
-  \label{eq:transverse_elem}
-\end{align}
-and the initial state
-\begin{align}
-  \ket{X} = 2^{-N/2} \sum_{m=-S}^S { N \choose S+m }^{1/2} \ket{m},
-\end{align}
-from which we can determine
-\begin{align}
-  \bk{S_\mu S_z^n}_{t=0}
-  = 2^{-N} \sum_{m=-S}^S m^n { N \choose S+m } \abs{m - \mu S},
-\end{align}
-and
-\begin{align}
-  \bk{S_\mu S_\nu S_z^n}_{t=0}
-  = 2^{-N} \sum_{m=-S+\delta_{\mu,-1}+\delta_{\nu,-1}}
-  ^{S-\delta_{\mu,1}-\delta_{\nu,1}}
-  m^n \sp{{ N \choose S+m+\mu+\nu } { N \choose S+m }}^{1/2}
-  g_\mu\p{S,m+\nu} g_\nu\p{S,m}.
-\end{align}
+The initial conditions for \eqref{eq:diff_mu_OAT} and
+\eqref{eq:diff_pp_OAT} are provided in Appendix
+\ref{sec:initial_conditions}.
 
 
 \section{The general case}
@@ -287,26 +263,8 @@ Hamiltonian of the form in \eqref{eq:H_general} is given by
   = \sum_{p,q,r} T^{\ell m n}_{pqr} S_+^p S_-^q S_z^r,
 \end{align}
 where the commutator is given in Appendix \ref{sec:comm_general}, and
-the decoherence operator in Appendix \ref{sec:decoherence}.  We will
-be considering evolution of the initial states
-$\ket{X}:S_x\ket{X}=S\ket{X}$ and $\ket{-Z}:S_z\ket{-Z}=-S\ket{-Z}$,
-for which initial conditions are given by
-\begin{multline}
-  \bk{X|S_+^\ell S_-^m S_z^n|X}
-  =  2^{-N} \sum_{k=-S+m}^{S-\ell} k^n
-  \sp{{ N \choose S+k+\ell-m } { N \choose S+k }}^{1/2} \\
-  \times \prod_{p=0}^{\ell-1} g_+\p{S,k-m+p}
-  \prod_{q=0}^{m-1} g_-\p{S,k-q}
-\end{multline}
-and
-\begin{multline}
-  \bk{-Z|S_+^\ell S_-^m S_z^n|-Z}
-  = \p{-S}^n 2^{-N} \sum_{k=-S+m}^{S-\ell}
-  \sp{{ N \choose S+k+\ell-m } { N \choose S+k }}^{1/2} \\
-  \times \prod_{p=0}^{\ell-1} g_+\p{S,k-m+p}
-  \prod_{q=0}^{m-1} g_-\p{S,k-q}.
-\end{multline}
-Equipped with these initial conditions, we can expand
+the decoherence operator in Appendix \ref{sec:decoherence}.  We can
+then expand
 \begin{align}
   \bk{S_+^\ell S_-^m S_z^n}
   = \sum_{k\ge0} \f{t^k}{k!}
@@ -319,12 +277,9 @@ where $M$ is chosen such that
   \f{t^M}{M!} \bk{\f{d^M}{dt^M}\p{S_+^\ell S_-^m S_z^n}}_{t=0}
   \ll S^{\ell+m+n}.
 \end{align}
+Initial conditions, i.e.~expectation values at $t=0$, are provided in
+Appendix \ref{sec:initial_conditions}.
 % comment on explosion of operators
-
-
-
-
-
 
 
 \bibliography{\jobname}
@@ -785,5 +740,33 @@ Similarly to before, the commutator in \eqref{eq:D_mu_mu} is
 \end{align}
 The difficulty now is with the first term in \eqref{eq:D_mu_mu}, as
 $\sigma_j^\bmu$ and $S_\mu$ do not commute.
+
+
+\section{Initial conditions}
+\label{sec:initial_conditions}
+
+Initial conditions for all collective spin operators can be determined
+from the expansions
+\begin{align}
+  S_z^n = \sum_{m=-S}^S m^n \op{m},
+  &&
+  S_\mu = \sum_{m=-S}^S g_\mu\p{m} \op{m+\mu}{m},
+\end{align}
+with
+\begin{align}
+  g_\mu\p{S,m} \equiv \sqrt{\p{S-\mu m}\p{S+\mu m+1}},
+\end{align}
+and the initial state
+\begin{align}
+  \ket{X} \equiv 2^{-N/2} \sum_{m=-S}^S { N \choose S+m }^{1/2} \ket{m},
+\end{align}
+using which we can compute
+\begin{multline}
+  \bk{X|S_+^\ell S_-^m S_z^n|X}
+  =  2^{-N} \sum_{k=-S}^{S-\max\set{\ell,m}} \p{k+m}^n
+  \sp{{ N \choose S+k+\ell } { N \choose S+k+m }}^{1/2} \\
+  \times \prod_{p=0}^{\ell-1} g_+\p{S,k+p}
+  \prod_{q=0}^{m-1} g_+\p{S,k-q}.
+\end{multline}
 
 \end{document}
