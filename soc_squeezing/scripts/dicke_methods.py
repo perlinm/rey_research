@@ -11,6 +11,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
 from squeezing_methods import ln_binom, squeezing_from_correlators
+from correlator_methods import correlators_OAT
 
 # spin operators for N particles in the S = N/2 Dicke manifold
 def spin_op_z_dicke(N):
@@ -126,31 +127,6 @@ def plot_dicke_state(state, grid_size = 51, single_sphere = False):
 # analytical solutions
 ##########################################################################################
 
-# exact correlators for OAT with decoherence
-# derivations in foss-feig2013nonequilibrium
-def correlators_OAT_exact(N, chi_t, decay_rate_over_chi):
-    g = decay_rate_over_chi # shorthand for decay rate in units with \chi = 1
-    t = chi_t # shorthand for time in units with \chi = 1
-
-    Sz = N/2 * (np.exp(-g*t)-1)
-    var_Sz = N/2 * (1 - np.exp(-g*t)/2) * np.exp(-g*t)
-    Sz_Sz = var_Sz + Sz**2
-
-    def s(J): return J + 1j*g/2
-    def Phi(J): return np.exp(-g*t/2) * ( np.cos(s(J)*t) + g*t/2 * np.sinc(s(J)*t/np.pi) )
-    def Psi(J): return np.exp(-g*t/2) * (1j*s(J)-g/2) * t * np.sinc(s(J)*t/np.pi)
-
-    Sp = N/2 * np.exp(-g*t/2) * Phi(1)**(N-1)
-    Sm = np.conj(Sp)
-
-    Sp_Sz = -1/2 * Sp + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi( 1) * Phi( 1)**(N-2)
-    Sm_Sz =  1/2 * Sm + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi(-1) * Phi(-1)**(N-2)
-    Sp_Sp = 1/4 * N * (N-1) * np.exp(-g*t) * Phi( 2)**(N-2)
-    Sp_Sm = N/2 + Sz + 1/4 * N * (N-1) * np.exp(-g*t) # note that Phi(0) == 1
-
-    return Sz, Sz_Sz, Sp, Sp_Sz, Sm_Sz, Sp_Sp, Sp_Sm
-
-
 # squeezing parameter from one-axis twisting, accounting for e --> g decay
 def squeezing_OAT(N, chi_t, decay_rate_over_chi = 0):
 
@@ -171,6 +147,6 @@ def squeezing_OAT(N, chi_t, decay_rate_over_chi = 0):
         return var_min * N / Sx**2
 
     # otherwise, use more complex but exact spin correlators to compute squeezing
-    correlators = correlators_OAT_exact(N, chi_t, decay_rate_over_chi)
+    correlators = correlators_OAT(N, chi_t, decay_rate_over_chi)
 
     return squeezing_from_correlators(N, *correlators)

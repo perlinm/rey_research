@@ -7,7 +7,7 @@ import scipy.sparse as sparse
 import scipy.linalg as linalg
 import scipy.optimize as optimize
 
-from scipy.special import binom
+from scipy.special import factorial, binom
 
 # constrect vector of generators about z, x, and y
 g_vec = np.array([ np.array([ [  0,  0,  0 ],
@@ -20,13 +20,14 @@ g_vec = np.array([ np.array([ [  0,  0,  0 ],
                               [  1,  0,  0 ],
                               [  0,  0,  0 ] ]) ])
 
-# use stirling's approximation to compute ln(n!)
+# compute ln(n!), using stirling's approximation if necessary
 def ln_factorial(n):
-    if n == 0: return 0
+    fac = factorial(n)
+    if fac != np.inf: return np.log(fac)
     return ( n * np.log(n) - n + 1/2 * np.log(np.pi) +
              1/6 * np.log( 8*n**3 + 4*n**2 + n + 1/30 ) )
 
-# return logarithm of binomial coefficient, using an approximation if necessary
+# compute ln({ N \choose m }), using stirling's approximation if necessary
 def ln_binom(N,m):
     binomial_coeff = binom(N,m)
     if binomial_coeff != np.inf: return np.log(binomial_coeff)
@@ -97,13 +98,14 @@ def spin_squeezing(state, S_op_vec, SS_op_mat, N):
     return variance * N / linalg.norm(S_vec)**2
 
 # return  from a set of spin correlators
-def squeezing_from_correlators(N, Sz, Sz_Sz, Sp, Sp_Sz, Sm_Sz, Sp_Sp, Sp_Sm):
+def squeezing_from_correlators(N, Sz, Sz_Sz, Sp, Sp_Sp, Sp_Sz, Sp_Sm):
 
     Sx = np.real(Sp)
     Sy = np.imag(Sp)
 
     Sm_Sm = np.conj(Sp_Sp)
-    Sm_Sp = Sp_Sm - 2 * Sz
+    Sm_Sp = Sp_Sm - 2*Sz
+    Sm_Sz = np.conj(Sp_Sz + Sp)
 
     Sx_Sz =   1/2 * ( Sp_Sz + Sm_Sz )
     Sy_Sz = -1j/2 * ( Sp_Sz - Sm_Sz )
