@@ -372,8 +372,9 @@ While \eqref{eq:comm_mu_single} gives us the commutator
 $\sp{S_\mu,S_\bmu^n}_-$, we would like to enforce an ordering on
 products of collective spin operators, which allows us to only keep
 track of high-weight operators that are linearly independent.  We
-(arbitrarily) choose to impose an ordering with all $S_z$ operators on
-the right.  This choice of ordering compels us to expand
+choose to impose an ordering with all $S_z$ operators on the right, as
+we will find such an ordering convenient for performing calculations.
+This choice of ordering compels us to expand
 \begin{align}
   2 \mu \sum_{k=0}^{n-1} S_\bmu^k S_z S_\bmu^{n-k-1}
   = 2 \mu \sum_{k=0}^{n-1}
@@ -748,25 +749,30 @@ $\sigma_j^\bmu$ and $S_\mu$ do not commute.
 Initial conditions for all collective spin operators can be determined
 from the expansions
 \begin{align}
-  S_z^n = \sum_{m=-S}^S m^n \op{m},
+  S_z^n = \sum_{k=-S}^S k^n \op{k},
   &&
-  S_\mu = \sum_{m=-S}^S g_\mu\p{m} \op{m+\mu}{m},
+  S_\mu
+  = \sum_{k=-S+\delta_{\mu,-1}}^{S-\delta_{k,1}}
+  g_\mu\p{k} \op{k+\mu}{k},
 \end{align}
 with
 \begin{align}
-  g_\mu\p{S,m} \equiv \sqrt{\p{S-\mu m}\p{S+\mu m+1}},
+  g_\mu\p{S,k} \equiv \sqrt{\p{S-\mu k}\p{S+\mu k+1}},
 \end{align}
 and the initial state
 \begin{align}
-  \ket{X} \equiv 2^{-N/2} \sum_{m=-S}^S { N \choose S+m }^{1/2} \ket{m},
+  \ket{X} \equiv 2^{-N/2} \sum_{k=-S}^S { N \choose S+k }^{1/2} \ket{k},
 \end{align}
 using which we can compute
-\begin{multline}
+\begin{align}
   \bk{X|S_+^\ell S_-^m S_z^n|X}
-  =  2^{-N} \sum_{k=-S}^{S-\max\set{\ell,m}} \p{k+m}^n
-  \sp{{ N \choose S+k+\ell } { N \choose S+k+m }}^{1/2} \\
+  &=  2^{-N} \sum_{k=-S}^{S-\max\set{\ell,m}} \p{k+m}^n
+  \sp{{ N \choose S+k+\ell } { N \choose S+k+m }}^{1/2} \tag*{} \\
+  &\qquad\qquad\qquad\qquad
   \times \prod_{p=0}^{\ell-1} g_+\p{S,k+p}
-  \prod_{q=0}^{m-1} g_+\p{S,k-q}.
-\end{multline}
+  \prod_{q=0}^{m-1} g_-\p{S,k+m-q} \\
+  &= 2^{-N} \sum_{k=-S}^{S-\max\set{\ell,m}} \p{k+m}^n
+  \f{N!\p{S-k}!}{\p{S+k}!\p{S-k-\ell}!\p{S-k-m}!}.
+\end{align}
 
 \end{document}
