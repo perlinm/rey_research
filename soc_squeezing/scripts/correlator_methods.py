@@ -17,7 +17,7 @@ def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = False))
 def transverse_elem(mu, S, m):
     return np.sqrt((S-mu*m)*(S+mu*m+1))
 
-# correlator < X | S_+^l S_-^m S_z^n | X >
+# correlator < X | S_+^l S_z^m S_-^n | X >
 def op_val_pX(N, op):
     if op == (0,0,0): return 1
     l, m, n = op
@@ -26,7 +26,7 @@ def op_val_pX(N, op):
         numerator = ln_factorial(N) + ln_factorial(S-k)
         denominator = ln_factorial(S+k) + ln_factorial(S-k-l) + ln_factorial(S-k-n)
         return numerator - denominator
-    return sum([ (k+n)**m * np.exp( ln_factors(k,l,n) - N*np.log(2) )
+    return sum([ k**m * np.exp( ln_factors(k,l,n) - N*np.log(2) )
                  for k in np.arange(-S,S-max(l,n)+1) ])
 
 # collective spin operator commutator coefficients (see notes)
@@ -44,19 +44,20 @@ def coherent_op_image(op, h_vals):
     L, M, N = op
     image = {}
     for P,Q,R in h_vals.keys():
-        term_val = 1j * h_vals[(P,Q,R)]
+        h_term = h_vals[(P,Q,R)]
         for pp, aa, qq, rr, bb, ss, sign in [ (P,Q,R,L,M,N,1), (L,M,N,P,Q,R,-1) ]:
             for kk in range(min(qq,rr)+1):
-                val_kk = sign * term_val * factorial(kk) * binom(qq,kk) * binom(rr,kk)
+                kk_fac = factorial(kk) * binom(qq,kk) * binom(rr,kk)
                 for ll in range(kk+1):
-                    val_ll = val_kk * (-1)**ll * epsilon(qq,rr,kk,ll)
-                    for mm in range(ll+1):
-                        val_mm = val_ll * binom(ll,mm) * (-ss)**(ll-mm)
-                        for nn in range(aa+1):
-                            op_in = (pp+rr-kk, bb+mm+nn, qq+ss-kk)
+                    kl_fac = kk_fac * (-1)**ll * xi(qq,rr,kk,ll)
+                    for mm in range(aa+1):
+                        klm_fac = kl_fac * (rr-kk)**(aa-mm) * binom(aa,mm)
+                        for nn in range(bb+1):
+                            klmn_fac = klm_fac * (qq-kk)**(bb-nn) * binom(bb,nn)
+                            val = 1j * sign * h_term * klmn_fac
+                            op_in = (pp+rr-kk, ll+mm+nn, qq+ss-kk)
                             try: image[op_in]
                             except: image[op_in] = 0
-                            val = val_mm * binom(aa,nn) * (rr-ss)**(aa-nn)
                             image[op_in] += val
     return image
 
@@ -66,8 +67,8 @@ def decoherence_op_image(op, spin_number):
     if op == (0,0,0): return {}
     L, M, N = op
     val_kk = np.array([ (-1)**(M-kk) * binom(M,kk) for kk in range(M) ])
-    image = { (L,kk,N) : (spin_number/2-N) * val_kk[kk] for kk in range(M) }
-    image[op] = -1/2*(L+N)
+    image = { (L,kk,N) : spin_number/2 * val_kk[kk] for kk in range(M) }
+    image[(L,M,N)] = -1/2*(L+N)
     for kk in range(M): image[(L,kk+1,N)] += val_kk[kk]
     return image
 
@@ -123,13 +124,9 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
     # list of operators necessary for computing squeezing, namely:
     #                    Sz     S_z^2,     Sp     S_+^2   S_+ S_z  S_+ S_-
     squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
-    # squeezing_ops = [ (0,0,1), (0,0,2), (1,0,0), (2,0,0), (1,0,1), (1,1,0) ]
 
     # arguments for computing operator pre-image under infinitesimal time translation
     op_image_args = ( h_vals, N, decay_rate_over_chi )
-
-    from time import time
-    start = time()
 
     diff_op = {} # generator of time translations
     time_derivatives = {} # [ sqz_op ][ derivative_order ][ operator ] --> value
@@ -141,19 +138,11 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
                                           time_derivatives[sqz_op][order-1],
                                           op_image_args)
 
-    print()
-    print(time()-start)
-    start = time()
-
     # compute initial values of relevant operators
     relevant_ops = set.union(*[ set(time_derivatives[sqz_op][order].keys())
                                 for sqz_op in squeezing_ops
                                 for order in range(order_cap) ])
     initial_vals = { op : initial_val(N, op) for op in relevant_ops }
-
-    print()
-    print(time()-start)
-    start = time()
 
     T = np.array([ chi_times**kk / factorial(kk) for kk in range(order_cap) ])
     Q = {} # dictionary (l,m,n) --> < D_t^kk S_+^l S_z^m S_-^n >_0 for all kk
@@ -163,10 +152,6 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
                                      for op in time_derivatives[sqz_op][order].keys() ])
                                for order in range(order_cap) ])
         vals[sqz_op] = Q[sqz_op] @ T
-
-    print()
-    print(time()-start)
-    start = time()
 
     return [ vals[sqz_op] for sqz_op in squeezing_ops ]
 
