@@ -98,7 +98,14 @@ def spin_squeezing(state, S_op_vec, SS_op_mat, N):
     return variance * N / linalg.norm(S_vec)**2
 
 # return  from a set of spin correlators
-def squeezing_from_correlators(N, Sz, Sz_Sz, Sp, Sp_Sp, Sp_Sz, Sp_Sm):
+def squeezing_from_correlators(N, correlators):
+
+    Sz    = correlators[(0,1,0)]
+    Sz_Sz = correlators[(0,2,0)]
+    Sp    = correlators[(1,0,0)]
+    Sp_Sp = correlators[(2,0,0)]
+    Sp_Sz = correlators[(1,1,0)]
+    Sp_Sm = correlators[(1,0,1)]
 
     Sx = np.real(Sp)
     Sy = np.imag(Sp)

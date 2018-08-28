@@ -149,4 +149,4 @@ def squeezing_OAT(N, chi_t, decay_rate_over_chi = 0):
     # otherwise, use more complex but exact spin correlators to compute squeezing
     correlators = correlators_OAT(N, chi_t, decay_rate_over_chi)
 
-    return squeezing_from_correlators(N, *correlators)
+    return squeezing_from_correlators(N, correlators)

@@ -5,6 +5,7 @@
 import numpy as np
 import scipy.sparse as sparse
 
+from mpmath import hyper
 from scipy.special import factorial, binom
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 
@@ -23,10 +24,11 @@ def op_val_pX(N, op):
     l, m, n = op
     S = N/2
     def ln_factors(k,l,n):
-        numerator = ln_factorial(N) + ln_factorial(S-k)
-        denominator = ln_factorial(S+k) + ln_factorial(S-k-l) + ln_factorial(S-k-n)
-        return numerator - denominator
-    return sum([ k**m * np.exp( ln_factors(k,l,n) - N*np.log(2) )
+        ln_numerator = ln_factorial(S-k)
+        ln_denominator = ln_factorial(S+k) + ln_factorial(S-k-l) + ln_factorial(S-k-n)
+        return ln_numerator - ln_denominator
+    ln_prefactor = ln_factorial(N) - N*np.log(2)
+    return sum([ k**m * np.exp( ln_factors(k,l,n) + ln_prefactor )
                  for k in np.arange(-S,S-max(l,n)+1) ])
 
 # correlator < -Z | S_+^l S_z^m S_-^n | -Z >
@@ -152,14 +154,14 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
 
     T = np.array([ chi_times**kk / factorial(kk) for kk in range(order_cap) ])
     Q = {} # dictionary (l,m,n) --> < D_t^kk S_+^l S_z^m S_-^n >_0 for all kk
-    vals = {}
+    correlators = {}
     for sqz_op in squeezing_ops:
         Q[sqz_op] = np.array([ sum([ time_derivatives[sqz_op][order][op] * initial_vals[op]
                                      for op in time_derivatives[sqz_op][order].keys() ])
                                for order in range(order_cap) ])
-        vals[sqz_op] = Q[sqz_op] @ T
+        correlators[sqz_op] = Q[sqz_op] @ T
 
-    return [ vals[sqz_op] for sqz_op in squeezing_ops ]
+    return correlators
 
 # exact correlators for OAT with decoherence
 # derivations in foss-feig2013nonequilibrium
@@ -182,4 +184,9 @@ def correlators_OAT(N, chi_t, decay_rate_over_chi):
     Sp_Sz = -1/2 * Sp + 1/4 * N * (N-1) * np.exp(-g*t/2) * Psi(1) * Phi(1)**(N-2)
     Sp_Sm = N/2 + Sz + 1/4 * N * (N-1) * np.exp(-g*t) # note that Phi(0) == 1
 
-    return Sz, Sz_Sz, Sp, Sp_Sp, Sp_Sz, Sp_Sm
+    return { (0,1,0) : Sz,
+             (0,2,0) : Sz_Sz,
+             (1,0,0) : Sp,
+             (2,0,0) : Sp_Sp,
+             (1,1,0) : Sp_Sz,
+             (1,0,1) : Sp_Sm }
