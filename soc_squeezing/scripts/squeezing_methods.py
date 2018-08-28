@@ -8,6 +8,7 @@ import scipy.linalg as linalg
 import scipy.optimize as optimize
 
 from scipy.special import factorial, binom
+from math import lgamma
 
 # constrect vector of generators about z, x, and y
 g_vec = np.array([ np.array([ [  0,  0,  0 ],
@@ -20,14 +21,13 @@ g_vec = np.array([ np.array([ [  0,  0,  0 ],
                               [  1,  0,  0 ],
                               [  0,  0,  0 ] ]) ])
 
-# compute ln(n!), using stirling's approximation if necessary
+# compute ln(n!), using an approximation if necessary
 def ln_factorial(n):
     fac = factorial(n)
     if fac != np.inf: return np.log(fac)
-    return ( n * np.log(n) - n + 1/2 * np.log(np.pi) +
-             1/6 * np.log( 8*n**3 + 4*n**2 + n + 1/30 ) )
+    return lgamma(n+1)
 
-# compute ln({ N \choose m }), using stirling's approximation if necessary
+# compute ln({ N \choose m }), using an approximation if necessary
 def ln_binom(N,m):
     binomial_coeff = binom(N,m)
     if binomial_coeff != np.inf: return np.log(binomial_coeff)
