@@ -282,8 +282,7 @@ that
 \end{align}
 Repeating this process $\ell$ times tells us
 \begin{align}
-  S_z^\ell S_\mu^m
-  = S_\mu^m \p{\mu m + S_z}^\ell,
+  S_z^\ell S_\mu^m = S_\mu^m \p{\mu m + S_z}^\ell,
   \label{eq:push_z_mu}
 \end{align}
 which implies
@@ -703,11 +702,16 @@ with
 \end{align}
 and the initial states
 \begin{align}
-  \ket{X} \equiv 2^{-N/2} \sum_{k=-S}^S { N \choose S+k }^{1/2} \ket{k},
-  &&
   \ket{-Z} \equiv \ket{-S},
+  &&
+  \ket{X} \equiv 2^{-N/2} \sum_{k=-S}^S { N \choose S+k }^{1/2} \ket{k},
 \end{align}
 using which we can compute
+\begin{align}
+  \bk{-Z|S_+^\ell S_z^m S_-^n|-Z}
+  = \delta_{\ell,0} \delta_{m,0} \p{-S}^m,
+\end{align}
+and
 \begin{align}
   \bk{X|S_+^\ell S_z^m S_-^n|X}
   &=  2^{-N} \sum_{k=-S}^{S-\max\set{\ell,n}} k^m
@@ -717,11 +721,6 @@ using which we can compute
   \prod_{q=0}^{n-1} g_-\p{S,k+n-q} \\
   &= 2^{-N} \sum_{k=-S}^{S-\max\set{\ell,n}} k^m
   \f{N!\p{S-k}!}{\p{S+k}!\p{S-k-\ell}!\p{S-k-n}!}.
-\end{align}
-and
-\begin{align}
-  \bk{-Z|S_+^\ell S_z^m S_-^n|-Z}
-  = \delta_{\ell,0} \delta_{n,0} \p{-S}^m.
 \end{align}
 
 \end{document}

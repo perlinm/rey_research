@@ -17,7 +17,7 @@ def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = False))
 def transverse_elem(mu, S, m):
     return np.sqrt((S-mu*m)*(S+mu*m+1))
 
-# correlator < X | S_+^l S_z^m S_-^n | X >
+# correlator < +X | S_+^l S_z^m S_-^n | +X >
 def op_val_pX(N, op):
     if op == (0,0,0): return 1
     l, m, n = op
@@ -28,6 +28,12 @@ def op_val_pX(N, op):
         return numerator - denominator
     return sum([ k**m * np.exp( ln_factors(k,l,n) - N*np.log(2) )
                  for k in np.arange(-S,S-max(l,n)+1) ])
+
+# correlator < -Z | S_+^l S_z^m S_-^n | -Z >
+def op_val_nZ(N, op):
+    l, m, n = op
+    if l != 0 or n != 0: return 0
+    return (-N/2)**m
 
 # collective spin operator commutator coefficients (see notes)
 def epsilon(m,n,p,l):
