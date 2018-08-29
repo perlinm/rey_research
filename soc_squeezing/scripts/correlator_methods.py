@@ -22,33 +22,16 @@ def transverse_elem(mu, S, m):
 
 # correlator < +X | S_+^l S_z^m S_-^n | +X >
 def op_val_pX(N, op):
-    if op == (0,0,0): return 1
     l, m, n = op
+    if l == 0 and n == 0 and m % 2 == 1: return 0
     S = N/2
     def ln_factors(k,l,n):
         ln_numerator = ln_factorial(S-k)
         ln_denominator = ln_factorial(S+k) + ln_factorial(S-k-l) + ln_factorial(S-k-n)
         return ln_numerator - ln_denominator
     ln_prefactor = ln_factorial(N) - N*np.log(2)
-    return sum([ k**m * np.exp( ln_factors(k,l,n) + ln_prefactor )
-                 for k in np.arange(-S,S-max(l,n)+1) ])
-
-# correlator < +X | S_+^l S_z^m S_-^n | +X >
-def op_val_pX_hyper(N, op):
-    l, m, n = op
-
-    ln_prefactor_num = 2 * ln_factorial(N)
-    ln_prefactor_den = N*np.log(2) + ln_factorial(N-l) + ln_factorial(N-n)
-    prefactor = np.exp( ln_prefactor_num - ln_prefactor_den )
-
-    alpha = hyper([l-N,n-N], [-N], -1)
-
-    S = N/2
-    beta_prefactor = (N-l) * (N-n) / N
-    def super_hyper(q): return hyper([2]*q + [ 1+l-N, 1+n-N ], [1]*q + [1-N], -1)
-    beta = sum([ (-S)**p * binom(m,p) * super_hyper(m-p-1) for p in range(m) ])
-
-    return float(prefactor * ((-S)**m * alpha + beta_prefactor * beta))
+    k_vals = np.arange(-S,S-max(l,n)+1)
+    return np.sum(k_vals**m * np.exp(np.vectorize(ln_factors)(k_vals,l,n) + ln_prefactor))
 
 # correlator < -Z | S_+^l S_z^m S_-^n | -Z >
 def op_val_nZ(N, op):
