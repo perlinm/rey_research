@@ -5,11 +5,13 @@
 import numpy as np
 import scipy.sparse as sparse
 
+from math import lgamma
 from mpmath import hyper
 from scipy.special import factorial, binom
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 
-from squeezing_methods import ln_factorial
+# natural logarithm of factorial
+def ln_factorial(n): return lgamma(n+1)
 
 # unsigned stirling number of the first kind
 def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = False))

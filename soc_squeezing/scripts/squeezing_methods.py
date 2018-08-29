@@ -7,9 +7,6 @@ import scipy.sparse as sparse
 import scipy.linalg as linalg
 import scipy.optimize as optimize
 
-from scipy.special import factorial, binom
-from math import lgamma
-
 # constrect vector of generators about z, x, and y
 g_vec = np.array([ np.array([ [  0,  0,  0 ],
                               [  0,  0, -1 ],
@@ -20,18 +17,6 @@ g_vec = np.array([ np.array([ [  0,  0,  0 ],
                    np.array([ [  0, -1,  0 ],
                               [  1,  0,  0 ],
                               [  0,  0,  0 ] ]) ])
-
-# compute ln(n!), using an approximation if necessary
-def ln_factorial(n):
-    fac = factorial(n)
-    if fac != np.inf: return np.log(fac)
-    return lgamma(n+1)
-
-# compute ln({ N \choose m }), using an approximation if necessary
-def ln_binom(N,m):
-    binomial_coeff = binom(N,m)
-    if binomial_coeff != np.inf: return np.log(binomial_coeff)
-    else: return ln_factorial(N) - ln_factorial(m) - ln_factorial(N-m)
 
 # rotate a target vector by an angl about an axis
 def rotate_vector(vector, angle, axis):
@@ -99,7 +84,6 @@ def spin_squeezing(state, S_op_vec, SS_op_mat, N):
 
 # return  from a set of spin correlators
 def squeezing_from_correlators(N, correlators):
-
     Sz    = correlators[(0,1,0)]
     Sz_Sz = correlators[(0,2,0)]
     Sp    = correlators[(1,0,0)]

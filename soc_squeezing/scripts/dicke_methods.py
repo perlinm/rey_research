@@ -10,8 +10,13 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
-from squeezing_methods import ln_binom, squeezing_from_correlators
+from squeezing_methods import squeezing_from_correlators
 from correlator_methods import correlators_OAT
+
+# natural logarithms of factorial and binomial coefficient
+from math import lgamma
+def ln_factorial(n): return lgamma(n+1)
+def ln_binom(N,m): return ln_factorial(N) - ln_factorial(m) - ln_factorial(N-m)
 
 # spin operators for N particles in the S = N/2 Dicke manifold
 def spin_op_z_dicke(N):
