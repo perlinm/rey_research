@@ -219,47 +219,85 @@ Hamiltonian of the form in \eqref{eq:H_general} is given by
   \f{d}{dt} \p{S_+^\ell S_z^m S_-^n}
   = i\sum_{p,q,r} h_{pqr} \sp{S_+^p S_z^q S_-^r, S_+^\ell S_z^m S_-^n}_-
   + \gamma \D_-\p{S_+^\ell S_z^m S_-^n}
-  \equiv \sum_{p,q,r} T^{\ell m n}_{pqr} S_+^p S_z^q S_-^r.
+  \equiv \sum_{p,q,r} T^{\ell m n}_{pqr} S_+^p S_z^q S_-^r,
+  \label{eq:time_derivative}
 \end{align}
-Equipped with a matrix representation of the time derivative operator,
-i.e.~$T^{\ell m n}_{pqr}$, we can expand
+where commutator and decoherence operator necessary for computing the
+matrix elements $T^{\ell m n}_{pqr}$ of the time derivative operator
+$d/dt$ are respectively worked out in Appendix \ref{sec:comm_general}
+and \ref{sec:decoherence}.
+
+The time derivative operator $d/dt$ will generally couple spin
+operators $S_+^\ell S_z^m S_-^n$ to spin operators $S_+^p S_z^q S_-^r$
+with higher weight, i.e.~with $p+q+r>\ell+m+n$.  In practice, keeping
+track of this operator growth will eventually require more
+computational resources than are available, so we must truncate it at
+some point by taking
+\begin{align}
+  \f{d}{dt} \p{S_+^\ell S_z^m S_-^n}
+  = \sum_{p,q,r} T^{\ell m n}_{pqr} S_+^p S_z^q S_-^r
+  \to \sum_{w\p{p,q,r}<W} T^{\ell m n}_{pqr} S_+^p S_z^q S_-^r
+  \label{eq:time_derivative_truncation}
+\end{align}
+for some cutoff $W$ and weight function $w$, e.g.~$w\p{p,q,r}=p+q+r$,
+although the most optimal weight function will generally be
+system-dependent.  The truncation in
+\eqref{eq:time_derivative_truncation} will close the system of
+differential equations defined by \eqref{eq:time_derivative}, and
+allow us to solve it using standard numerical methods.  The
+expectation values of collective spin operators for initial conditions
+of interest are provided in Appendix \ref{sec:initial_conditions}.
+
+Alternately, we can formally solve the differential equation in
+\eqref{eq:time_derivative} and write
+\begin{align}
+  S_+^\ell S_z^m S_-^n
+  = \left.\exp\p{t \f{d}{dt}}\right|_{t=0} \p{S_+^\ell S_z^m S_-^n}
+  = \sum_{k\ge0} \f{t^k}{k!}
+  \left.\f{d^k}{dt^k}\right|_{t=0} \p{S_+^\ell S_z^m S_-^n},
+\end{align}
+which implies
 \begin{align}
   \bk{S_+^\ell S_z^m S_-^n}
   = \sum_{k\ge0} \f{t^k}{k!}
-  \bk{\f{d^k}{dt^k}\p{S_+^\ell S_z^m S_-^n}}_{t=0}
-  = \sum_{k\ge0} \f{t^k}{k!}
-  \sum_{p,q,r} \sp{T^k}^{\ell m n}_{pqr} \bk{S_+^p S_z^q S_-^r}_{t=0},
+  \sum_{p,q,r} T^{\ell m n}_{pqr;k} \bk{S_+^p S_z^q S_-^r}_{t=0},
   \label{eq:time_series}
 \end{align}
-where
+where the matrix elements of the $k$-th time derivative are given by
 \begin{align}
-  \sp{T^k}^{\ell mn}_{pqr}
+  T^{\ell m n}_{pqr;0}=\delta_{\ell p}\delta_{mq}\delta_{nr},
+  &&
+  T^{\ell m n}_{pqr;1}\equiv T^{\ell m n}_{pqr},
+\end{align}
+\begin{align}
+  T^{\ell mn}_{pqr;k>1}
   \equiv \sum_{\v\lambda,\v\mu,\v\nu}
   T^{\ell mn}_{\lambda_1 \mu_1 \nu_1}
   T^{\lambda_1 \mu_1 \nu_1}_{\lambda_2 \mu_2 \nu_2}
   T^{\lambda_2 \mu_2 \nu_2}_{\lambda_3 \mu_3 \nu_3}
   \cdots T^{\lambda_{k-1} \mu_{k-1} \nu_{k-1}}_{pqr}.
 \end{align}
-As terms in \eqref{eq:time_series} are suppressed factorially in $k$,
-for any fixed (or maximal) time $t$ we can truncate the series to
-write
+Instead of explicitly choosing a weight function that determines which
+operators to keep track of, we can now truncate the series in
+\eqref{eq:time_series} by taking
 \begin{align}
   \bk{S_+^\ell S_z^m S_-^n}
-  \approx \sum_{k=0}^{M_t-1} \f{t^k}{k!}
-  \sum_{p,q,r} \sp{T^k}^{\ell m n}_{pqr} \bk{S_+^p S_z^q S_-^r}_{t=0},
+  = \sum_{k\ge0} \f{t^k}{k!}
+  \sum_{p,q,r} T^{\ell m n}_{pqr;k} \bk{S_+^p S_z^q S_-^r}_{t=0}
+  \to \sum_{k<M} \f{t^k}{k!}
+  \sum_{p,q,r} T^{\ell m n}_{pqr;k} \bk{S_+^p S_z^q S_-^r}_{t=0}.
 \end{align}
-where $M_t$ is chosen such that
-\begin{align}
-  \f{t^{M_t}}{M_t!} \sum_{p,q,r}
-  \sp{T^{M_t}}^{\ell m n}_{pqr} \bk{S_+^p S_z^q S_-^r}_{t=0}
-  \ll S^{\ell+m+n}.
-\end{align}
-The commutator and decoherence operator necessary for computing the
-time derivative operator $T^{\ell m n}_{pqr}$ are respectively worked
-out in Appendix \ref{sec:comm_general} and \ref{sec:decoherence},
-while expectation values for initial conditions of interest are
-provided in Appendix \ref{sec:initial_conditions}.
-% comment on explosion of operators
+Examining the nonzero entries of $T^{\ell mn}_{pqr;k}$ for
+$k=1,2,\cdots,M-1$ now {\it tells} us which operators we need to keep
+track of in order to compute the expectation value
+$\bk{S_+^\ell S_z^m S_-^n}$.  Furthermore, after computing the
+expectation values of all relevant operators at $t=0$, time evolution
+of $\bk{S_+^\ell S_z^m S_-^n}$ takes only $\O\p{M}$ CPU time.
+
+As a final comment, we note that the relation
+$\p{S_+^\ell S_z^m S_-^n}^\dag=S_+^n S_z^m S_-^\ell$ can be exploited
+to cut the number of operators we need to keep track of roughly in
+two.
 
 
 \bibliography{\jobname}
@@ -283,7 +321,7 @@ operators are, with $\bmu\equiv-\mu\in\set{+1,-1}$ for brevity,
   &
   \sp{S_z,S_\mu}_-
   &= \mu S_\mu,
-  \label{eq:comm_z_mu_base} \\
+  \label{eq:comm_z_base} \\
   \sp{\sigma_j^\mu,\sigma_k^\bmu}_-
   &= \delta_{jk} \mu \sigma_j^z,
   &
@@ -294,70 +332,91 @@ operators are, with $\bmu\equiv-\mu\in\set{+1,-1}$ for brevity,
   &= 2 \mu S_z.
   \label{eq:comm_mu_base}
 \end{align}
-These relations can be used to inductively determine commutation
-relations with higher-weight spin operators.  For example, we can find
-that
+These relations can be used to inductively compute identities
+involving powers of collective spin operators.  Working through the
+possibilities, we find
 \begin{align}
-  S_z S_\mu^m
-  = \p{\mu S_\mu + S_\mu S_z} S_\mu^{m-1}
-  = \mu S_\mu^m + S_\mu S_z S_\mu^{m-1}
-  = 2 \mu S_\mu^m + S_\mu S_z S_\mu^{m-2}
-  = S_\mu^m \p{\mu m + S_z}.
+  S_z^m \sigma_j^\mu
+  = S_z^{m-1} \sigma_j^\mu \p{\mu + S_z}
+  = S_z^{m-2} \sigma_j^\mu \p{\mu + S_z}^2
+  = \cdots
+  = \sigma_j^\mu \p{\mu + S_z}^m,
+  \label{eq:push_z_mu_Ss}
+\end{align}
+and
+\begin{align}
+  \sigma_j^z S_\mu^m
+  = \p{2\mu\sigma_j^\mu + S_\mu \sigma_j^z} S_\mu^{m-1}
+  = 2\mu\sigma_j^\mu S_\mu^{m-1} + S_\mu \sigma_j^z S_\mu^{m-1}
+  = \cdots
+  = 2\mu m\sigma_j^\mu S_\mu^{m-1} + S_\mu^m \sigma_j^z.
+  \label{eq:push_z_mu_sS}
+\end{align}
+Summing over the single-spin index $j$ in both of these cases gives us
+the purely collective-spin versions of these identities:
+\begin{align}
+  S_z^m S_\mu = S_\mu \p{\mu + S_z}^m,
+  &&
+  S_z S_\mu^m = S_\mu^m \p{\mu m + S_z},
   \label{eq:push_z_mu_single}
 \end{align}
-Repeating this process $\ell$ times tells us
+where we can repeat the process of pushing through individual
+operators $\ell$ times to get
 \begin{align}
-  S_z^\ell S_\mu^m = S_\mu^m \p{\mu m + S_z}^\ell,
+  S_z^\ell S_\mu^m
+  = S_z^{\ell-1} S_\mu^m \p{\mu m + S_z}
+  = S_z^{\ell-2} S_\mu^m \p{\mu m + S_z}^2
+  = \cdots
+  = S_\mu^m \p{\mu m + S_z}^\ell.
   \label{eq:push_z_mu}
 \end{align}
-which implies
-\begin{align}
-  \sp{S_z^\ell, S_\mu^m}_-
-  = S_\mu^m \sp{\p{\mu m + S_z}^\ell - S_z^\ell}
-  = S_\mu^m \sum_{k=0}^{\ell-1} {\ell \choose k} \p{\mu m}^{\ell-k} S_z^k.
-  \label{eq:comm_z_mu}
-\end{align}
-Similarly finding commutation relations between high-weight transverse
-spin operators, i.e.~$S_\mu^m$ and $S_\bmu^n$, turns out to be
-considerably more difficult than the cases we have worked out thus
-far.  We therefore save this work for Appendix
-\ref{sec:comm_transverse}.
+Similarly finding commutation relations between powers of transverse
+spin operators, i.e.~$S_\mu$, turns out to be considerably more
+difficult than the cases we have worked out thus far.  We therefore
+save this work for Appendix \ref{sec:comm_transverse}.
 
 
 \section{Commutator between powers of two transverse spin operators}
 \label{sec:comm_transverse}
 
-To determine commutation relations between high-weight collective spin
-operators transverse to the decoherence (i.e.~$z$) axis, we compute
-(with $\bmu\equiv-\mu\in\set{+1,-1}$)
+To find commutation relations between powers of transverse collective
+spin operators, we compute (with $\bmu\equiv-\mu\in\set{+1,-1}$)
 \begin{align}
-  S_\mu S_\bmu^n
-  &= S_\bmu S_\mu S_\bmu^{n-1} + 2\mu S_z S_\bmu^{n-1} \\
-  &= S_\bmu \sp{S_\bmu S_\mu S_\bmu^{n-2} + 2\mu S_z S_\bmu^{n-2}}
-  + 2\mu S_z S_\bmu^{n-1} \\
-  &= S_\bmu^2 S_\mu S_\bmu^{n-2}
-  + 2\mu \p{S_\bmu S_z S_\bmu ^{n-2} + S_z S_\bmu^{n-1}} \\
-  &= S_\bmu^n S_\mu + 2\mu \sum_{k=0}^{n-1} S_\bmu^k S_z S_\bmu^{n-k-1}.
-  \label{eq:comm_mu_single}
+  S_\mu^m \sigma_j^\bmu
+  &= S_\mu^{m-1}\sigma_j^\bmu S_\mu + \mu S_\mu^{m-1} \sigma_j^z \\
+  &= S_\mu^{m-2} \sigma_j^\bmu S_\mu^2 + \mu S_\mu^{m-2} \sigma_j^z S_\mu
+  + \mu S_\mu^{m-1} \sigma_j^z \\
+  &= \sigma_j^\bmu S_\mu^m
+  + \mu \sum_{k=0}^{m-1} S_\mu^k \sigma_j^z S_\mu^{m-k-1}
+  \label{eq:push_mu_Ss_start}.
 \end{align}
-While \eqref{eq:comm_mu_single} gives us the commutator
-$\sp{S_\mu,S_\bmu^n}_-$, we would like to enforce an ordering on
-products of collective spin operators, which allows us to only keep
-track of high-weight operators that are linearly independent.  We
-choose to impose an ordering for which all collective spin operators
-take the form $S_\bmu^\ell S_\mu^m S_z^n$, as such an ordering will
-prove convenient for the calculations in this section.  This choice of
+While \eqref{eq:push_mu_Ss_start} gives us the commutator
+$\sp{S_\mu^m,\sigma_j^\bmu}_-$, we would like to enforce an ordering
+on products of spin operators, which will allow us to only keep track
+of operators that are linearly independent.  We choose to impose an
+ordering with all $\sigma_j^\bmu$ operators on the left, and all
+$\sigma_j^z$ operators on the right, as such an ordering will prove
+convenient for the calculations in this section.  This choice of
 ordering compels us to expand
 \begin{align}
-  2 \mu \sum_{k=0}^{n-1} S_\bmu^k S_z S_\bmu^{n-k-1}
-  = 2 \mu \sum_{k=0}^{n-1}
-  S_\bmu^k S_\bmu^{n-k-1} \p{\bmu\sp{n-k-1} + S_z}
-  = n S_\bmu^{n-1}\p{1 - n + 2\mu S_z},
+  \mu \sum_{k=0}^{m-1} S_\mu^k \sigma_j^z S_\mu^{m-k-1}
+  &= \mu \sum_{k=0}^{mq-1} S_\mu^k
+  \p{2\mu\sp{m-k-1} \sigma_j^\mu S_\mu^{m-k-2}
+    + S_\mu^{m-k-1} \sigma_j^z} \\
+  &= m \p{m-1} \sigma_j^\mu S_\mu^{m-2} + \mu m S_\mu^{m-1} \sigma_j^z,
 \end{align}
-so
+which implies
 \begin{align}
-  \sp{S_\mu, S_\bmu^n}_-
-  = n S_\bmu^{n-1}\p{1 - n + 2\mu S_z}.
+  S_\mu^m \sigma_j^\bmu
+  = \sigma_j^\bmu S_\mu^m + m \p{m-1} \sigma_j^\mu S_\mu^{m-2}
+  + \mu m S_\mu^{m-1} \sigma_j^z,
+  \label{eq:push_mu_Ss}
+\end{align}
+and in turn
+\begin{align}
+  S_\mu^m S_\bmu = S_\bmu S_\mu^m
+  + m S_\mu^{m-1} \p{m - 1 + 2\mu S_z}.
+  \label{eq:push_mu_single}
 \end{align}
 As the next logical step, we take on the task of computing
 \begin{align}
@@ -551,7 +610,8 @@ with
   \label{eq:eps_mnp}
 \end{align}
 where in this final form $E_{mn;\mu}^{(0)} = D_{mn;\mu}$, which
-together with \eqref{eq:C_mn_E} implies that
+together with the expansion for $C_{mn;\mu}$ in \eqref{eq:C_mn_E}
+implies that
 \begin{align}
   \sp{S_\mu^m, S_\bmu^n}_-
   = \sum_{p=1}^{\min\set{m,n}}
@@ -622,7 +682,7 @@ and, in terms of $\xi_{qrk}^{(\ell)}$ as defined in \eqref{eq:xi_mnp},
 \end{align}
 
 
-\section{Decoherence of collective spin operators through individual
+\section{Decoherence of collective spin operators from uncorrelated
   spin decay}
 \label{sec:decoherence}
 
@@ -661,8 +721,8 @@ namely
   - S S_\bmu^\ell S_z^m S_\mu^n
   + \f{\mu}{2} \sp{S_z, S_\bmu^\ell S_z^m S_\mu^n}_+.
 \end{align}
-To simplify the first term, we use \eqref{eq:comm_z_mu_base} to push
-the jump operators together, finding
+To simplify the first term, we use \eqref{eq:comm_z_base} to push the
+jump operators together, finding
 \begin{align}
   \sum_j \sigma_j^\bmu S_\bmu^\ell S_z^m S_\mu^n \sigma_j^\mu
   = S_\bmu^\ell \sum_j \sigma_j^\bmu \sigma_j^\mu \p{\mu+S_z}^m S_\mu^n
@@ -727,14 +787,14 @@ with
 \end{align}
 and the initial states
 \begin{align}
-  \ket{-Z} \equiv \ket{-S},
+  \ket{\pm Z} \equiv \ket{\pm S},
   &&
   \ket{X} \equiv 2^{-N/2} \sum_{k=-S}^S { N \choose S+k }^{1/2} \ket{k},
 \end{align}
 using which we can compute
 \begin{align}
-  \bk{-Z|S_+^\ell S_z^m S_-^n|-Z}
-  = \delta_{\ell,0} \delta_{m,0} \p{-S}^m,
+  \bk{\pm Z|S_+^\ell S_z^m S_-^n|\pm Z}
+  = \delta_{\ell,0} \delta_{m,0} \p{\pm S}^m,
 \end{align}
 and
 \begin{align}
@@ -747,7 +807,8 @@ and
   &= \f{N!}{2^N} \sum_{k=-S}^{S-\max\set{\ell,n}} k^m
   \f{\p{S-k}!}{\p{S+k}!\p{S-k-\ell}!\p{S-k-n}!}.
 \end{align}
-With the help of Mathematica, we can evaluate the sum to find
+With the help of Mathematica, we can write the sum in the alternate
+form
 \begin{align}
   \bk{X|S_+^\ell S_z^m S_-^n|X}
   = \f{\p{N!}^2}{2^N\p{N-\ell}!\p{N-n}!}
