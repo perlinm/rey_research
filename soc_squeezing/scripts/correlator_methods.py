@@ -124,12 +124,14 @@ def compute_time_derivative(diff_op, input_vector, op_image_args):
 
 # return correlators from evolution under a general Hamiltonian
 def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state,
-                        order_cap = 30):
+                        order_cap = 30, initial_vals_pX = {}, initial_vals_nZ = {}):
     assert(initial_state in [ "+X", "-Z" ])
     if initial_state == "+X":
         initial_val = op_val_pX
+        initial_vals = initial_vals_pX
     if initial_state == "-Z":
         initial_val = op_val_nZ
+        initial_vals = initial_vals_nZ
 
     # list of operators necessary for computing squeezing, namely:
     #                    Sz     S_z^2,     Sp     S_+^2   S_+ S_z  S_+ S_-
@@ -149,10 +151,11 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
                                           op_image_args)
 
     # compute initial values of relevant operators
-    relevant_ops = set.union(*[ set(time_derivatives[sqz_op][order].keys())
-                                for sqz_op in squeezing_ops
-                                for order in range(order_cap) ])
-    initial_vals = { op : initial_val(N, op) for op in relevant_ops }
+    for sqz_op in squeezing_ops:
+        for order in range(order_cap):
+            for op in time_derivatives[sqz_op][order].keys():
+                try: initial_vals[op]
+                except: initial_vals[op] = initial_val(N, op)
 
     T = np.array([ chi_times**kk / factorial(kk) for kk in range(order_cap) ])
     Q = {} # dictionary (l,m,n) --> < D_t^kk S_+^l S_z^m S_-^n >_0 for all kk
