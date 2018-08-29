@@ -14,7 +14,7 @@ from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 def ln_factorial(n): return lgamma(n+1)
 
 # unsigned stirling number of the first kind
-def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = False))
+def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = True))
 
 # coefficient of transverse spin operator S_\mu for matrix element | m+\mu >< m |
 def transverse_elem(mu, S, m):
@@ -41,8 +41,8 @@ def op_val_nZ(N, op):
 
 # collective spin operator commutator coefficients (see notes)
 def epsilon(m,n,p,l):
-    return 2**l * np.sum([ (-1)**(p-qq) * stirling(p,qq) * binom(qq,l) * (m-n)**(qq-l)
-                           for qq in range(l,p+1) ])
+    return 2**l * sum([ stirling(p,qq) * binom(qq,l) * (m-n)**(qq-l)
+                        for qq in range(l,p+1) ])
 def xi(m,n,p,q):
     return sum([ (-1)**(ll-q) * epsilon(m,n,p,ll) * binom(ll,q) * (m-p)**(ll-q)
                  for ll in range(q,p+1) ])
