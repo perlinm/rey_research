@@ -96,30 +96,28 @@ def op_image(op, h_vals, spin_number, decay_rate_over_chi):
     for key in null_keys: del image[key]
     return image
 
-# generator of time translation for a vector of spin operators
-def evolution_operator(vec_terms, idx, h_vals,  spin_number, decay_rate_over_chi):
-    vec_dim = len(vec_terms)
-    op_mat = sparse.dok_matrix((vec_dim,vec_dim), dtype = complex)
-    for op_out in vec_terms:
-        idx_out = idx(*op_out)
-        image = op_image(op_out, h_vals, spin_number, decay_rate_over_chi)
-        for op_in in image.keys():
-            idx_in = idx(*op_in)
-            if idx_in < vec_dim:
-                op_mat[idx_out,idx_in] += image[op_in]
-    return op_mat.tocsr()
+# take hermitian conjugate of a dictionary taking operator --> value,
+#   i.e. return a dictionary taking operator* --> value*
+def conjugate_op_vec(op_vec):
+    return { op[::-1] : np.conj(op_vec[op]) for op in op_vec.keys() }
 
 # compute time derivative of a given vector of spin operators
 def compute_time_derivative(diff_op, input_vector, op_image_args):
     output_vector = {}
+    # for each operator in the input vector
     for input_op in input_vector.keys():
+        op_coefficient = input_vector[input_op]
+        # if we do not know the time derivative of this operator, compute it
         try: diff_op[input_op]
-        except: diff_op[input_op] = op_image(input_op, *op_image_args)
+        except:
+            diff_op[input_op] = op_image(input_op, *op_image_args)
+            # we get the time derivative of the conjugate operator for free, so save it
+            if input_op[0] != input_op[-1]:
+                diff_op[input_op[::-1]] = conjugate_op_vec(diff_op[input_op])
         for output_op in diff_op[input_op]:
             try: output_vector[output_op]
             except: output_vector[output_op] = 0
-            output_vector[output_op] \
-                += diff_op[input_op][output_op] * input_vector[input_op]
+            output_vector[output_op] += op_coefficient * diff_op[input_op][output_op]
     return output_vector
 
 # return correlators from evolution under a general Hamiltonian
@@ -155,7 +153,11 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
         for order in range(order_cap):
             for op in time_derivatives[sqz_op][order].keys():
                 try: initial_vals[op]
-                except: initial_vals[op] = initial_val(N, op)
+                except:
+                    initial_vals[op] = initial_val(N, op)
+                    # all our initial values are real, so no need to conjugate
+                    if op[0] != op[-1]:
+                        initial_vals[op[::-1]] = initial_vals[op]
 
     T = np.array([ chi_times**kk / factorial(kk) for kk in range(order_cap) ])
     Q = {} # dictionary (l,m,n) --> < D_t^kk S_+^l S_z^m S_-^n >_0 for all kk
