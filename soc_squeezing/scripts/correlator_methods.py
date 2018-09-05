@@ -16,46 +16,52 @@ def ln_factorial(n): return lgamma(n+1)
 # unsigned stirling number of the first kind
 def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = True))
 
-# coefficient of transverse spin operator S_\mu for matrix element | m+\mu >< m |
-def transverse_elem(mu, S, m):
-    return np.sqrt((S-mu*m)*(S+mu*m+1))
+# correlator < +X | S_\mu^ll S_z^mm S_\bmu^nn | +X >
+def op_val_pX(spin_num, op, mu):
+    ll, mm, nn = op
+    if ll == 0 and nn == 0 and mm % 2 == 1: return 0
 
-# correlator < +X | S_+^l S_z^m S_-^n | +X >
-def op_val_pX(N, op):
-    l, m, n = op
-    if l == 0 and n == 0 and m % 2 == 1: return 0
-    S = N/2
-    def ln_factors(k,l,n):
-        ln_numerator = ln_factorial(S-k)
-        ln_denominator = ln_factorial(S+k) + ln_factorial(S-k-l) + ln_factorial(S-k-n)
+    total_spin = spin_num/2
+    if mu == 1:
+        k_vals = np.arange(-total_spin,total_spin-max(ll,nn)+1)
+    else: # mu == -1
+        k_vals = np.arange(-total_spin+max(ll,nn),total_spin+1)
+    if k_vals.size == 0: return 0
+
+    ln_prefactor = ln_factorial(spin_num) - spin_num*np.log(2)
+    def ln_factors(kk,ll,nn):
+        ln_numerator = ln_factorial(total_spin - mu*kk)
+        ln_denominator = ( ln_factorial(total_spin + mu*kk)
+                           + ln_factorial(total_spin - mu*kk - ll)
+                           + ln_factorial(total_spin - mu*kk - nn) )
         return ln_numerator - ln_denominator
-    ln_prefactor = ln_factorial(N) - N*np.log(2)
-    k_vals = np.arange(-S,S-max(l,n)+1)
-    return np.sum(k_vals**m * np.exp(np.vectorize(ln_factors)(k_vals,l,n) + ln_prefactor))
+    ln_factors = np.vectorize(ln_factors)
 
-# correlator < -Z | S_+^l S_z^m S_-^n | -Z >
-def op_val_nZ(N, op):
-    l, m, n = op
-    if l != 0 or n != 0: return 0
-    return (-N/2)**m
+    return np.sum(k_vals**mm * np.exp(ln_factors(k_vals,ll,nn) + ln_prefactor))
+
+# correlator < -Z | S_\mu^ll S_z^mm S_\bmu^nn | -Z >
+def op_val_nZ(spin_num, op, mu = None):
+    ll, mm, nn = op
+    if ll != 0 or nn != 0: return 0
+    return (-spin_num/2)**mm
 
 # collective spin operator commutator coefficients (see notes)
-def epsilon(m,n,p,l):
-    return 2**l * sum([ stirling(p,qq) * binom(qq,l) * (m-n)**(qq-l)
-                        for qq in range(l,p+1) ])
-def xi(m,n,p,q):
-    return sum([ (-1)**(ll-q) * epsilon(m,n,p,ll) * binom(ll,q) * (m-p)**(ll-q)
-                 for ll in range(q,p+1) ])
+def epsilon(mm,nn,pp,ll):
+    return 2**ll * sum([ stirling(pp,qq) * binom(qq,ll) * (mm-nn)**(qq-ll)
+                         for qq in range(ll,pp+1) ])
+def xi(mm,nn,pp,qq):
+    return sum([ (-1)**(ll-qq) * epsilon(mm,nn,pp,ll) * binom(ll,qq) * (mm-pp)**(ll-qq)
+                 for ll in range(qq,pp+1) ])
 
 # compute pre-image of a single operator from coherent evolution
-# operators in (L,M,N) format, and pre-image in dictionary format
-def coherent_op_image(op, h_vals):
+def op_image_coherent(op, h_vals, mu):
     if op == (0,0,0): return {}
-    L, M, N = op
+    LL, MM, NN = op
     image = {}
-    for P,Q,R in h_vals.keys():
-        h_term = h_vals[(P,Q,R)]
-        for pp, aa, qq, rr, bb, ss, sign in [ (P,Q,R,L,M,N,1), (L,M,N,P,Q,R,-1) ]:
+    for PP,QQ,RR in h_vals.keys():
+        h_term = h_vals[(PP,QQ,RR)]
+        for pp, aa, qq, rr, bb, ss, sign in [ ( PP, QQ, RR, LL, MM, NN, +1),
+                                              ( LL, MM, NN, PP, QQ, RR, -1) ]:
             for kk in range(min(qq,rr)+1):
                 kk_fac = factorial(kk) * binom(qq,kk) * binom(rr,kk)
                 for ll in range(kk+1):
@@ -64,36 +70,88 @@ def coherent_op_image(op, h_vals):
                         klm_fac = kl_fac * (rr-kk)**(aa-mm) * binom(aa,mm)
                         for nn in range(bb+1):
                             klmn_fac = klm_fac * (qq-kk)**(bb-nn) * binom(bb,nn)
-                            val = 1j * sign * h_term * klmn_fac
+                            klmn_sign = mu**(aa+bb+ll-mm-nn)
+                            val = 1j * sign * h_term * klmn_fac * klmn_sign
                             op_in = (pp+rr-kk, ll+mm+nn, qq+ss-kk)
                             try: image[op_in]
                             except: image[op_in] = 0
                             image[op_in] += val
     return image
 
-# compute pre-image of a single operator from decoherence
-# operators in (L,M,N) format, and pre-image in dictionary format
-def decoherence_op_image(op, spin_number):
-    if op == (0,0,0): return {}
-    L, M, N = op
-    val_kk = np.array([ (-1)**(M-kk) * binom(M,kk) for kk in range(M) ])
-    image = { (L,kk,N) : spin_number/2 * val_kk[kk] for kk in range(M) }
-    image[(L,M,N)] = -1/2*(L+N)
-    for kk in range(M): image[(L,kk+1,N)] += val_kk[kk]
+# multiply dictionary vector by a scalar
+def dict_mult(scalar,vec):
+    return { key : scalar * vec[key] for key in vec.keys() }
+
+# add two vectors in dictionary format
+def add_dicts(*dicts):
+    comb = dicts[0]
+    for dict_jj in dicts[1:]:
+        for key in dict_jj:
+            try: comb[key]
+            except: comb[key] = 0
+            comb[key] += dict_jj[key]
+    return comb
+
+# compute pre-image of a single operator from single-spin excitation / decay
+# via \D_\bmu ( S_\mu^ll S_z^mm S_\bmu^nn )
+def op_image_decoherence_single_diff(op, spin_num, mu):
+    ll, mm, nn = op
+    val_kk = np.array([ (-mu)**(mm-kk) * binom(mm,kk) for kk in range(mm) ])
+    image_0 = { (ll,kk,nn) : spin_num/2 * val_kk[kk] for kk in range(mm) }
+    image_1 = { (ll,kk+1,nn) : mu * val_kk[kk] for kk in range(mm) }
+    image_m = { (ll,mm,nn) : -1/2*(ll+nn) }
+    return add_dicts(image_0, image_1, image_m)
+
+# compute pre-image of a single operator from single-spin excitation / decay
+# via \D_\mu ( S_\mu^l S_z^m S_\bmu^n )
+def op_image_decoherence_single_same(op, spin_num, mu):
+    ll, mm, nn = op
+
+    val_kk = np.array([ mu**(mm-kk) * binom(mm,kk) for kk in range(mm) ])
+    image_0_0 = { (ll,kk,nn) : (spin_num/2-ll-nn) * val_kk[kk] for kk in range(mm) }
+    image_0_1 = { (ll,kk+1,nn) : -mu * val_kk[kk] for kk in range(mm) }
+    image_0_m = { (ll,mm,nn) : -1/2*(ll+nn) }
+
+    image = add_dicts(image_0_0, image_0_1, image_0_m)
+
+    if ll >= 1 and nn >= 1:
+        image_1 = { (ll-1,mm,nn-1) : ll*nn * (spin_num-ll-nn+2) }
+        image = add_dicts(image, image_1)
+
+    if ll >= 2 and nn >= 2:
+        ln_fac = ll*nn*(ll-1)*(nn-1)
+        val_kk = np.array([ (-mu)**(mm-kk) * binom(mm,kk) for kk in range(mm+1) ])
+        image_2_0 = { (ll-2,kk,nn-2) : ln_fac * spin_num/2 * val_kk[kk]
+                      for kk in range(mm+1) }
+        image_2_1 = { (ll-2,kk+1,nn-2) : ln_fac * mu * val_kk[kk]
+                      for kk in range(mm+1) }
+        image = add_dicts(image, image_2_0, image_2_1)
+
     return image
 
+# compute pre-image of a single operator from single-spin decay
+# via \D_\nu ( S_\mu^l S_z^m S_\bmu^n )
+def decay_op_image(op, spin_num, mu, nu):
+    if mu == nu:
+        return op_image_decoherence_single_same(op, spin_num, mu)
+    else:
+        return op_image_decoherence_single_diff(op, spin_num, mu)
+
 # compute pre-image of a single operator from infinitesimal time evolution
-# operators in (L,M,N) format, and pre-image in dictionary format
-def op_image(op, h_vals, spin_number, decay_rate_over_chi):
-    image = coherent_op_image(op, h_vals)
-    if decay_rate_over_chi != 0:
-        image_dec = decoherence_op_image(op, spin_number)
-        for key in image_dec.keys():
-            try: image[key]
-            except: image[key] = 0
-            image[key] += decay_rate_over_chi * image_dec[key]
+# operators in (ll,mm,nn) format, and pre-image in dictionary format
+def op_image(op, h_vals, spin_num, dec_rates, mu):
+    image = op_image_coherent(op, h_vals, mu)
+
+    g_z, g_p, g_m = dec_rates
+    for g_nu, nu in [ (g_p,+1),
+                      (g_m,-1) ]:
+        if g_nu != 0:
+            image_dec = decay_op_image(op, spin_num, mu, nu)
+            image = add_dicts(image, dict_mult(g_nu, image_dec))
+
     null_keys = [ key for key in image.keys() if abs(image[key]) == 0 ]
     for key in null_keys: del image[key]
+
     return image
 
 # take hermitian conjugate of a dictionary taking operator --> value,
@@ -121,22 +179,23 @@ def compute_time_derivative(diff_op, input_vector, op_image_args):
     return output_vector
 
 # return correlators from evolution under a general Hamiltonian
-def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state,
-                        order_cap = 30, initial_vals_pX = {}, initial_vals_nZ = {}):
+def compute_correlators(spin_num, chi_times, h_vals, dec_rates, initial_state,
+                        order_cap = 30, init_vals_pX = {}, init_vals_nZ = {}, mu = 1):
+    assert(mu in [+1,-1])
     assert(initial_state in [ "+X", "-Z" ])
     if initial_state == "+X":
         initial_val = op_val_pX
-        initial_vals = initial_vals_pX
+        initial_vals = init_vals_pX
     if initial_state == "-Z":
         initial_val = op_val_nZ
-        initial_vals = initial_vals_nZ
+        initial_vals = init_vals_nZ
 
     # list of operators necessary for computing squeezing, namely:
-    #                    Sz     S_z^2,     Sp     S_+^2   S_+ S_z  S_+ S_-
-    squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
+    #                    Sz     S_z^2,   S_\mu   S_\mu^2  S_\mu S_z  S_\mu S_\bmu
+    squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0),  (1,1,0),    (1,0,1) ]
 
     # arguments for computing operator pre-image under infinitesimal time translation
-    op_image_args = ( h_vals, N, decay_rate_over_chi )
+    op_image_args = ( h_vals, spin_num, dec_rates, mu )
 
     diff_op = {} # generator of time translations
     time_derivatives = {} # [ sqz_op ][ derivative_order ][ operator ] --> value
@@ -154,13 +213,13 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
             for op in time_derivatives[sqz_op][order].keys():
                 try: initial_vals[op]
                 except:
-                    initial_vals[op] = initial_val(N, op)
+                    initial_vals[op] = initial_val(spin_num, op, mu)
                     # all our initial values are real, so no need to conjugate
                     if op[0] != op[-1]:
                         initial_vals[op[::-1]] = initial_vals[op]
 
     T = np.array([ chi_times**kk / factorial(kk) for kk in range(order_cap) ])
-    Q = {} # dictionary (l,m,n) --> < D_t^kk S_+^l S_z^m S_-^n >_0 for all kk
+    Q = {} # dictionary (ll,mm,nn) --> < D_t^kk S_\mu^ll S_z^mm S_\bmu^nn >_0 for all kk
     correlators = {}
     for sqz_op in squeezing_ops:
         Q[sqz_op] = np.array([ sum([ time_derivatives[sqz_op][order][op] * initial_vals[op]
@@ -168,13 +227,27 @@ def compute_correlators(N, chi_times, decay_rate_over_chi, h_vals, initial_state
                                for order in range(order_cap) ])
         correlators[sqz_op] = Q[sqz_op] @ T
 
-    return correlators
+    if mu == 1:
+        return correlators
+
+    else: # mu == -1
+        reversed_corrs = {}
+        reversed_corrs[(0,1,0)] = correlators[(0,1,0)]
+        reversed_corrs[(0,2,0)] = correlators[(0,2,0)]
+        reversed_corrs[(1,0,0)] = np.conj(correlators[(1,0,0)])
+        reversed_corrs[(2,0,0)] = np.conj(correlators[(2,0,0)])
+        reversed_corrs[(1,1,0)] = np.conj(correlators[(1,1,0)] - correlators[(1,0,0)])
+        reversed_corrs[(1,0,1)] = np.conj(correlators[(1,0,1)]) + 2 * correlators[(0,1,0)]
+
+        return reversed_corrs
 
 # exact correlators for OAT with decoherence
 # derivations in foss-feig2013nonequilibrium
-def correlators_OAT(N, chi_t, decay_rate_over_chi):
-    g = decay_rate_over_chi # shorthand for decay rate in units with \chi = 1
-    t = chi_t # shorthand for time in units with \chi = 1
+def correlators_OAT(spin_num, chi_times, dec_rates):
+    N = spin_num
+    t = chi_times
+    g_z, g_p, g_m = dec_rates
+    g = g_m
 
     Sz = N/2 * (np.exp(-g*t)-1)
     var_Sz = N/2 * (1 - np.exp(-g*t)/2) * np.exp(-g*t)

@@ -8,10 +8,11 @@ from scipy.optimize import minimize_scalar
 
 from mathieu_methods import mathieu_solution
 from overlap_methods import pair_overlap_1D, tunneling_1D
-from dicke_methods import squeezing_OAT, spin_op_vec_mat_dicke
+from dicke_methods import spin_op_vec_mat_dicke
 from fermi_hubbard_methods import sum, prod, get_simulation_parameters, spatial_basis, \
     get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, gauged_energy, hamiltonians
-from squeezing_methods import spin_squeezing, evolve, val, squeezing_from_correlators
+from squeezing_methods import spin_squeezing, squeezing_from_correlators, squeezing_OAT, \
+     evolve, val
 from correlator_methods import compute_correlators
 
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
@@ -114,6 +115,7 @@ def to_dB(x): return 10*np.log10(x)
 # determine excited-state decay rate in units of the OAT strength
 decay_rate_LU = 1/excited_lifetime_SI / recoil_energy_NU
 decay_rate_over_chi = decay_rate_LU / chi
+dec_rates = (0,0,decay_rate_over_chi)
 
 # determine simulation times and the size of a single time step
 tau_vals = np.linspace(0, max_tau, time_steps)
@@ -125,11 +127,10 @@ dt = times[-1] / time_steps
 
 # compute OAT squeezing parameters
 sqz_OAT = squeezing_OAT(N, chi_times)
-t_opt_OAT = times[sqz_OAT.argmin()]
-sqz_opt_OAT = -to_dB(sqz_OAT.min())
+t_opt_OAT = times[sqz_OAT.argmax()]
 print()
 print("t_opt_OAT (sec):", t_opt_OAT / recoil_energy_NU)
-print("sqz_opt_OAT (dB):", sqz_opt_OAT)
+print("sqz_opt_OAT (dB):", sqz_OAT.max())
 
 # compute Hamiltonian, spin vector, spin-spin matrix, and initial states for TVF and TAT,
 #   exploiting a parity symmetry in both cases to reduce the size of the Hilbert space
@@ -149,69 +150,64 @@ state_TAT = np.copy(state_TVF)
 sqz_TVF = np.zeros(time_steps)
 sqz_TAT = np.zeros(time_steps)
 for ii in range(time_steps):
-    sqz_TVF[ii] = spin_squeezing(state_TVF, S_op_vec, SS_op_mat, N)
+    sqz_TVF[ii] = spin_squeezing(N, state_TVF, S_op_vec, SS_op_mat)
 
     XX_TAT = np.real(val(SS_op_mat[1][1],state_TAT))
     Z_TAT = np.real(val(S_op_vec[0],state_TAT))
-    sqz_TAT[ii] = XX_TAT * N / Z_TAT**2
+    sqz_TAT[ii] = -to_dB(XX_TAT * N / Z_TAT**2)
 
     state_TVF = evolve(state_TVF, H_TVF, d_chi_t)
     state_TAT = evolve(state_TAT, H_TAT, d_chi_t)
 
-t_opt_TVF = times[sqz_TVF.argmin()]
-t_opt_TAT = times[sqz_TAT.argmin()]
-sqz_opt_TVF = -to_dB(sqz_TVF.min())
-sqz_opt_TAT = -to_dB(sqz_TAT.min())
+t_opt_TVF = times[sqz_TVF.argmax()]
+t_opt_TAT = times[sqz_TAT.argmax()]
 print()
 print("t_opt_TVF (sec):", t_opt_TVF / recoil_energy_NU)
-print("sqz_opt_TVF (dB):", sqz_opt_TVF)
+print("sqz_opt_TVF (dB):", sqz_TVF.max())
 print()
 print("t_opt_TAT (sec):", t_opt_TAT / recoil_energy_NU)
-print("sqz_opt_TAT (dB):", sqz_opt_TAT)
+print("sqz_opt_TAT (dB):", sqz_TAT.max())
 
 
 ##########################################################################################
 # compute squeezing parameters with decoherence
 ##########################################################################################
 
-if N > fermi_N_max:
+sqz_OAT_D = squeezing_OAT(N, chi_times, dec_rates)
+t_opt_OAT_D = times[sqz_OAT_D.argmax()]
+print()
+print("t_opt_OAT_D (sec):", t_opt_OAT_D / recoil_energy_NU)
+print("sqz_opt_OAT_D (dB):", sqz_OAT_D.max())
 
-    sqz_OAT_D = squeezing_OAT(N, chi_times, decay_rate_over_chi)
-    t_opt_OAT_D = times[sqz_OAT_D.argmin()]
-    sqz_opt_OAT_D = -to_dB(sqz_OAT_D.min())
-    print()
-    print("t_opt_OAT_D (sec):", t_opt_OAT_D / recoil_energy_NU)
-    print("sqz_opt_OAT_D (dB):", sqz_opt_OAT_D)
+h_OAT = { (0,2,0) : 1 }
 
-    h_OAT = { (0,2,0) : 1 }
+h_TVF = { (0,2,0) : 1,
+          (1,0,0) : drive_TVF / 2,
+          (0,0,1) : drive_TVF / 2, }
 
-    h_TVF = { (0,2,0) : 1,
-              (1,0,0) : drive_TVF / 2,
-              (0,0,1) : drive_TVF / 2, }
+h_TAT_zy = { (0,2,0): 1,
+             (2,0,0): 1/4,
+             (0,0,2): 1/4,
+             (1,0,1): -1/2,
+             (0,1,0): 1/2 }
 
-    h_TAT_zy = { (0,2,0): 1,
-                 (2,0,0): 1/4,
-                 (0,0,2): 1/4,
-                 (1,0,1): -1/2,
-                 (0,1,0): 1/2 }
+h_TAT_yx = { (2,0,0): -1/2,
+             (0,0,2): -1/2 }
 
-    h_TAT_yx = { (2,0,0): -1/2,
-                 (0,0,2): -1/2 }
+for h_TAT in [ h_TAT_zy, h_TAT_yx ]:
+    for key in h_TAT.keys():
+        h_TAT[key] /= 3
 
-    for h_TAT in [ h_TAT_zy, h_TAT_yx ]:
-        for key in h_TAT.keys():
-            h_TAT[key] /= 3
+correlators_TVF_D \
+    = compute_correlators(N, chi_times, h_TVF, dec_rates, "+X", order_cap)
+correlators_TAT_zy_D \
+    = compute_correlators(N, chi_times, h_TAT_zy, dec_rates, "+X", order_cap)
+correlators_TAT_yx_D \
+    = compute_correlators(N, chi_times, h_TAT_yx, dec_rates, "-Z", order_cap)
 
-    correlators_TVF_D \
-        = compute_correlators(N, chi_times, decay_rate_over_chi, h_TVF, "+X", order_cap)
-    correlators_TAT_zy_D \
-        = compute_correlators(N, chi_times, decay_rate_over_chi, h_TAT_zy, "+X", order_cap)
-    correlators_TAT_yx_D \
-        = compute_correlators(N, chi_times, decay_rate_over_chi, h_TAT_yx, "-Z", order_cap)
-
-    sqz_TVF_D = squeezing_from_correlators(N, correlators_TVF_D)
-    sqz_TAT_zy_D = squeezing_from_correlators(N, correlators_TAT_zy_D)
-    sqz_TAT_yx_D = squeezing_from_correlators(N, correlators_TAT_yx_D)
+sqz_TVF_D = squeezing_from_correlators(N, correlators_TVF_D)
+sqz_TAT_zy_D = squeezing_from_correlators(N, correlators_TAT_zy_D)
+sqz_TAT_yx_D = squeezing_from_correlators(N, correlators_TAT_yx_D)
 
 
 ##########################################################################################
@@ -250,10 +246,10 @@ if N <= fermi_N_max:
         if ii * 10 // time_steps >= counter:
             counter += 1
             print("{}/{}".format(ii,time_steps))
-        sqz_SS[ii] = spin_squeezing(state_SS, S_op_vec, SS_op_mat, N)
-        sqz_FH_free[ii] = spin_squeezing(state_free, S_op_vec, SS_op_mat, N)
-        sqz_FH_static[ii] = spin_squeezing(state_static, S_op_vec, SS_op_mat, N)
-        sqz_FH_periodic[ii] = spin_squeezing(state_periodic, S_op_vec, SS_op_mat, N)
+        sqz_SS[ii] = spin_squeezing(N, state_SS, S_op_vec, SS_op_mat)
+        sqz_FH_free[ii] = spin_squeezing(N, state_free, S_op_vec, SS_op_mat)
+        sqz_FH_static[ii] = spin_squeezing(N, state_static, S_op_vec, SS_op_mat)
+        sqz_FH_periodic[ii] = spin_squeezing(N, state_periodic, S_op_vec, SS_op_mat)
         state_SS = evolve(state_SS, H_SS, dt)
         state_free = evolve(state_free, H_free, dt)
         state_static = evolve(state_static, H_static, dt)
@@ -270,24 +266,26 @@ if L.size == 1: L_text = str(L[0])
 else: L_text = "(" + ",".join([ str(L_j) for L_j in L ]) + ")"
 plt.title(r"$L={},~U/J={}$".format(L_text,U_J_target))
 
-plt.plot(times_SI, -to_dB(sqz_OAT), label = "OAT", color = colors[0])
-plt.plot(times_SI, -to_dB(sqz_TVF), label = "TVF", color = colors[1])
-plt.plot(times_SI, -to_dB(sqz_TAT), label = "TAT", color = colors[2])
+line_OAT, = plt.plot(times_SI, sqz_OAT, label = "OAT")
+line_TVF, = plt.plot(times_SI, sqz_TVF, label = "TVF")
+line_TAT, = plt.plot(times_SI, sqz_TAT, label = "TAT")
 
-if N > fermi_N_max:
-    plt.plot(times_SI, -to_dB(sqz_OAT_D), "--", color = colors[0])
-    plt.plot(times_SI, -to_dB(sqz_TVF_D), "--", color = colors[1])
-    plt.plot(times_SI, -to_dB(sqz_TAT_zy_D), "--", color = colors[2])
-    plt.plot(times_SI, -to_dB(sqz_TAT_yx_D), ":", color = colors[2])
+try:
+    plt.plot(times_SI, sqz_OAT_D, "--", color = line_OAT.get_color())
+    plt.plot(times_SI, sqz_TVF_D, "--", color = line_TVF.get_color())
+    plt.plot(times_SI, sqz_TAT_zy_D, "--", color = line_TAT.get_color())
+    plt.plot(times_SI, sqz_TAT_yx_D, ":", color = line_TAT.get_color())
+except: None
 
-if N <= fermi_N_max:
-    plt.plot(times_SI, -to_dB(sqz_SS), label = "SS", color = colors[3])
-    plt.plot(times_SI, -to_dB(sqz_FH_free), label = "FH (free)", color = colors[4])
-    plt.plot(times_SI, -to_dB(sqz_FH_static), label = "FH (static)", color = colors[5])
-    plt.plot(times_SI, -to_dB(sqz_FH_periodic), label = "FH (periodic)", color = colors[6])
+try:
+    plt.plot(times_SI, sqz_SS, label = "SS")
+    plt.plot(times_SI, sqz_FH_free, label = "FH (free)")
+    plt.plot(times_SI, sqz_FH_static, label = "FH (static)")
+    plt.plot(times_SI, sqz_FH_periodic, label = "FH (periodic)")
+except: None
 
 plt.xlim(0,times_SI[-1])
-plt.ylim(0, -to_dB(min(sqz_TAT)) * 1.1)
+plt.ylim(0, sqz_TAT.max() * 1.1)
 plt.xlabel(r"Time (seconds)")
 plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
 plt.legend(loc = "best")

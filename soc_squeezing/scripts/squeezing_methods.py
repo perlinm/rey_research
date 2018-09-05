@@ -7,6 +7,8 @@ import scipy.sparse as sparse
 import scipy.linalg as linalg
 import scipy.optimize as optimize
 
+from correlator_methods import correlators_OAT
+
 # constrect vector of generators about z, x, and y
 g_vec = np.array([ np.array([ [  0,  0,  0 ],
                               [  0,  0, -1 ],
@@ -42,7 +44,7 @@ def spin_mat_vals(state, SS_op_mat):
     SS_mat = np.zeros((3,3), dtype = complex)
     for ii in range(3):
         for jj in range(ii+1):
-            SS_mat[ii,jj] = val(SS_op_mat[ii][jj],state)
+            SS_mat[ii,jj] = val(SS_op_mat[ii][jj], state)
             SS_mat[jj,ii] = np.conj(SS_mat[ii,jj])
     return SS_mat
 
@@ -77,13 +79,15 @@ def minimal_orthogonal_variance(S_vec, SS_mat):
     return optimum.fun
 
 # return spin squeezing parameter
-def spin_squeezing(state, S_op_vec, SS_op_mat, N):
+def spin_squeezing(spin_num, state, S_op_vec, SS_op_mat, in_dB = True):
     S_vec, SS_mat = spin_vec_mat_vals(state, S_op_vec, SS_op_mat)
     variance = minimal_orthogonal_variance(S_vec, SS_mat)
-    return variance * N / linalg.norm(S_vec)**2
+    squeezing = variance * spin_num / linalg.norm(S_vec)**2
+    if in_dB: squeezing = -10*np.log10(squeezing)
+    return squeezing
 
 # return  from a set of spin correlators
-def squeezing_from_correlators(N, correlators):
+def squeezing_from_correlators(spin_num, correlators, in_dB = True):
     Sz    = correlators[(0,1,0)]
     Sz_Sz = correlators[(0,2,0)]
     Sp    = correlators[(1,0,0)]
@@ -119,7 +123,9 @@ def squeezing_from_correlators(N, correlators):
     else:
         var_min = minimal_orthogonal_variance(S_vec, SS_mat)
 
-    return var_min * N / np.real(Sz*Sz + Sx*Sx + Sy*Sy)
+    squeezing = var_min * spin_num / np.real(Sz*Sz + Sx*Sx + Sy*Sy)
+    if in_dB: squeezing = -10*np.log10(squeezing)
+    return squeezing
 
 # act with a time-evolution unitary from the left, right, or both sides
 def evolve_left(state, hamiltonian, time):
@@ -138,3 +144,29 @@ def evolve(state, hamiltonian, time):
         return evolve_left(state, hamiltonian, time)
     else: # state is a density operator
         return evolve_left_right(state, hamiltonian, time)
+
+# squeezing parameter from one-axis twisting
+def squeezing_OAT(spin_num, chi_t, dec_rates = (0,0,0), in_dB = True):
+
+    # if there is no decoherence, we have simple analytical formulas
+    if dec_rates is (0,0,0):
+
+        S = spin_num/2
+        var_Sy = S/2 + S/2 * (S-1/2) * ( 1 - np.cos(2*chi_t)**(spin_num-2) )
+        var_Sz = S/2
+
+        A = var_Sy - var_Sz
+        C = var_Sy + var_Sz
+        B = 2 * S * (S-1/2) * np.sin(chi_t) * np.cos(chi_t)**(spin_num-2)
+
+        var_min = 1/2 * np.real( C - np.sqrt(A**2 + B**2) )
+        Sx = S * np.cos(chi_t)**(spin_num-1)
+
+        squeezing = var_min * spin_num / Sx**2
+        if in_dB: squeezing = -10*np.log10(squeezing)
+        return squeezing
+
+    # otherwise, use more complex but exact spin correlators to compute squeezing
+    correlators = correlators_OAT(spin_num, chi_t, dec_rates)
+
+    return squeezing_from_correlators(spin_num, correlators, in_dB)

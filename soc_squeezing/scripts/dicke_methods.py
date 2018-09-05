@@ -10,9 +10,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
-from squeezing_methods import squeezing_from_correlators
-from correlator_methods import correlators_OAT
-
 # natural logarithms of factorial and binomial coefficient
 from math import lgamma
 def ln_factorial(n): return lgamma(n+1)
@@ -126,32 +123,3 @@ def plot_dicke_state(state, grid_size = 51, single_sphere = False):
     ax.set_axis_off()
     ax.view_init(elev = 0, azim = 0)
     return fig, ax
-
-
-##########################################################################################
-# analytical solutions
-##########################################################################################
-
-# squeezing parameter from one-axis twisting, accounting for e --> g decay
-def squeezing_OAT(N, chi_t, decay_rate_over_chi = 0):
-
-    # if there is no spin decay, we have simple analytical formulas
-    if decay_rate_over_chi == 0:
-
-        S = N/2
-        var_Sy = S/2 + S/2 * (S-1/2) * ( 1 - np.cos(2*chi_t)**(N-2) )
-        var_Sz = S/2
-
-        A = var_Sy - var_Sz
-        C = var_Sy + var_Sz
-        B = 2 * S * (S-1/2) * np.sin(chi_t) * np.cos(chi_t)**(N-2)
-
-        var_min = 1/2 * np.real( C - np.sqrt(A**2 + B**2) )
-        Sx = S * np.cos(chi_t)**(N-1)
-
-        return var_min * N / Sx**2
-
-    # otherwise, use more complex but exact spin correlators to compute squeezing
-    correlators = correlators_OAT(N, chi_t, decay_rate_over_chi)
-
-    return squeezing_from_correlators(N, correlators)
