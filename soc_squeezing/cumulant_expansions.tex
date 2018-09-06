@@ -128,49 +128,68 @@ write the Hamiltonian in the form
 which admits an exact solution previously worked out by Foss-Feig et
 al.~in ref.~\cite{foss-feig2013nonequilibrium}.  Adapting exact
 expectation values with respect to the initial state $\ket{\X}$
-satisfying $S_\x\ket{\X}=S\ket{\X}$, in terms of
+satisfying $S_\x\ket{\X}=S\ket{\X}$, in terms of $S\equiv N/2$ and
 $\mu,\nu\in\set{+1,-1}$ we find that
 \begin{align}
   \bk{S_+}
   &= \sum_j\bk{\sigma_+^{(j)}}
-  = \f{N}{2} e^{-\gamma t/2} \Phi\p{\chi,t}^{N-1}, \label{eq:S+_OAT} \\
+  = S e^{-\Gamma t} \Phi\p{\chi,t}^{N-1}, \label{eq:S+_OAT} \\
   \bk{S_\mu S_\z}
   &= \f12\sum_j\bk{\sigma_\mu^{(j)}\sigma_\z^{(j)}}
   + \f12\sum_{j\ne k} \bk{\sigma_\mu^{(j)} \sigma_\z^{(k)}} \\
-  &= -\f{\mu}{2}\bk{S_\mu} + \f14 N \p{N-1} e^{-\gamma t/2}
+  &= -\f{\mu}{2}\bk{S_\mu} + S \p{S-\f12} e^{-\Gamma t}
   \Psi\p{\mu\chi,t} \Phi\p{\chi,t}^{N-2}, \\
   \bk{S_\mu S_\nu}
   &= \sum_j \bk{\sigma_\mu^{(j)} \sigma_\nu^{(j)}}
   + \sum_{j\ne k} \bk{\sigma_\mu^{(j)} \sigma_\nu^{(k)}} \\
-  &= \delta_{\mu,-\nu} \p{\f{N}{2} + \mu \bk{S_\z}}
-  + \f14 N \p{N-1} e^{-\gamma t}
+  &= \delta_{\mu,-\nu} \p{S + \mu\bk{S_\z}}
+  + S \p{S-\f12} e^{-2\Gamma t}
   \Phi\p{\sp{\mu+\nu}\chi,t}^{N-2}, \label{eq:SS+-_OAT}
 \end{align}
 where
 \begin{align}
-  \Phi\p{\zeta,t} \equiv e^{-\gamma t/2}
-  \sp{\cos\p{s_\zeta t}+\f12\gamma t~\t{sinc}\p{s_\zeta t}},
-  &&
-  \Psi\p{\zeta,t} \equiv e^{-\gamma t/2}
-  \p{is_\zeta-\gamma/2}t~ \t{sinc}\p{s_\zeta t},
+  \Phi\p{\zeta,t}
+  &\equiv e^{-\lambda t} \sp{\cos\p{t\sqrt{s_\zeta^2-r}}
+    + \lambda t~\t{sinc}\p{t\sqrt{s_\zeta^2-r}}},
+  \\
+  \Psi\p{\zeta,t}
+  &\equiv e^{-\lambda t} \p{is_\zeta-\gamma}t~
+  \t{sinc}\p{t\sqrt{s_\zeta^2-r}},
 \end{align}
-and $s_\zeta \equiv \zeta + i2\gamma$.  The last ingredients we need
-to compute spin squeezing at any time are $\bk{S_\z}$ and
-$\bk{S_\z^2}$.  As these operators commute with the OAT Hamiltonian,
-their evolution is governed entirely by decoherence through
-uncorrelated decay of individual spins, which means (see Appendix
-\ref{sec:decay_single})
+for
 \begin{align}
-  \f{d}{dt} S_\z = -\gamma \p{S + S_\z},
+  \gamma \equiv \f12 \p{\gamma_+ - \gamma_-},
   &&
-  \f{d}{dt}\p{S_\z^2} = \gamma \p{S + S_\z} \p{1 - 2S_\z},
+  \lambda \equiv \f12 \p{\gamma_+ + \gamma_-},
+  &&
+  r \equiv \gamma_+ \gamma_-,
+  &
+  \Gamma \equiv \gamma_z + \lambda,
+  &&
+  s_\zeta \equiv \zeta + i\gamma,
 \end{align}
-where $S\equiv N/2$.  The initial conditions $\bk{S_\z}_{t=0}=0$ and
-$\bk{S_\z^2}_{t=0}=S/2$ then imply
+defined respectively in terms of spontaneous uncorrelated spin
+dephasing, excitation, and decay rates $\gamma_z$, $\gamma_+$,
+$\gamma_-$.  The last ingredients we need to compute spin squeezing at
+any time are $\bk{S_\z}$ and $\bk{S_\z^2}$.  As these operators
+commute with the OAT Hamiltonian, their evolution is governed entirely
+by decoherence (see Appendix \ref{sec:decay_single}), which means
 \begin{align}
-  \bk{S_\z} = S\p{e^{-\gamma t}-1},
+  \f{d}{dt} S_\z
+  &= S\p{\gamma_+-\gamma_-} - \p{\gamma_++\gamma_-} S_\z,
+  \\
+  \f{d}{dt}\p{S_\z^2}
+  &= S\p{\gamma_++\gamma_-} + 2\p{\gamma_+-\gamma_-}\p{S-\f12} S_\z
+  - 2 \p{\gamma_++\gamma_-} S_\z^2.
+\end{align}
+The initial conditions $\bk{S_\z}_{t=0}=0$ and $\bk{S_\z^2}_{t=0}=S/2$
+then imply
+\begin{align}
+  \bk{S_\z}
+  = S\p{\f{\gamma_+-\gamma_-}{\gamma_++\gamma_-}}
+  \p{1-e^{-\p{\gamma_+ + \gamma_-} t}},
   &&
-  \bk{S_\z^2} = S \p{1 - \f12 e^{-\gamma t}} e^{-\gamma t} + \bk{S_\z}^2.
+  \bk{S_\z^2} = S \sp{\f12 + \p{S-\f12} \f{\bk{S_z}^2}{S^2}}.
   \label{eq:Sz_OAT}
 \end{align}
 The expectation values in \eqref{eq:S+_OAT}-\eqref{eq:SS+-_OAT} and
@@ -180,7 +199,7 @@ evolution of the initial state $\ket{\X}:S_\x\ket{\X}=S\ket{\X}$ under
 $H_{\t{OAT}}$.
 
 
-\section{Truncated Heisenberg operator dynamics}
+\section{Truncated operator dynamics}
 
 Unlike the one-axis twisting Hamiltonian, the two-axis twisting and
 transverse-field Hamiltonians do not admit exact analytical
@@ -323,6 +342,12 @@ $\p{S_+^\ell S_\z^m S_-^n}^\dag=S_+^n S_\z^m S_-^\ell$ can be
 exploited to cut both the number of expectation values
 $\bk{S_+^p S_\z^r S_-^q}_{t=0}$ and the number of matrix elements
 $T^{\ell mn}_{pqr}$ which we need to compute roughly in half.
+
+
+\section{One-axis twisting revisited}
+
+
+
 
 
 \bibliography{\jobname}
@@ -777,45 +802,31 @@ and likewise with identity \eqref{eq:push_mu_Ss}:
   - n \p{n-1} \sigma_\bmu^{(j)} S_\bmu^{n-2}
   - \mu n \sigma_\z^{(j)} S_\bmu^{n-1}.
 \end{align}
-Working through the combinations, we then compute
+Working through all combinations that are unique up to conjugation, we
+then compute
 \begin{align}
-  \sum_j \sigma_\mu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\bmu^{(j)}
-  &= S_\mu^\ell \p{S+\mu S_\z}\p{-\mu+S_\z}^m S_\bmu^n,
-  \label{eq:sand_mu_bmu} \allowdisplaybreaks \\
-  \sum_j \sigma_\mu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\z^{(j)}
-  &= -\mu S_\mu^{\ell+1} S_\z^m S_\bmu^n
-  + 2\mu n S_\mu^\ell \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^{n-1},
-  \allowdisplaybreaks \\
-  \sum_j \sigma_\z^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\bmu^{(j)}
-  &= -\mu S_\mu^\ell S_\z^m S_\bmu^{n+1}
-  + 2\mu \ell S_\mu^{\ell-1} \p{S+\mu S_\z}\p{-\mu+S_\z}^m S_\bmu^n,
-  \allowdisplaybreaks \\
   \sum_j \sigma_\z^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\z^{(j)}
   &= 2\p{S-\ell-n} S_\mu^\ell S_\z^m S_\bmu^n
   + 4\ell n S_\mu^{\ell-1} \p{S+\mu S_\z}
   \p{-\mu+S_\z}^m S_\bmu^{n-1},
   \label{eq:sand_z_z} \allowdisplaybreaks \\
-  \sum_j \sigma_\mu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\mu^{(j)}
-  &= -n\p{n-1} S_\mu^\ell \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^{n-2}
-  + n S_\mu^{\ell+1} S_\z^m S_\bmu^{n-1},
-  \allowdisplaybreaks \\
-  \sum_j \sigma_\bmu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\bmu^{(j)}
-  &= -\ell \p{\ell-1} S_\mu^{\ell-2}
-  \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^n
-  + \ell S_\mu^{\ell-1} S_\z^m S_\bmu^{n+1},
-  \allowdisplaybreaks \\
   \sum_j \sigma_\z^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\mu^{(j)}
   &= \mu S_\mu^{\ell+1} \p{\mu+S_\z}^m S_\bmu^n
   + \mu n \p{-2S+2\ell+n-1} S_\mu^\ell S_\z^m S_\bmu^{n-1} \notag \\
   &\qquad - 2\mu\ell n\p{n-1} S_\mu^{\ell-1}
   \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^{n-2},
-  \allowdisplaybreaks \\
-  \sum_j \sigma_\bmu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\z^{(j)}
-  &= \mu S_\mu^\ell \p{\mu+S_\z}^m S_\bmu^{n+1}
-  + \mu \ell \p{-2S+2n+\ell-1} S_\mu^{\ell-1} S_\z^m S_\bmu^n \notag \\
-  &\qquad - 2\mu\ell n\p{\ell-1} S_\mu^{\ell-2}
-  \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^{n-1},
-  \allowdisplaybreaks \\
+  \label{eq:sand_z_mu} \allowdisplaybreaks \\
+  \sum_j \sigma_\z^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\bmu^{(j)}
+  &= -\mu S_\mu^\ell S_\z^m S_\bmu^{n+1}
+  + 2\mu \ell S_\mu^{\ell-1} \p{S+\mu S_\z}\p{-\mu+S_\z}^m S_\bmu^n,
+  \label{eq:sand_z_bmu} \allowdisplaybreaks \\
+  \sum_j \sigma_\mu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\mu^{(j)}
+  &= -n\p{n-1} S_\mu^\ell \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^{n-2}
+  + n S_\mu^{\ell+1} S_\z^m S_\bmu^{n-1},
+  \label{eq:sand_mu_mu} \allowdisplaybreaks \\
+  \sum_j \sigma_\mu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\bmu^{(j)}
+  &= S_\mu^\ell \p{S+\mu S_\z}\p{-\mu+S_\z}^m S_\bmu^n,
+  \label{eq:sand_mu_bmu} \allowdisplaybreaks \\
   \sum_j \sigma_\bmu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\mu^{(j)}
   &= S_\mu^\ell \p{S - \ell - n - \mu S_\z} \p{\mu + S_\z}^m S_\bmu^n
   + \ell n \p{2S - \ell - n + 2}
@@ -843,6 +854,30 @@ $\gamma^{(j)}$ is an operator that acts with $\gamma$ on spin $j$ and
 the identity on all other spins.
 
 
+\subsection{Dephasing}
+\label{sec:dephasing_single}
+
+The effect of decoherence via single-spin dephasing is described by
+\begin{align}
+  \D\p{\sigma_\z/\sqrt2; \O}
+  = \sum_j\p{\sigma_\z^{(j)} \O \sigma_\z^{(j)}
+    - \f12\sp{\sigma_\z^{(j)} \sigma_\z^{(j)},\O}_+}
+  = \f12 \sum_j \sigma_\z^{(j)} \O \sigma_\z^{(j)} - S \O,
+\end{align}
+where the factor $\sqrt2$ is inserted as
+e.g.~$\D\p{\sigma_\z/\sqrt2;S_\x}=-S_\x$.  From \eqref{eq:sand_z_z},
+we then have
+\begin{align}
+  \D\p{\sigma_\z/\sqrt2; S_\mu^\ell S_\z^m S_\bmu^n}
+  = -\p{\ell+n} S_\mu^\ell S_\z^m S_\bmu^n
+  + 2 \ell n S_\mu^{\ell-1} \p{S + \mu S_\z}
+  \p{-\mu + S_\z}^m S_\bmu^{n-1}.
+\end{align}
+Decoherence via single-spin dephasing makes operators
+$S_\mu^\ell S_\z^m S_\bmu^n$ ``grow'' in $S_\z$, although the sum
+$\ell+m+n$ does not grow.
+
+
 \subsection{Decay-type decoherence}
 \label{sec:decay_single}
 
@@ -866,30 +901,20 @@ products of collective spin operators, we expand the anti-commutator
 which implies, using \eqref{eq:sand_mu_bmu},
 \begin{align}
   \D\p{\sigma_\bmu; S_\mu^\ell S_\z^m S_\bmu^n}
-  &= S_\mu^\ell \p{S+\mu S_\z}\p{-\mu+S_\z}^m S_\bmu^n
-  - S_\mu^\ell\p{S + \f12\sp{\ell+n} + \mu S_\z} S_\z^m S_\bmu^n \\
-  &= S_\mu^\ell \sp{\p{S+\mu S_\z}
-    \sum_{k=0}^{m-1} \p{-\mu}^{m-k} { m \choose k } S_\z^k
-    - \f12 \p{\ell+n} S_\z^m} S_\bmu^n,
+  = S_\mu^\ell \p{S+\mu S_\z}\p{-\mu+S_\z}^m S_\bmu^n
+  - S_\mu^\ell\p{S + \f12\sp{\ell+n} + \mu S_\z} S_\z^m S_\bmu^n,
   \label{eq:decay_diff}
 \end{align}
 and, using \eqref{eq:sand_bmu_mu},
 \begin{align}
   \D\p{\sigma_\mu; S_\mu^\ell S_\z^m S_\bmu^n}
   &= S_\mu^\ell \p{S - \ell - n - \mu S_\z} \p{\mu + S_\z}^m S_\bmu^n
-  + \ell n \p{2S - \ell - n + 2}
-  S_\mu^{\ell-1} S_\z^m S_\bmu^{n-1} \notag \\
-  &\qquad + \ell n \p{\ell-1} \p{n-1} S_\mu^{\ell-2} \p{S + \mu S_\z}
-  \p{-\mu + S_\z}^m S_\bmu^{n-2} \notag \\
-  &\qquad - S_\mu^\ell\p{S - \f12\sp{\ell+n} - \mu S_\z}
-  S_\z^m S_\bmu^n \allowdisplaybreaks \\
-  &= S_\mu^\ell \sp{\p{S-\ell-n-\mu S_\z}
-    \sum_{k=0}^{m-1} \mu^{m-k} { m \choose k } S_\z^k
-    - \f12 \p{\ell+n} S_\z^m} S_\bmu^n \notag \\
+  - S_\mu^\ell\p{S - \f12\sp{\ell+n} - \mu S_\z}
+  S_\z^m S_\bmu^n \notag \\
   &\qquad + \ell n \p{2S - \ell - n + 2}
   S_\mu^{\ell-1} S_\z^m S_\bmu^{n-1} \notag \\
   &\qquad + \ell n \p{\ell-1} \p{n-1} S_\mu^{\ell-2} \p{S + \mu S_\z}
-  \sum_{k=0}^m \p{-\mu}^{m-k} { m \choose k } S_\z^k S_\bmu^{n-2}.
+  \p{-\mu + S_\z}^m S_\bmu^{n-2}.
   \label{eq:decay_same}
 \end{align}
 Decoherence via jump operators $\sigma_\bmu^{(j)}$ only couples
@@ -899,33 +924,6 @@ operators $\sigma_\mu^{(j)}$, meanwhile, makes operators
 $S_\mu^\ell S_\z^m S_\bmu^n$ ``grow'' in $S_\z$ through the last term
 in \eqref{eq:decay_same} with $k=m$, although the sum $\ell+m+n$ does
 not grow.
-
-
-\subsection{Dephasing}
-\label{sec:dephasing_single}
-
-The effect of decoherence via single-spin dephasing is described by
-\begin{align}
-  \D\p{\sigma_\z/\sqrt2; \O}
-  = \sum_j\p{\sigma_\z^{(j)} \O \sigma_\z^{(j)}
-    - \f12\sp{\sigma_\z^{(j)} \sigma_\z^{(j)},\O}_+}
-  = \f12 \sum_j \sigma_\z^{(j)} \O \sigma_\z^{(j)} - S \O,
-\end{align}
-where the factor $\sqrt2$ is inserted as
-e.g.~$\D\p{\sigma_\z/\sqrt2;S_\x}=-S_\x$.  From \eqref{eq:sand_z_z},
-we then have
-\begin{align}
-  \D\p{\sigma_\z/\sqrt2; S_\mu^\ell S_\z^m S_\bmu^n}
-  &= -\p{\ell+n} S_\mu^\ell S_\z^m S_\bmu^n
-  + 2 \ell n S_\mu^{\ell-1} \p{S + \mu S_\z}
-  \p{-\mu + S_\z}^m S_\bmu^{n-1} \\
-  &= -\p{\ell+n} S_\mu^\ell S_\z^m S_\bmu^n
-  + 2 \ell n S_\mu^{\ell-1} \p{S + \mu S_\z}
-  \sum_{k=0}^m \p{-\mu}^{m-k} { m \choose k } S_\z^k S_\bmu^{n-1}.
-\end{align}
-Decoherence via single-spin dephasing also makes operators
-$S_\mu^\ell S_\z^m S_\bmu^n$ ``grow'' in $S_\z$, although the sum
-$\ell+m+n$ still does not grow.
 
 
 \subsection{The general case}
@@ -972,17 +970,14 @@ which implies
   \label{eq:D_general_single}
 \end{align}
 In order to compute the effect of this decoherence on ordered products
-of collective spin operators, we expand the anti-commutators
+of collective spin operators, we expand the anti-commutator
 \begin{align}
   \sp{S_\mu, S_\mu^\ell S_\z^m S_\bmu^n}_+
   &= S_\mu^{\ell+1} \sp{S_\z^m+\p{\mu+S_\z}^m} S_\bmu^n
-  - n S_\mu^\ell \p{n-1+2\mu S_\z} S_\z^m S_\bmu^{n-1}, \\
-  \sp{S_\bmu, S_\mu^\ell S_\z^m S_\bmu^n}_+
-  &= S_\mu^\ell \sp{S_\z^m+\p{\mu+S_\z}^m} S_\bmu^{n+1}
-  - \ell S_\mu^{\ell-1} \p{\ell-1+2\mu S_\z} S_\z^m S_\bmu^n.
+  - n S_\mu^\ell \p{n-1+2\mu S_\z} S_\z^m S_\bmu^{n-1}.
   \label{eq:S_mu_acomm}
 \end{align}
-These anti-commutators together with the results in Sections
+This anti-commutator together with the results in Sections
 \ref{sec:sandwich_single}, \ref{sec:decay_single}, and
 \ref{sec:dephasing_single} are sufficient to expand
 \eqref{eq:D_general_single} in terms of ordered products of collective
@@ -1004,9 +999,6 @@ collective-spin decoherence calculations.  The simplest cases are
   S_\mu S_\mu^\ell S_\z^m S_\bmu^n S_\z
   &= S_\mu^{\ell+1} \p{\mu n+S_\z} S_\z^m S_\bmu^n,
   \allowdisplaybreaks \\
-  S_\z S_\mu^\ell S_\z^m S_\bmu^n S_\bmu
-  &= S_\mu^\ell \p{\mu\ell+S_\z} S_\z^m S_\bmu^{n+1},
-  \allowdisplaybreaks \\
   S_\z S_\mu^\ell S_\z^m S_\bmu^n S_\z
   &= S_\mu^\ell \p{\ell n + \mu\sp{\ell+n} S_\z + S_\z^2}
   S_\z^m S_\bmu^n.
@@ -1027,23 +1019,12 @@ which implies
   &= S_\mu^{\ell+2} \p{\mu+S_\z}^m S_\bmu^n
   - n S_\mu^{\ell+1} \p{n-1+2\mu S_\z} S_\z^m S_\bmu^{n-1},
   \allowdisplaybreaks \\
-  S_\bmu S_\mu^\ell S_\z^m S_\bmu^n S_\bmu
-  &= S_\mu^\ell \p{\mu+S_\z}^m S_\bmu^{n+2}
-  - \ell S_\mu^{\ell-1} \p{\ell-1+2\mu S_\z} S_\z^m S_\bmu^{n+1},
-  \allowdisplaybreaks \\
   S_\z S_\mu^\ell S_\z^m S_\bmu^n S_\mu
   &= S_\mu^{\ell+1} \p{\mu\sp{\ell+1}+S_\z} \p{\mu+S_\z}^m S_\bmu^n
   \notag \\
   &\qquad - n S_\mu^\ell
   \p{\mu\ell\sp{n-1} + \sp{2\ell+n-1}S_\z + 2\mu S_\z^2}
-  S_\z^m S_\bmu^{n-1},
-  \allowdisplaybreaks \\
-  S_\bmu S_\mu^\ell S_\z^m S_\bmu^n S_\z
-  &= S_\mu^\ell \p{\mu\sp{n+1}+S_\z} \p{\mu+S_\z}^m S_\bmu^{n+1}
-  \notag \\
-  &\qquad - \ell S_\mu^{\ell-1}
-  \p{\mu n\sp{\ell-1} + \sp{2n+\ell-1}S_\z + 2\mu S_\z^2}
-  S_\z^m S_\bmu^n.
+  S_\z^m S_\bmu^{n-1}.
 \end{align}
 Finally, we compute
 \begin{align}
@@ -1242,43 +1223,46 @@ using which we can compute, for $\bmu\equiv-\mu\in\set{+1,-1}$,
 \end{align}
 and
 \begin{align}
-  \bk{\X|S_+^\ell S_\z^m S_-^n|\X}
-  &=  2^{-N} \sum_{k=-S}^{S-\max\set{\ell,n}} k^m
-  \sp{{ N \choose S+k+\ell } { N \choose S+k+n }}^{1/2} \notag \\
+  \bk{\X|S_\mu^\ell S_\z^m S_\bmu^n|\X}
+  &=  2^{-N} \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
+  ^{S-\delta_{\mu,1}\max\set{\ell,n}} k^m
+  \sp{{ N \choose S+k+\mu\ell } { N \choose S+k+\mu n }}^{1/2}
+  \notag \\
   &\qquad\qquad\qquad\qquad
-  \times \prod_{p=0}^{\ell-1} g_+\p{S,k+p}
-  \prod_{q=0}^{n-1} g_-\p{S,k+n-q} \\
-  &= \f{N!}{2^N} \sum_{k=-S}^{S-\max\set{\ell,n}} k^m
-  \f{\p{S-k}!}{\p{S+k}!\p{S-k-\ell}!\p{S-k-n}!}.
+  \times \prod_{p=0}^{\ell-1} g_\mu\p{S,k+\mu p}
+  \prod_{q=0}^{n-1} g_\bmu\p{S,k+\mu\sp{n-q}} \\
+  &= \f{N!}{2^N} \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
+  ^{S-\delta_{\mu,1}\max\set{\ell,n}} k^m
+  \f{\p{S-\mu k}!}{\p{S+\mu k}!\p{S-\mu k-\ell}!\p{S-\mu k-n}!}.
 \end{align}
-With the help of Mathematica, we can write this result in the
-alternate form
-\begin{align}
-  \bk{\X|S_+^\ell S_\z^m S_-^n|\X}
-  = \f{\p{N!}^2}{2^N\p{N-\ell}!\p{N-n}!}
-  \sp{\p{-S}^m \alpha + \f{\p{N-\ell}\p{N-n}}{N} \beta},
-\end{align}
-where $\alpha$ and $\beta$ are defined in terms of the generalized
-hypergeometric function $\F$ by
-\begin{align}
-  \alpha
-  \equiv \F\p{\let\scriptstyle\textstyle
-    \substack{\ell-N,~n-N \\ -N}~; -1},
-\end{align}
-and
-\begin{align}
-  \beta
-  \equiv \sum_{p=0}^{m-1} \p{-S}^p { m \choose p }
-  \tilde\F_{m-p-1}\p{\let\scriptstyle\textstyle
-    \substack{1+\ell-N,~1+n-N \\ 1-N}~; -1},
-\end{align}
-for
-\begin{align}
-  \tilde\F_q\p{\let\scriptstyle\textstyle
-    \substack{a,~b\\c}~; z}
-  \equiv \F\p{\let\scriptstyle\textstyle
-    \substack{2,2,\cdots,2,a,b \\ 1,1,\cdots,1,c}~; z}
-\end{align}
-with $q$ repetitions of 2 and 1.
+% With the help of Mathematica, we can write this result in the
+% alternate form
+% \begin{align}
+%   \bk{\X|S_+^\ell S_\z^m S_-^n|\X}
+%   = \f{\p{N!}^2}{2^N\p{N-\ell}!\p{N-n}!}
+%   \sp{\p{-S}^m \alpha + \f{\p{N-\ell}\p{N-n}}{N} \beta},
+% \end{align}
+% where $\alpha$ and $\beta$ are defined in terms of the generalized
+% hypergeometric function $\F$ by
+% \begin{align}
+%   \alpha
+%   \equiv \F\p{\let\scriptstyle\textstyle
+%     \substack{\ell-N,~n-N \\ -N}~; -1},
+% \end{align}
+% and
+% \begin{align}
+%   \beta
+%   \equiv \sum_{p=0}^{m-1} \p{-S}^p { m \choose p }
+%   \tilde\F_{m-p-1}\p{\let\scriptstyle\textstyle
+%     \substack{1+\ell-N,~1+n-N \\ 1-N}~; -1},
+% \end{align}
+% for
+% \begin{align}
+%   \tilde\F_q\p{\let\scriptstyle\textstyle
+%     \substack{a,~b\\c}~; z}
+%   \equiv \F\p{\let\scriptstyle\textstyle
+%     \substack{2,2,\cdots,2,a,b \\ 1,1,\cdots,1,c}~; z}
+% \end{align}
+% with $q$ repetitions of 2 and 1.
 
 \end{document}
