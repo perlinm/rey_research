@@ -149,7 +149,7 @@ def evolve(state, hamiltonian, time):
 def squeezing_OAT(spin_num, chi_t, dec_rates = (0,0,0), in_dB = True):
 
     # if there is no decoherence, we have simple analytical formulas
-    if dec_rates is (0,0,0):
+    if dec_rates == (0,0,0):
 
         S = spin_num/2
         var_Sy = S/2 + S/2 * (S-1/2) * ( 1 - np.cos(2*chi_t)**(spin_num-2) )
