@@ -958,43 +958,89 @@ of collective spin operators, we expand the anti-commutator
   \sp{S_\mu, S_\mu^\ell S_\z^m S_\bmu^n}_+
   = S_\mu^{\ell+1} \sp{S_\z^m+\p{\mu+S_\z}^m} S_\bmu^n
   - n S_\mu^\ell \p{n-1+2\mu S_\z} S_\z^m S_\bmu^{n-1}.
+  \label{eq:S_mu_acomm}
 \end{align}
-Defining
+Recognizing a resemblance between \eqref{eq:S_mu_acomm} and
+\eqref{eq:san_z_mu}, we can collect terms to simplify
 \begin{align}
-  \gamma_{\z,\mu}^{(\pm)}
-  &\equiv \f12\p{\gamma_\z^* \gamma_\mu \pm \gamma_\bmu^* \gamma_\z},
-  \allowdisplaybreaks \\
-  K_{\ell mn;\mu}
-  &\equiv S_\mu^\ell \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^n,
-  \allowdisplaybreaks \\
-  L_{\ell mn;\mu}^{(\gamma)}
-  &\equiv \gamma_{\z,\mu}^{(+)} S_\mu^{\ell+1}
-  \sp{\p{\mu+S_\z}^m-S_\z^m} S_\bmu^n
-  + 2n \gamma_\bmu^* \gamma_z K_{\ell m,n-1;\mu}
-  - 2\ell n\p{n-1} \gamma_z^* \gamma_\mu K_{\ell-1,m,n-2;\mu},
-  \allowdisplaybreaks \\
-  M_{\ell mn;\mu}^{(\gamma)}
-  &\equiv \gamma_{\z,\mu}^{(-)} S_\mu^\ell
-  S_\z^{m+1} S_\bmu^{n-1}
-  -\mu \sp{\p{S-\ell-\f12n+\f12} \gamma_\z^* \gamma_\mu
-    - \f12 \p{n-1} \gamma_{\z,\mu}^{(-)}}
-  S_\mu^\ell S_\z^m S_\bmu^{n-1},
-  \allowdisplaybreaks \\
-  P_{\ell mn;\mu}
-  &\equiv S_\mu^{\ell+1} S_\z^m S_\bmu^{n-1}
-  - \p{n-1} K_{\ell m,n-2;\mu},
-  \allowdisplaybreaks \\
-  Q_{\ell mn;\mu}^{(\gamma)}
-  &\equiv \mu L_{\ell mn;\mu}^{(\gamma)}
-  + 2 n M_{\ell mn;\mu}^{(\gamma)}
-  + n \gamma_\bmu^* \gamma_\mu P_{\ell mn;\mu},
+  \sum_j \sigma_\z^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\mu^{(j)}
+  - \f{\mu}{2} \sp{S_\mu, S_\mu^\ell S_\z^m S_\bmu^n}_+
+  = K_{\ell mn;\mu} + L_{\ell mn;\mu}
+  \label{eq:dec_z_mu}
 \end{align}
-we then have
+and likewise
+\begin{align}
+  \sum_j \sigma_\mu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\z^{(j)}
+  + \f{\mu}{2} \sp{S_\mu, S_\mu^\ell S_\z^m S_\bmu^n}_+
+  = K_{\ell mn;\mu} + M_{\ell mn;\mu}
+  \label{eq:dec_mu_z}
+\end{align}
+with
+\begin{align}
+  K_{\ell mn;\mu}
+  &\equiv \f{\mu}{2} S_\mu^{\ell+1}
+  \sp{\p{\mu+S_\z}^m-S_\z^m} S_\bmu^n, \\
+  L_{\ell mn;\mu}
+  &\equiv \mu n S_\mu^\ell \sp{-2S+2\ell+\f32\p{n-1}+\mu S_\z}
+  S_\z^m S_\bmu^{n-1} \notag \\
+  &\qquad - 2\mu\ell n\p{n-1} S_\mu^{\ell-1}
+  \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^{n-2}, \\
+  M_{\ell mn;\mu}
+  &\equiv \mu n S_\mu^\ell \sp{2\p{S+\mu S_\z}\p{-\mu+S_\z}^m
+    - \p{\f12\sp{n-1}+\mu S_\z} S_\z^m} S_\bmu^{n-1}.
+\end{align}
+Defining for completion
+\begin{align}
+  P_{\ell mn;\mu}
+  \equiv \sum_j
+  \sigma_\mu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\mu^{(j)}
+  = n S_\mu^{\ell+1} S_\z^m S_\bmu^{n-1}
+  - n\p{n-1} S_\mu^\ell \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^{n-2},
+\end{align}
+and
+\begin{align}
+  Q_{\ell mn;\mu}^{(\gamma)}
+  \equiv \gamma_\bmu^* \gamma_\mu P_{\ell mn;\mu}
+  + \p{\gamma_\z^* \gamma_\mu + \gamma_\bmu^* \gamma_\z}
+  K_{\ell mn;\mu}
+  + \gamma_\z^* \gamma_\mu L_{\ell mn;\mu}
+  + \gamma_\bmu^* \gamma_\z M_{\ell mn;\mu},
+  \label{eq:Q_single}
+\end{align}
+we finally have
 \begin{align}
   \D\p{\gamma; S_\mu^\ell S_\z^m S_\bmu^n}
   = \sum_{X\in\set{\z,+,-}} \abs{\gamma_X}^2
   \D\p{\sigma_X; S_\mu^\ell S_\z^m S_\bmu^n}
   + Q_{\ell mn;\mu}^{(\gamma)} + \sp{Q_{nm\ell;\mu}^{(\gamma)}}^\dag.
+\end{align}
+Alternately, we can define
+\begin{align}
+  \gamma_{\z,\mu}^{(\pm)}
+  &\equiv \f12\p{\gamma_\z^* \gamma_\mu \pm \gamma_\bmu^* \gamma_\z},
+  \allowdisplaybreaks \\
+  R_{\ell mn;\mu}
+  &\equiv S_\mu^\ell \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^n,
+  \allowdisplaybreaks \\
+  L_{\ell mn;\mu}^{(\gamma)}
+  &\equiv \mu \gamma_{\z,\mu}^{(+)} S_\mu^{\ell+1}
+  \sp{\p{\mu+S_\z}^m-S_\z^m} S_\bmu^n
+  + 2\mu n \gamma_\bmu^* \gamma_z R_{\ell m,n-1;\mu} \notag \\
+  &\qquad - 2\mu \ell n\p{n-1} \gamma_z^* \gamma_\mu
+  R_{\ell-1,m,n-2;\mu},
+  \allowdisplaybreaks \\
+  M_{\ell mn;\mu}^{(\gamma)}
+  &\equiv 2n \gamma_{\z,\mu}^{(-)} S_\mu^\ell S_\z^{m+1} S_\bmu^{n-1}
+  \notag \\
+  &\qquad - 2\mu n \sp{\p{S-\ell-\f12n+\f12} \gamma_\z^* \gamma_\mu
+    - \f12 \p{n-1} \gamma_{\z,\mu}^{(-)}}
+  S_\mu^\ell S_\z^m S_\bmu^{n-1},
+\end{align}
+in terms of which
+\begin{align}
+  Q_{\ell mn;\mu}^{(\gamma)}
+  &\equiv L_{\ell mn;\mu}^{(\gamma)} + M_{\ell mn;\mu}^{(\gamma)}
+  + \gamma_\bmu^* \gamma_\mu P_{\ell mn;\mu}.
 \end{align}
 
 
