@@ -49,6 +49,12 @@ g_z += 1
 g_p += 1
 g_m += 1
 
+g_mp = np.conj(g_m) * g_p
+g_zp = np.conj(g_z) * g_p
+g_mz = np.conj(g_m) * g_z
+gg_p = ( g_zp + g_mz ) / 2
+gg_m = ( g_zp - g_mz ) / 2
+
 print(g_z, g_p, g_m)
 print()
 
@@ -132,10 +138,43 @@ for l, m, n in itertools.product(range(N), repeat = 3):
                      + gg_L * L(l,m,n,mu)
                      + gg_M * M(l,m,n,mu) )
 
+        def KK(l,m,n,mu):
+            return S_mu**l * (S+mu*S_z) * (-mu+S_z)**m * S_nu**n
+
+        def LL(l,m,n,mu):
+            L = gg_p * S_mu**(l+1) * ((mu+S_z)**m - S_z**m) * S_nu**n
+            if n >= 1:
+                L += 2*n * g_mz * KK(l,m,n-1,mu)
+            if n >= 2 and l >= 1:
+                L += -2*l*n*(n-1) * g_zp * KK(l-1,m,n-2,mu)
+            return L
+
+        def MM(l,m,n,mu):
+            if n == 0: return 0
+            M = gg_m * S_mu**l * S_z**(m+1) * S_nu**(n-1)
+            fac = (S-l-n/2+1/2) * g_zp - 1/2*(n-1) * gg_m
+            M += -mu * fac * S_mu**l * S_z**m * S_nu**(n-1)
+            return M
+
+        def PP(l,m,n,mu):
+            if n == 0: return 0
+            P = S_mu**(l+1) * S_z**m * S_nu**(n-1)
+            if n >= 2:
+                P += -(n-1) * KK(l,m,n-2,mu)
+            return P
+
+        def QQ(l,m,n,mu):
+            return mu * LL(l,m,n,mu) + 2*n * MM(l,m,n,mu) + n * g_mp * PP(l,m,n,mu)
+
         ##############################
 
         b = abs(g_z)**2 * d_z + abs(g_p)**2 * d_p + abs(g_m)**2 * d_m
         b += Q(l,m,n,mu) + Q(n,m,l,mu).dag()
+
+        check(a == b)
+
+        b = abs(g_z)**2 * d_z + abs(g_p)**2 * d_p + abs(g_m)**2 * d_m
+        b += QQ(l,m,n,mu) + QQ(n,m,l,mu).dag()
 
         check(a == b)
 
@@ -156,12 +195,27 @@ for l, m, n in itertools.product(range(N), repeat = 3):
 
         ##############################
 
+        def L(l,m,n,mu):
+            L = mu * ( (l-n+1/2) * gg_p + (l+1/2) * gg_m ) * S_mu**(l+1) * (mu+S_z)**m * S_nu**n
+            L += -mu * ( (l-n+1/2) * gg_p + (n+1/2) * gg_m ) * S_mu**(l+1) * S_z**m * S_nu**n
+            L += gg_m * S_mu**(l+1) * S_z * ( (mu+S_z)**m - S_z**m ) * S_nu**n
+            return L
+
+        def M(l,m,n,mu):
+            if n == 0: return 0
+            M = ( mu * (n-1) * ( (l-n+1/2) * gg_p + (l-1/2) * gg_m )
+                  * S_mu**l * S_z**m * S_nu**(n-1) )
+            M += ( 2 * ( (l-n+1/2) * gg_p + (l+n/2-1) * gg_m )
+                   * S_mu**l * S_z**(m+1) * S_nu**(n-1) )
+
+            M += 2 * mu * gg_m * S_mu**l * S_z**(m+2) * S_nu**(n-1)
+            return M
+
         def P(l,m,n,mu):
             P = -1/2 * S_mu**(l+2) * ( (2*mu+S_z)**m - 2*(mu+S_z)**m + S_z**m ) * S_nu**n
             if n >= 1:
                 P += n * ( S_mu**(l+1)
-                           * ( (n+2*mu*S_z) * (mu+S_z)**m
-                               -(n-1+2*mu*S_z) * S_z**m ) *
+                           * ( (n+2*mu*S_z) * (mu+S_z)**m - (n-1+2*mu*S_z) * S_z**m ) *
                            S_nu**(n-1) )
             if n >= 2:
                 P += -n*(n-1) * ( S_mu**l
@@ -169,33 +223,8 @@ for l, m, n in itertools.product(range(N), repeat = 3):
                                   * S_z**m * S_nu**(n-2) )
             return P
 
-        def L(l,m,n,mu):
-            g_zp = np.conj(g_z) * g_p
-            g_mz = np.conj(g_m) * g_z
-
-            L = ( mu*(2*l-n+1) * g_zp - mu*n * g_mz ) * S_mu**(l+1) * (mu+S_z)**m * S_nu**n
-            L += (g_zp-g_mz) * S_mu**(l+1) * S_z * (mu+S_z)**m * S_nu**n
-
-            L += -( mu*(l+1) * g_zp - mu*(2*n-l) * g_mz ) * S_mu**(l+1) * S_z**m * S_nu**n
-            L += -(g_zp - g_mz) * S_mu**(l+1) * S_z**(m+1) * S_nu**n
-
-            return L
-
-        def M(l,m,n,mu):
-            if n == 0: return 0
-            g_zp = np.conj(g_z) * g_p
-            g_mz = np.conj(g_m) * g_z
-
-            M = ( ( mu*(2*l-n)*(n-1) * g_zp - mu*(n-1)**2 * g_mz )
-                  * S_mu**l * S_z**m * S_nu**(n-1) )
-            M += ( ( (4*l-n-1) * g_zp - 3*(n-1) * g_mz )
-                   * S_mu**l * S_z**(m+1) * S_nu**(n-1) )
-            M += 2*mu * ( g_zp - g_mz ) * S_mu**l * S_z**(m+2) * S_nu**(n-1)
-
-            return M
-
         def Q(l,m,n,mu):
-            return np.conj(g_m) * g_p * P(l,m,n,mu) + 1/2 * L(l,m,n,mu) - 1/2*n * M(l,m,n,mu)
+            return L(l,m,n,mu) - n * M(l,m,n,mu) + np.conj(g_m) * g_p * P(l,m,n,mu)
 
         ##############################
 
