@@ -138,43 +138,10 @@ for l, m, n in itertools.product(range(N), repeat = 3):
                      + gg_L * L(l,m,n,mu)
                      + gg_M * M(l,m,n,mu) )
 
-        def KK(l,m,n,mu):
-            return S_mu**l * (S+mu*S_z) * (-mu+S_z)**m * S_nu**n
-
-        def LL(l,m,n,mu):
-            L = gg_p * S_mu**(l+1) * ((mu+S_z)**m - S_z**m) * S_nu**n
-            if n >= 1:
-                L += 2*n * g_mz * KK(l,m,n-1,mu)
-            if n >= 2 and l >= 1:
-                L += -2*l*n*(n-1) * g_zp * KK(l-1,m,n-2,mu)
-            return L
-
-        def MM(l,m,n,mu):
-            if n == 0: return 0
-            M = gg_m * S_mu**l * S_z**(m+1) * S_nu**(n-1)
-            fac = (S-l-n/2+1/2) * g_zp - 1/2*(n-1) * gg_m
-            M += -mu * fac * S_mu**l * S_z**m * S_nu**(n-1)
-            return M
-
-        def PP(l,m,n,mu):
-            if n == 0: return 0
-            P = S_mu**(l+1) * S_z**m * S_nu**(n-1)
-            if n >= 2:
-                P += -(n-1) * KK(l,m,n-2,mu)
-            return P
-
-        def QQ(l,m,n,mu):
-            return mu * LL(l,m,n,mu) + 2*n * MM(l,m,n,mu) + n * g_mp * PP(l,m,n,mu)
-
         ##############################
 
         b = abs(g_z)**2 * d_z + abs(g_p)**2 * d_p + abs(g_m)**2 * d_m
         b += Q(l,m,n,mu) + Q(n,m,l,mu).dag()
-
-        check(a == b)
-
-        b = abs(g_z)**2 * d_z + abs(g_p)**2 * d_p + abs(g_m)**2 * d_m
-        b += QQ(l,m,n,mu) + QQ(n,m,l,mu).dag()
 
         check(a == b)
 

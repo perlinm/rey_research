@@ -193,35 +193,6 @@ def op_image_single_Q(op, S, mu, dec_vec):
     add_left(image, op_image_single_M(op, S, mu, gg_M))
     return image
 
-# "legacy" methods for computing effects of single-spin decoherence
-def op_image_single_R(op, S, mu, prefactor = 1):
-    return ext_binom_op(*op, -mu, [ S, mu ], prefactor)
-def op_image_single_QQ(op, S, mu, dec_vec):
-    ll, mm, nn = op
-    g_z, g_p, g_m = dec_vec
-    g_mp = np.conj(g_m) * g_p
-    g_zp = np.conj(g_z) * g_p
-    g_mz = np.conj(g_m) * g_z
-    gg_p = ( g_zp + g_mz ) / 2
-    gg_m = ( g_zp - g_mz ) / 2
-
-    image_L = binom_op(ll+1, mm, nn, mu, mu * gg_p)
-    del image_L[(ll+1,mm,nn)]
-    image_L.update(op_image_single_R((ll,mm,nn-1), S, mu, 2*mu*nn * g_mz))
-    image_L.update(op_image_single_R((ll-1,mm,nn-2), S, mu, -2*mu*ll*nn*(nn-1) * g_zp))
-
-    fac = (S-ll-nn/2+1/2) * g_zp - 1/2*(nn-1) * gg_m
-    image_M = { (ll,mm+1,nn-1) : 2*nn * gg_m,
-                (ll,mm,nn-1) : -2*mu*nn * fac }
-
-    image_P = { (ll+1,mm,nn-1) : nn * g_mp }
-    image_P.update(op_image_single_R((ll,mm,nn-2), S, mu, -nn*(nn-1) * g_mp))
-
-    image_Q = image_L
-    add_left(image_Q, image_M)
-    image_Q.update(image_P)
-    return image_Q
-
 # pre-image of a collective spin operator from decoherence
 def op_image_single_decoherence(op, S, dec_vec, mu):
     ll, mm, nn = op
