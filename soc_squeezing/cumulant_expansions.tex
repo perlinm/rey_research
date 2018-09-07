@@ -164,12 +164,12 @@ for
   &&
   r \equiv \gamma_+ \gamma_-,
   &
-  \Gamma \equiv \gamma_z + \lambda,
+  \Gamma \equiv \gamma_\z + \lambda,
   &&
   s_\zeta \equiv \zeta + i\gamma,
 \end{align}
 defined respectively in terms of spontaneous uncorrelated spin
-dephasing, excitation, and decay rates $\gamma_z$, $\gamma_+$,
+dephasing, excitation, and decay rates $\gamma_\z$, $\gamma_+$,
 $\gamma_-$.  The last ingredients we need to compute spin squeezing at
 any time are $\bk{S_\z}$ and $\bk{S_\z^2}$.  As these operators
 commute with the OAT Hamiltonian, their evolution is governed entirely
@@ -921,9 +921,9 @@ The most general type of single-spin decoherence is described by
   &&
   \gamma \equiv \gamma_\z \sigma_\z
   + \gamma_+ \sigma_+ + \gamma_- \sigma_-.
-  \label{eq:D_general_single_start}
+  \label{eq:D_general_single}
 \end{align}
-To simplify \eqref{eq:D_general_single_start}, we expand
+To simplify \eqref{eq:D_general_single}, we expand
 \begin{align}
   \gamma^\dag \O \gamma
   = \abs{\gamma_\z}^2 \sigma_\z \O \sigma_\z
@@ -951,7 +951,6 @@ which implies
   \notag \\
   &\qquad -\f12 \sum_\mu \mu
   \p{\gamma_\z^*\gamma_\mu - \gamma_\bmu^*\gamma_\z} \sp{S_\mu, \O}_+.
-  \label{eq:D_general_single}
 \end{align}
 In order to compute the effect of this decoherence on ordered products
 of collective spin operators, we expand the anti-commutator
@@ -959,54 +958,38 @@ of collective spin operators, we expand the anti-commutator
   \sp{S_\mu, S_\mu^\ell S_\z^m S_\bmu^n}_+
   = S_\mu^{\ell+1} \sp{S_\z^m+\p{\mu+S_\z}^m} S_\bmu^n
   - n S_\mu^\ell \p{n-1+2\mu S_\z} S_\z^m S_\bmu^{n-1}.
-  \label{eq:S_mu_acomm}
 \end{align}
-Recognizing a resemblance between \eqref{eq:S_mu_acomm} and
-\eqref{eq:san_z_mu}, we can collect terms to simplify
+Defining
 \begin{align}
-  \sum_j \sigma_\z^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\mu^{(j)}
-  - \f{\mu}{2} \sp{S_\mu, S_\mu^\ell S_\z^m S_\bmu^n}_+
-  = K_{\ell mn;\mu} + L_{\ell mn;\mu}
-  \label{eq:dec_z_mu}
-\end{align}
-and likewise
-\begin{align}
-  \sum_j \sigma_\mu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\z^{(j)}
-  + \f{\mu}{2} \sp{S_\mu, S_\mu^\ell S_\z^m S_\bmu^n}_+
-  = K_{\ell mn;\mu} + M_{\ell mn;\mu}
-  \label{eq:dec_mu_z}
-\end{align}
-with
-\begin{align}
+  \gamma_{\z,\mu}^{(\pm)}
+  &\equiv \f12\p{\gamma_\z^* \gamma_\mu \pm \gamma_\bmu^* \gamma_\z},
+  \allowdisplaybreaks \\
   K_{\ell mn;\mu}
-  &\equiv \f{\mu}{2} S_\mu^{\ell+1}
-  \sp{\p{\mu+S_\z}^m-S_\z^m} S_\bmu^n \\
-  L_{\ell mn;\mu}
-  &\equiv \mu n S_\mu^\ell \sp{-2S+2\ell+\f32\p{n-1}+\mu S_\z}
-  S_\z^m S_\bmu^{n-1} \notag \\
-  &\qquad - 2\mu\ell n\p{n-1} S_\mu^{\ell-1}
-  \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^{n-2} \\
-  M_{\ell mn;\mu}
-  &\equiv \mu n S_\mu^\ell \sp{2\p{S+\mu S_\z}\p{-\mu+S_\z}^m
-    - \p{\f12\sp{n-1}+\mu S_\z} S_\z^m} S_\bmu^{n-1}.
-\end{align}
-Defining for completion
-\begin{align}
+  &\equiv S_\mu^\ell \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^n,
+  \allowdisplaybreaks \\
+  L_{\ell mn;\mu}^{(\gamma)}
+  &\equiv \gamma_{\z,\mu}^{(+)} S_\mu^{\ell+1}
+  \sp{\p{\mu+S_\z}^m-S_\z^m} S_\bmu^n
+  + 2n \gamma_\bmu^* \gamma_z K_{\ell m,n-1;\mu}
+  - 2\ell n\p{n-1} \gamma_z^* \gamma_\mu K_{\ell-1,m,n-2;\mu},
+  \allowdisplaybreaks \\
+  M_{\ell mn;\mu}^{(\gamma)}
+  &\equiv \gamma_{\z,\mu}^{(-)} S_\mu^\ell
+  S_\z^{m+1} S_\bmu^{n-1}
+  -\mu \sp{\p{S-\ell-\f12n+\f12} \gamma_\z^* \gamma_\mu
+    - \f12 \p{n-1} \gamma_{\z,\mu}^{(-)}}
+  S_\mu^\ell S_\z^m S_\bmu^{n-1},
+  \allowdisplaybreaks \\
   P_{\ell mn;\mu}
-  \equiv \sum_j
-  \sigma_\mu^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\mu^{(j)}
-  = n S_\mu^{\ell+1} S_\z^m S_\bmu^{n-1}
-  - n\p{n-1} S_\mu^\ell \p{S+\mu S_\z} \p{-\mu+S_\z}^m S_\bmu^{n-2},
-\end{align}
-and
-\begin{align}
+  &\equiv S_\mu^{\ell+1} S_\z^m S_\bmu^{n-1}
+  - \p{n-1} K_{\ell m,n-2;\mu},
+  \allowdisplaybreaks \\
   Q_{\ell mn;\mu}^{(\gamma)}
-  \equiv \gamma_\bmu^* \gamma_\mu P_{\ell mn;\mu}
-  + \p{\gamma_\z^* \gamma_\mu + \gamma_\bmu^* \gamma_\z} K_{\ell mn;\mu}
-  + \gamma_\z^* \gamma_\mu L_{\ell mn;\mu}
-  + \gamma_\bmu^* \gamma_\z M_{\ell mn;\mu},
+  &\equiv \mu L_{\ell mn;\mu}^{(\gamma)}
+  + 2 n M_{\ell mn;\mu}^{(\gamma)}
+  + n \gamma_\bmu^* \gamma_\mu P_{\ell mn;\mu},
 \end{align}
-we finally have
+we then have
 \begin{align}
   \D\p{\gamma; S_\mu^\ell S_\z^m S_\bmu^n}
   = \sum_{X\in\set{\z,+,-}} \abs{\gamma_X}^2
@@ -1132,6 +1115,7 @@ dephasing is given by
   = -\f12 \p{\ell-n}^2 S_\mu^\ell S_\z^m S_\bmu^n.
 \end{align}
 
+
 \subsection{The general case}
 \label{sec:general_collective}
 
@@ -1154,8 +1138,8 @@ and
   \Gamma^\dag \Gamma
   = \abs{\Gamma_\z}^2 S_\z^2
   + \sum_\mu \p{\abs{\Gamma_\mu}^2 S_\bmu S_\mu
-    + \Gamma_z^*\Gamma_\mu S_\z S_\mu
-    + \Gamma_\bmu^* \Gamma_z S_\mu S_\z
+    + \Gamma_\z^*\Gamma_\mu S_\z S_\mu
+    + \Gamma_\bmu^* \Gamma_\z S_\mu S_\z
     + \Gamma_\bmu^* \Gamma_\mu S_\mu^2},
 \end{align}
 which implies
@@ -1167,9 +1151,8 @@ which implies
     + \Gamma_\bmu^* \Gamma_\z S_\mu \O S_\z}
   \notag \\
   &\qquad -\f12 \sum_\mu\p{\Gamma_\bmu^* \Gamma_\mu \sp{S_\mu^2, \O}_+
-    + \Gamma_z^*\Gamma_\mu \sp{S_\z S_\mu, \O}_+
-    + \Gamma_\bmu^* \Gamma_z \sp{S_\mu S_\z, \O}_+}.
-  \label{eq:D_general_collective}
+    + \Gamma_\z^*\Gamma_\mu \sp{S_\z S_\mu, \O}_+
+    + \Gamma_\bmu^* \Gamma_\z \sp{S_\mu S_\z, \O}_+}.
 \end{align}
 In order to compute the effect of this decoherence on ordered products
 of collective spin operators, we expand the anti-commutators
@@ -1193,8 +1176,30 @@ of collective spin operators, we expand the anti-commutators
   &\qquad - n S_\mu^\ell \sp{\mu\p{n-1}^2
     + 3\p{n-1} S_\z + 2\mu S_\z^2} S_\z^m S_\bmu^{n-1}.
 \end{align}
-We can now define
+Defining
 \begin{align}
+  \Gamma_{\z,\mu}^{(\pm)}
+  &\equiv \f12\p{\Gamma_\z^* \Gamma_\mu \pm \Gamma_\bmu^* \Gamma_\z},
+  \allowdisplaybreaks \\
+  \tilde L_{\ell mn;\mu}^{(\Gamma)}
+  &\equiv \mu \sp{\p{\ell-n+\f12} \Gamma_{\z,\mu}^{(+)}
+    + \p{\ell+\f12} \Gamma_{\z,\mu}^{(-)}}
+  S_\mu^{\ell+1} \p{\mu+S_\z}^m S_\bmu^n \notag \\
+  &\qquad -\mu \sp{\p{\ell-n+\f12} \Gamma_{\z,\mu}^{(+)}
+    + \p{n+\f12} \Gamma_{\z,\mu}^{(-)}}
+  S_\mu^{\ell+1} S_\z^m S_\bmu^n \notag \\
+  &\qquad + \Gamma_{\z,\mu}^{(-)}
+  S_\mu^{\ell+1} S_\z \sp{\p{\mu+S_\z}^m - S_\z^m} S_\bmu^n,
+  \allowdisplaybreaks \\
+  \tilde M_{\ell mn;\mu}^{(\Gamma)}
+  &= \mu \p{n-1} \sp{\p{\ell-n+\f12} \Gamma_{\z,\mu}^{(+)}
+    + \p{\ell-\f12} \Gamma_{\z,\mu}^{(-)}}
+  S_\mu^\ell S_\z^m S_\bmu^{n-1} \notag \\
+  &\qquad + 2 \sp{\p{\ell-n+\f12} \Gamma_{\z,\mu}^{(+)}
+    + \p{\ell+\f12n-1} \Gamma_{\z,\mu}^{(-)}}
+  S_\mu^\ell S_\z^{m+1} S_\bmu^{n-1} \notag \\
+  &\qquad + 2\mu \Gamma_{\z,\mu}^{(-)} S_\mu^\ell S_\z^{m+2} S_\bmu^{n-1},
+  \allowdisplaybreaks \\
   \tilde P_{\ell mn;\mu}
   &\equiv -\f12 S_\mu^{\ell+2}
   \sp{\p{2\mu+S_\z}^m - 2\p{\mu+S_\z}^m + S_\z^m} S_\bmu^n \notag \\
@@ -1204,34 +1209,12 @@ We can now define
   \sp{\f12\p{n-1}\p{n-2} + \mu\p{2n-3} S_\z + 2 S_\z^2}
   S_\z^m S_\bmu^{n-2},
   \allowdisplaybreaks \\
-  \tilde L_{\ell mn;\mu}^{(\Gamma)}
-  &\equiv \sp{\mu \p{2\ell-n+1} \Gamma_z^* \Gamma_\mu
-    - \mu n \Gamma_\bmu^*\Gamma_z}
-  S_\mu^{\ell+1} \p{\mu+S_\z}^m S_\bmu^n \notag \\
-  &\qquad + \p{\Gamma_z^* \Gamma_\mu - \Gamma_\bmu^*\Gamma_z}
-  S_\mu^{\ell+1} S_\z \p{\mu+S_\z}^m S_\bmu^n \notag \\
-  &\qquad - \sp{\mu\p{\ell+1} \Gamma_z^* \Gamma_\mu
-    - \mu\p{2n-\ell} \Gamma_\bmu^* \Gamma_z}
-  S_\mu^{\ell+1} S_\z^m S_\bmu^n \notag \\
-  &\qquad - \p{\Gamma_z^* \Gamma_\mu - \Gamma_\bmu^*\Gamma_z}
-  S_\mu^{\ell+1} S_\z^{m+1} S_\bmu^n,
-  \allowdisplaybreaks \\
-  \tilde M_{\ell mn;\mu}^{(\Gamma)}
-  &= \sp{\mu\p{2\ell-n}\p{n-1} \Gamma_z^* \Gamma_\mu
-    - \mu\p{n-1}^2 \Gamma_\bmu^* \Gamma_z}
-  S_\mu^\ell S_\z^m S_\bmu^{n-1} \notag \\
-  &\qquad + \sp{\p{4\ell-n-1} \Gamma_z^* \Gamma_\mu
-    - 3\p{n-1} \Gamma_\bmu^* \Gamma_z}
-  S_\mu^\ell S_\z^{m+1} S_\bmu^{n-1} \notag \\
-  &\qquad +2\mu \p{\Gamma_z^* \Gamma_\mu - \Gamma_\bmu^* \Gamma_z}
-  S_\mu^\ell S_\z^{m+2} S_\bmu^{n-1},
-  \allowdisplaybreaks \\
   \tilde Q_{\ell mn;\mu}^{(\Gamma)}
-  &\equiv \Gamma_\bmu^* \Gamma_\mu \tilde P_{\ell mn;\mu}
-  + \f12 \tilde L_{\ell mn;\mu}^{(\Gamma)}
-  - \f12 n \tilde M_{\ell mn;\mu}^{(\Gamma)},
+  &\equiv \tilde L_{\ell mn;\mu}^{(\Gamma)}
+  - n \tilde M_{\ell mn;\mu}^{(\Gamma)}
+  + \Gamma_\bmu^* \Gamma_\mu \tilde P_{\ell mn;\mu},
 \end{align}
-in terms of which
+we then have
 \begin{align}
   \D\p{\Gamma; S_\mu^\ell S_\z^m S_\bmu^n}
   = \sum_{X\in\set{\z,+,-}} \abs{\Gamma_X}^2
