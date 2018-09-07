@@ -245,12 +245,12 @@ def op_image_coherent(op, h_vals, mu):
 # compute pre-image of a single operator from infinitesimal time evolution
 def op_image(op, h_vals, S, dec_rates, dec_mat, mu):
     image = op_image_coherent(op, h_vals, mu)
-    for vec in dec_mat:
-        vec = np.array(vec)
-        if vec is not np.zeros(3):
-            dec_vec = vec * np.sqrt(np.array(dec_rates))
-            dec_vec[0] /= np.sqrt(2)
-            add_left(image, op_image_decoherence(op, S, dec_vec, mu))
+    for jj in range(3):
+        if dec_rates[jj] == 0: continue
+
+        dec_vec = dec_rates[jj] * dec_mat[:,jj]
+        if jj == 0: dec_vec /= np.sqrt(2)
+        add_left(image, op_image_decoherence(op, S, dec_vec, mu))
 
     null_keys = [ key for key in image.keys() if abs(image[key]) == 0 ]
     for key in null_keys: del image[key]
