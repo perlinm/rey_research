@@ -22,23 +22,20 @@ def ln_factorial(n): return lgamma(n+1)
 def op_val_pX(total_spin, op, mu):
     ll, mm, nn = op
     if ll == 0 and nn == 0 and mm % 2 == 1: return 0
+    if max(ll,nn) > 2*total_spin + 1: return 0
 
-    if mu == 1:
-        k_vals = np.arange(-total_spin,total_spin-max(ll,nn)+1)
-    else: # mu == -1
-        k_vals = np.arange(-total_spin+max(ll,nn),total_spin+1)
-    if k_vals.size == 0: return 0
+    k_vals = np.arange(-total_spin+max(ll,nn),total_spin+1)
 
     ln_prefactor = ln_factorial(2*total_spin) - 2*total_spin*np.log(2)
     def ln_factors(kk,ll,nn):
-        ln_numerator = ln_factorial(total_spin - mu*kk)
-        ln_denominator = ( ln_factorial(total_spin + mu*kk)
-                           + ln_factorial(total_spin - mu*kk - ll)
-                           + ln_factorial(total_spin - mu*kk - nn) )
+        ln_numerator = ln_factorial(total_spin + kk)
+        ln_denominator = ( ln_factorial(total_spin - kk)
+                           + ln_factorial(total_spin + kk - ll)
+                           + ln_factorial(total_spin + kk - nn) )
         return ln_numerator - ln_denominator
-    ln_factors = np.vectorize(ln_factors)
 
-    return np.sum(k_vals**mm * np.exp(ln_factors(k_vals,ll,nn) + ln_prefactor))
+    terms = k_vals**mm * np.exp(np.vectorize(ln_factors)(k_vals,ll,nn) + ln_prefactor)
+    return (-mu)**mm * terms.sum()
 
 # correlator < -Z | S_\mu^ll S_\z^mm S_\nu^nn | -Z >
 def op_val_nZ(total_spin, op, mu = None):
