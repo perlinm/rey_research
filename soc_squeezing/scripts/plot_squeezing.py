@@ -27,20 +27,18 @@ fig_dir = "../figures/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
-colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
-
 
 ##########################################################################################
 # simulation options
 ##########################################################################################
 
-L = [30,30] # lattice sites
-U_J_target = 5 # target value of U_int / J_0
+L = 100 # lattice sites
+U_J_target = 2 # target value of U_int / J_0
 h_U_target = 0.05 # target value of h_std / U_int
 excited_lifetime_SI = 10 # seconds; lifetime of excited state (from e --> g decay)
 
 site_number = 100 # number of sites in lattice calculations
-confining_depth = 200 # lattice depth along confining axis
+confining_depth = 100 # lattice depth along confining axis
 lattice_depth_bounds = (1,15) # min / max lattice depths we will allow
 
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
@@ -114,8 +112,8 @@ def to_dB(x): return 10*np.log10(x)
 
 # determine excited-state decay rate in units of the OAT strength
 decay_rate_LU = 1/excited_lifetime_SI / recoil_energy_NU
-decay_rate_over_chi = decay_rate_LU / chi
-dec_rates = (0,0,decay_rate_over_chi)
+decay_rate = decay_rate_LU / chi
+dec_rates = [ (0, 0, decay_rate), (0, 0, 0) ]
 
 # determine simulation times and the size of a single time step
 tau_vals = np.linspace(0, max_tau, time_steps)
@@ -199,11 +197,11 @@ for h_TAT in [ h_TAT_zy, h_TAT_yx ]:
         h_TAT[key] /= 3
 
 correlators_TVF_D \
-    = compute_correlators(N, chi_times, h_TVF, dec_rates, "+X", order_cap)
+    = compute_correlators(N, order_cap, chi_times, "+X", h_TVF, dec_rates)
 correlators_TAT_zy_D \
-    = compute_correlators(N, chi_times, h_TAT_zy, dec_rates, "+X", order_cap)
+    = compute_correlators(N, order_cap, chi_times, "+X", h_TAT_zy, dec_rates)
 correlators_TAT_yx_D \
-    = compute_correlators(N, chi_times, h_TAT_yx, dec_rates, "-Z", order_cap)
+    = compute_correlators(N, order_cap, chi_times, "-Z", h_TAT_yx, dec_rates)
 
 sqz_TVF_D = squeezing_from_correlators(N, correlators_TVF_D)
 sqz_TAT_zy_D = squeezing_from_correlators(N, correlators_TAT_zy_D)
@@ -291,5 +289,7 @@ plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
 plt.legend(loc = "best")
 plt.tight_layout()
 
-if save: plt.savefig(fig_dir + "squeezing_N{}_U{}.pdf".format(N, U_J_target))
+L = np.array(L, ndmin = 1)
+dim_text = "x".join([f"{L[jj]}" for jj in range(len(L))])
+if save: plt.savefig(fig_dir + "squeezing_L{}_U{}.pdf".format(dim_text, U_J_target))
 if show: plt.show()
