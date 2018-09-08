@@ -51,6 +51,12 @@ def op_val_nZ(total_spin, op, mu = None):
 # machinery for manipulating operator vectors
 ##########################################################################################
 
+# clean up a dictionary vector
+def clean(vec):
+    null_keys = [ key for key in vec.keys() if abs(vec[key]) == 0 ]
+    for key in null_keys: del vec[key]
+    return vec
+
 # take hermitian conjugate of a dictionary taking operator --> value,
 #   i.e. return a dictionary taking operator* --> value*
 def conj_op_vec(op_vec):
@@ -110,7 +116,7 @@ def xi(mm,nn,pp,qq):
 def multiply_terms(op_left, op_right, mu, prefactor = 1):
     pp, qq, rr = op_left
     ll, mm, nn = op_right
-    term = {}
+    vec = {}
     for kk in range(min(rr,ll)+1):
         kk_fac = factorial(kk) * binom(rr,kk) * binom(ll,kk)
         for aa in range(kk+1):
@@ -121,10 +127,10 @@ def multiply_terms(op_left, op_right, mu, prefactor = 1):
                     kabc_fac = kab_fac * (rr-kk)**(mm-cc) * binom(mm,cc)
                     kabc_sign = mu**(qq+mm+aa-bb-cc)
                     op_in = (pp+ll-kk, aa+bb+cc, rr+nn-kk)
-                    try: term[op_in]
-                    except: term[op_in] = 0
-                    term[op_in] += kabc_sign * kabc_fac * prefactor
-    return term
+                    try: vec[op_in]
+                    except: vec[op_in] = 0
+                    vec[op_in] += kabc_sign * kabc_fac * prefactor
+    return clean(vec)
 
 # simplify product of two vectors
 def multiply_vecs(vec_left, vec_right, mu, prefactor = 1):
@@ -135,13 +141,6 @@ def multiply_vecs(vec_left, vec_right, mu, prefactor = 1):
             add_left(vec, multiply_terms(term_left, term_right, mu, fac))
     return vec
 
-# clean up a dictionary vector
-def clean_vec(vec):
-    null_keys = [ key for key in vec.keys() if abs(vec[key]) == 0 ]
-    for key in null_keys: del vec[key]
-    # overflow_keys = [ key for key in image.keys() if key[0] > 2*S+1 or key[2] > 2*S+1 ]
-    # for key in overflow_keys: del image[key]
-    return vec
 
 ##########################################################################################
 # miscellaneous methods for changing frames and operator vectors
@@ -172,12 +171,12 @@ def convert_zxy(vec_zxy, mu = 1):
         lmn_fac = (1j*mu)**nn / 2**(mm+nn) * vec_zxy[op_zxy]
         # starting from the left, successively multiply all factors on the right
         lmn_vec = { (0,ll,0) : 1 }
-        for jj in range(mm):
-            lmn_vec = multiply_vecs(lmn_vec, Sx_2, mu)
-        for kk in range(nn):
-            lmn_vec = multiply_vecs(lmn_vec, Sy_ni2, mu)
+        for jj in range(mm): lmn_vec = multiply_vecs(lmn_vec, Sx_2, mu)
+        for kk in range(nn): lmn_vec = multiply_vecs(lmn_vec, Sy_ni2, mu)
         add_left(vec, lmn_vec, lmn_fac)
-    return clean_vec(vec)
+    if np.array([ np.imag(val) == 0 for val in vec.values() ]).all():
+        vec = { key : np.real(vec[key]) for key in vec.keys() }
+    return clean(vec)
 
 
 ##########################################################################################
@@ -350,10 +349,8 @@ def op_image_decoherence_Q_collective(op, S, dec_vec, mu):
 # compute image of a single operator from decoherence
 def op_image_decoherence(op, S, dec_vec_g, dec_vec_G, mu):
     image = {}
-
     image = sum_vecs(op_image_decoherence_diag_individual(op, S, dec_vec_g, mu),
                      op_image_decoherence_diag_collective(op, S, dec_vec_G, mu))
-
     for image_Q, dec_vec in [ ( op_image_decoherence_Q_individual, dec_vec_g ),
                               ( op_image_decoherence_Q_collective, dec_vec_G ) ]:
         Q_lmn = image_Q(op, S, dec_vec, mu)
@@ -363,28 +360,26 @@ def op_image_decoherence(op, S, dec_vec_g, dec_vec_G, mu):
             Q_nml = image_Q(op[::-1], S, dec_vec, mu)
         add_left(image, Q_lmn)
         add_left(image, conj_op_vec(Q_nml))
-
     return image
 
 # compute image of a single operator from coherent evolution
-def op_image_coherent(op, h_vals, mu):
+def op_image_coherent(op, h_vec, mu):
     if op == (0,0,0): return {}
     image = {}
-    for h_op in h_vals.keys():
-        prefactor = 1j * h_vals[h_op]
-        add_left(image, multiply_terms(h_op, op, mu), +prefactor)
-        add_left(image, multiply_terms(op, h_op, mu), -prefactor)
+    for h_op in h_vec.keys():
+        add_left(image, multiply_terms(h_op, op, mu), +1j*h_vec[h_op])
+        add_left(image, multiply_terms(op, h_op, mu), -1j*h_vec[h_op])
     return image
 
 # full image of a single operator under the time derivative operator
-def op_image(op, h_vals, S, dec_rates, dec_mat, mu):
-    image = op_image_coherent(op, h_vals, mu)
+def op_image(op, h_vec, S, dec_rates, dec_mat, mu):
+    image = op_image_coherent(op, h_vec, mu)
     for jj in range(3):
         dec_vec_g = dec_mat[:,jj] * np.sqrt(dec_rates[0][jj])
         dec_vec_G = dec_mat[:,jj] * np.sqrt(dec_rates[1][jj])
         if jj == 0: dec_vec_g /= np.sqrt(2)
         add_left(image, op_image_decoherence(op, S, dec_vec_g, dec_vec_G, mu))
-    return clean_vec(image)
+    return clean(image)
 
 # compute time derivative of a given vector of spin operators
 def compute_time_derivative(diff_op, input_vector, op_image_args):
@@ -399,7 +394,7 @@ def compute_time_derivative(diff_op, input_vector, op_image_args):
             if input_op[0] != input_op[-1]:
                 diff_op[input_op[::-1]] = conj_op_vec(diff_op[input_op])
         add_left(output_vector, diff_op[input_op], input_vector[input_op])
-    return clean_vec(output_vector)
+    return clean(output_vector)
 
 
 ##########################################################################################
@@ -407,7 +402,7 @@ def compute_time_derivative(diff_op, input_vector, op_image_args):
 ##########################################################################################
 
 # return correlators from evolution under a general Hamiltonian
-def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vals, dec_rates,
+def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, dec_rates,
                         dec_mat = None, init_vals_pX = {}, init_vals_nZ = {}, mu = 1):
     assert(mu in [+1,-1])
     assert(initial_state in [ "+X", "-Z" ])
@@ -424,7 +419,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vals, d
     squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 
     # arguments for computing operator pre-image under infinitesimal time translation
-    op_image_args = ( h_vals, spin_num/2, dec_rates, dec_mat, mu )
+    op_image_args = ( h_vec, spin_num/2, dec_rates, dec_mat, mu )
 
     diff_op = {} # generator of time translations
     time_derivatives = {} # [ sqz_op ][ derivative_order ][ operator ] --> value
@@ -432,8 +427,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vals, d
         time_derivatives[sqz_op] = { 0 : { sqz_op : 1 } }
         for order in range(1,order_cap):
             time_derivatives[sqz_op][order] \
-                = compute_time_derivative(diff_op,
-                                          time_derivatives[sqz_op][order-1],
+                = compute_time_derivative(diff_op, time_derivatives[sqz_op][order-1],
                                           op_image_args)
 
     # compute initial values of relevant operators
