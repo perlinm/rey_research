@@ -64,22 +64,22 @@ def xi(mm,nn,pp,qq):
 
 # simplify product of two operators
 def simplify_term(op_left, op_right, mu, prefactor = 1):
-    pp, aa, qq = op_left
-    rr, bb, ss = op_right
+    pp, qq, rr = op_left
+    ll, mm, nn = op_right
     term = {}
-    for kk in range(min(qq,rr)+1):
-        kk_fac = factorial(kk) * binom(qq,kk) * binom(rr,kk)
-        for ll in range(kk+1):
-            kl_fac = kk_fac * (-1)**ll * xi(qq,rr,kk,ll)
-            for mm in range(aa+1):
-                klm_fac = kl_fac * (rr-kk)**(aa-mm) * binom(aa,mm)
-                for nn in range(bb+1):
-                    klmn_fac = klm_fac * (qq-kk)**(bb-nn) * binom(bb,nn)
-                    klmn_sign = mu**(aa+bb+ll-mm-nn)
-                    op_in = (pp+rr-kk, ll+mm+nn, qq+ss-kk)
+    for kk in range(min(rr,ll)+1):
+        kk_fac = factorial(kk) * binom(rr,kk) * binom(ll,kk)
+        for aa in range(kk+1):
+            ka_fac = kk_fac * (-1)**aa * xi(rr,ll,kk,aa)
+            for bb in range(qq+1):
+                kab_fac = ka_fac * (ll-kk)**(qq-bb) * binom(qq,bb)
+                for cc in range(mm+1):
+                    kabc_fac = kab_fac * (rr-kk)**(mm-cc) * binom(mm,cc)
+                    kabc_sign = mu**(qq+mm+aa-bb-cc)
+                    op_in = (pp+ll-kk, aa+bb+cc, rr+nn-kk)
                     try: term[op_in]
                     except: term[op_in] = 0
-                    term[op_in] += klmn_sign * klmn_fac * prefactor
+                    term[op_in] += kabc_sign * kabc_fac * prefactor
     return term
 
 

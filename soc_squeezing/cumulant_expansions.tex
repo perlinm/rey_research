@@ -214,11 +214,12 @@ simulations of few-spin systems.
 
 All collective spin Hamiltonians can be written in the form
 \begin{align}
-  H = \sum_{p,q,r} h_{pqr} S_+^p S_\z^q S_-^r,
+  H = \sum_{\ell,m,n} h_{\ell mn} S_+^\ell S_\z^m S_-^n,
   \label{eq:H_general}
 \end{align}
-where Hermiticity requires that $h_{pqr}=h_{rqp}$.  The Hamiltonian
-for one-axis twisting with a transverse field, for example, is
+where Hermiticity requires that $h_{\ell mn}=h_{nm\ell}$.  The
+Hamiltonian for one-axis twisting with a transverse field, for
+example, is
 \begin{align}
   H_{\t{TVF}}
   = \chi S_\z^2 + \Omega S_\x
@@ -715,25 +716,26 @@ If all collective spin operators are written in the form
 $S_\mu^\ell S_\z^m S_\bmu^n$ for $\bmu\equiv-\mu\in\set{+1,-1}$, then
 the most general (anti-)commutator we need to consider is
 \begin{align}
-  \sp{S_\mu^p S_\z^a S_\bmu^q, S_\mu^r S_\z^b S_\bmu^s}_\pm
-  = \S^{paq}_{rbs;\mu} \pm \S^{rbs}_{paq;\mu},
+  \sp{S_\mu^p S_\z^q S_\bmu^r, S_\mu^\ell S_\z^m S_\bmu^n}_\pm
+  = \S^{pqr}_{\ell mn;\mu} \pm \S^{\ell mn}_{pqr;\mu},
 \end{align}
 where
 \begin{align}
-  \S^{paq}_{rbs;\mu}
-  \equiv S_\mu^p S_\z^a S_\bmu^q S_\mu^r S_\z^b S_\bmu^s
-  = \sum_{k=0}^{\min\set{q,r}} k! { q \choose k } { r \choose k }
-  S_\mu^{p+r-k} \tilde Z_{qrab;\mu}^{(k)} S_\bmu^{q+s-k},
+  \S^{pqr}_{\ell mn;\mu}
+  \equiv S_\mu^p S_\z^q S_\bmu^r S_\mu^\ell S_\z^m S_\bmu^n
+  = \sum_{k=0}^{\min\set{r,\ell}} k! { r \choose k } { \ell \choose k }
+  S_\mu^{p+\ell-k} \tilde Z_{qr\ell m;\mu}^{(k)} S_\bmu^{r+n-k},
 \end{align}
-and, in terms of $\xi_{qrk}^{(\ell)}$ as defined in \eqref{eq:xi_mnp},
+and, in terms of $\xi_{r\ell k}^{(a)}$ as defined in
+\eqref{eq:xi_mnp},
 \begin{align}
-  \tilde Z_{qrab;\mu}^{(k)}
-  &\equiv \p{\mu\sp{r-k}+S_\z}^a
-  Z_{qr;\bmu}^{(k)} \p{\mu\sp{q-k}+S_\z}^b \\
-  &= \sum_{\ell=0}^k \p{-1}^\ell \xi_{qrk}^{(\ell)}
-  \sum_{m=0}^a \p{r-k}^{a-m} { a \choose m }
-  \sum_{n=0}^b \p{q-k}^{b-n} { b \choose n }
-  \mu^{a+b+\ell-m-n} S_\z^{\ell+m+n}.
+  \tilde Z_{qr\ell m;\mu}^{(k)}
+  &\equiv \p{\mu\sp{\ell-k}+S_\z}^q
+  Z_{r\ell;\bmu}^{(k)} \p{\mu\sp{r-k}+S_\z}^m \\
+  &= \sum_{a=0}^k \p{-1}^a \xi_{r\ell k}^{(a)}
+  \sum_{b=0}^q \p{\ell-k}^{q-b} { q \choose b }
+  \sum_{c=0}^m \p{r-k}^{m-c} { m \choose c }
+  \mu^{q+m+a-b-c} S_\z^{a+b+c}.
 \end{align}
 
 
@@ -782,11 +784,11 @@ and
   = \p{S-\mu S_\z} \p{\mu+S_\z}^m.
 \end{align}
 We are now equipped to derive similar identities for general ordered
-products of collective spin operators.  Making heavy use of identities
-\eqref{eq:push_z_mu_sS} and \eqref{eq:push_mu_Ss} to push single-spin
-operators through transverse collective-spin operators, we work
-through all combinations that are unique up to Hermitian conjugation,
-finding
+products of collective spin operators.  Making (heavy) use of
+identities \eqref{eq:push_z_mu_sS} and \eqref{eq:push_mu_Ss} to push
+single-spin operators through transverse collective-spin operators, we
+work through all combinations that are unique up to Hermitian
+conjugation, finding
 \begin{align}
   \sum_j \sigma_\z^{(j)} S_\mu^\ell S_\z^m S_\bmu^n \sigma_\z^{(j)}
   &= 2\p{S-\ell-n} S_\mu^\ell S_\z^m S_\bmu^n
