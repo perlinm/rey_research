@@ -13,7 +13,7 @@ from fermi_hubbard_methods import sum, prod, get_simulation_parameters, spatial_
     get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, gauged_energy, hamiltonians
 from squeezing_methods import spin_squeezing, squeezing_from_correlators, squeezing_OAT, \
      evolve, val
-from correlator_methods import compute_correlators
+from correlator_methods import compute_correlators, dec_mat_drive, convert_zxy
 
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 
@@ -177,32 +177,39 @@ print()
 print("t_opt_OAT_D (sec):", t_opt_OAT_D / recoil_energy_NU)
 print("sqz_opt_OAT_D (dB):", sqz_OAT_D.max())
 
-h_OAT = { (0,2,0) : 1 }
+# construct Hamiltonians, first in (z,x,y) format
+h_OAT = { (2,0,0) : 1 }
+h_TVF = { (2,0,0) : 1,
+          (0,1,0) : drive_TVF }
+h_TAT_zy = { (2,0,0) :  1,
+             (0,0,2) : -1 }
+h_TAT_yx = { (0,0,2) :  1,
+             (0,2,0) : -1 }
 
-h_TVF = { (0,2,0) : 1,
-          (1,0,0) : drive_TVF / 2,
-          (0,0,1) : drive_TVF / 2, }
-
-h_TAT_zy = { (0,2,0): 1,
-             (2,0,0): 1/4,
-             (0,0,2): 1/4,
-             (1,0,1): -1/2,
-             (0,1,0): 1/2 }
-
-h_TAT_yx = { (2,0,0): -1/2,
-             (0,0,2): -1/2 }
-
+# divide through TAT Hamiltonians by 1/3
 for h_TAT in [ h_TAT_zy, h_TAT_yx ]:
     for key in h_TAT.keys():
         h_TAT[key] /= 3
 
-correlators_TVF_D \
-    = compute_correlators(N, order_cap, chi_times, "+X", h_TVF, dec_rates)
-correlators_TAT_zy_D \
-    = compute_correlators(N, order_cap, chi_times, "+X", h_TAT_zy, dec_rates)
-correlators_TAT_yx_D \
-    = compute_correlators(N, order_cap, chi_times, "-Z", h_TAT_yx, dec_rates)
+# convert Hamiltonians to (+,z,-) format
+h_OAT = convert_zxy(h_OAT)
+h_TVF = convert_zxy(h_TVF)
+h_TAT_zy = convert_zxy(h_TAT_zy)
+h_TAT_yx = convert_zxy(h_TAT_yx)
 
+# construct spin vector transformation matrices for periodically driven protocols
+dec_mat_TAT_zy = dec_mat_drive(1/3)
+dec_mat_TAT_yx = dec_mat_drive(-1/3)
+
+# compute correlators for all protocols
+correlators_TVF_D = compute_correlators(N, order_cap, chi_times, "+X",
+                                        h_TVF, dec_rates)
+correlators_TAT_zy_D = compute_correlators(N, order_cap, chi_times, "+X",
+                                           h_TAT_zy, dec_rates, dec_mat_TAT_zy)
+correlators_TAT_yx_D = compute_correlators(N, order_cap, chi_times, "-Z",
+                                           h_TAT_yx, dec_rates, dec_mat_TAT_yx)
+
+# compute squeezing from correlators
 sqz_TVF_D = squeezing_from_correlators(N, correlators_TVF_D)
 sqz_TAT_zy_D = squeezing_from_correlators(N, correlators_TAT_zy_D)
 sqz_TAT_yx_D = squeezing_from_correlators(N, correlators_TAT_yx_D)

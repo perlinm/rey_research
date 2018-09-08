@@ -12,13 +12,13 @@ from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 
 
 ##########################################################################################
-# initial conditions
+# expectation values
 ##########################################################################################
 
 # natural logarithm of factorial
 def ln_factorial(n): return lgamma(n+1)
 
-# correlator < +X | S_\mu^ll S_\z^mm S_\bmu^nn | +X >
+# correlator < +X | S_\mu^ll S_\z^mm S_\nu^nn | +X >
 def op_val_pX(total_spin, op, mu):
     ll, mm, nn = op
     if ll == 0 and nn == 0 and mm % 2 == 1: return 0
@@ -40,7 +40,7 @@ def op_val_pX(total_spin, op, mu):
 
     return np.sum(k_vals**mm * np.exp(ln_factors(k_vals,ll,nn) + ln_prefactor))
 
-# correlator < -Z | S_\mu^ll S_\z^mm S_\bmu^nn | -Z >
+# correlator < -Z | S_\mu^ll S_\z^mm S_\nu^nn | -Z >
 def op_val_nZ(total_spin, op, mu = None):
     ll, mm, nn = op
     if ll != 0 or nn != 0: return 0
@@ -48,43 +48,7 @@ def op_val_nZ(total_spin, op, mu = None):
 
 
 ##########################################################################################
-# general commutator between ordered products of collective spin operators
-##########################################################################################
-
-# unsigned stirling number of the first kind
-def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = True))
-
-# collective spin operator commutator coefficients (see notes)
-def epsilon(mm,nn,pp,ll):
-    return 2**ll * sum([ stirling(pp,qq) * binom(qq,ll) * (mm-nn)**(qq-ll)
-                         for qq in range(ll,pp+1) ])
-def xi(mm,nn,pp,qq):
-    return sum([ (-1)**(ll-qq) * epsilon(mm,nn,pp,ll) * binom(ll,qq) * (mm-pp)**(ll-qq)
-                 for ll in range(qq,pp+1) ])
-
-# simplify product of two operators
-def simplify_term(op_left, op_right, mu, prefactor = 1):
-    pp, qq, rr = op_left
-    ll, mm, nn = op_right
-    term = {}
-    for kk in range(min(rr,ll)+1):
-        kk_fac = factorial(kk) * binom(rr,kk) * binom(ll,kk)
-        for aa in range(kk+1):
-            ka_fac = kk_fac * (-1)**aa * xi(rr,ll,kk,aa)
-            for bb in range(qq+1):
-                kab_fac = ka_fac * (ll-kk)**(qq-bb) * binom(qq,bb)
-                for cc in range(mm+1):
-                    kabc_fac = kab_fac * (rr-kk)**(mm-cc) * binom(mm,cc)
-                    kabc_sign = mu**(qq+mm+aa-bb-cc)
-                    op_in = (pp+ll-kk, aa+bb+cc, rr+nn-kk)
-                    try: term[op_in]
-                    except: term[op_in] = 0
-                    term[op_in] += kabc_sign * kabc_fac * prefactor
-    return term
-
-
-##########################################################################################
-# machinery for decoherence codes
+# machinery for manipulating operator vectors
 ##########################################################################################
 
 # take hermitian conjugate of a dictionary taking operator --> value,
@@ -107,12 +71,12 @@ def sum_vecs(*vecs):
         add_left(vec_sum, vec)
     return vec_sum
 
-# return vector S_\mu^ll (x + S_\z)^mm * S_\bmu^nn
+# return vector S_\mu^ll (x + S_\z)^mm * S_\nu^nn
 def binom_op(ll, mm, nn, x, prefactor = 1):
     return { (ll,kk,nn) : prefactor * x**(mm-kk) * binom(mm,kk) for kk in range(mm+1) }
 
-# takes S_\mu^ll S_\z^mm S_\bmu^nn
-#   --> S_\mu^ll ( \sum_jj x_jj S_\z^jj ) S_\z^mm + S_\bmu^nn
+# takes S_\mu^ll S_\z^mm S_\nu^nn
+#   --> S_\mu^ll ( \sum_jj x_jj S_\z^jj ) S_\z^mm + S_\nu^nn
 def insert_z_poly(vec, coefficients, prefactor = 1):
     output = { key : prefactor * coefficients[0] * vec[key] for key in vec.keys() }
     for jj in range(1,len(coefficients)):
@@ -125,6 +89,95 @@ def insert_z_poly(vec, coefficients, prefactor = 1):
 # shorthand for operator term: "extended binomial operator"
 def ext_binom_op(ll, mm, nn, x, terms, prefactor = 1):
     return insert_z_poly(binom_op(ll,mm,nn,x), terms, prefactor)
+
+
+##########################################################################################
+# general commutator between ordered products of collective spin operators
+##########################################################################################
+
+# unsigned stirling number of the first kind
+def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = True))
+
+# collective spin operator commutator coefficients (see notes)
+def epsilon(mm,nn,pp,ll):
+    return 2**ll * sum([ stirling(pp,qq) * binom(qq,ll) * (mm-nn)**(qq-ll)
+                         for qq in range(ll,pp+1) ])
+def xi(mm,nn,pp,qq):
+    return sum([ (-1)**(ll-qq) * epsilon(mm,nn,pp,ll) * binom(ll,qq) * (mm-pp)**(ll-qq)
+                 for ll in range(qq,pp+1) ])
+
+# simplify product of two operators
+def multiply_terms(op_left, op_right, mu, prefactor = 1):
+    pp, qq, rr = op_left
+    ll, mm, nn = op_right
+    term = {}
+    for kk in range(min(rr,ll)+1):
+        kk_fac = factorial(kk) * binom(rr,kk) * binom(ll,kk)
+        for aa in range(kk+1):
+            ka_fac = kk_fac * (-1)**aa * xi(rr,ll,kk,aa)
+            for bb in range(qq+1):
+                kab_fac = ka_fac * (ll-kk)**(qq-bb) * binom(qq,bb)
+                for cc in range(mm+1):
+                    kabc_fac = kab_fac * (rr-kk)**(mm-cc) * binom(mm,cc)
+                    kabc_sign = mu**(qq+mm+aa-bb-cc)
+                    op_in = (pp+ll-kk, aa+bb+cc, rr+nn-kk)
+                    try: term[op_in]
+                    except: term[op_in] = 0
+                    term[op_in] += kabc_sign * kabc_fac * prefactor
+    return term
+
+# simplify product of two vectors
+def multiply_vecs(vec_left, vec_right, mu, prefactor = 1):
+    vec = {}
+    for term_left in vec_left.keys():
+        for term_right in vec_right.keys():
+            fac = vec_left[term_left] * vec_right[term_right] * prefactor
+            add_left(vec, multiply_terms(term_left, term_right, mu, fac))
+    return vec
+
+# clean up a dictionary vector
+def clean_vec(vec):
+    null_keys = [ key for key in vec.keys() if abs(vec[key]) == 0 ]
+    for key in null_keys: del vec[key]
+    # overflow_keys = [ key for key in image.keys() if key[0] > 2*S+1 or key[2] > 2*S+1 ]
+    # for key in overflow_keys: del image[key]
+    return vec
+
+##########################################################################################
+# miscellaneous methods for changing frames and operator vectors
+##########################################################################################
+
+# decoherence transformation matrix from a periodic drive; here A = J_0(2\beta), where:
+#   J_0 is the zero-order bessel function of the first kind
+#   \beta is the modulation index
+def dec_mat_drive(A):
+    const = np.array([[ 0, 0, 0 ],
+                      [ 0, 1, 1 ],
+                      [ 0, 1, 1 ]]) * 1/2
+    var = np.array([[ 2,  0,  0 ],
+                    [ 0,  1, -1 ],
+                    [ 0, -1,  1 ]]) * 1/2
+    return const + A * var
+
+# convert vector from (z,x,y) format to (mu,z,nu) format
+def convert_zxy(vec_zxy, mu = 1):
+    vec = {}
+    # define vectors for (2 * Sx) and (-i * 2 * Sy)
+    Sx_2 = { (1,0,0) : 1,
+             (0,0,1) : 1 }
+    Sy_ni2 = { (1,0,0) : -1,
+               (0,0,1) :  1 }
+    for op_zxy in vec_zxy.keys():
+        ll, mm, nn = op_zxy
+        lmn_fac = (1j*mu)**nn / 2**(mm+nn) * vec_zxy[op_zxy]
+        # starting from the left, successively multiply all factors on the right
+        lmn_vec = { (0,ll,0) : 1 }
+        for jj in range(mm):
+            lmn_vec = multiply_vecs(lmn_vec, Sx_2, mu)
+        for kk in range(nn):
+            lmn_vec = multiply_vecs(lmn_vec, Sy_ni2, mu)
+        add_left(vec, lmn_vec, lmn_fac)
+    return clean_vec(vec)
 
 
 ##########################################################################################
@@ -319,8 +372,8 @@ def op_image_coherent(op, h_vals, mu):
     image = {}
     for h_op in h_vals.keys():
         prefactor = 1j * h_vals[h_op]
-        add_left(image, simplify_term(h_op, op, mu), +prefactor)
-        add_left(image, simplify_term(op, h_op, mu), -prefactor)
+        add_left(image, multiply_terms(h_op, op, mu), +prefactor)
+        add_left(image, multiply_terms(op, h_op, mu), -prefactor)
     return image
 
 # full image of a single operator under the time derivative operator
@@ -331,21 +384,13 @@ def op_image(op, h_vals, S, dec_rates, dec_mat, mu):
         dec_vec_G = dec_mat[:,jj] * np.sqrt(dec_rates[1][jj])
         if jj == 0: dec_vec_g /= np.sqrt(2)
         add_left(image, op_image_decoherence(op, S, dec_vec_g, dec_vec_G, mu))
-
-    null_keys = [ key for key in image.keys() if abs(image[key]) == 0 ]
-    for key in null_keys: del image[key]
-
-    # overflow_keys = [ key for key in image.keys() if key[0] > 2*S+1 or key[2] > 2*S+1 ]
-    # for key in overflow_keys: del image[key]
-
-    return image
+    return clean_vec(image)
 
 # compute time derivative of a given vector of spin operators
 def compute_time_derivative(diff_op, input_vector, op_image_args):
     output_vector = {}
     # for each operator in the input vector
     for input_op in input_vector.keys():
-        op_coefficient = input_vector[input_op]
         # if we do not know the time derivative of this operator, compute it
         try: diff_op[input_op]
         except:
@@ -353,11 +398,8 @@ def compute_time_derivative(diff_op, input_vector, op_image_args):
             # we get the time derivative of the conjugate operator for free, so save it
             if input_op[0] != input_op[-1]:
                 diff_op[input_op[::-1]] = conj_op_vec(diff_op[input_op])
-        for output_op in diff_op[input_op]:
-            try: output_vector[output_op]
-            except: output_vector[output_op] = 0
-            output_vector[output_op] += op_coefficient * diff_op[input_op][output_op]
-    return output_vector
+        add_left(output_vector, diff_op[input_op], input_vector[input_op])
+    return clean_vec(output_vector)
 
 
 ##########################################################################################
@@ -378,7 +420,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vals, d
     if dec_mat is None:
         dec_mat = np.eye(3)
 
-    # list of operators necessary for computing squeezing with (\mu,\z,\bmu) exponents
+    # list of operators necessary for computing squeezing with (\mu,\z,\nu) exponents
     squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 
     # arguments for computing operator pre-image under infinitesimal time translation
@@ -406,7 +448,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vals, d
                         initial_vals[op[::-1]] = initial_vals[op]
 
     T = np.array([ chi_times**kk / factorial(kk) for kk in range(order_cap) ])
-    Q = {} # dictionary (ll,mm,nn) --> < D_t^kk S_\mu^ll S_\z^mm S_\bmu^nn >_0 for all kk
+    Q = {} # dictionary (ll,mm,nn) --> < D_t^kk S_\mu^ll S_\z^mm S_\nu^nn >_0 for all kk
     correlators = {}
     for sqz_op in squeezing_ops:
         Q[sqz_op] = np.array([ sum([ time_derivatives[sqz_op][order][op] * initial_vals[op]
