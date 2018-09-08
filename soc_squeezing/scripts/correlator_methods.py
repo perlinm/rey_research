@@ -10,11 +10,13 @@ from mpmath import hyper
 from scipy.special import factorial, binom
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 
+
+##########################################################################################
+# initial conditions
+##########################################################################################
+
 # natural logarithm of factorial
 def ln_factorial(n): return lgamma(n+1)
-
-# unsigned stirling number of the first kind
-def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = True))
 
 # correlator < +X | S_\mu^ll S_\z^mm S_\bmu^nn | +X >
 def op_val_pX(total_spin, op, mu):
@@ -44,6 +46,14 @@ def op_val_nZ(total_spin, op, mu = None):
     if ll != 0 or nn != 0: return 0
     return (-total_spin)**mm
 
+
+##########################################################################################
+# general commutator between ordered products of collective spin operators
+##########################################################################################
+
+# unsigned stirling number of the first kind
+def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = True))
+
 # collective spin operator commutator coefficients (see notes)
 def epsilon(mm,nn,pp,ll):
     return 2**ll * sum([ stirling(pp,qq) * binom(qq,ll) * (mm-nn)**(qq-ll)
@@ -72,17 +82,30 @@ def simplify_term(op_left, op_right, mu, prefactor = 1):
                     term[op_in] += klmn_sign * klmn_fac * prefactor
     return term
 
+
+##########################################################################################
+# machinery for decoherence codes
+##########################################################################################
+
 # take hermitian conjugate of a dictionary taking operator --> value,
 #   i.e. return a dictionary taking operator* --> value*
-def conjugate_op_vec(op_vec):
+def conj_op_vec(op_vec):
     return { op[::-1] : np.conj(op_vec[op]) for op in op_vec.keys() }
 
-# add dictionary vectors
+# add the right vector to the left vector
 def add_left(dict_left, dict_right, scalar = 1):
     for key in dict_right:
         try: dict_left[key]
         except: dict_left[key] = 0
         dict_left[key] += scalar * dict_right[key]
+
+# return sum of all input vectors
+def sum_vecs(*vecs):
+    vec_sum = {}
+    for vec in vecs:
+        if vec == {}: continue
+        add_left(vec_sum, vec)
+    return vec_sum
 
 # return vector S_\mu^ll (x + S_\z)^mm * S_\bmu^nn
 def binom_op(ll, mm, nn, x, prefactor = 1):
@@ -90,7 +113,7 @@ def binom_op(ll, mm, nn, x, prefactor = 1):
 
 # takes S_\mu^ll S_\z^mm S_\bmu^nn
 #   --> S_\mu^ll ( \sum_jj x_jj S_\z^jj ) S_\z^mm + S_\bmu^nn
-def insert_z_terms(vec, coefficients, prefactor = 1):
+def insert_z_poly(vec, coefficients, prefactor = 1):
     output = { key : prefactor * coefficients[0] * vec[key] for key in vec.keys() }
     for jj in range(1,len(coefficients)):
         for ll, mm, nn in vec.keys():
@@ -101,138 +124,196 @@ def insert_z_terms(vec, coefficients, prefactor = 1):
 
 # shorthand for operator term: "extended binomial operator"
 def ext_binom_op(ll, mm, nn, x, terms, prefactor = 1):
-    return insert_z_terms(binom_op(ll,mm,nn,x), terms, prefactor)
+    return insert_z_poly(binom_op(ll,mm,nn,x), terms, prefactor)
 
-# single-spindecoherence image \D ( \sigma_z; S_\mu^l S_\z^m S_\bmu^n )
-def op_image_single_dephasing(op, S, mu, gg = 1):
+
+##########################################################################################
+# single-spin decoherence
+##########################################################################################
+
+# diagonal terms of single-spin decoherence
+def op_image_decoherence_diag_individual(op, S, dec_vec, mu):
     ll, mm, nn = op
-    if gg == 0 or ll+nn == 0: return {}
-
-    image = { (ll,mm,nn) : -2*(ll+nn) * gg }
-    if ll >= 1 and nn >= 1:
-        factor = 4*ll*nn * gg
-        image.update(ext_binom_op(ll-1, mm, nn-1, -mu, [ S, mu ], factor))
-    return image
-
-# single-spin decoherence image \D ( \sigma_\nu; S_\mu^l S_\z^m S_\bmu^n )
-def op_image_single_decay(op, S, mu, nu, gg):
-    if gg == 0: return {}
-    ll, mm, nn = op
-
-    if mu == nu:
-        image = ext_binom_op(ll, mm, nn, mu, [ S-ll-nn, -mu ], gg)
-        add_left(image, insert_z_terms({op:-1}, [ S-(ll+nn)/2, -mu ], gg))
-        if ll >= 1 and nn >= 1:
-            image[(ll-1,mm,nn-1)] = ll*nn * (2*S-ll-nn+2) * gg
-        if ll >= 2 and nn >= 2:
-            factor = ll*nn*(ll-1)*(nn-1) * gg
-            image.update(ext_binom_op(ll-2, mm, nn-2, -mu, [ S, mu ], factor))
-        return image
+    D_z, D_p, D_m = abs(np.array(dec_vec))**2
+    if mu == 1:
+        D_mu, D_nu = D_p, D_m
     else:
-        image = ext_binom_op(ll, mm, nn, -mu, [ S, mu ], gg)
-        add_left(image, insert_z_terms({op:-1}, [ S+(ll+nn)/2, mu ]), gg)
-        return image
+        D_mu, D_nu = D_m, D_p
 
-# single-spin decoherence cross term "P"
-def op_image_single_P(op, S, mu, gg):
-    ll, mm, nn = op
-    if gg == 0 or nn == 0: return {}
+    image_mu = {}
+    if D_mu != 0:
+        image_mu = ext_binom_op(*op, mu, [ S-ll-nn, -mu ], D_mu)
+        add_left(image_mu, insert_z_poly({op:1}, [ S-(ll+nn)/2, -mu ]), -D_mu)
+        if ll >= 1 and nn >= 1:
+            image_mu[(ll-1,mm,nn-1)] = ll*nn * (2*S-ll-nn+2) * D_mu
+        if ll >= 2 and nn >= 2:
+            op_2 = (ll-2, mm, nn-2)
+            factor = ll*nn*(ll-1)*(nn-1)
+            image_mu.update(ext_binom_op(*op_2, -mu, [ S, mu ], factor * D_mu))
 
-    image = { (ll+1,mm,nn-1) : nn * gg }
-    if nn >= 2:
-        factor = -nn*(nn-1) * gg
-        image.update(ext_binom_op(ll, mm, nn-2, -mu, [ S, mu ], factor))
-    return image
+    image_nu = {}
+    if D_nu != 0:
+        image_nu = ext_binom_op(*op, -mu, [ S, mu ], D_nu)
+        add_left(image_nu, insert_z_poly({op:1}, [ S+(ll+nn)/2, mu ]), -D_nu)
 
-# single-spin decoherence cross term "K"
-def op_image_single_K(op, S, mu, gg):
-    if gg == 0: return {}
-    ll, mm, nn = op
-    image = binom_op(ll+1, mm, nn, mu, mu/2 * gg)
-    del image[(ll+1,mm,nn)]
-    return image
+    image_z = {}
+    if D_z != 0 and ll + nn != 0:
+        image_z = { (ll,mm,nn) : -2*(ll+nn) * D_z }
+        if ll >= 1 and nn >= 1:
+            image_z.update(ext_binom_op(ll-1, mm, nn-1, -mu, [ S, mu ], 4*ll*nn * D_z))
 
-# single-spin decoherence cross term "L"
-def op_image_single_L(op, S, mu, gg):
-    ll, mm, nn = op
-    if gg == 0 or nn == 0: return {}
+    return sum_vecs(image_mu, image_nu, image_z)
 
-    image = insert_z_terms({(ll,mm,nn-1):1}, [ -2*S+2*ll+3/2*(nn-1), mu ], mu*nn * gg)
-    if nn >= 2 and ll >= 1:
-        factor = -2*mu*ll*nn*(nn-1) * gg
-        image.update(ext_binom_op(ll-1, mm, nn-2, -mu, [ S, mu ], factor))
-    return image
-
-# single-spin decoherence cross term "M"
-def op_image_single_M(op, S, mu, gg):
-    ll, mm, nn = op
-    if gg == 0 or nn == 0: return {}
-
-    image = ext_binom_op(ll, mm, nn-1, -mu, [ S, mu ], 2*mu*nn * gg)
-    add_left(image, insert_z_terms({(ll,mm,nn-1):-1}, [ (nn-1)/2, mu ], mu*nn * gg))
-    return image
-
-# single-spin decoherence cross term "Q"
-def op_image_single_Q(op, S, mu, dec_vec):
+# single-spin decoherence "Q" cross term
+def op_image_decoherence_Q_individual(op, S, dec_vec, mu):
     ll, mm, nn = op
     g_z, g_p, g_m = dec_vec
     if mu == 1:
-        g_mu, g_bmu = g_p, g_m
+        g_mu, g_nu = g_p, g_m
     else:
-        g_mu, g_bmu = g_m, g_p
+        g_mu, g_nu = g_m, g_p
 
-    gg_P = np.conj(g_bmu) * g_mu
-    gg_L = np.conj(g_z) * g_mu
-    gg_M = np.conj(g_bmu) * g_z
-    gg_K = gg_L + gg_M
+    gg_mp = np.conj(g_nu) * g_mu
+    gg_zp = np.conj(g_z) * g_mu
+    gg_mz = np.conj(g_nu) * g_z
 
-    image = {}
-    add_left(image, op_image_single_P(op, S, mu, gg_P))
-    add_left(image, op_image_single_K(op, S, mu, gg_K))
-    add_left(image, op_image_single_L(op, S, mu, gg_L))
-    add_left(image, op_image_single_M(op, S, mu, gg_M))
-    return image
+    image_P = {}
+    if gg_mp != 0 and nn != 0:
+        if nn >= 2:
+            image_P = ext_binom_op(ll, mm, nn-2, -mu, [ S, mu ], -nn*(nn-1) * gg_mp)
+        image_P.update({ (ll+1,mm,nn-1) : nn * gg_mp })
 
-# pre-image of a collective spin operator from decoherence
-def op_image_single_decoherence(op, S, dec_vec, mu):
+    image_K = {}
+    if gg_zp + gg_mz != 0:
+        image_K = binom_op(ll+1, mm, nn, mu, mu/2 * (gg_zp + gg_mz))
+        del image_K[(ll+1,mm,nn)]
+
+    image_L = {}
+    if gg_zp != 0 and nn != 0:
+        if nn >= 2 and ll >= 1:
+            factor = -2*mu*ll*nn*(nn-1)
+            image_L = ext_binom_op(ll-1, mm, nn-2, -mu, [ S, mu ], factor * gg_zp)
+        coefficients = [ -2*S+2*ll+3/2*(nn-1), mu ]
+        image_L.update(insert_z_poly({(ll,mm,nn-1):1}, coefficients, mu*nn * gg_zp))
+
+    image_M = {}
+    if gg_mz != 0 and nn != 0:
+        image_M = ext_binom_op(ll, mm, nn-1, -mu, [ S, mu ], 2*mu*nn * gg_mz)
+        coefficients = [ (nn-1)/2, mu ]
+        add_left(image_M, insert_z_poly({(ll,mm,nn-1):1}, coefficients, -mu*nn * gg_mz))
+
+    return sum_vecs(image_P, image_K, image_L, image_M)
+
+
+##########################################################################################
+# collective-spin decoherence
+##########################################################################################
+
+# diagonal terms of collective-spin decoherence
+def op_image_decoherence_diag_collective(op, S, dec_vec, mu):
+    ll, mm, nn = op
+    D_z, D_p, D_m = abs(np.array(dec_vec))**2
+    if mu == 1:
+        D_mu, D_nu = D_p, D_m
+    else:
+        D_mu, D_nu = D_m, D_p
+
+    image_mu = {}
+    if D_mu != 0:
+        image_mu = { (ll+1,kk,nn+1) : D_mu * (2**(mm-kk)-1) * mu**(mm-kk) * binom(mm,kk)
+                     for kk in range(mm) }
+        coefficients = [ ll*(ll+1) + nn*(nn+1), 2*mu*(ll+nn+1) ]
+        image_mu.update(ext_binom_op(*op, mu, coefficients, -D_mu))
+        coefficients = [ ll*(ll+1) + nn*(nn+1), 2*mu*(ll+nn+2) ]
+        add_left(image_mu, insert_z_poly({op:1}, coefficients, D_mu/2))
+        if ll >= 1 and nn >= 1:
+            vec = { (ll-1,mm,nn-1) : 1 }
+            coefficients = [ (ll-1)*(nn-1), 2*mu*(ll+nn-2), 4 ]
+            image_mu.update(insert_z_poly(vec, coefficients, ll*nn * D_mu))
+
+    image_nu = {}
+    if D_nu != 0:
+        image_nu = binom_op(ll+1, mm, nn+1, mu, -D_nu)
+        del image_nu[(ll+1,mm,nn+1)]
+        coefficients = [ ll*(ll-1) + nn*(nn-1), 2*mu*(ll+nn) ]
+        image_nu.update(insert_z_poly({op:1}, coefficients, D_nu/2))
+
+    image_z = {}
+    if D_z != 0 and ll != nn:
+        image_z = { (ll,mm,nn) : -D_z/2 * (ll-nn)**2 }
+
+    return sum_vecs(image_mu, image_nu, image_z)
+
+# collective-spin decoherence "Q" cross term
+def op_image_decoherence_Q_collective(op, S, dec_vec, mu):
     ll, mm, nn = op
     g_z, g_p, g_m = dec_vec
-    g_mu = g_p if mu == 1 else g_m
+    if mu == 1:
+        g_mu, g_nu = g_p, g_m
+    else:
+        g_mu, g_nu = g_m, g_p
 
+    gg_mp = np.conj(g_nu) * g_mu
+    gg_zp = np.conj(g_z) * g_mu
+    gg_mz = np.conj(g_nu) * g_z
+    gg_P = ( gg_zp + gg_mz ) / 2
+    gg_M = ( gg_zp - gg_mz ) / 2
+
+    image_P = {}
+    if gg_mp != 0:
+        image_P = { (ll+2,kk,nn) : -gg_mp * (2**(mm-kk-1)-1) * mu**(mm-kk) * binom(mm,kk)
+                    for kk in range(mm-1) }
+        if nn >= 1:
+            op_1 = (ll+1, mm, nn-1)
+            add_left(image_P, ext_binom_op(*op_1, mu, [ nn, 2*mu ]), nn * gg_mp)
+            add_left(image_P, insert_z_poly({op_1:-1}, [ nn-1, 2*mu ]), nn * gg_mp)
+        if nn >= 2:
+            vec = { (ll, mm, nn-2) : -nn*(nn-1) * gg_mp }
+            coefficients = [ (nn-1)*(nn-2)/2, mu*(2*nn-3), 2 ]
+            add_left(image_P, insert_z_poly(vec, coefficients))
+
+    image_L = {}
+    image_M = {}
+    if gg_P != 0 or gg_M != 0:
+        factor = mu * ( (ll-nn+1/2) * gg_P + (ll+1/2) * gg_M )
+        image_L = binom_op(ll+1, mm, nn, mu, factor)
+        image_L[(ll+1,mm,nn)] += -mu * ( (ll-nn+1/2) * gg_P + (nn+1/2) * gg_M )
+        add_left(image_L, ext_binom_op(ll+1, mm, nn, mu, [0,1], gg_M))
+        del image_L[(ll+1,mm+1,nn)]
+
+        if nn >= 1:
+            factors = [ mu*(nn-1) * ( (ll-nn+1/2) * gg_P + (ll-1/2) * gg_M ),
+                        2 * ( (ll-nn+1/2) * gg_P + (ll+nn/2-1) * gg_M ),
+                        2*mu * gg_M ]
+            image_M = { (ll,mm+jj,nn-1) : -nn * factors[jj] for jj in range(3) }
+
+    return sum_vecs(image_P, image_L, image_M)
+
+
+##########################################################################################
+# image of operators under the time derivative operator
+##########################################################################################
+
+# compute image of a single operator from decoherence
+def op_image_decoherence(op, S, dec_vec_g, dec_vec_G, mu):
     image = {}
 
-    # single-spin decay-type decoherence
-    add_left(image, op_image_single_decay(op, S, mu, +1, abs(g_p)**2))
-    add_left(image, op_image_single_decay(op, S, mu, -1, abs(g_m)**2))
+    image = sum_vecs(op_image_decoherence_diag_individual(op, S, dec_vec_g, mu),
+                     op_image_decoherence_diag_collective(op, S, dec_vec_G, mu))
 
-    # single-spin dephasing and axial cross terms
-    if g_z != 0 and ll + nn != 0:
-        image_dephasing = op_image_single_dephasing(op, S, mu, abs(g_z)**2)
-        # manually handle collisions,
-        #   allowing us to update image instead of adding to it
-        del image_dephasing[(ll,mm,nn)]
-        if g_mu != 0 and ll >= 1 and nn >= 1:
-            del image[(ll-1,mm,nn-1)]
-
-        image.update(image_dephasing)
-
-        try: image[(ll,mm,nn)]
-        except: image[(ll,mm,nn)] = 0
-        image[(ll,mm,nn)] -= 2*(ll+nn) * abs(g_z)**2
-        if g_mu != 0 and ll >= 1 and nn >= 1:
-            image[(ll-1,mm,nn-1)] += ll*nn * (2*S-ll-nn+2) * abs(g_mu)**2
-
-    Q_reg = op_image_single_Q(op, S, mu, dec_vec)
-    if ll == nn:
-        Q_dag = conjugate_op_vec(Q_reg)
-    else:
-        Q_dag = conjugate_op_vec(op_image_single_Q(op[::-1], S, mu, dec_vec))
-    add_left(image, Q_reg)
-    add_left(image, Q_dag)
+    for image_Q, dec_vec in [ ( op_image_decoherence_Q_individual, dec_vec_g ),
+                              ( op_image_decoherence_Q_collective, dec_vec_G ) ]:
+        Q_lmn = image_Q(op, S, dec_vec, mu)
+        if op[0] == op[2]:
+            Q_nml = Q_lmn
+        else:
+            Q_nml = image_Q(op[::-1], S, dec_vec, mu)
+        add_left(image, Q_lmn)
+        add_left(image, conj_op_vec(Q_nml))
 
     return image
 
-# compute pre-image of a single operator from coherent evolution
+# compute image of a single operator from coherent evolution
 def op_image_coherent(op, h_vals, mu):
     if op == (0,0,0): return {}
     image = {}
@@ -242,18 +323,20 @@ def op_image_coherent(op, h_vals, mu):
         add_left(image, simplify_term(op, h_op, mu), -prefactor)
     return image
 
-# compute pre-image of a single operator from infinitesimal time evolution
+# full image of a single operator under the time derivative operator
 def op_image(op, h_vals, S, dec_rates, dec_mat, mu):
     image = op_image_coherent(op, h_vals, mu)
     for jj in range(3):
-        if dec_rates[jj] == 0: continue
-
-        dec_vec = dec_rates[jj] * dec_mat[:,jj]
-        if jj == 0: dec_vec /= np.sqrt(2)
-        add_left(image, op_image_single_decoherence(op, S, dec_vec, mu))
+        dec_vec_g = dec_mat[:,jj] * np.sqrt(dec_rates[0][jj])
+        dec_vec_G = dec_mat[:,jj] * np.sqrt(dec_rates[1][jj])
+        if jj == 0: dec_vec_g /= np.sqrt(2)
+        add_left(image, op_image_decoherence(op, S, dec_vec_g, dec_vec_G, mu))
 
     null_keys = [ key for key in image.keys() if abs(image[key]) == 0 ]
     for key in null_keys: del image[key]
+
+    # overflow_keys = [ key for key in image.keys() if key[0] > 2*S+1 or key[2] > 2*S+1 ]
+    # for key in overflow_keys: del image[key]
 
     return image
 
@@ -269,12 +352,17 @@ def compute_time_derivative(diff_op, input_vector, op_image_args):
             diff_op[input_op] = op_image(input_op, *op_image_args)
             # we get the time derivative of the conjugate operator for free, so save it
             if input_op[0] != input_op[-1]:
-                diff_op[input_op[::-1]] = conjugate_op_vec(diff_op[input_op])
+                diff_op[input_op[::-1]] = conj_op_vec(diff_op[input_op])
         for output_op in diff_op[input_op]:
             try: output_vector[output_op]
             except: output_vector[output_op] = 0
             output_vector[output_op] += op_coefficient * diff_op[input_op][output_op]
     return output_vector
+
+
+##########################################################################################
+# collective-spin correlators
+##########################################################################################
 
 # return correlators from evolution under a general Hamiltonian
 def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vals, dec_rates,
@@ -346,7 +434,7 @@ def correlators_OAT(spin_num, chi_times, dec_rates):
     N = spin_num
     S = spin_num/2
     t = chi_times
-    g_z, g_p, g_m = dec_rates
+    g_z, g_p, g_m = dec_rates[0]
 
     gam = -(g_p - g_m) / 2
     lam = (g_p + g_m) / 2

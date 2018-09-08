@@ -891,7 +891,7 @@ not grow.
 The effect of decoherence via single-spin dephasing is described by
 \begin{align}
   \D\p{\sigma_\z/\sqrt2; \O}
-  = \sum_j\p{\sigma_\z^{(j)} \O \sigma_\z^{(j)}
+  = \f12 \sum_j\p{\sigma_\z^{(j)} \O \sigma_\z^{(j)}
     - \f12\sp{\sigma_\z^{(j)} \sigma_\z^{(j)},\O}_+}
   = \f12 \sum_j \sigma_\z^{(j)} \O \sigma_\z^{(j)} - S \O,
 \end{align}
@@ -1194,7 +1194,7 @@ of collective spin operators, we expand the anti-commutators
   &\qquad - n S_\mu^\ell \sp{\mu\p{n-1}^2
     + 3\p{n-1} S_\z + 2\mu S_\z^2} S_\z^m S_\bmu^{n-1}.
 \end{align}
-Defining
+Collecting terms and defining
 \begin{align}
   \Gamma_{\z,\mu}^{(\pm)}
   &\equiv \f12\p{\Gamma_\z^* \Gamma_\mu \pm \Gamma_\bmu^* \Gamma_\z},
@@ -1210,13 +1210,14 @@ Defining
   S_\mu^{\ell+1} S_\z \sp{\p{\mu+S_\z}^m - S_\z^m} S_\bmu^n,
   \allowdisplaybreaks \\
   \tilde M_{\ell mn;\mu}^{(\Gamma)}
-  &= \mu \p{n-1} \sp{\p{\ell-n+\f12} \Gamma_{\z,\mu}^{(+)}
+  &= -\mu n\p{n-1} \sp{\p{\ell-n+\f12} \Gamma_{\z,\mu}^{(+)}
     + \p{\ell-\f12} \Gamma_{\z,\mu}^{(-)}}
   S_\mu^\ell S_\z^m S_\bmu^{n-1} \notag \\
-  &\qquad + 2 \sp{\p{\ell-n+\f12} \Gamma_{\z,\mu}^{(+)}
+  &\qquad - 2n \sp{\p{\ell-n+\f12} \Gamma_{\z,\mu}^{(+)}
     + \p{\ell+\f12n-1} \Gamma_{\z,\mu}^{(-)}}
   S_\mu^\ell S_\z^{m+1} S_\bmu^{n-1} \notag \\
-  &\qquad + 2\mu \Gamma_{\z,\mu}^{(-)} S_\mu^\ell S_\z^{m+2} S_\bmu^{n-1},
+  &\qquad - 2\mu n \Gamma_{\z,\mu}^{(-)}
+  S_\mu^\ell S_\z^{m+2} S_\bmu^{n-1},
   \allowdisplaybreaks \\
   \tilde P_{\ell mn;\mu}
   &\equiv -\f12 S_\mu^{\ell+2}
@@ -1228,9 +1229,9 @@ Defining
   S_\z^m S_\bmu^{n-2},
   \allowdisplaybreaks \\
   \tilde Q_{\ell mn;\mu}^{(\Gamma)}
-  &\equiv \tilde L_{\ell mn;\mu}^{(\Gamma)}
-  - n \tilde M_{\ell mn;\mu}^{(\Gamma)}
-  + \Gamma_\bmu^* \Gamma_\mu \tilde P_{\ell mn;\mu},
+  &\equiv \Gamma_\bmu^* \Gamma_\mu \tilde P_{\ell mn;\mu}
+  + \tilde L_{\ell mn;\mu}^{(\Gamma)}
+  + \tilde M_{\ell mn;\mu}^{(\Gamma)},
 \end{align}
 we then have
 \begin{align}

@@ -170,12 +170,11 @@ for l, m, n in itertools.product(range(N), repeat = 3):
 
         def M(l,m,n,mu):
             if n == 0: return 0
-            M = ( mu * (n-1) * ( (l-n+1/2) * gg_p + (l-1/2) * gg_m )
+            M = ( -mu*n*(n-1) * ( (l-n+1/2) * gg_p + (l-1/2) * gg_m )
                   * S_mu**l * S_z**m * S_nu**(n-1) )
-            M += ( 2 * ( (l-n+1/2) * gg_p + (l+n/2-1) * gg_m )
+            M += ( -2*n * ( (l-n+1/2) * gg_p + (l+n/2-1) * gg_m )
                    * S_mu**l * S_z**(m+1) * S_nu**(n-1) )
-
-            M += 2 * mu * gg_m * S_mu**l * S_z**(m+2) * S_nu**(n-1)
+            M += -2*mu*n * gg_m * S_mu**l * S_z**(m+2) * S_nu**(n-1)
             return M
 
         def P(l,m,n,mu):
@@ -191,7 +190,7 @@ for l, m, n in itertools.product(range(N), repeat = 3):
             return P
 
         def Q(l,m,n,mu):
-            return L(l,m,n,mu) - n * M(l,m,n,mu) + np.conj(g_m) * g_p * P(l,m,n,mu)
+            return L(l,m,n,mu) + M(l,m,n,mu) + np.conj(g_m) * g_p * P(l,m,n,mu)
 
         ##############################
 
