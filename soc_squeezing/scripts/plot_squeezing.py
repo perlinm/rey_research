@@ -178,13 +178,13 @@ print("t_opt_OAT_D (sec):", t_opt_OAT_D / recoil_energy_NU)
 print("sqz_opt_OAT_D (dB):", sqz_OAT_D.max())
 
 # construct Hamiltonians, first in (z,x,y) format
-h_OAT = { (2,0,0) : 1 }
-h_TVF = { (2,0,0) : 1,
+h_OAT = { (2,0,0) : 1 }         # S_z^2
+h_TVF = { (2,0,0) : 1,          # Sz^2 + drive_TVF * S_x
           (0,1,0) : drive_TVF }
-h_TAT_zy = { (2,0,0) :  1,
-             (0,0,2) : -1 }
-h_TAT_yx = { (0,0,2) :  1,
-             (0,2,0) : -1 }
+h_TAT_zy = { (2,0,0) : 2,       # 2 * S_z^2 + S_x^2 --> S_z^2 - S_y^2
+             (0,2,0) : 1 }
+h_TAT_yx = { (2,0,0) : 1,       # S_z^2 + 2 * S_y^2 --> S_y^2 - S_x^2
+             (0,0,2) : 2 }
 
 # divide through TAT Hamiltonians by 1/3
 for h_TAT in [ h_TAT_zy, h_TAT_yx ]:
