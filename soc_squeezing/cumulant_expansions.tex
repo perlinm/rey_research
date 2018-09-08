@@ -38,6 +38,7 @@
 \newcommand{\y}{\text{y}}
 \newcommand{\Z}{\text{Z}}
 \newcommand{\X}{\text{X}}
+\newcommand{\Y}{\text{Y}}
 \newcommand{\bmu}{{\bar\mu}}
 \newcommand{\floor}[1]{\left\lfloor{#1}\right\rfloor}
 
@@ -1284,36 +1285,24 @@ and
   \prod_{q=0}^{n-1} g_\bmu\p{S,k+\mu\sp{n-q}} \\
   &= \f{N!}{2^N} \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
   ^{S-\delta_{\mu,1}\max\set{\ell,n}} k^m
-  \f{\p{S-\mu k}!}{\p{S+\mu k}!\p{S-\mu k-\ell}!\p{S-\mu k-n}!}.
+  \f{\p{S-\mu k}!}{\p{S+\mu k}!\p{S-\mu k-\ell}!\p{S-\mu k-n}!} \\
+  &= \p{-\mu}^m \f{N!}{2^N} \sum_{k=-S+\max\set{\ell,n}}^S k^m
+  \f{\p{S+k}!}{\p{S-k}!\p{S+k-\ell}!\p{S+k-n}!}.
 \end{align}
-% With the help of Mathematica, we can write this result in the
-% alternate form
-% \begin{align}
-%   \bk{\X|S_+^\ell S_\z^m S_-^n|\X}
-%   = \f{\p{N!}^2}{2^N\p{N-\ell}!\p{N-n}!}
-%   \sp{\p{-S}^m \alpha + \f{\p{N-\ell}\p{N-n}}{N} \beta},
-% \end{align}
-% where $\alpha$ and $\beta$ are defined in terms of the generalized
-% hypergeometric function $\F$ by
-% \begin{align}
-%   \alpha
-%   \equiv \F\p{\let\scriptstyle\textstyle
-%     \substack{\ell-N,~n-N \\ -N}~; -1},
-% \end{align}
-% and
-% \begin{align}
-%   \beta
-%   \equiv \sum_{p=0}^{m-1} \p{-S}^p { m \choose p }
-%   \tilde\F_{m-p-1}\p{\let\scriptstyle\textstyle
-%     \substack{1+\ell-N,~1+n-N \\ 1-N}~; -1},
-% \end{align}
-% for
-% \begin{align}
-%   \tilde\F_q\p{\let\scriptstyle\textstyle
-%     \substack{a,~b\\c}~; z}
-%   \equiv \F\p{\let\scriptstyle\textstyle
-%     \substack{2,2,\cdots,2,a,b \\ 1,1,\cdots,1,c}~; z}
-% \end{align}
-% with $q$ repetitions of 2 and 1.
+More generally, using the fact that
+\begin{align}
+  e^{i\phi S_\z} S_\mu e^{-i\phi S_\z} = e^{i\mu\phi} S_\mu,
+\end{align}
+we can say
+\begin{align}
+  \bk{\phi|S_\mu^\ell S_\z^m S_\bmu^n|\phi}
+  = e^{i\mu\p{\ell-n}\phi} \bk{\X|S_\mu^\ell S_\z^m S_\bmu^n|\X},
+\end{align}
+where
+\begin{align}
+  \ket{\phi} \equiv e^{-i\phi S_\z}\ket{\X},
+  &&
+  \p{\cos\phi S_\x + \sin\phi S_\x} \ket\phi = S \ket\phi.
+\end{align}
 
 \end{document}
