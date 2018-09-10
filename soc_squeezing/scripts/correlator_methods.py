@@ -4,6 +4,7 @@
 
 import numpy as np
 import scipy.sparse as sparse
+import itertools
 
 from math import lgamma
 from mpmath import hyper
@@ -18,30 +19,43 @@ from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 # natural logarithm of factorial
 def ln_factorial(n): return lgamma(n+1)
 
+def ln_factors_pX(total_spin, kk, ll, nn, ln_factorials = {}):
+    ln_term = 0
+    for fac_val, sign in [ (total_spin + kk, 1),
+                           (total_spin - kk, -1),
+                           (total_spin + kk - ll, -1),
+                           (total_spin + kk - nn, -1) ]:
+        try:
+            ln_term += sign * ln_factorials[fac_val]
+        except:
+            ln_factorials[fac_val] = ln_factorial(fac_val)
+            ln_term += sign * ln_factorials[fac_val]
+    return ln_term
+ln_factors_pX = np.vectorize(ln_factors_pX)
+
 # correlator < +X | S_\mu^ll S_\z^mm S_\nu^nn | +X >
-def op_val_pX(total_spin, op, mu):
+def op_val_pX(op, total_spin, mu):
     ll, mm, nn = op
     if ll == 0 and nn == 0 and mm % 2 == 1: return 0
-    if max(ll,nn) > 2*total_spin + 1: return 0
-
-    k_vals = np.arange(-total_spin+max(ll,nn),total_spin+1)
-
+    if max(ll,nn) > 2*total_spin: return 0
     ln_prefactor = ln_factorial(2*total_spin) - 2*total_spin*np.log(2)
-    def ln_factors(kk,ll,nn):
-        ln_numerator = ln_factorial(total_spin + kk)
-        ln_denominator = ( ln_factorial(total_spin - kk)
-                           + ln_factorial(total_spin + kk - ll)
-                           + ln_factorial(total_spin + kk - nn) )
-        return ln_numerator - ln_denominator
-
-    terms = k_vals**mm * np.exp(np.vectorize(ln_factors)(k_vals,ll,nn) + ln_prefactor)
+    k_vals = np.arange(-total_spin+max(ll,nn),total_spin+0.5)
+    terms = k_vals**mm * np.exp(ln_factors_pX(total_spin,k_vals,ll,nn) + ln_prefactor)
     return (-mu)**mm * terms.sum()
 
 # correlator < -Z | S_\mu^ll S_\z^mm S_\nu^nn | -Z >
-def op_val_nZ(total_spin, op, mu = None):
+def op_val_nZ(op, total_spin, mu):
     ll, mm, nn = op
-    if ll != 0 or nn != 0: return 0
-    return (-total_spin)**mm
+    if ll != nn: return 0
+    if mu == 1:
+        if ll != 0: return 0
+        return (-total_spin)**mm
+    else:
+        spin_num = int(round(2*total_spin))
+        if nn > spin_num: return 0
+        ln_factorials_num = ln_factorial(spin_num) + ln_factorial(nn)
+        ln_factorials_den = ln_factorial(spin_num-nn)
+        return (-total_spin+nn)**mm * np.exp(ln_factorials_num - ln_factorials_den)
 
 
 ##########################################################################################
@@ -56,15 +70,16 @@ def clean(vec):
 
 # take hermitian conjugate of a dictionary taking operator --> value,
 #   i.e. return a dictionary taking operator* --> value*
-def conj_op_vec(op_vec):
-    return { op[::-1] : np.conj(op_vec[op]) for op in op_vec.keys() }
+def conj_vec(vec):
+    return { op[::-1] : np.conj(vec[op]) for op in vec.keys() }
 
 # add the right vector to the left vector
 def add_left(dict_left, dict_right, scalar = 1):
     for key in dict_right:
-        try: dict_left[key]
-        except: dict_left[key] = 0
-        dict_left[key] += scalar * dict_right[key]
+        try:
+            dict_left[key] += scalar * dict_right[key]
+        except:
+            dict_left[key] = scalar * dict_right[key]
 
 # return sum of all input vectors
 def sum_vecs(*vecs):
@@ -84,9 +99,10 @@ def insert_z_poly(vec, coefficients, prefactor = 1):
     output = { key : prefactor * coefficients[0] * vec[key] for key in vec.keys() }
     for jj in range(1,len(coefficients)):
         for ll, mm, nn in vec.keys():
-            try: output[(ll,mm+jj,nn)]
-            except: output[(ll,mm+jj,nn)] = 0
-            output[(ll,mm+jj,nn)] += prefactor * coefficients[jj] * vec[(ll,mm,nn)]
+            try:
+                output[(ll,mm+jj,nn)] += prefactor * coefficients[jj] * vec[(ll,mm,nn)]
+            except:
+                output[(ll,mm+jj,nn)] = prefactor * coefficients[jj] * vec[(ll,mm,nn)]
     return output
 
 # shorthand for operator term: "extended binomial operator"
@@ -110,23 +126,25 @@ def xi(mm,nn,pp,qq):
                  for ll in range(qq,pp+1) ])
 
 # simplify product of two operators
-def multiply_terms(op_left, op_right, mu, prefactor = 1):
+def multiply_terms(op_left, op_right, mu):
     pp, qq, rr = op_left
     ll, mm, nn = op_right
     vec = {}
+    binom_qq = [ binom(qq,bb) for bb in range(qq+1) ]
+    binom_mm = [ binom(mm,cc) for cc in range(mm+1) ]
     for kk in range(min(rr,ll)+1):
         kk_fac = factorial(kk) * binom(rr,kk) * binom(ll,kk)
-        for aa in range(kk+1):
-            ka_fac = kk_fac * (-1)**aa * xi(rr,ll,kk,aa)
-            for bb in range(qq+1):
-                kab_fac = ka_fac * (ll-kk)**(qq-bb) * binom(qq,bb)
-                for cc in range(mm+1):
-                    kabc_fac = kab_fac * (rr-kk)**(mm-cc) * binom(mm,cc)
-                    kabc_sign = mu**(qq+mm+aa-bb-cc)
-                    op_in = (pp+ll-kk, aa+bb+cc, rr+nn-kk)
-                    try: vec[op_in]
-                    except: vec[op_in] = 0
-                    vec[op_in] += kabc_sign * kabc_fac * prefactor
+        aa_facs = [ (-1)**aa * xi(rr,ll,kk,aa) for aa in range(kk+1) ]
+        for aa, bb, cc in itertools.product(range(kk+1),range(qq+1),range(mm+1)):
+            bb_fac = (ll-kk)**(qq-bb) * binom_qq[bb]
+            cc_fac = (rr-kk)**(mm-cc) * binom_mm[cc]
+            kabc_fac = kk_fac * aa_facs[aa] * bb_fac * cc_fac
+            sign = mu**(qq+mm+aa-bb-cc)
+            op_in = (pp+ll-kk, aa+bb+cc, rr+nn-kk)
+            try:
+                vec[op_in] += sign * kabc_fac
+            except:
+                vec[op_in] = sign * kabc_fac
     return clean(vec)
 
 # simplify product of two vectors
@@ -135,7 +153,7 @@ def multiply_vecs(vec_left, vec_right, mu, prefactor = 1):
     for term_left in vec_left.keys():
         for term_right in vec_right.keys():
             fac = vec_left[term_left] * vec_right[term_right] * prefactor
-            add_left(vec, multiply_terms(term_left, term_right, mu, fac))
+            add_left(vec, multiply_terms(term_left, term_right, mu), fac)
     return vec
 
 
@@ -356,7 +374,7 @@ def op_image_decoherence(op, S, dec_vec_g, dec_vec_G, mu):
         else:
             Q_nml = image_Q(op[::-1], S, dec_vec, mu)
         add_left(image, Q_lmn)
-        add_left(image, conj_op_vec(Q_nml))
+        add_left(image, conj_vec(Q_nml))
     return image
 
 # compute image of a single operator from coherent evolution
@@ -383,14 +401,14 @@ def compute_time_derivative(diff_op, input_vector, op_image_args):
     output_vector = {}
     # for each operator in the input vector
     for input_op in input_vector.keys():
-        # if we do not know the time derivative of this operator, compute it
-        try: diff_op[input_op]
-        except:
+        try:
+            add_left(output_vector, diff_op[input_op], input_vector[input_op])
+        except: # we do not know the time derivative of this operator, so compute it
             diff_op[input_op] = op_image(input_op, *op_image_args)
-            # we get the time derivative of the conjugate operator for free, so save it
+            # we get the time derivative of the conjugate operator for free
             if input_op[0] != input_op[-1]:
-                diff_op[input_op[::-1]] = conj_op_vec(diff_op[input_op])
-        add_left(output_vector, diff_op[input_op], input_vector[input_op])
+                diff_op[input_op[::-1]] = conj_vec(diff_op[input_op])
+            add_left(output_vector, diff_op[input_op], input_vector[input_op])
     return clean(output_vector)
 
 
@@ -401,13 +419,13 @@ def compute_time_derivative(diff_op, input_vector, op_image_args):
 # return correlators from evolution under a general Hamiltonian
 def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, dec_rates,
                         dec_mat = None, init_vals_pX = {}, init_vals_nZ = {}, mu = 1):
-    assert(mu in [+1,-1])
     assert(initial_state in [ "+X", "-Z" ])
+    total_spin = spin_num/2
     if initial_state == "+X":
-        initial_val = op_val_pX
+        initial_val = lambda op : op_val_pX(op, total_spin, mu)
         initial_vals = init_vals_pX
     if initial_state == "-Z":
-        initial_val = op_val_nZ
+        initial_val = lambda op : op_val_nZ(op, total_spin, mu)
         initial_vals = init_vals_nZ
     if dec_mat is None:
         dec_mat = np.eye(3)
@@ -416,8 +434,9 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
     squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 
     # arguments for computing operator pre-image under infinitesimal time translation
-    op_image_args = ( h_vec, spin_num/2, dec_rates, dec_mat, mu )
+    op_image_args = ( convert_zxy(h_vec,mu), total_spin, dec_rates, dec_mat, mu )
 
+    # compute all images under time derivatives
     diff_op = {} # generator of time translations
     time_derivatives = {} # [ sqz_op ][ derivative_order ][ operator ] --> value
     for sqz_op in squeezing_ops:
@@ -431,9 +450,8 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
     for sqz_op in squeezing_ops:
         for order in range(order_cap):
             for op in time_derivatives[sqz_op][order].keys():
-                try: initial_vals[op]
-                except:
-                    initial_vals[op] = initial_val(spin_num/2, op, mu)
+                if initial_vals.get(op) == None:
+                    initial_vals[op] = initial_val(op)
                     # all our initial values are real, so no need to conjugate
                     if op[0] != op[-1]:
                         initial_vals[op[::-1]] = initial_vals[op]
@@ -457,7 +475,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
         reversed_corrs[(1,0,0)] = np.conj(correlators[(1,0,0)])
         reversed_corrs[(2,0,0)] = np.conj(correlators[(2,0,0)])
         reversed_corrs[(1,1,0)] = np.conj(correlators[(1,1,0)] - correlators[(1,0,0)])
-        reversed_corrs[(1,0,1)] = np.conj(correlators[(1,0,1)]) + 2 * correlators[(0,1,0)]
+        reversed_corrs[(1,0,1)] = correlators[(1,0,1)] + 2 * correlators[(0,1,0)]
 
         return reversed_corrs
 
