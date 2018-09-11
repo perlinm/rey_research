@@ -40,7 +40,6 @@
 \newcommand{\X}{\text{X}}
 \newcommand{\Y}{\text{Y}}
 \newcommand{\bmu}{{\bar\mu}}
-\newcommand{\bnu}{{\bar\nu}}
 \newcommand{\floor}[1]{\left\lfloor{#1}\right\rfloor}
 
 \usepackage{dsfont} % for identity operator
@@ -150,13 +149,13 @@ $\mu,\nu\in\set{+1,-1}$ we find that
 \end{align}
 where
 \begin{align}
-  \Phi\p{\zeta,t}
-  &\equiv e^{-\lambda t} \sp{\cos\p{t\sqrt{s_\zeta^2-r}}
-    + \lambda t~\t{sinc}\p{t\sqrt{s_\zeta^2-r}}},
+  \Phi\p{X,t}
+  &\equiv e^{-\lambda t} \sp{\cos\p{t\sqrt{s_X^2-r}}
+    + \lambda t~\t{sinc}\p{t\sqrt{s_X^2-r}}},
   \\
-  \Psi\p{\zeta,t}
-  &\equiv e^{-\lambda t} \p{is_\zeta-\gamma}t~
-  \t{sinc}\p{t\sqrt{s_\zeta^2-r}},
+  \Psi\p{X,t}
+  &\equiv e^{-\lambda t} \p{is_X-\gamma}t~
+  \t{sinc}\p{t\sqrt{s_X^2-r}},
 \end{align}
 for
 \begin{align}
@@ -168,7 +167,7 @@ for
   &
   \Gamma \equiv \gamma_\z + \lambda,
   &&
-  s_\zeta \equiv \zeta + i\gamma,
+  s_X \equiv X + i\gamma,
 \end{align}
 defined respectively in terms of spontaneous uncorrelated spin
 dephasing, excitation, and decay rates $\gamma_\z$, $\gamma_+$,
@@ -657,14 +656,13 @@ Putting everything together, we finally have
   E_{mn;\mu}^{(p-1)}
   = p! { m \choose p } { n \choose p }
   S_\bmu^{n-p} S_\mu^{m-p} \sum_{\ell=0}^p
-  \mu^\ell \epsilon_{mnp}^{(\ell)} S_\z^\ell,
+  \mu^\ell \epsilon_{mn}^{p\ell} S_\z^\ell,
 \end{align}
 with
 \begin{align}
-  \epsilon_{mnp}^{(\ell)}
+  \epsilon_{mn}^{p\ell}
   \equiv 2^\ell \sum_{q=\ell}^p \p{-1}^{p-q}
   { p \brack q } { q \choose \ell } \p{m-n}^{q-\ell},
-  \label{eq:eps_mnp}
 \end{align}
 where in this final form $E_{mn;\mu}^{(0)} = D_{mn;\mu}$, which
 together with the expansion for $C_{mn;\mu}$ in \eqref{eq:C_mn_E}
@@ -673,7 +671,7 @@ implies that
   \sp{S_\mu^m, S_\bmu^n}_-
   = \sum_{p=1}^{\min\set{m,n}}
   p! { m \choose p } { n \choose p } S_\bmu^{n-p} S_\mu^{m-p}
-  \sum_{\ell=0}^p \mu^\ell \epsilon_{mnp}^{(\ell)} S_\z^\ell,
+  \sum_{\ell=0}^p \mu^\ell \epsilon_{mn}^{p\ell} S_\z^\ell,
   \label{eq:comm_mu}
 \end{align}
 and
@@ -681,7 +679,7 @@ and
   S_\mu^m S_\bmu^n
   = \sum_{p=0}^{\min\set{m,n}}
   p! { m \choose p } { n \choose p } S_\bmu^{n-p} S_\mu^{m-p}
-  \sum_{\ell=0}^p \mu^\ell \epsilon_{mnp}^{(\ell)} S_\z^\ell,
+  \sum_{\ell=0}^p \mu^\ell \epsilon_{mn}^{p\ell} S_\z^\ell,
   \label{eq:push_mu_bmu}
 \end{align}
 If we wish to order products of collective spin operators with $S_\z$
@@ -694,19 +692,18 @@ in between $S_\bmu$ and $S_\mu$, then
 where
 \begin{align}
   Z_{mn;\mu}^{(p)}
-  \equiv \sum_{\ell=0}^p \mu^\ell \epsilon_{mnp}^{(\ell)}
+  \equiv \sum_{\ell=0}^p \mu^\ell \epsilon_{mn}^{p\ell}
   \p{-\mu\sp{m-p} + S_\z}^\ell
-  = \sum_{q=0}^p \mu^q \zeta_{mnp}^{(q)} S_\z^q,
-  \label{eq:Z_mn}
+  = \sum_{q=0}^p \mu^q \zeta_{mn}^{pq} S_\z^q,
 \end{align}
 with
 \begin{align}
-  \zeta_{mnp}^{(q)}
+  \zeta_{mn}^{pq}
   \equiv \sum_{\ell=q}^p \p{-1}^{\ell-q}
-  \epsilon_{mnp}^{(\ell)} { \ell \choose q } \p{m-p}^{\ell-q}
+  \epsilon_{mn}^{p\ell} { \ell \choose q } \p{m-p}^{\ell-q}
   = \p{-1}^{p-q} 2^q \sum_{s=q}^p
   { p \brack s } { s \choose q } \p{m+n-2p}^{s-q}.
-  \label{eq:zeta_mnp}
+  \label{eq:zeta_mnpq}
 \end{align}
 
 
@@ -729,13 +726,13 @@ where
   S_\mu^{p+\ell-k} \tilde Z_{qr\ell m;\mu}^{(k)} S_\bmu^{r+n-k},
   \label{eq:general_product}
 \end{align}
-and, in terms of $\zeta_{r\ell k}^{(a)}$ as defined in
-\eqref{eq:zeta_mnp},
+and, in terms of $\zeta_{r\ell}^{ka}$ as defined in
+\eqref{eq:zeta_mnpq},
 \begin{align}
   \tilde Z_{qr\ell m;\mu}^{(k)}
   &\equiv \p{\mu\sp{\ell-k}+S_\z}^q
   Z_{r\ell;\bmu}^{(k)} \p{\mu\sp{r-k}+S_\z}^m \\
-  &= \sum_{a=0}^k \p{-1}^a \zeta_{r\ell k}^{(a)}
+  &= \sum_{a=0}^k \p{-1}^a \zeta_{r\ell}^{ka}
   \sum_{b=0}^q \p{\ell-k}^{q-b} { q \choose b }
   \sum_{c=0}^m \p{r-k}^{m-c} { m \choose c }
   \mu^{q+m+a-b-c} S_\z^{a+b+c}.
@@ -1019,6 +1016,8 @@ we finally have
   \D\p{\sigma_X; S_\mu^\ell S_\z^m S_\bmu^n}
   + Q_{\ell mn;\mu}^{(\gamma)} + \sp{Q_{nm\ell;\mu}^{(\gamma)}}^\dag.
 \end{align}
+Note that the sum $\ell+m+n$ does not ever grow under this form of
+decoherence.
 
 
 \section{Sandwich identities for collective-spin decoherence
@@ -1247,6 +1246,8 @@ we then have
   + \tilde Q_{\ell mn;\mu}^{(\Gamma)}
   + \sp{\tilde Q_{nm\ell;\mu}^{(\Gamma)}}^\dag.
 \end{align}
+Note that the sum $\ell+m+n$ grows by one if $\Gamma_\mu\ne0$ or
+$\Gamma_\bmu\ne0$, and does not grow otherwise.
 
 
 \section{Initial conditions}
@@ -1271,14 +1272,14 @@ and the initial states
   \ket{\X} \equiv 2^{-N/2} \sum_{k=-S}^S
   { N \choose S+k }^{1/2} \ket{k},
 \end{align}
-using which we can compute, for $\bmu\equiv-\mu\in\set{+1,-1}$ and
-$\bnu\equiv-\nu\in\set{+1,-1}$,
+using which we can compute, for $\mu,\nu\in\set{+1,-1}$ and
+$\bmu\equiv-\mu$,
 \begin{align}
   \bk{\nu\Z|S_\mu^\ell S_\z^m S_\bmu^n|\nu\Z}
   = \delta_{\ell n} \nu^m \times
   \begin{cases}
-    \delta_{n,0} S^m & \mu \ne \nu, \\
-    \p{S-n}^m \f{N! n!}{\p{N-n}!} & \mu = \nu,
+     \p{S-n}^m \f{N! n!}{\p{N-n}!} & \mu = \nu, \\
+     \delta_{n,0} S^m & \mu \ne \nu,
   \end{cases}
 \end{align}
 and
