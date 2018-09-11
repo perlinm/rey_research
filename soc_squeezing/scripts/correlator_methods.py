@@ -424,11 +424,25 @@ def op_image_decoherence_Q_collective(op, S, dec_vec, mu):
 # image of operators under the time derivative operator
 ##########################################################################################
 
+# convert decoherence rates and transformation matrix to decoherence vectors
+def get_dec_vecs(dec_rates, dec_mat):
+    dec_vecs = []
+    for jj in range(3):
+        dec_vec_g = dec_mat[:,jj] * np.sqrt(dec_rates[0][jj])
+        dec_vec_G = dec_mat[:,jj] * np.sqrt(dec_rates[1][jj])
+        if dec_vec_g is np.zeros(3) and dec_vec_G is np.zeros(3): continue
+        if jj == 0: dec_vec_g /= np.sqrt(2)
+        dec_vecs.append((dec_vec_g,dec_vec_G))
+    return dec_vecs
+
 # compute image of a single operator from decoherence
-def op_image_decoherence(op, S, dec_vec_g, dec_vec_G, mu):
+def op_image_decoherence(op, S, dec_vec, mu):
+    dec_vec_g, dec_vec_G = dec_vec
+
     image = {}
     image = sum_vecs(op_image_decoherence_diag_individual(op, S, dec_vec_g, mu),
                      op_image_decoherence_diag_collective(op, S, dec_vec_G, mu))
+
     for image_Q, dec_vec in [ ( op_image_decoherence_Q_individual, dec_vec_g ),
                               ( op_image_decoherence_Q_collective, dec_vec_G ) ]:
         Q_lmn = image_Q(op, S, dec_vec, mu)
@@ -438,6 +452,7 @@ def op_image_decoherence(op, S, dec_vec_g, dec_vec_G, mu):
             Q_nml = image_Q(op[::-1], S, dec_vec, mu)
         add_left(image, Q_lmn)
         add_left(image, conj_vec(Q_nml))
+
     return image
 
 # compute image of a single operator from coherent evolution
@@ -450,13 +465,10 @@ def op_image_coherent(op, h_vec, mu):
     return image
 
 # full image of a single operator under the time derivative operator
-def op_image(op, h_vec, S, dec_rates, dec_mat, mu):
+def op_image(op, h_vec, S, dec_vecs, mu):
     image = op_image_coherent(op, h_vec, mu)
-    for jj in range(3):
-        dec_vec_g = dec_mat[:,jj] * np.sqrt(dec_rates[0][jj])
-        dec_vec_G = dec_mat[:,jj] * np.sqrt(dec_rates[1][jj])
-        if jj == 0: dec_vec_g /= np.sqrt(2)
-        add_left(image, op_image_decoherence(op, S, dec_vec_g, dec_vec_G, mu))
+    for dec_vec in dec_vecs:
+        add_left(image, op_image_decoherence(op, S, dec_vec, mu))
     return clean(image)
 
 # compute time derivative of a given vector of spin operators
@@ -513,7 +525,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
     squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 
     # arguments for computing operator pre-image under infinitesimal time translation
-    op_image_args = ( convert_zxy(h_vec,mu), total_spin, dec_rates, dec_mat, mu )
+    op_image_args = ( convert_zxy(h_vec,mu), total_spin, dec_vecs, mu )
 
     # compute all images under time derivatives
     diff_op = {} # generator of time translations
