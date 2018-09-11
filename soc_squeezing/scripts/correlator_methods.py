@@ -6,22 +6,60 @@ import numpy as np
 import itertools
 
 from math import lgamma
-from mpmath import hyper
-from scipy.special import factorial, binom
+from scipy.special import factorial as scipy_factorial
+from scipy.special import binom as scipy_binom
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 
 
 ##########################################################################################
-# expectation values
+# common methods modified to recycle values
 ##########################################################################################
 
-# natural logarithm of factorial
+# factorial
+def factorial(nn, factorials = {}):
+    try: return factorials[nn]
+    except:
+        factorials[nn] = scipy_factorial(nn)
+        return factorials[nn]
+
+# logarithm of factorial
 def ln_factorial(nn, ln_factorials = {}):
     try: return ln_factorials[nn]
     except:
         ln_factorials[nn] = lgamma(nn+1)
         return ln_factorials[nn]
 
+# binomial coefficient
+def binom(nn, kk, binoms = {}):
+    try: return binoms[(nn,kk)]
+    except:
+        binoms[(nn,kk)] = scipy_binom(nn,kk)
+        return binoms[(nn,kk)]
+
+# unsigned stirling number of the first kind
+def stirling(nn, kk, stirlings = {}):
+    try: return stirlings[(nn,kk)]
+    except:
+        stirlings[(nn,kk)] = float(sympy_stirling(nn, kk, kind = 1, signed = False))
+        return stirlings[(nn,kk)]
+
+# coefficient for computing a product of spin operators
+def zeta(mm, nn, pp, qq, zetas = {}):
+    try: return zetas[(mm,nn,pp,qq)]
+    except:
+        prefactor = (-1)**(pp-qq) * 2**qq
+        sum_ss = sum([ binom(ss,qq) * stirling(pp,ss) * (mm+nn-2*pp)**(ss-qq)
+                       for ss in range(qq,pp+1) ])
+        zetas[(mm,nn,pp,qq)] = prefactor * sum_ss
+        zetas[(nn,mm,pp,qq)] = prefactor * sum_ss
+    return zetas[(mm,nn,pp,qq)]
+
+
+##########################################################################################
+# expectation values
+##########################################################################################
+
+# natural logarithm of factors which appear in the expetation value for |+X>
 def ln_factors_pX(total_spin, kk, ll, nn):
     return ( ln_factorial(total_spin+kk)
              - ln_factorial(total_spin - kk)
@@ -109,15 +147,6 @@ def ext_binom_op(ll, mm, nn, x, terms, prefactor = 1):
 ##########################################################################################
 # general commutator between ordered products of collective spin operators
 ##########################################################################################
-
-# unsigned stirling number of the first kind
-def stirling(nn,kk): return float(sympy_stirling(nn, kk, kind = 1, signed = False))
-
-# collective spin operator commutator coefficient (see notes)
-def zeta(mm, nn, pp, qq):
-    prefactor = (-1)**(pp-qq) * 2**qq
-    return prefactor * sum([ binom(ss,qq) * stirling(pp,ss) * (mm+nn-2*pp)**(ss-qq)
-                             for ss in range(qq,pp+1) ])
 
 # simplify product of two operators
 def multiply_terms(op_left, op_right, mu):
