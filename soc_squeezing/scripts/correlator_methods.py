@@ -59,37 +59,77 @@ def zeta(mm, nn, pp, qq, zetas = {}):
 # expectation values
 ##########################################################################################
 
-# natural logarithm of factors which appear in the expetation value for |+X>
-def ln_factors_pX(total_spin, kk, ll, nn):
-    return ( ln_factorial(total_spin+kk)
-             - ln_factorial(total_spin - kk)
-             - ln_factorial(total_spin + kk - ll)
-             - ln_factorial(total_spin + kk - nn) )
-ln_factors_pX = np.vectorize(ln_factors_pX)
+# natural logarithm of factors which appear in the expetation value for |X>
+def ln_factors_X(SS, kk, ll, nn):
+    return ( ln_factorial(SS + kk)
+             - ln_factorial(SS - kk)
+             - ln_factorial(SS + kk - ll)
+             - ln_factorial(SS + kk - nn) )
+ln_factors_X = np.vectorize(ln_factors_X)
 
-# correlator < +X | S_\mu^ll S_\z^mm S_\nu^nn | +X >
-def op_val_pX(op, total_spin, mu):
+# correlator < X | S_+^ll S_\z^mm S_-^nn | X >
+def op_val_X(op, SS):
     ll, mm, nn = op
     if ll == 0 and nn == 0 and mm % 2 == 1: return 0
-    if max(ll,nn) > 2*total_spin: return 0
-    ln_prefactor = ln_factorial(2*total_spin) - 2*total_spin*np.log(2)
-    k_vals = np.arange(-total_spin+max(ll,nn),total_spin+0.5)
-    terms = k_vals**mm * np.exp(ln_factors_pX(total_spin,k_vals,ll,nn) + ln_prefactor)
-    return (-mu)**mm * terms.sum()
+    if max(ll,nn) > 2*SS: return 0
+    ln_prefactor = ln_factorial(2*SS) - 2*SS*np.log(2)
+    k_vals = np.arange(-SS+max(ll,nn),SS+0.5)
+    terms = k_vals**mm * np.exp(ln_factors_X(SS,k_vals,ll,nn) + ln_prefactor)
+    return terms.sum()
 
-# correlator < -Z | S_\mu^ll S_\z^mm S_\nu^nn | -Z >
-def op_val_nZ(op, total_spin, mu):
+# correlator < Z | S_+^ll S_\z^mm S_-^nn | Z >
+def op_val_Z_p(op, SS):
     ll, mm, nn = op
     if ll != nn: return 0
-    if mu == 1:
-        if ll != 0: return 0
-        return (-total_spin)**mm
-    else:
-        spin_num = int(round(2*total_spin))
-        if nn > spin_num: return 0
-        ln_factorials_num = ln_factorial(spin_num) + ln_factorial(nn)
-        ln_factorials_den = ln_factorial(spin_num-nn)
-        return (-total_spin+nn)**mm * np.exp(ln_factorials_num - ln_factorials_den)
+    spin_num = int(round(2*SS))
+    if nn > spin_num: return 0
+    ln_factorials_num = ln_factorial(spin_num) + ln_factorial(nn)
+    ln_factorials_den = ln_factorial(spin_num-nn)
+    return (SS-nn)**mm * np.exp(ln_factorials_num - ln_factorials_den)
+
+# correlator < Z | S_-^ll S_\z^mm S_+^nn | Z >
+def op_val_Z_m(op, SS):
+    ll, mm, nn = op
+    if ll != 0 or nn != 0: return 0
+    return SS**mm
+
+# correlator ln < X | S_+^ll S_\z^mm S_-^nn | X >
+def op_ln_val_X(op, SS):
+    ll, mm, nn = op
+    if ll == 0 and nn == 0 and mm % 2 == 1: return None
+    if max(ll,nn) > 2*SS: return None
+
+    offset = SS % 1
+    k_vals_p = np.arange(1-offset,SS+offset)
+    k_vals_n = np.arange(1-offset,SS-max(ll,nn)+offset)
+
+    sign_n = ( 1 if mm % 2 == 0 else -1 )
+    ln_prefactor = ln_factorial(2*SS) - 2*SS*np.log(2)
+    ln_factors = lambda kk : ln_factors_X(SS,kk,ll,nn)
+    ln_terms_p = mm * np.log(k_vals_p) + ln_factors(+k_vals_p) + ln_prefactor
+    ln_terms_n = mm * np.log(k_vals_n) + ln_factors(-k_vals_n) + ln_prefactor
+    ln_term_max = max(ln_terms_p.max(),ln_terms_n.max())
+
+    terms_p = np.exp(ln_terms_p - ln_term_max)
+    terms_n = np.exp(ln_terms_n - ln_term_max)
+
+    return ln_term_max + np.log( terms_p.sum() + sign_n**mm * terms_n.sum() )
+
+# correlator < Z | S_+^ll S_\z^mm S_-^nn | Z >
+def op_ln_val_Z_p(op, SS):
+    ll, mm, nn = op
+    if ll != nn: return None
+    spin_num = int(round(2*SS))
+    if nn > spin_num: return None
+    ln_factorials_num = ln_factorial(spin_num) + ln_factorial(nn)
+    ln_factorials_den = ln_factorial(spin_num-nn)
+    return mm*np.log(SS-nn) + ln_factorials_num - ln_factorials_den
+
+# correlator < Z | S_-^ll S_\z^mm S_+^nn | Z >
+def op_ln_val_Z_m(op, SS):
+    ll, mm, nn = op
+    if ll != 0 or nn != 0: return None
+    return mm*np.log(SS)
 
 
 ##########################################################################################
@@ -441,15 +481,31 @@ def compute_time_derivative(diff_op, input_vector, op_image_args):
 
 # return correlators from evolution under a general Hamiltonian
 def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, dec_rates,
-                        dec_mat = None, init_vals_pX = {}, init_vals_nZ = {}, mu = 1):
-    assert(initial_state in [ "+X", "-Z" ])
+                        dec_mat = None, mu = 1, init_vals_XY = {},
+                        init_vals_Z_p = {}, init_vals_Z_m = {}):
+    state_sign, state_dir = initial_state
+    state_dir = initial_state[1]
+    assert(state_sign in [ "+", "-" ])
+    assert(state_dir in [ "Z", "X", "Y" ])
+    nu = +1 if state_sign == "+" else -1
+
     total_spin = spin_num/2
-    if initial_state == "+X":
-        initial_val = lambda op : op_val_pX(op, total_spin, mu)
-        initial_vals = init_vals_pX
-    if initial_state == "-Z":
-        initial_val = lambda op : op_val_nZ(op, total_spin, mu)
-        initial_vals = init_vals_nZ
+    if state_dir == "Z":
+        if mu == nu:
+            initial_val = lambda op : op_val_Z_p(op, total_spin)
+            initial_vals = init_vals_Z_p
+        else:
+            initial_val = lambda op : op_val_Z_m(op, total_spin)
+            initial_vals = init_vals_Z_m
+        val_sign = lambda op : nu**op[1]
+    else: # if state_dir in  [ "X", "Y" ]
+        initial_vals = init_vals_XY
+        initial_val = lambda op : op_val_X(op, total_spin)
+        if state_dir == "X":
+            val_sign = lambda op : (-mu)**op[1] * nu**(op[0]-op[2])
+        if state_dir == "Y":
+            val_sign = lambda op : (-mu)**op[1] * (1j*mu*nu)**(op[0]-op[2])
+
     if dec_mat is None:
         dec_mat = np.eye(3)
 
@@ -483,7 +539,8 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
     Q = {} # dictionary (ll,mm,nn) --> < D_t^kk S_\mu^ll S_\z^mm S_\nu^nn >_0 for all kk
     correlators = {}
     for sqz_op in squeezing_ops:
-        Q[sqz_op] = np.array([ sum([ time_derivatives[sqz_op][order][op] * initial_vals[op]
+        Q[sqz_op] = np.array([ sum([ time_derivatives[sqz_op][order][op]
+                                     * initial_vals[op] * val_sign(op)
                                      for op in time_derivatives[sqz_op][order].keys() ])
                                for order in range(order_cap) ])
         correlators[sqz_op] = Q[sqz_op] @ T
