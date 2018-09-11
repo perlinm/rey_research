@@ -191,14 +191,8 @@ for h_TAT in [ h_TAT_zy, h_TAT_yx ]:
     for key in h_TAT.keys():
         h_TAT[key] /= 3
 
-# convert Hamiltonians to (+,z,-) format
-h_OAT = convert_zxy(h_OAT)
-h_TVF = convert_zxy(h_TVF)
-h_TAT_zy = convert_zxy(h_TAT_zy)
-h_TAT_yx = convert_zxy(h_TAT_yx)
-
 # construct spin vector transformation matrices for periodically driven protocols
-dec_mat_TAT_zy = dec_mat_drive(1/3)
+dec_mat_TAT_zy = dec_mat_drive(+1/3)
 dec_mat_TAT_yx = dec_mat_drive(-1/3)
 
 # compute correlators for all protocols
@@ -206,7 +200,7 @@ correlators_TVF_D = compute_correlators(N, order_cap, chi_times, "+X",
                                         h_TVF, dec_rates)
 correlators_TAT_zy_D = compute_correlators(N, order_cap, chi_times, "+X",
                                            h_TAT_zy, dec_rates, dec_mat_TAT_zy)
-correlators_TAT_yx_D = compute_correlators(N, order_cap, chi_times, "-Z",
+correlators_TAT_yx_D = compute_correlators(N, order_cap, chi_times, "+Z",
                                            h_TAT_yx, dec_rates, dec_mat_TAT_yx)
 
 # compute squeezing from correlators

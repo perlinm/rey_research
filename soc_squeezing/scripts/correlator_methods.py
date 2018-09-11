@@ -520,6 +520,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
 
     if dec_mat is None:
         dec_mat = np.eye(3)
+    dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
     # list of operators necessary for computing squeezing with (\mu,\z,\nu) exponents
     squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
