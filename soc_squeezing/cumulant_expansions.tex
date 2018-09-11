@@ -40,6 +40,7 @@
 \newcommand{\X}{\text{X}}
 \newcommand{\Y}{\text{Y}}
 \newcommand{\bmu}{{\bar\mu}}
+\newcommand{\bnu}{{\bar\nu}}
 \newcommand{\floor}[1]{\left\lfloor{#1}\right\rfloor}
 
 \usepackage{dsfont} % for identity operator
@@ -334,7 +335,7 @@ operators to keep track of, we can now truncate the series in
   \sum_{p,q,r} T^{\ell m n}_{pqr;k} \bk{S_+^p S_\z^q S_-^r}_{t=0}.
 \end{align}
 Examining the nonzero entries of $T^{\ell mn}_{pqr;k}$ for
-$k=1,2,\cdots,M-1$ now {\it tells} us which operators we need to keep
+$k=0,1,\cdots,M-1$ now {\it tells} us which operators we need to keep
 track of in order to compute the expectation value
 $\bk{S_+^\ell S_\z^m S_-^n}$.  Furthermore, after computing the
 expectation values of all relevant operators at $t=0$, time evolution
@@ -695,18 +696,18 @@ where
   Z_{mn;\mu}^{(p)}
   \equiv \sum_{\ell=0}^p \mu^\ell \epsilon_{mnp}^{(\ell)}
   \p{-\mu\sp{m-p} + S_\z}^\ell
-  = \sum_{q=0}^p \mu^q \xi_{mnp}^{(q)} S_\z^q,
+  = \sum_{q=0}^p \mu^q \zeta_{mnp}^{(q)} S_\z^q,
   \label{eq:Z_mn}
 \end{align}
 with
 \begin{align}
-  \xi_{mnp}^{(q)}
+  \zeta_{mnp}^{(q)}
   \equiv \sum_{\ell=q}^p \p{-1}^{\ell-q}
   \epsilon_{mnp}^{(\ell)} { \ell \choose q } \p{m-p}^{\ell-q}
-  \label{eq:xi_mnp}
+  = \p{-1}^{p-q} 2^q \sum_{s=q}^p
+  { p \brack s } { s \choose q } \p{m+n-2p}^{s-q}.
+  \label{eq:zeta_mnp}
 \end{align}
-in terms of $\epsilon_{mnp}^{(\ell)}$ as defined in
-\eqref{eq:eps_mnp}.
 
 
 \section{Commutation relations between ordered products of collective
@@ -726,14 +727,15 @@ where
   \equiv S_\mu^p S_\z^q S_\bmu^r S_\mu^\ell S_\z^m S_\bmu^n
   = \sum_{k=0}^{\min\set{r,\ell}} k! { r \choose k } { \ell \choose k }
   S_\mu^{p+\ell-k} \tilde Z_{qr\ell m;\mu}^{(k)} S_\bmu^{r+n-k},
+  \label{eq:general_product}
 \end{align}
-and, in terms of $\xi_{r\ell k}^{(a)}$ as defined in
-\eqref{eq:xi_mnp},
+and, in terms of $\zeta_{r\ell k}^{(a)}$ as defined in
+\eqref{eq:zeta_mnp},
 \begin{align}
   \tilde Z_{qr\ell m;\mu}^{(k)}
   &\equiv \p{\mu\sp{\ell-k}+S_\z}^q
   Z_{r\ell;\bmu}^{(k)} \p{\mu\sp{r-k}+S_\z}^m \\
-  &= \sum_{a=0}^k \p{-1}^a \xi_{r\ell k}^{(a)}
+  &= \sum_{a=0}^k \p{-1}^a \zeta_{r\ell k}^{(a)}
   \sum_{b=0}^q \p{\ell-k}^{q-b} { q \choose b }
   \sum_{c=0}^m \p{r-k}^{m-c} { m \choose c }
   \mu^{q+m+a-b-c} S_\z^{a+b+c}.
@@ -1092,15 +1094,16 @@ so
 \section{Collective spin decoherence}
 \label{sec:decoherence_collective}
 
-In this section we work out the effects of decoherence via
-collective-spin jump operators on ordered products of collective spin
-operators.  For shorthand, we define
+In this section we work out the effects of decoherence via collective
+jump operators on ordered products of collective spin operators.  For
+shorthand, we define
 \begin{align}
   \D\p{\Gamma;\O}
   \equiv \D\p{\set{\Gamma};\O}
   = \Gamma^\dag \O \Gamma - \f12\sp{\Gamma^\dag \Gamma, \O}_+,
 \end{align}
-where $\Gamma$ is a collective spin operator.
+where $\Gamma$ is a collective spin operator with weight one i.e.~a
+linear combination of $S_\z$, $S_\mu$, and $S_\bmu$.
 
 \subsection{Decay-type decoherence and dephasing}
 \label{sec:decay_dephasing_collective}
@@ -1268,10 +1271,15 @@ and the initial states
   \ket{\X} \equiv 2^{-N/2} \sum_{k=-S}^S
   { N \choose S+k }^{1/2} \ket{k},
 \end{align}
-using which we can compute, for $\bmu\equiv-\mu\in\set{+1,-1}$,
+using which we can compute, for $\bmu\equiv-\mu\in\set{+1,-1}$ and
+$\bnu\equiv-\nu\in\set{+1,-1}$,
 \begin{align}
-  \bk{\pm\Z|S_\mu^\ell S_\z^m S_\bmu^n|\pm\Z}
-  = \delta_{\ell,0} \delta_{m,0} \p{\pm S}^m,
+  \bk{\nu\Z|S_\mu^\ell S_\z^m S_\bmu^n|\nu\Z}
+  = \delta_{\ell n} \nu^m \times
+  \begin{cases}
+    \delta_{n,0} S^m & \mu \ne \nu, \\
+    \p{S-n}^m \f{N! n!}{\p{N-n}!} & \mu = \nu,
+  \end{cases}
 \end{align}
 and
 \begin{align}
@@ -1289,7 +1297,7 @@ and
   &= \p{-\mu}^m \f{N!}{2^N} \sum_{k=-S+\max\set{\ell,n}}^S k^m
   \f{\p{S+k}!}{\p{S-k}!\p{S+k-\ell}!\p{S+k-n}!}.
 \end{align}
-More generally, using the fact that
+Furthermore, using the fact that
 \begin{align}
   e^{i\phi S_\z} S_\mu e^{-i\phi S_\z} = e^{i\mu\phi} S_\mu,
 \end{align}
@@ -1302,7 +1310,7 @@ where
 \begin{align}
   \ket{\phi} \equiv e^{-i\phi S_\z}\ket{\X},
   &&
-  \p{\cos\phi S_\x + \sin\phi S_\x} \ket\phi = S \ket\phi.
+  \p{\cos\phi S_\x + \sin\phi S_\y} \ket\phi = S \ket\phi.
 \end{align}
 
 \end{document}

@@ -3,7 +3,6 @@
 # FILE CONTENTS: methods for computing collective spin correlators
 
 import numpy as np
-import scipy.sparse as sparse
 import itertools
 
 from math import lgamma
@@ -17,20 +16,17 @@ from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 ##########################################################################################
 
 # natural logarithm of factorial
-def ln_factorial(n): return lgamma(n+1)
+def ln_factorial(nn, ln_factorials = {}):
+    try: return ln_factorials[nn]
+    except:
+        ln_factorials[nn] = lgamma(nn+1)
+        return ln_factorials[nn]
 
-def ln_factors_pX(total_spin, kk, ll, nn, ln_factorials = {}):
-    ln_term = 0
-    for fac_val, sign in [ (total_spin + kk, 1),
-                           (total_spin - kk, -1),
-                           (total_spin + kk - ll, -1),
-                           (total_spin + kk - nn, -1) ]:
-        try:
-            ln_term += sign * ln_factorials[fac_val]
-        except:
-            ln_factorials[fac_val] = ln_factorial(fac_val)
-            ln_term += sign * ln_factorials[fac_val]
-    return ln_term
+def ln_factors_pX(total_spin, kk, ll, nn):
+    return ( ln_factorial(total_spin+kk)
+             - ln_factorial(total_spin - kk)
+             - ln_factorial(total_spin + kk - ll)
+             - ln_factorial(total_spin + kk - nn) )
 ln_factors_pX = np.vectorize(ln_factors_pX)
 
 # correlator < +X | S_\mu^ll S_\z^mm S_\nu^nn | +X >
@@ -115,15 +111,13 @@ def ext_binom_op(ll, mm, nn, x, terms, prefactor = 1):
 ##########################################################################################
 
 # unsigned stirling number of the first kind
-def stirling(n,k): return float(sympy_stirling(n, k, kind = 1, signed = True))
+def stirling(nn,kk): return float(sympy_stirling(nn, kk, kind = 1, signed = False))
 
-# collective spin operator commutator coefficients (see notes)
-def epsilon(mm,nn,pp,ll):
-    return 2**ll * sum([ stirling(pp,qq) * binom(qq,ll) * (mm-nn)**(qq-ll)
-                         for qq in range(ll,pp+1) ])
-def xi(mm,nn,pp,qq):
-    return sum([ (-1)**(ll-qq) * epsilon(mm,nn,pp,ll) * binom(ll,qq) * (mm-pp)**(ll-qq)
-                 for ll in range(qq,pp+1) ])
+# collective spin operator commutator coefficient (see notes)
+def zeta(mm, nn, pp, qq):
+    prefactor = (-1)**(pp-qq) * 2**qq
+    return prefactor * sum([ binom(ss,qq) * stirling(pp,ss) * (mm+nn-2*pp)**(ss-qq)
+                             for ss in range(qq,pp+1) ])
 
 # simplify product of two operators
 def multiply_terms(op_left, op_right, mu):
@@ -134,7 +128,7 @@ def multiply_terms(op_left, op_right, mu):
     binom_mm = [ binom(mm,cc) for cc in range(mm+1) ]
     for kk in range(min(rr,ll)+1):
         kk_fac = factorial(kk) * binom(rr,kk) * binom(ll,kk)
-        aa_facs = [ (-1)**aa * xi(rr,ll,kk,aa) for aa in range(kk+1) ]
+        aa_facs = [ (-1)**aa * zeta(rr,ll,kk,aa) for aa in range(kk+1) ]
         for aa, bb, cc in itertools.product(range(kk+1),range(qq+1),range(mm+1)):
             bb_fac = (ll-kk)**(qq-bb) * binom_qq[bb]
             cc_fac = (rr-kk)**(mm-cc) * binom_mm[cc]
