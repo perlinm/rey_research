@@ -492,9 +492,9 @@ def compute_time_derivative(diff_op, input_vector, op_image_args):
 ##########################################################################################
 
 # return correlators from evolution under a general Hamiltonian
-def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, dec_rates,
-                        dec_mat = None, mu = 1, init_vals_XY = {},
-                        init_vals_Z_p = {}, init_vals_Z_m = {}):
+def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
+                        dec_rates = [(0,0,0),(0,0,0)], dec_mat = None, mu = 1,
+                        init_vals_XY = {}, init_vals_Z_p = {}, init_vals_Z_m = {}):
     state_sign, state_dir = initial_state
     state_dir = initial_state[1]
     assert(state_sign in [ "+", "-" ])
@@ -548,17 +548,19 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
                     if op[0] != op[-1]:
                         initial_vals[op[::-1]] = initial_vals[op]
 
-    T = np.array([ chi_times**kk / factorial(kk) for kk in range(order_cap) ])
-    Q = {} # op --> < (d/dt)^kk S_\mu^ll S_\z^mm S_\bmu^nn >_0 for all kk
+    print(time()-start)
+    start = time()
+    T = np.array([ chi_times.astype(complex)**kk for kk in range(order_cap) ])
     correlators = {}
     for sqz_op in squeezing_ops:
-        Q[sqz_op] = np.zeros(order_cap, dtype = complex)
+        # compute < (d/dt)^kk S_\mu^ll S_\z^mm S_\bmu^nn >_0 for all kk
+        Q = np.zeros(order_cap, dtype = complex)
         for kk in range(order_cap):
-            Q[sqz_op][kk] = sum([ np.exp(np.log(complex(time_derivatives[sqz_op][kk][op]))
-                                         + initial_vals[op]) * val_sign(op)
-                                  for op in time_derivatives[sqz_op][kk].keys()
-                                  if initial_vals[op] is not None ])
-        correlators[sqz_op] = Q[sqz_op] @ T
+            Q[kk] = sum([ np.exp(np.log(complex(time_derivatives[sqz_op][kk][op]))
+                                 + initial_vals[op] - ln_factorial(kk)) * val_sign(op)
+                          for op in time_derivatives[sqz_op][kk].keys()
+                          if initial_vals[op] is not None ])
+            correlators[sqz_op] = Q @ T
 
     if mu == 1:
         return correlators
