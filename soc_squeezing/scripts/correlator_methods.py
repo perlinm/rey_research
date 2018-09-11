@@ -163,12 +163,12 @@ def sum_vecs(*vecs):
         add_left(vec_sum, vec)
     return vec_sum
 
-# return vector S_\mu^ll (x + S_\z)^mm * S_\nu^nn
+# return vector S_\mu^ll (x + S_\z)^mm * S_\bmu^nn
 def binom_op(ll, mm, nn, x, prefactor = 1):
     return { (ll,kk,nn) : prefactor * x**(mm-kk) * binom(mm,kk) for kk in range(mm+1) }
 
-# takes S_\mu^ll S_\z^mm S_\nu^nn
-#   --> S_\mu^ll ( \sum_jj x_jj S_\z^jj ) S_\z^mm + S_\nu^nn
+# takes S_\mu^ll S_\z^mm S_\bmu^nn
+#   --> S_\mu^ll ( \sum_jj x_jj S_\z^jj ) S_\z^mm + S_\bmu^nn
 def insert_z_poly(vec, coefficients, prefactor = 1):
     output = { key : prefactor * coefficients[0] * vec[key] for key in vec.keys() }
     for jj in range(1,len(coefficients)):
@@ -504,15 +504,15 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
     total_spin = spin_num/2
     if state_dir == "Z":
         if mu == nu:
-            initial_val = lambda op : op_val_Z_p(op, total_spin)
+            initial_val = lambda op : op_ln_val_Z_p(op, total_spin)
             initial_vals = init_vals_Z_p
         else:
-            initial_val = lambda op : op_val_Z_m(op, total_spin)
+            initial_val = lambda op : op_ln_val_Z_m(op, total_spin)
             initial_vals = init_vals_Z_m
         val_sign = lambda op : nu**op[1]
     else: # if state_dir in  [ "X", "Y" ]
         initial_vals = init_vals_XY
-        initial_val = lambda op : op_val_X(op, total_spin)
+        initial_val = lambda op : op_ln_val_X(op, total_spin)
         if state_dir == "X":
             val_sign = lambda op : (-mu)**op[1] * nu**(op[0]-op[2])
         if state_dir == "Y":
@@ -522,14 +522,14 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
         dec_mat = np.eye(3)
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
-    # list of operators necessary for computing squeezing with (\mu,\z,\nu) exponents
+    # list of operators necessary for computing squeezing with (\mu,\z,\bmu) exponents
     squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 
     # arguments for computing operator pre-image under infinitesimal time translation
     op_image_args = ( convert_zxy(h_vec,mu), total_spin, dec_vecs, mu )
 
     # compute all images under time derivatives
-    diff_op = {} # generator of time translations
+    diff_op = {} # time derivative operator
     time_derivatives = {} # [ sqz_op ][ derivative_order ][ operator ] --> value
     for sqz_op in squeezing_ops:
         time_derivatives[sqz_op] = { 0 : { sqz_op : 1 } }
@@ -540,8 +540,8 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
 
     # compute initial values of relevant operators
     for sqz_op in squeezing_ops:
-        for order in range(order_cap):
-            for op in time_derivatives[sqz_op][order].keys():
+        for kk in range(order_cap):
+            for op in time_derivatives[sqz_op][kk].keys():
                 if initial_vals.get(op) == None:
                     initial_vals[op] = initial_val(op)
                     # all our initial values are real, so no need to conjugate
@@ -549,19 +549,21 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec, de
                         initial_vals[op[::-1]] = initial_vals[op]
 
     T = np.array([ chi_times**kk / factorial(kk) for kk in range(order_cap) ])
-    Q = {} # dictionary (ll,mm,nn) --> < D_t^kk S_\mu^ll S_\z^mm S_\nu^nn >_0 for all kk
+    Q = {} # op --> < (d/dt)^kk S_\mu^ll S_\z^mm S_\bmu^nn >_0 for all kk
     correlators = {}
     for sqz_op in squeezing_ops:
-        Q[sqz_op] = np.array([ sum([ time_derivatives[sqz_op][order][op]
-                                     * initial_vals[op] * val_sign(op)
-                                     for op in time_derivatives[sqz_op][order].keys() ])
-                               for order in range(order_cap) ])
+        Q[sqz_op] = np.zeros(order_cap, dtype = complex)
+        for kk in range(order_cap):
+            Q[sqz_op][kk] = sum([ np.exp(np.log(complex(time_derivatives[sqz_op][kk][op]))
+                                         + initial_vals[op]) * val_sign(op)
+                                  for op in time_derivatives[sqz_op][kk].keys()
+                                  if initial_vals[op] is not None ])
         correlators[sqz_op] = Q[sqz_op] @ T
 
     if mu == 1:
         return correlators
 
-    else: # mu == -1
+    else:
         reversed_corrs = {}
         reversed_corrs[(0,1,0)] = correlators[(0,1,0)]
         reversed_corrs[(0,2,0)] = correlators[(0,2,0)]
