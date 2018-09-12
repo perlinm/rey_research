@@ -552,13 +552,18 @@ def scale_index(q, L, site_number):
 # return energy of a single-particle state
 def gauged_energy(q, s, phi, L, energies_or_J):
     if energies_or_J.shape == L.shape: # energies_or_J is the tunneling rate J
-        return -2 * ( energies_or_J * np.cos(2*np.pi/L * (q-(L-1)/2) + s*phi) ).sum()
+        J = energies_or_J
+        return -2 * ( J * np.cos(2*np.pi/L * (q-(L-1)/2) + s*phi) ).sum()
 
     else: # energies_or_J is a table of single-particle energies
-        site_number = energies_or_J[0,:,0].size
+        if len(energies_or_J.shape) == 2:
+            energies = energies_or_J
+        else:
+            energies = energies_or_J[:,:,0]
+        site_number = energies.shape[1]
         index_shift = (s*np.array(phi) * site_number / (2*np.pi)).round().astype(int)
         q = ( scale_index(q, L, site_number) + index_shift ) % site_number
-        return sum([ energies_or_J[ii,q[ii],0] for ii in range(L.size) ])
+        return sum([ energies[ii,q[ii]] for ii in range(L.size) ])
 
 # return two-body overlap integral for (p,q) <--> (r,p+q-r) coupling
 def coupling_overlap(p, q, r, L, momenta, fourier_vecs):
