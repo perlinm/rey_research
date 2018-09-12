@@ -138,22 +138,22 @@ def op_ln_val_Z_m(op, SS):
 
 # clean up a dictionary vector
 def clean(vec):
-    null_keys = [ key for key in vec.keys() if abs(vec[key]) == 0 ]
-    for key in null_keys: del vec[key]
+    null_ops = [ op for op, val in vec.items() if abs(val) == 0 ]
+    for op in null_ops: del vec[op]
     return vec
 
 # take hermitian conjugate of a dictionary taking operator --> value,
 #   i.e. return a dictionary taking operator* --> value*
 def conj_vec(vec):
-    return { op[::-1] : np.conj(vec[op]) for op in vec.keys() }
+    return { op[::-1] : np.conj(val) for op, val in vec.items() }
 
 # add the right vector to the left vector
-def add_left(dict_left, dict_right, scalar = 1):
-    for key in dict_right:
+def add_left(vec_left, vec_right, scalar = 1):
+    for op, val in vec_right.items():
         try:
-            dict_left[key] += scalar * dict_right[key]
+            vec_left[op] += scalar * val
         except:
-            dict_left[key] = scalar * dict_right[key]
+            vec_left[op] = scalar * val
 
 # return sum of all input vectors
 def sum_vecs(*vecs):
@@ -170,13 +170,14 @@ def binom_op(ll, mm, nn, x, prefactor = 1):
 # takes S_\mu^ll S_\z^mm S_\bmu^nn
 #   --> S_\mu^ll ( \sum_jj x_jj S_\z^jj ) S_\z^mm + S_\bmu^nn
 def insert_z_poly(vec, coefficients, prefactor = 1):
-    output = { key : prefactor * coefficients[0] * vec[key] for key in vec.keys() }
+    output = { op : prefactor * coefficients[0] * val for op, val in vec.items() }
     for jj in range(1,len(coefficients)):
-        for ll, mm, nn in vec.keys():
+        for op, val in vec.items():
+            ll, mm, nn = op
             try:
-                output[(ll,mm+jj,nn)] += prefactor * coefficients[jj] * vec[(ll,mm,nn)]
+                output[(ll,mm+jj,nn)] += prefactor * coefficients[jj] * val
             except:
-                output[(ll,mm+jj,nn)] = prefactor * coefficients[jj] * vec[(ll,mm,nn)]
+                output[(ll,mm+jj,nn)] = prefactor * coefficients[jj] * val
     return output
 
 # shorthand for operator term: "extended binomial operator"
@@ -213,9 +214,9 @@ def multiply_terms(op_left, op_right, mu):
 # simplify product of two vectors
 def multiply_vecs(vec_left, vec_right, mu, prefactor = 1):
     vec = {}
-    for term_left in vec_left.keys():
-        for term_right in vec_right.keys():
-            fac = vec_left[term_left] * vec_right[term_right] * prefactor
+    for term_left, val_left in vec_left.items():
+        for term_right, val_right in vec_right.items():
+            fac = val_left * val_right * prefactor
             add_left(vec, multiply_terms(term_left, term_right, mu), fac)
     return vec
 
@@ -244,16 +245,16 @@ def convert_zxy(vec_zxy, mu = 1):
              (0,0,1) : 1 }
     Sy_ni2 = { (1,0,0) : -1,
                (0,0,1) :  1 }
-    for op_zxy in vec_zxy.keys():
+    for op_zxy, val_zxy in vec_zxy.items():
         ll, mm, nn = op_zxy
-        lmn_fac = (1j*mu)**nn / 2**(mm+nn) * vec_zxy[op_zxy]
+        lmn_fac = (1j*mu)**nn / 2**(mm+nn) * val_zxy
         # starting from the left, successively multiply all factors on the right
         lmn_vec = { (0,ll,0) : 1 }
         for jj in range(mm): lmn_vec = multiply_vecs(lmn_vec, Sx_2, mu)
         for kk in range(nn): lmn_vec = multiply_vecs(lmn_vec, Sy_ni2, mu)
         add_left(vec, lmn_vec, lmn_fac)
     if np.array([ np.imag(val) == 0 for val in vec.values() ]).all():
-        vec = { key : np.real(vec[key]) for key in vec.keys() }
+        vec = { op : np.real(val) for op, val in vec.items() }
     return clean(vec)
 
 
@@ -459,9 +460,9 @@ def op_image_decoherence(op, S, dec_vec, mu):
 def op_image_coherent(op, h_vec, mu):
     if op == (0,0,0): return {}
     image = {}
-    for h_op in h_vec.keys():
-        add_left(image, multiply_terms(h_op, op, mu), +1j*h_vec[h_op])
-        add_left(image, multiply_terms(op, h_op, mu), -1j*h_vec[h_op])
+    for h_op, h_val in h_vec.items():
+        add_left(image, multiply_terms(h_op, op, mu), +1j*h_val)
+        add_left(image, multiply_terms(op, h_op, mu), -1j*h_val)
     return image
 
 # full image of a single operator under the time derivative operator
@@ -472,18 +473,19 @@ def op_image(op, h_vec, S, dec_vecs, mu):
     return clean(image)
 
 # compute time derivative of a given vector of spin operators
-def compute_time_derivative(diff_op, input_vector, op_image_args):
+def compute_time_deriv(diff_op, input_vector, deriv_order, op_image_args):
     output_vector = {}
     # for each operator in the input vector
-    for input_op in input_vector.keys():
+    for input_op, input_val in input_vector.items():
+        prefactor = input_val / deriv_order
         try:
-            add_left(output_vector, diff_op[input_op], input_vector[input_op])
+            add_left(output_vector, diff_op[input_op], prefactor)
         except: # we do not know the time derivative of this operator, so compute it
             diff_op[input_op] = op_image(input_op, *op_image_args)
             # we get the time derivative of the conjugate operator for free
             if input_op[0] != input_op[-1]:
                 diff_op[input_op[::-1]] = conj_vec(diff_op[input_op])
-            add_left(output_vector, diff_op[input_op], input_vector[input_op])
+            add_left(output_vector, diff_op[input_op], prefactor)
     return clean(output_vector)
 
 
@@ -509,14 +511,14 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
         else:
             initial_val = lambda op : op_ln_val_Z_m(op, total_spin)
             initial_vals = init_vals_Z_m
-        val_sign = lambda op : nu**op[1]
-    else: # if state_dir in  [ "X", "Y" ]
+        init_val_sign = lambda op : nu**op[1]
+    else: # if state_dir in [ "X", "Y" ]
         initial_vals = init_vals_XY
         initial_val = lambda op : op_ln_val_X(op, total_spin)
         if state_dir == "X":
-            val_sign = lambda op : (-mu)**op[1] * nu**(op[0]-op[2])
+            init_val_sign = lambda op : (-mu)**op[1] * nu**(op[0]-op[2])
         if state_dir == "Y":
-            val_sign = lambda op : (-mu)**op[1] * (1j*mu*nu)**(op[0]-op[2])
+            init_val_sign = lambda op : (-mu)**op[1] * (1j*mu*nu)**(op[0]-op[2])
 
     if dec_mat is None:
         dec_mat = np.eye(3)
@@ -530,35 +532,33 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
 
     # compute all images under time derivatives
     diff_op = {} # time derivative operator
-    time_derivatives = {} # [ sqz_op ][ derivative_order ][ operator ] --> value
+    time_derivs = {} # [ sqz_op ][ derivative_order ][ operator ] --> value
     for sqz_op in squeezing_ops:
-        time_derivatives[sqz_op] = { 0 : { sqz_op : 1 } }
+        time_derivs[sqz_op] = { 0 : { sqz_op : 1 } }
         for order in range(1,order_cap):
-            time_derivatives[sqz_op][order] \
-                = compute_time_derivative(diff_op, time_derivatives[sqz_op][order-1],
-                                          op_image_args)
+            time_derivs[sqz_op][order] \
+                = compute_time_deriv(diff_op, time_derivs[sqz_op][order-1],
+                                     order, op_image_args)
 
     # compute initial values of relevant operators
     for sqz_op in squeezing_ops:
-        for kk in range(order_cap):
-            for op in time_derivatives[sqz_op][kk].keys():
+        for order in range(order_cap):
+            for op in time_derivs[sqz_op][order]:
                 if initial_vals.get(op) == None:
                     initial_vals[op] = initial_val(op)
                     # all our initial values are real, so no need to conjugate
                     if op[0] != op[-1]:
                         initial_vals[op[::-1]] = initial_vals[op]
 
-    print(time()-start)
-    start = time()
-    T = np.array([ chi_times.astype(complex)**kk for kk in range(order_cap) ])
+    T = np.array([ chi_times.astype(complex)**order for order in range(order_cap) ])
     correlators = {}
     for sqz_op in squeezing_ops:
-        # compute < (d/dt)^kk S_\mu^ll S_\z^mm S_\bmu^nn >_0 for all kk
+        # compute < (d/dt)^kk S_\mu^ll S_\z^mm S_\bmu^nn >_0 / kk! for all kk
         Q = np.zeros(order_cap, dtype = complex)
-        for kk in range(order_cap):
-            Q[kk] = sum([ np.exp(np.log(complex(time_derivatives[sqz_op][kk][op]))
-                                 + initial_vals[op] - ln_factorial(kk)) * val_sign(op)
-                          for op in time_derivatives[sqz_op][kk].keys()
+        for order in range(order_cap):
+            Q[order] = sum([ np.exp(np.log(complex(time_derivs[sqz_op][order][op]))
+                                    + initial_vals[op]) * init_val_sign(op)
+                             for op in time_derivs[sqz_op][order]
                           if initial_vals[op] is not None ])
             correlators[sqz_op] = Q @ T
 
