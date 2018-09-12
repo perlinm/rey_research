@@ -2,11 +2,10 @@
 
 # FILE CONTENTS: methods for computing collective spin correlators
 
+import itertools, scipy
 import numpy as np
-import itertools
 
-from math import lgamma
-from scipy.special import factorial as scipy_factorial
+from scipy.special import gamma, gammaln
 from scipy.special import binom as scipy_binom
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 
@@ -19,14 +18,14 @@ from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 def factorial(nn, factorials = {}):
     try: return factorials[nn]
     except:
-        factorials[nn] = scipy_factorial(nn)
+        factorials[nn] = gamma(nn+1)
         return factorials[nn]
 
 # logarithm of factorial
 def ln_factorial(nn, ln_factorials = {}):
     try: return ln_factorials[nn]
     except:
-        ln_factorials[nn] = lgamma(nn+1)
+        ln_factorials[nn] = gammaln(nn+1)
         return ln_factorials[nn]
 
 # binomial coefficient
@@ -473,7 +472,7 @@ def op_image(op, h_vec, S, dec_vecs, mu):
     return clean(image)
 
 # compute time derivative of a given vector of spin operators
-def compute_time_deriv(diff_op, input_vector, deriv_order, op_image_args):
+def compute_time_deriv(diff_op, deriv_order, input_vector, op_image_args):
     output_vector = {}
     # for each operator in the input vector
     for input_op, input_val in input_vector.items():
@@ -537,8 +536,8 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
         time_derivs[sqz_op] = { 0 : { sqz_op : 1 } }
         for order in range(1,order_cap):
             time_derivs[sqz_op][order] \
-                = compute_time_deriv(diff_op, time_derivs[sqz_op][order-1],
-                                     order, op_image_args)
+                = compute_time_deriv(diff_op, order, time_derivs[sqz_op][order-1],
+                                     op_image_args)
 
     # compute initial values of relevant operators
     for sqz_op in squeezing_ops:
@@ -550,7 +549,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
                     if op[0] != op[-1]:
                         initial_vals[op[::-1]] = initial_vals[op]
 
-    T = np.array([ chi_times.astype(complex)**order for order in range(order_cap) ])
+    T = np.array([ chi_times**order for order in range(order_cap) ]).astype(complex)
     correlators = {}
     for sqz_op in squeezing_ops:
         # compute < (d/dt)^kk S_\mu^ll S_\z^mm S_\bmu^nn >_0 / kk! for all kk
