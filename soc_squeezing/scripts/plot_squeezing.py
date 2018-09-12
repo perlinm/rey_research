@@ -23,7 +23,7 @@ show = "show" in sys.argv
 save = "save" in sys.argv
 
 figsize = (4,3)
-fig_dir = "../figures/"
+fig_dir = "../figures/squeezing_plots/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
@@ -32,21 +32,24 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-L = 100 # lattice sites
+L = [30]*2 # lattice sites
 U_J_target = 2 # target value of U_int / J_0
 h_U_target = 0.05 # target value of h_std / U_int
-excited_lifetime_SI = 10 # seconds; lifetime of excited state (from e --> g decay)
+confining_depth = 60 # lattice depth along confining axis
 
-site_number = 100 # number of sites in lattice calculations
-confining_depth = 100 # lattice depth along confining axis
+site_number = 200 # number of sites in lattice calculations
 lattice_depth_bounds = (1,15) # min / max lattice depths we will allow
 
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
-time_steps = 1000 # time steps in simulation
+time_steps = 200 # time steps in simulation
 
 fermi_N_max = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
+order_cap = 40 # order limit for cumulant expansions
 
-order_cap = 50 # order limit for cumulant expansions
+excited_lifetime_SI = 10 # seconds; lifetime of excited state (from e --> g decay)
+drive_mod_index_zy = 0.9057195866712102 # for TAT protocol about (z,y)
+drive_mod_index_yx_1 = 1.6262104442160061 # for TAT protocol about (y,x)
+drive_mod_index_yx_2 = 2.2213461342426544 # for TAT protocol about (y,x)
 
 
 ##########################################################################################
@@ -57,7 +60,7 @@ N = prod(L)
 lattice_dim = np.array(L, ndmin = 1).size
 
 # determine primary lattice depth which optimally satisfies our target U_int / J_0
-momenta, fourier_vecs, _ = mathieu_solution(confining_depth, 1, site_number)
+momenta, fourier_vecs, soc_energies = mathieu_solution(confining_depth, 1, site_number)
 K_T = pair_overlap_1D(momenta, fourier_vecs)
 J_T = tunneling_1D(confining_depth, momenta, fourier_vecs)
 def U_J(depth):
@@ -70,7 +73,7 @@ lattice_depth = minimize_scalar(lambda x: abs(U_J(x)-U_J_target),
 
 # get simulation parameters and on-site interaction energy
 L, J_0, J_T, K_0, K_T, momenta, fourier_vecs, energies = \
-    get_simulation_parameters(L, lattice_depth, confining_depth)
+    get_simulation_parameters(L, lattice_depth, confining_depth, site_number)
 U_int = g_int_LU[1] * K_T**(3-lattice_dim) * prod(K_0)
 
 # determine optimal SOC angle using hubbard approximation
@@ -177,36 +180,28 @@ print()
 print("t_opt_OAT_D (sec):", t_opt_OAT_D / recoil_energy_NU)
 print("sqz_opt_OAT_D (dB):", sqz_OAT_D.max())
 
-# construct Hamiltonians, first in (z,x,y) format
+# construct Hamiltonians in (z,x,y) format
 h_OAT = { (2,0,0) : 1 }         # S_z^2
 h_TVF = { (2,0,0) : 1,          # Sz^2 + drive_TVF * S_x
           (0,1,0) : drive_TVF }
-h_TAT_zy = { (2,0,0) : 2,       # 2 * S_z^2 + S_x^2 --> S_z^2 - S_y^2
-             (0,2,0) : 1 }
-h_TAT_yx = { (2,0,0) : 1,       # S_z^2 + 2 * S_y^2 --> S_y^2 - S_x^2
-             (0,0,2) : 2 }
+h_TAT = { (0,0,2) : +1/3,       # S_y^2 - S_x^2
+          (0,2,0) : -1/3 }
 
-# divide through TAT Hamiltonians by 1/3
-for h_TAT in [ h_TAT_zy, h_TAT_yx ]:
-    for key in h_TAT.keys():
-        h_TAT[key] /= 3
+# compute correlators and squeezing for benchmarking
+correlators_TVF_B = compute_correlators(N, order_cap, chi_times, "+X", h_TVF)
+correlators_TAT_B = compute_correlators(N, order_cap, chi_times, "-Z", h_TAT)
+sqz_TVF_B = squeezing_from_correlators(N, correlators_TVF_B)
+sqz_TAT_B = squeezing_from_correlators(N, correlators_TAT_B)
 
-# construct spin vector transformation matrices for periodically driven protocols
-dec_mat_TAT_zy = dec_mat_drive(+1/3)
-dec_mat_TAT_yx = dec_mat_drive(-1/3)
+# construct spin transformation matrix for the TAT protocol
+dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_yx_1))
 
-# compute correlators for all protocols
-correlators_TVF_D = compute_correlators(N, order_cap, chi_times, "+X",
-                                        h_TVF, dec_rates)
-correlators_TAT_zy_D = compute_correlators(N, order_cap, chi_times, "+X",
-                                           h_TAT_zy, dec_rates, dec_mat_TAT_zy)
-correlators_TAT_yx_D = compute_correlators(N, order_cap, chi_times, "+Z",
-                                           h_TAT_yx, dec_rates, dec_mat_TAT_yx)
-
-# compute squeezing from correlators
+# compute correlators and squeezing with decoherence
+correlators_TVF_D = compute_correlators(N, order_cap, chi_times, "+X", h_TVF, dec_rates)
+correlators_TAT_D = compute_correlators(N, order_cap, chi_times, "-Z", h_TAT, dec_rates,
+                                        dec_mat_TAT)
 sqz_TVF_D = squeezing_from_correlators(N, correlators_TVF_D)
-sqz_TAT_zy_D = squeezing_from_correlators(N, correlators_TAT_zy_D)
-sqz_TAT_yx_D = squeezing_from_correlators(N, correlators_TAT_yx_D)
+sqz_TAT_D = squeezing_from_correlators(N, correlators_TAT_D)
 
 
 ##########################################################################################
@@ -229,12 +224,11 @@ if N <= fermi_N_max:
     state_SS = state_y
     state_free = evolve(state_z, H_clock, np.pi/2) # state pointing in y
     state_static = evolve(state_free, S_op_vec[0], np.pi/2) # state pointing in x
-    state_periodic = state_free.copy() # state pointing in y
+    state_periodic = state_z
 
     H_static = H_free + chi * N/2 * H_clock
-    modulation_index = 0.90572
     def H_periodic(t):
-        return H_free + modulation_index * omega * np.cos(omega * t) * H_clock
+        return H_free + drive_mod_index_yx_1 * omega * np.cos(omega * t) * H_clock
 
     counter = 0
     sqz_SS = np.zeros(time_steps)
@@ -263,17 +257,23 @@ plt.figure(figsize = figsize)
 
 if L.size == 1: L_text = str(L[0])
 else: L_text = "(" + ",".join([ str(L_j) for L_j in L ]) + ")"
-plt.title(r"$L={},~U/J={}$".format(L_text,U_J_target))
+title = f"$L={L_text},~U/J={U_J_target},~M={order_cap}$"
+plt.title(title)
 
 line_OAT, = plt.plot(times_SI, sqz_OAT, label = "OAT")
-line_TVF, = plt.plot(times_SI, sqz_TVF, label = "TVF")
-line_TAT, = plt.plot(times_SI, sqz_TAT, label = "TAT")
+try: plt.plot(times_SI, sqz_OAT_D, ":", color = line_OAT.get_color())
+except: None
 
-try:
-    plt.plot(times_SI, sqz_OAT_D, "--", color = line_OAT.get_color())
-    plt.plot(times_SI, sqz_TVF_D, "--", color = line_TVF.get_color())
-    plt.plot(times_SI, sqz_TAT_zy_D, "--", color = line_TAT.get_color())
-    plt.plot(times_SI, sqz_TAT_yx_D, ":", color = line_TAT.get_color())
+line_TVF, = plt.plot(times_SI, sqz_TVF, label = "TVF")
+try: plt.plot(times_SI, sqz_TVF_B, "--", color = line_TVF.get_color())
+except: None
+try: plt.plot(times_SI, sqz_TVF_D, ":", color = line_TVF.get_color())
+except: None
+
+line_TAT, = plt.plot(times_SI, sqz_TAT, label = "TAT")
+try: plt.plot(times_SI, sqz_TAT_B, "--", color = line_TAT.get_color())
+except: None
+try: plt.plot(times_SI, sqz_TAT_D, ":", color = line_TAT.get_color())
 except: None
 
 try:
@@ -292,5 +292,6 @@ plt.tight_layout()
 
 L = np.array(L, ndmin = 1)
 dim_text = "x".join([f"{L[jj]}" for jj in range(len(L))])
-if save: plt.savefig(fig_dir + "squeezing_L{}_U{}.pdf".format(dim_text, U_J_target))
+fig_name = f"squeezing_L{dim_text}_U{U_J_target}_M{order_cap}.pdf"
+if save: plt.savefig(fig_dir + fig_name)
 if show: plt.show()
