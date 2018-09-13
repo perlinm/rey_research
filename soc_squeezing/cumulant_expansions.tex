@@ -1392,5 +1392,33 @@ where
   &&
   \p{\cos\phi S_\x + \sin\phi S_\y} \ket\phi = S \ket\phi.
 \end{align}
+Alternatively, with the help of Mathematica we can find
+\begin{align}
+  \bk{\X|S_\mu^\ell S_\z^m S_\bmu^n|\X}
+  = \f{\mu^m\p{N!}^2}{2^N\p{N-\ell}!\p{N-n}!}
+  \sp{\p{-S}^m \alpha + \f{\p{N-\ell}\p{N-n}}{N} \beta},
+\end{align}
+where $\alpha$ and $\beta$ are defined in terms of the generalized
+hypergeometric function $\F$ by
+\begin{align}
+  \alpha
+  \equiv \F\p{\let\scriptstyle\textstyle
+    \substack{\ell-N,~n-N \\ -N}~; -1},
+\end{align}
+and
+\begin{align}
+  \beta
+  \equiv \sum_{p=0}^{m-1} \p{-S}^p { m \choose p }
+  \tilde\F_{m-p-1}\p{\let\scriptstyle\textstyle
+    \substack{1+\ell-N,~1+n-N \\ 1-N}~; -1},
+\end{align}
+for
+\begin{align}
+  \tilde\F_q\p{\let\scriptstyle\textstyle
+    \substack{a,~b\\c}~; z}
+  \equiv \F\p{\let\scriptstyle\textstyle
+    \substack{2,2,\cdots,2,a,b \\ 1,1,\cdots,1,c}~; z}
+\end{align}
+with $q$ repetitions of 2 and 1.
 
 \end{document}
