@@ -224,7 +224,7 @@ def multiply_vecs(vec_left, vec_right, mu, prefactor = 1):
 # miscellaneous methods for changing frames and operator vectors
 ##########################################################################################
 
-# decoherence transformation matrix from a periodic drive; here A = J_0(2\beta), where:
+# decoherence transformation matrix from a periodic drive; here A = J_0(\beta), where:
 #   J_0 is the zero-order bessel function of the first kind
 #   \beta is the modulation index
 def dec_mat_drive(A):
