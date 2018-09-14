@@ -2,7 +2,7 @@
 
 # FILE CONTENTS: methods for computing collective spin correlators
 
-import itertools, scipy, mpmath
+import itertools, scipy
 import numpy as np
 
 from scipy.special import gamma, gammaln
@@ -125,28 +125,6 @@ def op_ln_val_X(op, SS):
 
     sign_n = ( 1 if mm % 2 == 0 else -1 )
     return ln_term_max + np.log(abs( sign_n**mm * terms_n.sum() + terms_p.sum()))
-
-# correlator ln | < X | S_+^ll S_\z^mm S_-^nn | X > |
-def op_ln_val_X_hyper(op, SS):
-    ll, mm, nn = op
-    if ll == 0 and nn == 0 and mm % 2 == 1: return None
-    if max(ll,nn) > 2*SS: return None
-
-    NN = 2*SS
-    ln_prefactor_num = 2 * ln_factorial(NN)
-    ln_prefactor_den = NN*np.log(2) + ln_factorial(NN-ll) + ln_factorial(NN-nn)
-    ln_prefactor = ln_prefactor_num - ln_prefactor_den
-
-    alpha = (-SS)**mm * mpmath.hyper([ll-NN,nn-NN], [-NN], -1)
-    print(alpha)
-
-    beta_prefactor = (NN-ll) * (NN-nn) / NN
-    def super_hyper(qq):
-        return mpmath.hyper([2]*qq + [ 1+ll-NN, 1+nn-NN ], [1]*qq + [1-NN], -1)
-    beta = np.sum([ (-SS)**pp * binom(mm,pp) * super_hyper(mm-pp-1) for pp in range(mm) ])
-    print(beta)
-
-    return ln_prefactor + np.log(abs(float( alpha + beta_prefactor * beta )))
 
 # correlator ln | < Z | S_+^ll S_\z^mm S_-^nn | Z > |
 def op_ln_val_Z_p(op, SS):
