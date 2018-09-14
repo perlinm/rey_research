@@ -1426,18 +1426,19 @@ Alternatively, with the help of Mathematica we can find
 \begin{align}
   \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}
   = \f{\p{N!}^2}{2^N\p{N-\ell}!\p{N-n}!}
-  \sp{\p{-S}^m \alpha + \f{\p{N-\ell}\p{N-n}}{N} \beta},
+  \sp{\p{-S}^m \alpha_{N\ell n}
+    + \f{\p{N-\ell}\p{N-n}}{N} \beta_{N\ell mn}},
 \end{align}
 where $\alpha$ and $\beta$ are defined in terms of the generalized
 hypergeometric function $\F$ by
 \begin{align}
-  \alpha
+  \alpha_{N\ell n}
   \equiv \F\p{\let\scriptstyle\textstyle
     \substack{\ell-N,~n-N \\ -N}~; -1},
 \end{align}
 and
 \begin{align}
-  \beta
+  \beta_{N\ell mn}
   \equiv \sum_{p=0}^{m-1} \p{-S}^p { m \choose p }
   \tilde\F_{m-p-1}\p{\let\scriptstyle\textstyle
     \substack{1+\ell-N,~1+n-N \\ 1-N}~; -1},
