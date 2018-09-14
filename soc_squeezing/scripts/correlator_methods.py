@@ -15,43 +15,44 @@ from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 ##########################################################################################
 
 # factorial
-def factorial(nn, factorials = {}):
-    try: return factorials[nn]
-    except:
-        factorials[nn] = gamma(nn+1)
-        return factorials[nn]
+def factorial(nn, vals = {}):
+    try: return vals[nn]
+    except: None
+    vals[nn] = gamma(nn+1)
+    return vals[nn]
 
 # logarithm of factorial
-def ln_factorial(nn, ln_factorials = {}):
-    try: return ln_factorials[nn]
-    except:
-        ln_factorials[nn] = gammaln(nn+1)
-        return ln_factorials[nn]
+def ln_factorial(nn, vals = {}):
+    try: return vals[nn]
+    except: None
+    vals[nn] = gammaln(nn+1)
+    return vals[nn]
 
 # binomial coefficient
-def binom(nn, kk, binoms = {}):
-    try: return binoms[(nn,kk)]
-    except:
-        binoms[(nn,kk)] = scipy_binom(nn,kk)
-        return binoms[(nn,kk)]
+def binom(nn, kk, vals = {}):
+    try: return vals[nn,kk]
+    except: None
+    vals[nn,kk] = scipy_binom(nn,kk)
+    return vals[nn,kk]
 
 # unsigned stirling number of the first kind
-def stirling(nn, kk, stirlings = {}):
-    try: return stirlings[(nn,kk)]
-    except:
-        stirlings[(nn,kk)] = float(sympy_stirling(nn, kk, kind = 1, signed = False))
-        return stirlings[(nn,kk)]
+def stirling(nn, kk, vals = {}):
+    try: return vals[nn,kk]
+    except: None
+    val = float(sympy_stirling(nn, kk, kind = 1, signed = False))
+    vals[nn,kk] = val
+    return val
 
 # coefficient for computing a product of spin operators
-def zeta(mm, nn, pp, qq, zetas = {}):
-    try: return zetas[(mm,nn,pp,qq)]
-    except:
-        prefactor = (-1)**pp * 2**qq
-        sum_ss = sum([ stirling(pp,ss) * binom(ss,qq) * (mm+nn-2*pp)**(ss-qq)
-                       for ss in range(qq,pp+1) ])
-        zetas[(mm,nn,pp,qq)] = prefactor * sum_ss
-        zetas[(nn,mm,pp,qq)] = prefactor * sum_ss
-    return zetas[(mm,nn,pp,qq)]
+def zeta(mm, nn, pp, qq, vals = {}):
+    try: return vals[mm,nn,pp,qq]
+    except: None
+    val = (-1)**pp * 2**qq * np.sum([ stirling(pp,ss) * binom(ss,qq)
+                                      * (mm+nn-2*pp)**(ss-qq)
+                                      for ss in range(qq,pp+1) ])
+    vals[mm,nn,pp,qq] = val
+    vals[nn,mm,pp,qq] = val
+    return val
 
 
 ##########################################################################################
@@ -67,24 +68,36 @@ def ln_factors_X(SS, kk, ll, nn):
 ln_factors_X = np.vectorize(ln_factors_X)
 
 # correlator < X | S_+^ll S_\z^mm S_-^nn | X >
-def op_val_X(op, SS):
+def op_val_X(op, SS, vals = {}):
+    try: return vals[op,SS]
+    except: None
+
     ll, mm, nn = op
     if ll == 0 and nn == 0 and mm % 2 == 1: return 0
     if max(ll,nn) > 2*SS: return 0
+
     ln_prefactor = ln_factorial(2*SS) - 2*SS*np.log(2)
     k_vals = np.arange(-SS,SS-max(ll,nn)+0.5)
-    terms = k_vals**mm * np.exp(ln_factors_X(SS,k_vals,ll,nn) + ln_prefactor)
-    return terms.sum()
+    val = ( k_vals**mm * np.exp(ln_factors_X(SS,k_vals,ll,nn) + ln_prefactor) ).sum()
+    vals[op,SS] = val
+    vals[op[::-1],SS] = val
+    return val
 
 # correlator < Z | S_+^ll S_\z^mm S_-^nn | Z >
-def op_val_Z_p(op, SS):
+def op_val_Z_p(op, SS, vals = {}):
+    try: return vals[ll,mm,SS]
+    except: None
+
     ll, mm, nn = op
     if ll != nn: return 0
     spin_num = int(round(2*SS))
     if nn > spin_num: return 0
+
     ln_factorials_num = ln_factorial(spin_num) + ln_factorial(nn)
     ln_factorials_den = ln_factorial(spin_num-nn)
-    return (SS-nn)**mm * np.exp(ln_factorials_num - ln_factorials_den)
+    val = (SS-nn)**mm * np.exp(ln_factorials_num - ln_factorials_den)
+    vals[ll,mm,SS] = val
+    return val
 
 # correlator < Z | S_-^ll S_\z^mm S_+^nn | Z >
 def op_val_Z_m(op, SS):
@@ -93,7 +106,10 @@ def op_val_Z_m(op, SS):
     return (-SS)**mm
 
 # correlator ln | < X | S_+^ll S_\z^mm S_-^nn | X > |
-def op_ln_val_X(op, SS):
+def op_ln_val_X(op, SS, vals = {}):
+    try: return vals[op,SS]
+    except: None
+
     ll, mm, nn = op
     if ll == 0 and nn == 0 and mm % 2 == 1: return None
     if max(ll,nn) > 2*SS: return None
@@ -124,17 +140,26 @@ def op_ln_val_X(op, SS):
     terms_p = np.exp(ln_terms_p - ln_term_max)
 
     sign_n = ( 1 if mm % 2 == 0 else -1 )
-    return ln_term_max + np.log(abs( sign_n**mm * terms_n.sum() + terms_p.sum()))
+    val = ln_term_max + np.log(abs( sign_n**mm * terms_n.sum() + terms_p.sum()))
+    vals[op,SS] = val
+    vals[op[::-1],SS] = val
+    return val
 
 # correlator ln | < Z | S_+^ll S_\z^mm S_-^nn | Z > |
-def op_ln_val_Z_p(op, SS):
+def op_ln_val_Z_p(op, SS, vals = {}):
+    try: return vals[ll,mm,SS]
+    except: None
+
     ll, mm, nn = op
     if ll != nn: return None
     spin_num = int(round(2*SS))
-    if nn > spin_num: return None
-    ln_factorials_num = ln_factorial(spin_num) + ln_factorial(nn)
-    ln_factorials_den = ln_factorial(spin_num-nn)
-    return mm*np.log(SS-nn) + ln_factorials_num - ln_factorials_den
+    if ll > spin_num: return None
+
+    ln_factorials_num = ln_factorial(spin_num) + ln_factorial(ll)
+    ln_factorials_den = ln_factorial(spin_num-ll)
+    val = mm*np.log(SS-ll) + ln_factorials_num - ln_factorials_den
+    vals[ll,mm,SS] = val
+    return val
 
 # correlator ln | < Z | S_-^ll S_\z^mm S_+^nn | Z > |
 def op_ln_val_Z_m(op, SS):
@@ -508,8 +533,7 @@ def compute_time_deriv(diff_op, deriv_order, input_vector, op_image_args):
 
 # return correlators from evolution under a general Hamiltonian
 def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
-                        dec_rates = [(0,0,0),(0,0,0)], dec_mat = None, mu = 1,
-                        init_vals_XY = {}, init_vals_Z_p = {}, init_vals_Z_m = {}):
+                        dec_rates = [(0,0,0),(0,0,0)], dec_mat = None, mu = 1):
     state_sign, state_dir = initial_state
     state_dir = initial_state[1]
     assert(state_sign in [ "+", "-" ])
@@ -519,16 +543,13 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
     total_spin = spin_num/2
     if state_dir == "Z":
         if mu == nu:
-            initial_val = lambda op : op_ln_val_Z_p(op, total_spin)
-            initial_vals = init_vals_Z_p
+            initial_ln_val = lambda op : op_ln_val_Z_p(op, total_spin)
             init_val_sign = lambda op : 1
         else:
-            initial_val = lambda op : op_ln_val_Z_m(op, total_spin)
-            initial_vals = init_vals_Z_m
+            initial_ln_val = lambda op : op_ln_val_Z_m(op, total_spin)
             init_val_sign = lambda op : (-1)**op[1]
     else: # if state_dir in [ "X", "Y" ]
-        initial_vals = init_vals_XY
-        initial_val = lambda op : op_ln_val_X(op, total_spin)
+        initial_ln_val = lambda op : op_ln_val_X(op, total_spin)
         if state_dir == "X":
             init_val_sign = lambda op : (-1)**op[1] * nu**(op[0]-op[2])
         if state_dir == "Y":
@@ -555,14 +576,15 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
                                      op_image_args)
 
     # compute initial values of relevant operators
+    initial_ln_vals = {}
     for sqz_op in squeezing_ops:
         for order in range(order_cap):
             for op in time_derivs[sqz_op][order]:
-                if initial_vals.get(op) == None:
-                    initial_vals[op] = initial_val(op)
+                if initial_ln_vals.get(op) == None:
+                    initial_ln_vals[op] = initial_ln_val(op)
                     # all our initial values are real, so no need to conjugate
                     if op[0] != op[-1]:
-                        initial_vals[op[::-1]] = initial_vals[op]
+                        initial_ln_vals[op[::-1]] = initial_ln_vals[op]
 
     T = np.array([ chi_times**order for order in range(order_cap) ]).astype(complex)
     correlators = {}
@@ -571,9 +593,9 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
         Q = np.zeros(order_cap, dtype = complex)
         for order in range(order_cap):
             Q[order] = sum([ np.exp(np.log(complex(time_derivs[sqz_op][order][op]))
-                                    + initial_vals[op]) * init_val_sign(op)
+                                    + initial_ln_vals[op]) * init_val_sign(op)
                              for op in time_derivs[sqz_op][order]
-                          if initial_vals[op] is not None ])
+                          if initial_ln_vals[op] is not None ])
             correlators[sqz_op] = Q @ T
 
     if mu == 1:
