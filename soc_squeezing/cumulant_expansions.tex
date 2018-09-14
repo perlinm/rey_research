@@ -1401,10 +1401,11 @@ and
   \times \prod_{p=0}^{\ell-1} g_\mu\p{S,k+\mu p}
   \prod_{q=0}^{n-1} g_\bmu\p{S,k+\mu\sp{n-q}} \\
   &= \mu^m \f{N!}{2^N} \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
-  ^{S-\delta_{\mu,1}\max\set{\ell,n}} k^m
-  \f{\p{S-\mu k}!}{\p{S+\mu k}!\p{S-\mu k-\ell}!\p{S-\mu k-n}!} \\
-  &= \p{-1}^m \f{N!}{2^N} \sum_{k=-S+\max\set{\ell,n}}^S k^m
-  \f{\p{S+k}!}{\p{S-k}!\p{S+k-\ell}!\p{S+k-n}!}.
+  ^{S-\delta_{\mu,1}\max\set{\ell,n}}
+  \f{k^m \p{S-\mu k}!}
+  {\p{S+\mu k}!\p{S-\mu k-\ell}!\p{S-\mu k-n}!} \\
+  &= \f{N!}{2^N} \sum_{k=-S}^{S-\max\set{\ell,n}}
+  \f{k^m \p{S-k}!}{\p{S+k}!\p{S-k-\ell}!\p{S-k-n}!}.
 \end{align}
 Furthermore, using the fact that
 \begin{align}

@@ -60,10 +60,10 @@ def zeta(mm, nn, pp, qq, zetas = {}):
 
 # natural logarithm of factors which appear in the expetation value for |X>
 def ln_factors_X(SS, kk, ll, nn):
-    return ( ln_factorial(SS + kk)
-             - ln_factorial(SS - kk)
-             - ln_factorial(SS + kk - ll)
-             - ln_factorial(SS + kk - nn) )
+    return ( ln_factorial(SS - kk)
+             - ln_factorial(SS + kk)
+             - ln_factorial(SS - kk - ll)
+             - ln_factorial(SS - kk - nn) )
 ln_factors_X = np.vectorize(ln_factors_X)
 
 # correlator < X | S_+^ll S_\z^mm S_-^nn | X >
@@ -72,9 +72,9 @@ def op_val_X(op, SS):
     if ll == 0 and nn == 0 and mm % 2 == 1: return 0
     if max(ll,nn) > 2*SS: return 0
     ln_prefactor = ln_factorial(2*SS) - 2*SS*np.log(2)
-    k_vals = np.arange(-SS+max(ll,nn),SS+0.5)
+    k_vals = np.arange(-SS,SS-max(ll,nn)+0.5)
     terms = k_vals**mm * np.exp(ln_factors_X(SS,k_vals,ll,nn) + ln_prefactor)
-    return (-1)**mm * terms.sum()
+    return terms.sum()
 
 # correlator < Z | S_+^ll S_\z^mm S_-^nn | Z >
 def op_val_Z_p(op, SS):
@@ -102,29 +102,29 @@ def op_ln_val_X(op, SS):
     ln_factors = lambda kk : ln_factors_X(SS,kk,ll,nn)
 
     if mm == 0: # this is a special case due to the contribution from the k = 0 term
-        k_vals = np.arange(-SS+max(ll,nn),SS+0.5)
+        k_vals = np.arange(-SS,SS-max(ll,nn)+0.5)
         ln_terms = ln_factors(k_vals) + ln_prefactor
         ln_term_max = ln_terms.max()
         terms = np.exp(ln_terms - ln_term_max)
         return ln_term_max + np.log(terms.sum())
 
     k_offset = SS % 1
-    k_vals_p = np.arange(1-k_offset, SS+1)
-    ln_terms_p = mm * np.log(k_vals_p) + ln_factors(+k_vals_p) + ln_prefactor
-    ln_term_max = ln_terms_p.max()
+    k_vals_n = np.arange(1-k_offset, SS+1)
+    ln_terms_n = mm * np.log(k_vals_n) + ln_factors(-k_vals_n) + ln_prefactor
+    ln_term_max = ln_terms_n.max()
 
     if SS > max(ll,nn): # this test should always pass, but we need it just in case
-        k_vals_n = np.arange(1-k_offset, SS-max(ll,nn)+1)
-        ln_terms_n = mm * np.log(k_vals_n) + ln_factors(-k_vals_n) + ln_prefactor
-        ln_term_max = max(ln_term_max,ln_terms_n.max())
+        k_vals_p = np.arange(1-k_offset, SS-max(ll,nn)+1)
+        ln_terms_p = mm * np.log(k_vals_p) + ln_factors(+k_vals_p) + ln_prefactor
+        ln_term_max = max(ln_term_max,ln_terms_p.max())
     else:
-        ln_terms_n = np.array([])
+        ln_terms_p = np.array([])
 
-    terms_p = np.exp(ln_terms_p - ln_term_max)
     terms_n = np.exp(ln_terms_n - ln_term_max)
+    terms_p = np.exp(ln_terms_p - ln_term_max)
 
     sign_n = ( 1 if mm % 2 == 0 else -1 )
-    return ln_term_max + np.log( terms_p.sum() + sign_n**mm * terms_n.sum() )
+    return ln_term_max + np.log(abs( sign_n**mm * terms_n.sum() + terms_p.sum()))
 
 # correlator ln | < Z | S_+^ll S_\z^mm S_-^nn | Z > |
 def op_ln_val_Z_p(op, SS):
