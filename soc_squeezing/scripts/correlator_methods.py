@@ -69,18 +69,18 @@ ln_factors_X = np.vectorize(ln_factors_X)
 
 # correlator < X | S_+^ll S_\z^mm S_-^nn | X >
 def op_val_X(op, SS, vals = {}):
-    try: return vals[op,SS]
+    ll, mm, nn = op
+    ll, nn = max(ll,nn), min(ll,nn)
+    try: return vals[ll,mm,nn,SS]
     except: None
 
-    ll, mm, nn = op
     if ll == 0 and nn == 0 and mm % 2 == 1: return 0
-    if max(ll,nn) > 2*SS: return 0
+    if ll > 2*SS: return 0
 
     ln_prefactor = ln_factorial(2*SS) - 2*SS*np.log(2)
-    k_vals = np.arange(-SS,SS-max(ll,nn)+0.5)
+    k_vals = np.arange(-SS,SS-ll+0.5)
     val = ( k_vals**mm * np.exp(ln_factors_X(SS,k_vals,ll,nn) + ln_prefactor) ).sum()
-    vals[op,SS] = val
-    vals[op[::-1],SS] = val
+    vals[ll,mm,nn,SS] = val
     return val
 
 # correlator < Z | S_+^ll S_\z^mm S_-^nn | Z >
@@ -107,18 +107,20 @@ def op_val_Z_m(op, SS):
 
 # correlator ln | < X | S_+^ll S_\z^mm S_-^nn | X > |
 def op_ln_val_X(op, SS, vals = {}):
-    try: return vals[op,SS]
+    ll, mm, nn = op
+    ll, nn = max(ll,nn), min(ll,nn)
+    try: return vals[ll,mm,nn,SS]
     except: None
 
     ll, mm, nn = op
     if ll == 0 and nn == 0 and mm % 2 == 1: return None
-    if max(ll,nn) > 2*SS: return None
+    if ll > 2*SS: return None
 
     ln_prefactor = ln_factorial(2*SS) - 2*SS*np.log(2)
     ln_factors = lambda kk : ln_factors_X(SS,kk,ll,nn)
 
     if mm == 0: # this is a special case due to the contribution from the k = 0 term
-        k_vals = np.arange(-SS,SS-max(ll,nn)+0.5)
+        k_vals = np.arange(-SS,SS-ll+0.5)
         ln_terms = ln_factors(k_vals) + ln_prefactor
         ln_term_max = ln_terms.max()
         terms = np.exp(ln_terms - ln_term_max)
@@ -129,8 +131,8 @@ def op_ln_val_X(op, SS, vals = {}):
     ln_terms_n = mm * np.log(k_vals_n) + ln_factors(-k_vals_n) + ln_prefactor
     ln_term_max = ln_terms_n.max()
 
-    if SS > max(ll,nn): # this test should always pass, but we need it just in case
-        k_vals_p = np.arange(1-k_offset, SS-max(ll,nn)+1)
+    if SS > ll: # this test should always pass, but we need it just in case
+        k_vals_p = np.arange(1-k_offset, SS-ll+1)
         ln_terms_p = mm * np.log(k_vals_p) + ln_factors(+k_vals_p) + ln_prefactor
         ln_term_max = max(ln_term_max,ln_terms_p.max())
     else:
@@ -141,8 +143,7 @@ def op_ln_val_X(op, SS, vals = {}):
 
     sign_n = ( 1 if mm % 2 == 0 else -1 )
     val = ln_term_max + np.log(abs( sign_n**mm * terms_n.sum() + terms_p.sum()))
-    vals[op,SS] = val
-    vals[op[::-1],SS] = val
+    vals[ll,mm,nn,SS] = val
     return val
 
 # correlator ln | < Z | S_+^ll S_\z^mm S_-^nn | Z > |
