@@ -587,17 +587,18 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
                     if op[0] != op[-1]:
                         initial_ln_vals[op[::-1]] = initial_ln_vals[op]
 
-    T = np.array([ chi_times**order for order in range(order_cap) ]).astype(complex)
+    times_k = np.array([ chi_times**order for order in range(order_cap) ]).astype(complex)
     correlators = {}
     for sqz_op in squeezing_ops:
         # compute < (d/dt)^kk S_\mu^ll (\mu S_\z)^mm S_\nu^nn >_0 / kk! for all kk
         Q = np.zeros(order_cap, dtype = complex)
         for order in range(order_cap):
-            Q[order] = sum([ np.exp(np.log(complex(time_derivs[sqz_op][order][op]))
-                                    + initial_ln_vals[op]) * init_val_sign(op)
-                             for op in time_derivs[sqz_op][order]
-                          if initial_ln_vals[op] is not None ])
-            correlators[sqz_op] = Q @ T
+            for T_op, T_val in time_derivs[sqz_op][order].items():
+                init_ln_val = initial_ln_vals[T_op]
+                if init_ln_val is None: continue
+                term_ln_mag = np.log(complex(T_val)) + init_ln_val
+                Q[order] += np.exp(term_ln_mag) * init_val_sign(T_op)
+        correlators[sqz_op] = Q @ times_k
 
     if mu == 1:
         return correlators
