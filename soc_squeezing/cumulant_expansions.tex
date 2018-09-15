@@ -241,13 +241,13 @@ and
   \propto S_\y^2 - S_\x^2
   = -\f12 S_+^2 - \f12 S_-^2.
 \end{align}
-The evolution of a general operator $S_+^\ell S_-^m S_\z^n$ under a
+The evolution of a general operator $S_+^\ell S_\z^m S_-^n$ under a
 Hamiltonian of the form in \eqref{eq:H_general} is given by
 \begin{align}
   \f{d}{dt} \p{S_+^\ell S_\z^m S_-^n}
   = i \sum_{p,q,r} h_{pqr}
   \sp{S_+^p S_\z^q S_-^r, S_+^\ell S_\z^m S_-^n}_-
-  + \sum_\J \gamma_\J \D\p{\J; S_+^\ell S_-^m S_\z^n}
+  + \sum_\J \gamma_\J \D\p{\J; S_+^\ell S_\z^m S_-^n}
   \equiv \sum_{p,q,r} T^{\ell m n}_{pqr} S_+^p S_\z^q S_-^r,
   \label{eq:time_derivative}
 \end{align}
@@ -878,13 +878,13 @@ through all combinations that are unique up to Hermitian conjugation,
 finding
 \begin{align}
   \sum_j \sigma_\z^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^n S_\bmu^n \sigma_\z^{(j)}
+  \p{\mu S_\z}^m S_\bmu^n \sigma_\z^{(j)}
   &= 2\p{S-\ell-n} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n \notag \\
   &\qquad + 4\ell n S_\mu^{\ell-1} \p{S+\mu S_\z}
   \p{-1+\mu S_\z}^m S_\bmu^{n-1},
   \label{eq:san_z_z} \allowdisplaybreaks \\
   \sum_j \sigma_\z^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^n S_\bmu^n \sigma_\mu^{(j)}
+  \p{\mu S_\z}^m S_\bmu^n \sigma_\mu^{(j)}
   &= \mu S_\mu^{\ell+1} \p{1+\mu S_\z}^m S_\bmu^n
   + \mu n \p{-2S+2\ell+n-1} S_\mu^\ell
   \p{\mu S_\z}^m S_\bmu^{n-1} \notag \\
@@ -892,21 +892,21 @@ finding
   \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^{n-2},
   \label{eq:san_z_mu} \allowdisplaybreaks \\
   \sum_j \sigma_\z^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^n S_\bmu^n \sigma_\bmu^{(j)}
+  \p{\mu S_\z}^m S_\bmu^n \sigma_\bmu^{(j)}
   &= -\mu S_\mu^\ell \p{\mu S_\z}^m S_\bmu^{n+1}
-  + 2\mu \ell S_\mu^{\ell-1} \p{S+\mu S_\z}\p{-1+\mu S_\z}^m S_\bmu^n,
+  + 2\mu \ell S_\mu^{\ell-1} \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^n,
   \label{eq:san_z_bmu} \allowdisplaybreaks \\
   \sum_j \sigma_\mu^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^n S_\bmu^n \sigma_\mu^{(j)}
+  \p{\mu S_\z}^m S_\bmu^n \sigma_\mu^{(j)}
   &= n S_\mu^{\ell+1} \p{\mu S_\z}^m S_\bmu^{n-1}
   - n\p{n-1} S_\mu^\ell \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^{n-2},
   \label{eq:san_mu_mu} \allowdisplaybreaks \\
   \sum_j \sigma_\mu^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^n S_\bmu^n \sigma_\bmu^{(j)}
+  \p{\mu S_\z}^m S_\bmu^n \sigma_\bmu^{(j)}
   &= S_\mu^\ell \p{S+\mu S_\z}\p{-1+\mu S_\z}^m S_\bmu^n,
   \label{eq:san_mu_bmu} \allowdisplaybreaks \\
   \sum_j \sigma_\bmu^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^n S_\bmu^n \sigma_\mu^{(j)}
+  \p{\mu S_\z}^m S_\bmu^n \sigma_\mu^{(j)}
   &= S_\mu^\ell \p{S - \ell - n - \mu S_\z}
   \p{1+\mu S_\z}^m S_\bmu^n \notag \\
   &\qquad + \ell n \p{2S - \ell - n + 2}
@@ -950,14 +950,14 @@ $\bmu\equiv-\mu$),
 In order to determine the effect of this decoherence on ordered
 products of collective spin operators, we expand the anti-commutator
 \begin{align}
-  \sp{S_\z, S_\mu^\ell \p{\mu S_\z}^n S_\bmu^n}_+
+  \sp{S_\z, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
   = S_\z S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n
   + S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n S_\z
   = \mu S_\mu^\ell\p{\ell+n+2\mu S_\z} \p{\mu S_\z}^m S_\bmu^n,
 \end{align}
 which implies, using \eqref{eq:san_mu_bmu},
 \begin{align}
-  \D\p{\sigma_\bmu; S_\mu^\ell \p{\mu S_\z}^n S_\bmu^n}
+  \D\p{\sigma_\bmu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = S_\mu^\ell \p{S+\mu S_\z}\p{-1+\mu S_\z}^m S_\bmu^n
   - S_\mu^\ell\sp{S + \f12\p{\ell+n} + \mu S_\z}
   \p{\mu S_\z}^m S_\bmu^n,
@@ -965,7 +965,7 @@ which implies, using \eqref{eq:san_mu_bmu},
 \end{align}
 and, using \eqref{eq:san_bmu_mu},
 \begin{align}
-  \D\p{\sigma_\mu; S_\mu^\ell \p{\mu S_\z}^n S_\bmu^n}
+  \D\p{\sigma_\mu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   &= S_\mu^\ell \p{S - \ell - n - \mu S_\z} \p{1+\mu S_\z}^m S_\bmu^n
   - S_\mu^\ell\sp{S - \f12\p{\ell+n} - \mu S_\z}
   \p{\mu S_\z}^m S_\bmu^n \notag \\
@@ -999,7 +999,7 @@ e.g.~$\D\p{\sigma_\z/\sqrt2;S_\mu}=-S_\mu$, such that the above
 expression generates decay of single-weight transverse collective spin
 operators at a unit rate.  From \eqref{eq:san_z_z}, we then have
 \begin{align}
-  \D\p{\sigma_\z/\sqrt2; S_\mu^\ell \p{\mu S_\z}^n S_\bmu^n}
+  \D\p{\sigma_\z/\sqrt2; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = -\p{\ell+n} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n
   + 2 \ell n S_\mu^{\ell-1} \p{S + \mu S_\z}
   \p{-1 + \mu S_\z}^m S_\bmu^{n-1}.
@@ -1054,7 +1054,7 @@ which implies
 In order to compute the effect of this decoherence on ordered products
 of collective spin operators, we expand the anti-commutator
 \begin{align}
-  \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^n S_\bmu^n}_+
+  \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
   = S_\mu^{\ell+1} \sp{S_\z^m+\p{1+\mu S_\z}^m} S_\bmu^n
   - n S_\mu^\ell \p{n-1+2\mu S_\z} \p{\mu S_\z}^m S_\bmu^{n-1}.
   \label{eq:S_mu_acomm}
@@ -1063,7 +1063,7 @@ Recognizing a resemblance between \eqref{eq:S_mu_acomm} and
 \eqref{eq:san_z_mu}, we can collect terms to simplify
 \begin{align}
   \sum_j \sigma_\z^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^n S_\bmu^n \sigma_\mu^{(j)}
+  \p{\mu S_\z}^m S_\bmu^n \sigma_\mu^{(j)}
   - \f{\mu}{2} \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
   = K_{\ell mn;\mu} + L_{\ell mn;\mu}
   \label{eq:dec_z_mu}
@@ -1071,8 +1071,8 @@ Recognizing a resemblance between \eqref{eq:S_mu_acomm} and
 and likewise
 \begin{align}
   \sum_j \sigma_\mu^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^n S_\bmu^n \sigma_\z^{(j)}
-  + \f{\mu}{2} \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^n S_\bmu^n}_+
+  \p{\mu S_\z}^m S_\bmu^n \sigma_\z^{(j)}
+  + \f{\mu}{2} \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
   = K_{\ell mn;\mu} + M_{\ell mn;\mu}
   \label{eq:dec_mu_z}
 \end{align}
@@ -1110,13 +1110,13 @@ and
 \end{align}
 we finally have
 \begin{align}
-  \D\p{\gamma; S_\mu^\ell \p{\mu S_\z}^n S_\bmu^n}
+  \D\p{\gamma; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = \sum_{X\in\set{\z,+,-}} \abs{\gamma_X}^2
   \D\p{\sigma_X; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   + Q_{\ell mn;\mu}^{(\gamma)} + \sp{Q_{nm\ell;\mu}^{(\gamma)}}^\dag.
 \end{align}
 Note that the sum $\ell+m+n$ for operators
-$S_\mu^\ell \p{\mu S_\z}^n S_\bmu^n$ does not grow under this type of
+$S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$ does not grow under this type of
 decoherence.
 
 
@@ -1353,7 +1353,7 @@ we then have
   + \sp{\tilde Q_{nm\ell;\mu}^{(\Gamma)}}^\dag.
 \end{align}
 Note that the sum $\ell+m+n$ for operators
-$S_\mu^\ell \p{\mu S_\z}^n S_\bmu^n$ grows by one if $\Gamma_\mu\ne0$
+$S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$ grows by one if $\Gamma_\mu\ne0$
 or $\Gamma_\bmu\ne0$, and does not grow otherwise.
 
 
