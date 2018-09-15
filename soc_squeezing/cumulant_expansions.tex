@@ -247,7 +247,7 @@ Hamiltonian of the form in \eqref{eq:H_general} is given by
   \f{d}{dt} \p{S_+^\ell S_\z^m S_-^n}
   = i \sum_{p,q,r} h_{pqr}
   \sp{S_+^p S_\z^q S_-^r, S_+^\ell S_\z^m S_-^n}_-
-  + \sum_\J \gamma_\J \D\p{\J;\O}
+  + \sum_\J \gamma_\J \D\p{\J; S_+^\ell S_-^m S_\z^n}
   \equiv \sum_{p,q,r} T^{\ell m n}_{pqr} S_+^p S_\z^q S_-^r,
   \label{eq:time_derivative}
 \end{align}
@@ -287,8 +287,7 @@ few limitations:
 \item simulation results can only be trusted up to the time at which
   the initial value of operators $S_+^p S_\z^r S_-^q$ with weight
   $w\p{p,q,r}\ge W$ have a non-negligible contribution to operators of
-  interest.
-  \label{pt:limitation}
+  interest.\label{pt:limitation}
 \end{enumerate*}
 While the first two of these limitations might in principle be avoided
 by alternate means of tracking operators, the last limitation
