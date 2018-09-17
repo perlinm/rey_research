@@ -112,37 +112,36 @@ def op_ln_val_X(op, SS, vals = {}):
     try: return vals[ll,mm,nn,SS]
     except: None
 
-    ll, mm, nn = op
     if ll == 0 and nn == 0 and mm % 2 == 1: return None
     if ll > 2*SS: return None
 
     ln_prefactor = ln_factorial(2*SS) - 2*SS*np.log(2)
     ln_factors = lambda kk : ln_factors_X(SS,kk,ll,nn)
 
-    if mm == 0: # this is a special case due to the contribution from the k = 0 term
-        k_vals = np.arange(-SS,SS-ll+0.5)
+    k_vals = np.arange(-SS,SS-ll+0.5)
+
+    # remove kk == 0 if necessary
+    if mm > 0 and k_vals[-1] >= 0:
+        k_vals = np.delete(k_vals,int(SS+1/4))
+
+    # compute the logarithm of the magnitude of each term
+    if mm == 0:
         ln_terms = ln_factors(k_vals) + ln_prefactor
-        ln_term_max = ln_terms.max()
-        terms = np.exp(ln_terms - ln_term_max)
-        return ln_term_max + np.log(terms.sum())
-
-    k_offset = SS % 1
-    k_vals_n = np.arange(1-k_offset, SS+1)
-    ln_terms_n = mm * np.log(k_vals_n) + ln_factors(-k_vals_n) + ln_prefactor
-    ln_term_max = ln_terms_n.max()
-
-    if SS > ll: # this test should always pass, but we need it just in case
-        k_vals_p = np.arange(1-k_offset, SS-ll+1)
-        ln_terms_p = mm * np.log(k_vals_p) + ln_factors(+k_vals_p) + ln_prefactor
-        ln_term_max = max(ln_term_max,ln_terms_p.max())
     else:
-        ln_terms_p = np.array([])
+        ln_terms = mm * np.log(np.abs(k_vals)) + ln_factors(k_vals) + ln_prefactor
 
-    terms_n = np.exp(ln_terms_n - ln_term_max)
-    terms_p = np.exp(ln_terms_p - ln_term_max)
+    # compute the absolute value of terms divided by the largest term
+    ln_term_max = ln_terms.max()
+    terms = np.exp(ln_terms-ln_term_max)
 
-    sign_n = ( 1 if mm % 2 == 0 else -1 )
-    val = ln_term_max + np.log(abs( sign_n**mm * terms_n.sum() + terms_p.sum()))
+    # compute the logarithm of the sum of the terms (up to an overall sign)
+    if mm % 2 == 1:
+        # we need te account for the sign of kk in each term
+        val = ln_term_max + np.log(np.abs(np.sum(np.sign(k_vals)*terms)))
+    else:
+        # the sign of the kk does not matter, as it is raised to an even power
+        val = ln_term_max + np.log(abs(np.sum(terms)))
+
     vals[ll,mm,nn,SS] = val
     return val
 
@@ -470,7 +469,7 @@ def get_dec_vecs(dec_rates, dec_mat):
     for jj in range(3):
         dec_vec_g = dec_mat[:,jj] * np.sqrt(dec_rates[0][jj])
         dec_vec_G = dec_mat[:,jj] * np.sqrt(dec_rates[1][jj])
-        if dec_vec_g is np.zeros(3) and dec_vec_G is np.zeros(3): continue
+        if max(abs(dec_vec_g)) == 0 and max(abs(dec_vec_G)) == 0: continue
         if jj == 0: dec_vec_g /= np.sqrt(2)
         dec_vecs.append((dec_vec_g,dec_vec_G))
     return dec_vecs
