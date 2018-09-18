@@ -173,9 +173,13 @@ def op_ln_val_Z_m(op, SS):
 ##########################################################################################
 
 # clean up a dictionary vector
-def clean(vec):
+def clean(vec, spin_num = None):
     null_ops = [ op for op, val in vec.items() if abs(val) == 0 ]
     for op in null_ops: del vec[op]
+    if spin_num != None:
+        overflow_ops = [ op for op in vec.keys()
+                         if op[0] > spin_num or op[2] > spin_num ]
+        for op in overflow_ops: del vec[op]
     return vec
 
 # take hermitian conjugate of a dictionary taking operator --> value,
@@ -297,7 +301,7 @@ def convert_zxy(vec_zxy, mu):
 ##########################################################################################
 
 # diagonal terms of single-spin decoherence
-def op_image_decoherence_diag_individual(op, S, dec_vec, mu):
+def op_image_decoherence_diag_individual(op, SS, dec_vec, mu):
     ll, mm, nn = op
     D_z, D_p, D_m = abs(np.array(dec_vec))**2
     if mu == 1:
@@ -307,30 +311,30 @@ def op_image_decoherence_diag_individual(op, S, dec_vec, mu):
 
     image_mu = {}
     if D_mu != 0:
-        image_mu = ext_binom_op(*op, [ S-ll-nn, -1 ], 1, D_mu)
-        add_left(image_mu, insert_z_poly({op:1}, [ S-(ll+nn)/2, -1 ]), -D_mu)
+        image_mu = ext_binom_op(*op, [ SS-ll-nn, -1 ], 1, D_mu)
+        add_left(image_mu, insert_z_poly({op:1}, [ SS-(ll+nn)/2, -1 ]), -D_mu)
         if ll >= 1 and nn >= 1:
-            image_mu[(ll-1, mm, nn-1)] = ll*nn * (2*S-ll-nn+2) * D_mu
+            image_mu[(ll-1, mm, nn-1)] = ll*nn * (2*SS-ll-nn+2) * D_mu
         if ll >= 2 and nn >= 2:
             op_2 = (ll-2, mm, nn-2)
             factor = ll*nn*(ll-1)*(nn-1)
-            image_mu.update(ext_binom_op(*op_2, [ S, 1 ], -1, factor * D_mu))
+            image_mu.update(ext_binom_op(*op_2, [ SS, 1 ], -1, factor * D_mu))
 
     image_nu = {}
     if D_nu != 0:
-        image_nu = ext_binom_op(*op, [ S, 1 ], -1, D_nu)
-        add_left(image_nu, insert_z_poly({op:1}, [ S+(ll+nn)/2, 1 ]), -D_nu)
+        image_nu = ext_binom_op(*op, [ SS, 1 ], -1, D_nu)
+        add_left(image_nu, insert_z_poly({op:1}, [ SS+(ll+nn)/2, 1 ]), -D_nu)
 
     image_z = {}
     if D_z != 0 and ll + nn != 0:
         image_z = { (ll,mm,nn) : -2*(ll+nn) * D_z }
         if ll >= 1 and nn >= 1:
-            image_z.update(ext_binom_op(ll-1, mm, nn-1, [ S, 1 ], -1, 4*ll*nn * D_z))
+            image_z.update(ext_binom_op(ll-1, mm, nn-1, [ SS, 1 ], -1, 4*ll*nn * D_z))
 
     return sum_vecs(image_mu, image_nu, image_z)
 
 # single-spin decoherence "Q" cross term
-def op_image_decoherence_Q_individual(op, S, dec_vec, mu):
+def op_image_decoherence_Q_individual(op, SS, dec_vec, mu):
     ll, mm, nn = op
     g_z, g_p, g_m = dec_vec
     if mu == 1:
@@ -345,7 +349,7 @@ def op_image_decoherence_Q_individual(op, S, dec_vec, mu):
     image_P = {}
     if gg_mp != 0 and nn != 0:
         if nn >= 2:
-            image_P = ext_binom_op(ll, mm, nn-2, [ S, 1 ], -1, -nn*(nn-1) * gg_mp)
+            image_P = ext_binom_op(ll, mm, nn-2, [ SS, 1 ], -1, -nn*(nn-1) * gg_mp)
         image_P.update({ (ll+1,mm,nn-1) : nn * gg_mp })
 
     image_K = {}
@@ -357,13 +361,13 @@ def op_image_decoherence_Q_individual(op, S, dec_vec, mu):
     if gg_zp != 0 and nn != 0:
         if nn >= 2 and ll >= 1:
             factor = -2*mu*ll*nn*(nn-1)
-            image_L = ext_binom_op(ll-1, mm, nn-2, [ S, 1 ], -1, factor * gg_zp)
-        coefficients = [ -2*S+2*ll+3/2*(nn-1), 1 ]
+            image_L = ext_binom_op(ll-1, mm, nn-2, [ SS, 1 ], -1, factor * gg_zp)
+        coefficients = [ -2*SS+2*ll+3/2*(nn-1), 1 ]
         image_L.update(insert_z_poly({(ll,mm,nn-1):1}, coefficients, mu*nn * gg_zp))
 
     image_M = {}
     if gg_mz != 0 and nn != 0:
-        image_M = ext_binom_op(ll, mm, nn-1, [ S, 1 ], -1, 2*mu*nn * gg_mz)
+        image_M = ext_binom_op(ll, mm, nn-1, [ SS, 1 ], -1, 2*mu*nn * gg_mz)
         coefficients = [ (nn-1)/2, 1 ]
         add_left(image_M, insert_z_poly({(ll,mm,nn-1):1}, coefficients, -mu*nn * gg_mz))
 
@@ -375,7 +379,7 @@ def op_image_decoherence_Q_individual(op, S, dec_vec, mu):
 ##########################################################################################
 
 # diagonal terms of collective-spin decoherence
-def op_image_decoherence_diag_collective(op, S, dec_vec, mu):
+def op_image_decoherence_diag_collective(op, SS, dec_vec, mu):
     ll, mm, nn = op
     D_z, D_p, D_m = abs(np.array(dec_vec))**2
     if mu == 1:
@@ -410,7 +414,7 @@ def op_image_decoherence_diag_collective(op, S, dec_vec, mu):
     return sum_vecs(image_mu, image_nu, image_z)
 
 # collective-spin decoherence "Q" cross term
-def op_image_decoherence_Q_collective(op, S, dec_vec, mu):
+def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
     ll, mm, nn = op
     g_z, g_p, g_m = dec_vec
     if mu == 1:
@@ -475,20 +479,20 @@ def get_dec_vecs(dec_rates, dec_mat):
     return dec_vecs
 
 # compute image of a single operator from decoherence
-def op_image_decoherence(op, S, dec_vec, mu):
+def op_image_decoherence(op, SS, dec_vec, mu):
     dec_vec_g, dec_vec_G = dec_vec
 
     image = {}
-    image = sum_vecs(op_image_decoherence_diag_individual(op, S, dec_vec_g, mu),
-                     op_image_decoherence_diag_collective(op, S, dec_vec_G, mu))
+    image = sum_vecs(op_image_decoherence_diag_individual(op, SS, dec_vec_g, mu),
+                     op_image_decoherence_diag_collective(op, SS, dec_vec_G, mu))
 
     for image_Q, dec_vec in [ ( op_image_decoherence_Q_individual, dec_vec_g ),
                               ( op_image_decoherence_Q_collective, dec_vec_G ) ]:
-        Q_lmn = image_Q(op, S, dec_vec, mu)
+        Q_lmn = image_Q(op, SS, dec_vec, mu)
         if op[0] == op[2]:
             Q_nml = Q_lmn
         else:
-            Q_nml = image_Q(op[::-1], S, dec_vec, mu)
+            Q_nml = image_Q(op[::-1], SS, dec_vec, mu)
         add_left(image, Q_lmn)
         add_left(image, conj_vec(Q_nml))
 
@@ -504,36 +508,26 @@ def op_image_coherent(op, h_vec):
     return image
 
 # full image of a single operator under the time derivative operator
-def op_image(op, h_vec, S, dec_vecs, mu):
+def op_image(op, h_vec, SS, dec_vecs, mu):
     image = op_image_coherent(op, h_vec)
     for dec_vec in dec_vecs:
-        add_left(image, op_image_decoherence(op, S, dec_vec, mu))
+        add_left(image, op_image_decoherence(op, SS, dec_vec, mu))
     return clean(image)
-
-# compute time derivative of a given vector of spin operators
-def compute_time_deriv(diff_op, deriv_order, input_vector, op_image_args):
-    output_vector = {}
-    # for each operator in the input vector
-    for input_op, input_val in input_vector.items():
-        prefactor = input_val / deriv_order
-        try:
-            add_left(output_vector, diff_op[input_op], prefactor)
-        except: # we do not know the time derivative of this operator, so compute it
-            diff_op[input_op] = op_image(input_op, *op_image_args)
-            # we get the time derivative of the conjugate operator for free
-            if input_op[0] != input_op[-1]:
-                diff_op[input_op[::-1]] = conj_vec(diff_op[input_op])
-            add_left(output_vector, diff_op[input_op], prefactor)
-    return clean(output_vector)
 
 
 ##########################################################################################
 # collective-spin correlators
 ##########################################################################################
 
+# list of operators necessary for computing squeezing with (\mu,\z,\nu) exponents
+squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
+
 # return correlators from evolution under a general Hamiltonian
 def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
-                        dec_rates = [(0,0,0),(0,0,0)], dec_mat = None, mu = 1):
+                        dec_rates = [(0,0,0),(0,0,0)], dec_mat = None,
+                        method = "taylor", mu = 1):
+    assert(method == "taylor" or method == "diffeq")
+
     state_sign, state_dir = initial_state
     state_dir = initial_state[1]
     assert(state_sign in [ "+", "-" ])
@@ -543,13 +537,13 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
     total_spin = spin_num/2
     if state_dir == "Z":
         if mu == nu:
-            initial_ln_val = lambda op : op_ln_val_Z_p(op, total_spin)
+            init_ln_val = lambda op : op_ln_val_Z_p(op, total_spin)
             init_val_sign = lambda op : 1
         else:
-            initial_ln_val = lambda op : op_ln_val_Z_m(op, total_spin)
+            init_ln_val = lambda op : op_ln_val_Z_m(op, total_spin)
             init_val_sign = lambda op : (-1)**op[1]
     else: # if state_dir in [ "X", "Y" ]
-        initial_ln_val = lambda op : op_ln_val_X(op, total_spin)
+        init_ln_val = lambda op : op_ln_val_X(op, total_spin)
         if state_dir == "X":
             init_val_sign = lambda op : (-1)**op[1] * nu**(op[0]-op[2])
         if state_dir == "Y":
@@ -559,49 +553,18 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
         dec_mat = np.eye(3)
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
-    # list of operators necessary for computing squeezing with (\mu,\z,\nu) exponents
-    squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
-
     # arguments for computing operator pre-image under infinitesimal time translation
     op_image_args = ( convert_zxy(h_vec,mu), total_spin, dec_vecs, mu )
 
-    # compute all images under time derivatives
-    diff_op = {} # time derivative operator
-    time_derivs = {} # [ sqz_op ][ derivative_order ][ operator ] --> value
-    for sqz_op in squeezing_ops:
-        time_derivs[sqz_op] = { 0 : { sqz_op : 1 } }
-        for order in range(1,order_cap):
-            time_derivs[sqz_op][order] \
-                = compute_time_deriv(diff_op, order, time_derivs[sqz_op][order-1],
-                                     op_image_args)
-
-    # compute initial values of relevant operators
-    initial_ln_vals = {}
-    for sqz_op in squeezing_ops:
-        for order in range(order_cap):
-            for op in time_derivs[sqz_op][order]:
-                if initial_ln_vals.get(op) == None:
-                    initial_ln_vals[op] = initial_ln_val(op)
-                    # all our initial values are real, so no need to conjugate
-                    if op[0] != op[-1]:
-                        initial_ln_vals[op[::-1]] = initial_ln_vals[op]
-
-    times_k = np.array([ chi_times**order for order in range(order_cap) ]).astype(complex)
-    correlators = {}
-    for sqz_op in squeezing_ops:
-        # compute < (d/dt)^kk S_\mu^ll (\mu S_\z)^mm S_\nu^nn >_0 / kk! for all kk
-        Q = np.zeros(order_cap, dtype = complex)
-        for order in range(order_cap):
-            for T_op, T_val in time_derivs[sqz_op][order].items():
-                init_ln_val = initial_ln_vals[T_op]
-                if init_ln_val is None: continue
-                term_ln_mag = np.log(complex(T_val)) + init_ln_val
-                Q[order] += np.exp(term_ln_mag) * init_val_sign(T_op)
-        correlators[sqz_op] = Q @ times_k
+    if method == "taylor":
+        correlators = compute_correlators_taylor(order_cap, chi_times, op_image_args,
+                                                 init_ln_val, init_val_sign)
+    else: # method == "diffeq"
+        correlators = compute_correlators_diffeq(order_cap, chi_times, op_image_args,
+                                                 init_ln_val, init_val_sign)
 
     if mu == 1:
         return correlators
-
     else:
         reversed_corrs = {}
         reversed_corrs[(0,1,0)] = -correlators[(0,1,0)]
@@ -610,14 +573,102 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
         reversed_corrs[(2,0,0)] = np.conj(correlators[(2,0,0)])
         reversed_corrs[(1,1,0)] = np.conj(-correlators[(1,1,0)] - correlators[(1,0,0)])
         reversed_corrs[(1,0,1)] = correlators[(1,0,1)] - 2 * correlators[(0,1,0)]
-
         return reversed_corrs
+
+
+# compute correlators using a Taylor expansion about time t = 0
+def compute_correlators_taylor(order_cap, chi_times, op_image_args,
+                               init_ln_val, init_val_sign):
+    diff_op = {} # single time derivative operator
+    time_derivs = {} # [ sqz_op, derivative_order ] --> vector
+    init_ln_vals = {}
+    for sqz_op in squeezing_ops:
+        time_derivs[sqz_op,0] = { sqz_op : 1 }
+        for order in range(1,order_cap):
+            # compute relevant matrix elements of the time derivative operator
+            time_derivs[sqz_op,order] = {}
+            for op, val in time_derivs[sqz_op,order-1].items():
+                try: add_left(time_derivs[sqz_op,order], diff_op[op], val/order)
+                except:
+                    diff_op[op] = op_image(op, *op_image_args)
+                    if op[0] != op[-1]:
+                        diff_op[op[::-1]] = conj_vec(diff_op[op])
+                    add_left(time_derivs[sqz_op,order], diff_op[op], val/order)
+            clean(time_derivs[sqz_op,order])
+
+    # compute initial values of relevant operators
+    init_ln_vals = {}
+    for sqz_op in squeezing_ops:
+        for order in range(order_cap):
+            for op in time_derivs[sqz_op,order]:
+                if init_ln_vals.get(op) == None:
+                    init_ln_vals[op] = init_ln_val(op)
+                    if op[0] != op[-1]:
+                        try: init_ln_vals[op[::-1]] = init_ln_vals[op]
+                        except: init_ln_vals[op[::-1]] = None
+
+    times_k = np.array([ chi_times**order for order in range(order_cap) ]).astype(complex)
+    correlators = {}
+    for sqz_op in squeezing_ops:
+        # compute Q[kk] = < (d/dt)^kk S_\mu^pp (\mu S_\z)^qq S_\nu^rr >_0 / kk! for all kk
+        Q = np.zeros(order_cap, dtype = complex)
+        for order in range(order_cap):
+            for T_op, T_val in time_derivs[sqz_op,order].items():
+                init_ln_val = init_ln_vals[T_op]
+                if init_ln_val is None: continue
+                term_ln_mag = np.log(complex(T_val)) + init_ln_val
+                Q[order] += np.exp(term_ln_mag) * init_val_sign(T_op)
+        correlators[sqz_op] = Q @ times_k
+
+    return correlators
+
+# compute correlators by solving an initial value problem (i.e. differential equation)
+def compute_correlators_diffeq(order_cap, chi_times, op_image_args,
+                               init_ln_val, init_val_sign):
+    op_num = 0 # counts number of operaters we keep track of
+    op_idx = {} # dictionary taking operator to unique integer index
+
+    # construct derivative operator and initial values
+    init_vals = {}
+    diff_op = {}
+    new_ops = squeezing_ops
+    for order in range(order_cap):
+        for op in new_ops:
+            try: diff_op[op]; continue
+            except: None
+            diff_op[op] = op_image(op, *op_image_args)
+            op_idx[op] = op_num
+            op_num += 1
+            try: init_vals[op] = np.exp(init_ln_val(op)) * init_val_sign(op)
+            except: init_vals[op] = 0
+            if op[0] != op[-1]:
+                diff_op[op[::-1]] = conj_vec(diff_op[op])
+                op_idx[op[::-1]] = op_num
+                op_num += 1
+                try: init_vals[op[::-1]] = np.conj(init_vals[op])
+                except: init_vals[op[::-1]] = None
+        new_ops = set([ op for new_op in new_ops for op in diff_op[new_op].keys() ])
+
+    init_vec = np.array([ val for op, val in init_vals.items() ]).astype(complex)
+    diff_mat = scipy.sparse.dok_matrix((op_num,op_num), dtype = complex)
+    for op_out, vec_out in diff_op.items():
+        for op_in, val in vec_out.items():
+            try: diff_mat[op_idx[op_out],op_idx[op_in]] = val
+            except: None # todo: deal with this exception properly!
+    diff_mat = diff_mat.tobsr()
+
+    def time_derivative(time, vec): return diff_mat.dot(vec)
+
+    ivp_solution = scipy.integrate.solve_ivp(time_derivative, (0,chi_times[-1]),
+                                             init_vec, t_eval = chi_times)
+
+    return { op : ivp_solution.y[op_idx[op],:] for op in squeezing_ops }
 
 # exact correlators for OAT with decoherence
 # derivations in foss-feig2013nonequilibrium
 def correlators_OAT(spin_num, chi_times, dec_rates):
     N = spin_num
-    S = spin_num/2
+    SS = spin_num/2
     t = chi_times
     g_z, g_p, g_m = dec_rates[0]
 
@@ -630,8 +681,8 @@ def correlators_OAT(spin_num, chi_times, dec_rates):
         Sz_unit = (g_p-g_m)/(g_p+g_m) * (1-np.exp(-(g_p+g_m)*t))
     else:
         Sz_unit = np.zeros(len(chi_times))
-    Sz = S * Sz_unit
-    Sz_Sz = S * (1/2 + (S-1/2) * Sz_unit**2)
+    Sz = SS * Sz_unit
+    Sz_Sz = SS * (1/2 + (SS-1/2) * Sz_unit**2)
 
     def s(J): return J + 1j*gam
     def Phi(J):
@@ -640,10 +691,10 @@ def correlators_OAT(spin_num, chi_times, dec_rates):
     def Psi(J):
         return np.exp(-lam*t) * (1j*s(J)-gam) * t * np.sinc(t*np.sqrt(s(J)**2-rr)/np.pi)
 
-    Sp = S * np.exp(-Gam*t) * Phi(1)**(N-1)
-    Sp_Sz = -1/2 * Sp + S * (S-1/2) * np.exp(-Gam*t) * Psi(1) * Phi(1)**(N-2)
-    Sp_Sp = S * (S-1/2) * np.exp(-2*Gam*t) * Phi(2)**(N-2)
-    Sp_Sm = S + Sz + S * (S-1/2) * np.exp(-2*Gam*t) # note that Phi(0) == 1
+    Sp = SS * np.exp(-Gam*t) * Phi(1)**(N-1)
+    Sp_Sz = -1/2 * Sp + SS * (SS-1/2) * np.exp(-Gam*t) * Psi(1) * Phi(1)**(N-2)
+    Sp_Sp = SS * (SS-1/2) * np.exp(-2*Gam*t) * Phi(2)**(N-2)
+    Sp_Sm = SS + Sz + SS * (SS-1/2) * np.exp(-2*Gam*t) # note that Phi(0) == 1
 
     return { (0,1,0) : Sz,
              (0,2,0) : Sz_Sz,
