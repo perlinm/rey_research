@@ -659,8 +659,8 @@ def compute_correlators_diffeq(order_cap, chi_times, op_image_args,
 
     def time_derivative(time, vec): return diff_mat.dot(vec)
 
-    ivp_solution = scipy.integrate.solve_ivp(time_derivative, (0,chi_times[-1]),
-                                             init_vec, t_eval = chi_times)
+    ivp_solution = scipy.integrate.solve_ivp(time_derivative, (0,chi_times[-1]), init_vec,
+                                             t_eval = chi_times, max_step = chi_times[1])
 
     return { op : ivp_solution.y[op_idx[op],:] for op in squeezing_ops }
 
