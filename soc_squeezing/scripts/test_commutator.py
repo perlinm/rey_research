@@ -68,6 +68,13 @@ def tZ(qq,rr,ll,mm,kk,mu):
                 op += aa_facs[aa] * bb_facs[bb] * cc_facs[cc] * (mu*S_z)**(aa+bb+cc)
     return op
 
+def mult(pp,qq,rr,ll,mm,nn,mu):
+    return np.sum([ factorial(kk) * binom(rr,kk) * binom(ll,kk)
+                    * S_mu**(pp+ll-kk)
+                    * tZ(qq,rr,ll,mm,kk,mu)
+                    * S_nu**(rr+nn-kk)
+                    for kk in range(min(rr,ll)+1) ])
+
 MN = 10
 exps_iter = itertools.product(range(10), repeat = 6)
 for exps, mu in itertools.product(exps_iter, (1,-1)):
@@ -78,11 +85,7 @@ for exps, mu in itertools.product(exps_iter, (1,-1)):
     arst_2 = S_mu**ll * (mu*S_z)**mm * S_nu**nn
     arst = arst_1 * arst_2
 
-    neio = np.sum([ factorial(kk) * binom(rr,kk) * binom(ll,kk)
-                    * S_mu**(pp+ll-kk)
-                    * tZ(qq,rr,ll,mm,kk,mu)
-                    * S_nu**(rr+nn-kk)
-                    for kk in range(min(rr,ll)+1) ])
+    neio = mult(pp,qq,rr,ll,mm,nn,mu)
 
     if res(arst,neio) >= 1e-10:
         print(mm,nn,mu,res(arst,neio))
