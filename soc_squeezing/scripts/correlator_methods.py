@@ -121,7 +121,7 @@ def op_ln_val_X(op, SS, vals = {}):
     k_vals = np.arange(-SS,SS-ll+0.5)
 
     # remove kk == 0 if necessary
-    if mm > 0 and k_vals[-1] >= 0:
+    if mm > 0 and SS % 1 == 0 and k_vals[-1] >= 0:
         k_vals = np.delete(k_vals,int(SS+1/4))
 
     # compute the logarithm of the magnitude of each term
