@@ -558,7 +558,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
 
     if method == "taylor":
         correlators = compute_correlators_taylor(order_cap, chi_times, op_image_args,
-                                                 init_ln_val, init_val_sign)
+                                                 init_ln_val, init_val_sign, initial_state)
     else: # method == "diffeq"
         correlators = compute_correlators_diffeq(order_cap, chi_times, op_image_args,
                                                  init_ln_val, init_val_sign)
@@ -578,10 +578,31 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
 
 # compute correlators using a Taylor expansion about time t = 0
 def compute_correlators_taylor(order_cap, chi_times, op_image_args,
-                               init_ln_val, init_val_sign):
+                               init_ln_val, init_val_sign, initial_state):
+
+    if initial_state == "-Z":
+        chop_operators = True
+        h_vec, dec_vecs = op_image_args[0], op_image_args[-2]
+        max_transverse_step = max( op[0] for op in h_vec.keys() )
+        for vec in dec_vecs:
+            if vec[0][0] != 0: max_transverse_step = max(max_transverse_step,1)
+            if vec[0][1] != 0: max_transverse_step = max(max_transverse_step,2)
+            if vec[1][0] != 0:
+                if vec[1][1] != 0 or vec[1][2] != 0:
+                    # through M_{\ell mn}
+                    max_transverse_step = max(max_transverse_step,1)
+            if vec[1][1] != 0:
+                if vec[1][2] != 0:
+                    # through \tilde P_{\ell mn}
+                    max_transverse_step = max(max_transverse_step,2)
+                else:
+                    # through S_\mu jump operator
+                    max_transverse_step = max(max_transverse_step,1)
+    else:
+        chop_operators = False
+
     diff_op = {} # single time derivative operator
     time_derivs = {} # [ sqz_op, derivative_order ] --> vector
-    init_ln_vals = {}
     for sqz_op in squeezing_ops:
         time_derivs[sqz_op,0] = { sqz_op : 1 }
         for order in range(1,order_cap):
@@ -595,6 +616,13 @@ def compute_correlators_taylor(order_cap, chi_times, op_image_args,
                         diff_op[op[::-1]] = conj_vec(diff_op[op])
                     add_left(time_derivs[sqz_op,order], diff_op[op], val/order)
             clean(time_derivs[sqz_op,order])
+
+            if chop_operators: # throw out operators with no contribution to correlators
+                max_steps = (order_cap-order) * max_transverse_step
+                irrelevant_ops = [ op for op in time_derivs[sqz_op,order].keys()
+                                   if op[0] > max_steps or op[2] > max_steps ]
+                for op in irrelevant_ops:
+                    del time_derivs[sqz_op,order][op]
 
     # compute initial values of relevant operators
     init_ln_vals = {}
