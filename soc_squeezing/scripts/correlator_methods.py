@@ -617,7 +617,8 @@ def compute_correlators_taylor(order_cap, chi_times, op_image_args,
                     add_left(time_derivs[sqz_op,order], diff_op[op], val/order)
             clean(time_derivs[sqz_op,order])
 
-            if chop_operators: # throw out operators with no contribution to correlators
+            if chop_operators and order > order_cap // 2:
+                # throw out operators with no contribution to correlators
                 max_steps = (order_cap-order) * max_transverse_step
                 irrelevant_ops = [ op for op in time_derivs[sqz_op,order].keys()
                                    if op[0] > max_steps or op[2] > max_steps ]
