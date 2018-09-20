@@ -32,16 +32,18 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-L = [10]*2 # lattice sites
+L = [30]*2 # lattice sites
+order_cap = 70 # order limit for cumulant expansions
 U_J_target = 1 # target value of U_int / J_0
-order_cap = 40 # order limit for cumulant expansions
 
 site_number = 200 # number of sites in lattice calculations
 lattice_depth_bounds = (1,15) # min / max lattice depths we will allow
 confining_depth = 60 # lattice depth along confining axis
 
+time_steps = 200 # time steps in plot
+ivp_steps = 100 # points per time step in ivp solver
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
-time_steps = 1000 # time steps in simulation
+
 h_U_target = 0.05 # target value of h_std / U_int
 fermi_N_max = 8 # maximum number of atoms for which to run Fermi Hubbard calculations
 
@@ -149,9 +151,9 @@ init_nZ = np.zeros(S_op_vec[0].shape[0], dtype = complex)
 init_nZ[0] = 1
 
 state_TVF = solve_ivp(deriv_TVF, (0,chi_times[-1]), init_nZ,
-                      t_eval = chi_times, max_step = chi_times[1]).y
+                      t_eval = chi_times, max_step = chi_times[1]/ivp_steps).y
 state_TAT = solve_ivp(deriv_TAT, (0,chi_times[-1]), init_nZ,
-                      t_eval = chi_times, max_step = chi_times[1]).y
+                      t_eval = chi_times, max_step = chi_times[1]/ivp_steps).y
 
 sqz_TVF = np.array([ spin_squeezing(N, state_TVF[:,tt], S_op_vec, SS_op_mat)
                      for tt in range(chi_times.size) ])
@@ -188,7 +190,7 @@ h_TAT = { (0,0,2) : +1/3,       # S_y^2 - S_x^2
           (0,2,0) : -1/3 }
 
 # compute correlators and squeezing for benchmarking
-correlators_TVF_B = compute_correlators(N, order_cap, chi_times, "+X", h_TVF)
+correlators_TVF_B = compute_correlators(N, order_cap//2, chi_times, "+X", h_TVF)
 correlators_TAT_B = compute_correlators(N, order_cap, chi_times, "-Z", h_TAT)
 sqz_TVF_B = squeezing_from_correlators(N, correlators_TVF_B)
 sqz_TAT_B = squeezing_from_correlators(N, correlators_TAT_B)
@@ -199,7 +201,7 @@ del correlators_TVF_B, correlators_TAT_B
 dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_yx_1))
 
 # compute correlators and squeezing with decoherence
-correlators_TVF_D = compute_correlators(N, order_cap, chi_times, "+X", h_TVF, dec_rates)
+correlators_TVF_D = compute_correlators(N, order_cap//2, chi_times, "+X", h_TVF, dec_rates)
 correlators_TAT_D = compute_correlators(N, order_cap, chi_times, "-Z", h_TAT, dec_rates,
                                         dec_mat_TAT)
 sqz_TVF_D = squeezing_from_correlators(N, correlators_TVF_D)
@@ -277,7 +279,7 @@ plt.figure(figsize = figsize)
 
 if L.size == 1: L_text = str(L[0])
 else: L_text = "(" + ",".join([ str(L_j) for L_j in L ]) + ")"
-title = f"$L={L_text},~U/J={U_J_target},~M={order_cap}$"
+title = f"$L={L_text},~U/J={U_J_target}$"
 plt.title(title)
 
 line_OAT, = plt.plot(times_SI, sqz_OAT, label = "OAT")
