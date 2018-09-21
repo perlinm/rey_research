@@ -13,6 +13,7 @@ from matplotlib import colors
 # natural logarithms of factorial and binomial coefficient
 from math import lgamma
 def ln_factorial(n): return lgamma(n+1)
+ln_factorial = np.vectorize(ln_factorial)
 def ln_binom(N,m): return ln_factorial(N) - ln_factorial(m) - ln_factorial(N-m)
 
 # spin operators for N particles in the S = N/2 Dicke manifold
@@ -71,11 +72,13 @@ def coherent_spin_state_angles(theta, phi, N = 10):
         state[0] = 1
         return state
     theta -= int(theta/np.pi) * np.pi
-    return np.exp(np.array([ 1/2 * ln_binom(N,m)
-                             + (N-m) * np.log(np.sin(theta/2))
-                             + m * np.log(np.cos(theta/2))
-                             + 1j * (N/2-m) * phi
-                             for m in range(N+1) ]))
+    m_vals = np.array(range(N+1))
+    ln_magnitudes = ( 1/2 * ln_binom(N,m_vals)
+                      + (N-m_vals) * np.log(np.sin(theta/2))
+                      + m_vals * np.log(np.cos(theta/2)) )
+    phases = np.exp(1j * (N/2-m_vals) * phi)
+    return np.exp(ln_magnitudes) * phases
+
 def coherent_spin_state(vec, N = 10):
     theta, phi = vec_theta_phi(vec)
     return coherent_spin_state_angles(theta, phi, N)
@@ -85,7 +88,7 @@ def coherent_spin_state(vec, N = 10):
 # plotting states on the S = N/2 Bloch sphere
 ##########################################################################################
 
-def plot_dicke_state(state, grid_size = 51, single_sphere = False):
+def plot_dicke_state(state, grid_size = 101, single_sphere = True):
     N = state.size-1
     if single_sphere:
         fig = plt.figure(figsize=plt.figaspect(1))
