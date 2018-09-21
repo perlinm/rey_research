@@ -138,8 +138,8 @@ def pair_overlap_1D(momenta, fourier_vecs, kk = 0, ll = 0, mm = 0, nn = 0,
     half_length = np.pi * site_number / 2
     shift = 0 if (neighbors == 0) else -np.pi/2
     normalization = np.pi * site_number**2
-    integral = quad(integrand, -half_length-shift, half_length-shift,
-                    limit = subinterval_limit)[0]
+    integral = 2 * quad(integrand, -shift, half_length-shift,
+                        limit = subinterval_limit)[0]
     return integral / normalization**2
 
 # like pair_overlap_1D, but with harmonic oscillator wavefunctions
@@ -172,7 +172,7 @@ def harmonic_pair_overlap_1D(lattice_depth, kk = 0, ll = 0, mm = 0, nn = 0,
 #   i.e. Eq. 28 in johnson2012effective, but without the factor of 4*pi
 def momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list,
                                  subinterval_limit = 1000):
-    assert(type(momenta_list) is list or type(momenta_list) is ndarray)
+    assert(type(momenta_list) is list or type(momenta_list) is np.ndarray)
 
     if type(momenta_list) is list:
         assert(len(momenta_list) == 3)
