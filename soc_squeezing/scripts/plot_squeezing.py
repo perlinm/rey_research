@@ -36,7 +36,7 @@ L = [30]*2 # lattice sites
 order_cap = 70 # order limit for cumulant expansions
 U_J_target = 1 # target value of U_int / J_0
 
-site_number = 200 # number of sites in lattice calculations
+site_number = 1000 # number of sites in lattice calculations
 lattice_depth_bounds = (1,15) # min / max lattice depths we will allow
 confining_depth = 60 # lattice depth along confining axis
 
@@ -68,7 +68,8 @@ def U_J(depth):
     momenta, fourier_vecs, _ = mathieu_solution(depth, 1, site_number)
     J_0 = tunneling_1D(depth, momenta, fourier_vecs)
     K_0 = pair_overlap_1D(momenta, fourier_vecs)
-    return g_int_LU[1] * K_0**lattice_dim * K_T**(3-lattice_dim) / J_0
+    U = g_int_LU[1] * K_0**lattice_dim * K_T**(3-lattice_dim)
+    return U / J_0
 lattice_depth = minimize_scalar(lambda x: abs(U_J(x)-U_J_target),
                                 method = "bounded", bounds = lattice_depth_bounds).x
 
