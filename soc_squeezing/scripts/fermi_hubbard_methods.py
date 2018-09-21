@@ -590,9 +590,11 @@ def H_lat_q(J, phi, L, N, c_op_mats, periodic = True):
 
 # lattice Hamiltonian in on-site basis
 def H_lat_j(J, phi, L, N, c_op_mats, periodic = True):
+    J = np.array(J, ndmin = 1)
     phi = np.array(phi, ndmin = 1)
-    while phi.size < L.size:
-        phi = np.append(phi, phi[-1])
+    while J.size < L.size: J = np.append(J, J[-1])
+    while phi.size < L.size: phi = np.append(phi, phi[-1])
+
     H_forward = c_seq()
     for ii in range(L.size):
         for j, s in itertools.product(spatial_basis(L), range(2)):
