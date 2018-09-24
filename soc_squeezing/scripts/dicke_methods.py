@@ -109,19 +109,27 @@ def plot_dicke_state(state, grid_size = 101, single_sphere = True):
                             vmax = np.max(color_vals), clip = False)
     color_map = plt.cm.inferno(norm(color_vals))
 
-    ax.set_xlim(-1,1)
-    ax.set_ylim(-1,1)
-    ax.set_zlim(-1,1)
+    ax_lims = np.array([-1,1]) * 0.6
+    ax.set_xlim(ax_lims)
+    ax.set_ylim(ax_lims)
+    ax.set_zlim(ax_lims)
+
+    asymmetry = 0.025
+    z_vals -= asymmetry
 
     if single_sphere:
+        y_vals -= asymmetry
         ax.plot_surface(x_vals, y_vals, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, shade = False)
+                        facecolors = color_map, shade = False, zorder = 0)
     else:
-        ax.plot_surface(x_vals, y_vals-1.5, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, shade = False)
-        ax.plot_surface(-x_vals, y_vals+1.5, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, shade = False)
-        ax.set_ylim(-2,2)
+        y_vals -= 2*asymmetry
+        y_offset = 1.1
+        y_lims = 2*ax_lims
+        ax.plot_surface(x_vals, y_vals-y_offset, z_vals, rstride = 1, cstride = 1,
+                        facecolors = color_map, shade = False, zorder = 0)
+        ax.plot_surface(-x_vals, y_vals+y_offset, z_vals, rstride = 1, cstride = 1,
+                        facecolors = color_map, shade = False, zorder = 0)
+        ax.set_ylim(y_lims)
 
     ax.set_axis_off()
     ax.view_init(elev = 0, azim = 0)
