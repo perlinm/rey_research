@@ -336,14 +336,16 @@ operators to keep track of, we can now truncate the series in
 Examining the nonzero entries of $T^{\ell mn}_{pqr;k}$ for
 $k=0,1,\cdots,M-1$ now {\it tells} us which operators we need to keep
 track of in order to compute the expectation value
-$\bk{S_+^\ell S_\z^m S_-^n}$.  Furthermore, after computing the
-expectation values of all relevant operators at $t=0$, time evolution
-of $\bk{S_+^\ell S_\z^m S_-^n}$ takes only $\O\p{M}$ CPU time.
-Finally, the relation
+$\bk{S_+^\ell S_\z^m S_-^n}$.  Furthermore, after computing all
+relevant matrix elements $T^{\ell mn}_{pqr;k}$ and expectation values
+$\bk{S_+^p S_\z^q S_-^r}_{t=0}$, computing
+$\bk{S_+^\ell S_\z^m S_-^n}$ takes only a short time independent of
+system size.  Finally, the relation
 $\p{S_+^\ell S_\z^m S_-^n}^\dag=S_+^n S_\z^m S_-^\ell$ can be
-exploited to cut both the number of expectation values
-$\bk{S_+^p S_\z^r S_-^q}_{t=0}$ and the number of matrix elements
-$T^{\ell mn}_{pqr}$ which we need to compute roughly in half.
+exploited to cut both the number of matrix elements
+$T^{\ell mn}_{pqr}$ and expectation values
+$\bk{S_+^p S_\z^r S_-^q}_{t=0}$ that we need to compute roughly in
+half.
 
 
 \section{Decoherence in the two-axis twisting protocols}
@@ -359,44 +361,60 @@ time-dependent transverse-field Hamiltonian
 \begin{align}
   H = \chi S_\z^2 + \Omega\p{t} S_\x,
   &&
-  \Omega\p{t} = \beta\omega\cos\p{\omega t} S_\x,
+  \Omega\p{t} = \beta\omega \cos\p{\omega t},
 \end{align}
-where $\beta$ is the modulation index of the driving field, and the
-drive frequency $\omega\gg N\chi$.  Moving into the rotating frame of
-$\Omega\p{t}S_\x$ subtracts this term from the Hamiltonian, and
-transforms operators $\O$ as
+where $\beta$ is the modulation index of the drive, and the drive
+frequency $\omega\gg N\chi$, with $N$ the total number of spins.
+Moving into the rotating frame of $\Omega\p{t}S_\x$ subtracts this
+term from the Hamiltonian, and transforms operators $\O$ as
 \begin{align}
   \O \to U\p{t}^\dag \O U\p{t},
   &&
-  U\p{t} \equiv \exp\p{-i\int_0^t\d\tau~\Omega\p{\tau}S_\x}
+  U\p{t} \equiv \exp\sp{-i\int_0^t\d\tau~\Omega\p{\tau}S_\x}
   = \exp\sp{-i\beta\sin\p{\omega t}S_\x},
 \end{align}
 In particular, the operators $\tilde S_\pm\equiv-S_\z\pm iS_\y$
-transform as
+transform simply as
 \begin{align}
   \tilde S_\pm
   \to U^\dag \tilde S_\pm U
   = e^{\pm i\beta\sin\p{\omega t}} \tilde S_\pm.
 \end{align}
-For large drive frequencies $\omega$, we can generally make a secular
-approximation to say
+For any operator $\O$ and drive frequency $\omega\gg\norm{\O}$, where
+$\norm{\O}$ denotes the operator norm of $\O$, we can generally make a
+secular approximation to say
 \begin{align}
-  e^{\pm i\beta\sin\p{\omega t}}
-  = \sum_{n=-\infty}^\infty J_n\p{\pm\beta} e^{in\omega t}
-  \approx J_0\p{\pm\beta} = J_0\p{\beta},
+  e^{\pm im\beta\sin\p{\omega t}} \O
+  = \sum_{n=-\infty}^\infty J_n\p{\pm m\beta} e^{in\omega t} \O
+  \approx J_0\p{\pm m\beta} \O
+  = J_0\p{m\beta} \O,
 \end{align}
 where $J_n$ is the $n$-th order Bessel function of the first kind.
-Expanding $S_\z^2=\f14\p{\tilde S_++\tilde S_-}^2$, one can thus work
-out that the effective Hamiltonian in the rotating frame of the drive
-is
+Expanding $S_\z^2=\f14\p{\tilde S_+ + \tilde S_-}^2$, one can thus
+work out that the effective Hamiltonian in the rotating frame of the
+drive is
 \begin{align}
   H_{\t{eff}}
-  \approx \f{\chi}{2} \p{\sp{J_0\p{2\beta}+1} S_\z^2
-  - \sp{J_0\p{2\beta}-1} S_\y^2},
+  \approx \f{\chi}{2} \p{\sp{1+J_0\p{2\beta}} S_\z^2
+    + \sp{1-J_0\p{2\beta}} S_\y^2}.
 \end{align}
-where choosing $\beta$ such that $J_0\p{2\beta}=\pm1/3$ will give us
-$H_{\t{TAT}}^{\z,\y}$ or $H_{\t{TAT}}^{\y,\x}$ up to irrelevant terms.
-In a similar spirit, one can work out that
+Driving with a modulation index $\beta$ for which
+$J_0\p{2\beta}=\pm1/3$ then gives us the effective two-axis twisting
+Hamiltonians
+\begin{align}
+  H_{\t{eff}}^{(+)}
+  = \f{\chi}{3} \p{2 S_\z^2 + S_\y^2}
+  \simeq \f{\chi}{3} \p{S_\z^2 - S_\x^2},
+  &&
+  H_{\t{eff}}^{(-)}
+  = \f{\chi}{3} \p{S_\z^2 + 2 S_\y^2}
+  \simeq \f{\chi}{3} \p{S_y^2 - S_\x^2},
+\end{align}
+where $\simeq$ denotes equality up to overall factors of
+$\v S^2=S_\z^2+S_\x^2+S_\y^2$ which are irrelevant in the absence of
+coherent coupling between states with different net spin.  In a
+similar spirit, one can work out that single-spin operators transverse
+to the $\x$-axis transform as
 \begin{align}
   \tilde\sigma_\pm^{(j)}
   \equiv \f12\p{-\sigma_\z^{(j)}\pm i\sigma_\y^{(j)}}
