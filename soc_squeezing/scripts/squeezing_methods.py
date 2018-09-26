@@ -5,25 +5,31 @@
 import numpy as np
 import scipy.sparse as sparse
 import scipy.linalg as linalg
-import scipy.optimize as optimize
+import scipy.optimize  as optimize
 
 from correlator_methods import correlators_OAT
 
-# constrect vector of generators about z, x, and y
-g_vec = np.array([ np.array([ [  0,  0,  0 ],
-                              [  0,  0, -1 ],
-                              [  0,  1,  0 ] ]),
-                   np.array([ [  0,  0,  1 ],
-                              [  0,  0,  0 ],
-                              [ -1,  0,  0 ] ]),
-                   np.array([ [  0, -1,  0 ],
-                              [  1,  0,  0 ],
-                              [  0,  0,  0 ] ]) ])
+##########################################################################################
+# general spin squeezing method, and necessary "infrastructure"
+##########################################################################################
 
-# rotate a target vector by an angl about an axis
-def rotate_vector(vector, angle, axis):
-    rotation_generator = angle * np.einsum("i,iAB->AB", axis/linalg.norm(axis), g_vec)
-    return linalg.expm(rotation_generator) @ vector
+# act with a time-evolution unitary from the left, right, or both sides
+def evolve_left(state, hamiltonian, time):
+    return sparse.linalg.expm_multiply(-1j * time * hamiltonian, state)
+def evolve_right(state, hamiltonian, time):
+    return evolve_left(state.conj().T, hamiltonian, time).conj().T
+def evolve_left_right(state, hamiltonian, time):
+    return evolve_right(evolve_left(state, hamiltonian, time), hamiltonian, time)
+
+# time evolution of a state with a sparse hamiltonian
+def evolve(state, hamiltonian, time):
+    assert(sparse.issparse(hamiltonian))
+    assert(state.shape[0] == hamiltonian.shape[0])
+
+    if state.shape != hamiltonian.shape: # state is a vector
+        return evolve_left(state, hamiltonian, time)
+    else: # state is a density operator
+        return evolve_left_right(state, hamiltonian, time)
 
 # expectation value of X with respect to a state
 def val(X, state):
@@ -51,6 +57,22 @@ def spin_mat_vals(state, SS_op_mat):
 # expectation values of spin operator and spin-spin matrix
 def spin_vec_mat_vals(state, S_op_vec, SS_op_mat):
     return spin_vec_vals(state, S_op_vec), spin_mat_vals(state, SS_op_mat)
+
+# constrect vector of generators about z, x, and y
+g_vec = np.array([ np.array([ [  0,  0,  0 ],
+                              [  0,  0, -1 ],
+                              [  0,  1,  0 ] ]),
+                   np.array([ [  0,  0,  1 ],
+                              [  0,  0,  0 ],
+                              [ -1,  0,  0 ] ]),
+                   np.array([ [  0, -1,  0 ],
+                              [  1,  0,  0 ],
+                              [  0,  0,  0 ] ]) ])
+
+# rotate a target vector by an angl about an axis
+def rotate_vector(vector, angle, axis):
+    rotation_generator = angle * np.einsum("i,iAB->AB", axis/linalg.norm(axis), g_vec)
+    return linalg.expm(rotation_generator) @ vector
 
 # variance of spin state about an axis
 def spin_variance(axis, S_vec, SS_mat, state = None):
@@ -127,24 +149,6 @@ def squeezing_from_correlators(spin_num, correlators, in_dB = True):
     if in_dB: squeezing = -10*np.log10(squeezing)
     return squeezing
 
-# act with a time-evolution unitary from the left, right, or both sides
-def evolve_left(state, hamiltonian, time):
-    return sparse.linalg.expm_multiply(-1j * time * hamiltonian, state)
-def evolve_right(state, hamiltonian, time):
-    return evolve_left(state.conj().T, hamiltonian, time).conj().T
-def evolve_left_right(state, hamiltonian, time):
-    return evolve_right(evolve_left(state, hamiltonian, time), hamiltonian, time)
-
-# time evolution of a state with a sparse hamiltonian
-def evolve(state, hamiltonian, time):
-    assert(sparse.issparse(hamiltonian))
-    assert(state.shape[0] == hamiltonian.shape[0])
-
-    if state.shape != hamiltonian.shape: # state is a vector
-        return evolve_left(state, hamiltonian, time)
-    else: # state is a density operator
-        return evolve_left_right(state, hamiltonian, time)
-
 # squeezing parameter from one-axis twisting
 def squeezing_OAT(spin_num, chi_t, dec_rates = (0,0,0), in_dB = True):
 
@@ -170,3 +174,43 @@ def squeezing_OAT(spin_num, chi_t, dec_rates = (0,0,0), in_dB = True):
     correlators = correlators_OAT(spin_num, chi_t, dec_rates)
 
     return squeezing_from_correlators(spin_num, correlators, in_dB)
+
+
+##########################################################################################
+# methods to compute optimal spin squeezing parameter and time
+##########################################################################################
+
+# get optimal squeezing parameters by exact diagonalization
+def get_optima_diagonalization(N, H, S_op_vec, SS_op_mat, init_state, max_time):
+    this_H = H.toarray()
+    diags_H = np.diag(this_H)
+    off_diags_H = np.diag(this_H,1)
+    eig_vals, eig_vecs = linalg.eigh_tridiagonal(diags_H, off_diags_H)
+    this_S_op_vec = np.array([ eig_vecs.T @ X @ eig_vecs for X in S_op_vec ])
+    this_SS_op_mat = np.array([ [ eig_vecs.T @ X @ eig_vecs for X in XS ]
+                              for XS in SS_op_mat ])
+    this_init_state = eig_vecs.T @ init_state
+
+    def squeezing_TVF_nval(chi_t):
+        state_t =  np.exp(-1j * chi_t * eig_vals) * this_init_state
+        return -spin_squeezing(N, state_t, this_S_op_vec, this_SS_op_mat)
+    optimum_TVF = optimize.minimize_scalar(squeezing_TVF_nval, method = "bounded",
+                                           bounds = (0, max_time))
+    return -optimum_TVF.fun, optimum_TVF.x
+
+# get optimal squeezing parameters by simulation
+def get_optima_simulation(N, H, S_op_vec, SS_op_mat, init_state, max_time,
+                          time_steps = 1000):
+    chi_times = np.linspace(0, max_time, time_steps)
+    d_chi_t = ( chi_times[-1] - chi_times[0] ) / time_steps
+    state = init_state.copy()
+
+    sqz_val = -1
+    for tt in range(time_steps):
+        last_sqz_val = sqz_val
+        state = evolve(state, H, d_chi_t)
+        sqz_val = spin_squeezing(N, state, S_op_vec, SS_op_mat)
+        if sqz_val < last_sqz_val:
+            return last_sqz_val, chi_times[tt-1]
+
+    return None, None
