@@ -10,7 +10,7 @@ import scipy.optimize  as optimize
 from correlator_methods import correlators_OAT
 
 ##########################################################################################
-# general spin squeezing method, and necessary "infrastructure"
+# general spin squeezing methods, and all necessary "infrastructure"
 ##########################################################################################
 
 # act with a time-evolution unitary from the left, right, or both sides
