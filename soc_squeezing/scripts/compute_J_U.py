@@ -15,8 +15,8 @@ data_dir = "../data/"
 site_number = 100
 bands = 1
 
-shallow_min = 1
-shallow_max = 20
+shallow_min = 2
+shallow_max = 15
 shallow_step = 0.1
 
 deep_min = 40
@@ -65,13 +65,13 @@ header_U += "# first row = confining lattice depth\n"
 header_units = "# values in units with the recoil energy"
 header_units += r" E_R \approx 3.47 x 2\pi kHz equal to 1" + "\n"
 
-for data, name, header_JU in [ [ J_0, "J_0", header_J ],
-                               [ J_0, "J_0", header_J ],
-                               [ U_int_1D, "U_int_1D", header_U ],
-                               [ U_int_2D, "U_int_2D", header_U ] ]:
+for data, name, header in [ [ J_0, "J_0", header_J ],
+                            [ J_T, "J_T", header_J ],
+                            [ U_int_1D, "U_int_1D", header_U ],
+                            [ U_int_2D, "U_int_2D", header_U ] ]:
     file_name = data_dir + name + ".txt"
     with open(file_name, "w") as f:
-        f.write(header_JU + header_units)
+        f.write(header + header_units)
     data.to_csv(file_name, mode = "a")
 
 
