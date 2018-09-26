@@ -177,7 +177,7 @@ print("sqz_opt_TAT (dB):", sqz_TAT.max())
 # compute squeezing parameters with decoherence
 ##########################################################################################
 
-sqz_OAT_D = squeezing_OAT(N, chi_times, dec_rates)
+sqz_OAT_D = squeezing_OAT(N, chi_times, dec_rates[0])
 t_opt_OAT_D = times[sqz_OAT_D.argmax()]
 print()
 print("t_opt_OAT_D (sec):", t_opt_OAT_D / recoil_energy_NU)

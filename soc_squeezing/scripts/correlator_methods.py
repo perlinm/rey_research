@@ -699,7 +699,7 @@ def correlators_OAT(spin_num, chi_times, dec_rates):
     N = spin_num
     SS = spin_num/2
     t = chi_times
-    g_z, g_p, g_m = dec_rates[0]
+    g_z, g_p, g_m = dec_rates
 
     gam = -(g_p - g_m) / 2
     lam = (g_p + g_m) / 2
