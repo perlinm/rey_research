@@ -105,9 +105,10 @@ def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None):
 # if "neighbors" is 1, \phi_{nn} is evaluated at an adjacent lattice site
 # if "neighbors" is 2, both \phi_{nn} and \phi_{mm} are evaluated at an adjacent site
 def pair_overlap_1D(momenta, fourier_vecs, kk = 0, ll = 0, mm = 0, nn = 0,
-                    neighbors = 0, subinterval_limit = 1000):
+                    neighbors = 0, padding_sites = None, subinterval_limit = 1000):
     if (kk + ll + mm + nn) % 2 != 0: return 0 # odd integrals vanish
     assert(neighbors in [0,1,2]) # 3 and 4 are the same as 1 and 0
+    if padding_sites == None: padding_sites = 2 + max(kk,ll,mm,nn)
 
     # the wannier orbitals are
     #   \phi_n(z) = \sum_{q,k} c_{qk}^{(n)} e^{i(q+2k)z} = c_n \cdot E
@@ -135,10 +136,10 @@ def pair_overlap_1D(momenta, fourier_vecs, kk = 0, ll = 0, mm = 0, nn = 0,
                        np.sum(fourier_vecs[:,mm,:] * phases_mm) *
                        np.sum(fourier_vecs[:,nn,:] * phases_nn))
 
-    half_length = np.pi * site_number / 2
+    interval = np.pi * padding_sites
     shift = 0 if (neighbors == 0) else -np.pi/2
     normalization = np.pi * site_number**2
-    integral = 2 * quad(integrand, -shift, half_length-shift,
+    integral = 2 * quad(integrand, -shift, interval-shift,
                         limit = subinterval_limit)[0]
     return integral / normalization**2
 
@@ -171,8 +172,9 @@ def harmonic_pair_overlap_1D(lattice_depth, kk = 0, ll = 0, mm = 0, nn = 0,
 # ground-state momentum-dependent coupling overlap integral
 #   i.e. Eq. 28 in johnson2012effective, but without the factor of 4*pi
 def momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list,
-                                 subinterval_limit = 1000):
+                                 padding_sites = None, subinterval_limit = 1000):
     assert(type(momenta_list) is list or type(momenta_list) is np.ndarray)
+    if padding_sites == None: padding_sites = 2
 
     if type(momenta_list) is list:
         assert(len(momenta_list) == 3)
@@ -203,16 +205,16 @@ def momentum_coupling_overlap_3D(momenta_list, fourier_vecs_list,
         dd_phi_z = -np.real(np.sum(fourier_vecs[:,0,:] * phases * qk_mat**2))
         return phi_z**2 * ( d_phi_z**2 - phi_z * dd_phi_z )
 
-    half_length = np.pi * site_number / 2
+    interval = np.pi * padding_sites
     normalization = np.pi * site_number**2
 
     def integrand_x(x): return integrand(momenta_x, fourier_vecs_x, x)
     def integrand_y(y): return integrand(momenta_y, fourier_vecs_y, y)
     def integrand_z(z): return integrand(momenta_z, fourier_vecs_z, z)
 
-    integral_x = 2 * quad(integrand_x, 0, half_length, limit = subinterval_limit)[0]
-    integral_y = 2 * quad(integrand_y, 0, half_length, limit = subinterval_limit)[0]
-    integral_z = 2 * quad(integrand_z, 0, half_length, limit = subinterval_limit)[0]
+    integral_x = 2 * quad(integrand_x, 0, interval, limit = subinterval_limit)[0]
+    integral_y = 2 * quad(integrand_y, 0, interval, limit = subinterval_limit)[0]
+    integral_z = 2 * quad(integrand_z, 0, interval, limit = subinterval_limit)[0]
     overlap_1D_x = pair_overlap_1D(momenta_x, fourier_vecs_x)
     overlap_1D_y = pair_overlap_1D(momenta_y, fourier_vecs_y)
     overlap_1D_z = pair_overlap_1D(momenta_z, fourier_vecs_z)
