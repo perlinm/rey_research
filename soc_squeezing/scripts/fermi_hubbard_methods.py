@@ -637,7 +637,7 @@ def hamiltonians(N, L, phi, lattice_depth, confining_depth, c_op_mats, site_numb
         U_int = g_int_LU[1] * K_T**(3-L.size) * overlap_0
         H_int += U_int * c_op(p,1).dag() * c_op(q,0).dag() * c_op(r,0) * c_op(p+q-r,1)
 
-    # compute Hamiltonnian induced by clock laser at unit Rabi frequency
+    # compute Hamiltonian induced by clock laser at unit Rabi frequency
     momenta = [ [ q, q + phi * L / (2*np.pi) ] for q in spatial_basis(L) ]
     scaled_momenta = [ [ scale_index(qq[0], L, site_number),
                          scale_index(qq[1], L, site_number) ]
