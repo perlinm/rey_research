@@ -12,7 +12,7 @@ from sr87_olc_constants import g_int_LU
 
 data_dir = "../data/"
 
-site_number = 100
+site_number = 1000
 bands = 1
 
 shallow_min = 2
