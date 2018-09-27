@@ -715,10 +715,13 @@ def correlators_OAT(spin_num, chi_times, dec_rates):
 
     def s(J): return J + 1j*gam
     def Phi(J):
-        return np.exp(-lam*t) * ( np.cos(t*np.sqrt(s(J)**2-rr))
-                                  + lam*t * np.sinc(t*np.sqrt(s(J)**2-rr)/np.pi) )
+        z = np.sqrt(s(J)**2-rr)
+        val_cos = ( np.exp(-(lam-1j*z)*t) + np.exp(-(lam+1j*z)*t) ) / 2
+        val_sin = lam/z * ( np.exp(-(lam-1j*z)*t) - np.exp(-(lam+1j*z)*t) ) / 2j
+        return val_cos + val_sin
     def Psi(J):
-        return np.exp(-lam*t) * (1j*s(J)-gam) * t * np.sinc(t*np.sqrt(s(J)**2-rr)/np.pi)
+        z = np.sqrt(s(J)**2-rr)
+        return (1j*s(J)-gam)/z * ( np.exp(-(lam-1j*z)*t) - np.exp(-(lam+1j*z)*t) ) / 2j
 
     Sp = SS * np.exp(-Gam*t) * Phi(1)**(N-1)
     Sp_Sz = -1/2 * Sp + SS * (SS-1/2) * np.exp(-Gam*t) * Psi(1) * Phi(1)**(N-2)
