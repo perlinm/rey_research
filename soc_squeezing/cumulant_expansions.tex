@@ -165,7 +165,7 @@ for
   \lambda \equiv \f12 \p{\gamma_+ + \gamma_-},
   &&
   r \equiv \gamma_+ \gamma_-,
-  &
+  &&
   \Gamma \equiv \gamma_\z + \lambda,
   &&
   s_X \equiv X + i\gamma,
@@ -258,10 +258,11 @@ $d/dt$ are worked out Appendices \ref{sec:comm_general},
 
 The time derivative operator $d/dt$ will generally couple spin
 operators $S_+^\ell S_\z^m S_-^n$ to spin operators
-$S_+^p S_\z^q S_-^r$ with higher weight, i.e.~with $p+q+r>\ell+m+n$.
-In practice, keeping track of this operator growth will eventually
-require more computational resources than are available, so we must
-truncate it at some point by taking
+$S_+^p S_\z^q S_-^r$ with higher ``weight'', i.e.~with
+$p+q+r>\ell+m+n$, which signifies the growth of many-body
+correlations.  In practice, keeping track of this operator growth will
+eventually require more computational resources than are available, so
+we must truncate it at some point by taking
 \begin{align}
   \f{d}{dt} \p{S_+^\ell S_\z^m S_-^n}
   = \sum_{p,q,r} T^{\ell m n}_{pqr} S_+^p S_\z^q S_-^r
@@ -282,8 +283,8 @@ few limitations:
 \begin{enumerate*}[label=(\roman*)]
 \item simulating a system of differential equations for a large number
   of operators can be very time-consuming,
-\item the weight function $w$ must be chosen carefully, as the optimal
-  weight function is generally system-dependent,
+\item the weight function $w$ may need to be chosen carefully, as the
+  optimal weight function is generally system-dependent,
 \item simulation results can only be trusted up to the time at which
   the initial value of operators $S_+^p S_\z^r S_-^q$ with weight
   $w\p{p,q,r}\ge W$ have a non-negligible contribution to operators of
@@ -721,7 +722,7 @@ finding
   &= \sum_{\p{\v k,p-2,\ell}}
   \prod_{j=2}^{p-1} \p{2k_{p-j}-j+F_{np;\mu}}
   f_{np\ell;\mu}\p{k_{p-2},1} \\
-  &= \f1{r!} \sum_{\p{\v k,p-r,\ell}}
+  &= \f1{\p{r-1}!} \sum_{\p{\v k,p-r,\ell}}
   \prod_{j=r}^{p-1} \p{2k_{p-j}-j+F_{np;\mu}}
   \prod_{q=1}^{r-1} f_{np\ell;\mu}\p{k_{p-r},q} \\
   &= \f1{\p{p-1}!} \prod_{q=1}^{p-1} f_{np\ell;\mu}\p{0,q} \\
