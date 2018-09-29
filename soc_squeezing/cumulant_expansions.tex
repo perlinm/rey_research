@@ -1535,8 +1535,8 @@ operators in $P_{\v j}$ and $P_{\v k}$ as prescribed by $\v r$, or
 \begin{align}
   f_{\v m\v n\v r}
   &\equiv \sp{\prod_{\mu,\nu}
-    { m_\mu - \sum_{\rho>\nu} r_{\mu\rho} \choose r_{\mu\nu} }
-    { n_\mu - \sum_{\rho>\nu} r_{\rho\mu} \choose r_{\nu\mu} }}
+    { m_\mu - \sum_{\rho<\nu} r_{\mu\rho} \choose r_{\mu\nu} }
+    { n_\mu - \sum_{\rho<\nu} r_{\rho\mu} \choose r_{\nu\mu} }}
   \sp{\prod_{\mu,\nu} r_{\mu\nu}!} \\
   &= \sp{\prod_\mu \p{m_\mu}_{\sum_\rho r_{\mu\rho}}
     \p{n_\mu}_{\sum_\rho r_{\rho\mu}}}
