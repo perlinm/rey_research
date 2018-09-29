@@ -1506,7 +1506,7 @@ $P_{\v k}$, we have
 \begin{align}
   \S_{\v m}\S_{\v n}
   = \sum_{s\ge0} \sum_{\p{\v r,\v J,\v K;\v m,\v n,s}}
-  f_{\v m\v n\v r} Q_{\v J} \tilde Q_{\v K},
+  g_{\v m\v n\v r} Q_{\v J} \tilde Q_{\v K},
   \label{eq:SS_PQ}
 \end{align}
 where $\v J$ and $\v K$ are respectively ordered lists of indices for
@@ -1531,17 +1531,17 @@ values of $\v r,\v J,\v K$ with the restrictions
   &&
   \set{J_a^\mu} \cap \set{K_a^{\mu\nu}} = \set{};
 \end{align}
-the factor $f_{\v m\v n\v r}$ counts the number of ways to pair
+the factor $g_{\v m\v n\v r}$ counts the number of ways to pair
 operators in $P_{\v j}$ and $P_{\v k}$ as prescribed by $\v r$, or
 \begin{align}
-  f_{\v m\v n\v r}
+  g_{\v m\v n\v r}
   &\equiv \sp{\prod_{\mu,\nu}
     { m_\mu - \sum_{\rho<\nu} r_{\mu\rho} \choose r_{\mu\nu} }
     { n_\mu - \sum_{\rho<\nu} r_{\rho\mu} \choose r_{\nu\mu} }}
   \sp{\prod_{\mu,\nu} r_{\mu\nu}!} \\
   &= \sp{\prod_\mu \p{m_\mu}_{\sum_\rho r_{\mu\rho}}
     \p{n_\mu}_{\sum_\rho r_{\rho\mu}}}
-  \sp{\prod_{\mu\nu} r_{\mu\nu}!}^{-1},
+  \sp{\prod_{\mu,\nu} r_{\mu\nu}!}^{-1},
 \end{align}
 where $\p{n}_k\equiv\prod_{j=0}^{k-1}\p{n-j}$ is a falling factorial;
 and finally
@@ -1549,7 +1549,15 @@ and finally
   Q_{\v J} \equiv \prod_{\mu,a} \sigma_\mu^{(J_a^\mu)},
   &&
   \tilde Q_{\v K} \equiv \prod_{\mu,\nu,a}
-  \sigma_\mu^{(K_a^{\mu\nu})} \sigma_\nu^{(K_a^{\mu\nu})}.
+  \sigma_\mu^{(K_a^{\mu\nu})} \sigma_\nu^{(K_a^{\mu\nu})}
+  = \prod_{\mu,\nu,a} \sum_\rho
+  \eta_{\mu\nu\rho} \sigma_\rho^{(K_a^{\mu\nu})},
+  \label{eq:Q_JK}
 \end{align}
+where $\eta_{\mu\nu\rho}$ is defined by the product
+$\sigma_\mu\sigma_\nu\equiv\sum_\rho\eta_{\mu\nu\rho}\sigma_\rho$.
+Note that unlike the sums over $\mu$ and $\nu$ in the work above, the
+sum over $\rho$ in \eqref{eq:Q_JK} now includes an index for the
+identity operator $\sigma_0\equiv\1$.
 
 \end{document}
