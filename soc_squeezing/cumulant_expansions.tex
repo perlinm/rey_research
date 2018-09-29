@@ -11,7 +11,7 @@
 }
 
 %%% symbols, notations, etc.
-\usepackage{physics,braket,bm,commath,amssymb} % physics and math
+\usepackage{physics,braket,bm,commath,amssymb}
 \renewcommand{\t}{\text} % text in math mode
 \newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
 \newcommand{\p}[1]{\left(#1\right)} % parenthesis
@@ -1475,61 +1475,53 @@ with $q$ repetitions of 2 and 1.
 We wish to change our basis for all exchange-symmetric operators on a
 system of $N$ qubits from $S_+^\ell S_\z^m S_-^n$ to
 \begin{align}
-  \S_{\v m} \equiv \sum_{\p{\v j}} P_{\v m\v j}
-\end{align}
-where
-\begin{align}
-  \v m \equiv \p{m_+,m_\z,m_-},
+  \S_{\v m} \equiv \sum_{\p{\v j;\v m}} P_{\v j},
   &&
-  \v j \equiv \p{j_1^+,j_2^+,\cdots j_{m_+}^+,
-    j_1^\z,j_2^\z,\cdots j_{m_\z}^\z,
-    j_1^-,j_2^-,\cdots j_{m_-}^-},
+  P_{\v j} \equiv \prod_{\mu,a} \sigma_\mu^{\p{j_a^\mu}},
 \end{align}
-and for shorthand we define
-\begin{align}
-  \sum_{\p{\v j}} X_{\v j} \equiv
-  \sum_{j_a^\mu=j_b^\nu \iff \p{a,\mu}=\p{b,\nu}} X_{\v j},
-  &&
-  P_{\v m\v j} \equiv \prod_{\mu,a} \sigma_\mu^{\p{j_a^\mu}}.
-\end{align}
-In words, $\S_{\v m}$ is a $\p{m_++m_\z+m_-}$-spin operator with
-$m_\mu$ single-spin operators of type $\sigma_\mu$ addressing the
-spins indexed by $j_1^\mu,j_2^\mu,\cdots j_{m_\mu}^\mu$.  We now
-expand a product of basis operators $\S_{\v m}$ and $\S_{\v n}$ into
-terms that have exactly $s$ spins addressed by both operators:
+where $\v m \equiv \p{m_+,m_\z,m_-}$; $\v j$ is an ordered list of
+indices for the spins addressed by $P_{\v j}$; and the sum over
+$\p{\v j;\v m}$ denotes a sum over all possible $\v j$ for which all
+indices in $\v j$ are distinct and $\abs{\set{j_a^\mu}} = m_\mu$.  In
+words, $\S_{\v m}$ is an exchange-symmetric $\p{m_++m_\z+m_-}$-spin
+operator with $m_\mu$ single-spin operators of type $\sigma_\mu$, and
+$P_{\v j}$ is a single term in $\S_{\v m}$ which addresses the spins
+indexed by $\v j$.
+
+We now expand a product of basis operators $\S_{\v m}$ and $\S_{\v n}$
+into terms that have exactly $s$ spins addressed by both operators:
 \begin{align}
   \S_{\v m} \S_{\v n}
-  = \sum_{s\ge0} \sum_{\p{\v j,\v k,s}} P_{\v m\v j} P_{\v n\v k},
+  = \sum_{s\ge0} \sum_{\p{\v j,\v k;\v m,\v n,s}} P_{\v j} P_{\v k},
   &&
-  \sum_{\p{\v j,\v k,s}} X_{\v j\v k} \equiv
-  \sum_{\substack{\p{\v j},\p{\v k} \\
-      \abs{\set{j_\alpha^\mu}\cap\set{k_\beta^\nu}}=s}}
-  X_{\v j\v k},
+  \sum_{\p{\v j,\v k;\v m,\v n,s}} X \equiv
+  \sum_{\substack{\p{\v j;\v m},\p{\v k;\v n} \\
+      \abs{\set{j_\alpha^\mu}\cap\set{k_\beta^\nu}}=s}} X,
   \label{eq:SS_PP}
 \end{align}
 where the sum over $s$ terminates after $s = \sum_\mu\p{m_\mu+n_\mu}$.
 Collecting terms in which $r_{\mu\nu}$ of the $\sigma_\mu$ operators
-in $P_{\v m\v j}$ address the same spin as a $\sigma_\nu$ operator in
-$P_{\v n\v k}$, we have
+in $P_{\v j}$ address the same spin as a $\sigma_\nu$ operator in
+$P_{\v k}$, we have
 \begin{align}
   \S_{\v m}\S_{\v n}
-  = \sum_{s\ge0} \sum_{\p{\v m,\v n,\v r,\v J,\v K}}
-  f_{\v m\v n\v r} Q_{\v r\v J} \tilde Q_{\v r\v K},
+  = \sum_{s\ge0} \sum_{\p{\v r,\v J,\v K;\v m,\v n,s}}
+  f_{\v m\v n\v r} Q_{\v J} \tilde Q_{\v K},
   \label{eq:SS_PQ}
 \end{align}
-where $\set{J_a^\mu}$ and $\set{K_a^{\mu\nu}}$ are respectively the
-indices of spins addressed by one and two single-spin operators in
-each term of \eqref{eq:SS_PP}; the sum over
-$\p{\v m,\v n,\v r,\v J,\v K}$ implies a sum over all possible values
-of $\v r,\v J,\v K$ with the restrictions
+where $\v J$ and $\v K$ are respectively ordered lists of indices for
+spins addressed by one and two single-spin operators in each term of
+the expansion for $\S_{\v m} \S_{\v n}$ in \eqref{eq:SS_PP}; the sum
+over $\p{\v r,\v J,\v K;\v m,\v n,s}$ implies a sum over all possible
+values of $\v r,\v J,\v K$ with the restrictions
 \begin{align}
   r_{\mu\nu} \ge 0 ~\forall~ \mu,\nu,
-  &&
-  \sum_{\mu,\nu} r_{\mu\nu} = s,
   &&
   \sum_\nu r_{\mu\nu} \le m_\mu,
   &&
   \sum_\mu r_{\mu\nu} \le n_\nu,
+  &&
+  \sum_{\mu,\nu} r_{\mu\nu} = s,
 \end{align}
 \begin{align}
   \abs{\set{J_a^\mu}} = \sum_\mu\p{m_\mu+n_\mu} - 2 s,
@@ -1538,9 +1530,8 @@ of $\v r,\v J,\v K$ with the restrictions
   &&
   \set{J_a^\mu} \cap \set{K_a^{\mu\nu}} = \set{};
 \end{align}
-the factor $f_{\v m\v n\v r}$ accounts for the number of ways to pair
-operators in $P_{\v m\v j}$ and $P_{\v n\v k}$ as prescribed by
-$\v r$, or
+the factor $f_{\v m\v n\v r}$ counts the number of ways to pair
+operators in $P_{\v j}$ and $P_{\v k}$ as prescribed by $\v r$, or
 \begin{align}
   f_{\v m\v n\v r}
   &\equiv \sp{\prod_{\mu,\nu}
@@ -1554,9 +1545,9 @@ $\v r$, or
 where $\p{n}_k\equiv\prod_{j=0}^{k-1}\p{n-j}$ is a falling factorial;
 and finally
 \begin{align}
-  Q_{\v r\v J} \equiv \prod_{\mu,a} \sigma_\mu^{(J_a^\mu)},
+  Q_{\v J} \equiv \prod_{\mu,a} \sigma_\mu^{(J_a^\mu)},
   &&
-  \tilde Q_{\v r\v K} \equiv \prod_{\mu,\nu,a}
+  \tilde Q_{\v K} \equiv \prod_{\mu,\nu,a}
   \sigma_\mu^{(K_a^{\mu\nu})} \sigma_\nu^{(K_a^{\mu\nu})}.
 \end{align}
 
