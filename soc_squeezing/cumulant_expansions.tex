@@ -1490,9 +1490,7 @@ and for shorthand we define
   \sum_{\p{\v j}} X_{\v j} \equiv
   \sum_{j_a^\mu=j_b^\nu \iff \p{a,\mu}=\p{b,\nu}} X_{\v j},
   &&
-  P_{\v m\v j} \equiv
-  \prod_\mu \prod_{a=1}^{m_\mu}
-  \sigma_\mu^{\p{j_a^\mu}}.
+  P_{\v m\v j} \equiv \prod_{\mu,a} \sigma_\mu^{\p{j_a^\mu}}.
 \end{align}
 In words, $\S_{\v m}$ is a $\p{m_++m_\z+m_-}$-spin operator with
 $m_\mu$ single-spin operators of type $\sigma_\mu$ addressing the
@@ -1525,34 +1523,41 @@ each term of \eqref{eq:SS_PP}; the sum over
 $\p{\v m,\v n,\v r,\v J,\v K}$ implies a sum over all possible values
 of $\v r,\v J,\v K$ with the restrictions
 \begin{align}
+  r_{\mu\nu} \ge 0 ~\forall~ \mu,\nu,
+  &&
   \sum_{\mu,\nu} r_{\mu\nu} = s,
   &&
-  0 \le \sum_\nu r_{\mu\nu} \le m_\mu,
+  \sum_\nu r_{\mu\nu} \le m_\mu,
   &&
-  0 \le \sum_\mu r_{\mu\nu} \le n_\nu,
+  \sum_\mu r_{\mu\nu} \le n_\nu,
 \end{align}
 \begin{align}
-  \abs{\set{J_a^\mu}\cup\set{K_a^{\mu\nu}}}
-  = \sum_\mu\p{m_\mu+n_\mu} - s;
+  \abs{\set{J_a^\mu}} = \sum_\mu\p{m_\mu+n_\mu} - 2 s,
+  &&
+  \abs{\set{K_a^{\mu\nu}}} = s,
+  &&
+  \set{J_a^\mu} \cap \set{K_a^{\mu\nu}} = \set{};
 \end{align}
 the factor $f_{\v m\v n\v r}$ accounts for the number of ways to pair
-operators in $P_{\v m\v j}$ and $p_{\v n\v k}$ as prescribed by
+operators in $P_{\v m\v j}$ and $P_{\v n\v k}$ as prescribed by
 $\v r$, or
 \begin{align}
-  f_{\v m\v n\v r} \equiv \sp{\prod_{\mu,\nu}
+  f_{\v m\v n\v r}
+  &\equiv \sp{\prod_{\mu,\nu}
     { m_\mu - \sum_{\rho>\nu} r_{\mu\rho} \choose r_{\mu\nu} }
     { n_\mu - \sum_{\rho>\nu} r_{\rho\mu} \choose r_{\nu\mu} }}
-  \sp{\prod_{\mu\nu} r_{\mu\nu}!},
+  \sp{\prod_{\mu,\nu} r_{\mu\nu}!} \\
+  &= \sp{\prod_\mu \p{m_\mu}_{\sum_\rho r_{\mu\rho}}
+    \p{n_\mu}_{\sum_\rho r_{\rho\mu}}}
+  \sp{\prod_{\mu\nu} r_{\mu\nu}!}^{-1},
 \end{align}
-and
+where $\p{n}_k\equiv\prod_{j=0}^{k-1}\p{n-j}$ is a falling factorial;
+and finally
 \begin{align}
-  Q_{\v r\v J} \equiv \prod_\mu
-  \prod_{a=1}^{\abs{\set{J_b^\mu}}} \sigma_\mu^{(J_a^\mu)},
+  Q_{\v r\v J} \equiv \prod_{\mu,a} \sigma_\mu^{(J_a^\mu)},
   &&
-  \tilde Q_{\v r\v K} \equiv \prod_{\mu,\nu}
-  \prod_{a=1}^{\abs{\set{K_b^{\mu\nu}}}}
+  \tilde Q_{\v r\v K} \equiv \prod_{\mu,\nu,a}
   \sigma_\mu^{(K_a^{\mu\nu})} \sigma_\nu^{(K_a^{\mu\nu})}.
 \end{align}
-
 
 \end{document}
