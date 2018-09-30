@@ -7,7 +7,7 @@ import itertools
 from math import factorial
 from scipy.special import binom
 
-N = 4
+N = 3
 
 I2 = qt.qeye(2)
 sz = qt.sigmaz()
@@ -15,68 +15,66 @@ sp = qt.sigmap()
 sm = qt.sigmam()
 II = qt.tensor([ I2 ] * N)
 
+def partition_1D(indices, partition_sizes):
+    return [ indices[partition_sizes[:mu].sum() :
+                     partition_sizes[:mu].sum() + partition_sizes[mu] ]
+                     for mu in range(3) ]
+
+def partition_2D(indices, partition_sizes):
+    split_indices = partition_1D(indices, partition_sizes.sum(1))
+    return [ partition_1D(split_indices[ii], partition_sizes[ii,:])
+             for ii in range(len(split_indices)) ]
+
+def partition(indices, partition_sizes):
+    assert(np.sum(partition_sizes) == len(indices))
+    if partition_sizes.ndim == 1:
+        return partition_1D(indices, partition_sizes)
+    if partition_sizes.ndim == 2:
+        return partition_2D(indices, partition_sizes)
+    else:
+        print("dimension of partition matrix too large")
+        exit()
+
 def spin_op(mu):
     if mu == 0: return sp
     if mu == 1: return sz
     if mu == 2: return sm
+    if mu == 3: return I2
 
-def ss(comb,ll,mm,nn,jj):
-    for kk in range(ll+mm+nn):
-        if jj == comb[kk]:
-            if kk < ll:
-                return sp
-            if kk < ll + mm:
-                return sz
-            return sm
-    return I2
+def eta(mu, nu, rho, vals = {}):
+    try: return vals[mu,nu,rho]
+    except:
+        fac = 2 if rho in [1,3] else 1
+        vals[mu,nu,rho] = ( spin_op(mu)*spin_op(nu) * spin_op(rho).dag() ).tr() / fac
+        return vals[mu,nu,rho]
 
-def SS(ll,mm,nn):
-    op = 0 * II
-    if ll < 0 or mm < 0 or nn < 0: return op
-    for comb in itertools.permutations(range(N), ll+mm+nn):
-        op += qt.tensor([ ss(comb,ll,mm,nn,jj) for jj in range(N) ])
-    return op
-
-def PP(mm,jj):
-    assert(mm.sum() == len(jj))
-    jj_vals = [ jj[np.sum(mm[:mu]):np.sum(mm[:mu])+mm[mu]] for mu in range(3) ]
-    op_list = []
-    for nn in range(N):
-        found = False
-        for mu in range(3):
-            if nn in jj_vals[mu]:
-                op_list += [ spin_op(mu) ]
-                found = True
-                break
-        if not found: op_list += [ I2 ]
+def PP(jj,mm):
+    jj_vals = partition(jj,mm)
+    op_list = [ I2 ] * N
+    for mu in range(3):
+        for jj_mu in jj_vals[mu]:
+            op_list[jj_mu] = spin_op(mu)
     return qt.tensor(op_list)
 
-def QQ(rr,jj):
-    assert(rr.sum() == len(jj))
-    jj_vals = [ [ jj[rr[:mu,:].sum()+rr[mu,:nu].sum():rr[:mu,:].sum()+rr[mu,:nu].sum()+rr[mu,nu]]
-                  for nu in range(3) ]
-                for mu in range(3) ]
-    op_list = []
-    for nn in range(N):
-        for mu, nu in itertools.product(range(3), repeat = 2):
-            found = False
-            if nn in jj_vals[mu][nu]:
-                op_list += [ spin_op(mu) * spin_op(nu) ]
-                found = True
-                break
-        if not found: op_list += [ I2 ]
+def QQ(jj,rr):
+    jj_vals = partition(jj,rr)
+    op_list = [ I2 ] * N
+    for mu, nu in itertools.product(range(3), repeat = 2):
+        for jj_mu_nu in jj_vals[mu][nu]:
+            op_list[jj_mu_nu] = spin_op(mu) * spin_op(nu)
+            # op_list[jj_mu_nu] = sum([ eta(mu,nu,rho) * spin_op(rho) for rho in range(4)])
     return qt.tensor(op_list)
 
 def SS(mm):
     op = 0 * II
     for jj in itertools.permutations(range(N), int(np.sum(mm))):
-        op += PP(mm,jj)
+        op += PP(jj,mm)
     return op
 
 def poch(nn, kk, vals = {}):
     return np.prod([ nn - cc for cc in range(kk) ])
 
-def g(mm,nn,rr):
+def f(mm,nn,rr):
     mnb_fac = np.prod([ poch(mm[mu],rr[mu,:].sum()) * poch(nn[mu],rr[:,mu].sum())
                        for mu in range(3) ])
     rr_fac = np.prod([ factorial(rr[mu,nu]) for mu in range(3) for nu in range(3) ])
@@ -114,19 +112,13 @@ for mm in itertools.product(range(op_cap+1), repeat = 3):
             ops = max_overlap - ss
 
             for rr in r_mats(mm,nn,ss):
-                g_val = g(mm,nn,rr)
+                f_val = f(mm,nn,rr)
 
-                for jj in itertools.permutations(range(N), ops):
-                    ll = mm + nn - rr.sum(0) - rr.sum(1)
-                    jj_single = jj[:ll.sum()]
-                    jj_double = jj[ll.sum():]
-                    assert(len(jj_single) == mm.sum()+nn.sum()-2*ss)
-                    assert(len(jj_double) == ss)
-
-                    op_single = PP(ll,jj_single)
-                    op_double = QQ(rr,jj_double)
-
-                    op_test += g_val * op_single * op_double
+                for JK in itertools.permutations(range(N), ops):
+                    mn = mm + nn - rr.sum(0) - rr.sum(1)
+                    JJ = JK[:mn.sum()]
+                    KK = JK[mn.sum():]
+                    op_test += f_val * PP(JJ,mn) * QQ(KK,rr)
 
         print(mm, nn, op == op_test)
         if op != op_test: exit()
