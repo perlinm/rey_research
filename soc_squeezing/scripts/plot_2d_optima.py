@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 
 from numpy import matlib
 from scipy import interpolate
+from matplotlib import gridspec
 
 from sr87_olc_constants import recoil_energy_NU
 
@@ -30,7 +31,10 @@ assert(method in methods)
 assert(dependent_variable in dependent_variables)
 
 dpi = 600
-figsize = (5,4)
+if dependent_variable == "L":
+    figsize = (7,4)
+else:
+    figsize = (5,4)
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
@@ -38,20 +42,27 @@ data_dir = "../data/"
 fig_dir = "../figures/"
 optimization_dir = "optimization/"
 
-# set file names
-base_name = optimization_dir + f"{{}}_{method}_{dependent_variable}_{lattice_dim}D"
-t_opt_base = base_name.format("t_opt")
-sqz_opt_base = base_name.format("sqz_opt")
-U_int_base = f"U_int_{lattice_dim}D"
+decoherence_is_on = method[4:] == "dec"
+sqz_subplot = ( dependent_variable == "L" and not decoherence_is_on )
 
-
-# read in tunneling rates and interaction energies
+# methods to read in 1-D and 2-D data
 def pd_read_1D(fname):
     return pd.read_csv(fname, comment = "#", squeeze = True, header = None, index_col = 0)
 def pd_read_2D(fname):
     return pd.read_csv(fname, comment = "#", header = 0, index_col = 0)
+
+# set file names
+base_name_2D = optimization_dir + f"{{}}_{method}_{dependent_variable}_{lattice_dim}D"
+t_opt_base = base_name_2D.format("t_opt")
+sqz_opt_base = base_name_2D.format("sqz_opt")
+U_int_base = f"U_int_{lattice_dim}D"
+
+# read in tunneling rates and interaction energies
 J_0 = pd_read_1D(data_dir + "J_0.txt")
 U_int = pd_read_2D(data_dir + U_int_base + ".txt")
+if sqz_subplot:
+    sqz_opt = pd_read_1D(data_dir + f"sqz_{method}.txt")
+
 depths = J_0.index
 U_J = (U_int.T / J_0.T).T
 
@@ -66,6 +77,8 @@ if dependent_variable is not "T":
 
 U_J_max = U_J.values.max()
 U_J_ticks = np.array(range(int(U_J_max)))
+
+
 
 
 ##########################################################################################
@@ -93,20 +106,38 @@ def make_plot(base_name, label):
 
     plt.figure(figsize = figsize)
 
+    if sqz_subplot:
+        grid = gridspec.GridSpec(1, 2, width_ratios = [ 1, 3 ])
+        ax_sqz = plt.subplot(grid[0])
+        ax_data = plt.subplot(grid[1])
+        ax_data.set_yticklabels([])
+
+        sqz_interp = interpolate.interp1d(sqz_opt.index, sqz_opt.values)
+        sqz_vals = [ float(sqz_interp(L**2)) for L in columns ]
+        ax_sqz.plot(sqz_vals, columns, "k")
+        ax_sqz.set_ylim(columns[0], columns[-1])
+        ax_sqz.set_xlim(sqz_vals[0], sqz_vals[-1])
+        ax_sqz.set_xlabel(r"$-10\log_{10}(\xi_{\mathrm{opt}}^2)$")
+        ax_sqz.set_ylabel(ylabel)
+
+    else:
+        grid = gridspec.GridSpec(1,1)
+        ax_data = plt.subplot(grid[0])
+        ax_data.set_ylabel(ylabel)
+
     # plot main data
-    plt.pcolormesh(depths, columns, data.T,
-                   cmap = plt.get_cmap("jet"), zorder = 0,
-                   rasterized = True)
+    mesh = ax_data.pcolormesh(depths, columns, data.T,
+                              cmap = plt.get_cmap("jet"),
+                              zorder = 0, rasterized = True)
     plt.xlabel(r"$V_0/E_R$", zorder = 1)
-    plt.ylabel(ylabel, zorder = 1)
-    plt.colorbar(label = label)
+    plt.colorbar(mesh, label = label)
 
     # determine values of U / J on the top axis,
     #   and plot contours of fixed U / J if appropriate
     if dependent_variable == "T":
         U_on_axis = U_J[str(columns[-1])].values
-        plt.contour(depths, columns, U_J.T, U_J_ticks,
-                    colors = "black", zorder = 0)
+        ax_data.contour(depths, columns, U_J.T, U_J_ticks,
+                        colors = "black", zorder = 0)
     else:
         U_on_axis = U_J.values
 
@@ -117,7 +148,7 @@ def make_plot(base_name, label):
     ax_U_ticks = [ float(U_interp(U)) for U in U_tick_vals ]
 
     # make U / J axis
-    ax_U = plt.gca().twiny()
+    ax_U = ax_data.twiny()
     ax_U.set_xlim(depths[0],depths[-1])
     ax_U.set_xticks(ax_U_ticks)
     ax_U.set_xticklabels(U_tick_vals)
@@ -129,7 +160,7 @@ def make_plot(base_name, label):
         plt.savefig(fig_fname, rasterized = True, dpi = dpi)
 
 make_plot(t_opt_base, r"$t_{\mathrm{opt}}$ (seconds)")
-if method[4:] == "dec":
+if decoherence_is_on:
     make_plot(sqz_opt_base, r"$-10\log_{10}(\xi^2)$")
 if dependent_variable == "T":
     make_plot(U_int_base, r"$U_{\mathrm{int}}/E_R$")
