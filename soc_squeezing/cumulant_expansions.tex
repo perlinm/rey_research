@@ -1527,7 +1527,7 @@ $\v r,\v J,\v K$ with the restrictions
   \abs{\set{J_a^\mu}}
   = m_\mu + n_\mu - \sum_\rho\p{r_{\mu\rho}+r_{\rho\mu}},
   &&
-  \abs{\set{K_a^{\mu\nu}}} = r_{\mu\nu},
+  \abs{\set{K^{\mu\nu}_a}} = r_{\mu\nu},
   &&
   \set{J_a^\lambda} \cap \set{K_b^{\mu\nu}} = \set{};
 \end{align}
@@ -1548,44 +1548,32 @@ and finally, similarly to the definition of $P_{\v j}$ in
 \eqref{eq:SS_PP} we have
 \begin{align}
   Q_{\v K} \equiv \prod_{\mu,\nu,a}
-  \sigma_\mu^{(K_a^{\mu\nu})} \sigma_\nu^{(K_a^{\mu\nu})}.
+  \sigma_\mu^{(K^{\mu\nu}_a)} \sigma_\nu^{(K^{\mu\nu}_a)}.
 \end{align}
 Expanding the product
-$\sigma_\mu\sigma_\nu\equiv\sum_\rho\eta_{\mu\nu\rho}\sigma_\rho$,
-where unlike the sums over $\mu,\nu$ in most of the work above the sum
-over $\rho$ here includes an index for the identity operator
-$\sigma_0\equiv\1$, we can simplify
+$\sigma_\mu\sigma_\nu=\sum_\rho\eta_{\mu\nu\rho}\sigma_\rho$, where
+unlike the sums over $\mu,\nu$ in most of the work above, the sum over
+$\rho$ here includes an index for the identity operator
+$\sigma_0\equiv\1$, we can expand and collect terms to get
 \begin{align}
   Q_{\v K}
   = \prod_{\mu,\nu,a} \sum_\rho
-  \eta_{\mu\nu\rho} \sigma_\rho^{(K_a^{\mu\nu})},
+  \eta_{\mu\nu\rho} \sigma_\rho^{(K^{\mu\nu}_a)}
+  = \sum_{\v\rho} \prod_{\mu,\nu,a} \eta_{\mu\nu\rho^{\mu\nu}_a}
+  \sigma_{\rho^{\mu\nu}_a}^{(K^{\mu\nu}_a)},
 \end{align}
-and collect terms for each $\p{\mu,\nu}$ that are unique up to a
-permutation of indices and have $c_\rho$ single-spin operators of
-the type $\sigma_\rho$, giving us
+where we have distributed a product of sums into a sum of products.
+Collecting together operators of type $\sigma_\kappa$, we then have
 \begin{align}
   Q_{\v K}
-  \cong \prod_{\mu,\nu} \sum_{\sum_\lambda c_\lambda=r_{\mu\nu}}
-  g^{\mu\nu}_{\v c\v r} \prod_\rho \p{\eta_{\mu\nu\rho}}^{c_\rho}
-  \prod_{a=1}^{c_\rho} \sigma_\rho^{(K^{\mu\nu\rho}_{\v ca})},
+  = \sum_{\v\rho} \sp{\prod_{\mu,\nu,\kappa}
+    \p{\eta_{\mu\nu\kappa}}^{\tilde\rho_\kappa}}
+  \prod_{\kappa,a} \sigma_{\kappa}^{(\tilde K^{\v\rho\kappa}_a)},
 \end{align}
-where $\cong$ denotes equality under the sum in \eqref{eq:SS_PQ} (as
-we have freely permuted spin indices and introduced explicit
-dependence on $\v r$ for convenience); the factor
-$g^{\mu\nu}_{\v c\v r}$ counts the number of ways to choose operators
-in $Q_{\v K}$ according to $\v c$ (i.e.~the number of choices that are
-equivalent up to permutation of indices in $\v K$), or
-\begin{align}
-  g^{\mu\nu}_{\v c\v r} \equiv \prod_\rho
-  { r_{\mu\nu} - \sum_{\lambda<\rho} c_\lambda \choose c_\rho }
-  = \f{r_{\mu\nu}!}{\prod_\rho c_\rho!};
-\end{align}
-and
-\begin{align}
-  K^{\mu\nu\rho}_{\v ca}
-  \equiv K^{\mu\nu}_{\sum_{\lambda<\rho}c_\lambda+a}
-\end{align}
-indexes the $a$-th operator of type $\sigma_\rho$, given a choice of
-$\v c$.
+where $\tilde\rho_\kappa$ is the number of elements in $\v\rho$ equal
+to $\kappa$, and $\tilde K^{\v\rho\kappa}_a$ indexes the $a$-th
+operator of type $\sigma_\kappa$ for each choice of $\v\rho$, such
+that for any fixed $\v\rho$ we have
+$\set{\tilde K^{\v\rho\kappa}_a}=\set{K^{\mu\nu}_b}$.
 
 \end{document}
