@@ -1506,14 +1506,14 @@ $P_{\v k}$, we have
 \begin{align}
   \S_{\v m}\S_{\v n}
   = \sum_{s\ge0} \sum_{\p{\v r,\v J,\v K;\v m,\v n,s}}
-  g_{\v m\v n\v r} P_{\v J} Q_{\v K},
+  f_{\v m\v n\v r} P_{\v J} Q_{\v K},
   \label{eq:SS_PQ}
 \end{align}
 where $\v J$ and $\v K$ are respectively ordered lists of indices for
 spins addressed by one and two single-spin operators in each term of
 the expansion for $\S_{\v m} \S_{\v n}$ in \eqref{eq:SS_PP}; the sum
-over $\p{\v r,\v J,\v K;\v m,\v n,s}$ implies a sum over all possible
-values of $\v r,\v J,\v K$ with the restrictions
+over $\p{\v r,\v J,\v K;\v m,\v n,s}$ denotes a sum over all values of
+$\v r,\v J,\v K$ with the restrictions
 \begin{align}
   r_{\mu\nu} \ge 0 ~\forall~ \mu,\nu,
   &&
@@ -1529,12 +1529,12 @@ values of $\v r,\v J,\v K$ with the restrictions
   &&
   \abs{\set{K_a^{\mu\nu}}} = r_{\mu\nu},
   &&
-  \set{J_a^\mu} \cap \set{K_a^{\mu\nu}} = \set{};
+  \set{J_a^\lambda} \cap \set{K_b^{\mu\nu}} = \set{};
 \end{align}
-the factor $g_{\v m\v n\v r}$ counts the number of ways to pair
+the factor $f_{\v m\v n\v r}$ counts the number of ways to pair
 operators in $P_{\v j}$ and $P_{\v k}$ as prescribed by $\v r$, or
 \begin{align}
-  g_{\v m\v n\v r}
+  f_{\v m\v n\v r}
   &\equiv \sp{\prod_{\mu,\nu}
     { m_\mu - \sum_{\rho<\nu} r_{\mu\rho} \choose r_{\mu\nu} }
     { n_\mu - \sum_{\rho<\nu} r_{\rho\mu} \choose r_{\nu\mu} }}
@@ -1544,18 +1544,48 @@ operators in $P_{\v j}$ and $P_{\v k}$ as prescribed by $\v r$, or
   \sp{\prod_{\mu,\nu} r_{\mu\nu}!}^{-1},
 \end{align}
 where $\p{n}_k\equiv\prod_{j=0}^{k-1}\p{n-j}$ is a falling factorial;
-and finally
+and finally, similarly to the definition of $P_{\v j}$ in
+\eqref{eq:SS_PP} we have
 \begin{align}
   Q_{\v K} \equiv \prod_{\mu,\nu,a}
-  \sigma_\mu^{(K_a^{\mu\nu})} \sigma_\nu^{(K_a^{\mu\nu})}
+  \sigma_\mu^{(K_a^{\mu\nu})} \sigma_\nu^{(K_a^{\mu\nu})}.
+\end{align}
+Expanding the product
+$\sigma_\mu\sigma_\nu\equiv\sum_\rho\eta_{\mu\nu\rho}\sigma_\rho$,
+where unlike the sums over $\mu,\nu$ in most of the work above the sum
+over $\rho$ here includes an index for the identity operator
+$\sigma_0\equiv\1$, we can simplify
+\begin{align}
+  Q_{\v K}
   = \prod_{\mu,\nu,a} \sum_\rho
   \eta_{\mu\nu\rho} \sigma_\rho^{(K_a^{\mu\nu})},
-  \label{eq:Q_JK}
 \end{align}
-where $\eta_{\mu\nu\rho}$ is defined by the product
-$\sigma_\mu\sigma_\nu\equiv\sum_\rho\eta_{\mu\nu\rho}\sigma_\rho$.
-Note that unlike the sums over $\mu$ and $\nu$ in the work above, the
-sum over $\rho$ in \eqref{eq:Q_JK} now includes an index for the
-identity operator $\sigma_0\equiv\1$.
+and collect terms for each $\p{\mu,\nu}$ that are unique up to a
+permutation of indices and have $c_\rho$ single-spin operators of
+the type $\sigma_\rho$, giving us
+\begin{align}
+  Q_{\v K}
+  \cong \prod_{\mu,\nu} \sum_{\sum_\lambda c_\lambda=r_{\mu\nu}}
+  g^{\mu\nu}_{\v c\v r} \prod_\rho \p{\eta_{\mu\nu\rho}}^{c_\rho}
+  \prod_{a=1}^{c_\rho} \sigma_\rho^{(K^{\mu\nu\rho}_{\v ca})},
+\end{align}
+where $\cong$ denotes equality under the sum in \eqref{eq:SS_PQ} (as
+we have freely permuted spin indices and introduced explicit
+dependence on $\v r$ for convenience); the factor
+$g^{\mu\nu}_{\v c\v r}$ counts the number of ways to choose operators
+in $Q_{\v K}$ according to $\v c$ (i.e.~the number of choices that are
+equivalent up to permutation of indices in $\v K$), or
+\begin{align}
+  g^{\mu\nu}_{\v c\v r} \equiv \prod_\rho
+  { r_{\mu\nu} - \sum_{\lambda<\rho} c_\lambda \choose c_\rho }
+  = \f{r_{\mu\nu}!}{\prod_\rho c_\rho!};
+\end{align}
+and
+\begin{align}
+  K^{\mu\nu\rho}_{\v ca}
+  \equiv K^{\mu\nu}_{\sum_{\lambda<\rho}c_\lambda+a}
+\end{align}
+indexes the $a$-th operator of type $\sigma_\rho$, given a choice of
+$\v c$.
 
 \end{document}
