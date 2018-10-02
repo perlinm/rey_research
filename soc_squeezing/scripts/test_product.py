@@ -37,8 +37,8 @@ def partition(indices, partition_sizes):
         exit()
 
 def spin_op(mu):
-    if mu == 0: return sp
-    if mu == 1: return sz
+    if mu == 0: return sz
+    if mu == 1: return sp
     if mu == 2: return sm
     if mu == 3: return I2
 
@@ -61,7 +61,7 @@ def g(rho):
     return 1 / np.prod([ factorial(val) for val in rho.flatten() ])
 
 def eta_val(mu, nu, rho):
-    fac = 2 if spin_op(rho) in [I2,sz] else 1
+    fac = 2 if spin_op(rho) in [ I2, sz ] else 1
     return ( spin_op(mu)*spin_op(nu) * spin_op(rho).dag() ).tr() / fac
 
 eta = np.array([ [ [ eta_val(mu,nu,kk) for kk in range(4) ]
@@ -73,45 +73,36 @@ nonzero = np.array([ [ [ eta[mu,nu,kk] != 0 for kk in range(4) ]
 eta_nonzero = eta[nonzero]
 
 def rho_vals(rr):
-    return np.array([ [ [ [0,0,0,0],           [rr[0,1],0,0,0], [0,c_02_1,0,c_02_3] ],
-                        [ [rr[1,0],0,0,0],     [0,0,0,rr[1,1]], [0,0,rr[1,2],0]     ],
-                        [ [0,c_20_1,0,c_20_3], [0,0,rr[2,1],0], [0,0,0,0]           ] ]
-                      for c_02_1 in range(rr[0,2]+1)
-                      for c_20_1 in range(rr[2,0]+1)
-                      for c_02_3 in [ rr[0,2] - c_02_1 ]
-                      for c_20_3 in [ rr[2,0] - c_20_1 ] ])
+    return np.array([ [ [ [0,0,0,rr[0,0]], [0,rr[0,1],0,0],     [0,0,rr[0,2],0],    ],
+                        [ [0,rr[1,0],0,0], [0,0,0,0],           [c_12_0,0,0,c_12_3] ],
+                        [ [0,0,rr[2,0],0], [c_21_0,0,0,c_21_3], [0,0,0,0]           ] ]
+                      for c_12_0 in range(rr[1,2]+1)
+                      for c_21_0 in range(rr[2,1]+1)
+                      for c_12_3 in [ rr[1,2] - c_12_0 ]
+                      for c_21_3 in [ rr[2,1] - c_21_0 ] ])
+
+def r_mats(mm,nn,ss):
+    return ( np.array([ [r_00, r_01, r_02],
+                        [r_10, 0,    r_12],
+                        [r_20, r_21, 0   ] ])
+             for r_00 in range(ss+1)
+             for r_01 in range(ss-r_00+1)
+             for r_10 in range(ss-r_00-r_01+1)
+             for r_12 in range(min(ss-r_00-r_01,mm[1])-r_10+1)
+             for r_21 in range(min(ss-r_00-r_10-r_12,nn[1])-r_01+1)
+             for r_02 in range(min(ss-r_00-r_01-r_10-r_12-r_21,mm[0]-r_00-r_01,nn[2]-r_12)+1)
+             for r_20 in [ ss-r_00-r_01-r_10-r_12-r_21-r_02 ]
+             if r_20 + r_21 <= mm[2] and r_20+r_10+r_00 <= nn[0] )
 
 def QQ(KK,rr):
     return np.sum( g(rho) * np.prod(eta_nonzero**rho[nonzero]) * PP(KK, rho.sum((0,1)))
                    for rho in rho_vals(rr) )
-
-    # KK_mat = partition(KK,rr)
-    # op_list = [ I2 ] * N
-    # for mu, nu in itertools.product(range(3), repeat = 2):
-    #     for KK_mu_nu in KK_mat[mu][nu]:
-    #         op_list[KK_mu_nu] = spin_op(mu) * spin_op(nu)
-    # return qt.tensor(op_list) / np.prod([ factorial(rr[mu,nu])
-    #                                       for mu in range(3) for nu in range(3) ])
-
 
 def SS(mm):
     op = 0 * II
     for jj in itertools.permutations(range(N), int(np.sum(mm))):
         op += PP(jj,mm)
     return op
-
-def r_mats(mm,nn,ss):
-    return ( np.array([ [0,    r_01, r_02],
-                        [r_10, r_11, r_12],
-                        [r_20, r_21, 0   ] ])
-             for r_11 in range(ss+1)
-             for r_01 in range(ss-r_11+1)
-             for r_10 in range(ss-r_11-r_01+1)
-             for r_12 in range(min(ss-r_01,mm[1])-r_10-r_11+1)
-             for r_21 in range(min(ss-r_10-r_12,nn[1])-r_11-r_01+1)
-             for r_02 in range(min(ss-r_11-r_01-r_10-r_12-r_21,mm[0]-r_01,nn[2]-r_12)+1)
-             for r_20 in [ ss-r_11-r_01-r_10-r_12-r_21-r_02 ]
-             if r_20 + r_10 <= nn[0] and r_20 + r_21 <= mm[2] )
 
 for mm in itertools.product(range(op_cap+1), repeat = 3):
     if mm == (0,0,0): continue
