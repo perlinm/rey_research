@@ -1522,6 +1522,7 @@ $\v J,\v K,\v r$ with the restrictions
   \sum_\mu r_{\mu\nu} \le n_\nu,
   &&
   \sum_{\mu,\nu} r_{\mu\nu} = s,
+  \label{eq:rest_r}
 \end{align}
 \begin{align}
   \abs{\set{J_a^\mu}}
@@ -1561,6 +1562,7 @@ indices and simply write
   \sigma_\mu \sigma_\nu
   = \bigotimes_{\mu,\nu} \bigotimes_{a=1}^{r_{\mu\nu}}
   \sum_\rho \eta_{\mu\nu\rho} \sigma_\rho,
+  \label{eq:Q_K_eta}
 \end{align}
 where $\simeq$ denotes equality up to a re-indexing of spins; we have
 introduced explicit dependence on
@@ -1576,37 +1578,89 @@ Distributing the product of sums into a sum of products gives us
   \eta_{\mu\nu\rho^{\mu\nu}_a} \sigma_{\rho^{\mu\nu}_a}
   = \sum_{\v\rho} \sp{\prod_{\mu,\nu,a}
     \p{\eta_{\mu\nu\rho^{\mu\nu}_a}}^{\rho^{\mu\nu}_a}}
-  \bigotimes_{\mu,\nu,a} \sigma_{\rho^{\mu\nu}_a}.
+  \bigotimes_{\mu,\nu,a} \sigma_{\rho^{\mu\nu}_a},
   \label{eq:Q_K_rho}
 \end{align}
-Letting $\tilde\rho^{\mu\nu}_\kappa$ denote the number of elements in
-$\v\rho^{\mu\nu} \equiv
-\p{\rho^{\mu\nu}_1,\rho^{\mu\nu}_2,\cdots,\rho^{\mu\nu}_{r_{\mu\nu}}}$
+where implicitly $\sum_a\rho^{\mu\nu}_a=r_{\mu\nu}$, as
+$\p{\mu,\nu,a}$ essentially index a factor in \eqref{eq:Q_K_eta}, and
+$\rho^{\mu\nu}_a$ indexes one of the terms in that factor.  Letting
+$\tilde\rho^{\mu\nu}_\kappa$ denote the number of elements in
+$\p{\rho^{\mu\nu}_1,\rho^{\mu\nu}_2,\cdots,\rho^{\mu\nu}_{r_{\mu\nu}}}$
 that are equal to $\kappa$, we observe that two terms in
 \eqref{eq:Q_K_rho} with, say, $\v\rho=\v\rho_1$ and $\v\rho=\v\rho_2$
 are equal up to a permutation of indices if
-$\tilde{\v\rho_1}=\tilde{\v\rho_2}$.  We therefore collect such terms
-together to write
-\begin{align}
-  Q_{\v K}
-  \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta_{\tilde{\v\rho}}
-  \bigotimes_{\kappa}
-  \sigma_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa},
-  &&
-  \v\eta_{\tilde{\v\rho}}
-  \equiv \prod_{\mu,\nu,\kappa}
-  \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa},
-\end{align}
-where
+$\tilde{\v\rho_1}=\tilde{\v\rho_2}$.  The degeneracy of terms in
+\eqref{eq:Q_K_rho}, i.e.~the number of $\v\rho$ which are consistent
+with $\tilde{\v\rho}$, is
 \begin{align}
   g_{\tilde{\v\rho}}
   \equiv \prod_{\mu,\nu,\kappa}
   { r_{\mu\nu} - \sum_{\lambda<\kappa} \tilde\rho^{\mu\nu}_\lambda
     \choose \tilde\rho^{\mu\nu}_\kappa }
   = \prod_{\mu,\nu}
-  \f{r_{\mu\nu}!}{\prod_\kappa\tilde\rho^{\mu\nu}_\kappa!}
+  \f{r_{\mu\nu}!}{\prod_\kappa\tilde\rho^{\mu\nu}_\kappa!}.
 \end{align}
-counts the degeneracy of terms in \eqref{eq:Q_K_rho}, i.e.~the number
-of $\v\rho$ which are consistent with $\tilde{\v\rho}$.
+Defining additionally
+\begin{align}
+  \v\eta_{\tilde{\v\rho}}
+  \equiv \prod_{\mu,\nu,\kappa}
+  \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa},
+\end{align}
+we can collect like factors and group together equivalent terms in
+\eqref{eq:Q_K_rho} to write
+\begin{align}
+  Q_{\v K}
+  \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta_{\tilde{\v\rho}}
+  \bigotimes_{\kappa}
+  \sigma_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa}
+  = \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta_{\tilde{\v\rho}}
+  \1^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_0}
+  \bigotimes_{\kappa\ne0}
+  \sigma_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa},
+  \label{eq:Q_K_rho_simp}
+\end{align}
+where again implicitly
+$\sum_\kappa\tilde\rho^{\mu\nu}_\kappa=r_{\mu\nu}$ for consistency
+with \eqref{eq:Q_K_eta} and \eqref{eq:Q_K_rho}, and we have explicitly
+factored out the identity operators in each term of $Q_{\v K}$.
+
+We have now simplified $Q_{\v K}$ sufficiently to substitute it back
+into \eqref{eq:SS_PQ}, which (removing the tilde from
+$\tilde{\v\rho}$) gives us
+\begin{align}
+  \S_{\v m} \S_{\v n}
+  = \sum_{s\ge0} \sum_{\p{\v\ell,\v r,\v\rho;\v m,\v n,s}}
+  f_{\v m\v n\v r\v\rho} P_{\v\ell},
+  \label{eq:SS_simp}
+\end{align}
+where the net the prefactor for each term is
+\begin{align}
+  f_{\v m\v n\v r\v\rho}
+  \equiv \sp{\prod_\mu \p{m_\mu}_{\sum_\kappa r_{\mu\kappa}}
+    \p{n_\mu}_{\sum_\kappa r_{\kappa\mu}}}
+  \sp{\prod_{\mu,\nu,\kappa}
+    \f{\p{\eta_{\mu\nu\kappa}}^{\rho^{\mu\nu}_\kappa}}
+    {\rho^{\mu\nu}_\kappa!}}
+  \sp{N-\sum_\mu\p{m_\mu+n_\mu}+s}
+  ^{\sum_{\alpha,\beta}\rho^{\alpha\beta}_0},
+\end{align}
+and in addition to \eqref{eq:rest_r} the sum over
+$\p{\v\ell,\v r,\v\rho;\v m,\v n,s}$ enforces the restrictions
+\begin{align}
+  \sum_{\kappa} \rho^{\mu\nu}_\kappa = r_{\mu\nu},
+  &&
+  \abs{\set{\ell^\mu_a}}
+  = m_\mu + n_\mu - \sum_\kappa \p{r_{\mu\kappa}+r_{\kappa\mu}}
+  + \sum_{\alpha,\beta} \rho^{\alpha\beta}_\mu.
+\end{align}
+For clarity, we note here that all indices on
+$m_\mu,n_\mu,r_{\mu\nu},\eta_{\mu\nu\kappa},\rho^{\mu\nu}_\kappa$ and
+the upper index on $\ell^\mu_a$ take on the same values as the indices
+on elements $\sigma_\mu$ of some complete basis for single-spin
+operators; of these, only the last index ($\kappa$) on
+$\eta_{\mu\nu\kappa},\rho^{\mu\nu}_\kappa$ ever matches the index for
+the identity element $\sigma_0\equiv\1$.  The lower index on
+$\ell^\mu_a$ indexes the $a$-th spin acted on by a $\sigma_\mu$
+operator in each term of \eqref{eq:SS_simp}.
 
 \end{document}
