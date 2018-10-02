@@ -1479,11 +1479,11 @@ system of $N$ qubits from $S_+^\ell S_\z^m S_-^n$ to
   &&
   P_{\v j} \equiv \prod_{\mu,a} \sigma_\mu^{\p{j_a^\mu}},
 \end{align}
-where $\v m \equiv \p{m_+,m_\z,m_-}$; $\v j$ is an ordered list of
+where $\v m \equiv \p{m_\z,m_+,m_-}$; $\v j$ is an ordered list of
 indices for the spins addressed by $P_{\v j}$; and the sum over
 $\p{\v j;\v m}$ denotes a sum over all possible $\v j$ for which all
 indices in $\v j$ are distinct and $\abs{\set{j_a^\mu}} = m_\mu$.  In
-words, $\S_{\v m}$ is an exchange-symmetric $\p{m_++m_\z+m_-}$-spin
+words, $\S_{\v m}$ is an exchange-symmetric $\p{m_\z+m_++m_-}$-spin
 operator with $m_\mu$ single-spin operators of type $\sigma_\mu$, and
 $P_{\v j}$ is a single term in $\S_{\v m}$ which addresses the spins
 indexed by $\v j$.
@@ -1505,15 +1505,15 @@ in $P_{\v j}$ address the same spin as a $\sigma_\nu$ operator in
 $P_{\v k}$, we have
 \begin{align}
   \S_{\v m}\S_{\v n}
-  = \sum_{s\ge0} \sum_{\p{\v r,\v J,\v K;\v m,\v n,s}}
+  = \sum_{s\ge0} \sum_{\p{\v J,\v K,\v r;\v m,\v n,s}}
   f_{\v m\v n\v r} P_{\v J} Q_{\v K},
   \label{eq:SS_PQ}
 \end{align}
 where $\v J$ and $\v K$ are respectively ordered lists of indices for
 spins addressed by one and two single-spin operators in each term of
 the expansion for $\S_{\v m} \S_{\v n}$ in \eqref{eq:SS_PP}; the sum
-over $\p{\v r,\v J,\v K;\v m,\v n,s}$ denotes a sum over all values of
-$\v r,\v J,\v K$ with the restrictions
+over $\p{\v J,\v K,\v r;\v m,\v n,s}$ denotes a sum over all values of
+$\v J,\v K,\v r$ with the restrictions
 \begin{align}
   r_{\mu\nu} \ge 0 ~\forall~ \mu,\nu,
   &&
@@ -1525,7 +1525,7 @@ $\v r,\v J,\v K$ with the restrictions
 \end{align}
 \begin{align}
   \abs{\set{J_a^\mu}}
-  = m_\mu + n_\mu - \sum_\rho\p{r_{\mu\rho}+r_{\rho\mu}},
+  = m_\mu + n_\mu - \sum_\kappa\p{r_{\mu\kappa}+r_{\kappa\mu}},
   &&
   \abs{\set{K^{\mu\nu}_a}} = r_{\mu\nu},
   &&
@@ -1536,11 +1536,11 @@ operators in $P_{\v j}$ and $P_{\v k}$ as prescribed by $\v r$, or
 \begin{align}
   f_{\v m\v n\v r}
   &\equiv \sp{\prod_{\mu,\nu}
-    { m_\mu - \sum_{\rho<\nu} r_{\mu\rho} \choose r_{\mu\nu} }
-    { n_\mu - \sum_{\rho<\nu} r_{\rho\mu} \choose r_{\nu\mu} }}
+    { m_\mu - \sum_{\kappa<\nu} r_{\mu\kappa} \choose r_{\mu\nu} }
+    { n_\mu - \sum_{\kappa<\nu} r_{\kappa\mu} \choose r_{\nu\mu} }}
   \sp{\prod_{\mu,\nu} r_{\mu\nu}!} \\
-  &= \sp{\prod_\mu \p{m_\mu}_{\sum_\rho r_{\mu\rho}}
-    \p{n_\mu}_{\sum_\rho r_{\rho\mu}}}
+  &= \sp{\prod_\mu \p{m_\mu}_{\sum_\kappa r_{\mu\kappa}}
+    \p{n_\mu}_{\sum_\kappa r_{\kappa\mu}}}
   \sp{\prod_{\mu,\nu} r_{\mu\nu}!}^{-1},
 \end{align}
 where $\p{n}_k\equiv\prod_{j=0}^{k-1}\p{n-j}$ is a falling factorial;
@@ -1551,7 +1551,7 @@ and finally, similarly to the definition of $P_{\v j}$ in
   \sigma_\mu^{(K^{\mu\nu}_a)} \sigma_\nu^{(K^{\mu\nu}_a)}.
 \end{align}
 Expanding the product
-$\sigma_\mu\sigma_\nu=\sum_\rho\eta_{\mu\nu\rho}\sigma_\rho$, where
+$\sigma_\mu\sigma_\nu=\sum_\kappa\eta_{\mu\nu\rho}\sigma_\rho$, where
 unlike the sums over $\mu,\nu$ in most of the work above, the sum over
 $\rho$ here includes an index for the identity operator
 $\sigma_0\equiv\1$, we can expand and collect terms to get
@@ -1567,13 +1567,56 @@ Collecting together operators of type $\sigma_\kappa$, we then have
 \begin{align}
   Q_{\v K}
   = \sum_{\v\rho} \sp{\prod_{\mu,\nu,\kappa}
-    \p{\eta_{\mu\nu\kappa}}^{\tilde\rho_\kappa}}
-  \prod_{\kappa,a} \sigma_{\kappa}^{(\tilde K^{\v\rho\kappa}_a)},
+    \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa}}
+  \prod_{\kappa,a} \sigma_{\kappa}^{(K^{\v\rho\kappa}_a)},
 \end{align}
-where $\tilde\rho_\kappa$ is the number of elements in $\v\rho$ equal
-to $\kappa$, and $\tilde K^{\v\rho\kappa}_a$ indexes the $a$-th
+where $\tilde\rho_\kappa^{\mu\nu}$ is the number of elements in
+$\v\rho^{\mu\nu} \equiv
+\p{\rho^{\mu\nu}_1,\rho^{\mu\nu}_2,\cdots,\rho^{\mu\nu}_{r_{\mu\nu}}}$
+equal to $\kappa$, and $K^{\v\rho\kappa}_a$ indexes the $a$-th
 operator of type $\sigma_\kappa$ for each choice of $\v\rho$, such
 that for any fixed $\v\rho$ we have
-$\set{\tilde K^{\v\rho\kappa}_a}=\set{K^{\mu\nu}_b}$.
+$\set{K^{\v\rho\kappa}_a}=\set{K^{\mu\nu}_b}$.  Exploiting the
+exchange symmetry of $Q_{\v K}$ under the sum in \eqref{eq:SS_PQ}, we
+can group together all terms which are equal up to a permutation of
+indices in $\v\rho^{\mu\nu}$, i.e.~terms with equal values of
+$\tilde\rho_\kappa^{\mu\nu}$, to write
+\begin{align}
+  Q_{\v K}
+  \simeq \sum_{\tilde{\v\rho}}
+  g_{\tilde{\v\rho}} \sp{\prod_{\mu,\nu,\kappa}
+    \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa}}
+  \prod_{\kappa,a} \sigma_{\kappa}^{(K^{\tilde{\v\rho}\kappa}_a)}
+  = \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}}
+  \sp{\prod_{\mu,\nu,\kappa}
+    \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa}}
+  P_{\v K_{\tilde{\v\rho}}},
+\end{align}
+where $\simeq$ denotes equality up to a permutation of spin indices;
+the degeneracy factor for each term is
+\begin{align}
+  g_{\tilde{\v\rho}}
+  \equiv \prod_{\mu,\nu,\kappa}
+  { r_{\mu\nu} - \sum_{\lambda<\kappa} \tilde\rho^{\mu\nu}_\lambda
+    \choose \tilde\rho^{\mu\nu}_\kappa }
+  = \prod_{\mu,\nu}
+  \f{r_{\mu\nu}!}{\prod_\kappa\tilde\rho^{\mu\nu}_\kappa!};
+\end{align}
+as before $K^{\tilde{\v\rho}\kappa}_a$ indexes the $a$-th operator of
+type $\sigma_\kappa$ for each partitioning $\tilde{\v\rho}$, such that
+for any fixed $\tilde{\v\rho}$ we have
+$\set{K^{\tilde{\v\rho}\kappa}_a}=\set{K^{\mu\nu}_b}$; and
+$\v K_{\tilde{\v\rho}}$ is an ordered list of the indices in
+$\set{K^{\tilde{\v\rho}\kappa}_a}$.
+
+% \begin{align}
+%   \S_{\v m}\S_{\v n}
+%   = \sum_{s\ge0} \sum_{\p{\v J,\v K,\v r;\v m,\v n,s}}
+%   \sum_{\tilde{\v\rho}}
+%   f_{\v m\v n\v r} g_{\tilde{\v\rho}}
+%   \sp{\prod_{\mu,\nu,\kappa}
+%     \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa}}
+%   P_{\v J} P_{\v K_{\tilde{\v\rho}}}
+% \end{align}
 
 \end{document}

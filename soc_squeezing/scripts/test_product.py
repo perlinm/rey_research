@@ -8,6 +8,7 @@ from math import factorial
 from scipy.special import binom
 
 N = 3
+op_cap = 2
 
 I2 = qt.qeye(2)
 sz = qt.sigmaz()
@@ -18,7 +19,7 @@ II = qt.tensor([ I2 ] * N)
 def partition_1D(indices, partition_sizes):
     return [ indices[partition_sizes[:mu].sum() :
                      partition_sizes[:mu].sum() + partition_sizes[mu] ]
-                     for mu in range(3) ]
+                     for mu in range(partition_sizes.size) ]
 
 def partition_2D(indices, partition_sizes):
     split_indices = partition_1D(indices, partition_sizes.sum(1))
@@ -41,10 +42,10 @@ def spin_op(mu):
     if mu == 2: return sm
     if mu == 3: return I2
 
-def PP(jj,mm):
+def PP(jj, mm):
     jj_vals = partition(jj,mm)
     op_list = [ I2 ] * N
-    for mu in range(3):
+    for mu in range(mm.size):
         for jj_mu in jj_vals[mu]:
             op_list[jj_mu] = spin_op(mu)
     return qt.tensor(op_list)
@@ -53,69 +54,44 @@ def poch(nn, kk, vals = {}):
     return np.prod([ nn - cc for cc in range(kk) ])
 
 def f(mm,nn,rr):
-    mnb_fac = np.prod([ poch(mm[mu],rr[mu,:].sum()) * poch(nn[mu],rr[:,mu].sum())
-                       for mu in range(3) ])
-    rr_fac = np.prod([ factorial(rr[mu,nu]) for mu in range(3) for nu in range(3) ])
-    return mnb_fac / rr_fac
+    return np.prod([ poch(mm[mu],rr[mu,:].sum()) * poch(nn[mu],rr[:,mu].sum())
+                     for mu in range(3) ])
 
-def g(cc,rr_mu_nu):
-    return factorial(rr_mu_nu) / np.prod([ factorial(cc_jj) for cc_jj in cc  ])
+def g(rho):
+    return 1 / np.prod([ factorial(val) for val in rho.flatten() ])
 
-def eta(mu, nu, rho, vals = {}):
-    try: return vals[mu,nu,rho]
-    except:
-        fac = 2 if rho in [1,3] else 1
-        vals[mu,nu,rho] = ( spin_op(mu)*spin_op(nu) * spin_op(rho).dag() ).tr() / fac
-        return vals[mu,nu,rho]
+def eta_val(mu, nu, rho):
+    fac = 2 if spin_op(rho) in [I2,sz] else 1
+    return ( spin_op(mu)*spin_op(nu) * spin_op(rho).dag() ).tr() / fac
 
-def KK_cc(KK_mu_nu,cc,kk):
-    return KK_mu_nu[cc[:kk].sum():cc[:kk].sum()+cc[kk]]
+eta = np.array([ [ [ eta_val(mu,nu,kk) for kk in range(4) ]
+                   for nu in range(3) ]
+                 for mu in range(3) ])
+nonzero = np.array([ [ [ eta[mu,nu,kk] != 0 for kk in range(4) ]
+                       for nu in range(3) ]
+                     for mu in range(3) ])
+eta_nonzero = eta[nonzero]
 
-def cc_rr_mu_nu(rr_mu_nu):
-    return ( np.array([c_0,c_1,c_2,rr_mu_nu-c_0-c_1-c_2])
-             for c_0 in range(rr_mu_nu+1)
-             for c_1 in range(rr_mu_nu-c_0+1)
-             for c_2 in range(rr_mu_nu-c_0-c_1+1) )
-
-def cc_rr(rr):
-    return [ [ cc_rr_mu_nu(rr[mu,nu]) for nu in range(3) ] for mu in range(3) ]
-
-def cc_ss(ss):
-    return ( np.array([c_0,c_1,c_2,ss-c_0-c_1-c_2])
-             for c_0 in range(ss+1)
-             for c_1 in range(ss-c_0+1)
-             for c_2 in range(ss-c_0-c_1+1) )
+def rho_vals(rr):
+    return np.array([ [ [ [0,0,0,0],           [rr[0,1],0,0,0], [0,c_02_1,0,c_02_3] ],
+                        [ [rr[1,0],0,0,0],     [0,0,0,rr[1,1]], [0,0,rr[1,2],0]     ],
+                        [ [0,c_20_1,0,c_20_3], [0,0,rr[2,1],0], [0,0,0,0]           ] ]
+                      for c_02_1 in range(rr[0,2]+1)
+                      for c_20_1 in range(rr[2,0]+1)
+                      for c_02_3 in [ rr[0,2] - c_02_1 ]
+                      for c_20_3 in [ rr[2,0] - c_20_1 ] ])
 
 def QQ(KK,rr):
-    QQ = 0 * II
-    ss = rr.sum()
-    for rho_vec in itertools.product(range(4), repeat = ss):
-        rho = partition(rho_vec,rr)
-        rho_counts = np.array([ [ [ rho[mu][nu].count(kk)
-                                    for kk in range(4) ]
-                                  for nu in range(3) ]
-                                for mu in range(3) ])
-        eta_rho = np.prod([ eta(mu,nu,kk)**rho_counts[mu,nu,kk]
-                            for mu in range(3)
-                            for nu in range(3)
-                            for kk in range(4) ])
-        if eta_rho == 0: continue
-
-        op_list = [ I2 ] * N
-        kk_total = rho_counts.sum(0).sum(0)
-        for kk in range(4):
-            for idx in KK[kk_total[:kk].sum():kk_total[:kk+1].sum()]:
-                op_list[idx] = spin_op(kk)
-        QQ += eta_rho * qt.tensor(op_list)
-    return QQ
+    return np.sum( g(rho) * np.prod(eta_nonzero**rho[nonzero]) * PP(KK, rho.sum((0,1)))
+                   for rho in rho_vals(rr) )
 
     # KK_mat = partition(KK,rr)
     # op_list = [ I2 ] * N
     # for mu, nu in itertools.product(range(3), repeat = 2):
     #     for KK_mu_nu in KK_mat[mu][nu]:
     #         op_list[KK_mu_nu] = spin_op(mu) * spin_op(nu)
-    # QQ = qt.tensor(op_list)
-    # return QQ
+    # return qt.tensor(op_list) / np.prod([ factorial(rr[mu,nu])
+    #                                       for mu in range(3) for nu in range(3) ])
 
 
 def SS(mm):
@@ -136,8 +112,6 @@ def r_mats(mm,nn,ss):
              for r_02 in range(min(ss-r_11-r_01-r_10-r_12-r_21,mm[0]-r_01,nn[2]-r_12)+1)
              for r_20 in [ ss-r_11-r_01-r_10-r_12-r_21-r_02 ]
              if r_20 + r_10 <= nn[0] and r_20 + r_21 <= mm[2] )
-
-op_cap = 2
 
 for mm in itertools.product(range(op_cap+1), repeat = 3):
     if mm == (0,0,0): continue
