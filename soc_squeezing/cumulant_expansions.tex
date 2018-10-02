@@ -1525,7 +1525,7 @@ $\v J,\v K,\v r$ with the restrictions
 \end{align}
 \begin{align}
   \abs{\set{J_a^\mu}}
-  = m_\mu + n_\mu - \sum_\kappa\p{r_{\mu\kappa}+r_{\kappa\mu}},
+  = m_\mu + n_\mu - \sum_\rho\p{r_{\mu\rho}+r_{\rho\mu}},
   &&
   \abs{\set{K^{\mu\nu}_a}} = r_{\mu\nu},
   &&
@@ -1536,11 +1536,11 @@ operators in $P_{\v j}$ and $P_{\v k}$ as prescribed by $\v r$, or
 \begin{align}
   f_{\v m\v n\v r}
   &\equiv \sp{\prod_{\mu,\nu}
-    { m_\mu - \sum_{\kappa<\nu} r_{\mu\kappa} \choose r_{\mu\nu} }
-    { n_\mu - \sum_{\kappa<\nu} r_{\kappa\mu} \choose r_{\nu\mu} }}
+    { m_\mu - \sum_{\rho<\nu} r_{\mu\rho} \choose r_{\mu\nu} }
+    { n_\mu - \sum_{\rho<\nu} r_{\rho\mu} \choose r_{\nu\mu} }}
   \sp{\prod_{\mu,\nu} r_{\mu\nu}!} \\
-  &= \sp{\prod_\mu \p{m_\mu}_{\sum_\kappa r_{\mu\kappa}}
-    \p{n_\mu}_{\sum_\kappa r_{\kappa\mu}}}
+  &= \sp{\prod_\mu \p{m_\mu}_{\sum_\rho r_{\mu\rho}}
+    \p{n_\mu}_{\sum_\rho r_{\rho\mu}}}
   \sp{\prod_{\mu,\nu} r_{\mu\nu}!}^{-1},
 \end{align}
 where $\p{n}_k\equiv\prod_{j=0}^{k-1}\p{n-j}$ is a falling factorial;
@@ -1550,73 +1550,63 @@ and finally, similarly to the definition of $P_{\v j}$ in
   Q_{\v K} \equiv \prod_{\mu,\nu,a}
   \sigma_\mu^{(K^{\mu\nu}_a)} \sigma_\nu^{(K^{\mu\nu}_a)}.
 \end{align}
-Expanding the product
-$\sigma_\mu\sigma_\nu=\sum_\kappa\eta_{\mu\nu\rho}\sigma_\rho$, where
-unlike the sums over $\mu,\nu$ in most of the work above, the sum over
-$\rho$ here includes an index for the identity operator
-$\sigma_0\equiv\1$, we can expand and collect terms to get
+As the sum in \eqref{eq:SS_PQ} is invariant under permutation of the
+indices in $\v K$, we can safely neglect keeping track of these
+indices and simply write
 \begin{align}
   Q_{\v K}
-  = \prod_{\mu,\nu,a} \sum_\rho
-  \eta_{\mu\nu\rho} \sigma_\rho^{(K^{\mu\nu}_a)}
-  = \sum_{\v\rho} \prod_{\mu,\nu,a} \eta_{\mu\nu\rho^{\mu\nu}_a}
-  \sigma_{\rho^{\mu\nu}_a}^{(K^{\mu\nu}_a)},
+  = \prod_{\mu,\nu} \prod_{a=1}^{r_{\mu\nu}}
+  \sigma_\mu^{(K^{\mu\nu}_a)} \sigma_\nu^{(K^{\mu\nu}_a)}
+  \simeq \bigotimes_{\mu,\nu} \bigotimes_{a=1}^{r_{\mu\nu}}
+  \sigma_\mu \sigma_\nu
+  = \bigotimes_{\mu,\nu} \bigotimes_{a=1}^{r_{\mu\nu}}
+  \sum_\rho \eta_{\mu\nu\rho} \sigma_\rho,
 \end{align}
-where we have distributed a product of sums into a sum of products.
-Collecting together operators of type $\sigma_\kappa$, we then have
+where $\simeq$ denotes equality up to a re-indexing of spins; we have
+introduced explicit dependence on
+$r_{\mu\nu}=\abs{\set{K^{\mu\nu}_a}}$ for brevity; and
+$\eta_{\mu\nu\rho}$ is defined by
+$\sigma_\mu\sigma_\nu=\sum_\rho\eta_{\mu\nu\rho}\sigma_\rho$.  Unlike
+the sums over $\mu,\nu$ in most of the work above, the sum over $\rho$
+here includes an index for the identity operator $\sigma_0\equiv\1$.
+Distributing the product of sums into a sum of products gives us
 \begin{align}
   Q_{\v K}
-  = \sum_{\v\rho} \sp{\prod_{\mu,\nu,\kappa}
-    \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa}}
-  \prod_{\kappa,a} \sigma_{\kappa}^{(K^{\v\rho\kappa}_a)},
+  \simeq \sum_{\v\rho} \bigotimes_{\mu,\nu,a}
+  \eta_{\mu\nu\rho^{\mu\nu}_a} \sigma_{\rho^{\mu\nu}_a}
+  = \sum_{\v\rho} \sp{\prod_{\mu,\nu,a}
+    \p{\eta_{\mu\nu\rho^{\mu\nu}_a}}^{\rho^{\mu\nu}_a}}
+  \bigotimes_{\mu,\nu,a} \sigma_{\rho^{\mu\nu}_a}.
+  \label{eq:Q_K_rho}
 \end{align}
-where $\tilde\rho_\kappa^{\mu\nu}$ is the number of elements in
+Letting $\tilde\rho^{\mu\nu}_\kappa$ denote the number of elements in
 $\v\rho^{\mu\nu} \equiv
 \p{\rho^{\mu\nu}_1,\rho^{\mu\nu}_2,\cdots,\rho^{\mu\nu}_{r_{\mu\nu}}}$
-equal to $\kappa$, and $K^{\v\rho\kappa}_a$ indexes the $a$-th
-operator of type $\sigma_\kappa$ for each choice of $\v\rho$, such
-that for any fixed $\v\rho$ we have
-$\set{K^{\v\rho\kappa}_a}=\set{K^{\mu\nu}_b}$.  Exploiting the
-exchange symmetry of $Q_{\v K}$ under the sum in \eqref{eq:SS_PQ}, we
-can group together all terms which are equal up to a permutation of
-indices in $\v\rho^{\mu\nu}$, i.e.~terms with equal values of
-$\tilde\rho_\kappa^{\mu\nu}$, to write
+that are equal to $\kappa$, we observe that two terms in
+\eqref{eq:Q_K_rho} with, say, $\v\rho=\v\rho_1$ and $\v\rho=\v\rho_2$
+are equal up to a permutation of indices if
+$\tilde{\v\rho_1}=\tilde{\v\rho_2}$.  We therefore collect such terms
+together to write
 \begin{align}
   Q_{\v K}
-  \simeq \sum_{\tilde{\v\rho}}
-  g_{\tilde{\v\rho}} \sp{\prod_{\mu,\nu,\kappa}
-    \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa}}
-  \prod_{\kappa,a} \sigma_{\kappa}^{(K^{\tilde{\v\rho}\kappa}_a)}
-  = \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}}
-  \sp{\prod_{\mu,\nu,\kappa}
-    \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa}}
-  P_{\v K_{\tilde{\v\rho}}},
+  \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta_{\tilde{\v\rho}}
+  \bigotimes_{\kappa}
+  \sigma_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa},
+  &&
+  \v\eta_{\tilde{\v\rho}}
+  \equiv \prod_{\mu,\nu,\kappa}
+  \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa},
 \end{align}
-where $\simeq$ denotes equality up to a permutation of spin indices;
-the degeneracy factor for each term is
+where
 \begin{align}
   g_{\tilde{\v\rho}}
   \equiv \prod_{\mu,\nu,\kappa}
   { r_{\mu\nu} - \sum_{\lambda<\kappa} \tilde\rho^{\mu\nu}_\lambda
     \choose \tilde\rho^{\mu\nu}_\kappa }
   = \prod_{\mu,\nu}
-  \f{r_{\mu\nu}!}{\prod_\kappa\tilde\rho^{\mu\nu}_\kappa!};
+  \f{r_{\mu\nu}!}{\prod_\kappa\tilde\rho^{\mu\nu}_\kappa!}
 \end{align}
-as before $K^{\tilde{\v\rho}\kappa}_a$ indexes the $a$-th operator of
-type $\sigma_\kappa$ for each partitioning $\tilde{\v\rho}$, such that
-for any fixed $\tilde{\v\rho}$ we have
-$\set{K^{\tilde{\v\rho}\kappa}_a}=\set{K^{\mu\nu}_b}$; and
-$\v K_{\tilde{\v\rho}}$ is an ordered list of the indices in
-$\set{K^{\tilde{\v\rho}\kappa}_a}$.
-
-% \begin{align}
-%   \S_{\v m}\S_{\v n}
-%   = \sum_{s\ge0} \sum_{\p{\v J,\v K,\v r;\v m,\v n,s}}
-%   \sum_{\tilde{\v\rho}}
-%   f_{\v m\v n\v r} g_{\tilde{\v\rho}}
-%   \sp{\prod_{\mu,\nu,\kappa}
-%     \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa}}
-%   P_{\v J} P_{\v K_{\tilde{\v\rho}}}
-% \end{align}
+counts the degeneracy of terms in \eqref{eq:Q_K_rho}, i.e.~the number
+of $\v\rho$ which are consistent with $\tilde{\v\rho}$.
 
 \end{document}
