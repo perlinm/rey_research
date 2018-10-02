@@ -50,15 +50,14 @@ def PP(jj, mm):
             op_list[jj_mu] = spin_op(mu)
     return qt.tensor(op_list)
 
+def SS(mm):
+    op = 0 * II
+    for jj in itertools.permutations(range(N), int(np.sum(mm))):
+        op += PP(jj,mm)
+    return op
+
 def poch(nn, kk, vals = {}):
     return np.prod([ nn - cc for cc in range(kk) ])
-
-def f(mm,nn,rr):
-    return np.prod([ poch(mm[mu],rr[mu,:].sum()) * poch(nn[mu],rr[:,mu].sum())
-                     for mu in range(3) ])
-
-def g(rho):
-    return 1 / np.prod([ factorial(val) for val in rho.flatten() ])
 
 def eta_val(mu, nu, rho):
     fac = 2 if spin_op(rho) in [ I2, sz ] else 1
@@ -71,15 +70,6 @@ nonzero = np.array([ [ [ eta[mu,nu,kk] != 0 for kk in range(4) ]
                        for nu in range(3) ]
                      for mu in range(3) ])
 eta_nonzero = eta[nonzero]
-
-def rho_vals(rr):
-    return np.array([ [ [ [0,0,0,rr[0,0]], [0,rr[0,1],0,0],     [0,0,rr[0,2],0],    ],
-                        [ [0,rr[1,0],0,0], [0,0,0,0],           [c_12_0,0,0,c_12_3] ],
-                        [ [0,0,rr[2,0],0], [c_21_0,0,0,c_21_3], [0,0,0,0]           ] ]
-                      for c_12_0 in range(rr[1,2]+1)
-                      for c_21_0 in range(rr[2,1]+1)
-                      for c_12_3 in [ rr[1,2] - c_12_0 ]
-                      for c_21_3 in [ rr[2,1] - c_21_0 ] ])
 
 def r_mats(mm,nn,ss):
     return ( np.array([ [r_00, r_01, r_02],
@@ -94,15 +84,14 @@ def r_mats(mm,nn,ss):
              for r_20 in [ ss-r_00-r_01-r_10-r_12-r_21-r_02 ]
              if r_20 + r_21 <= mm[2] and r_20+r_10+r_00 <= nn[0] )
 
-def QQ(KK,rr):
-    return np.sum( g(rho) * np.prod(eta_nonzero**rho[nonzero]) * PP(KK, rho.sum((0,1)))
-                   for rho in rho_vals(rr) )
-
-def SS(mm):
-    op = 0 * II
-    for jj in itertools.permutations(range(N), int(np.sum(mm))):
-        op += PP(jj,mm)
-    return op
+def rho_mats(rr):
+    return np.array([ [ [ [0,0,0,rr[0,0]], [0,rr[0,1],0,0],     [0,0,rr[0,2],0],    ],
+                        [ [0,rr[1,0],0,0], [0,0,0,0],           [c_12_0,0,0,c_12_3] ],
+                        [ [0,0,rr[2,0],0], [c_21_0,0,0,c_21_3], [0,0,0,0]           ] ]
+                      for c_12_0 in range(rr[1,2]+1)
+                      for c_21_0 in range(rr[2,1]+1)
+                      for c_12_3 in [ rr[1,2] - c_12_0 ]
+                      for c_21_3 in [ rr[2,1] - c_21_0 ] ])
 
 for mm in itertools.product(range(op_cap+1), repeat = 3):
     if mm == (0,0,0): continue
@@ -111,32 +100,36 @@ for mm in itertools.product(range(op_cap+1), repeat = 3):
     for nn in itertools.product(range(op_cap+1), repeat = 3):
         nn = np.array(nn)
         op = SS_mm * SS(nn)
-        op_test = 0 * II
+        op_simp = 0 * II
 
         mn_ops = int(mm.sum()+nn.sum())
         min_overlap = max(mn_ops-N, 0)
         max_overlap = mn_ops
         for ss in range(min_overlap, max_overlap+1):
-            ops = max_overlap - ss
 
             for rr in r_mats(mm,nn,ss):
-                f_val = f(mm,nn,rr)
 
-                for JK in itertools.permutations(range(N), ops):
-                    mn = mm + nn - rr.sum(0) - rr.sum(1)
+                mnr_op_nums = mm + nn - rr.sum(0) - rr.sum(1)
+                mnr_fac = np.prod([ poch(mm[mu],rr[mu,:].sum()) *
+                                    poch(nn[mu],rr[:,mu].sum())
+                                    for mu in range(3) ])
 
-                    if mn.sum() > 0:
-                        JJ = JK[:mn.sum()]
-                        PP_JJ = PP(JJ,mn)
-                    else:
-                        PP_JJ = II
-                    if mn.sum() < len(JK):
-                        KK = JK[mn.sum():]
-                        QQ_KK = QQ(KK,rr)
-                    else:
-                        QQ_KK = II
+                for rho in rho_mats(rr):
 
-                    op_test += f_val * PP_JJ * QQ_KK
+                    rho_kk = rho.sum((0,1))
+                    rho_op_nums = rho_kk[:-1]
+                    op_nums = mnr_op_nums + rho_op_nums
 
-        print(mm, nn, op == op_test)
-        if op != op_test: exit()
+                    id_ops = rho_kk[-1]
+                    ops = int(op_nums.sum())
+
+                    rho_fac = 1 / np.prod([ factorial(val) for val in rho.flatten() ])
+                    eta_fac = np.prod(eta_nonzero**rho[nonzero])
+                    id_fac = poch(N-ops,id_ops)
+                    fac = mnr_fac * rho_fac * eta_fac * id_fac
+
+                    for ll in itertools.permutations(range(N), ops):
+                        op_simp += fac * PP(ll, op_nums)
+
+        print(mm, nn, op == op_simp)
+        if op != op_simp: exit()

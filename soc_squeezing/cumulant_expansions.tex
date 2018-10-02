@@ -1625,34 +1625,32 @@ with \eqref{eq:Q_K_eta} and \eqref{eq:Q_K_rho}, and we have explicitly
 factored out the identity operators in each term of $Q_{\v K}$.
 
 We have now simplified $Q_{\v K}$ sufficiently to substitute it back
-into \eqref{eq:SS_PQ}, which (removing the tilde from
-$\tilde{\v\rho}$) gives us
+into \eqref{eq:SS_PQ}, which (removing the tilde from $\tilde{\v\rho}$
+to simplify notation) gives us
 \begin{align}
   \S_{\v m} \S_{\v n}
   = \sum_{s\ge0} \sum_{\p{\v\ell,\v r,\v\rho;\v m,\v n,s}}
-  f_{\v m\v n\v r\v\rho} P_{\v\ell},
+  f_{\v m\v n\v r} g_{\v\rho} \v\eta_{\v\rho} c_{\v\ell\v\rho} P_{\v\ell},
   \label{eq:SS_simp}
 \end{align}
-where the net the prefactor for each term is
-\begin{align}
-  f_{\v m\v n\v r\v\rho}
-  \equiv \sp{\prod_\mu \p{m_\mu}_{\sum_\kappa r_{\mu\kappa}}
-    \p{n_\mu}_{\sum_\kappa r_{\kappa\mu}}}
-  \sp{\prod_{\mu,\nu,\kappa}
-    \f{\p{\eta_{\mu\nu\kappa}}^{\rho^{\mu\nu}_\kappa}}
-    {\rho^{\mu\nu}_\kappa!}}
-  \sp{N-\sum_\mu\p{m_\mu+n_\mu}+s}
-  ^{\sum_{\alpha,\beta}\rho^{\alpha\beta}_0},
-\end{align}
-and in addition to \eqref{eq:rest_r} the sum over
+where in addition to \eqref{eq:rest_r} the sum over
 $\p{\v\ell,\v r,\v\rho;\v m,\v n,s}$ enforces the restrictions
 \begin{align}
   \sum_{\kappa} \rho^{\mu\nu}_\kappa = r_{\mu\nu},
   &&
-  \abs{\set{\ell^\mu_a}}
+  \abs{\v\ell} \equiv \abs{\set{\ell^\mu_a}}
   = m_\mu + n_\mu - \sum_\kappa \p{r_{\mu\kappa}+r_{\kappa\mu}}
-  + \sum_{\alpha,\beta} \rho^{\alpha\beta}_\mu.
+  + \sum_{\alpha,\beta} \rho^{\alpha\beta}_\mu,
 \end{align}
+and the combinatorial factor
+\begin{align}
+  c_{\v\ell\v\rho}
+  \equiv { N - \abs{\v\ell} \choose \sum_{\mu,\nu}\rho^{\mu\nu}_0},
+\end{align}
+accounts for the multiplicity of terms which are equivalent up to a
+permutation of indices involving the identity operators in
+\eqref{eq:Q_K_rho_simp}.
+
 For clarity, we note here that all indices on
 $m_\mu,n_\mu,r_{\mu\nu},\eta_{\mu\nu\kappa},\rho^{\mu\nu}_\kappa$ and
 the upper index on $\ell^\mu_a$ take on the same values as the indices
