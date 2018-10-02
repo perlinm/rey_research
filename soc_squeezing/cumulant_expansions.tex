@@ -1496,10 +1496,9 @@ into terms that have exactly $s$ spins addressed by both operators:
   &&
   \sum_{\p{\v j,\v k;\v m,\v n,s}} X \equiv
   \sum_{\substack{\p{\v j;\v m},\p{\v k;\v n} \\
-      \abs{\set{j_\alpha^\mu}\cap\set{k_\beta^\nu}}=s}} X,
+      \abs{\set{j_\alpha^\mu}\cap\set{k_\beta^\nu}}=s}} X.
   \label{eq:SS_PP}
 \end{align}
-where the sum over $s$ terminates after $s = \sum_\mu\p{m_\mu+n_\mu}$.
 Collecting terms in which $r_{\mu\nu}$ of the $\sigma_\mu$ operators
 in $P_{\v j}$ address the same spin as a $\sigma_\nu$ operator in
 $P_{\v k}$, we have
@@ -1664,5 +1663,34 @@ $\rho^{\mu\nu}_\kappa,\eta_{\mu\nu\kappa}$ ever matches the index for
 the identity element $\sigma_0\equiv\1$.  The lower index on
 $\ell^\mu_a$ indexes the $a$-th spin acted on by a $\sigma_\mu$
 operator in each term of \eqref{eq:SS_simp}.
+
+The sums in \eqref{eq:SS_simp} generally involve a large number of
+terms; in practice, many of these terms will be equal to zero.  We
+can, however, impose additional restrictions on these sums in such a
+way as to throw out terms which vanish, and keep those which do not.
+Remembering that $s$ counts the number of spins which are addressed by
+both operators $P_{\v j}$ and $P_{\v k}$ in \eqref{eq:SS_PP}, the
+first restriction we can impose comes from recognizing that for given
+$\S_{\v m},\S_{\v n}$, the overlap $s$ is bounded as
+\begin{align}
+  \max\set{0,\sum_\mu\p{m_\mu+n_\mu}-N}
+  \le s \le \min\set{N,\sum_\mu\p{m_\mu+n_\mu}}.
+\end{align}
+In addition, the group multiplication table $\eta_{\mu\nu\kappa}$ may
+generally contain zeros that we can preemptively avoid with
+restrictions on $\v r$ and $\v\rho$.  Recalling that $r_{\mu\nu}$
+counts the number of operators addressed by
+$\sigma_\mu\sigma_\nu=\sum_\kappa\eta_{\mu\nu\kappa}\sigma_\kappa$, if
+$\eta_{\mu\nu\kappa}=0$ for all $\kappa$,
+i.e.~$\sigma_\mu\sigma_\nu=0$, then any term with $r_{\mu\nu}>0$ will
+vanish.  Our second restriction on the sums in \eqref{eq:SS_simp} is
+therefore to fix $r_{\mu\nu}=r_{\nu\mu}=0$ for all $\mu,\nu$ for which
+$\sigma_\mu\sigma_\nu=0$.  Finally, we can avoid the nullifying effect
+of any additional zeros in the multiplication table
+$\eta_{\mu\nu\kappa}$ by restricting $\rho^{\mu\nu}_\kappa=0$ for all
+$\mu,\nu,\kappa$ for which $\eta_{\mu\nu\kappa}=0$.  These
+restrictions are sufficient to ensure that all individual terms in
+\eqref{eq:SS_simp} are nonzero, although they do not rule out the
+possibility of several terms canceling out.
 
 \end{document}
