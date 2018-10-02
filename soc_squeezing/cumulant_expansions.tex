@@ -1505,15 +1505,14 @@ in $P_{\v j}$ address the same spin as a $\sigma_\nu$ operator in
 $P_{\v k}$, we have
 \begin{align}
   \S_{\v m}\S_{\v n}
-  = \sum_{s\ge0} \sum_{\p{\v J,\v K,\v r;\v m,\v n,s}}
-  f_{\v m\v n\v r} P_{\v J} Q_{\v K},
+  = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}}
+  \sum_{\p{\v J,\v K;\v m,\v n,\v r}} f_{\v m\v n\v r} P_{\v J} Q_{\v K},
   \label{eq:SS_PQ}
 \end{align}
 where $\v J$ and $\v K$ are respectively ordered lists of indices for
 spins addressed by one and two single-spin operators in each term of
 the expansion for $\S_{\v m} \S_{\v n}$ in \eqref{eq:SS_PP}; the sum
-over $\p{\v J,\v K,\v r;\v m,\v n,s}$ denotes a sum over all values of
-$\v J,\v K,\v r$ with the restrictions
+over $\p{\v r;\v m,\v n,s}$ denotes a sum over all values of $\v r$ with the restrictions
 \begin{align}
   r_{\mu\nu} \ge 0 ~\forall~ \mu,\nu,
   &&
@@ -1521,9 +1520,11 @@ $\v J,\v K,\v r$ with the restrictions
   &&
   \sum_\mu r_{\mu\nu} \le n_\nu,
   &&
-  \sum_{\mu,\nu} r_{\mu\nu} = s,
+  \sum_{\mu,\nu} r_{\mu\nu} = s;
   \label{eq:rest_r}
 \end{align}
+the sum over $\p{\v J,\v K;\v m,\v n,\v r}$ denotes a sum over all
+values of $\v J,\v K$ with the restrictions
 \begin{align}
   \abs{\set{J_a^\mu}}
   = m_\mu + n_\mu - \sum_\rho\p{r_{\mu\rho}+r_{\rho\mu}},
@@ -1615,7 +1616,7 @@ we can collect like factors and group together equivalent terms in
   \sigma_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa}
   = \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta_{\tilde{\v\rho}}
   \1^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_0}
-  \bigotimes_{\kappa\ne0}
+  \otimes \bigotimes_{\kappa\ne0}
   \sigma_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa},
   \label{eq:Q_K_rho_simp}
 \end{align}
@@ -1629,16 +1630,18 @@ into \eqref{eq:SS_PQ}, which (removing the tilde from $\tilde{\v\rho}$
 to simplify notation) gives us
 \begin{align}
   \S_{\v m} \S_{\v n}
-  = \sum_{s\ge0} \sum_{\p{\v\ell,\v r,\v\rho;\v m,\v n,s}}
+  = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} \sum_{\p{\v\rho;\v r}}
+  \sum_{\p{\v\ell;\v m,\v n,\v r,\v\rho}}
   f_{\v m\v n\v r} g_{\v\rho} \v\eta_{\v\rho} c_{\v\ell\v\rho} P_{\v\ell},
   \label{eq:SS_simp}
 \end{align}
-where in addition to \eqref{eq:rest_r} the sum over
-$\p{\v\ell,\v r,\v\rho;\v m,\v n,s}$ enforces the restrictions
+where the sums over $\p{\v\rho;\v r}$ and
+$\p{\v\ell;\v m,\v n,\v r,\v\rho}$ respectively denote sums over all
+values of $\v\rho$ and $\v\ell$ with the restrictions
 \begin{align}
   \sum_{\kappa} \rho^{\mu\nu}_\kappa = r_{\mu\nu},
   &&
-  \abs{\v\ell} \equiv \abs{\set{\ell^\mu_a}}
+  \abs{\set{\ell^\mu_a}}
   = m_\mu + n_\mu - \sum_\kappa \p{r_{\mu\kappa}+r_{\kappa\mu}}
   + \sum_{\alpha,\beta} \rho^{\alpha\beta}_\mu,
 \end{align}
@@ -1647,16 +1650,17 @@ and the combinatorial factor
   c_{\v\ell\v\rho}
   \equiv { N - \abs{\v\ell} \choose \sum_{\mu,\nu}\rho^{\mu\nu}_0},
 \end{align}
+with $\abs{\v\ell}$ equal to the number of elements in $\v\ell$,
 accounts for the multiplicity of terms which are equivalent up to a
 permutation of indices involving the identity operators in
 \eqref{eq:Q_K_rho_simp}.
 
 For clarity, we note here that all indices on
-$m_\mu,n_\mu,r_{\mu\nu},\eta_{\mu\nu\kappa},\rho^{\mu\nu}_\kappa$ and
+$m_\mu,n_\mu,r_{\mu\nu},\rho^{\mu\nu}_\kappa,\eta_{\mu\nu\kappa}$ and
 the upper index on $\ell^\mu_a$ take on the same values as the indices
 on elements $\sigma_\mu$ of some complete basis for single-spin
 operators; of these, only the last index ($\kappa$) on
-$\eta_{\mu\nu\kappa},\rho^{\mu\nu}_\kappa$ ever matches the index for
+$\rho^{\mu\nu}_\kappa,\eta_{\mu\nu\kappa}$ ever matches the index for
 the identity element $\sigma_0\equiv\1$.  The lower index on
 $\ell^\mu_a$ indexes the $a$-th spin acted on by a $\sigma_\mu$
 operator in each term of \eqref{eq:SS_simp}.
