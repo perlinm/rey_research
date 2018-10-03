@@ -1648,12 +1648,12 @@ values of $\v\rho$ and $\v\ell$ with the restrictions
 and the combinatorial factor
 \begin{align}
   c_{\v\ell\v\rho}
-  \equiv { N - \abs{\v\ell} \choose \sum_{\mu,\nu}\rho^{\mu\nu}_0},
+  \equiv \p{ N - \abs{\v\ell} }_ {\sum_{\mu,\nu}\rho^{\mu\nu}_0},
 \end{align}
-with $\abs{\v\ell}$ equal to the number of elements in $\v\ell$,
-accounts for the multiplicity of terms which are equivalent up to a
-permutation of indices involving the identity operators in
-\eqref{eq:Q_K_rho_simp}.
+with $\abs{\v\ell}=\sum_\mu\p{m_\mu+n_\mu}-s$ equal to the number of
+elements in $\v\ell$, accounts for the multiplicity of terms which are
+equivalent up to a permutation of indices involving the identity
+operators in \eqref{eq:Q_K_rho_simp}.
 
 For clarity, we note here that all indices on
 $m_\mu,n_\mu,r_{\mu\nu},\rho^{\mu\nu}_\kappa,\eta_{\mu\nu\kappa}$ and
@@ -1688,11 +1688,12 @@ vanish.  Our second restriction on the sums in \eqref{eq:SS_simp} is
 therefore to fix $r_{\mu\nu}=r_{\nu\mu}=0$ for all $\mu,\nu$ with
 $\sigma_\mu\sigma_\nu=0$.  Finally, we can avoid the nullifying effect
 of any additional zeros in the multiplication table
-$\eta_{\mu\nu\kappa}$, which will appear in $\v\eta_{\v\rho}$ as
-defined in \eqref{eq:eta_rho}, by restricting $\rho^{\mu\nu}_\kappa=0$
-for all $\mu,\nu,\kappa$ with $\eta_{\mu\nu\kappa}=0$.  These
-restrictions are sufficient to ensure that all individual terms in
-\eqref{eq:SS_simp} are nonzero, although they do not rule out the
-possibility of several terms canceling out.
+$\eta_{\mu\nu\kappa}$, which appear as factors in
+$\v\eta_{\v\rho}\propto\p{\eta_{\mu\nu\kappa}}^{\rho^{\mu\nu}_\kappa}$
+as defined in \eqref{eq:eta_rho}, by restricting
+$\rho^{\mu\nu}_\kappa=0$ for all $\mu,\nu,\kappa$ with
+$\eta_{\mu\nu\kappa}=0$.  These restrictions are sufficient to ensure
+that all individual terms in \eqref{eq:SS_simp} are nonzero, although
+they do not rule out the possibility of several terms canceling out.
 
 \end{document}
