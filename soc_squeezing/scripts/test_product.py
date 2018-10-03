@@ -8,7 +8,7 @@ from math import factorial
 from scipy.special import binom
 
 N = 3
-op_cap = 2
+op_cap = 3
 
 I2 = qt.qeye(2)
 sz = qt.sigmaz()
@@ -66,10 +66,10 @@ def eta_val(mu, nu, rho):
 eta = np.array([ [ [ eta_val(mu,nu,kk) for kk in range(4) ]
                    for nu in range(3) ]
                  for mu in range(3) ])
-nonzero = np.array([ [ [ eta[mu,nu,kk] != 0 for kk in range(4) ]
+eta_mnk = np.array([ [ [ eta[mu,nu,kk] not in [ 0, 1 ] for kk in range(4) ]
                        for nu in range(3) ]
                      for mu in range(3) ])
-eta_nonzero = eta[nonzero]
+eta_terms = eta[eta_mnk]
 
 def r_mats(mm,nn,ss):
     return ( np.array([ [r_00, r_01, r_02],
@@ -85,16 +85,15 @@ def r_mats(mm,nn,ss):
              if r_20 + r_21 <= mm[2] and r_20+r_10+r_00 <= nn[0] )
 
 def rho_mats(rr):
-    return np.array([ [ [ [0,0,0,rr[0,0]], [0,rr[0,1],0,0],     [0,0,rr[0,2],0],    ],
+    return ( np.array([ [ [0,0,0,rr[0,0]], [0,rr[0,1],0,0],     [0,0,rr[0,2],0],    ],
                         [ [0,rr[1,0],0,0], [0,0,0,0],           [c_12_0,0,0,c_12_3] ],
-                        [ [0,0,rr[2,0],0], [c_21_0,0,0,c_21_3], [0,0,0,0]           ] ]
-                      for c_12_0 in range(rr[1,2]+1)
-                      for c_21_0 in range(rr[2,1]+1)
-                      for c_12_3 in [ rr[1,2] - c_12_0 ]
-                      for c_21_3 in [ rr[2,1] - c_21_0 ] ])
+                        [ [0,0,rr[2,0],0], [c_21_0,0,0,c_21_3], [0,0,0,0]           ] ])
+             for c_12_0 in range(rr[1,2]+1)
+             for c_21_0 in range(rr[2,1]+1)
+             for c_12_3 in [ rr[1,2] - c_12_0 ]
+             for c_21_3 in [ rr[2,1] - c_21_0 ] )
 
 for mm in itertools.product(range(op_cap+1), repeat = 3):
-    if mm == (0,0,0): continue
     mm = np.array(mm)
     SS_mm = SS(mm)
     for nn in itertools.product(range(op_cap+1), repeat = 3):
@@ -104,7 +103,8 @@ for mm in itertools.product(range(op_cap+1), repeat = 3):
 
         mn_ops = int(mm.sum()+nn.sum())
         min_overlap = max(mn_ops-N, 0)
-        max_overlap = mn_ops
+        max_overlap = min(mn_ops, N)
+
         for ss in range(min_overlap, max_overlap+1):
 
             for rr in r_mats(mm,nn,ss):
@@ -124,7 +124,7 @@ for mm in itertools.product(range(op_cap+1), repeat = 3):
                     ops = int(op_nums.sum())
 
                     rho_fac = 1 / np.prod([ factorial(val) for val in rho.flatten() ])
-                    eta_fac = np.prod(eta_nonzero**rho[nonzero])
+                    eta_fac = np.prod(eta_terms**rho[eta_mnk])
                     id_fac = poch(N-ops,id_ops)
                     fac = mnr_fac * rho_fac * eta_fac * id_fac
 
