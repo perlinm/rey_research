@@ -1605,6 +1605,7 @@ Defining additionally
   \v\eta_{\tilde{\v\rho}}
   \equiv \prod_{\mu,\nu,\kappa}
   \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa},
+  \label{eq:eta_rho}
 \end{align}
 we can collect like factors and group together equivalent terms in
 \eqref{eq:Q_K_rho} to write
@@ -1676,7 +1677,7 @@ $\S_{\v m},\S_{\v n}$, the overlap $s$ is bounded as
   \max\set{0,\sum_\mu\p{m_\mu+n_\mu}-N}
   \le s \le \min\set{N,\sum_\mu\p{m_\mu+n_\mu}}.
 \end{align}
-In addition, the group multiplication table $\eta_{\mu\nu\kappa}$ may
+In addition, the multiplication table $\eta_{\mu\nu\kappa}$ may
 generally contain zeros that we can preemptively avoid with
 restrictions on $\v r$ and $\v\rho$.  Recalling that $r_{\mu\nu}$
 counts the number of operators addressed by
@@ -1684,11 +1685,12 @@ $\sigma_\mu\sigma_\nu=\sum_\kappa\eta_{\mu\nu\kappa}\sigma_\kappa$, if
 $\eta_{\mu\nu\kappa}=0$ for all $\kappa$,
 i.e.~$\sigma_\mu\sigma_\nu=0$, then any term with $r_{\mu\nu}>0$ will
 vanish.  Our second restriction on the sums in \eqref{eq:SS_simp} is
-therefore to fix $r_{\mu\nu}=r_{\nu\mu}=0$ for all $\mu,\nu$ for which
+therefore to fix $r_{\mu\nu}=r_{\nu\mu}=0$ for all $\mu,\nu$ with
 $\sigma_\mu\sigma_\nu=0$.  Finally, we can avoid the nullifying effect
 of any additional zeros in the multiplication table
-$\eta_{\mu\nu\kappa}$ by restricting $\rho^{\mu\nu}_\kappa=0$ for all
-$\mu,\nu,\kappa$ for which $\eta_{\mu\nu\kappa}=0$.  These
+$\eta_{\mu\nu\kappa}$, which will appear in $\v\eta_{\v\rho}$ as
+defined in \eqref{eq:eta_rho}, by restricting $\rho^{\mu\nu}_\kappa=0$
+for all $\mu,\nu,\kappa$ with $\eta_{\mu\nu\kappa}=0$.  These
 restrictions are sufficient to ensure that all individual terms in
 \eqref{eq:SS_simp} are nonzero, although they do not rule out the
 possibility of several terms canceling out.
