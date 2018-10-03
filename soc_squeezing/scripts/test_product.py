@@ -128,8 +128,7 @@ for mm in itertools.product(range(op_cap+1), repeat = 3):
                     id_fac = poch(N-ops,id_ops)
                     fac = mnr_fac * rho_fac * eta_fac * id_fac
 
-                    for ll in itertools.permutations(range(N), ops):
-                        op_simp += fac * PP(ll, op_nums)
+                    op_simp += fac * SS(op_nums)
 
         print(mm, nn, op == op_simp)
         if op != op_simp: exit()

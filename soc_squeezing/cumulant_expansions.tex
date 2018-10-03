@@ -1632,7 +1632,7 @@ to simplify notation) gives us
   \S_{\v m} \S_{\v n}
   = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} \sum_{\p{\v\rho;\v r}}
   \sum_{\p{\v\ell;\v m,\v n,\v r,\v\rho}}
-  f_{\v m\v n\v r} g_{\v\rho} \v\eta_{\v\rho} c_{\v\ell\v\rho} P_{\v\ell},
+  f_{\v m\v n\v r} g_{\v\rho} \v\eta_{\v\rho} c_{\v\ell\v\rho} \S_{\v\ell},
   \label{eq:SS_simp}
 \end{align}
 where the sums over $\p{\v\rho;\v r}$ and
@@ -1641,29 +1641,25 @@ values of $\v\rho$ and $\v\ell$ with the restrictions
 \begin{align}
   \sum_{\kappa} \rho^{\mu\nu}_\kappa = r_{\mu\nu},
   &&
-  \abs{\set{\ell^\mu_a}}
+  \ell_\mu
   = m_\mu + n_\mu - \sum_\kappa \p{r_{\mu\kappa}+r_{\kappa\mu}}
   + \sum_{\alpha,\beta} \rho^{\alpha\beta}_\mu,
 \end{align}
 and the combinatorial factor
 \begin{align}
   c_{\v\ell\v\rho}
-  \equiv \p{ N - \abs{\v\ell} }_ {\sum_{\mu,\nu}\rho^{\mu\nu}_0},
+  \equiv \p{ N - \sum_\kappa\ell_\kappa }_{\sum_{\mu,\nu}\rho^{\mu\nu}_0},
 \end{align}
-with $\abs{\v\ell}=\sum_\mu\p{m_\mu+n_\mu}-s$ equal to the number of
-elements in $\v\ell$, accounts for the multiplicity of terms which are
-equivalent up to a permutation of indices involving the identity
-operators in \eqref{eq:Q_K_rho_simp}.
-
-For clarity, we note here that all indices on
-$m_\mu,n_\mu,r_{\mu\nu},\rho^{\mu\nu}_\kappa,\eta_{\mu\nu\kappa}$ and
-the upper index on $\ell^\mu_a$ take on the same values as the indices
-on elements $\sigma_\mu$ of some complete basis for single-spin
-operators; of these, only the last index ($\kappa$) on
+accounts for the multiplicity of terms which are equivalent up to a
+permutation of indices involving the identity operators in
+\eqref{eq:Q_K_rho_simp}.  For clarity, we note here that all indices
+on
+$m_\mu, n_\mu, r_{\mu\nu}, \rho^{\mu\nu}_\kappa, \eta_{\mu\nu\kappa},
+\ell_\mu$ take on the same values as the indices on elements
+$\sigma_\mu$ of some complete basis for single-spin operators; of
+these, only the last index ($\kappa$) on
 $\rho^{\mu\nu}_\kappa,\eta_{\mu\nu\kappa}$ ever matches the index for
-the identity element $\sigma_0\equiv\1$.  The lower index on
-$\ell^\mu_a$ indexes the $a$-th spin acted on by a $\sigma_\mu$
-operator in each term of \eqref{eq:SS_simp}.
+the identity element $\sigma_0\equiv\1$.
 
 The sums in \eqref{eq:SS_simp} generally involve a large number of
 terms; in practice, many of these terms will be equal to zero.  We
