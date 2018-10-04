@@ -1473,20 +1473,19 @@ with $q$ repetitions of 2 and 1.
 \section{Changing operator bases}
 
 We wish to change our basis for all exchange-symmetric operators on a
-system of $N$ qubits from $S_+^\ell S_\z^m S_-^n$ to
+system of $N$ spins from $S_+^\ell S_\z^m S_-^n$ to
 \begin{align}
   \S_{\v m} \equiv \sum_{\p{\v j;\v m}} P_{\v j},
   &&
-  P_{\v j} \equiv \prod_{\mu,a} \sigma_\mu^{\p{j_a^\mu}},
+  P_{\v j} \equiv \prod_{\mu,a} \sigma_\mu^{\p{j^\mu_a}},
 \end{align}
-where $\v m \equiv \p{m_\z,m_+,m_-}$; $\v j$ is an ordered list of
-indices for the spins addressed by $P_{\v j}$; and the sum over
-$\p{\v j;\v m}$ denotes a sum over all possible $\v j$ for which all
-indices in $\v j$ are distinct and $\abs{\set{j_a^\mu}} = m_\mu$.  In
-words, $\S_{\v m}$ is an exchange-symmetric $\p{m_\z+m_++m_-}$-spin
-operator with $m_\mu$ single-spin operators of type $\sigma_\mu$, and
-$P_{\v j}$ is a single term in $\S_{\v m}$ which addresses the spins
-indexed by $\v j$.
+where $\v m \equiv \p{m_\z,m_+,m_-}$ with $m_\mu$ the number of
+$\sigma_\mu$ operators in each term of $\S_{\v m}$; $\v j$ is an
+ordered list of indices for the spins addressed by $P_{\v j}$; and the
+sum over $\p{\v j;\v m}$ denotes a sum over all possible $\v j$ for
+which all indices in $\v j$ are distinct and
+$\abs{\set{j^\mu_a}} = m_\mu$, such that $j^\mu_a$ indexes the $a$-th
+spin addressed by a $\sigma_\mu$ operator in $P_{\v j}$.
 
 We now expand a product of basis operators $\S_{\v m}$ and $\S_{\v n}$
 into terms that have exactly $s$ spins addressed by both operators:
@@ -1632,35 +1631,31 @@ to simplify notation) gives us
   \S_{\v m} \S_{\v n}
   = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} f_{\v m\v n\v r}
   \sum_{\p{\v\rho;\v r}} g_{\v\rho} \v\eta_{\v\rho}
-  \sum_{\p{\v\ell;\v m,\v n,\v r,\v\rho}}
-  c_{\v\ell\v\rho} \S_{\v\ell},
+  c_{\v\ell_{\v m\v n\v r\v\rho}\v\rho} \S_{\v\ell_{\v m\v n\v r\v\rho}},
   \label{eq:SS_simp}
 \end{align}
-where the sums over $\p{\v\rho;\v r}$ and
-$\p{\v\ell;\v m,\v n,\v r,\v\rho}$ respectively denote sums over all
-values of $\v\rho$ and $\v\ell$ with the restrictions
+where the sum over $\p{\v\rho;\v r}$ denotes a sum over all
+values of $\v\rho$ and with the restrictions
 \begin{align}
-  \sum_{\kappa} \rho^{\mu\nu}_\kappa = r_{\mu\nu},
+  \abs{\set{\rho^{\mu\nu}_\kappa}} = \abs{\set{\sigma_\kappa}},
   &&
-  \ell_\mu
+  \sum_{\kappa} \rho^{\mu\nu}_\kappa = r_{\mu\nu};
+\end{align}
+the number of $\sigma_\mu$ operators in each term of
+$\S_{\v\ell_{\v m\v n\v r\v\rho}}$ is
+\begin{align}
+  \ell_{\v m\v n\v r\v\rho;\mu}
   = m_\mu + n_\mu - \sum_\kappa \p{r_{\mu\kappa}+r_{\kappa\mu}}
-  + \sum_{\alpha,\beta} \rho^{\alpha\beta}_\mu,
+  + \sum_{\alpha,\beta} \rho^{\alpha\beta}_\mu;
 \end{align}
 and the combinatorial factor
 \begin{align}
   c_{\v\ell\v\rho}
   \equiv \p{ N - \sum_\kappa\ell_\kappa }_{\sum_{\mu,\nu}\rho^{\mu\nu}_0}
 \end{align}
-accounts for the multiplicity of terms which are equivalent up to a
+accounts for the number of terms which are equivalent up to a
 permutation of indices involving the identity operators in
-\eqref{eq:Q_K_rho_simp}.  For clarity, we note here that all indices
-on
-$m_\mu, n_\mu, r_{\mu\nu}, \rho^{\mu\nu}_\kappa, \eta_{\mu\nu\kappa},
-\ell_\mu$ take on the same values as the indices on elements
-$\sigma_\mu$ of some complete basis for single-spin operators; of
-these, only the last index ($\kappa$) on
-$\rho^{\mu\nu}_\kappa,\eta_{\mu\nu\kappa}$ ever matches the index for
-the identity element $\sigma_0\equiv\1$.
+\eqref{eq:Q_K_rho_simp}.
 
 The sums in \eqref{eq:SS_simp} generally involve a large number of
 terms; in practice, many of these terms will be equal to zero.  We
