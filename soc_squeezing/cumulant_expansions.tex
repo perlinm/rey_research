@@ -1504,14 +1504,12 @@ in $P_{\v j}$ address the same spin as a $\sigma_\nu$ operator in
 $P_{\v k}$, we have
 \begin{align}
   \S_{\v m}\S_{\v n}
-  = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}}
-  \sum_{\p{\v J,\v K;\v m,\v n,\v r}} f_{\v m\v n\v r} P_{\v J} Q_{\v K},
+  = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} f_{\v m\v n\v r}
+  \sum_{\p{\v J,\v K;\v m,\v n,\v r}} P_{\v J} Q_{\v K},
   \label{eq:SS_PQ}
 \end{align}
-where $\v J$ and $\v K$ are respectively ordered lists of indices for
-spins addressed by one and two single-spin operators in each term of
-the expansion for $\S_{\v m} \S_{\v n}$ in \eqref{eq:SS_PP}; the sum
-over $\p{\v r;\v m,\v n,s}$ denotes a sum over all values of $\v r$ with the restrictions
+where the sum over $\p{\v r;\v m,\v n,s}$ denotes a sum over all
+values of $\v r$ with the restrictions
 \begin{align}
   r_{\mu\nu} \ge 0 ~\forall~ \mu,\nu,
   &&
@@ -1522,18 +1520,8 @@ over $\p{\v r;\v m,\v n,s}$ denotes a sum over all values of $\v r$ with the res
   \sum_{\mu,\nu} r_{\mu\nu} = s;
   \label{eq:rest_r}
 \end{align}
-the sum over $\p{\v J,\v K;\v m,\v n,\v r}$ denotes a sum over all
-values of $\v J,\v K$ with the restrictions
-\begin{align}
-  \abs{\set{J_a^\mu}}
-  = m_\mu + n_\mu - \sum_\rho\p{r_{\mu\rho}+r_{\rho\mu}},
-  &&
-  \abs{\set{K^{\mu\nu}_a}} = r_{\mu\nu},
-  &&
-  \set{J_a^\lambda} \cap \set{K_b^{\mu\nu}} = \set{};
-\end{align}
 the factor $f_{\v m\v n\v r}$ counts the number of ways to pair
-operators in $P_{\v j}$ and $P_{\v k}$ as prescribed by $\v r$, or
+operators in $P_{\v j}$ and $P_{\v k}$ according to $\v r$, or
 \begin{align}
   f_{\v m\v n\v r}
   &\equiv \sp{\prod_{\mu,\nu}
@@ -1544,9 +1532,21 @@ operators in $P_{\v j}$ and $P_{\v k}$ as prescribed by $\v r$, or
     \p{n_\mu}_{\sum_\rho r_{\rho\mu}}}
   \sp{\prod_{\mu,\nu} r_{\mu\nu}!}^{-1},
 \end{align}
-where $\p{n}_k\equiv\prod_{j=0}^{k-1}\p{n-j}$ is a falling factorial;
-and finally, similarly to the definition of $P_{\v j}$ in
-\eqref{eq:SS_PP} we have
+with $\p{n}_k\equiv\prod_{j=0}^{k-1}\p{n-j}$ denoting a falling
+factorial; $\v J$ and $\v K$ are respectively ordered lists of indices
+for spins addressed by one and two single-spin operators in a term of
+the product $P_{\v j} P_{\v k}$ with fixed $\v r$; the sum over
+$\p{\v J,\v K;\v m,\v n,\v r}$ denotes a sum over all values of
+$\v J,\v K$ with the restrictions
+\begin{align}
+  \abs{\set{J_a^\mu}}
+  = m_\mu + n_\mu - \sum_\rho\p{r_{\mu\rho}+r_{\rho\mu}},
+  &&
+  \abs{\set{K^{\mu\nu}_a}} = r_{\mu\nu},
+  &&
+  \set{J_a^\lambda} \cap \set{K_b^{\mu\nu}} = \set{};
+\end{align}
+and finally, similarly to $P_{\v j}$ in \eqref{eq:SS_PP} we define
 \begin{align}
   Q_{\v K} \equiv \prod_{\mu,\nu,a}
   \sigma_\mu^{(K^{\mu\nu}_a)} \sigma_\nu^{(K^{\mu\nu}_a)}.
@@ -1581,8 +1581,8 @@ Distributing the product of sums into a sum of products gives us
   \bigotimes_{\mu,\nu,a} \sigma_{\rho^{\mu\nu}_a},
   \label{eq:Q_K_rho}
 \end{align}
-where implicitly $\sum_a\rho^{\mu\nu}_a=r_{\mu\nu}$, as
-$\p{\mu,\nu,a}$ essentially index a factor in \eqref{eq:Q_K_eta}, and
+where implicitly $\abs{\set{\rho^{\mu\nu}_a}}=r_{\mu\nu}$, as
+$\p{\mu,\nu,a}$ essentially index a factor in \eqref{eq:Q_K_eta} and
 $\rho^{\mu\nu}_a$ indexes one of the terms in that factor.  Letting
 $\tilde\rho^{\mu\nu}_\kappa$ denote the number of elements in
 $\p{\rho^{\mu\nu}_1,\rho^{\mu\nu}_2,\cdots,\rho^{\mu\nu}_{r_{\mu\nu}}}$
@@ -1630,9 +1630,10 @@ into \eqref{eq:SS_PQ}, which (removing the tilde from $\tilde{\v\rho}$
 to simplify notation) gives us
 \begin{align}
   \S_{\v m} \S_{\v n}
-  = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} \sum_{\p{\v\rho;\v r}}
+  = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} f_{\v m\v n\v r}
+  \sum_{\p{\v\rho;\v r}} g_{\v\rho} \v\eta_{\v\rho}
   \sum_{\p{\v\ell;\v m,\v n,\v r,\v\rho}}
-  f_{\v m\v n\v r} g_{\v\rho} \v\eta_{\v\rho} c_{\v\ell\v\rho} \S_{\v\ell},
+  c_{\v\ell\v\rho} \S_{\v\ell},
   \label{eq:SS_simp}
 \end{align}
 where the sums over $\p{\v\rho;\v r}$ and
@@ -1648,7 +1649,7 @@ values of $\v\rho$ and $\v\ell$ with the restrictions
 and the combinatorial factor
 \begin{align}
   c_{\v\ell\v\rho}
-  \equiv \p{ N - \sum_\kappa\ell_\kappa }_{\sum_{\mu,\nu}\rho^{\mu\nu}_0},
+  \equiv \p{ N - \sum_\kappa\ell_\kappa }_{\sum_{\mu,\nu}\rho^{\mu\nu}_0}
 \end{align}
 accounts for the multiplicity of terms which are equivalent up to a
 permutation of indices involving the identity operators in
