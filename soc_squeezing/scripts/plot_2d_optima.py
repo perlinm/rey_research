@@ -14,8 +14,10 @@ import matplotlib.pyplot as plt
 from numpy import matlib
 from scipy import interpolate
 from matplotlib import gridspec
+from matplotlib.ticker import FormatStrFormatter
 
 from sr87_olc_constants import recoil_energy_NU
+
 
 show = "show" in sys.argv
 save = "save" in sys.argv
@@ -25,18 +27,10 @@ methods = [ "OAT", "OAT_dec", "TAT" ]
 dependent_variables = [ "L", "T", "phi" ]
 
 lattice_dim = 2
-method = "OAT"
+method = "OAT_dec"
 dependent_variable = "L"
 assert(method in methods)
 assert(dependent_variable in dependent_variables)
-
-dpi = 600
-if dependent_variable == "L":
-    figsize = (7,4)
-else:
-    figsize = (5,4)
-params = { "text.usetex" : True }
-plt.rcParams.update(params)
 
 data_dir = "../data/"
 fig_dir = "../figures/"
@@ -44,6 +38,14 @@ optimization_dir = "optimization/"
 
 decoherence_is_on = method[4:] == "dec"
 sqz_subplot = ( dependent_variable == "L" and not decoherence_is_on )
+
+dpi = 600
+if sqz_subplot:
+    figsize = (7,4)
+else:
+    figsize = (5,4)
+params = { "text.usetex" : True }
+plt.rcParams.update(params)
 
 # methods to read in 1-D and 2-D data
 def pd_read_1D(fname):
@@ -79,14 +81,12 @@ U_J_max = U_J.values.max()
 U_J_ticks = np.array(range(int(U_J_max)))
 
 
-
-
 ##########################################################################################
 # method to make 2D plot
 ##########################################################################################
 
 if dependent_variable == "L":
-    ylabel = "Lattice size"
+    ylabel = r"Linear lattice size ($\ell$)"
 if dependent_variable == "T":
     ylabel = r"$V_T/E_R$"
 if dependent_variable == "phi":
@@ -129,8 +129,8 @@ def make_plot(base_name, label):
     mesh = ax_data.pcolormesh(depths, columns, data.T,
                               cmap = plt.get_cmap("jet"),
                               zorder = 0, rasterized = True)
-    plt.xlabel(r"$V_0/E_R$", zorder = 1)
-    plt.colorbar(mesh, label = label)
+    plt.xlabel(r"Lattice depth ($V_0/E_R$)", zorder = 1)
+    plt.colorbar(mesh, label = label, format = "%.1f")
 
     # determine values of U / J on the top axis,
     #   and plot contours of fixed U / J if appropriate
@@ -161,7 +161,7 @@ def make_plot(base_name, label):
 
 make_plot(t_opt_base, r"$t_{\mathrm{opt}}$ (seconds)")
 if decoherence_is_on:
-    make_plot(sqz_opt_base, r"$-10\log_{10}(\xi^2)$")
+    make_plot(sqz_opt_base, r"$-10\log_{10}(\xi_{\mathrm{opt}}^2)$")
 if dependent_variable == "T":
     make_plot(U_int_base, r"$U_{\mathrm{int}}/E_R$")
 
