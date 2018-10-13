@@ -23,7 +23,7 @@ show = "show" in sys.argv
 save = "save" in sys.argv
 
 figsize = (4,3)
-fig_dir = "../figures/squeezing_plots/"
+fig_dir = "../figures/squeezing/"
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
@@ -32,9 +32,9 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-L = [30]*2 # lattice sites
-order_cap = 70 # order limit for cumulant expansions
-U_J_target = 1 # target value of U_int / J_0
+L = [10]*2 # lattice sites
+order_cap = 40 # order limit for cumulant expansions
+U_J_target = 2 # target value of U_int / J_0
 
 site_number = 1000 # number of sites in lattice calculations
 lattice_depth_bounds = (1,15) # min / max lattice depths we will allow
@@ -58,6 +58,7 @@ drive_mod_index_yx_2 = 2.2213461342426544 # for TAT protocol about (y,x)
 ##########################################################################################
 
 N = prod(L)
+eta = N / prod(L)
 lattice_dim = np.array(L, ndmin = 1).size
 
 # determine primary lattice depth which optimally satisfies our target U_int / J_0
@@ -87,7 +88,7 @@ phi = minimize_scalar(lambda x: abs(h_std(x)/U_int-h_U_target),
 soc_field_variance = np.var([ ( gauged_energy(q, 1, phi, L, energies)
                                 - gauged_energy(q, 0, phi, L, energies) )
                               for q in spatial_basis(L) ])
-chi = soc_field_variance / ( N * (N-1) * U_int / prod(L) )
+chi = soc_field_variance / ( (N-1) * eta * U_int )
 omega = N * np.sqrt(abs(chi*U_int/prod(L)))
 
 chi_NU = chi * recoil_energy_NU
