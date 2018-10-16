@@ -18,7 +18,7 @@ grid_size = 201
 N = 50
 max_tau = 2
 time_steps = 1000
-ivp_steps = 100
+ivp_tolerance = 1e-5
 
 
 max_time = max_tau * N**(-2/3)
@@ -52,9 +52,10 @@ save_state(init_state, f"sphere_init.pdf")
 for method in methods:
     print(method)
     states = solve_ivp(ivp_deriv(H[method]), (0,times[-1]), init_state,
-                       t_eval = times, max_step = times[1]/ivp_steps).y
+                       t_eval = times, rtol = ivp_tolerance).y
     sqz = np.array([ spin_squeezing(N, states[:,tt], S_op_vec, SS_op_mat)
                      for tt in range(times.size) ])
     opt_idx = sqz.argmax()
     save_state(states[:,opt_idx], f"sphere_{method}_opt.pdf")
     save_state(states[:,opt_idx//2], f"sphere_{method}_half.pdf")
+

@@ -41,7 +41,7 @@ lattice_depth_bounds = (1,15) # min / max lattice depths we will allow
 confining_depth = 60 # lattice depth along confining axis
 
 time_steps = 200 # time steps in plot
-ivp_steps = 100 # points per time step in ivp solver
+ivp_tolerance = 1e-5 # relative error tolerance in numerical integrator
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
 
 h_U_target = 0.05 # target value of h_std / U_int
@@ -153,9 +153,9 @@ init_nZ = np.zeros(S_op_vec[0].shape[0], dtype = complex)
 init_nZ[0] = 1
 
 state_TVF = solve_ivp(deriv_TVF, (0,chi_times[-1]), init_nZ,
-                      t_eval = chi_times, max_step = chi_times[1]/ivp_steps).y
+                      t_eval = chi_times, rtol = ivp_tolerance).y
 state_TAT = solve_ivp(deriv_TAT, (0,chi_times[-1]), init_nZ,
-                      t_eval = chi_times, max_step = chi_times[1]/ivp_steps).y
+                      t_eval = chi_times, rtol = ivp_tolerance).y
 
 sqz_TVF = np.array([ spin_squeezing(N, state_TVF[:,tt], S_op_vec, SS_op_mat)
                      for tt in range(chi_times.size) ])
@@ -311,7 +311,7 @@ try:
 except: None
 
 plt.xlim(0,times_SI[-1])
-plt.ylim(0, sqz_TAT.max() * 1.1)
+plt.ylim(0,sqz_TAT.max()*1.1)
 plt.xlabel(r"Time (seconds)")
 plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
 plt.legend(loc = "best")

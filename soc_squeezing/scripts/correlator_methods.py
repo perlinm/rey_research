@@ -653,7 +653,8 @@ def compute_correlators_taylor(order_cap, chi_times, op_image_args,
 
 # compute correlators by solving an initial value problem (i.e. differential equation)
 def compute_correlators_diffeq(order_cap, chi_times, op_image_args,
-                               init_ln_val, init_val_sign):
+                               init_ln_val, init_val_sign,
+                               ivp_tolerance = 1e-5):
     op_num = 0 # counts number of operaters we keep track of
     op_idx = {} # dictionary taking operator to unique integer index
 
@@ -689,7 +690,7 @@ def compute_correlators_diffeq(order_cap, chi_times, op_image_args,
     def time_derivative(time, vec): return diff_mat.dot(vec)
 
     ivp_solution = scipy.integrate.solve_ivp(time_derivative, (0,chi_times[-1]), init_vec,
-                                             t_eval = chi_times, max_step = chi_times[1])
+                                             t_eval = chi_times, rtol = ivp_tolerance)
 
     return { op : ivp_solution.y[op_idx[op],:] for op in squeezing_ops }
 
