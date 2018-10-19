@@ -89,7 +89,7 @@ soc_field_variance = np.var([ ( gauged_energy(q, 1, phi, L, energies)
                                 - gauged_energy(q, 0, phi, L, energies) )
                               for q in spatial_basis(L) ])
 chi = soc_field_variance / ( (N-1) * eta * U_int )
-omega = N * np.sqrt(abs(chi*U_int/prod(L)))
+omega = np.sqrt(abs(eta*U_int*chi*N))
 
 chi_NU = chi * recoil_energy_NU
 
@@ -131,9 +131,8 @@ dt = times[-1] / time_steps
 
 # compute OAT squeezing parameters
 sqz_OAT = squeezing_OAT(N, chi_times)
-t_opt_OAT = times[sqz_OAT.argmax()]
 print()
-print("t_opt_OAT (sec):", t_opt_OAT / recoil_energy_NU)
+print("t_opt_OAT (sec):", times[sqz_OAT.argmax()])
 print("sqz_opt_OAT (dB):", sqz_OAT.max())
 
 # compute Hamiltonian, spin vector, spin-spin matrix, and initial states for TVF and TAT,
@@ -164,13 +163,11 @@ sqz_TAT = np.array([ spin_squeezing(N, state_TAT[:,tt], S_op_vec, SS_op_mat)
 
 del state_TVF, state_TAT
 
-t_opt_TVF = times[sqz_TVF.argmax()]
-t_opt_TAT = times[sqz_TAT.argmax()]
 print()
-print("t_opt_TVF (sec):", t_opt_TVF / recoil_energy_NU)
+print("t_opt_TVF (sec):", times_SI[sqz_TVF.argmax()])
 print("sqz_opt_TVF (dB):", sqz_TVF.max())
 print()
-print("t_opt_TAT (sec):", t_opt_TAT / recoil_energy_NU)
+print("t_opt_TAT (sec):", times_SI[sqz_TAT.argmax()])
 print("sqz_opt_TAT (dB):", sqz_TAT.max())
 
 
@@ -179,9 +176,8 @@ print("sqz_opt_TAT (dB):", sqz_TAT.max())
 ##########################################################################################
 
 sqz_OAT_D = squeezing_OAT(N, chi_times, dec_rates[0])
-t_opt_OAT_D = times[sqz_OAT_D.argmax()]
 print()
-print("t_opt_OAT_D (sec):", t_opt_OAT_D / recoil_energy_NU)
+print("t_opt_OAT_D (sec):", times_SI[sqz_OAT_D.argmax()])
 print("sqz_opt_OAT_D (dB):", sqz_OAT_D.max())
 
 # construct Hamiltonians in (z,x,y) format
