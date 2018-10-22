@@ -693,21 +693,23 @@ def compute_correlators_diffeq(order_cap, chi_times, op_image_args,
 
     return { op : ivp_solution.y[op_idx[op],:] for op in squeezing_ops }
 
-# exact correlators for OAT with decoherence
-# derivations in foss-feig2013nonequilibrium
+# exact correlators for OAT with decoherence; derivations in foss-feig2013nonequilibrium
+# here D_\mu are decoherence rates associated with jump operators \sqrt{D_\mu} \sigma_\mu,
+#   which implies ( D_p, D_z, D_m ) = ( \Gamma_{du}, \Gamma_{el}/4, \Gamma_{ud} )
+#   for decoherence rates \Gamma_X appearing in foss-feig2013nonequilibrium
 def correlators_OAT(spin_num, chi_times, dec_rates):
     N = spin_num
     SS = spin_num/2
     t = chi_times
-    g_p, g_z, g_m = dec_rates
+    D_p, D_z, D_m = dec_rates
 
-    gam = -(g_p - g_m) / 2
-    lam = (g_p + g_m) / 2
-    rr = g_p * g_m
-    Gam = g_z/2 + lam
+    gam = -(D_p - D_m) / 2
+    lam = (D_p + D_m) / 2
+    rr = D_p * D_m
+    Gam = 2*D_z + lam
 
-    if g_m != 0 or g_p != 0:
-        Sz_unit = (g_p-g_m)/(g_p+g_m) * (1-np.exp(-(g_p+g_m)*t))
+    if D_m != 0 or D_p != 0:
+        Sz_unit = (D_p-D_m)/(D_p+D_m) * (1-np.exp(-(D_p+D_m)*t))
     else:
         Sz_unit = np.zeros(len(chi_times))
     Sz = SS * Sz_unit
