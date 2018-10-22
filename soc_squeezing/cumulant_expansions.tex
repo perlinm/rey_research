@@ -904,19 +904,16 @@ does not grow.
 
 The effect of decoherence via single-spin dephasing is described by
 \begin{align}
-  \D\p{\sigma_\z/\sqrt2; \O}
-  = \f12 \sum_j\p{\sigma_\z^{(j)} \O \sigma_\z^{(j)}
+  \D\p{\sigma_\z; \O}
+  = \sum_j\p{\sigma_\z^{(j)} \O \sigma_\z^{(j)}
     - \f12\sp{\sigma_\z^{(j)} \sigma_\z^{(j)},\O}_+}
-  = \f12 \sum_j \sigma_\z^{(j)} \O \sigma_\z^{(j)} - S \O,
+  = \sum_j \sigma_\z^{(j)} \O \sigma_\z^{(j)} - 2 S \O.
 \end{align}
-where the factor $\sqrt2$ is inserted as
-e.g.~$\D\p{\sigma_\z/\sqrt2;S_\mu}=-S_\mu$, such that the above
-expression generates decay of single-weight transverse collective spin
-operators at a unit rate.  From \eqref{eq:san_z_z}, we then have
+From \eqref{eq:san_z_z}, we then have
 \begin{align}
-  \D\p{\sigma_\z/\sqrt2; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
-  = -\p{\ell+n} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n
-  + 2 \ell n S_\mu^{\ell-1} \p{S + \mu S_\z}
+  \D\p{\sigma_\z; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  = -2\p{\ell+n} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n
+  + 4 \ell n S_\mu^{\ell-1} \p{S + \mu S_\z}
   \p{-1 + \mu S_\z}^m S_\bmu^{n-1}.
 \end{align}
 Decoherence via single-spin dephasing makes operators

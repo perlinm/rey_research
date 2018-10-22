@@ -303,7 +303,7 @@ def convert_zxy(vec_zxy, mu):
 # diagonal terms of single-spin decoherence
 def op_image_decoherence_diag_individual(op, SS, dec_vec, mu):
     ll, mm, nn = op
-    D_z, D_p, D_m = abs(np.array(dec_vec))**2
+    D_p, D_z, D_m = abs(np.array(dec_vec))**2
     if mu == 1:
         D_mu, D_nu = D_p, D_m
     else:
@@ -336,7 +336,7 @@ def op_image_decoherence_diag_individual(op, SS, dec_vec, mu):
 # single-spin decoherence "Q" cross term
 def op_image_decoherence_Q_individual(op, SS, dec_vec, mu):
     ll, mm, nn = op
-    g_z, g_p, g_m = dec_vec
+    g_p, g_z, g_m = dec_vec
     if mu == 1:
         g_mu, g_nu = g_p, g_m
     else:
@@ -381,7 +381,7 @@ def op_image_decoherence_Q_individual(op, SS, dec_vec, mu):
 # diagonal terms of collective-spin decoherence
 def op_image_decoherence_diag_collective(op, SS, dec_vec, mu):
     ll, mm, nn = op
-    D_z, D_p, D_m = abs(np.array(dec_vec))**2
+    D_p, D_z, D_m = abs(np.array(dec_vec))**2
     if mu == 1:
         D_mu, D_nu = D_p, D_m
     else:
@@ -416,7 +416,7 @@ def op_image_decoherence_diag_collective(op, SS, dec_vec, mu):
 # collective-spin decoherence "Q" cross term
 def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
     ll, mm, nn = op
-    g_z, g_p, g_m = dec_vec
+    g_p, g_z, g_m = dec_vec
     if mu == 1:
         g_mu, g_nu = g_p, g_m
     else:
@@ -469,12 +469,12 @@ def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
 
 # convert decoherence rates and transformation matrix to decoherence vectors
 def get_dec_vecs(dec_rates, dec_mat):
+    if dec_rates == []: return []
     dec_vecs = []
     for jj in range(3):
         dec_vec_g = dec_mat[:,jj] * np.sqrt(dec_rates[0][jj])
         dec_vec_G = dec_mat[:,jj] * np.sqrt(dec_rates[1][jj])
         if max(abs(dec_vec_g)) == 0 and max(abs(dec_vec_G)) == 0: continue
-        if jj == 0: dec_vec_g /= np.sqrt(2)
         dec_vecs.append((dec_vec_g,dec_vec_G))
     return dec_vecs
 
@@ -524,8 +524,7 @@ squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 
 # return correlators from evolution under a general Hamiltonian
 def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
-                        dec_rates = [(0,0,0),(0,0,0)], dec_mat = None,
-                        method = "taylor", mu = 1):
+                        dec_rates = [], dec_mat = None, method = "taylor", mu = 1):
     assert(method == "taylor" or method == "diffeq")
 
     state_sign, state_dir = initial_state
@@ -549,8 +548,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
         if state_dir == "Y":
             init_val_sign = lambda op : (-1)**op[1] * (1j*mu*nu)**(op[0]-op[2])
 
-    if dec_mat is None:
-        dec_mat = np.eye(3)
+    if dec_mat is None: dec_mat = np.eye(3)
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
     # arguments for computing operator pre-image under infinitesimal time translation
@@ -584,15 +582,16 @@ def compute_correlators_taylor(order_cap, chi_times, op_image_args,
         chop_operators = True
         h_vec, dec_vecs = op_image_args[0], op_image_args[-2]
         max_transverse_step = max( op[0] for op in h_vec.keys() )
+        pp, zz, mm = 0, 1, 2 # conventional ordering for decoherence vectors
         for vec in dec_vecs:
-            if vec[0][0] != 0: max_transverse_step = max(max_transverse_step,1)
-            if vec[0][1] != 0: max_transverse_step = max(max_transverse_step,2)
-            if vec[1][0] != 0:
-                if vec[1][1] != 0 or vec[1][2] != 0:
+            if vec[zz][zz] != 0: max_transverse_step = max(max_transverse_step,1)
+            if vec[zz][pp] != 0: max_transverse_step = max(max_transverse_step,2)
+            if vec[pp][zz] != 0:
+                if vec[pp][pp] != 0 or vec[pp][mm] != 0:
                     # through M_{\ell mn}
                     max_transverse_step = max(max_transverse_step,1)
-            if vec[1][1] != 0:
-                if vec[1][2] != 0:
+            if vec[pp][pp] != 0:
+                if vec[pp][mm] != 0:
                     # through \tilde P_{\ell mn}
                     max_transverse_step = max(max_transverse_step,2)
                 else:
@@ -700,12 +699,12 @@ def correlators_OAT(spin_num, chi_times, dec_rates):
     N = spin_num
     SS = spin_num/2
     t = chi_times
-    g_z, g_p, g_m = dec_rates
+    g_p, g_z, g_m = dec_rates
 
     gam = -(g_p - g_m) / 2
     lam = (g_p + g_m) / 2
     rr = g_p * g_m
-    Gam = g_z + lam
+    Gam = g_z/2 + lam
 
     if g_m != 0 or g_p != 0:
         Sz_unit = (g_p-g_m)/(g_p+g_m) * (1-np.exp(-(g_p+g_m)*t))
@@ -714,15 +713,18 @@ def correlators_OAT(spin_num, chi_times, dec_rates):
     Sz = SS * Sz_unit
     Sz_Sz = SS * (1/2 + (SS-1/2) * Sz_unit**2)
 
-    def s(J): return J + 1j*gam
-    def Phi(J):
-        z = np.sqrt(s(J)**2-rr)
+    def s(X): return X + 1j*gam
+    def sup_t_sinc(t,z): # e^(-\lambda t) t \sinc(t z)
+        if z != 0: return ( np.exp(-(lam-1j*z)*t) - np.exp(-(lam+1j*z)*t) ) / 2j / z
+        else: return np.exp(-lam*t) * t
+    def Phi(X):
+        z = np.sqrt(s(X)**2-rr)
         val_cos = ( np.exp(-(lam-1j*z)*t) + np.exp(-(lam+1j*z)*t) ) / 2
-        val_sin = lam/z * ( np.exp(-(lam-1j*z)*t) - np.exp(-(lam+1j*z)*t) ) / 2j
+        val_sin = lam * sup_t_sinc(t,z)
         return val_cos + val_sin
-    def Psi(J):
-        z = np.sqrt(s(J)**2-rr)
-        return (1j*s(J)-gam)/z * ( np.exp(-(lam-1j*z)*t) - np.exp(-(lam+1j*z)*t) ) / 2j
+    def Psi(X):
+        z = np.sqrt(s(X)**2-rr)
+        return (1j*s(X)-gam) * sup_t_sinc(t,z)
 
     Sp = SS * np.exp(-Gam*t) * Phi(1)**(N-1)
     Sp_Sz = -1/2 * Sp + SS * (SS-1/2) * np.exp(-Gam*t) * Psi(1) * Phi(1)**(N-2)
