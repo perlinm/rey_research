@@ -109,30 +109,46 @@ def spin_squeezing(spin_num, state, S_op_vec, SS_op_mat, in_dB = True):
     return squeezing
 
 # return  from a set of spin correlators
-def squeezing_from_correlators(spin_num, correlators, in_dB = True):
-    Sz    = correlators[(0,1,0)]
-    Sz_Sz = correlators[(0,2,0)]
-    Sp    = correlators[(1,0,0)]
-    Sp_Sp = correlators[(2,0,0)]
-    Sp_Sz = correlators[(1,1,0)]
-    Sp_Sm = correlators[(1,0,1)]
+def squeezing_from_correlators(spin_num, correlators, in_dB = True, zxy_basis = False):
+    if not zxy_basis:
+        Sz    = correlators[(0,1,0)]
+        Sz_Sz = correlators[(0,2,0)]
+        Sp    = correlators[(1,0,0)]
+        Sp_Sp = correlators[(2,0,0)]
+        Sp_Sz = correlators[(1,1,0)]
+        Sp_Sm = correlators[(1,0,1)]
 
-    Sx = np.real(Sp)
-    Sy = np.imag(Sp)
+        Sx = np.real(Sp)
+        Sy = np.imag(Sp)
 
-    Sm_Sm = np.conj(Sp_Sp)
-    Sm_Sp = Sp_Sm - 2*Sz
-    Sm_Sz = np.conj(Sp_Sz + Sp)
+        Sm_Sm = np.conj(Sp_Sp)
+        Sm_Sp = Sp_Sm - 2*Sz
+        Sm_Sz = np.conj(Sp_Sz + Sp)
 
-    Sx_Sz =   1/2 * ( Sp_Sz + Sm_Sz )
-    Sy_Sz = -1j/2 * ( Sp_Sz - Sm_Sz )
-    Sz_Sx = np.conj(Sx_Sz)
-    Sz_Sy = np.conj(Sy_Sz)
+        Sx_Sz =   1/2 * ( Sp_Sz + Sm_Sz )
+        Sy_Sz = -1j/2 * ( Sp_Sz - Sm_Sz )
+        Sz_Sx = np.conj(Sx_Sz)
+        Sz_Sy = np.conj(Sy_Sz)
 
-    Sx_Sx =   1/4 * ( Sp_Sp + Sm_Sm + Sp_Sm + Sm_Sp )
-    Sy_Sy =  -1/4 * ( Sp_Sp + Sm_Sm - Sp_Sm - Sm_Sp )
-    Sx_Sy = -1j/4 * ( Sp_Sp - Sm_Sm - Sp_Sm + Sm_Sp )
-    Sy_Sx = np.conj(Sx_Sy)
+        Sx_Sx =   1/4 * ( Sp_Sp + Sm_Sm + Sp_Sm + Sm_Sp )
+        Sy_Sy =  -1/4 * ( Sp_Sp + Sm_Sm - Sp_Sm - Sm_Sp )
+        Sx_Sy = -1j/4 * ( Sp_Sp - Sm_Sm - Sp_Sm + Sm_Sp )
+        Sy_Sx = np.conj(Sx_Sy)
+    else:
+        Sz    = correlators[(1,0,0)]
+        Sx    = correlators[(0,1,0)]
+        Sy    = correlators[(0,0,1)]
+        Sz_Sz = correlators[(2,0,0)]
+        Sx_Sx = correlators[(0,2,0)]
+        Sy_Sy = correlators[(0,0,2)]
+
+        Sz_Sx = correlators[(1,1,0)]
+        Sz_Sy = correlators[(1,0,1)]
+        Sx_Sy = correlators[(0,1,1)]
+
+        Sx_Sz = Sz_Sx
+        Sy_Sz = Sz_Sy
+        Sy_Sx = Sx_Sy
 
     S_vec = np.array([ Sz, Sx, Sy ]).T
     SS_mat = np.array([ [ Sz_Sz, Sz_Sx, Sz_Sy ],
