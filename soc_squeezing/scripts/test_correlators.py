@@ -8,7 +8,7 @@ import itertools, scipy
 from correlator_methods import compute_correlators
 
 from random import random, seed
-seed(1)
+seed(0)
 
 I2 = qt.qeye(2)
 up = qt.basis(2,0)
@@ -70,16 +70,15 @@ dec_vecs_G = []
 for jj in range(3):
     dec_vec_g = dec_mat[:,jj] * np.sqrt(dec_rates[0][jj])
     dec_vec_G = dec_mat[:,jj] * np.sqrt(dec_rates[1][jj])
-    if jj == 0: dec_vec_g /= np.sqrt(2)
     if not max(dec_vec_g) == 0:
         dec_vecs_g.append(dec_vec_g)
     if not max(dec_vec_G) == 0:
         dec_vecs_G.append(dec_vec_G)
 
 # jump operators
-gams_g = [ vec[0] * s_z_j[jj] + vec[1] * s_p_j[jj] + vec[2] * s_m_j[jj]
+gams_g = [ vec[0] * s_p_j[jj] + vec[1] * s_z_j[jj] + vec[2] * s_m_j[jj]
            for jj in range(N) for vec in dec_vecs_g ]
-gams_G = [ vec[0] * S_z + vec[1] * S_p + vec[2] * S_m
+gams_G = [ vec[0] * S_p + vec[1] * S_z + vec[2] * S_m
            for vec in dec_vecs_G ]
 gams = gams_g + gams_G
 ggs = [ gams[jj].dag() * gams[jj] for jj in range(len(gams)) ]
