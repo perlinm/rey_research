@@ -5,8 +5,8 @@
 import numpy as np
 import scipy.sparse as sparse
 import scipy.linalg as linalg
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
@@ -37,11 +37,15 @@ def spin_op_y_dicke(N):
     Sm = spin_op_m_dicke(N)
     return ( Sm - Sm.T ) * 1j / 2
 
-def spin_op_vec_mat_dicke(N):
+def spin_op_vec_dicke(N):
     Sz = spin_op_z_dicke(N)
     Sm = spin_op_m_dicke(N)
     Sx = ( Sm + Sm.T ) / 2
     Sy = ( Sm - Sm.T ) * 1j / 2
+    return [ Sz, Sx, Sy ]
+
+def spin_op_vec_mat_dicke(N):
+    Sz, Sx, Sy = spin_op_vec_dicke(N)
 
     Szz = Sz.dot(Sz)
     Sxx = Sx.dot(Sx)
