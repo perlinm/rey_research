@@ -40,8 +40,9 @@ def op_mat(J, pows, ops = {}):
         return ops[J,pows]
 
 # matrix representation of sinple-spin jump operator \gamma
+# note that 2*s_z is the Pauli-z operator
 def decoherence_op(dec_vec):
-    return dec_vec[0] * s_p + dec_vec[1] * s_z + dec_vec[2] * s_m
+    return dec_vec[0] * s_p + dec_vec[1] * 2*s_z + dec_vec[2] * s_m
 
 # \gamma^\dag \gamma for jump operator \gamma
 def gg_mat(dec):
@@ -86,19 +87,23 @@ def P_JM(N, J, M, d_J, d_M):
     if d_J == 0:
         if d_M == 0: coeff = M
         else: coeff = np.sqrt((J-d_M*M) * (J+d_M*M+1))
-        return np.sqrt( (2+N) / (4*J*(J+1)) ) * coeff
+        P_JM = np.sqrt( (2+N) / (4*J*(J+1)) ) * coeff
 
     if d_J == -1:
         if d_M == 0: coeff = (J-M)*(J+M)
         else: coeff = (J-d_M*M) * (J-d_M*M-1)
         sign = -1 if d_M == -1 else 1
-        return sign * np.sqrt( (N+2*J+2) / (4*J*(2*J+1)) * coeff )
+        P_JM = sign * np.sqrt( (N+2*J+2) / (4*J*(2*J+1)) * coeff )
 
     if d_J == 1:
         if d_M == 0: coeff = (J-M+1)*(J+M+1)
         else: coeff = (J+d_M*M+1) * (J+d_M*M+2)
         sign = -1 if d_M == 1 else 1
-        return sign * np.sqrt( (N-2*J) / (4*(J+1)*(2*J+1)) * coeff )
+        P_JM = sign * np.sqrt( (N-2*J) / (4*(J+1)*(2*J+1)) * coeff )
+
+    # add a factor of 2 for dephasing-type decoherence due to our choice of conventions
+    # for decoherence rates
+    return P_JM * ( 2 if d_M == 0 else 1 )
 
 # jump transition amplitude vectors
 def P_J(N, J, d_J, d_M, vecs = {}):
@@ -157,7 +162,7 @@ def correlators_from_trajectories(spin_num, chi_times, initial_state, h_vec, tra
             exit()
     dec_vecs = [ vecs[0] for vecs in dec_vecs ]
 
-    correlator_mat_shape = (trajectories,len(squeezing_ops),time_steps)
+    correlator_mat_shape = (trajectories,len(squeezing_ops),chi_times.size)
     correlator_mat = np.zeros(correlator_mat_shape, dtype = complex)
 
     for trajectory in range(trajectories):
@@ -197,8 +202,8 @@ def correlators_from_trajectories(spin_num, chi_times, initial_state, h_vec, tra
                                                    for tt in range(times.size) ])
 
             # determine indices times at which we wish to save correlators
-            interp_time_idx = (save_times >= times[0]) & (save_times <= times[-1])
-            interp_times = save_times[interp_time_idx]
+            interp_time_idx = (chi_times >= times[0]) & (chi_times <= times[-1])
+            interp_times = chi_times[interp_time_idx]
 
             # compute correlators at desired times by interpolation
             for op_idx in range(len(squeezing_ops)):
