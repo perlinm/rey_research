@@ -18,14 +18,14 @@ from dicke_methods import plot_dicke_state
 np.random.seed(0)
 
 time_steps = 100
-trajectories = 100
+trajectories = 1000
 ivp_tolerance = 1e-10
 
 N = 10
 h_pzm = { (0,2,0) : 1 }
-dec_rates = [ (0,0,2) ]
+dec_rates = [ (0,5,0) ]
 
-dec_ops = [ (np.sqrt(a/2),np.sqrt(b),np.sqrt(c)) for a,b,c in dec_rates ]
+dec_ops = [ (np.sqrt(a),np.sqrt(b/2),np.sqrt(c)) for a,b,c in dec_rates ]
 
 sqz_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 max_time = 2 * N**(-2/3)
@@ -36,8 +36,6 @@ s_i = np.array([[1,0],[0,1]])
 s_z = np.array([[1,0],[0,-1]])
 s_p = np.array([[0,1],[0,0]])
 s_m = np.array([[0,0],[1,0]])
-s_x = s_p + s_m
-s_y = -1j * ( s_p - s_m )
 
 def base_ops(J, base_ops = {}):
     try:
@@ -54,9 +52,8 @@ def op_mat(J, pows, ops = {}):
         ops[J,pows] = S_m.T**pows[0] * S_z**pows[1] * S_m**pows[2]
         return ops[J,pows]
 
-
 def g_op(dec):
-    return dec[0] * s_z + dec[1] * s_p + dec[2] * s_m
+    return dec[0] * s_p + dec[1] * s_z + dec[2] * s_m
 
 def gg_mat(dec):
     g = g_op(dec)
@@ -64,11 +61,9 @@ def gg_mat(dec):
 
 def jumps(J):
     S_z, S_m = base_ops(J)
-    S_x = ( S_m + S_m.T ) / 2
-    S_y = ( S_m - S_m.T ) * 1j / 2
     S_i = sparse.identity(int(2*J)+1)
     return [ sum( np.trace(op.conj().T @ gg_mat(dec)) * OP
-                  for op, OP in [ (s_i,N/2*S_i), (s_z,S_z), (s_x,S_x), (s_y,S_y) ] )
+                  for op, OP in [ (s_i,N/2*S_i), (s_z,S_z), (s_p,S_m.T), (s_m,S_m) ] )
              for dec in dec_ops ]
 
 def build_H_eff(J, h_pzm):
@@ -106,16 +101,16 @@ def transform(state, d_J, dec_op, P_J_mat):
 
     state_new = np.zeros(int(2*J+1), dtype = complex)
     if d_J == 0:
-        if dec_op[0] != 0: state_new      += dec_op[0] * P_J_mat[d_J,0]      * state
-        if dec_op[1] != 0: state_new[1:]  += dec_op[1] * P_J_mat[d_J,1][:-1] * state[:-1]
+        if dec_op[1] != 0: state_new      += dec_op[1] * P_J_mat[d_J,0]      * state
+        if dec_op[0] != 0: state_new[1:]  += dec_op[0] * P_J_mat[d_J,1][:-1] * state[:-1]
         if dec_op[2] != 0: state_new[:-1] += dec_op[2] * P_J_mat[d_J,-1][1:] * state[1:]
     elif d_J == 1:
-        if dec_op[0] != 0: state_new[1:-1] += dec_op[0] * P_J_mat[d_J,0]  * state
-        if dec_op[1] != 0: state_new[2:]   += dec_op[1] * P_J_mat[d_J,1]  * state
+        if dec_op[1] != 0: state_new[1:-1] += dec_op[1] * P_J_mat[d_J,0]  * state
+        if dec_op[0] != 0: state_new[2:]   += dec_op[0] * P_J_mat[d_J,1]  * state
         if dec_op[2] != 0: state_new[:-2]  += dec_op[2] * P_J_mat[d_J,-1] * state
     elif d_J == -1:
-        if dec_op[0] != 0: state_new += dec_op[0] * P_J_mat[d_J,0][1:-1] * state[1:-1]
-        if dec_op[1] != 0: state_new += dec_op[1] * P_J_mat[d_J,1][:-2]  * state[:-2]
+        if dec_op[1] != 0: state_new += dec_op[1] * P_J_mat[d_J,0][1:-1] * state[1:-1]
+        if dec_op[0] != 0: state_new += dec_op[0] * P_J_mat[d_J,1][:-2]  * state[:-2]
         if dec_op[2] != 0: state_new += dec_op[2] * P_J_mat[d_J,-1][2:]  * state[2:]
 
     return state_new / np.sqrt(np.dot(state_new.conj(),state_new))
@@ -187,18 +182,18 @@ for trajectory in range(trajectories):
         P_J_mat = { (d_J,d_M) : P_J(J,d_J,d_M) for d_J in [1,0,-1] for d_M in [1,0,-1] }
         probs = np.zeros((len(dec_ops),3))
         for dec_idx in range(len(dec_ops)):
-            for d_J in [ -1, 0, 1 ]:
+            for d_J in [ 1, 0, -1 ]:
                 dec = dec_ops[dec_idx]
-                probs[dec_idx,-d_J+1] \
-                    = sum( sqr_norm(dec[-d_M+1] * P_J_mat[d_J,d_M] * state)
-                           for d_M in [1,0,-1] if dec[-d_M+1] != 0 )
+                probs[dec_idx,1-d_J] \
+                    = sum( sqr_norm(dec[1-d_M] * P_J_mat[d_J,d_M] * state)
+                           for d_M in [1,0,-1] if dec[1-d_M] != 0 )
 
         # choose which decoherence operator to use
         dec_choice = choose_index(probs.sum(1))
         dec_op = dec_ops[dec_choice]
 
         # choose which branch of J --> J+1, J, J-1 to follow
-        d_J = -choose_index(probs[dec_choice,:]) + 1
+        d_J = 1 - choose_index(probs[dec_choice,:])
         J += d_J
 
         # transform state according to jump, and rebuild Hamiltonian if necessary
