@@ -276,7 +276,7 @@ def dec_mat_drive(A):
     return const + A * var
 
 # convert vector from (z,x,y) format to (mu,z,bmu) format
-def convert_zxy(vec_zxy, mu):
+def convert_zxy(vec_zxy, mu = 1):
     vec = {}
     # define vectors for (2 * Sx) and (-i * 2 * Sy)
     Sx_2 = { (1,0,0) : 1,
