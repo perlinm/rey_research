@@ -23,9 +23,9 @@ ivp_tolerance = 1e-10
 
 N = 10
 h_pzm = { (0,2,0) : 1 }
-dec_rates = [ (0,5,0) ]
+dec_rates = [ (2,0,0), (0,2,0), (0,0,2) ]
 
-dec_ops = [ (np.sqrt(a),np.sqrt(b/2),np.sqrt(c)) for a,b,c in dec_rates ]
+dec_ops = [ (np.sqrt(a),np.sqrt(b),np.sqrt(c)) for a,b,c in dec_rates ]
 
 sqz_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 max_time = 2 * N**(-2/3)
@@ -33,7 +33,7 @@ save_times = np.linspace(0,max_time,time_steps)
 save_times_idx = np.arange(time_steps)
 
 s_i = np.array([[1,0],[0,1]])
-s_z = np.array([[1,0],[0,-1]])
+s_z = np.array([[1,0],[0,-1]]) / 2
 s_p = np.array([[0,1],[0,0]])
 s_m = np.array([[0,0],[1,0]])
 
@@ -63,7 +63,7 @@ def jumps(J):
     S_z, S_m = base_ops(J)
     S_i = sparse.identity(int(2*J)+1)
     return [ sum( np.trace(op.conj().T @ gg_mat(dec)) * OP
-                  for op, OP in [ (s_i,N/2*S_i), (s_z,S_z), (s_p,S_m.T), (s_m,S_m) ] )
+                  for op, OP in [ (s_i/2,N*S_i), (s_z,2*S_z), (s_p,S_m.T), (s_m,S_m) ] )
              for dec in dec_ops ]
 
 def build_H_eff(J, h_pzm):
@@ -183,9 +183,9 @@ for trajectory in range(trajectories):
         probs = np.zeros((len(dec_ops),3))
         for dec_idx in range(len(dec_ops)):
             for d_J in [ 1, 0, -1 ]:
-                dec = dec_ops[dec_idx]
+                dec = dec_rates[dec_idx]
                 probs[dec_idx,1-d_J] \
-                    = sum( sqr_norm(dec[1-d_M] * P_J_mat[d_J,d_M] * state)
+                    = sum( dec[1-d_M] * sqr_norm(P_J_mat[d_J,d_M] * state)
                            for d_M in [1,0,-1] if dec[1-d_M] != 0 )
 
         # choose which decoherence operator to use
@@ -205,9 +205,8 @@ correlators = { sqz_ops[op_idx] : correlator_mat[:,op_idx,:].mean(0)
 sqz_test = squeezing_from_correlators(N, correlators)
 plt.plot(sqz_test, "k.")
 
-
 sqz_OAT = squeezing_OAT(N, save_times)
-sqz_OAT_D = squeezing_OAT(N, save_times, dec_rates[0])
+sqz_OAT_D = squeezing_OAT(N, save_times, (2,2,2))
 
 plt.plot(sqz_OAT, "b-")
 plt.plot(sqz_OAT_D, "r-")
