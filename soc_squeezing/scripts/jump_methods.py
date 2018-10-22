@@ -5,38 +5,24 @@
 import numpy as np
 import scipy.sparse as sparse
 import scipy.interpolate as interpolate
-import matplotlib.pyplot as plt
 
 from scipy.integrate import solve_ivp
-from math import factorial
 
 from dicke_methods import spin_op_z_dicke, spin_op_m_dicke, coherent_spin_state
-from squeezing_methods import squeezing_from_correlators, squeezing_OAT
+from correlator_methods import get_dec_vecs, squeezing_ops, convert_zxy
 
-from dicke_methods import plot_dicke_state
 
-np.random.seed(0)
+# squared norm of vector
+def sqr_norm(vec):
+    return abs(np.dot(vec.conj(),vec))
 
-time_steps = 100
-trajectories = 1000
-ivp_tolerance = 1e-10
-
-N = 10
-h_pzm = { (0,2,0) : 1 }
-dec_rates = [ (2,0,0), (0,2,0), (0,0,2) ]
-
-dec_ops = [ (np.sqrt(a),np.sqrt(b),np.sqrt(c)) for a,b,c in dec_rates ]
-
-sqz_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
-max_time = 2 * N**(-2/3)
-save_times = np.linspace(0,max_time,time_steps)
-save_times_idx = np.arange(time_steps)
-
+# single-spin pauli operators
 s_i = np.array([[1,0],[0,1]])
 s_z = np.array([[1,0],[0,-1]]) / 2
 s_p = np.array([[0,1],[0,0]])
 s_m = np.array([[0,0],[1,0]])
 
+# collective S_z and S_m operators for net spin J
 def base_ops(J, base_ops = {}):
     try:
         return base_ops[J]
@@ -44,6 +30,7 @@ def base_ops(J, base_ops = {}):
         base_ops[J] =  [ spin_op_z_dicke(int(2*J)), spin_op_m_dicke(int(2*J)) ]
         return base_ops[J]
 
+# collective operators of the form S_+^ll S_z^mm S_-^nn
 def op_mat(J, pows, ops = {}):
     try:
         return ops[J,pows]
@@ -52,25 +39,46 @@ def op_mat(J, pows, ops = {}):
         ops[J,pows] = S_m.T**pows[0] * S_z**pows[1] * S_m**pows[2]
         return ops[J,pows]
 
-def g_op(dec):
-    return dec[0] * s_p + dec[1] * s_z + dec[2] * s_m
+# matrix representation of sinple-spin jump operator \gamma
+def decoherence_op(dec_vec):
+    return dec_vec[0] * s_p + dec_vec[1] * s_z + dec_vec[2] * s_m
 
+# \gamma^\dag \gamma for jump operator \gamma
 def gg_mat(dec):
-    g = g_op(dec)
-    return g.conj().T @ g
+    g_vec = decoherence_op(dec)
+    return g_vec.conj().T @ g_vec
 
-def jumps(J):
-    S_z, S_m = base_ops(J)
-    S_i = sparse.identity(int(2*J)+1)
-    return [ sum( np.trace(op.conj().T @ gg_mat(dec)) * OP
-                  for op, OP in [ (s_i/2,N*S_i), (s_z,2*S_z), (s_p,S_m.T), (s_m,S_m) ] )
-             for dec in dec_ops ]
+# \sum_\gamma \gamma^\dag \gamma over all jump operators \gamma
+def eff_jump_ops(N, J, dec_vecs, ops = {}):
+    if dec_vecs != []: hashable_decs = tuple(np.hstack(dec_vecs))
+    else: hashable_decs = 0
+    try:
+        return ops[N,J,hashable_decs]
+    except:
+        S_z, S_m = base_ops(J)
+        N_I = N * sparse.identity(int(2*J)+1)
+        ops[N,J,hashable_decs] = [ sum( np.trace(op.conj().T @ gg_mat(dec_vec)) * OP
+                                        for op, OP in [ (s_i/2,N_I), (s_z,2*S_z),
+                                                        (s_p,S_m.T), (s_m,S_m) ] )
+                                   for dec_vec in dec_vecs ]
+        return ops[N,J,hashable_decs]
 
-def build_H_eff(J, h_pzm):
-    return ( sum( val * op_mat(J, pows) for pows, val in h_pzm.items() )
-             - 1j/2 * sum( jump for jump in jumps(J) ) )
+# build Hamiltonian for coherent evolution
+def build_H(N, J, h_pzm, built_H = {}):
+    hashable_h_pzm = tuple([ (*op, val) for op, val in h_pzm.items() ])
+    try:
+        return built_H[N,J,hashable_h_pzm]
+    except:
+        built_H[N,J,hashable_h_pzm] \
+            = sum( val * op_mat(J, pows) for pows, val in h_pzm.items() )
+        return built_H[N,J,hashable_h_pzm]
 
-def P_JM(J, M, d_J, d_M):
+# build effective Hamiltonian
+def build_H_eff(N, J, h_pzm, dec_vecs):
+    return build_H(N, J, h_pzm) - 1j/2 * sum( op for op in eff_jump_ops(N,J,dec_vecs) )
+
+# jump transition amplitudes
+def P_JM(N, J, M, d_J, d_M):
     assert(d_J == 0 or d_J == -1 or d_J == 1)
     assert(d_M == 0 or d_M == -1 or d_M == 1)
     if J == 0 and d_J != 1: return 0
@@ -92,10 +100,17 @@ def P_JM(J, M, d_J, d_M):
         sign = -1 if d_M == 1 else 1
         return sign * np.sqrt( (N-2*J) / (4*(J+1)*(2*J+1)) * coeff )
 
-def P_J(J, d_J, d_M):
-    return np.array([ P_JM(J, -J+mm, d_J, d_M) for mm in range(int(2*J+1)) ])
+# jump transition amplitude vectors
+def P_J(N, J, d_J, d_M, vecs = {}):
+    try:
+        return vecs[N,J,d_J,d_M]
+    except:
+        vecs[N,J,d_J,d_M] = \
+            np.array([ P_JM(N, J, -J+mm, d_J, d_M) for mm in range(int(2*J+1)) ])
+        return vecs[N,J,d_J,d_M]
 
-def transform(state, d_J, dec_op, P_J_mat):
+# transform a state according to a quantum jump
+def jump_state(state, d_J, dec_op, P_J_mat):
     J = (state.size-1)/2 + d_J
     if J == 0: return np.array([1], dtype = complex)
 
@@ -115,102 +130,142 @@ def transform(state, d_J, dec_op, P_J_mat):
 
     return state_new / np.sqrt(np.dot(state_new.conj(),state_new))
 
-def sqr_norm(vec):
-    return abs(np.dot(vec.conj(),vec))
-
-def correlator(J, op, state):
+# compute expectation value of given operator with respect to a given state
+def correlator(op, state):
+    J = (state.size-1)/2
     return state.conj() @ op_mat(J,op) @  state / sqr_norm(state)
 
-def choose_index(probabilities):
-    probabilities /= probabilities.sum()
+# choose an index at random, given some probability distribution
+def choose_index(probs):
+    probs /= probs.sum()
     choice = np.random.rand()
     idx = 0
-    while choice > probabilities[:idx+1].sum():
+    while choice > probs[:idx+1].sum():
         idx += 1
     return idx
 
-correlator_mat = np.zeros((trajectories,len(sqz_ops),time_steps), dtype = complex)
+# compute correlators via the quantum jump method
+def correlators_from_trajectories(spin_num, chi_times, initial_state, h_vec, trajectories,
+                                  dec_rates = [], dec_mat = None, ivp_tolerance = 1e-10):
+    max_time = chi_times[-1]
+    h_pzm = convert_zxy(h_vec)
+    if dec_mat is None: dec_mat = np.eye(3)
+    dec_vecs = get_dec_vecs(dec_rates, dec_mat)
+    for dec_vec in dec_vecs:
+        if np.sum(dec_vec[1]) != 0:
+            print("quantum jumps with collective decoherence not yet implemented!")
+            exit()
+    dec_vecs = [ vecs[0] for vecs in dec_vecs ]
 
-for trajectory in range(trajectories):
-    J = N/2
-    state = coherent_spin_state([0,1,0], N)
-    H_eff = build_H_eff(J, h_pzm)
+    correlator_mat_shape = (trajectories,len(squeezing_ops),time_steps)
+    correlator_mat = np.zeros(correlator_mat_shape, dtype = complex)
 
-    time = 0
-    while time < max_time:
+    for trajectory in range(trajectories):
+        J = spin_num/2
+        state = initial_state
+        H_eff = build_H_eff(spin_num, J, h_pzm, dec_vecs)
 
-        # construct time derivative operator
-        def time_derivative(time, state):
-            return -1j * H_eff @ state
+        time = 0
+        while time < max_time:
 
-        # construct dec event that returns zero when we do a jump
-        jump_norm = np.random.random()
-        def dec_event(time, state):
-            return abs(state.conj() @ state) - jump_norm
-        dec_event.terminal = True
-        dec_event.direction = 0
+            # construct time derivative operator
+            def time_derivative(time, state):
+                return -1j * H_eff @ state
 
-        # simulate until a jump occurs
-        ivp_solution = solve_ivp(time_derivative, (time, max_time), state,
-                                 events = dec_event, rtol = ivp_tolerance)
-        times = ivp_solution.t
-        states = ivp_solution.y
+            # construct dec event that returns zero when we do a jump
+            jump_norm = np.random.random()
+            def dec_event(time, state):
+                return sqr_norm(state) - jump_norm
+            dec_event.terminal = True
+            dec_event.direction = 0
 
-        # set current time and state
-        time = times[-1]
-        state = states[:,-1] / np.sqrt(sqr_norm(states[:,-1]))
+            # simulate until a jump occurs
+            ivp_solution = solve_ivp(time_derivative, (time, max_time), state,
+                                     events = dec_event, rtol = ivp_tolerance)
+            times = ivp_solution.t
+            states = ivp_solution.y
 
-        # compute correlators at save points
-        correlators = { op : np.array([ correlator(J, op, states[:,tt])
-                                        for tt in range(times.size) ])
-                        for op in sqz_ops }
+            # set current time and state
+            time = times[-1]
+            state = states[:,-1] / np.sqrt(sqr_norm(states[:,-1]))
 
-        # determine indices times at which we wish to save correlators
-        interp_time_idx = (save_times >= times[0]) & (save_times <= times[-1])
-        interp_times = save_times[interp_time_idx]
+            # compute correlators at save points
+            correlators = np.zeros((len(squeezing_ops),times.size), dtype = complex)
+            for op_idx in range(len(squeezing_ops)):
+                op = squeezing_ops[op_idx]
+                correlators[op_idx,:] = np.array([ correlator(op, states[:,tt])
+                                                   for tt in range(times.size) ])
 
-        # compute correlators at desired times by interpolation
-        for op_idx in range(len(sqz_ops)):
-            op_interp = interpolate.interp1d(times,correlators[sqz_ops[op_idx]])
-            correlator_mat[trajectory,op_idx,interp_time_idx] = op_interp(interp_times)
+            # determine indices times at which we wish to save correlators
+            interp_time_idx = (save_times >= times[0]) & (save_times <= times[-1])
+            interp_times = save_times[interp_time_idx]
 
-        # if there are no decoherence operators
-        #   or the ivp solver terminated by reaching the maximum time, skip the jump
-        if len(dec_ops) == 0 or ivp_solution.status == 0: continue
+            # compute correlators at desired times by interpolation
+            for op_idx in range(len(squeezing_ops)):
+                op_interp = interpolate.interp1d(times,correlators[op_idx,:])
+                correlator_mat[trajectory,op_idx,interp_time_idx] \
+                    = op_interp(interp_times)
 
-        # compute jump probabilities for each operater and change in net spin J
-        P_J_mat = { (d_J,d_M) : P_J(J,d_J,d_M) for d_J in [1,0,-1] for d_M in [1,0,-1] }
-        probs = np.zeros((len(dec_ops),3))
-        for dec_idx in range(len(dec_ops)):
-            for d_J in [ 1, 0, -1 ]:
-                dec = dec_rates[dec_idx]
-                probs[dec_idx,1-d_J] \
-                    = sum( dec[1-d_M] * sqr_norm(P_J_mat[d_J,d_M] * state)
-                           for d_M in [1,0,-1] if dec[1-d_M] != 0 )
+            # if there are no decoherence operators
+            #   or the ivp solver terminated by reaching the maximum time, skip the jump
+            if len(dec_vecs) == 0 or ivp_solution.status == 0: continue
 
-        # choose which decoherence operator to use
-        dec_choice = choose_index(probs.sum(1))
-        dec_op = dec_ops[dec_choice]
+            # compute jump probabilities for each operater and change in net spin J
+            P_J_mat = { (d_J,d_M) : P_J(spin_num,J,d_J,d_M)
+                        for d_J in [1,0,-1] for d_M in [1,0,-1] }
+            probs = np.zeros((len(dec_vecs),3))
+            for dec_idx in range(len(dec_vecs)):
+                dec_vec = dec_vecs[dec_idx]
+                for d_J in [ 1, 0, -1 ]:
+                    probs[dec_idx,1-d_J] \
+                        = sum( sqr_norm(dec_vec[1-d_M] * P_J_mat[d_J,d_M] * state)
+                               for d_M in [1,0,-1] if dec_vec[1-d_M] != 0 )
 
-        # choose which branch of J --> J+1, J, J-1 to follow
-        d_J = 1 - choose_index(probs[dec_choice,:])
-        J += d_J
+            # choose which decoherence operator to use
+            dec_choice = choose_index(probs.sum(1))
+            dec_op = dec_vecs[dec_choice]
 
-        # transform state according to jump, and rebuild Hamiltonian if necessary
-        state = transform(state, d_J, dec_op, P_J_mat)
-        if d_J != 0: H_eff = build_H_eff(J, h_pzm)
+            # choose which branch of J --> J+1, J, J-1 to follow
+            d_J = 1 - choose_index(probs[dec_choice,:])
+            J += d_J
 
-correlators = { sqz_ops[op_idx] : correlator_mat[:,op_idx,:].mean(0)
-                for op_idx in range(len(sqz_ops)) }
-sqz_test = squeezing_from_correlators(N, correlators)
+            # transform state according to jump, and rebuild Hamiltonian if necessary
+            state = jump_state(state, d_J, dec_op, P_J_mat)
+            if d_J != 0: H_eff = build_H_eff(spin_num, J, h_pzm, dec_vecs)
+
+    # average over all trajectories
+    correlators = { squeezing_ops[op_idx] : correlator_mat[:,op_idx,:].mean(0)
+                    for op_idx in range(len(squeezing_ops)) }
+
+    return correlators
+
+##########################################################################################
+
+from squeezing_methods import squeezing_from_correlators, squeezing_OAT
+import matplotlib.pyplot as plt
+
+
+np.random.seed(0)
+
+time_steps = 100
+trajectories = 1000
+
+spin_num = 100
+h_vec = { (2,0,0) :  1/3,
+          (0,0,2) : -1/3 }
+dec_rates = [ (1,1,1), (0,0,0) ]
+
+max_time = 2 * spin_num**(-2/3)
+save_times = np.linspace(0,max_time,time_steps)
+save_times_idx = np.arange(time_steps)
+
+initial_state = coherent_spin_state([0,1,0],spin_num)
+correlators = correlators_from_trajectories(spin_num, save_times, initial_state,
+                                            h_vec, trajectories, dec_rates)
+
+
+sqz_test = squeezing_from_correlators(spin_num, correlators)
 plt.plot(sqz_test, "k.")
-
-sqz_OAT = squeezing_OAT(N, save_times)
-sqz_OAT_D = squeezing_OAT(N, save_times, (2,2,2))
-
-plt.plot(sqz_OAT, "b-")
-plt.plot(sqz_OAT_D, "r-")
-
 
 ###################################################################################################
 tat_file = "/home/perlinm/Workspace/MATLAB/correlators_TAT.txt"
