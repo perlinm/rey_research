@@ -150,7 +150,7 @@ def choose_index(probs):
     return idx
 
 # compute correlators via the quantum jump method
-def correlators_from_trajectories(spin_num, chi_times, initial_state, h_vec, trajectories,
+def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_state, h_vec,
                                   dec_rates = [], dec_mat = None, ivp_tolerance = 1e-10,
                                   print_updates = True):
     max_time = chi_times[-1]

@@ -43,7 +43,7 @@ lattice_depth_bounds = (1,15) # min / max lattice depths we will allow
 confining_depth = 60 # lattice depth along confining axis
 
 time_steps = 200 # time steps in plot
-ivp_tolerance = 1e-5 # relative error tolerance in numerical integrator
+ivp_tolerance = 1e-10 # relative error tolerance in numerical integrator
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
 
 h_U_target = 0.05 # target value of h_std / U_int
@@ -134,7 +134,7 @@ dt = times[-1] / time_steps
 # compute OAT squeezing parameters
 sqz_OAT = squeezing_OAT(N, chi_times)
 print()
-print("t_opt_OAT (sec):", times[sqz_OAT.argmax()])
+print("t_opt_OAT (sec):", times_SI[sqz_OAT.argmax()])
 print("sqz_opt_OAT (dB):", sqz_OAT.max())
 
 # compute Hamiltonian, spin vector, spin-spin matrix, and initial states for TVF and TAT,
@@ -173,28 +173,30 @@ print("t_opt_OAT_D (sec):", times_SI[sqz_OAT_D.argmax()])
 print("sqz_opt_OAT_D (dB):", sqz_OAT_D.max())
 
 # construct TAT Hamiltonian in (z,x,y) format
-h_TAT = { (0,0,2) : +1/3,       # S_y^2 - S_x^2
-          (0,2,0) : -1/3 }
+h_TAT = { (2,0,0) : +1/3,
+          (0,0,2) : -1/3 }
+init_state = "+X"
+init_state_vec = coherent_spin_state([0,1,0], N)
 
-# compute correlators and squeezing for benchmarking
-correlators_TAT_B = compute_correlators(N, order_cap, chi_times, "-Z", h_TAT)
+# construct spin transformation matrix for the TAT protocol
+dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy))
+
+# compute correlators and squeezing without dechoerence for benchmarking
+correlators_TAT_B = compute_correlators(N, order_cap, chi_times, init_state, h_TAT)
 sqz_TAT_B = squeezing_from_correlators(N, correlators_TAT_B)
 
 del correlators_TAT_B
 
-# construct spin transformation matrix for the TAT protocol
-dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_yx_1))
-
 # compute correlators and squeezing with decoherence
-correlators_TAT_D = compute_correlators(N, order_cap, chi_times, "-Z", h_TAT, dec_rates,
-                                        dec_mat_TAT)
+correlators_TAT_D = compute_correlators(N, order_cap, chi_times, init_state, h_TAT,
+                                        dec_rates, dec_mat_TAT)
 sqz_TAT_D = squeezing_from_correlators(N, correlators_TAT_D)
 
 del correlators_TAT_D
 
-initial_state = coherent_spin_state([-1,0,0], N)
-correlators_TAT_J = correlators_from_trajectories(N, chi_times, initial_state, h_TAT,
-                                                  trajectories, dec_rates, dec_mat_TAT)
+# compute correlators and squeezing using the quantum jump method
+jump_args = [ N, trajectories, chi_times, init_state_vec, h_TAT, dec_rates, dec_mat_TAT ]
+correlators_TAT_J = correlators_from_trajectories(*jump_args)
 sqz_TAT_J = squeezing_from_correlators(N, correlators_TAT_J)
 
 del correlators_TAT_J
