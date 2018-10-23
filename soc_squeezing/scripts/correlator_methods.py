@@ -267,12 +267,12 @@ def multiply_vecs(vec_left, vec_right, prefactor = 1):
 #   J_0 is the zero-order bessel function of the first kind
 #   \beta is the modulation index
 def dec_mat_drive(A):
-    const = np.array([[ 0, 0, 0 ],
-                      [ 0, 1, 1 ],
-                      [ 0, 1, 1 ]]) * 1/2
-    var = np.array([[ 2,  0,  0 ],
-                    [ 0,  1, -1 ],
-                    [ 0, -1,  1 ]]) * 1/2
+    const = np.array([[ 1, 0, 1 ],
+                      [ 0, 0, 0 ],
+                      [ 1, 0, 1 ]]) * 1/2
+    var = np.array([[  1, 0, -1 ],
+                    [  0, 2,  0 ],
+                    [ -1, 0,  1 ]]) * 1/2
     return const + A * var
 
 # convert vector from (z,x,y) format to (mu,z,bmu) format
@@ -652,8 +652,7 @@ def compute_correlators_taylor(order_cap, chi_times, op_image_args,
 
 # compute correlators by solving an initial value problem (i.e. differential equation)
 def compute_correlators_diffeq(order_cap, chi_times, op_image_args,
-                               init_ln_val, init_val_sign,
-                               ivp_tolerance = 1e-5):
+                               init_ln_val, init_val_sign, ivp_tolerance = 1e-10):
     op_num = 0 # counts number of operaters we keep track of
     op_idx = {} # dictionary taking operator to unique integer index
 
