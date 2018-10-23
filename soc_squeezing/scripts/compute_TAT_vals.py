@@ -8,25 +8,24 @@ from correlator_methods import compute_correlators, dec_mat_drive
 from jump_methods import correlators_from_trajectories
 
 if len(sys.argv[1:]) != 3:
-    print(f"usage: {sys.argv[0]} lattice_depth lattice_size method")
+    print(f"usage: {sys.argv[0]} method lattice_depth lattice_size")
     exit()
 
-assert(len(sys.argv[1]) == 3)
-lattice_depth = float(sys.argv[1])
-lattice_size = int(sys.argv[2])
-method = sys.argv[3]
+method = sys.argv[1]
 assert(method in [ "exact", "jump" ])
-use_exact = method == "exact"
+assert(len(sys.argv[2]) == 3)
+lattice_depth = float(sys.argv[2])
+lattice_size = int(sys.argv[3])
 
 data_dir = "../data/"
 output_dir = data_dir + "TAT/"
-file_name = "_".join(sys.argv[1:][::-1]) + ".txt"
+file_name = "_".join(sys.argv[1:]) + ".txt"
 
 lattice_dim = 2
 confining_depth = 60 # recoil energies
 excited_lifetime_SI = 10 # seconds
 order_cap = 70
-trajectories = 1000
+trajectories = 10
 time_steps = 100
 
 recoil_energy_NU = 21801.397815091557
@@ -57,6 +56,10 @@ J = get_val_1D(lattice_depth, "J_0.txt")
 U = get_val_2D(lattice_depth, confining_depth, f"U_int_{lattice_dim}D.txt")
 phi = get_val_2D(lattice_depth, confining_depth, f"phi_opt_{lattice_dim}D.txt")
 
+if None in [ J, U, phi ]:
+    print("could not find value for J, U, or phi... you should inquire")
+    exit()
+
 h_std = 2**(1+lattice_dim/2)*J*np.sin(phi/2)
 chi = h_std**2 / U / (spin_num-1)
 
@@ -72,10 +75,10 @@ init_state = "+X"
 init_state_vec = coherent_spin_state([0,1,0], spin_num)
 dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy))
 
-if use_exact:
+if method == "exact":
     op_vals = compute_correlators(spin_num, order_cap, times, init_state, h_TAT,
                                   dec_rates, dec_mat_TAT, return_derivs = True)
-else:
+if method == "jump":
     op_vals = correlators_from_trajectories(spin_num, trajectories, times, init_state_vec,
                                             h_TAT, dec_rates, dec_mat_TAT)
 

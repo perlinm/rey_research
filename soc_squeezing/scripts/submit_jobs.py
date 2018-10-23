@@ -2,31 +2,25 @@
 
 import os, sys
 
-
 if len(sys.argv[1:]) != 3:
-    print(f"usage: {sys.argv[0]} lattice_depth lattice_size method")
+    print(f"usage: {sys.argv[0]} method lattice_depth lattice_size")
     exit()
 
-assert(len(sys.argv[1]) == 3)
-lattice_depth = float(sys.argv[1])
-lattice_size = int(sys.argv[2])
-method = sys.argv[3]
+method = sys.argv[1]
 
-spin_num = lattice_depth**2
-jump = "jump"
-exact = "exact"
+spin_num = int(sys.argv[3])**2
 
-assert(method in [ jump, exact ])
-
-if method == jump:
+if method == "jump":
     memory_cap = "1G"
-if method == exact:
+elif method == "exact":
     memory_cap = "2G"
+else:
+    print("method must be one of 'jump' or 'exact'")
+    exit()
 
-basename = "_".join(sys.argv[1:][::-1])
+basename = "_".join(sys.argv[1:])
 
-header = f"""
-#!/bin/bash
+header = f"""#!/bin/sh
 
 #SBATCH --partition=nistq,jila
 #SBATCH --mem={memory_cap}
