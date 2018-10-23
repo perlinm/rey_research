@@ -25,7 +25,7 @@ lattice_dim = 2
 confining_depth = 60 # recoil energies
 excited_lifetime_SI = 10 # seconds
 order_cap = 70
-trajectories = 10
+trajectories = 1000
 time_steps = 100
 
 recoil_energy_NU = 21801.397815091557
@@ -75,17 +75,22 @@ init_state = "+X"
 init_state_vec = coherent_spin_state([0,1,0], spin_num)
 dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy))
 
+header = f"# lattice_dim: {lattice_dim}\n"
+header += f"# confining depth (E_R): {confining_depth}\n"
 if method == "exact":
+    header += f"# order_cap: {order_cap}\n"
     op_vals = compute_correlators(spin_num, order_cap, times, init_state, h_TAT,
                                   dec_rates, dec_mat_TAT, return_derivs = True)
 if method == "jump":
+    header += f"# trajectories: {trajectories}\n"
+    header += f"# time_steps: {time_steps}\n"
     op_vals = correlators_from_trajectories(spin_num, trajectories, times, init_state_vec,
                                             h_TAT, dec_rates, dec_mat_TAT)
 
 if not os.path.isdir(output_dir): os.mkdir(output_dir)
 
 with open(output_dir + file_name, "w") as f:
-    ops = [ str(op) for op, _ in op_vals.items() ]
-    f.write("# operators: " + " ".join(ops) + "\n")
+    f.write(header)
+    f.write("# operators: " + " ".join([ str(op) for op, _ in op_vals.items() ]) + "\n")
     for _, vals in op_vals.items():
         f.write(" ".join([ str(val) for val in vals ]) + "\n")
