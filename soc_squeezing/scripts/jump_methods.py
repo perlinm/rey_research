@@ -8,8 +8,8 @@ import scipy.interpolate as interpolate
 
 from scipy.integrate import solve_ivp
 
-from dicke_methods import spin_op_z_dicke, spin_op_m_dicke, coherent_spin_state
-from correlator_methods import get_dec_vecs, squeezing_ops, convert_zxy
+from dicke_methods import spin_op_z_dicke, spin_op_m_dicke
+from correlator_methods import get_dec_vecs, convert_zxy, squeezing_ops
 
 
 # squared norm of vector
@@ -243,56 +243,3 @@ def correlators_from_trajectories(spin_num, chi_times, initial_state, h_vec, tra
                     for op_idx in range(len(squeezing_ops)) }
 
     return correlators
-
-##########################################################################################
-
-from squeezing_methods import squeezing_from_correlators, squeezing_OAT
-import matplotlib.pyplot as plt
-
-
-np.random.seed(0)
-
-time_steps = 100
-trajectories = 1000
-
-spin_num = 100
-h_vec = { (2,0,0) :  1/3,
-          (0,0,2) : -1/3 }
-dec_rates = [ (1,1,1), (0,0,0) ]
-
-max_time = 2 * spin_num**(-2/3)
-save_times = np.linspace(0,max_time,time_steps)
-save_times_idx = np.arange(time_steps)
-
-initial_state = coherent_spin_state([0,1,0],spin_num)
-correlators = correlators_from_trajectories(spin_num, save_times, initial_state,
-                                            h_vec, trajectories, dec_rates)
-
-
-sqz_test = squeezing_from_correlators(spin_num, correlators)
-plt.plot(sqz_test, "k.")
-
-###################################################################################################
-tat_file = "/home/perlinm/Workspace/MATLAB/correlators_TAT.txt"
-times, Z, X, Y, ZZ, XX, YY, ZX, ZY, XY = np.loadtxt(tat_file, delimiter = ",", unpack = True)
-with open(tat_file, "r") as f:
-    line = f.readline()
-    if "spin_num" in line:
-        spin_num = int(line.split()[-1])
-
-correlators = { (1,0,0) : Z,
-                (0,1,0) : X,
-                (0,0,1) : Y,
-                (2,0,0) : ZZ,
-                (0,2,0) : XX,
-                (0,0,2) : YY,
-                (1,1,0) : ZX,
-                (1,0,1) : ZY,
-                (0,1,1) : XY }
-
-sqz_test = squeezing_from_correlators(spin_num, correlators, zxy_basis = True)
-plt.plot(sqz_test, ".c")
-###################################################################################################
-
-
-plt.show()
