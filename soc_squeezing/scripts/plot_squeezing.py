@@ -9,11 +9,12 @@ from scipy.integrate import solve_ivp
 
 from mathieu_methods import mathieu_solution
 from overlap_methods import pair_overlap_1D, tunneling_1D
-from dicke_methods import spin_op_vec_mat_dicke
+from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state
 from fermi_hubbard_methods import sum, prod, get_simulation_parameters, spatial_basis, \
     get_c_op_mats, spin_op_vec_mat_FH, polarized_states_FH, gauged_energy, hamiltonians
 from squeezing_methods import spin_squeezing, squeezing_from_correlators, squeezing_OAT
 from correlator_methods import compute_correlators, dec_mat_drive, convert_zxy
+from jump_methods import correlators_from_trajectories
 
 from sr87_olc_constants import g_int_LU, recoil_energy_NU, recoil_energy_Hz
 
@@ -32,9 +33,10 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-L = [10]*2 # lattice sites
+L = [50]*2 # lattice sites
 order_cap = 40 # order limit for cumulant expansions
 U_J_target = 2 # target value of U_int / J_0
+trajectories = 100 # number of trajectories to use in quantum jump simulations
 
 site_number = 1000 # number of sites in lattice calculations
 lattice_depth_bounds = (1,15) # min / max lattice depths we will allow
@@ -141,31 +143,21 @@ S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
 S_op_vec = [ X[::2,::2] for X in S_op_vec ]
 SS_op_mat = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
 
-drive_TVF = N/2
-H_TVF = SS_op_mat[1][1] - drive_TVF * S_op_vec[0]
 H_TAT = 1/3 * ( SS_op_mat[1][2] + SS_op_mat[2][1] )
 
-def deriv_TVF(time, state): return -1j * H_TVF.dot(state)
 def deriv_TAT(time, state): return -1j * H_TAT.dot(state)
 
 init_nZ = np.zeros(S_op_vec[0].shape[0], dtype = complex)
 init_nZ[0] = 1
 
-state_TVF = solve_ivp(deriv_TVF, (0,chi_times[-1]), init_nZ,
-                      t_eval = chi_times, rtol = ivp_tolerance).y
 state_TAT = solve_ivp(deriv_TAT, (0,chi_times[-1]), init_nZ,
                       t_eval = chi_times, rtol = ivp_tolerance).y
 
-sqz_TVF = np.array([ spin_squeezing(N, state_TVF[:,tt], S_op_vec, SS_op_mat)
-                     for tt in range(chi_times.size) ])
 sqz_TAT = np.array([ spin_squeezing(N, state_TAT[:,tt], S_op_vec, SS_op_mat)
                      for tt in range(chi_times.size) ])
 
-del state_TVF, state_TAT
+del state_TAT
 
-print()
-print("t_opt_TVF (sec):", times_SI[sqz_TVF.argmax()])
-print("sqz_opt_TVF (dB):", sqz_TVF.max())
 print()
 print("t_opt_TAT (sec):", times_SI[sqz_TAT.argmax()])
 print("sqz_opt_TAT (dB):", sqz_TAT.max())
@@ -180,32 +172,32 @@ print()
 print("t_opt_OAT_D (sec):", times_SI[sqz_OAT_D.argmax()])
 print("sqz_opt_OAT_D (dB):", sqz_OAT_D.max())
 
-# construct Hamiltonians in (z,x,y) format
-h_OAT = { (2,0,0) : 1 }         # S_z^2
-h_TVF = { (2,0,0) : 1,          # Sz^2 + drive_TVF * S_x
-          (0,1,0) : drive_TVF }
+# construct TAT Hamiltonian in (z,x,y) format
 h_TAT = { (0,0,2) : +1/3,       # S_y^2 - S_x^2
           (0,2,0) : -1/3 }
 
 # compute correlators and squeezing for benchmarking
-correlators_TVF_B = compute_correlators(N, order_cap//2, chi_times, "+X", h_TVF)
 correlators_TAT_B = compute_correlators(N, order_cap, chi_times, "-Z", h_TAT)
-sqz_TVF_B = squeezing_from_correlators(N, correlators_TVF_B)
 sqz_TAT_B = squeezing_from_correlators(N, correlators_TAT_B)
 
-del correlators_TVF_B, correlators_TAT_B
+del correlators_TAT_B
 
 # construct spin transformation matrix for the TAT protocol
 dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_yx_1))
 
 # compute correlators and squeezing with decoherence
-correlators_TVF_D = compute_correlators(N, order_cap//2, chi_times, "+X", h_TVF, dec_rates)
 correlators_TAT_D = compute_correlators(N, order_cap, chi_times, "-Z", h_TAT, dec_rates,
                                         dec_mat_TAT)
-sqz_TVF_D = squeezing_from_correlators(N, correlators_TVF_D)
 sqz_TAT_D = squeezing_from_correlators(N, correlators_TAT_D)
 
-del correlators_TVF_D, correlators_TAT_D
+del correlators_TAT_D
+
+initial_state = coherent_spin_state([-1,0,0], N)
+correlators_TAT_J = correlators_from_trajectories(N, chi_times, initial_state, h_TAT,
+                                                  trajectories, dec_rates, dec_mat_TAT)
+sqz_TAT_J = squeezing_from_correlators(N, correlators_TAT_J)
+
+del correlators_TAT_J
 
 
 ##########################################################################################
@@ -224,13 +216,11 @@ if N <= fermi_N_max:
     H_SS = H_lat - U_int / prod(L) * sum([ SS_op_mat[ii][ii] for ii in range(3) ])
     H_free = H_lat + H_int
 
-    H_static = H_free + chi * N/2 * H_clock
     def H_periodic(t):
         return H_free + drive_mod_index_yx_1 * omega * np.cos(omega * t) * H_clock
 
     def deriv_SS(time, state): return -1j * H_SS.dot(state)
     def deriv_free(time, state): return -1j * H_free.dot(state)
-    def deriv_static(time, state): return -1j * H_static.dot(state)
     def deriv_periodic(time, state): return -1j * H_periodic(time).dot(state)
 
     state_z, state_x, state_y = [ state.toarray().flatten().astype(complex)
@@ -238,15 +228,12 @@ if N <= fermi_N_max:
 
     init_SS = state_y.copy()
     init_free = state_y.copy()
-    init_static = state_x.copy()
     init_periodic = state_z.copy()
 
     state_SS = solve_ivp(deriv_SS, (0,times[-1]), init_SS,
                          t_eval = times, max_step = times[1]).y
     state_free = solve_ivp(deriv_free, (0,times[-1]), init_free,
                            t_eval = times, max_step = times[1]).y
-    state_static = solve_ivp(deriv_static, (0,times[-1]), init_static,
-                             t_eval = times, max_step = times[1]).y
     state_periodic = solve_ivp(deriv_periodic, (0,times[-1]), init_periodic,
                                t_eval = times, max_step = times[1]).y
 
@@ -255,12 +242,10 @@ if N <= fermi_N_max:
                         for tt in range(times.size) ])
     sqz_free = np.array([ spin_squeezing(N, state_free[:,tt], *S_ops)
                           for tt in range(times.size) ])
-    sqz_static = np.array([ spin_squeezing(N, state_static[:,tt], *S_ops)
-                            for tt in range(times.size) ])
     sqz_periodic = np.array([ spin_squeezing(N, state_periodic[:,tt], *S_ops)
                               for tt in range(times.size) ])
 
-    del state_SS, state_free, state_static, state_periodic
+    del state_SS, state_free, state_periodic
 
 
 ##########################################################################################
@@ -272,7 +257,6 @@ def plot_lim_idx(sqz_vals):
     if where[0] != 0: return where[0]
     else: return where[1]
 
-
 plt.figure(figsize = figsize)
 
 if L.size == 1: L_text = str(L[0])
@@ -283,14 +267,6 @@ plt.title(title)
 line_OAT, = plt.plot(times_SI, sqz_OAT, label = "OAT")
 plt.plot(times_SI, sqz_OAT_D, ":", color = line_OAT.get_color())
 
-line_TVF, = plt.plot(times_SI, sqz_TVF, label = "TVF")
-lim_TVF_B = plot_lim_idx(sqz_TVF_B)
-plt.plot(times_SI[:lim_TVF_B], sqz_TVF_B[:lim_TVF_B],
-         "--", color = line_TVF.get_color())
-lim_TVF_D = plot_lim_idx(sqz_TVF_D)
-plt.plot(times_SI[:lim_TVF_D], sqz_TVF_D[:lim_TVF_D],
-         ":", color = line_TVF.get_color())
-
 line_TAT, = plt.plot(times_SI, sqz_TAT, label = "TAT")
 lim_TAT_B = plot_lim_idx(sqz_TAT_B)
 plt.plot(times_SI[:lim_TAT_B], sqz_TAT_B[:lim_TAT_B],
@@ -298,11 +274,11 @@ plt.plot(times_SI[:lim_TAT_B], sqz_TAT_B[:lim_TAT_B],
 lim_TAT_D = plot_lim_idx(sqz_TAT_D)
 plt.plot(times_SI[:lim_TAT_D], sqz_TAT_D[:lim_TAT_D],
          ":", color = line_TAT.get_color())
+plt.plot(times_SI, sqz_TAT_J, ".", color = line_TAT.get_color())
 
 try:
     plt.plot(times_SI, sqz_SS, label = "SS")
     plt.plot(times_SI, sqz_free, label = "FH (free)")
-    plt.plot(times_SI, sqz_static, label = "FH (static)")
     plt.plot(times_SI, sqz_periodic, label = "FH (periodic)")
 except: None
 
