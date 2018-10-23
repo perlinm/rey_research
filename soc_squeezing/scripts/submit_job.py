@@ -12,8 +12,10 @@ spin_num = int(sys.argv[3])**2
 
 if method == "jump":
     memory_cap = "1G"
+    cores = 4
 elif method == "exact":
     memory_cap = "2G"
+    cores = 1
 else:
     print("method must be one of 'jump' or 'exact'")
     exit()
@@ -26,7 +28,7 @@ header = f"""#!/bin/sh
 #SBATCH --mem={memory_cap}
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task={cores}
 #SBATCH --job-name={basename}
 #SBATCH --output=./logs/{basename}.o
 #SBATCH --error=./logs/{basename}.e

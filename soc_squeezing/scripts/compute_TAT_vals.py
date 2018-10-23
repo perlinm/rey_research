@@ -3,9 +3,13 @@
 import os, sys, scipy
 import numpy as np
 
+from time import time as system_time
+
 from dicke_methods import coherent_spin_state
 from correlator_methods import compute_correlators, dec_mat_drive
 from jump_methods import correlators_from_trajectories
+
+start_time = system_time()
 
 if len(sys.argv[1:]) != 3:
     print(f"usage: {sys.argv[0]} method lattice_depth lattice_size")
@@ -14,10 +18,10 @@ if len(sys.argv[1:]) != 3:
 method = sys.argv[1]
 assert(method in [ "exact", "jump" ])
 assert(len(sys.argv[2]) == 3)
-lattice_depth = float(sys.argv[2])
+lattice_depth = sys.argv[2]
 lattice_size = int(sys.argv[3])
 
-data_dir = "../data/"
+data_dir = os.path.dirname(os.path.realpath(__file__)) + "/../data/"
 output_dir = data_dir + "TAT/"
 file_name = "_".join(sys.argv[1:]) + ".txt"
 
@@ -34,30 +38,40 @@ drive_mod_index_zy = 0.9057195866712102
 spin_num = lattice_size**lattice_dim
 
 def get_val_1D(depth, file_name):
-    with open(data_dir + "J_0.txt", "r") as f:
+    file_path = data_dir + file_name
+    if not os.path.isfile(file_path):
+        print(f"cannot find data file: {file_path}")
+        exit()
+    with open(file_path, "r") as f:
         for line in f:
             if line[0] == "#": continue
-            if float(line.split(",")[0]) == lattice_depth:
-                return float(line.split(",")[-1])
+            if line.split(",")[0][:len(depth)] == depth:
+                return float(line.split(",")[1])
 
 def get_val_2D(depth, confinement, file_name):
+    file_path = data_dir + file_name
+    if not os.path.isfile(file_path):
+        print(f"cannot find data file: {file_path}")
+        exit()
     conf_idx = None
-    with open(data_dir + f"U_int_{lattice_dim}D.txt", "r") as f:
+    with open(file_path, "r") as f:
         for line in f:
             if line[0] == "#": continue
             if conf_idx == None:
-                conf_idx = [ int(x) for x in line[1:].split(",") ].index(confinement) + 1
+                conf_idx = [ int(x) for x in line.split(",")[1:] ].index(confinement) + 1
                 continue
-            vals = [ float(x) for x in line.split(",") ]
-            if vals[0] == depth:
-                return vals[conf_idx]
+            if line.split(",")[0][:len(depth)] == depth:
+                return float(line.split(",")[conf_idx])
 
 J = get_val_1D(lattice_depth, "J_0.txt")
 U = get_val_2D(lattice_depth, confining_depth, f"U_int_{lattice_dim}D.txt")
 phi = get_val_2D(lattice_depth, confining_depth, f"phi_opt_{lattice_dim}D.txt")
 
 if None in [ J, U, phi ]:
-    print("could not find value for J, U, or phi... you should inquire")
+    print("could not find values for J, U, or phi... you should inquire")
+    print(f"J: {J}")
+    print(f"U: {U}")
+    print(f"phi: {phi}")
     exit()
 
 h_std = 2**(1+lattice_dim/2)*J*np.sin(phi/2)
@@ -94,3 +108,5 @@ with open(output_dir + file_name, "w") as f:
     f.write("# operators: " + " ".join([ str(op) for op, _ in op_vals.items() ]) + "\n")
     for _, vals in op_vals.items():
         f.write(" ".join([ str(val) for val in vals ]) + "\n")
+
+print(f"runtime (seconds): {system_time()-start_time}")
