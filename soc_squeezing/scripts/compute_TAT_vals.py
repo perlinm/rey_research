@@ -2,7 +2,6 @@
 
 import os, sys, scipy
 import numpy as np
-import pandas as pd
 
 from dicke_methods import coherent_spin_state
 from correlator_methods import compute_correlators, dec_mat_drive
@@ -21,11 +20,12 @@ use_exact = method == "exact"
 
 data_dir = "../data/"
 output_dir = data_dir + "TAT/"
+file_name = "_".join(sys.argv[1:][::-1]) + ".txt"
 
 lattice_dim = 2
 confining_depth = 60 # recoil energies
 excited_lifetime_SI = 10 # seconds
-order_cap = 60
+order_cap = 70
 trajectories = 1000
 time_steps = 100
 
@@ -34,13 +34,28 @@ drive_mod_index_zy = 0.9057195866712102
 
 spin_num = lattice_size**lattice_dim
 
-def pd_read_1D(fname):
-    return pd.read_csv(fname, comment = "#", squeeze = True, header = None, index_col = 0)
-def pd_read_2D(fname):
-    return pd.read_csv(fname, comment = "#", header = 0, index_col = 0)
-J = pd_read_1D(data_dir + "J_0.txt")[lattice_depth]
-U, phi = [ pd_read_2D(data_dir + fname).at[lattice_depth,str(confining_depth)]
-           for fname in [ f"U_int_{lattice_dim}D.txt", f"phi_opt_{lattice_dim}D.txt" ] ]
+def get_val_1D(depth, file_name):
+    with open(data_dir + "J_0.txt", "r") as f:
+        for line in f:
+            if line[0] == "#": continue
+            if float(line.split(",")[0]) == lattice_depth:
+                return float(line.split(",")[-1])
+
+def get_val_2D(depth, confinement, file_name):
+    conf_idx = None
+    with open(data_dir + f"U_int_{lattice_dim}D.txt", "r") as f:
+        for line in f:
+            if line[0] == "#": continue
+            if conf_idx == None:
+                conf_idx = [ int(x) for x in line[1:].split(",") ].index(confinement) + 1
+                continue
+            vals = [ float(x) for x in line.split(",") ]
+            if vals[0] == depth:
+                return vals[conf_idx]
+
+J = get_val_1D(lattice_depth, "J_0.txt")
+U = get_val_2D(lattice_depth, confining_depth, f"U_int_{lattice_dim}D.txt")
+phi = get_val_2D(lattice_depth, confining_depth, f"phi_opt_{lattice_dim}D.txt")
 
 h_std = 2**(1+lattice_dim/2)*J*np.sin(phi/2)
 chi = h_std**2 / U / (spin_num-1)
@@ -66,7 +81,7 @@ else:
 
 if not os.path.isdir(output_dir): os.mkdir(output_dir)
 
-with open(output_dir + "_".join(sys.argv[1:][::-1]) + ".txt", "w") as f:
+with open(output_dir + file_name, "w") as f:
     ops = [ str(op) for op, _ in op_vals.items() ]
     f.write("# operators: " + " ".join(ops) + "\n")
     for _, vals in op_vals.items():
