@@ -151,7 +151,8 @@ def choose_index(probs):
 
 # compute correlators via the quantum jump method
 def correlators_from_trajectories(spin_num, chi_times, initial_state, h_vec, trajectories,
-                                  dec_rates = [], dec_mat = None, ivp_tolerance = 1e-10):
+                                  dec_rates = [], dec_mat = None, ivp_tolerance = 1e-10,
+                                  print_updates = True):
     max_time = chi_times[-1]
     h_pzm = convert_zxy(h_vec)
     if dec_mat is None: dec_mat = np.eye(3)
@@ -166,6 +167,7 @@ def correlators_from_trajectories(spin_num, chi_times, initial_state, h_vec, tra
     correlator_mat = np.zeros(correlator_mat_shape, dtype = complex)
 
     for trajectory in range(trajectories):
+        if print_updates: print(f"{trajectory}/{trajectories}")
         J = spin_num/2
         state = initial_state
         H_eff = build_H_eff(spin_num, J, h_pzm, dec_vecs)
