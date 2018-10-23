@@ -28,11 +28,12 @@ basename = "_".join(sys.argv[1:][::-1])
 header = f"""
 #!/bin/bash
 
-#SBATCH --partition=jila
+#SBATCH --partition=nistq,jila
 #SBATCH --mem={memory_cap}
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
+#SBATCH --job-name={basename}
 #SBATCH --output=./logs/{basename}.o
 #SBATCH --error=./logs/{basename}.e
 #SBATCH --time=01:00:00
