@@ -16,10 +16,9 @@ if len(sys.argv[1:]) != 3:
     exit()
 
 method = sys.argv[1]
-assert(method in [ "exact", "jump" ])
-assert(len(sys.argv[2]) == 3)
 lattice_depth = sys.argv[2]
 lattice_size = int(sys.argv[3])
+assert(method in [ "exact", "jump" ])
 
 data_dir = os.path.dirname(os.path.realpath(__file__)) + "/../data/"
 output_dir = data_dir + "TAT/"

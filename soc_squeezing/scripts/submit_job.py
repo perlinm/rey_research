@@ -13,9 +13,11 @@ spin_num = int(sys.argv[3])**2
 if method == "jump":
     memory_cap = "1G"
     cores = 4
+    time = "02:00:00"
 elif method == "exact":
     memory_cap = "2G"
     cores = 1
+    time = "01:00:00"
 else:
     print("method must be one of 'jump' or 'exact'")
     exit()
@@ -32,7 +34,7 @@ header = f"""#!/bin/sh
 #SBATCH --job-name={basename}
 #SBATCH --output=./logs/{basename}.o
 #SBATCH --error=./logs/{basename}.e
-#SBATCH --time=01:00:00
+#SBATCH --time={time}
 
 module load python3
 
