@@ -11,9 +11,13 @@ method = sys.argv[1]
 spin_num = int(sys.argv[3])**2
 
 if method == "jump":
-    memory_cap = "1G"
+    memory_cap = "4G"
     cores = 4
-    time = "02:00:00"
+    total_seconds = int(0.1 * int(sys.argv[3])**3.3)
+    hours = int(total_seconds // 60 // 60)
+    minutes = int(total_seconds // 60) % 60
+    seconds = int(total_seconds % 60)
+    time = f"{hours}:{minutes:02d}:{seconds:02d}"
 elif method == "exact":
     memory_cap = "2G"
     cores = 1
