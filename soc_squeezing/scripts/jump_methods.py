@@ -2,6 +2,7 @@
 
 # FILE CONTENTS: methods monte carlo simulations via the quantum jump method
 
+import sys
 import numpy as np
 import scipy.sparse as sparse
 import scipy.interpolate as interpolate
@@ -167,7 +168,9 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
     correlator_mat = np.zeros(correlator_mat_shape, dtype = complex)
 
     for trajectory in range(trajectories):
-        if print_updates: print(f"{trajectory}/{trajectories}")
+        if print_updates:
+            print(f"{trajectory}/{trajectories}")
+            sys.stdout.flush()
         J = spin_num/2
         state = initial_state
         H_eff = build_H_eff(spin_num, J, h_pzm, dec_vecs)
