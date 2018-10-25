@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 from numpy import matlib
 from scipy import interpolate
 from matplotlib import gridspec
-from matplotlib.ticker import FormatStrFormatter
 
 from sr87_olc_constants import recoil_energy_NU
 
