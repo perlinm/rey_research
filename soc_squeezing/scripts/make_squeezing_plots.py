@@ -19,8 +19,8 @@ data_dir = "../data/"
 fig_dir = "../figures/"
 
 method_TAT = "exact"
-depths_TAT = np.arange(2,9)
-sizes_TAT = np.arange(10,101,10)
+depths_TAT = np.arange(2,8.1,0.5)
+sizes_TAT = np.arange(10,101,5)
 
 depth_label = r"Lattice depth ($V_0/E_R$)"
 size_label = r"Linear lattice size ($\ell$)"
@@ -132,21 +132,34 @@ plt.close()
 # TAT squeezing with decoherence
 ##########################################################################################
 
-def get_sqz_floor(lattice_depth, lattice_size):
+def get_sqz_floor(method, lattice_depth, lattice_size):
 
-    file_name = data_dir + f"TAT/{method_TAT}_{lattice_depth:.1f}_{lattice_size}.txt"
+    file_name = data_dir + f"TAT/{method}_{lattice_depth}_{lattice_size}.txt"
     spin_num = int(lattice_size)**2
 
     correlators = {}
-    if method_TAT == "jump":
+    if method == "jump":
         data = np.loadtxt(file_name, dtype = complex)
         for op_idx in range(len(squeezing_ops)):
             op = squeezing_ops[op_idx]
             correlators[op] = data[op_idx,:]
 
+        plt.plot(squeezing_from_correlators(spin_num, correlators), "k.")
+
         return squeezing_from_correlators(spin_num, correlators).max()
 
-    if method_TAT == "exact":
+    if method == "exact":
+
+        # if we have previously computed the squeezing floor, use it
+        sqz_floor = None
+        with open(file_name, "r") as f:
+            for line in f:
+                if "sqz_floor" in line:
+                    sqz_floor = float(line.split()[-1])
+
+        if sqz_floor != None: return sqz_floor
+
+        # otherwise, calculate the squeezing floor
         derivs = np.loadtxt(file_name, dtype = complex)
         order_cap = derivs.shape[1]
 
@@ -171,18 +184,30 @@ def get_sqz_floor(lattice_depth, lattice_size):
             dd_sqz_idx = np.argmax(dd_sqz > 0) # index of first inflection point
 
             # if either index is zero, it means we did not actually find what we needed
-            if d_sqz_idx == 0:  d_sqz_idx = sqz.size
+            if  d_sqz_idx == 0:  d_sqz_idx = sqz.size
             if dd_sqz_idx == 0: dd_sqz_idx = sqz.size
 
             # the peak is at whichever event occurred first
             peak_idx = min(d_sqz_idx, dd_sqz_idx+1)
-            sqz_floors[order_idx] = sqz[peak_idx]
 
-        return sqz_floors.max()
+            # if we have no nans before the peak, use the squeezing value at the peak
+            # otherwise, use the maximum pre-nan squeezing value
+            if not np.isnan(sqz[:peak_idx+1]).any():
+                sqz_floors[order_idx] = sqz[peak_idx]
+            else:
+                nan_idx = np.argmax(np.isnan(sqz))
+                sqz_floors[order_idx] = sqz[:nan_idx].max()
+
+        # save squeezing floor to data file
+        sqz_floor = sqz_floors.max()
+        with open(file_name, "a") as f:
+            f.write(f"# sqz_floor: {sqz_floor}\n")
+
+        return sqz_floor
 
 sqz_TAT = np.zeros((depths_TAT.size,sizes_TAT.size))
 for idx, _ in np.ndenumerate(sqz_TAT):
-    sqz_TAT[idx] = get_sqz_floor(depths_TAT[idx[0]], sizes_TAT[idx[1]])
+    sqz_TAT[idx] = get_sqz_floor(method_TAT, depths_TAT[idx[0]], sizes_TAT[idx[1]])
 
 plot_sqz(depths_TAT, sizes_TAT, sqz_TAT)
 plt.savefig(fig_dir + f"optimization/sqz_opt_TAT_dec_L_2D.pdf",
