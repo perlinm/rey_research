@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 
 from scipy import interpolate
 from matplotlib import gridspec
-from matplotlib.ticker import FormatStrFormatter
 
 from correlator_methods import squeezing_ops
 from squeezing_methods import squeezing_from_correlators
