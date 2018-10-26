@@ -5,9 +5,11 @@
 import itertools, scipy
 import numpy as np
 
-from scipy.special import gamma, gammaln
-from scipy.special import binom as scipy_binom
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
+
+import mpmath as mp
+mp.mp.dps = 100
+mp.exp = np.vectorize(mp.exp)
 
 
 ##########################################################################################
@@ -18,28 +20,28 @@ from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 def factorial(nn, vals = {}):
     try: return vals[nn]
     except: None
-    vals[nn] = gamma(nn+1)
+    vals[nn] = mp.gamma(nn+1)
     return vals[nn]
 
 # logarithm of factorial
 def ln_factorial(nn, vals = {}):
     try: return vals[nn]
     except: None
-    vals[nn] = gammaln(nn+1)
+    vals[nn] = mp.loggamma(nn+1)
     return vals[nn]
 
 # binomial coefficient
 def binom(nn, kk, vals = {}):
     try: return vals[nn,kk]
     except: None
-    vals[nn,kk] = scipy_binom(nn,kk)
+    vals[nn,kk] = mp.binomial(nn,kk)
     return vals[nn,kk]
 
 # unsigned stirling number of the first kind
 def stirling(nn, kk, vals = {}):
     try: return vals[nn,kk]
     except: None
-    val = float(sympy_stirling(nn, kk, kind = 1, signed = False))
+    val = int(sympy_stirling(nn, kk, kind = 1, signed = False))
     vals[nn,kk] = val
     return val
 
@@ -132,15 +134,15 @@ def op_ln_val_X(op, SS, vals = {}):
 
     # compute the absolute value of terms divided by the largest term
     ln_term_max = ln_terms.max()
-    terms = np.exp(ln_terms-ln_term_max)
+    terms = mp.exp(ln_terms-ln_term_max)
 
     # compute the logarithm of the sum of the terms (up to an overall sign)
     if mm % 2 == 1:
         # we need te account for the sign of kk in each term
-        val = ln_term_max + np.log(np.abs(np.sum(np.sign(k_vals)*terms)))
+        val = ln_term_max + mp.log(abs(np.sum(np.sign(k_vals)*terms)))
     else:
         # the sign of the kk does not matter, as it is raised to an even power
-        val = ln_term_max + np.log(abs(np.sum(terms)))
+        val = ln_term_max + mp.log(abs(np.sum(terms)))
 
     vals[ll,mm,nn,SS] = val
     return val
@@ -165,7 +167,7 @@ def op_ln_val_Z_p(op, SS, vals = {}):
 def op_ln_val_Z_m(op, SS):
     ll, mm, nn = op
     if ll != 0 or nn != 0: return None
-    return mm*np.log(SS)
+    return mm*mp.log(mp.mpf(SS))
 
 
 ##########################################################################################
@@ -285,7 +287,7 @@ def convert_zxy(vec_zxy, mu = 1):
                (0,0,1) :  1 }
     for op_zxy, val_zxy in vec_zxy.items():
         ll, mm, nn = op_zxy
-        lmn_fac = 1j**nn * mu**(ll+nn) / 2**(mm+nn) * val_zxy
+        lmn_fac = val_zxy * 1j**nn * mu**(ll+nn) / 2**(mm+nn)
         # starting from the left, successively multiply all factors on the right
         lmn_vec = { (0,ll,0) : 1 }
         for jj in range(mm): lmn_vec = multiply_vecs(lmn_vec, Sx_2)
@@ -610,7 +612,7 @@ def compute_squeezing_derivs(order_cap, op_image_args, init_ln_val, init_val_sig
     diff_op = {} # single time derivative operator
     time_derivs = {} # [ sqz_op, derivative_order ] --> vector
     for sqz_op in squeezing_ops:
-        time_derivs[sqz_op,0] = { sqz_op : 1 }
+        time_derivs[sqz_op,0] = { sqz_op : mp.mpf(1) }
         for order in range(1,order_cap):
             # compute relevant matrix elements of the time derivative operator
             time_derivs[sqz_op,order] = {}
@@ -644,13 +646,13 @@ def compute_squeezing_derivs(order_cap, op_image_args, init_ln_val, init_val_sig
 
     derivs = {}
     for sqz_op in squeezing_ops:
-        derivs[sqz_op] = np.zeros(order_cap, dtype = complex)
+        derivs[sqz_op] = np.array([ mp.mpf(0) for ii in range(order_cap) ])
         for order in range(order_cap):
             for T_op, T_val in time_derivs[sqz_op,order].items():
                 init_ln_val = init_ln_vals[T_op]
                 if init_ln_val is None: continue
-                term_ln_mag = np.log(complex(T_val)) + init_ln_val
-                derivs[sqz_op][order] += np.exp(term_ln_mag) * init_val_sign(T_op)
+                term_ln_mag = mp.log(T_val) + init_ln_val
+                derivs[sqz_op][order] += mp.exp(term_ln_mag) * init_val_sign(T_op)
 
     return derivs
 
