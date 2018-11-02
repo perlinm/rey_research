@@ -17,19 +17,29 @@ confining_depth = 60
 data_dir = "../data/"
 fig_dir = "../figures/"
 
+sqz_methods = [ "OAT", "TAT" ]
+
 method_TAT = "exact"
-depths_TAT = np.arange(2,8.1,0.5)
+depths_TAT = np.arange(20,81,2)/10
 sizes_TAT = np.arange(10,101,5)
+
+color_map = "jet"
+dpi = 600
+
+font = { "family" : "serif" }
+plt.rc("font",**font)
+params = { "text.usetex" : True }
+plt.rcParams.update(params)
 
 depth_label = r"Lattice depth ($V_0/E_R$)"
 size_label = r"Linear lattice size ($\ell$)"
 sqz_label = r"$-10\log_{10}(\xi_{\mathrm{opt}}^2)$"
 U_J_label = r"$U/J$"
-time_label = r"$t_{\mathrm{opt}}$"
+time_label = r"$t_{\mathrm{opt}}$ (sec)"
 
-dpi = 600
-params = { "text.usetex" : True }
-plt.rcParams.update(params)
+phi_label = r"$(\phi/\pi)^{-1}$"
+t_J_label = r"$t_{\mathrm{opt}}\times J/2\pi$"
+
 
 def pd_read_1D(fname):
     return pd.read_csv(fname, comment = "#", squeeze = True, header = None, index_col = 0)
@@ -54,81 +64,145 @@ def make_U_axis(axis):
     ax.set_xlabel(U_J_label)
     return ax
 
+##########################################################################################
+# benchmarking figures
+##########################################################################################
+
+figsize = (6.5,3.5)
+
+# set up figure with eight panels
+fig, axes = plt.subplots(figsize = figsize, nrows = 2, ncols = 4)
+lines = [ "k-", "r:", "b--" ]
+labels = [ "FH", "spin", "OAT" ]
+line_order = [ 0, 2, 1 ]
+legend_order = [ 0, 2, 1 ]
+linewidth = 2
+
+bench_dir = data_dir + "model_benchmarking/"
+
+# load horizontal axis ranges
+U_vals = np.loadtxt(bench_dir + "U_range.dat")
+phi_vals = np.loadtxt(bench_dir + "phi_range.dat")
+
+# load and plot data
+for N, col_N in [ (12, 0), (9, 2) ]:
+    basename = bench_dir + f"L12N{N:02d}_"
+    data_U_sqz = np.loadtxt(basename + "phi_pi-50_sq.dat")
+    data_U_time = np.loadtxt(basename + "phi_pi-50_topt.dat")/(2*np.pi)
+    data_phi_sqz = np.loadtxt(basename + "U_2_sq.dat")
+    data_phi_time = np.loadtxt(basename + "U_2_topt.dat")/(2*np.pi)
+
+    for x_vals, y_vals, row, col in [ (U_vals, data_U_sqz.T, 0, col_N),
+                                      (U_vals, data_U_time.T, 1, col_N),
+                                      (phi_vals, data_phi_sqz.T, 0, col_N+1),
+                                      (phi_vals, data_phi_time.T, 1, col_N+1) ]:
+        for jj in line_order:
+            axes[row,col].plot(x_vals, y_vals[:,jj], lines[jj],
+                               label = labels[jj], linewidth = linewidth)
+
+# set axis range and ticks
+for row in range(2):
+    for col in range(2):
+        axes[row,2*col].set_xticks([0,4,8])
+        axes[row,2*col+1].set_xticks([0,50,100])
+for col in range(4):
+    axes[0,col].set_yticks([0,2,4,6])
+    ymin = axes[0,col].get_ylim()[0]
+    axes[0,col].set_ylim(ymin, 6 + abs(ymin))
+
+# set all axis labels
+axes[0,0].set_ylabel(sqz_label)
+axes[1,0].set_ylabel(t_J_label)
+
+axes[1,0].set_xlabel(U_J_label)
+axes[1,1].set_xlabel(phi_label)
+axes[1,2].set_xlabel(U_J_label)
+axes[1,3].set_xlabel(phi_label)
+
+# clear unused axis labels
+for col in range(4):
+    axes[0,col].set_xticklabels([])
+    if col > 0:
+        for row in range(2):
+            axes[row,col].set_yticklabels([])
+
+# set all titles
+axes[0,0].set_title(r"(a) $N=12$")
+axes[0,1].set_title(r"(b) $N=12$")
+axes[0,2].set_title(r"(c) $N=9$")
+axes[0,3].set_title(r"(d) $N=9$")
+
+handles, labels = axes[0,0].get_legend_handles_labels()
+handles = [ handles[jj] for jj in legend_order ]
+labels = [ labels[jj] for jj in legend_order ]
+axes[0,0].legend(handles, labels, loc = "best")
+plt.tight_layout()
+plt.savefig(fig_dir + "model_benchmarking.pdf")
+plt.close()
+
 
 ##########################################################################################
 # squeezing without decoherence
 ##########################################################################################
 
-figsize = (5,3)
+figsize = (6.5,3)
 
-for method in [ "OAT", "TAT" ]:
+# set up figure panel and linestyles
+ax = {}
+fig, ( ax_sqz, ax["OAT"], ax["TAT"], cax ) \
+    = plt.subplots(figsize = figsize, ncols = 4,
+                   gridspec_kw = { "width_ratios" : [1,2,2,0.1] })
+lines = { "OAT" : "k-",
+          "TAT" : "k--" }
+
+# exctract data to plot
+sqz_vals = {}
+t_opt = {}
+for method in sqz_methods:
     sqz_opt = pd_read_1D(data_dir + f"sqz_{method}.txt")
-    t_opt = pd_read_2D(data_dir + f"optimization/t_opt_{method}_L_2D.txt")
-    t_opt /= recoil_energy_NU
-    depths, sizes = t_opt.index, t_opt.columns
+    t_opt[method] = pd_read_2D(data_dir + f"optimization/t_opt_{method}_L_2D.txt")
+    t_opt[method] /= recoil_energy_NU
+    depths, sizes = t_opt[method].index, t_opt[method].columns
 
-    # set up figure with two panels
-    plt.figure(figsize = figsize)
-    grid = gridspec.GridSpec(1, 2, width_ratios = [ 1, 3 ])
-    ax_sqz = plt.subplot(grid[0])
-    ax_time = plt.subplot(grid[1])
-    ax_time.set_yticklabels([])
-
-    # plot optimal squeezing data
     sqz_interp = interpolate.interp1d(sqz_opt.index, sqz_opt.values)
-    sqz_vals = [ float(sqz_interp(L**2)) for L in sizes ]
-    ax_sqz.plot(sqz_vals, sizes, "k")
-    ax_sqz.set_ylim(sizes[0], sizes[-1])
-    ax_sqz.set_xlim(sqz_vals[0], sqz_vals[-1])
-    ax_sqz.set_xlabel(sqz_label, zorder = 1)
-    ax_sqz.set_ylabel(size_label, zorder = 1)
+    sqz_vals[method] = np.array([ float(sqz_interp(L**2)) for L in sizes ])
 
-    # plot optimal time data
-    mesh = ax_time.pcolormesh(depths, sizes, t_opt.T,
-                              cmap = plt.get_cmap("jet"),
-                              zorder = 0, rasterized = True)
-    plt.xlabel(depth_label, zorder = 1)
-    plt.colorbar(mesh, label = time_label, format = "%.1f")
+sqz_min = min([ sqz_vals[method].min() for method in sqz_methods ])
+sqz_max = max([ sqz_vals[method].max() for method in sqz_methods ])
+t_min = min([ t_opt[method].values.min() for method in sqz_methods ])
+t_max = max([ t_opt[method].values.max() for method in sqz_methods ])
 
-    make_U_axis(ax_time)
-    plt.tight_layout()
-    plt.gca().set_rasterization_zorder(1)
-    plt.savefig(fig_dir + f"optimization/t_opt_{method}_L_2D.pdf",
-                rasterized = True, dpi = dpi)
-    plt.close()
+# plot data
+for method in sqz_methods:
+    ax_sqz.plot(sqz_vals[method], sizes, lines[method], label = method)
 
+    mesh = ax[method].pcolormesh(depths, sizes, t_opt[method].T,
+                                 cmap = plt.get_cmap(color_map),
+                                 vmin = t_min, vmax = t_max,
+                                 zorder = 0, rasterized = True)
 
-##########################################################################################
-# OAT squeezing with decoherence
-##########################################################################################
+    ax[method].set_xlabel(depth_label + f"\n{method}", zorder = 1)
+    ax[method].set_yticklabels([])
+    make_U_axis(ax[method])
 
-def integer_ticks(vals):
-    tick_min, tick_max = int(np.ceil(vals.min())), int(np.floor(vals.max()))
-    return range(tick_min, tick_max+1)
+ax_sqz.legend(loc = "best").get_frame().set_alpha(1)
+fig.colorbar(mesh, cax = cax, label = time_label, format = "%.1f")
 
-def plot_sqz(depths, sizes, sqz_vals):
-    figsize = (4,3)
-    plt.figure(figsize = figsize)
-    mesh = plt.pcolormesh(depths, sizes, sqz_vals.T,
-                          cmap = plt.get_cmap("jet"),
-                          zorder = 0, rasterized = True)
-    plt.xlabel(depth_label, zorder = 1)
-    plt.ylabel(size_label, zorder = 1)
-    plt.colorbar(mesh, label = sqz_label, ticks = integer_ticks(sqz_vals))
+# clean up figure
+ax_sqz.set_xlim(10, 35)
+ax_sqz.set_ylim(sizes[0], sizes[-1])
+ax_sqz.set_xlabel(sqz_label, zorder = 1)
+ax_sqz.set_ylabel(size_label, zorder = 1)
 
-    make_U_axis(plt.gca())
-    plt.tight_layout()
-    plt.gca().set_rasterization_zorder(1)
-
-sqz_OAT = pd_read_2D(data_dir + f"optimization/sqz_opt_OAT_dec_L_2D.txt")
-plot_sqz(sqz_OAT.index, sqz_OAT.columns, sqz_OAT.values)
-plt.savefig(fig_dir + f"optimization/sqz_opt_OAT_dec_L_2D.pdf",
+plt.tight_layout()
+plt.gca().set_rasterization_zorder(1)
+plt.savefig(fig_dir + "optimization/t_opt_L_2D.pdf",
             rasterized = True, dpi = dpi)
 plt.close()
 
 
 ##########################################################################################
-# TAT squeezing with decoherence
+# squeezing with decoherence
 ##########################################################################################
 
 def get_sqz_floor(method, lattice_depth, lattice_size):
@@ -204,11 +278,43 @@ def get_sqz_floor(method, lattice_depth, lattice_size):
 
         return sqz_floor
 
+# get squeezing data
+sqz = {}
 sqz_TAT = np.zeros((depths_TAT.size,sizes_TAT.size))
 for idx, _ in np.ndenumerate(sqz_TAT):
     sqz_TAT[idx] = get_sqz_floor(method_TAT, depths_TAT[idx[0]], sizes_TAT[idx[1]])
 
-plot_sqz(depths_TAT, sizes_TAT, sqz_TAT)
-plt.savefig(fig_dir + f"optimization/sqz_opt_TAT_dec_L_2D.pdf",
+sqz_OAT = pd_read_2D(data_dir + f"optimization/sqz_opt_OAT_dec_L_2D.txt")
+depths_OAT, sizes_OAT, sqz_OAT = sqz_OAT.index, sqz_OAT.columns, sqz_OAT.values
+
+sqz_min = min([ sqz.min() for sqz in [ sqz_OAT, sqz_TAT ] ])
+sqz_max = max([ sqz.max() for sqz in [ sqz_OAT, sqz_TAT ] ])
+
+# set up figure panels
+ax = {}
+fig, ( ax_OAT, ax_TAT, cax ) \
+    = plt.subplots(figsize = figsize, ncols = 3,
+                   gridspec_kw = { "width_ratios" : [1,1,0.05] })
+
+# plot data
+ax_OAT.pcolormesh(depths_OAT, sizes_OAT, sqz_OAT.T,
+                  cmap = plt.get_cmap(color_map),
+                  vmin = sqz_min, vmax = sqz_max,
+                  zorder = 0, rasterized = True)
+mesh = ax_TAT.pcolormesh(depths_TAT, sizes_TAT, sqz_TAT.T,
+                         cmap = plt.get_cmap(color_map),
+                         vmin = sqz_min, vmax = sqz_max,
+                         zorder = 0, rasterized = True)
+ax_OAT.set_xlabel(depth_label + f"\nOAT", zorder = 1)
+ax_TAT.set_xlabel(depth_label + f"\nTAT", zorder = 1)
+make_U_axis(ax_OAT)
+make_U_axis(ax_TAT)
+
+ax_OAT.set_ylabel(size_label)
+ax_TAT.set_yticklabels([])
+fig.colorbar(mesh, cax = cax, label = sqz_label)
+
+plt.tight_layout()
+plt.savefig(fig_dir + "optimization/sqz_opt_dec_L_2D.pdf",
             rasterized = True, dpi = dpi)
 plt.close()
