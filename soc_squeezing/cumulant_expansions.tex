@@ -113,11 +113,10 @@ spin squeezing is
 where $N$ is the total number of spins, $\v S$ is the collective spin
 vector, and the minimization is performed over all unit vectors
 $\uv n$ in the plane orthogonal to the mean spin vector $\bk{\v S}$.
-This squeezing parameter is entirely determined by components
-$\bk{S_\alpha}$ of the mean spin vector in addition to collective
-spin-spin correlators of the form $\bk{S_\alpha S_\beta}$; our task is
-therefore to compute these expectation values in all scenarios of
-interest.
+This squeezing parameter is entirely determined by one- and two-spin
+correlators of the form $\bk{S_\alpha}$ and $\bk{S_\alpha S_\beta}$;
+our task is therefore to compute these expectation values in all
+scenarios of interest.
 
 
 \section{One-axis twisting}
@@ -261,7 +260,7 @@ the form in \eqref{eq:H_general} is given by
 \end{align}
 where commutator and decoherence terms necessary for computing the
 matrix elements $T_{\v m\v n}$ of the time derivative operator $d/dt$
-are worked out Appendices \ref{sec:comm_general},
+are worked out Appendices \ref{sec:prod_general},
 \ref{sec:decoherence_single}, and \ref{sec:decoherence_collective}.
 
 The time derivative operator $d/dt$ will generally couple spin
@@ -717,20 +716,11 @@ with
 \end{align}
 
 
-\section{Commutation relations between ordered products of collective
-  spin operators}
-\label{sec:comm_general}
+\section{Product of arbitrary ordered collective spin operators}
+\label{sec:prod_general}
 
-We will generally be concerned with ordered products of collective
-spin operators of the form $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$ for
-$\bmu\equiv-\mu\in\set{+1,-1}$.  The most general (anti-)commutator we
-need to consider is then
-\begin{align}
-  \sp{S_\mu^p \p{\mu S_\z}^q S_\bmu^r,
-    S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_\pm
-  = \S^{pqr}_{\ell mn;\mu} \pm \S^{\ell mn}_{pqr;\mu},
-\end{align}
-where
+The most general product of collective spin operators that we need to
+compute is
 \begin{align}
   \S^{pqr}_{\ell mn;\mu}
   = S_\mu^p \p{\mu S_\z}^q S_\bmu^r
@@ -739,7 +729,7 @@ where
   S_\mu^{p+\ell-k} \tilde Z_{qr\ell m;\mu}^{(k)} S_\bmu^{r+n-k},
   \label{eq:general_product}
 \end{align}
-for
+where
 \begin{align}
   \tilde Z_{qr\ell m;\mu}^{(k)}
   &\equiv \p{\ell-k+\mu S_\z}^q
@@ -749,8 +739,15 @@ for
   \sum_{c=0}^m \p{r-k}^{m-c} { m \choose c }
   \p{\mu S_\z}^{a+b+c},
 \end{align}
-defined in terms of $Z_{r\ell;\mu}^{(k)}$ and $\zeta_{r\ell}^{ka}$ as
-given in \eqref{eq:Z_mnp} and \eqref{eq:zeta_mnpq}.
+is defined in terms of $Z_{r\ell;\mu}^{(k)}$ and $\zeta_{r\ell}^{ka}$
+as respectively given in \eqref{eq:Z_mnp} and \eqref{eq:zeta_mnpq}.
+The (anti-)commutator of two ordered products of collective spin
+operators is then
+\begin{align}
+  \sp{S_\mu^p \p{\mu S_\z}^q S_\bmu^r,
+    S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_\pm
+  = \S^{pqr}_{\ell mn;\mu} \pm \S^{\ell mn}_{pqr;\mu}.
+\end{align}
 
 
 \section{Sandwich identities for single-spin decoherence calculations}
@@ -1228,7 +1225,7 @@ Collecting terms and defining
     + \p{n+\f12} \Gamma_{\z,\mu}^{(-)}}
   S_\mu^{\ell+1} \p{\mu S_\z}^m S_\bmu^n \notag \\
   &\qquad + \mu \Gamma_{\z,\mu}^{(-)}
-  S_\mu^{\ell+1} \p{\mu S_\z}
+  S_\mu^{\ell+1} \mu S_\z
   \sp{\p{1+\mu S_\z}^m - \p{\mu S_\z}^m} S_\bmu^n,
   \allowdisplaybreaks \\
   \tilde M_{\ell mn;\mu}^{(\Gamma)}
@@ -1514,7 +1511,7 @@ we can collect like factors and group together equivalent terms in
   \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta_{\tilde{\v\rho}}
   \bigotimes_{\kappa}
   \sigma_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa}
-  = \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta_{\tilde{\v\rho}}
+  \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta_{\tilde{\v\rho}}
   \1^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_0}
   \otimes \bigotimes_{\kappa\ne0}
   \sigma_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa},
