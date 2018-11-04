@@ -278,6 +278,8 @@ def get_sqz_floor(method, lattice_depth, lattice_size):
 
         return sqz_floor
 
+figsize = (6,3)
+
 # get squeezing data
 sqz = {}
 sqz_TAT = np.zeros((depths_TAT.size,sizes_TAT.size))
