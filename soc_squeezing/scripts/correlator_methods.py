@@ -8,6 +8,7 @@ import numpy as np
 from scipy.special import gamma, gammaln
 from scipy.special import binom as scipy_binom
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
+from scipy.integrate import solve_ivp
 
 
 ##########################################################################################
@@ -691,8 +692,8 @@ def compute_correlators_diffeq(chi_times, order_cap, op_image_args,
 
     def time_derivative(time, vec): return diff_mat.dot(vec)
 
-    ivp_solution = scipy.integrate.solve_ivp(time_derivative, (0,chi_times[-1]), init_vec,
-                                             t_eval = chi_times, rtol = ivp_tolerance)
+    ivp_solution = solve_ivp(time_derivative, (0,chi_times[-1]), init_vec,
+                             t_eval = chi_times, rtol = ivp_tolerance)
 
     return { op : ivp_solution.y[op_idx[op],:] for op in squeezing_ops }
 
