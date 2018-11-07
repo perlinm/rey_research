@@ -43,6 +43,7 @@ def spin_op(mu):
     if mu == 3: return I2
 
 def PP(jj, mm):
+    mm = np.array(mm)
     jj_vals = partition(jj,mm)
     op_list = [ I2 ] * N
     for mu in range(mm.size):
@@ -93,42 +94,50 @@ def rho_mats(rr):
              for c_12_3 in [ rr[1,2] - c_12_0 ]
              for c_21_3 in [ rr[2,1] - c_21_0 ] )
 
+def product(mm,nn):
+    op_prod = {}
+    mn_ops = int(mm.sum()+nn.sum())
+    min_overlap = max(mn_ops-N, 0)
+    max_overlap = min(mn_ops, N)
+
+    for ss in range(min_overlap, max_overlap+1):
+        for rr in r_mats(mm,nn,ss):
+
+            mnr_op_nums = mm + nn - rr.sum(0) - rr.sum(1)
+            mnr_fac = np.prod([ poch(mm[mu],rr[mu,:].sum()) *
+                                poch(nn[mu],rr[:,mu].sum())
+                                for mu in range(3) ])
+
+            for rho in rho_mats(rr):
+
+                rho_kk = rho.sum((0,1))
+                rho_op_nums = rho_kk[:-1]
+                op_nums = mnr_op_nums + rho_op_nums
+
+                id_ops = rho_kk[-1]
+                ops = int(op_nums.sum())
+
+                rho_fac = 1 / np.prod([ factorial(val) for val in rho.flatten() ])
+                eta_fac = np.prod(eta_terms**rho[eta_mnk])
+                id_fac = poch(N-ops,id_ops)
+                fac = mnr_fac * rho_fac * eta_fac * id_fac
+
+                try: op_prod[tuple(op_nums)] += fac
+                except: op_prod[tuple(op_nums)] = fac
+
+    return op_prod
+
+def vec_to_mat(vec):
+    terms = [ val * SS(op) for op, val in vec.items() ]
+    if terms == []: return 0 * II
+    else: return np.sum(terms)
+
 for mm in itertools.product(range(op_cap+1), repeat = 3):
     mm = np.array(mm)
     SS_mm = SS(mm)
     for nn in itertools.product(range(op_cap+1), repeat = 3):
         nn = np.array(nn)
-        op = SS_mm * SS(nn)
-        op_simp = 0 * II
-
-        mn_ops = int(mm.sum()+nn.sum())
-        min_overlap = max(mn_ops-N, 0)
-        max_overlap = min(mn_ops, N)
-
-        for ss in range(min_overlap, max_overlap+1):
-
-            for rr in r_mats(mm,nn,ss):
-
-                mnr_op_nums = mm + nn - rr.sum(0) - rr.sum(1)
-                mnr_fac = np.prod([ poch(mm[mu],rr[mu,:].sum()) *
-                                    poch(nn[mu],rr[:,mu].sum())
-                                    for mu in range(3) ])
-
-                for rho in rho_mats(rr):
-
-                    rho_kk = rho.sum((0,1))
-                    rho_op_nums = rho_kk[:-1]
-                    op_nums = mnr_op_nums + rho_op_nums
-
-                    id_ops = rho_kk[-1]
-                    ops = int(op_nums.sum())
-
-                    rho_fac = 1 / np.prod([ factorial(val) for val in rho.flatten() ])
-                    eta_fac = np.prod(eta_terms**rho[eta_mnk])
-                    id_fac = poch(N-ops,id_ops)
-                    fac = mnr_fac * rho_fac * eta_fac * id_fac
-
-                    op_simp += fac * SS(op_nums)
-
-        print(mm, nn, op == op_simp)
-        if op != op_simp: exit()
+        op_full = SS_mm * SS(nn)
+        op = vec_to_mat(product(mm,nn))
+        print(mm, nn, op_full == op)
+        if op_full != op: exit()
