@@ -38,7 +38,7 @@ header = f"""#!/bin/sh
 
 module load python3
 
-python3 compute_TAT_vals.py {sys.argv[1]} {sys.argv[2]} {sys.argv[3]}
+python3 compute_TAT_vals.py {" ".join(sys.argv[1:])}
 """
 
 with open(f"./logs/{basename}.sh", "w") as f:
