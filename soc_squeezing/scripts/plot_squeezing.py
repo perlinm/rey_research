@@ -33,7 +33,7 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-L = [50]*2 # lattice sites
+L = [10]*2 # lattice sites
 order_cap = 40 # order limit for cumulant expansions
 U_J_target = 2 # target value of U_int / J_0
 trajectories = 100 # number of trajectories to use in quantum jump simulations
@@ -287,7 +287,7 @@ except: None
 plt.xlim(0,times_SI[-1])
 plt.ylim(0,sqz_TAT.max()*1.1)
 plt.xlabel(r"Time (seconds)")
-plt.ylabel(r"Squeezing: $-10\log_{10}(\xi^2)$")
+plt.ylabel(r"Squeezing (dB)")
 plt.legend(loc = "best")
 plt.tight_layout()
 
