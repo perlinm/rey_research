@@ -328,9 +328,9 @@ def op_image_decoherence_diag_individual(op, SS, dec_vec, mu):
 
     image_z = {}
     if D_z != 0 and ll + nn != 0:
-        image_z = { (ll,mm,nn) : -2*(ll+nn) * D_z }
+        image_z = { (ll,mm,nn) : -1/2*(ll+nn) * D_z }
         if ll >= 1 and nn >= 1:
-            image_z.update(ext_binom_op(ll-1, mm, nn-1, [ SS, 1 ], -1, 4*ll*nn * D_z))
+            image_z.update(ext_binom_op(ll-1, mm, nn-1, [ SS, 1 ], -1, ll*nn * D_z))
 
     return sum_vecs(image_mu, image_nu, image_z)
 
@@ -355,20 +355,20 @@ def op_image_decoherence_Q_individual(op, SS, dec_vec, mu):
 
     image_K = {}
     if gg_zp + gg_mz != 0:
-        image_K = binom_op(ll+1, mm, nn, 1, mu/2 * (gg_zp + gg_mz))
+        image_K = binom_op(ll+1, mm, nn, 1, mu/4 * (gg_zp + gg_mz))
         del image_K[(ll+1,mm,nn)]
 
     image_L = {}
     if gg_zp != 0 and nn != 0:
         if nn >= 2 and ll >= 1:
-            factor = -2*mu*ll*nn*(nn-1)
+            factor = -mu*ll*nn*(nn-1)
             image_L = ext_binom_op(ll-1, mm, nn-2, [ SS, 1 ], -1, factor * gg_zp)
-        coefficients = [ -2*SS+2*ll+3/2*(nn-1), 1 ]
-        image_L.update(insert_z_poly({(ll,mm,nn-1):1}, coefficients, mu*nn * gg_zp))
+        coefficients = [ SS-ll-3/4*(nn-1), -1/2 ]
+        image_L.update(insert_z_poly({(ll,mm,nn-1):-1}, coefficients, mu*nn * gg_zp))
 
     image_M = {}
     if gg_mz != 0 and nn != 0:
-        image_M = ext_binom_op(ll, mm, nn-1, [ SS, 1 ], -1, 2*mu*nn * gg_mz)
+        image_M = ext_binom_op(ll, mm, nn-1, [ SS, 1 ], -1, mu*nn * gg_mz)
         coefficients = [ (nn-1)/2, 1 ]
         add_left(image_M, insert_z_poly({(ll,mm,nn-1):1}, coefficients, -mu*nn * gg_mz))
 
@@ -698,9 +698,6 @@ def compute_correlators_diffeq(chi_times, order_cap, op_image_args,
     return { op : ivp_solution.y[op_idx[op],:] for op in squeezing_ops }
 
 # exact correlators for OAT with decoherence; derivations in foss-feig2013nonequilibrium
-# here D_\mu are decoherence rates associated with jump operators \sqrt{D_\mu} \sigma_\mu,
-#   which implies ( D_p, D_z, D_m ) = ( \Gamma_{du}, \Gamma_{el}/4, \Gamma_{ud} )
-#   for decoherence rates \Gamma_X appearing in foss-feig2013nonequilibrium
 def correlators_OAT(spin_num, chi_times, dec_rates):
     N = spin_num
     SS = spin_num/2
@@ -710,7 +707,7 @@ def correlators_OAT(spin_num, chi_times, dec_rates):
     gam = -(D_p - D_m) / 2
     lam = (D_p + D_m) / 2
     rr = D_p * D_m
-    Gam = 2*D_z + lam
+    Gam = D_z/2 + lam
 
     if D_m != 0 or D_p != 0:
         Sz_unit = (D_p-D_m)/(D_p+D_m) * (1-np.exp(-(D_p+D_m)*t))
