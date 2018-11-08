@@ -11,7 +11,7 @@ N = 3
 op_cap = 3
 
 I2 = qt.qeye(2)
-sz = qt.sigmaz()
+sz = qt.sigmaz()/2
 sp = qt.sigmap()
 sm = qt.sigmam()
 II = qt.tensor([ I2 ] * N)
@@ -61,8 +61,10 @@ def poch(nn, kk, vals = {}):
     return np.prod([ nn - cc for cc in range(kk) ])
 
 def eta_val(mu, nu, rho):
-    fac = 2 if spin_op(rho) in [ I2, sz ] else 1
-    return ( spin_op(mu)*spin_op(nu) * spin_op(rho).dag() ).tr() / fac
+    if spin_op(rho) == I2: fac = 1/2
+    elif spin_op(rho) == sz: fac = 2
+    else: fac = 1
+    return ( spin_op(mu)*spin_op(nu) * spin_op(rho).dag() ).tr() * fac
 
 eta = np.array([ [ [ eta_val(mu,nu,kk) for kk in range(4) ]
                    for nu in range(3) ]

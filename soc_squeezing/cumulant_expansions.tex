@@ -166,7 +166,7 @@ for
   &&
   r \equiv \gamma_+ \gamma_-,
   &&
-  \Gamma \equiv \gamma_\z + \lambda,
+  \Gamma \equiv \f12\gamma_\z + \lambda,
   &&
   s_X \equiv X + i\gamma,
 \end{align}
@@ -352,27 +352,46 @@ explicitly roughly in half.
 
 \section{Basic spin operator identities}
 \label{sec:identities}
-% TODO: change { \sigma_\mu } --> { s_\mu }
 
 The appendices in this text make ubiquitous use of various spin
 operator identities; we collect and derive some basic identities here
-for reference.  The elementary commutation relations between spin
+for reference.  Defining the individual spin-1/2 operators
+\begin{align}
+  s_{n=\x,\y,\z} \equiv \f12 \sigma_n,
+  &&
+  s_\pm \equiv s_\x \pm i s_\y,
+  \label{eq:single_spin}
+\end{align}
+in terms of Pauli operators $\sigma_n$, we denote the operator which
+acts with $s_n$ on a spin indexed by $j$ and trivially (i.e.~with the
+identity $\1$) on all other spins by $s_n^{(j)}$.  We then define the
+collective spin operators
+\begin{align}
+  S_n \equiv \sum_j s_n^{(j)}.
+  \label{eq:collective_spin}
+\end{align}
+Despite our working definition in \eqref{eq:collective_spin}, the
+identities we will derive for collective spin operators alone apply
+just as well to large-spin operators that cannot be expressed as the
+sum of individual spin-1/2 operators.
+
+The elementary commutation relations between spin
 operators are, with $\bmu\equiv-\mu\in\set{+1,-1}$ for brevity,
 \begin{align}
-  \f12 \sp{\sigma_\z^{(j)},\sigma_\mu^{(k)}}_-
-  &= \delta_{jk} \mu\sigma_\mu^{(j)},
+  \sp{s_\z^{(j)},s_\mu^{(k)}}_-
+  &= \delta_{jk} \mu s_\mu^{(j)},
   &
-  \sp{S_\z,\sigma_\mu^{(j)}}_-
-  &= \f12 \sp{\sigma_\z^{(j)},S_\mu}_- = \mu\sigma_\mu^{(j)},
+  \sp{S_\z,s_\mu^{(j)}}_-
+  &= \sp{s_\z^{(j)},S_\mu}_- = \mu s_\mu^{(j)},
   &
   \sp{S_\z,S_\mu}_-
   &= \mu S_\mu,
   \label{eq:comm_z_base} \\
-  \sp{\sigma_\mu^{(j)},\sigma_\bmu^{(k)}}_-
-  &= \delta_{jk} \mu \sigma_\z^{(j)},
+  \sp{s_\mu^{(j)},s_\bmu^{(k)}}_-
+  &= \delta_{jk} 2 \mu s_\z^{(j)},
   &
-  \sp{S_\mu,\sigma_\bmu^{(j)}}_-
-  &= \sp{\sigma_\mu^{(j)},S_\bmu}_- = \mu \sigma_\z^{(j)},
+  \sp{S_\mu,s_\bmu^{(j)}}_-
+  &= \sp{s_\mu^{(j)},S_\bmu}_- = 2 \mu s_\z^{(j)},
   &
   \sp{S_\mu,S_\bmu}_-
   &= 2 \mu S_\z.
@@ -382,26 +401,25 @@ These relations can be used to inductively compute identities
 involving powers of collective spin operators.  By pushing through one
 spin operator at a time, we can find
 \begin{align}
-  \p{\mu S_\z}^m \sigma_\mu^{(j)}
-  = \p{\mu S_\z}^{m-1} \sigma_\mu^{(j)} \p{1 + \mu S_\z}
-  = \p{\mu S_\z}^{m-2} \sigma_\mu^{(j)} \p{1 + \mu S_\z}^2
+  \p{\mu S_\z}^m s_\mu^{(j)}
+  = \p{\mu S_\z}^{m-1} s_\mu^{(j)} \p{1 + \mu S_\z}
+  = \p{\mu S_\z}^{m-2} s_\mu^{(j)} \p{1 + \mu S_\z}^2
   = \cdots
-  = \sigma_\mu^{(j)} \p{1 + \mu S_\z}^m,
+  = s_\mu^{(j)} \p{1 + \mu S_\z}^m,
   \label{eq:push_z_mu_Ss}
 \end{align}
 and
 \begin{align}
-  \mu\sigma_\z^{(j)} S_\mu^m
-  = S_\mu \mu\sigma_\z^{(j)} S_\mu^{m-1} + 2\sigma_\mu^{(j)} S_\mu^{m-1}
+  \mu s_\z^{(j)} S_\mu^m
+  = S_\mu \mu s_\z^{(j)} S_\mu^{m-1} + s_\mu^{(j)} S_\mu^{m-1}
   = \cdots
-  = 2m\sigma_\mu^{(j)} S_\mu^{m-1} + S_\mu^m \mu \sigma_\z^{(j)},
+  = ms_\mu^{(j)} S_\mu^{m-1} + S_\mu^m \mu s_\z^{(j)},
   \label{eq:push_z_mu_sS}
 \end{align}
-where we will generally find it nicer to express our results in terms
-of $\mu\sigma_\z^{(j)}$ and $\mu S_\z$ rather than $\sigma_\z^{(j)}$
-and $S_\z$.  Summing over the single-spin index $j$ in both of these
-cases gives us the purely collective-spin versions of these
-identities:
+where we will generally find it nicer to express results in terms of
+$\mu s_\z^{(j)}$ and $\mu S_\z$ rather than $s_\z^{(j)}$ and $S_\z$.
+Summing over the single-spin index $j$ in both of these cases gives us
+the purely collective-spin versions of these identities:
 \begin{align}
   \p{\mu S_\z}^m S_\mu = S_\mu \p{1 + \mu S_\z}^m,
   &&
@@ -439,39 +457,39 @@ therefore save this work for Appendix \ref{sec:comm_transverse}.
 \label{sec:comm_transverse}
 
 To find commutation relations between powers of transverse collective
-spin operators, we compute (with $\bmu\equiv-\mu\in\set{+1,-1}$)
+spin operators, we first compute
 \begin{align}
-  S_\mu^m \sigma_\bmu^{(j)}
-  &= S_\mu^{m-1}\sigma_\bmu^{(j)} S_\mu
-  + S_\mu^{m-1} \mu\sigma_\z^{(j)} \\
-  &= S_\mu^{m-2} \sigma_\bmu^{(j)} S_\mu^2
-  + S_\mu^{m-2} \mu\sigma_\z^{(j)} S_\mu
-  + S_\mu^{m-1} \mu\sigma_\z^{(j)} \\
-  &= \sigma_\bmu^{(j)} S_\mu^m
-  + \sum_{k=0}^{m-1} S_\mu^k \mu\sigma_\z^{(j)} S_\mu^{m-k-1}
+  S_\mu^m s_\bmu^{(j)}
+  &= S_\mu^{m-1}s_\bmu^{(j)} S_\mu
+  + S_\mu^{m-1} 2\mu s_\z^{(j)} \\
+  &= S_\mu^{m-2} s_\bmu^{(j)} S_\mu^2
+  + S_\mu^{m-2} 2\mu s_\z^{(j)} S_\mu
+  + S_\mu^{m-1} 2\mu s_\z^{(j)} \\
+  &= s_\bmu^{(j)} S_\mu^m
+  + \sum_{k=0}^{m-1} S_\mu^k 2\mu s_\z^{(j)} S_\mu^{m-k-1}
   \label{eq:push_mu_Ss_start}.
 \end{align}
 While \eqref{eq:push_mu_Ss_start} gives us the commutator
-$\sp{S_\mu^m,\sigma_\bmu^{(j)}}_-$, we would like to enforce an
-ordering on products of spin operators, which will ensure that we only
-keep track of operators that are linearly independent.  We choose (for
-now) to impose an ordering with all $\sigma_\bmu^{(j)}$ operators on
-the left, and all $\sigma_\z^{(j)}$ operators on the right, as such an
-ordering will prove convenient for the calculations in this section.
-This choice of ordering compels us to expand
+$\sp{S_\mu^m,s_\bmu^{(j)}}_-$, we would like to enforce an ordering on
+products of spin operators, which will ensure that we only keep track
+of operators that are linearly independent.  We choose (for now) to
+impose an ordering with all $s_\bmu^{(j)}$ operators on the left, and
+all $s_\z^{(j)}$ operators on the right, as such an ordering will
+prove convenient for the calculations in this section.  This choice of
+ordering compels us to expand
 \begin{align}
-  \sum_{k=0}^{m-1} S_\mu^k \mu\sigma_\z^{(j)} S_\mu^{m-k-1}
+  \sum_{k=0}^{m-1} S_\mu^k 2\mu s_\z^{(j)} S_\mu^{m-k-1}
   &= \sum_{k=0}^{m-1} S_\mu^k
-  \sp{2\p{m-k-1} \sigma_\mu^{(j)} S_\mu^{m-k-2}
-    + S_\mu^{m-k-1} \mu\sigma_\z^{(j)}} \\
-  &= m \p{m-1} \sigma_\mu^{(j)} S_\mu^{m-2}
-  + m S_\mu^{m-1} \mu\sigma_\z^{(j)},
+  \sp{2\p{m-k-1} s_\mu^{(j)} S_\mu^{m-k-2}
+    + S_\mu^{m-k-1} 2\mu s_\z^{(j)}} \\
+  &= m \p{m-1} s_\mu^{(j)} S_\mu^{m-2}
+  + m S_\mu^{m-1} 2\mu s_\z^{(j)},
 \end{align}
 which implies
 \begin{align}
-  S_\mu^m \sigma_\bmu^{(j)}
-  = \sigma_\bmu^{(j)} S_\mu^m + m \p{m-1} \sigma_\mu^{(j)} S_\mu^{m-2}
-  + m S_\mu^{m-1} \mu\sigma_\z^{(j)},
+  S_\mu^m s_\bmu^{(j)}
+  = s_\bmu^{(j)} S_\mu^m + m \p{m-1} s_\mu^{(j)} S_\mu^{m-2}
+  + m S_\mu^{m-1} 2\mu s_\z^{(j)},
   \label{eq:push_mu_Ss}
 \end{align}
 and in turn
@@ -498,7 +516,7 @@ which implies
 \end{align}
 We now need rearrange the operators in $C_{mn;\mu}$ into a standard
 order, which means pushing all $S_\z$ operators to the right and, for
-the purposes of this calculation, all $S_\bmu$ operators on the left.
+the purposes of this calculation, all $S_\bmu$ operators to the left.
 We begin by pushing $S_\mu^k$ to the left of $S_\z$, which takes
 $2\mu S_\z\to 2\mu S_\z+2k$, and then push $S_\mu^{m-k-1}$ to the
 right of $S_\bmu^{n-1}$, giving us
@@ -586,7 +604,7 @@ commutator $\sp{S_\mu^m,S_\bmu^n}_- = C_{mn;\mu}$, but these result
 are -- to put it lightly -- quite a mess: the expression for
 $E_{mn;\mu}^{(p)}$ in \eqref{eq:E_mn_p} involves a sum over $p$
 mutually dependent intermediate variables, each term of which
-additionally contains a product of $p$ factors!  We therefore devote
+additionally contains a product of $p$ factors.  We therefore devote
 the rest of this section to simplifying our result for the commutator
 $\sp{S_\mu^m,S_\bmu^n}_-$.
 
@@ -765,22 +783,21 @@ arrive at an expression in terms of collective spin operators only.
 We first compute sums of single-spin operators sandwiching
 $\p{\mu S_\z}^m$, which will in turn be used to compute similar sums
 sandwiching $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$.  Up to Hermitian
-conjugation, the unique cases are, for $\mu,\nu\in\set{+1,-1}$ and
-$\bmu\equiv-\mu$,
+conjugation, the unique cases are, for $\mu,\nu\in\set{+1,-1}$,
 \begin{align}
-  \sum_j \sigma_\z^{(j)} \p{\mu S_\z}^m \sigma_\z^{(j)}
-  &= \sum_j \sigma_\z^{(j)} \sigma_\z^{(j)} \p{\mu S_\z}^m
-  = \sum_j \1_j \p{\mu S_\z}^m
-  = 2 S \p{\mu S_\z}^m, \\
-  \sum_j \sigma_\z^{(j)} \p{\mu S_\z}^m \sigma_\nu^{(j)}
-  &= \p{\mu S_\z}^m \sum_j \sigma_\z^{(j)} \sigma_\nu^{(j)}
-  = \p{\mu S_\z}^m \nu S_\nu
-  = \nu S_\nu \p{\mu\nu+\mu S_\z}^m, \\
-  \sum_j \sigma_\nu^{(j)} \p{\mu S_\z}^m \sigma_\nu^{(j)}
-  &= \sum_j \sigma_\nu^{(j)} \sigma_\nu^{(j)} \p{\mu\nu+\mu S_\z}^m
+  \sum_j s_\z^{(j)} \p{\mu S_\z}^m s_\z^{(j)}
+  &= \sum_j s_\z^{(j)} s_\z^{(j)} \p{\mu S_\z}^m
+  = \f14 \sum_j \1_j \p{\mu S_\z}^m
+  = \f12 S \p{\mu S_\z}^m, \\
+  \sum_j s_\z^{(j)} \p{\mu S_\z}^m s_\nu^{(j)}
+  &= \p{\mu S_\z}^m \sum_j s_\z^{(j)} s_\nu^{(j)}
+  = \f12 \p{\mu S_\z}^m \nu S_\nu
+  = \f12 \nu S_\nu \p{\mu\nu+\mu S_\z}^m, \\
+  \sum_j s_\nu^{(j)} \p{\mu S_\z}^m s_\nu^{(j)}
+  &= \sum_j s_\nu^{(j)} s_\nu^{(j)} \p{\mu\nu+\mu S_\z}^m
   = 0, \\
-  \sum_j \sigma_\bnu^{(j)} \p{\mu S_\z}^m \sigma_\nu^{(j)}
-  &= \sum_j \sigma_\bnu^{(j)} \sigma_\nu^{(j)} \p{\mu\nu+\mu S_\z}^m
+  \sum_j s_\bnu^{(j)} \p{\mu S_\z}^m s_\nu^{(j)}
+  &= \sum_j s_\bnu^{(j)} s_\nu^{(j)} \p{\mu\nu+\mu S_\z}^m
   = \p{S-\nu S_\z} \p{\mu\nu+\mu S_\z}^m.
 \end{align}
 We are now equipped to derive similar identities for general ordered
@@ -790,36 +807,30 @@ operators through transverse collective-spin operators, we again work
 through all combinations that are unique up to Hermitian conjugation,
 finding
 \begin{align}
-  \sum_j \sigma_\z^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^m S_\bmu^n \sigma_\z^{(j)}
-  &= 2\p{S-\ell-n} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n \notag \\
-  &\qquad + 4\ell n S_\mu^{\ell-1} \p{S+\mu S_\z}
+  \sum_j s_\z^{(j)} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n s_\z^{(j)}
+  &= \f12 \p{S-\ell-n} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n
+  + \ell n S_\mu^{\ell-1} \p{S+\mu S_\z}
   \p{-1+\mu S_\z}^m S_\bmu^{n-1},
   \label{eq:san_z_z} \allowdisplaybreaks \\
-  \sum_j \sigma_\z^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^m S_\bmu^n \sigma_\mu^{(j)}
-  &= \mu S_\mu^{\ell+1} \p{1+\mu S_\z}^m S_\bmu^n
-  + \mu n \p{-2S+2\ell+n-1} S_\mu^\ell
+  \sum_j s_\z^{(j)} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n s_\mu^{(j)}
+  &= \f12 \mu S_\mu^{\ell+1} \p{1+\mu S_\z}^m S_\bmu^n
+  - \mu n \p{S-\ell-\f12\sp{n-1}} S_\mu^\ell
   \p{\mu S_\z}^m S_\bmu^{n-1} \notag \\
-  &\qquad - 2\mu\ell n\p{n-1} S_\mu^{\ell-1}
+  &\qquad - \mu\ell n\p{n-1} S_\mu^{\ell-1}
   \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^{n-2},
   \label{eq:san_z_mu} \allowdisplaybreaks \\
-  \sum_j \sigma_\z^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^m S_\bmu^n \sigma_\bmu^{(j)}
-  &= -\mu S_\mu^\ell \p{\mu S_\z}^m S_\bmu^{n+1}
-  + 2\mu \ell S_\mu^{\ell-1} \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^n,
+  \sum_j s_\z^{(j)} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n s_\bmu^{(j)}
+  &= -\f12 \mu S_\mu^\ell \p{\mu S_\z}^m S_\bmu^{n+1}
+  + \mu \ell S_\mu^{\ell-1} \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^n,
   \label{eq:san_z_bmu} \allowdisplaybreaks \\
-  \sum_j \sigma_\mu^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^m S_\bmu^n \sigma_\mu^{(j)}
+  \sum_j s_\mu^{(j)} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n s_\mu^{(j)}
   &= n S_\mu^{\ell+1} \p{\mu S_\z}^m S_\bmu^{n-1}
   - n\p{n-1} S_\mu^\ell \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^{n-2},
   \label{eq:san_mu_mu} \allowdisplaybreaks \\
-  \sum_j \sigma_\mu^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^m S_\bmu^n \sigma_\bmu^{(j)}
+  \sum_j s_\mu^{(j)} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n s_\bmu^{(j)}
   &= S_\mu^\ell \p{S+\mu S_\z}\p{-1+\mu S_\z}^m S_\bmu^n,
   \label{eq:san_mu_bmu} \allowdisplaybreaks \\
-  \sum_j \sigma_\bmu^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^m S_\bmu^n \sigma_\mu^{(j)}
+  \sum_j s_\bmu^{(j)} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n s_\mu^{(j)}
   &= S_\mu^\ell \p{S - \ell - n - \mu S_\z}
   \p{1+\mu S_\z}^m S_\bmu^n \notag \\
   &\qquad + \ell n \p{2S - \ell - n + 2}
@@ -851,14 +862,13 @@ the identity on all other spins.
 \label{sec:decay_single}
 
 The effect of decoherence via uncorrelated decay ($\mu=-1$) or
-excitation ($\mu=1$) of individual spins is described by (with
-$\bmu\equiv-\mu$),
+excitation ($\mu=1$) of individual spins is described by
 \begin{align}
-  \D\p{\sigma_\mu; \O}
-  = \sum_j\p{\sigma_\bmu^{(j)} \O \sigma_\mu^{(j)}
-    - \f12\sp{\sigma_\bmu^{(j)} \sigma_\mu^{(j)},\O}_+}
-  = \sum_j \sigma_\bmu^{(j)} \O \sigma_\mu^{(j)}
-    - S \O + \f{\mu}{2} \sp{S_\z, \O}_+.
+  \D\p{s_\mu; \O}
+  = \sum_j\p{s_\bmu^{(j)} \O s_\mu^{(j)}
+    - \f12\sp{s_\bmu^{(j)} s_\mu^{(j)},\O}_+}
+  = \sum_j s_\bmu^{(j)} \O s_\mu^{(j)}
+  - S \O + \f{\mu}{2} \sp{S_\z, \O}_+.
 \end{align}
 In order to determine the effect of this decoherence on ordered
 products of collective spin operators, we expand the anti-commutator
@@ -870,7 +880,7 @@ products of collective spin operators, we expand the anti-commutator
 \end{align}
 which implies, using \eqref{eq:san_mu_bmu},
 \begin{align}
-  \D\p{\sigma_\bmu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{s_\bmu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = S_\mu^\ell \p{S+\mu S_\z}\p{-1+\mu S_\z}^m S_\bmu^n
   - S_\mu^\ell\sp{S + \f12\p{\ell+n} + \mu S_\z}
   \p{\mu S_\z}^m S_\bmu^n,
@@ -878,7 +888,7 @@ which implies, using \eqref{eq:san_mu_bmu},
 \end{align}
 and, using \eqref{eq:san_bmu_mu},
 \begin{align}
-  \D\p{\sigma_\mu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{s_\mu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   &= S_\mu^\ell \p{S - \ell - n - \mu S_\z} \p{1+\mu S_\z}^m S_\bmu^n
   - S_\mu^\ell\sp{S - \f12\p{\ell+n} - \mu S_\z}
   \p{\mu S_\z}^m S_\bmu^n \notag \\
@@ -888,10 +898,10 @@ and, using \eqref{eq:san_bmu_mu},
   \p{-1+\mu S_\z}^m S_\bmu^{n-2}.
   \label{eq:decay_same}
 \end{align}
-Decoherence via jump operators $\sigma_\bmu^{(j)}$ only couples
-operators $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$ to operators
+Decoherence via jump operators $s_\bmu^{(j)}$ only couples operators
+$S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$ to operators
 $S_\mu^\ell \p{\mu S_\z}^{m'} S_\bmu^n$ with $m'\le m$.  Decoherence
-via jump operators $\sigma_\mu^{(j)}$, meanwhile, makes operators
+via jump operators $s_\mu^{(j)}$, meanwhile, makes operators
 $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$ ``grow'' in $m$ through the last
 term in \eqref{eq:decay_same} with $k=m$, although the sum $\ell+m+n$
 does not grow.
@@ -902,16 +912,16 @@ does not grow.
 
 The effect of decoherence via single-spin dephasing is described by
 \begin{align}
-  \D\p{\sigma_\z; \O}
-  = \sum_j\p{\sigma_\z^{(j)} \O \sigma_\z^{(j)}
-    - \f12\sp{\sigma_\z^{(j)} \sigma_\z^{(j)},\O}_+}
-  = \sum_j \sigma_\z^{(j)} \O \sigma_\z^{(j)} - 2 S \O.
+  \D\p{s_\z; \O}
+  = \sum_j\p{s_\z^{(j)} \O s_\z^{(j)}
+    - \f12\sp{s_\z^{(j)} s_\z^{(j)},\O}_+}
+  = \sum_j s_\z^{(j)} \O s_\z^{(j)} - \f12 S \O.
 \end{align}
 From \eqref{eq:san_z_z}, we then have
 \begin{align}
-  \D\p{\sigma_\z; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
-  = -2\p{\ell+n} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n
-  + 4 \ell n S_\mu^{\ell-1} \p{S + \mu S_\z}
+  \D\p{s_\z; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  = -\f12\p{\ell+n} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n
+  + \ell n S_\mu^{\ell-1} \p{S + \mu S_\z}
   \p{-1 + \mu S_\z}^m S_\bmu^{n-1}.
 \end{align}
 Decoherence via single-spin dephasing makes operators
@@ -928,83 +938,79 @@ The most general type of single-spin decoherence is described by
   = \sum_j\p{{\gamma^{(j)}}^\dag \O \gamma^{(j)}
     - \f12\sp{{\gamma^{(j)}}^\dag \gamma^{(j)}, \O}_+},
   &&
-  \gamma \equiv \gamma_\z \sigma_\z
-  + \gamma_+ \sigma_+ + \gamma_- \sigma_-.
+  \gamma \equiv \gamma_\z s_\z + \gamma_+ s_+ + \gamma_- s_-.
   \label{eq:D_general_single}
 \end{align}
 To simplify \eqref{eq:D_general_single}, we expand
 \begin{align}
   \gamma^\dag \O \gamma
-  = \abs{\gamma_\z}^2 \sigma_\z \O \sigma_\z
-  + \sum_\mu \p{\abs{\gamma_\mu}^2 \sigma_\bmu \O \sigma_\mu
-    + \gamma_\bmu^* \gamma_\mu \sigma_\mu \O \sigma_\mu
-    + \gamma_\z^* \gamma_\mu \sigma_\z \O \sigma_\mu
-    + \gamma_\bmu^* \gamma_\z \sigma_\mu \O \sigma_\z},
+  = \abs{\gamma_\z}^2 s_\z \O s_\z
+  + \sum_\mu \p{\abs{\gamma_\mu}^2 s_\bmu \O s_\mu
+    + \gamma_\bmu^* \gamma_\mu s_\mu \O s_\mu
+    + \gamma_\z^* \gamma_\mu s_\z \O s_\mu
+    + \gamma_\bmu^* \gamma_\z s_\mu \O s_\z},
 \end{align}
 and
 \begin{align}
   \gamma^\dag \gamma
-  = \abs{\gamma_\z}^2
-  + \sum_\mu \sp{\abs{\gamma_\mu}^2 \f12 \p{1-\mu\sigma_\z}
-    + \mu \p{\gamma_\z^*\gamma_\mu - \gamma_\bmu^*\gamma_\z}
-    \sigma_\mu},
+  = \f14 \abs{\gamma_\z}^2
+  + \f12 \sum_\mu \sp{\abs{\gamma_\mu}^2 \p{1-2\mu s_\z}
+    + \mu \p{\gamma_\z^*\gamma_\mu - \gamma_\bmu^*\gamma_\z} s_\mu},
 \end{align}
 which implies
 \begin{align}
   \D\p{\gamma;\O}
-  &= \sum_{X\in\set{\z,+,-}} \abs{\gamma_X}^2 \D\p{\sigma_X;\O}
+  &= \sum_{X\in\set{\z,+,-}} \abs{\gamma_X}^2 \D\p{s_X;\O}
   + \sum_{\mu,j}
-  \p{\gamma_\bmu^* \gamma_\mu \sigma_\mu^{(j)} \O \sigma_\mu^{(j)}
-    + \gamma_\z^* \gamma_\mu \sigma_\z^{(j)} \O \sigma_\mu^{(j)}
-    + \gamma_\bmu^* \gamma_\z \sigma_\mu^{(j)} \O \sigma_\z^{(j)}}
+  \p{\gamma_\bmu^* \gamma_\mu s_\mu^{(j)} \O s_\mu^{(j)}
+    + \gamma_\z^* \gamma_\mu s_\z^{(j)} \O s_\mu^{(j)}
+    + \gamma_\bmu^* \gamma_\z s_\mu^{(j)} \O s_\z^{(j)}}
   \notag \\
-  &\qquad -\f12 \sum_\mu \mu
+  &\qquad -\f14 \sum_\mu \mu
   \p{\gamma_\z^*\gamma_\mu - \gamma_\bmu^*\gamma_\z} \sp{S_\mu, \O}_+.
 \end{align}
 In order to compute the effect of this decoherence on ordered products
 of collective spin operators, we expand the anti-commutator
 \begin{align}
   \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
-  = S_\mu^{\ell+1} \sp{S_\z^m+\p{1+\mu S_\z}^m} S_\bmu^n
+  = S_\mu^{\ell+1} \sp{\p{\mu S_\z}^m+\p{1+\mu S_\z}^m} S_\bmu^n
   - n S_\mu^\ell \p{n-1+2\mu S_\z} \p{\mu S_\z}^m S_\bmu^{n-1}.
   \label{eq:S_mu_acomm}
 \end{align}
 Recognizing a resemblance between \eqref{eq:S_mu_acomm} and
 \eqref{eq:san_z_mu}, we can collect terms to simplify
 \begin{align}
-  \sum_j \sigma_\z^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^m S_\bmu^n \sigma_\mu^{(j)}
-  - \f{\mu}{2} \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
+  \sum_j s_\z^{(j)} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n s_\mu^{(j)}
+  - \f14 \mu \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
   = K_{\ell mn;\mu} + L_{\ell mn;\mu}
   \label{eq:dec_z_mu}
 \end{align}
 and likewise
 \begin{align}
-  \sum_j \sigma_\mu^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^m S_\bmu^n \sigma_\z^{(j)}
-  + \f{\mu}{2} \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
+  \sum_j s_\mu^{(j)} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n s_\z^{(j)}
+  + \f14 \mu \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
   = K_{\ell mn;\mu} + M_{\ell mn;\mu}
   \label{eq:dec_mu_z}
 \end{align}
 with
 \begin{align}
   K_{\ell mn;\mu}
-  &\equiv \f{\mu}{2} S_\mu^{\ell+1}
+  &\equiv \f14 \mu S_\mu^{\ell+1}
   \sp{\p{1+\mu S_\z}^m-\p{\mu S_\z}^m} S_\bmu^n, \\
   L_{\ell mn;\mu}
-  &\equiv \mu n S_\mu^\ell \sp{-2S+2\ell+\f32\p{n-1}+\mu S_\z}
+  &\equiv -\mu n S_\mu^\ell \sp{S-\ell-\f34\p{n-1}-\f12\mu S_\z}
   \p{\mu S_\z}^m S_\bmu^{n-1} \notag \\
-  &\qquad - 2\mu\ell n\p{n-1} S_\mu^{\ell-1}
+  &\qquad - \mu\ell n\p{n-1} S_\mu^{\ell-1}
   \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^{n-2}, \\
   M_{\ell mn;\mu}
-  &\equiv \mu n S_\mu^\ell \sp{2\p{S+\mu S_\z}\p{-1+\mu S_\z}^m
-    - \p{\f12\sp{n-1}+\mu S_\z}\p{\mu S_\z}^m} S_\bmu^{n-1}.
+  &\equiv \mu n S_\mu^\ell \sp{\p{S+\mu S_\z}\p{-1+\mu S_\z}^m
+    - \f12\p{\f12\sp{n-1}+\mu S_\z}\p{\mu S_\z}^m} S_\bmu^{n-1}.
 \end{align}
 Defining for completion
 \begin{align}
   P_{\ell mn;\mu}
-  &\equiv \sum_j \sigma_\mu^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^m S_\bmu^n \sigma_\mu^{(j)} \\
+  &\equiv \sum_j s_\mu^{(j)} S_\mu^\ell
+  \p{\mu S_\z}^m S_\bmu^n s_\mu^{(j)} \\
   &= n S_\mu^{\ell+1} \p{\mu S_\z}^m S_\bmu^{n-1}
   - n\p{n-1} S_\mu^\ell \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^{n-2},
 \end{align}
@@ -1022,7 +1028,7 @@ we finally have
 \begin{align}
   \D\p{\gamma; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = \sum_{X\in\set{\z,+,-}} \abs{\gamma_X}^2
-  \D\p{\sigma_X; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{s_X; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   + Q_{\ell mn;\mu}^{(\gamma)} + \sp{Q_{nm\ell;\mu}^{(\gamma)}}^\dag.
 \end{align}
 Note that the sum $\ell+m+n$ for operators
@@ -1320,16 +1326,16 @@ Furthermore, using the fact that
 \begin{align}
   e^{i\phi S_\z} S_\mu e^{-i\phi S_\z} = e^{i\mu\phi} S_\mu,
 \end{align}
-we can say
-\begin{align}
-  \bk{\phi|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\phi}
-  = e^{i\mu\p{\ell-n}\phi} \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X},
-\end{align}
-where
+we can define the state
 \begin{align}
   \ket{\phi} \equiv e^{-i\phi S_\z}\ket{\X},
   &&
-  \p{\cos\phi S_\x + \sin\phi S_\y} \ket\phi = S \ket\phi.
+  \p{\cos\phi S_\x + \sin\phi S_\y} \ket\phi = S \ket\phi,
+\end{align}
+and say that
+\begin{align}
+  \bk{\phi|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\phi}
+  = e^{i\mu\p{\ell-n}\phi} \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}.
 \end{align}
 Alternatively, with the help of Mathematica we can find
 \begin{align}
@@ -1374,15 +1380,15 @@ purely-$\abs{\v m}$-body operators
 \begin{align}
   \tilde\S_{\v m} \equiv \sum_{\p{\v j;\v m}} P_{\v j},
   &&
-  P_{\v j} \equiv \prod_{\mu,a} \sigma_\mu^{\p{j^\mu_a}},
+  P_{\v j} \equiv \prod_{\mu,a} s_\mu^{\p{j^\mu_a}},
 \end{align}
 where $\v m \equiv \p{m_\z,m_+,m_-}\in\mathbb{N}_0^3$ with $m_\mu$ the
-number of $\sigma_\mu$ operators in each term of $\S_{\v m}$; $\v j$
-is an ordered list of indices for the spins addressed by $P_{\v j}$;
-and the sum over $\p{\v j;\v m}$ denotes a sum over all possible
-$\v j$ for which all indices in $\v j$ are distinct and
+number of $s_\mu$ operators in each term of $\S_{\v m}$; $\v j$ is an
+ordered list of indices for the spins addressed by $P_{\v j}$; and the
+sum over $\p{\v j;\v m}$ denotes a sum over all possible $\v j$ for
+which all indices in $\v j$ are distinct and
 $\abs{\set{j^\mu_a}} = m_\mu$, such that $j^\mu_a$ indexes the $a$-th
-spin addressed by a $\sigma_\mu$ operator in $P_{\v j}$.
+spin addressed by a $s_\mu$ operator in $P_{\v j}$.
 
 We now expand a product of basis operators $\tilde\S_{\v m}$ and
 $\tilde\S_{\v n}$ into terms that have exactly $s$ spins addressed by
@@ -1396,9 +1402,9 @@ both operators:
       \abs{\set{j_\alpha^\mu}\cap\set{k_\beta^\nu}}=s}} X.
   \label{eq:SS_PP}
 \end{align}
-Collecting terms in which $r_{\mu\nu}$ of the $\sigma_\mu$ operators
-in $P_{\v j}$ address the same spin as a $\sigma_\nu$ operator in
-$P_{\v k}$, we have
+Collecting terms in which $r_{\mu\nu}$ of the $s_\mu$ operators in
+$P_{\v j}$ address the same spin as a $s_\nu$ operator in $P_{\v k}$,
+we have
 \begin{align}
   \tilde\S_{\v m} \tilde\S_{\v n}
   = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} f_{\v m\v n\v r}
@@ -1446,7 +1452,7 @@ $\v J,\v K$ with the restrictions
 and finally, similarly to $P_{\v j}$ in \eqref{eq:SS_PP} we define
 \begin{align}
   Q_{\v K} \equiv \prod_{\mu,\nu,a}
-  \sigma_\mu^{(K^{\mu\nu}_a)} \sigma_\nu^{(K^{\mu\nu}_a)}.
+  s_\mu^{(K^{\mu\nu}_a)} s_\nu^{(K^{\mu\nu}_a)}.
 \end{align}
 As the sum in \eqref{eq:SS_PQ} is invariant under permutation of the
 indices in $\v K$, we can safely neglect keeping track of these
@@ -1454,28 +1460,27 @@ indices and simply write
 \begin{align}
   Q_{\v K}
   = \prod_{\mu,\nu} \prod_{a=1}^{r_{\mu\nu}}
-  \sigma_\mu^{(K^{\mu\nu}_a)} \sigma_\nu^{(K^{\mu\nu}_a)}
-  \simeq \bigotimes_{\mu,\nu} \bigotimes_{a=1}^{r_{\mu\nu}}
-  \sigma_\mu \sigma_\nu
+  s_\mu^{(K^{\mu\nu}_a)} s_\nu^{(K^{\mu\nu}_a)}
+  \simeq \bigotimes_{\mu,\nu} \bigotimes_{a=1}^{r_{\mu\nu}} s_\mu s_\nu
   = \bigotimes_{\mu,\nu} \bigotimes_{a=1}^{r_{\mu\nu}}
-  \sum_\rho \eta_{\mu\nu\rho} \sigma_\rho,
+  \sum_\rho \eta_{\mu\nu\rho} s_\rho,
   \label{eq:Q_K_eta}
 \end{align}
 where $\simeq$ denotes equality up to a re-indexing of spins; we have
 introduced explicit dependence on
 $r_{\mu\nu}=\abs{\set{K^{\mu\nu}_a}}$ for brevity; and
 $\eta_{\mu\nu\rho}$ is defined by
-$\sigma_\mu\sigma_\nu=\sum_\rho\eta_{\mu\nu\rho}\sigma_\rho$.  Unlike
-the sums over $\mu,\nu$ in most of the work above, the sum over $\rho$
-here includes an index for the identity operator $\sigma_0\equiv\1$.
-Distributing the product of sums into a sum of products gives us
+$s_\mu s_\nu=\sum_\rho\eta_{\mu\nu\rho}s_\rho$.  Unlike the sums over
+$\mu,\nu$ in most of the work above, the sum over $\rho$ here includes
+an index for the identity operator $s_0\equiv\1$.  Distributing the
+product of sums into a sum of products gives us
 \begin{align}
   Q_{\v K}
   \simeq \sum_{\v\rho} \bigotimes_{\mu,\nu,a}
-  \eta_{\mu\nu\rho^{\mu\nu}_a} \sigma_{\rho^{\mu\nu}_a}
+  \eta_{\mu\nu\rho^{\mu\nu}_a} s_{\rho^{\mu\nu}_a}
   = \sum_{\v\rho} \sp{\prod_{\mu,\nu,a}
     \p{\eta_{\mu\nu\rho^{\mu\nu}_a}}^{\rho^{\mu\nu}_a}}
-  \bigotimes_{\mu,\nu,a} \sigma_{\rho^{\mu\nu}_a},
+  \bigotimes_{\mu,\nu,a} s_{\rho^{\mu\nu}_a},
   \label{eq:Q_K_rho}
 \end{align}
 where implicitly $\abs{\set{\rho^{\mu\nu}_a}}=r_{\mu\nu}$, as
@@ -1510,11 +1515,11 @@ we can collect like factors and group together equivalent terms in
   Q_{\v K}
   \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta_{\tilde{\v\rho}}
   \bigotimes_{\kappa}
-  \sigma_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa}
+  s_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa}
   \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta_{\tilde{\v\rho}}
   \1^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_0}
   \otimes \bigotimes_{\kappa\ne0}
-  \sigma_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa},
+  s_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa},
   \label{eq:Q_K_rho_simp}
 \end{align}
 where again implicitly
@@ -1533,10 +1538,10 @@ to simplify notation) gives us
   \tilde\S_{\v\ell_{\v m\v n\v r\v\rho}},
   \label{eq:SS_simp}
 \end{align}
-where the sum over $\p{\v\rho;\v r}$ denotes a sum over all
-values of $\v\rho$ and with the restrictions
+where the sum over $\p{\v\rho;\v r}$ denotes a sum over all values of
+$\v\rho$ and with the restrictions
 \begin{align}
-  \abs{\set{\rho^{\mu\nu}_\kappa}} = \abs{\set{\sigma_\kappa}},
+  \abs{\set{\rho^{\mu\nu}_\kappa}} = \abs{\set{s_\kappa}},
   &&
   \sum_{\kappa} \rho^{\mu\nu}_\kappa = r_{\mu\nu};
 \end{align}
@@ -1547,9 +1552,8 @@ the combinatorial factor
 \end{align}
 accounts for the number of terms which are equivalent up to a
 permutation of indices involving the identity operators in
-\eqref{eq:Q_K_rho_simp}; and
-the number of $\sigma_\mu$ operators in each term of
-$\tilde\S_{\v\ell_{\v m\v n\v r\v\rho}}$ is
+\eqref{eq:Q_K_rho_simp}; and the number of $s_\mu$ operators in each
+term of $\tilde\S_{\v\ell_{\v m\v n\v r\v\rho}}$ is
 \begin{align}
   \ell_{\v m\v n\v r\v\rho;\mu}
   = m_\mu + n_\mu - \sum_\kappa \p{r_{\mu\kappa}+r_{\kappa\mu}}
@@ -1573,13 +1577,12 @@ In addition, the multiplication table $\eta_{\mu\nu\kappa}$ may
 generally contain zeros that we can preemptively avoid with
 restrictions on $\v r$ and $\v\rho$.  Recalling that $r_{\mu\nu}$
 counts the number of operators addressed by
-$\sigma_\mu\sigma_\nu=\sum_\kappa\eta_{\mu\nu\kappa}\sigma_\kappa$, if
-$\eta_{\mu\nu\kappa}=0$ for all $\kappa$,
-i.e.~$\sigma_\mu\sigma_\nu=0$, then any term with $r_{\mu\nu}>0$ will
-vanish.  Our second restriction on the sums in \eqref{eq:SS_simp} is
-therefore to fix $r_{\mu\nu}=0$ for all $\mu,\nu$ with
-$\sigma_\mu\sigma_\nu=0$.  Finally, we can avoid the nullifying effect
-of any additional zeros in the multiplication table
+$s_\mu s_\nu=\sum_\kappa\eta_{\mu\nu\kappa} s_\kappa$, if
+$\eta_{\mu\nu\kappa}=0$ for all $\kappa$, i.e.~$s_\mu s_\nu=0$, then
+any term with $r_{\mu\nu}>0$ will vanish.  Our second restriction on
+the sums in \eqref{eq:SS_simp} is therefore to fix $r_{\mu\nu}=0$ for
+all $\mu,\nu$ with $s_\mu s_\nu=0$.  Finally, we can avoid the
+nullifying effect of any additional zeros in the multiplication table
 $\eta_{\mu\nu\kappa}$, which appear as factors in
 $\v\eta_{\v\rho}\propto\p{\eta_{\mu\nu\kappa}}^{\rho^{\mu\nu}_\kappa}$
 as defined in \eqref{eq:eta_rho}, by restricting

@@ -17,13 +17,13 @@ s_z_j = []
 s_p_j = []
 s_m_j = []
 for jj in range(N):
-    s_z_j.append(qt.tensor([ I2 ] * jj + [ qt.sigmaz() ] + [ I2 ] * (N-jj-1)))
+    s_z_j.append(qt.tensor([ I2 ] * jj + [ qt.sigmaz()/2 ] + [ I2 ] * (N-jj-1)))
     s_p_j.append(qt.tensor([ I2 ] * jj + [ qt.sigmap() ] + [ I2 ] * (N-jj-1)))
     s_m_j.append(qt.tensor([ I2 ] * jj + [ qt.sigmam() ] + [ I2 ] * (N-jj-1)))
 
 S_p = sum(s_p_j)
 S_m = sum(s_m_j)
-S_z = sum(s_z_j) / 2
+S_z = sum(s_z_j)
 
 def acomm(A,B):
     return A*B + B*A
@@ -88,27 +88,27 @@ for l, m, n in itertools.product(range(N), repeat = 3):
 
         ##############################
 
-        d_z = -2*(l+n) * S_mu**l * (mu*S_z)**m * S_nu**n
+        d_z = -1/2*(l+n) * S_mu**l * (mu*S_z)**m * S_nu**n
         if l >= 1 and n >= 1:
-            d_z += 4*l*n * S_mu**(l-1) * (S+mu*S_z) * (-1+mu*S_z)**m * S_nu**(n-1)
+            d_z += l*n * S_mu**(l-1) * (S+mu*S_z) * (-1+mu*S_z)**m * S_nu**(n-1)
 
         ##############################
 
         def K(l,m,n,mu):
-            return mu/2 * S_mu**(l+1) * ( (1+mu*S_z)**m - (mu*S_z)**m ) * S_nu**n
+            return mu/4 * S_mu**(l+1) * ( (1+mu*S_z)**m - (mu*S_z)**m ) * S_nu**n
 
         def L(l,m,n,mu):
             L = 0*II
             if n >= 1:
-                L += mu*n * S_mu**l * (-2*S+2*l+3/2*(n-1)+mu*S_z) * (mu*S_z)**m * S_nu**(n-1)
+                L += -mu*n * S_mu**l * (S-l-3/4*(n-1)-mu/2*S_z) * (mu*S_z)**m * S_nu**(n-1)
             if n >= 2 and l >= 1:
-                L += -2*mu*l*n*(n-1) * S_mu**(l-1) * (S+mu*S_z) * (-1+mu*S_z)**m * S_nu**(n-2)
+                L += -mu*l*n*(n-1) * S_mu**(l-1) * (S+mu*S_z) * (-1+mu*S_z)**m * S_nu**(n-2)
             return L
 
         def M(l,m,n,mu):
             M = 0*II
             if n >= 1:
-                Z = 2*(S+mu*S_z) * (-1+mu*S_z)**m - ((n-1)/2+mu*S_z) * (mu*S_z)**m
+                Z = (S+mu*S_z) * (-1+mu*S_z)**m - 1/2*((n-1)/2+mu*S_z) * (mu*S_z)**m
                 M += mu*n * S_mu**l * Z * S_nu**(n-1)
             return M
 

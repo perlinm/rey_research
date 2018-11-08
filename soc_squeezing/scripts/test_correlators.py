@@ -29,8 +29,9 @@ ivp_tolerance = 1e-5
 def rand(magnitude = 1):
     return ( random() + 1j*random() ) * magnitude
 
-dec_rates = [ (rand(10), rand(10), rand(10)),
-              (rand(10), rand(10), rand(10)) ]
+mag = 5
+dec_rates = [ (rand(mag), rand(mag), rand(mag)),
+              (rand(mag), rand(mag), rand(mag)) ]
 dec_mat = np.array([ [ random() for jj in range(3) ] for kk in range(3) ])
 
 h_rand = { (ll,mm,nn) : random()
@@ -49,13 +50,13 @@ s_z_j = []
 s_p_j = []
 s_m_j = []
 for jj in range(N):
-    s_z_j.append(qt.tensor([ I2 ] * jj + [ qt.sigmaz() ] + [ I2 ] * (N-jj-1)))
+    s_z_j.append(qt.tensor([ I2 ] * jj + [ qt.sigmaz()/2 ] + [ I2 ] * (N-jj-1)))
     s_p_j.append(qt.tensor([ I2 ] * jj + [ qt.sigmap() ] + [ I2 ] * (N-jj-1)))
     s_m_j.append(qt.tensor([ I2 ] * jj + [ qt.sigmam() ] + [ I2 ] * (N-jj-1)))
 
 S_p = sum(s_p_j)
 S_m = sum(s_m_j)
-S_z = sum(s_z_j) / 2
+S_z = sum(s_z_j)
 S_x =   1/2 * ( S_p + S_m )
 S_y = -1j/2 * ( S_p - S_m )
 
