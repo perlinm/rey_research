@@ -37,8 +37,8 @@ def partition(indices, partition_sizes):
         exit()
 
 def spin_op(mu):
-    if mu == 0: return sz
-    if mu == 1: return sp
+    if mu == 0: return sp
+    if mu == 1: return sz
     if mu == 2: return sm
     if mu == 3: return I2
 
@@ -75,26 +75,26 @@ eta_mnk = np.array([ [ [ eta[mu,nu,kk] not in [ 0, 1 ] for kk in range(4) ]
 eta_terms = eta[eta_mnk]
 
 def r_mats(mm,nn,ss):
-    return ( np.array([ [r_00, r_01, r_02],
-                        [r_10, 0,    r_12],
-                        [r_20, r_21, 0   ] ])
-             for r_00 in range(ss+1)
-             for r_01 in range(ss-r_00+1)
-             for r_10 in range(ss-r_00-r_01+1)
-             for r_12 in range(min(ss-r_00-r_01,mm[1])-r_10+1)
-             for r_21 in range(min(ss-r_00-r_10-r_12,nn[1])-r_01+1)
-             for r_02 in range(min(ss-r_00-r_01-r_10-r_12-r_21,mm[0]-r_00-r_01,nn[2]-r_12)+1)
-             for r_20 in [ ss-r_00-r_01-r_10-r_12-r_21-r_02 ]
-             if r_20 + r_21 <= mm[2] and r_20+r_10+r_00 <= nn[0] )
+    return ( np.array([ [0,    r_pz, r_pm],
+                        [r_zp, r_zz, r_zm],
+                        [r_mp, r_mz, 0   ] ])
+             for r_zz in range(ss+1)
+             for r_zp in range(ss-r_zz+1)
+             for r_pz in range(ss-r_zz-r_zp+1)
+             for r_pm in range(min(ss-r_zz-r_zp,mm[0])-r_pz+1)
+             for r_mp in range(min(ss-r_zz-r_pz-r_pm,nn[0])-r_zp+1)
+             for r_zm in range(min(ss-r_zz-r_zp-r_pz-r_pm-r_mp,mm[1]-r_zz-r_zp,nn[2]-r_pm)+1)
+             for r_mz in [ ss-r_zz-r_zp-r_pz-r_pm-r_mp-r_zm ]
+             if r_mz + r_mp <= mm[2] and r_mz+r_pz+r_zz <= nn[1] )
 
 def rho_mats(rr):
-    return ( np.array([ [ [0,0,0,rr[0,0]], [0,rr[0,1],0,0],     [0,0,rr[0,2],0],    ],
-                        [ [0,rr[1,0],0,0], [0,0,0,0],           [c_12_0,0,0,c_12_3] ],
-                        [ [0,0,rr[2,0],0], [c_21_0,0,0,c_21_3], [0,0,0,0]           ] ])
-             for c_12_0 in range(rr[1,2]+1)
-             for c_21_0 in range(rr[2,1]+1)
-             for c_12_3 in [ rr[1,2] - c_12_0 ]
-             for c_21_3 in [ rr[2,1] - c_21_0 ] )
+    return ( np.array([ [ [0,0,0,0],           [rr[0,1],0,0,0], [0,c_02_1,0,c_02_3] ],
+                        [ [rr[1,0],0,0,0],     [0,0,0,rr[1,1]], [0,0,rr[1,2],0]     ],
+                        [ [0,c_20_1,0,c_20_3], [0,0,rr[2,1],0], [0,0,0,0]           ] ])
+             for c_02_1 in range(rr[0,2]+1)
+             for c_20_1 in range(rr[2,0]+1)
+             for c_02_3 in [ rr[0,2] - c_02_1 ]
+             for c_20_3 in [ rr[2,0] - c_20_1 ] )
 
 def product(mm,nn):
     op_prod = {}
