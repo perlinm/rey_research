@@ -5,55 +5,9 @@
 import itertools, scipy
 import numpy as np
 
-from scipy.special import gamma, gammaln
-from scipy.special import binom as scipy_binom
-from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 from scipy.integrate import solve_ivp
 
-
-##########################################################################################
-# common methods modified to recycle values
-##########################################################################################
-
-# factorial
-def factorial(nn, vals = {}):
-    try: return vals[nn]
-    except: None
-    vals[nn] = gamma(nn+1)
-    return vals[nn]
-
-# logarithm of factorial
-def ln_factorial(nn, vals = {}):
-    try: return vals[nn]
-    except: None
-    vals[nn] = gammaln(nn+1)
-    return vals[nn]
-
-# binomial coefficient
-def binom(nn, kk, vals = {}):
-    try: return vals[nn,kk]
-    except: None
-    vals[nn,kk] = scipy_binom(nn,kk)
-    return vals[nn,kk]
-
-# unsigned stirling number of the first kind
-def stirling(nn, kk, vals = {}):
-    try: return vals[nn,kk]
-    except: None
-    val = int(sympy_stirling(nn, kk, kind = 1, signed = False))
-    vals[nn,kk] = val
-    return val
-
-# coefficient for computing a product of spin operators
-def zeta(mm, nn, pp, qq, vals = {}):
-    try: return vals[mm,nn,pp,qq]
-    except: None
-    val = (-1)**pp * 2**qq * np.sum([ stirling(pp,ss) * binom(ss,qq)
-                                      * (mm+nn-2*pp)**(ss-qq)
-                                      for ss in range(qq,pp+1) ])
-    vals[mm,nn,pp,qq] = val
-    vals[nn,mm,pp,qq] = val
-    return val
+from special_functions import *
 
 
 ##########################################################################################
