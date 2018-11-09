@@ -122,11 +122,6 @@ def op_ln_val_Z_m(op, SS):
     if ll != 0 or nn != 0: return None
     return mm*np.log(SS)
 
-def op_ln_val_Z_m(op, SS):
-    ll, mm, nn = op
-    if ll != 0 or nn != 0: return None
-    return ln_poch(int(2*SS),mm) - mm*np.log(2)
-
 
 ##########################################################################################
 # machinery for manipulating operator vectors
@@ -189,109 +184,25 @@ def ext_binom_op(ll, mm, nn, terms, x, prefactor = 1):
 # general commutator between ordered products of collective spin operators
 ##########################################################################################
 
-import qutip as qt
-I2 = qt.qeye(2)
-sz = qt.sigmaz()/2
-sp = qt.sigmap()
-sm = qt.sigmam()
-
-def spin_op(mu):
-    if mu == 0: return sp
-    if mu == 1: return sz
-    if mu == 2: return sm
-    if mu == 3: return I2
-
-def eta_val(mu, nu, rho):
-    if spin_op(rho) == I2: fac = 1/2
-    elif spin_op(rho) == sz: fac = 2
-    else: fac = 1
-    return ( spin_op(mu)*spin_op(nu) * spin_op(rho).dag() ).tr() * fac
-
-eta = np.array([ [ [ eta_val(mu,nu,kk) for kk in range(4) ]
-                   for nu in range(3) ]
-                 for mu in range(3) ])
-eta_mnk = np.array([ [ [ eta[mu,nu,kk] not in [ 0, 1 ] for kk in range(4) ]
-                       for nu in range(3) ]
-                     for mu in range(3) ])
-eta_terms = eta[eta_mnk]
-
-def r_mats(mm,nn,ss):
-    return ( np.array([ [0,    r_pz, r_pm],
-                        [r_zp, r_zz, r_zm],
-                        [r_mp, r_mz, 0   ] ])
-             for r_zz in range(ss+1)
-             for r_zp in range(ss-r_zz+1)
-             for r_pz in range(ss-r_zz-r_zp+1)
-             for r_pm in range(min(ss-r_zz-r_zp,mm[0])-r_pz+1)
-             for r_mp in range(min(ss-r_zz-r_pz-r_pm,nn[0])-r_zp+1)
-             for r_zm in range(min(ss-r_zz-r_zp-r_pz-r_pm-r_mp,mm[1]-r_zz-r_zp,nn[2]-r_pm)+1)
-             for r_mz in [ ss-r_zz-r_zp-r_pz-r_pm-r_mp-r_zm ]
-             if r_mz + r_mp <= mm[2] and r_mz+r_pz+r_zz <= nn[1] )
-
-def rho_mats(rr):
-    return ( np.array([ [ [0,0,0,0],           [rr[0,1],0,0,0], [0,c_02_1,0,c_02_3] ],
-                        [ [rr[1,0],0,0,0],     [0,0,0,rr[1,1]], [0,0,rr[1,2],0]     ],
-                        [ [0,c_20_1,0,c_20_3], [0,0,rr[2,1],0], [0,0,0,0]           ] ])
-             for c_02_1 in range(rr[0,2]+1)
-             for c_20_1 in range(rr[2,0]+1)
-             for c_02_3 in [ rr[0,2] - c_02_1 ]
-             for c_20_3 in [ rr[2,0] - c_20_1 ] )
-
-def multiply_terms(op_left, op_right, N):
-    mm = np.array(op_left)
-    nn = np.array(op_right)
-    op_prod = {}
-    mn_ops = int(mm.sum()+nn.sum())
-    min_overlap = max(mn_ops-N, 0)
-    max_overlap = min(mn_ops, N)
-
-    for ss in range(min_overlap, max_overlap+1):
-        for rr in r_mats(mm,nn,ss):
-
-            mnr_op_nums = mm + nn - rr.sum(0) - rr.sum(1)
-            mnr_fac = np.prod([ poch(mm[mu],rr[mu,:].sum()) *
-                                poch(nn[mu],rr[:,mu].sum())
-                                for mu in range(3) ])
-
-            for rho in rho_mats(rr):
-
-                rho_kk = rho.sum((0,1))
-                rho_op_nums = rho_kk[:-1]
-                op_nums = mnr_op_nums + rho_op_nums
-
-                id_ops = rho_kk[-1]
-                ops = int(op_nums.sum())
-
-                rho_fac = 1 / np.prod([ factorial(val) for val in rho.flatten() ])
-                eta_fac = np.prod(eta_terms**rho[eta_mnk])
-                id_fac = poch(N-ops,id_ops)
-                fac = mnr_fac * rho_fac * eta_fac * id_fac
-
-                tup = (op_nums[0], op_nums[1], op_nums[2])
-                try: op_prod[tuple(op_nums)] += fac
-                except: op_prod[tuple(op_nums)] = fac
-
-    return clean(op_prod)
-
-# # simplify product of two operators
-# def multiply_terms(op_left, op_right):
-#     pp, qq, rr = op_left
-#     ll, mm, nn = op_right
-#     vec = {}
-#     binom_qq = [ binom(qq,bb) for bb in range(qq+1) ]
-#     binom_mm = [ binom(mm,cc) for cc in range(mm+1) ]
-#     for kk in range(min(rr,ll)+1):
-#         kk_fac = factorial(kk) * binom(rr,kk) * binom(ll,kk)
-#         for aa, bb, cc in itertools.product(range(kk+1),range(qq+1),range(mm+1)):
-#             bb_fac = (ll-kk)**(qq-bb) * binom_qq[bb]
-#             cc_fac = (rr-kk)**(mm-cc) * binom_mm[cc]
-#             kabc_fac = kk_fac * zeta(rr,ll,kk,aa) * bb_fac * cc_fac
-#             op_in = (pp+ll-kk, aa+bb+cc, rr+nn-kk)
-#             try:
-#                 vec[op_in] += kabc_fac
-#             except:
-#                 vec[op_in] = kabc_fac
-#     return clean(vec)
+# simplify product of two operators
+def multiply_terms(op_left, op_right):
+    pp, qq, rr = op_left
+    ll, mm, nn = op_right
+    vec = {}
+    binom_qq = [ binom(qq,bb) for bb in range(qq+1) ]
+    binom_mm = [ binom(mm,cc) for cc in range(mm+1) ]
+    for kk in range(min(rr,ll)+1):
+        kk_fac = factorial(kk) * binom(rr,kk) * binom(ll,kk)
+        for aa, bb, cc in itertools.product(range(kk+1),range(qq+1),range(mm+1)):
+            bb_fac = (ll-kk)**(qq-bb) * binom_qq[bb]
+            cc_fac = (rr-kk)**(mm-cc) * binom_mm[cc]
+            kabc_fac = kk_fac * zeta(rr,ll,kk,aa) * bb_fac * cc_fac
+            op_in = (pp+ll-kk, aa+bb+cc, rr+nn-kk)
+            try:
+                vec[op_in] += kabc_fac
+            except:
+                vec[op_in] = kabc_fac
+    return clean(vec)
 
 # simplify product of two vectors
 def multiply_vecs(vec_left, vec_right, prefactor = 1):
@@ -543,17 +454,17 @@ def op_image_decoherence(op, SS, dec_vec, mu):
     return image
 
 # compute image of a single operator from coherent evolution
-def op_image_coherent(op, h_vec, N):
+def op_image_coherent(op, h_vec):
     if op == (0,0,0): return {}
     image = {}
     for h_op, h_val in h_vec.items():
-        add_left(image, multiply_terms(h_op, op, N), +1j*h_val)
-        add_left(image, multiply_terms(op, h_op, N), -1j*h_val)
+        add_left(image, multiply_terms(h_op, op), +1j*h_val)
+        add_left(image, multiply_terms(op, h_op), -1j*h_val)
     return image
 
 # full image of a single operator under the time derivative operator
 def op_image(op, h_vec, SS, dec_vecs, mu):
-    image = op_image_coherent(op, h_vec, int(2*SS))
+    image = op_image_coherent(op, h_vec)
     for dec_vec in dec_vecs:
         add_left(image, op_image_decoherence(op, SS, dec_vec, mu))
     return clean(image)
@@ -598,10 +509,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
     # arguments for computing operator pre-image under infinitesimal time translation
-    # op_image_args = ( convert_zxy(h_vec,mu), total_spin, dec_vecs, mu )
-    h_vec = { (2,0,0) : 1/6,
-              (0,0,2) : 1/6 }
-    op_image_args = ( h_vec, total_spin, dec_vecs, mu )
+    op_image_args = ( convert_zxy(h_vec,mu), total_spin, dec_vecs, mu )
 
     if method == "taylor":
         derivs = compute_squeezing_derivs(order_cap, op_image_args,
@@ -615,16 +523,6 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
                                                  init_ln_val, init_val_sign)
 
     if mu == 1:
-
-        arst = {}
-        arst[(1,0,0)] = correlators[(1,0,0)]
-        arst[(2,0,0)] = correlators[(2,0,0)]
-        arst[(0,1,0)] = correlators[(0,1,0)]
-        arst[(0,2,0)] = correlators[(0,2,0)] + spin_num/4
-        arst[(1,1,0)] = correlators[(1,1,0)] - 1/2 * correlators[(1,0,0)]
-        arst[(1,0,1)] = correlators[(1,0,1)] + correlators[(0,1,0)] + spin_num/2
-        correlators = arst
-
         return correlators
     else:
         reversed_corrs = {}
@@ -667,10 +565,8 @@ def compute_squeezing_derivs(order_cap, op_image_args, init_ln_val, init_val_sig
     diff_op = {} # single time derivative operator
     time_derivs = {} # [ sqz_op, derivative_order ] --> vector
     for sqz_op in squeezing_ops:
-        print(sqz_op)
         time_derivs[sqz_op,0] = { sqz_op : 1 }
         for order in range(1,order_cap):
-            print(" ",order)
             # compute relevant matrix elements of the time derivative operator
             time_derivs[sqz_op,order] = {}
             for op, val in time_derivs[sqz_op,order-1].items():
