@@ -112,6 +112,7 @@ def ham(state_vec):
     return ham_mat.flatten()
 
 def dec(state_vec):
+    if gams == []: return np.zeros(state_vec.size)
     state_mat = state_vec.reshape((2**N,2**N))
     dec_mat = sum([ gams[jj] @ state_mat @ gams[jj].conj().T
                     - 1/2 * acomm(ggs[jj], state_mat)
