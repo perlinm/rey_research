@@ -1,4 +1,4 @@
-\documentclass[aps,notitlepage,nofootinbib,11pt]{revtex4-1}
+\documentclass[aps,11pt,notitlepage,nofootinbib]{revtex4-1}
 
 % linking references
 \usepackage{hyperref}
@@ -64,47 +64,249 @@
 
 \begin{document}
 
-\title{Short-time simulation of collective spin Hamiltonians with
-  arbitrary decoherence}
+\title{Short-time simulation of collective quantum spin systems with
+  decoherence}
 
 \author{Michael A. Perlin}
+\email{mika.perlin@gmail.com}
+\author{Ana Maria Rey}
+\affiliation{JILA, National Institute of Standards and Technology and
+  University of Colorado, 440 UCB, Boulder, Colorado 80309, USA}
+\affiliation{Center for Theory of Quantum Matter, 440 UCB, Boulder,
+  Colorado 80309, USA}
+\affiliation{Department of Physics, University of Colorado, 390 UCB,
+  Boulder, Colorado 80309, USA}
+
+\begin{abstract}
+  Abstract goes here.
+\end{abstract}
 
 \maketitle
 
-\tableofcontents
-
-\newpage
 
 \section{Introduction}
 
-Previous work has shown how to realize spin-squeezing Hamiltonians
-with a variety of ultracold atomic and trapped ion systems.  While
-simulating the dynamics of initially Gaussian states evolving under
-these Hamiltonians is straightforward in the context of a closed
-quantum system, here we develop a method to simulate short-time
-dynamics in the presence of decoherence.  In particular, we will
-consider dynamics induced by the one-axis twisting (OAT), two-axis
-twisting (TAT), and transverse field (TVF) Hamiltonians of the form
+Collective spin systems attract considerable attention for providing a
+window into many-body quantum phenomena that are both experimentally
+accessible\cite{fernholz2008spin, takano2009spin,
+  riedel2010atomchipbased, gross2010nonlinear, martin2013quantum,
+  bohnet2016quantum, hosten2016quantum, norcia2018cavitymediated} and
+metrologically useful\cite{wineland1992spin, kitagawa1993squeezed,
+  ma2011quantum}.  Theoretical interest in such systems dates back to
+the mid-twentieth century with the introduction of the
+Lipkin-Meshkov-Glick (LMG) model as a toy model for testing many-body
+approximation methods in contemporary nuclear
+physics\cite{lipkin1965validity, meshkov1965validity,
+  glick1965validity}.  Since then, collective system systems have
+additionally featured in theoretical studies of quantum
+criticality\cite{latorre2005entanglement, alcalde2007functional,
+  morrison2008collective, sarandy2009classical, wang2012quantum,
+  majd2014lmg}, non-equilibrium
+phenomena\cite{morrison2008dissipationdriven,
+  bhattacherjee2014nonequilibrium, klinder2015dynamical,
+  zhiqiang2017nonequilibrium, smale2018observation}, and most notably
+spin squeezing\cite{wineland1992spin, kitagawa1993squeezed,
+  ma2011quantum}.  With the development of advanced atomic trapping,
+cooling, and control techniques, collective spin systems have been
+experimentally realized in atomic ensembles\cite{fernholz2008spin,
+  takano2009spin}, Bose-Einstein
+condensates\cite{riedel2010atomchipbased, gross2010nonlinear},
+ultracold Fermi gasses\cite{martin2013quantum}, trapped
+ions\cite{bohnet2016quantum}, and optical
+cavities\cite{hosten2016quantum, norcia2018cavitymediated}.
+
+One of the primary current motivations for studying collective spin
+systems is their capability to dynamically generate spin-squeezed
+states, which enable measurement of phase angles $\phi$ with an error
+$\Delta\phi$ below the standard quantum limit
+$\Delta\phi\sim1/\sqrt{N}$ set by quantum projection noise from the
+measurement of $N$ independent particles\cite{ma2011quantum}.  The
+nonlinear dynamics necessary to generate spin-squeezed states can be
+implemented with long-range collisional, photon-, or phonon-mediated
+interactions, typically resulting in a one-axis twising (OAT) model
+described by the Hamiltonian\cite{kitagawa1993squeezed}
 \begin{align}
   H_{\t{OAT}} = \chi S_\z^2,
-  &&
-  H_{\t{TAT}}^{\z,\y} = \chi \p{S_\z^2 - S_\y^2},
-  &&
-  H_{\t{TVF}} = \chi S_\z^2 + \Omega S_\x.
+  \label{eq:OAT}
 \end{align}
-In order to determine the squeezing behavior of these Hamiltonians, we
-will study the dynamics of Heisenburg operators $\O$, whose evolution
-under a Hamiltonian $H$ is given by
+where $S_\z\equiv\sum_{j=1}^N\sigma_\z^{(j)}/2$ is a collective
+spin-$z$ operator defined in terms of Pauli-$z$ operators
+$\sigma_\z^{(j)}$ addressing spin $j$.  The OAT model prepares a
+spin-squeezed state that allows measurement of a phase angle $\phi$
+with error $\Delta\phi\sim N^{-2/3}$ at times
+$t\sim\chi^{-1}N^{-2/3}$\cite{ma2011quantum}.  Although a truly
+collective spin model requires uniform, all-to-all interactions, as
+long as measurements do not distinguish between constituent particles
+even non-uniform systems can be effectively described by a uniform
+model with renormalized parameters\cite{hu2015entangled}.  Various
+works have proposed improvements over OAT through the addition of
+auxiliary control fields\cite{law2001coherent, liu2011spin,
+  huang2015twoaxis, muessel2015twistandturn} or a modified
+vacuum\cite{hu2017vacuum}, thereby realizing different collective spin
+models.
+
+While the OAT model admits exact
+solutions\cite{foss-feig2013nonequilibrium}, the same is not true of
+more general, non-Ising Hamiltonians.  Nonetheless, in the absence of
+decoherence, permutation symmetry and total spin conservation divide
+the total Hilbert space of a collective spin system into superseletion
+sectors that grow only linearly with system size, thereby admitting
+efficient classical simulation of its dynamics.  If decoherence is
+present, but sufficiently weak, dynamics of collective spin systems
+are still numerically solvable via ``quantum jump'' Monte Carlo
+methods\cite{plenio1998quantumjump, zhang2018montecarlo} (also known
+as ``quantum trajectory'' or ``Monte Carlo wavefunction'' methods)
+that can reproduce all expectation values of interest.  When
+decoherence is strong, however, or when the number of jump operators
+grows extensively with system size (e.g.~for single-spin decay), these
+Monte Carlo methods can take a prohibitively long time to converge, as
+simulations become dominated by incoherent jumps that generate large
+numbers of distinct trajectories over which to average.
+
+In this work, we develop a new method to simulate short-time dynamics
+of collective spin systems with arbitrary-strength
+permutationally-symmetric decoherence.  This method is based on a
+short-time expansion of exact solutions to the equations of motion for
+Heisenberg operators.  Evaluating this expansion requires use of the
+structure factors of a collective spin operator algebra; the
+calculation of these structure factors is one of the main technical
+results of this work.
+
+
+\section{Theory}
+
+In this section we provide the basic theory for our method to compute
+expectation values of collective spin operators, deferring lengthy
+derivations to the Appendices.  We consider systems composed of $N$
+distinct spin-1/2 particles.  Defining individual spin-1/2 operators
+$s_{n=\x,\y,\z}\equiv\sigma_n/2$ and $s_\pm\equiv s_\x\pm is_\y$ with
+Pauli operators $\sigma_n$, we denote an operator which acts with
+$s_n$ on the spin indexed by $j$ and trivially (i.e.~with the identity
+$\1$) on all other spins by $s_n^{(j)}$.  We then define the
+collective spin operators $S_n\equiv\sum_{j=1}^Ns_n^{(j)}$ for
+$n\in\set{\x,\y,\z,+,-}$.  Identifying the set $\set{\S_{\v m}}$ as a
+basis for all collective spin operators, with
+$\v m\equiv\p{m_+,m_\z,m_-}\in\N_0^3$ and
+$\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$, we can expand all
+collective spin Hamiltonians in the form
 \begin{align}
-  \f{d}{dt} \O = i\sp{H,\O}_- + \sum_\J \gamma_\J \D\p{\J;\O},
-  &&
-  \D\p{\J;\O}
-  \equiv \sum_{J\in\J}\p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+},
+  H = \sum_{\v m} h_{\v m} \S_{\v m},
+  \label{eq:H_general}
+\end{align}
+where Hermiticity requires that $h_{m_+,m_\z,m_-}=h_{m_-,m_\z,m_+}^*$.
+The time evolution of a particular Heisenberg operator $\S_{\v m}$
+under a Hamiltonian of the form in Eq.~\eqref{eq:H_general} is then
+given by
+\begin{align}
+  \f{d}{dt}\S_{\v m}
+  = i\sum_{\v n}h_{\v n}\sp{\S_{\v n},\S_{\v m}}_-
+  + \sum_\J \gamma_\J \D\p{\J;\S_{\v m}}
+  \equiv \sum_{\v n} T_{\v m\v n} \S_{\v n},
   \label{eq:EOM}
 \end{align}
-where $\J$ is a set of jump operators with a corresponding decoherence
-rate $\gamma_\J$ and $\sp{X,Y}_\pm\equiv XY\pm YX$.  Our measure of
-spin squeezing is
+where $\sp{X,Y}_\pm\equiv XY\pm YX$, $\J$ is a set of jump operators
+with a corresponding decoherence rate $\gamma_\J$, and
+\begin{align}
+  \D\p{\J;\O}
+  \equiv \sum_{J\in\J} \p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+}.
+\end{align}
+The commutator in Eq.~\eqref{eq:H_general} can be determined from the
+structure factors of $f_{\v n\v m\v\ell}$ of the general product
+$\S_{\v n}\S_{\v m}=\sum_{\v\ell}f_{\v n\v m\v\ell}S_{\v\ell}$ worked
+out in Appendix \ref{sec:prod_general}, while the effects of
+decoherence from jump operators (i.e.~elements of $\J$) of the form
+$\gamma^{(j)}=\sum_n\gamma_ns_n^{(j)}$ and $\Gamma=\sum_n\Gamma_nS_n$
+are respectively worked out in Appendices \ref{sec:decoherence_single}
+and \ref{sec:decoherence_collective}.  These ingredients are
+sufficient to compute matrix elements $T_{\v m\v n}$ of the time
+derivative operator $d/dt$ in Eq.~\eqref{eq:EOM} in most cases of
+interest.
+
+The time derivative operator $d/dt$ will generally couple spin
+operators $\S_{\v m}$ to spin operators $\S_{\v n}$ with higher
+``weight'', i.e.~with $\abs{\v n}>\abs{\v m}$, where
+$\abs{\v\ell}\equiv\sum_\lambda\ell_\lambda$.  The growth of operator
+weight signifies the growth of many-body correlations.  In practice,
+keeping track of this growth will eventually require more
+computational resources than are available, meaning we must somehow
+truncate our equations of motion.  The simplest truncation strategy
+would be to take
+\begin{align}
+  \f{d}{dt} \S_{\v m}
+  \to \sum_{w\p{\v n}<W} T_{\v m\v n} \S_{\v n}
+  \label{eq:weight_truncation}
+\end{align}
+for some weight measure $w$, e.g.~$w\p{\v n}=\abs{\v n}$, and cutoff
+$W$.  The truncation in \eqref{eq:weight_truncation} will close the
+system of differential equations defined by \eqref{eq:EOM}, and allow
+us to solve it using standard numerical methods.  Initial conditions
+for this system of differential equations, i.e.~expectation values of
+collective spin operators with respect to states that are simple to
+prepare experimentally, are provided in Appendix
+\ref{sec:initial_conditions}.
+
+The truncation strategy in Eq.~\eqref{eq:weight_truncation} has a few
+limitations:
+\begin{enumerate*}[label=(\roman*)]
+\item simulating a system of differential equations for a large number
+  of operators can be quite time-consuming,
+\item the weight measure $w$ may need to be chosen carefully, as the
+  optimal measure is generally system-dependent,
+\item simulation results can only be trusted up to the time at which
+  the initial value of operators $\S_{\v m}$ with weight
+  $w\p{\v m}\ge W$ have a non-negligible contribution to operators of
+  interest.\label{pt:limitation}
+\end{enumerate*}
+The last limitation in particular unavoidably applies in some form to
+any method tracking only a subset of all relevant operators.  We
+therefore devise an alternate truncation strategy built around point
+\ref{pt:limitation}.
+
+We can expand Heisenberg operators in a Taylor series about $t=0$ to
+write
+\begin{align}
+  \bk{\S_{\v m}}
+  = \sum_{k\ge0} \f{t^k}{k!} \bk{\f{d^k}{dt^k} \S_{\v m}}_{t=0}
+  = \sum_{k\ge0} \f{t^k}{k!}
+  \sum_{\v n} T_{\v m\v n;k} \bk{\S_{\v n}}_{t=0},
+  \label{eq:time_series}
+\end{align}
+where the matrix elements of the $k$-th time derivative are given by
+\begin{align}
+  T_{\v m\v n;0} \equiv \delta_{\v m\v n},
+  &&
+  T_{\v m\v n;1} \equiv T_{\v m\v n},
+  &&
+  T_{\v m\v n;k>1}
+  \equiv \sum_{\v p_1,\v p_2,\cdots,\v p_{k-1}}
+  T_{\v m\v p_1} T_{\v p_1\v p_2} T_{\v p_2\v p_3}
+  \cdots T_{\v p_{k-1}\v n},
+\end{align}
+where $\delta_{\v m\v n}=1$ if $\v m=\v n$ and 0 otherwise.  For
+sufficiently short times, we can truncate the series in
+Eq.~\eqref{eq:time_series} by taking
+\begin{align}
+  \bk{\S_{\v m}}
+  \to \sum_{k=0}^M \f{t^k}{k!}
+  \sum_{\v n} T_{\v m\v n;k} \bk{\S_{\v n}}_{t=0}.
+\end{align}
+Unlike the truncation strategy in Eq.~\eqref{eq:weight_truncation},
+the nonzero entries $T_{\v m\v n;k}$ for $k=0,1,\cdots,M$ now
+explicitly tell us which operators are relevant for computing the
+expectation value $\bk{\S_{\v m}}$ to a fixed order $M$.  Furthermore,
+after computing all necessary matrix elements $T_{\v m\v n;k}$ and
+expectation values $\bk{\S_{\v n}}_{t=0}$, computing $\bk{\S_{\v m}}$
+takes only an $\O\p{M}$ amount of computer time independent of the
+system time $t$.  Finally, we note that the relation
+$\S_{\v m}^\dag=\S_{\v m^*}$ for $\v m^*\equiv\p{m_-,m_\z,m_+}$ can be
+exploited to cut both the number of matrix elements $T_{\v m\v n}$ and
+expectation values $\bk{\S_{\v m}}_{t=0}$ that we need to explicitly
+compute roughly in half.
+
+
+\section{Benchmarking}
+
+Our measure of spin squeezing is
 \begin{align}
   \xi^2 \equiv \f{N}{\abs{\bk{\v S}}^2}
   \min_{\uv n\perp\bk{\v S}} \bk{\p{\v S\c\uv n}^2},
@@ -114,24 +316,41 @@ where $N$ is the total number of spins, $\v S$ is the collective spin
 vector, and the minimization is performed over all unit vectors
 $\uv n$ in the plane orthogonal to the mean spin vector $\bk{\v S}$.
 This squeezing parameter is entirely determined by one- and two-spin
-correlators of the form $\bk{S_\alpha}$ and $\bk{S_\alpha S_\beta}$;
-our task is therefore to compute these expectation values in all
-scenarios of interest.
+correlators of the form $\bk{S_\alpha}$ and $\bk{S_\alpha S_\beta}$.
 
 
-\section{One-axis twisting}
+\section{Discussion}
 
-The simplest case is that of one-axis twisting, as we can write the
-Hamiltonian in the form
+Many-body correlators and cumulants \`a la
+Ref.~\cite{schweigler2017solving}?
+
+
+\section{Conclusion}
+
+
+
+\bibliography{\jobname}
+
+\newpage
+\appendix
+
+\section{Exact results for the one-axis twisting model}
+\label{sec:OAT}
+
+The one-axis twisting (OAT) Hamiltonian for $N$ spin-1/2 particles
+takes the form
 \begin{align}
-  H_{\t{OAT}} = \f14 \chi \sum_{j,k} \sigma_\z^{(j)} \sigma_\z^{(k)}
+  H_{\t{OAT}}
+  = \chi S_\z^2
+  = \f14 \chi \sum_{j,k} \sigma_\z^{(j)} \sigma_\z^{(k)}
   = \f12 \chi \sum_{j<k} \sigma_\z^{(j)} \sigma_\z^{(k)} + \f14 N \chi,
 \end{align}
-which admits an exact solution previously worked out by Foss-Feig et
-al.~in ref.~\cite{foss-feig2013nonequilibrium}.  Adapting exact
-expectation values with respect to the initial state $\ket{\X}$
-satisfying $S_\x\ket{\X}=S\ket{\X}$, in terms of $S\equiv N/2$ and
-$\mu,\nu\in\set{+1,-1}$ we find that
+where $\sigma_z^{(j)}$ represents a Pauli-$z$ operator acting on spin
+$j$.  This Hamiltonian admits an exact solution previously worked out
+in Ref.~[\citenum{foss-feig2013nonequilibrium}].  Adapting the
+expectation values therein with respect to the initial state
+$\ket{\X}$ satisfying $S_\x\ket{\X}=S\ket{\X}$, in terms of
+$S\equiv N/2$ and $\mu,\nu\in\set{+1,-1}$ we find that
 \begin{align}
   \bk{S_+}
   &= \sum_j\bk{\sigma_+^{(j)}}
@@ -160,7 +379,7 @@ where
 \end{align}
 for
 \begin{align}
-  \gamma \equiv \f12 \p{\gamma_+ - \gamma_-},
+  \gamma \equiv -\f12 \p{\gamma_+ - \gamma_-},
   &&
   \lambda \equiv \f12 \p{\gamma_+ + \gamma_-},
   &&
@@ -170,9 +389,11 @@ for
   &&
   s_X \equiv X + i\gamma,
 \end{align}
-defined respectively in terms of uncorrelated spin dephasing,
-excitation, and decay rates $\gamma_\z$, $\gamma_+$, $\gamma_-$.  The
-last ingredients we need to compute spin squeezing at any time are
+defined respectively in terms of uncorrelated single-spin decay,
+excitation, and dephasing rates $\gamma_-$, $\gamma_+$, $\gamma_\z$
+(respectively $\Gamma_{\t{ud}}$, $\Gamma_{\t{du}}$, and
+$\Gamma_{\t{el}}$ in Ref.~[\citenum{foss-feig2013nonequilibrium}]).
+The last ingredients we need to compute spin squeezing at any time are
 $\bk{S_\z}$ and $\bk{S_\z^2}$.  As these operators commute with the
 OAT Hamiltonian, their evolution is governed entirely by decoherence
 (see Appendix \ref{sec:decay_single}), which means
@@ -195,187 +416,21 @@ then imply
   \label{eq:Sz_OAT}
 \end{align}
 The expectation values in \eqref{eq:S+_OAT}-\eqref{eq:SS+-_OAT} and
-\eqref{eq:Sz_OAT} are sufficient to compute the squeezing parameter
-$\xi^2$ defined in \eqref{eq:squeezing} at any time throughout
-evolution of the initial state $\ket{\X}$ under $H_{\t{OAT}}$.
+\eqref{eq:Sz_OAT} are sufficient to compute the spin squeezing
+parameter at any time throughout evolution of the initial state
+$\ket{\X}$ under $H_{\t{OAT}}$.
 
-
-\section{Short-time evolution via truncated equations of motion}
-
-Unlike the one-axis twisting Hamiltonian, the two-axis twisting and
-transverse-field Hamiltonians do not admit exact analytical solutions.
-We will therefore simulate dynamics under these Hamiltonians
-numerically using alternate methods.  The basic strategy will be to
-first find equations of motion for all operators of interest using
-some complete basis for collective-spin operators.  These equations of
-motion will generally yield a system of equations involving a number
-of operators that grows too fast with system size for exact
-simulation.  We will therefore look for ways to truncate the equations
-of motion to arrive at a reasonably-sized expressions that are
-practical to compute.  To benchmark this method, we test it against
-collective Hamiltonian dynamics in the absence of decoherence, exact
-one-axis twisting results in the presence of decoherence, and exact
-simulations of small systems.
-
-Ultimately, we are interested in the dynamics of collective spin
-operators.  Choosing a basis $\set{\S_{\v m}}$ for these operators,
-e.g.~$\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ with
-$\v m\equiv\p{m_+,m_\z,m_-}\in\mathbb{N}_0^3$, we can expand all
-collective-spin Hamiltonians in the form
-\begin{align}
-  H = \sum_{\v m} h_{\v m} \S_{\v m},
-  \label{eq:H_general}
-\end{align}
-where if $\S_{\v m}=S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ then Hermiticity
-requires that $h_{m_+,m_\z,m_-}=h_{m_-,m_\z,m_+}^*$.  The one-axis
-twisting Hamiltonian with a transverse field, for example, is
-\begin{align}
-  H_{\t{TVF}}
-  = \chi S_\z^2 + \Omega S_\x
-  = \chi S_\z^2 + \f{\Omega}{2} S_+ + \f{\Omega}{2} S_-,
-\end{align}
-while the two-axis twisting Hamiltonians about $\p{z,y}$ and $\p{y,x}$
-are
-\begin{align}
-  H_{\t{TAT}}^{\z,\y}
-  \propto S_\z^2 - S_\y^2
-  = S_\z^2 + \f14 S_+^2 + \f14 S_-^2
-  - \f12 S_+ S_- + \f12 S_\z,
-\end{align}
-and
-\begin{align}
-  H_{\t{TAT}}^{\y,\x}
-  \propto S_\y^2 - S_\x^2
-  = -\f12 S_+^2 - \f12 S_-^2.
-\end{align}
-The evolution of a general operator $\S_{\v m}$ under a Hamiltonian of
-the form in \eqref{eq:H_general} is given by
-\begin{align}
-  \f{d}{dt} \S_{\v m}
-  = i \sum_{\v n} h_{\v n}
-  \sp{\S_{\v n}, \S_{\v m}}_-
-  + \sum_\J \gamma_\J \D\p{\J; \S_{\v m}}
-  \equiv \sum_{\v n} T_{\v m\v n} \S_{\v n},
-  \label{eq:time_derivative}
-\end{align}
-where commutator and decoherence terms necessary for computing the
-matrix elements $T_{\v m\v n}$ of the time derivative operator $d/dt$
-are worked out Appendices \ref{sec:prod_general},
-\ref{sec:decoherence_single}, and \ref{sec:decoherence_collective}.
-
-The time derivative operator $d/dt$ will generally couple spin
-operators $\S_{\v m}$ to spin operators $\S_{\v n}$ with higher
-``weight'', i.e.~with $\abs{\v n}>\abs{\v m}$ where
-$\abs{\v\ell}\equiv\sum_\lambda\ell_\lambda$.  The growth of operator
-weight signifies the growth of many-body correlations.  In practice,
-keeping track of this growth will eventually require more
-computational resources than are available, so we truncate it by
-taking
-\begin{align}
-  \f{d}{dt} \S_{\v m}
-  = \sum_{\v n} T_{\v m\v n} \S_{\v n}
-  \to \sum_{w\p{\v n}<W} T_{\v m\v n} \S_{\v n}
-  \label{eq:time_derivative_truncation}
-\end{align}
-for some weight measure $w$, e.g.~$w\p{\v n}=\abs{\v n}$, and cutoff
-$W$.  The truncation in \eqref{eq:time_derivative_truncation} will
-close the system of differential equations defined by
-\eqref{eq:time_derivative}, and allow us to solve it using standard
-numerical methods.  The initial conditions for this system of
-differential equations, i.e.~expectation values of operators with
-respect to states that are simple to prepare, are provided in Appendix
-\ref{sec:initial_conditions}.
-
-The truncation strategy in \eqref{eq:time_derivative_truncation} has a
-few limitations:
-\begin{enumerate*}[label=(\roman*)]
-\item simulating a system of differential equations for a large number
-  of operators can be very time-consuming,
-\item the weight measure $w$ may need to be chosen carefully, as the
-  optimal measure is generally system-dependent,
-\item simulation results can only be trusted up to the time at which
-  the initial value of operators $\S_{\v m}$ with weight
-  $w\p{\v m}\ge W$ have a non-negligible contribution to operators of
-  interest.\label{pt:limitation}
-\end{enumerate*}
-The last limitation in particular {\it necessarily} applies in some
-form to any method tracking only a subset of all relevant operators.
-Embracing the unavoidable, we therefore try to devise an alternate
-truncation strategy built around \ref{pt:limitation}.
-
-We can expand Heisenberg operators in a Taylor series about $t=0$ to
-write
-\begin{align}
-  \bk{\S_{\v m}}
-  = \sum_{k\ge0} \f{t^k}{k!} \bk{\f{d^k}{dt^k} \S_{\v m}}_{t=0}
-  = \sum_{k\ge0} \f{t^k}{k!}
-  \sum_{\v n} T_{\v m\v n;k} \bk{\S_{\v n}}_{t=0},
-  \label{eq:time_series}
-\end{align}
-where the matrix elements of the $k$-th time derivative are given by
-\begin{align}
-  T_{\v m\v n;0} \equiv \delta_{\v m\v n},
-  &&
-  T_{\v m\v n;1} \equiv T_{\v m\v n},
-  &&
-  T_{\v m\v n;k>1}
-  \equiv \sum_{\v p_1,\v p_2,\cdots\v p_{k-1}}
-  T_{\v m\v p_1} T_{\v p_1\v p_2} T_{\v p_2\v p_3}
-  \cdots T_{\v p_{k-1}\v n}.
-\end{align}
-Instead of explicitly choosing a weight function that determines which
-operators to keep track of, we can now truncate the series in
-\eqref{eq:time_series} by taking
-\begin{align}
-  \bk{\S_{\v m}}
-  = \sum_{k\ge0} \f{t^k}{k!}
-  \sum_{\v n} T_{\v m\v n;k} \bk{\S_{\v n}}_{t=0}
-  \to \sum_{k=0}^M \f{t^k}{k!}
-  \sum_{\v n} T_{\v m\v n;k} \bk{\S_{\v n}}_{t=0}.
-\end{align}
-The nonzero entries of $T_{\v m\v n;k}$ for $k=0,1,\cdots,M$ now tell
-us which operators we need to keep track of in order to compute the
-expectation value $\bk{\S_{\v m}}$.  Furthermore, after computing all
-relevant matrix elements $T_{\v m\v n;k}$ and expectation values
-$\bk{\S_{\v n}}_{t=0}$, computing $\bk{\S_{\v m}}$ takes only a short
-time independent of system size.  Finally, the relation
-$\S_{\v m}^\dag=\S_{\v m^*}$ for $\v m^*\equiv\p{m_-,m_\z,m_+}$ can be
-exploited to cut both the number of matrix elements $T_{\v m\v n}$ and
-expectation values $\bk{\S_{\v m}}_{t=0}$ that we need to compute
-explicitly roughly in half.
-
-
-\bibliography{\jobname}
-
-\newpage
-\appendix
 
 \section{Basic spin operator identities}
 \label{sec:identities}
 
-The appendices in this text make ubiquitous use of various spin
+The appendices in this work make ubiquitous use of various spin
 operator identities; we collect and derive some basic identities here
-for reference.  Defining the individual spin-1/2 operators
-\begin{align}
-  s_{n=\x,\y,\z} \equiv \f12 \sigma_n,
-  &&
-  s_\pm \equiv s_\x \pm i s_\y,
-  \label{eq:single_spin}
-\end{align}
-in terms of Pauli operators $\sigma_n$, we denote the operator which
-acts with $s_n$ on a spin indexed by $j$ and trivially (i.e.~with the
-identity $\1$) on all other spins by $s_n^{(j)}$.  We then define the
-collective spin operators
-\begin{align}
-  S_n \equiv \sum_j s_n^{(j)}.
-  \label{eq:collective_spin}
-\end{align}
-Despite our working definition in \eqref{eq:collective_spin}, the
-identities we will derive for collective spin operators alone apply
-just as well to large-spin operators that cannot be expressed as the
-sum of individual spin-1/2 operators.
-
-The elementary commutation relations between spin
+for reference.  Note that despite the working definition of collective
+spin operators from $S_n=\sum_js_n^{(j)}$, the identities we will
+derive involving only collective spin operators apply just as well to
+large-spin operators that cannot be expressed as the sum of individual
+spin-1/2 operators.  The elementary commutation relations between spin
 operators are, with $\bmu\equiv-\mu\in\set{+1,-1}$ for brevity,
 \begin{align}
   \sp{s_\z^{(j)},s_\mu^{(k)}}_-
@@ -413,13 +468,13 @@ and
   \mu s_\z^{(j)} S_\mu^m
   = S_\mu \mu s_\z^{(j)} S_\mu^{m-1} + s_\mu^{(j)} S_\mu^{m-1}
   = \cdots
-  = ms_\mu^{(j)} S_\mu^{m-1} + S_\mu^m \mu s_\z^{(j)},
+  = S_\mu^m \mu s_\z^{(j)} + ms_\mu^{(j)} S_\mu^{m-1},
   \label{eq:push_z_mu_sS}
 \end{align}
 where we will generally find it nicer to express results in terms of
 $\mu s_\z^{(j)}$ and $\mu S_\z$ rather than $s_\z^{(j)}$ and $S_\z$.
-Summing over the single-spin index $j$ in both of these cases gives us
-the purely collective-spin versions of these identities:
+Summing over the single-spin index $j$ in both of the cases above
+gives us the purely collective-spin versions of these identities:
 \begin{align}
   \p{\mu S_\z}^m S_\mu = S_\mu \p{1 + \mu S_\z}^m,
   &&
@@ -550,7 +605,6 @@ operators once and for all, we define
 which we can expand as
 \begin{align}
   D_{mn;\mu}^{(k)}
-  &\equiv D_{m-k,n;\mu}S_\mu^k \\
   &= \p{m-k}n S_\bmu^{n-1} S_\mu^{m-k-1}
   \p{m-k-n+2\mu S_\z} S_\mu^k \\
   &= \p{m-k}n S_\bmu^{n-1} S_\mu^{m-1} \p{k+m-n+2\mu S_\z},
@@ -608,9 +662,9 @@ additionally contains a product of $p$ factors.  We therefore devote
 the rest of this section to simplifying our result for the commutator
 $\sp{S_\mu^m,S_\bmu^n}_-$.
 
-Observing that we always have
-$0\le k_1\le k_2\le\cdots\le k_p\le m-p-1$ in \eqref{eq:E_mn_p}, we
-can rearrange the order of the sums and relabel $k_p\to\ell$ to get
+Observing that in \eqref{eq:E_mn_p} we always have
+$0\le k_1\le k_2\le\cdots\le k_p\le m-p-1$, we can rearrange the order
+of the sums and relabel $k_p\to\ell$ to get
 \begin{align}
   E_{mn;\mu}^{(p)}
   = \f{n!}{\p{n-p}!}
@@ -1368,14 +1422,14 @@ for
 with $q$ repetitions of 2 and 1.
 
 
-\section{Changing bases for collective-spin operators}
+\section{Changing bases for collective spin operators}
 
-For a collective-spin system composed of many small spins, the
+For a collective spin system composed of many small spins, the
 operators $\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ keep track
 of $\abs{\v m}$-body operators (for $\abs{\v m}\equiv\sum_\mu m_\mu$),
 but also carry lots of ``baggage'' in the form of $k$-body operators
 with $k<\abs{\v m}$.  To cut down on this overhead, we change our
-basis for collective-spin operators from $\S_{\v m}$ to the
+basis for collective spin operators from $\S_{\v m}$ to the
 purely-$\abs{\v m}$-body operators
 \begin{align}
   \tilde\S_{\v m} \equiv \sum_{\p{\v j;\v m}} P_{\v j},
@@ -1491,7 +1545,7 @@ $\p{\rho^{\mu\nu}_1,\rho^{\mu\nu}_2,\cdots,\rho^{\mu\nu}_{r_{\mu\nu}}}$
 that are equal to $\kappa$, we observe that two terms in
 \eqref{eq:Q_K_rho} with, say, $\v\rho=\v\rho_1$ and $\v\rho=\v\rho_2$
 are equal up to a permutation of indices if
-$\tilde{\v\rho_1}=\tilde{\v\rho_2}$.  The degeneracy of terms in
+$\tilde{\v\rho}_1=\tilde{\v\rho}_2$.  The degeneracy of terms in
 \eqref{eq:Q_K_rho}, i.e.~the number of $\v\rho$ which are consistent
 with $\tilde{\v\rho}$, is
 \begin{align}
@@ -1590,5 +1644,7 @@ $\rho^{\mu\nu}_\kappa=0$ for all $\mu,\nu,\kappa$ with
 $\eta_{\mu\nu\kappa}=0$.  These restrictions are sufficient to ensure
 that all individual terms in \eqref{eq:SS_simp} are nonzero, although
 they do not rule out the possibility of several terms canceling out.
+
+TODO: comment on the use of this new basis vs.~the old one.
 
 \end{document}
