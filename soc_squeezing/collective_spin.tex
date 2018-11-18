@@ -21,7 +21,6 @@
 \newcommand{\uv}[1]{\v{\hat{#1}}} % unit vectors
 \renewcommand{\c}{\cdot} % inner product
 \newcommand{\bk}{\Braket} % shorthand for braket notation
-\renewcommand{\d}{\text{d}} % "d" for integration measure
 
 \newcommand{\C}{\mathcal{C}}
 \newcommand{\D}{\mathcal{D}}
@@ -41,7 +40,6 @@
 \newcommand{\Y}{\text{Y}}
 \newcommand{\bmu}{{\bar\mu}}
 \newcommand{\bnu}{{\bar\nu}}
-\newcommand{\floor}[1]{\left\lfloor{#1}\right\rfloor}
 
 \usepackage{dsfont} % for identity operator
 \newcommand{\1}{\mathds{1}}
@@ -64,8 +62,7 @@
 
 \begin{document}
 
-\title{Short-time simulation of collective quantum spin systems with
-  decoherence}
+\title{Short-time simulation of open collective quantum spin systems}
 
 \author{Michael A. Perlin}
 \email{mika.perlin@gmail.com}
@@ -161,7 +158,7 @@ decoherence is strong, however, or when the number of jump operators
 grows extensively with system size (e.g.~for single-spin decay), these
 Monte Carlo methods can take a prohibitively long time to converge, as
 simulations become dominated by incoherent jumps that generate large
-numbers of distinct trajectories over which to average.
+numbers of distinct trajectories over which to average.  [Unclear?]
 
 In this work, we develop a new method to simulate short-time dynamics
 of collective spin systems with arbitrary-strength
@@ -210,7 +207,7 @@ with a corresponding decoherence rate $\gamma_\J$, and
   \D\p{\J;\O}
   \equiv \sum_{J\in\J} \p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+}.
 \end{align}
-The commutator in Eq.~\eqref{eq:H_general} can be determined from the
+The commutator in Eq.~\eqref{eq:EOM} can be determined from the
 structure factors of $f_{\v n\v m\v\ell}$ of the general product
 $\S_{\v n}\S_{\v m}=\sum_{\v\ell}f_{\v n\v m\v\ell}S_{\v\ell}$ worked
 out in Appendix \ref{sec:prod_general}, while the effects of
@@ -237,12 +234,12 @@ would be to take
   \label{eq:weight_truncation}
 \end{align}
 for some weight measure $w$, e.g.~$w\p{\v n}=\abs{\v n}$, and cutoff
-$W$.  The truncation in \eqref{eq:weight_truncation} will close the
-system of differential equations defined by \eqref{eq:EOM}, and allow
-us to solve it using standard numerical methods.  Initial conditions
-for this system of differential equations, i.e.~expectation values of
-collective spin operators with respect to states that are simple to
-prepare experimentally, are provided in Appendix
+$W$.  The truncation in Eq.~\eqref{eq:weight_truncation} will close
+the system of differential equations defined by Eq.~\eqref{eq:EOM},
+and allow us to solve it using standard numerical methods.  Initial
+conditions for this system of differential equations, i.e.~expectation
+values of collective spin operators with respect to states that are
+simple to prepare experimentally, are provided in Appendix
 \ref{sec:initial_conditions}.
 
 The truncation strategy in Eq.~\eqref{eq:weight_truncation} has a few
@@ -268,36 +265,33 @@ write
   \bk{\S_{\v m}}
   = \sum_{k\ge0} \f{t^k}{k!} \bk{\f{d^k}{dt^k} \S_{\v m}}_{t=0}
   = \sum_{k\ge0} \f{t^k}{k!}
-  \sum_{\v n} T_{\v m\v n;k} \bk{\S_{\v n}}_{t=0},
+  \sum_{\v n} T^k_{\v m\v n} \bk{\S_{\v n}}_{t=0},
   \label{eq:time_series}
 \end{align}
-where the matrix elements of the $k$-th time derivative are given by
+where the matrix elements $T^k_{\v m\v n}$ of the $k$-th time
+derivative are
 \begin{align}
-  T_{\v m\v n;0} \equiv \delta_{\v m\v n},
+  T^0_{\v m\v n} \equiv \delta_{\v m\v n},
   &&
-  T_{\v m\v n;1} \equiv T_{\v m\v n},
+  T^1_{\v m\v n} \equiv T_{\v m\v n},
   &&
-  T_{\v m\v n;k>1}
+  T^{k>1}_{\v m\v n}
   \equiv \sum_{\v p_1,\v p_2,\cdots,\v p_{k-1}}
   T_{\v m\v p_1} T_{\v p_1\v p_2} T_{\v p_2\v p_3}
   \cdots T_{\v p_{k-1}\v n},
 \end{align}
-where $\delta_{\v m\v n}=1$ if $\v m=\v n$ and 0 otherwise.  For
+with $\delta_{\v m\v n}=1$ if $\v m=\v n$ and 0 otherwise.  For
 sufficiently short times, we can truncate the series in
 Eq.~\eqref{eq:time_series} by taking
 \begin{align}
   \bk{\S_{\v m}}
   \to \sum_{k=0}^M \f{t^k}{k!}
-  \sum_{\v n} T_{\v m\v n;k} \bk{\S_{\v n}}_{t=0}.
+  \sum_{\v n} T^k_{\v m\v n} \bk{\S_{\v n}}_{t=0}.
 \end{align}
-Unlike the truncation strategy in Eq.~\eqref{eq:weight_truncation},
-the nonzero entries $T_{\v m\v n;k}$ for $k=0,1,\cdots,M$ now
-explicitly tell us which operators are relevant for computing the
-expectation value $\bk{\S_{\v m}}$ to a fixed order $M$.  Furthermore,
-after computing all necessary matrix elements $T_{\v m\v n;k}$ and
-expectation values $\bk{\S_{\v n}}_{t=0}$, computing $\bk{\S_{\v m}}$
-takes only an $\O\p{M}$ amount of computer time independent of the
-system time $t$.  Finally, we note that the relation
+Unlike the truncation in Eq.~\eqref{eq:weight_truncation}, the nonzero
+entries $T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ now explicitly tell us
+which operators are relevant for computing the expectation value
+$\bk{\S_{\v m}}$ to a fixed order $M$.  Note that the relation
 $\S_{\v m}^\dag=\S_{\v m^*}$ for $\v m^*\equiv\p{m_-,m_\z,m_+}$ can be
 exploited to cut both the number of matrix elements $T_{\v m\v n}$ and
 expectation values $\bk{\S_{\v m}}_{t=0}$ that we need to explicitly
@@ -1172,7 +1166,7 @@ shorthand, we define
   \equiv \D\p{\set{\Gamma};\O}
   = \Gamma^\dag \O \Gamma - \f12\sp{\Gamma^\dag \Gamma, \O}_+,
 \end{align}
-where $\Gamma$ is a collective spin operator with weight one, i.e.~a
+where $\Gamma$ is a collective spin operator with unit weight, i.e.~a
 linear combination of $S_\z$, $S_\mu$, and $S_\bmu$.
 
 \subsection{Decay-type decoherence and dephasing}
@@ -1330,27 +1324,29 @@ or $\Gamma_\bmu\ne0$, and does not grow otherwise.
 \section{Initial conditions}
 \label{sec:initial_conditions}
 
-Initial conditions for all collective spin operators can be determined
-from the expansions
+Initial conditions for all collective spin operators with respect to
+(spin-polarized) Gaussian states in the Dicke manifold spanned by
+$\set{\ket{m}:S_\z\ket{m}=m\ket{m}}$ can be determined from the
+expansions
 \begin{align}
   S_\z = \sum_{k=-S}^S k \op{k},
   &&
   S_\mu = \sum_{k=-S+\delta_{\mu,-1}}^{S-\delta_{\mu,1}}
   g_\mu\p{S,k} \op{k+\mu}{k},
 \end{align}
-with
+with $\mu\in\set{+1,-1}$ and
 \begin{align}
-  g_\mu\p{S,k} \equiv \sqrt{\p{S-\mu k}\p{S+\mu k+1}},
+  g_\mu\p{S,k} \equiv \sqrt{\p{S-\mu k}\p{S+\mu k+1}}.
 \end{align}
-and the initial states
+Given the initial states
 \begin{align}
   \ket{\pm\Z} \equiv \ket{\pm S},
   &&
   \ket{\X} \equiv 2^{-N/2} \sum_{k=-S}^S
   { N \choose S+k }^{1/2} \ket{k},
 \end{align}
-using which we can compute, for $\mu,\nu\in\set{+1,-1}$,
-$\bmu\equiv-\mu$,
+where $S_\x\ket{\X}=S\ket{\X}$, in terms of $\nu\in\set{+1,-1}$ and
+$\bmu\equiv-\mu$ we then have
 \begin{align}
   \bk{\nu\Z|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\nu\Z}
   = \delta_{\ell n} \times
@@ -1382,13 +1378,14 @@ Furthermore, using the fact that
 \end{align}
 we can define the state
 \begin{align}
-  \ket{\phi} \equiv e^{-i\phi S_\z}\ket{\X},
+  \ket{\tilde\phi} \equiv e^{-i\phi S_\z}\ket{\X},
   &&
-  \p{\cos\phi S_\x + \sin\phi S_\y} \ket\phi = S \ket\phi,
+  \p{\cos\phi S_\x + \sin\phi S_\y} \ket{\tilde\phi}
+  = S \ket{\tilde\phi},
 \end{align}
 and say that
 \begin{align}
-  \bk{\phi|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\phi}
+  \bk{\tilde\phi|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\tilde\phi}
   = e^{i\mu\p{\ell-n}\phi} \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}.
 \end{align}
 Alternatively, with the help of Mathematica we can find
@@ -1397,9 +1394,10 @@ Alternatively, with the help of Mathematica we can find
   = \f{\p{N!}^2}{2^N\p{N-\ell}!\p{N-n}!}
   \sp{\p{-S}^m \alpha_{N\ell n}
     + \f{\p{N-\ell}\p{N-n}}{N} \beta_{N\ell mn}},
+  \label{eq:X_hyper}
 \end{align}
-where $\alpha$ and $\beta$ are defined in terms of the generalized
-hypergeometric function $\F$ by
+where $\alpha_{N\ell n}$ and $\beta_{N\ell mn}$ are defined in terms
+of the generalized hypergeometric function $\F$ by
 \begin{align}
   \alpha_{N\ell n}
   \equiv \F\p{\let\scriptstyle\textstyle
@@ -1523,7 +1521,7 @@ indices and simply write
 where $\simeq$ denotes equality up to a re-indexing of spins; we have
 introduced explicit dependence on
 $r_{\mu\nu}=\abs{\set{K^{\mu\nu}_a}}$ for brevity; and
-$\eta_{\mu\nu\rho}$ is defined by
+$\eta_{\mu\nu\rho}$ is a structure factor defined by
 $s_\mu s_\nu=\sum_\rho\eta_{\mu\nu\rho}s_\rho$.  Unlike the sums over
 $\mu,\nu$ in most of the work above, the sum over $\rho$ here includes
 an index for the identity operator $s_0\equiv\1$.  Distributing the
@@ -1627,20 +1625,18 @@ overlap $s$ is bounded as
   \max\set{0,\sum_\mu\p{m_\mu+n_\mu}-N}
   \le s \le \min\set{N,\sum_\mu\p{m_\mu+n_\mu}}.
 \end{align}
-In addition, the multiplication table $\eta_{\mu\nu\kappa}$ may
-generally contain zeros that we can preemptively avoid with
-restrictions on $\v r$ and $\v\rho$.  Recalling that $r_{\mu\nu}$
-counts the number of operators addressed by
+In addition, the structure factor $\eta_{\mu\nu\kappa}$ may generally
+contain zeros that we can preemptively avoid with restrictions on
+$\v r$ and $\v\rho$.  Recalling that $r_{\mu\nu}$ counts the number of
+operators addressed by
 $s_\mu s_\nu=\sum_\kappa\eta_{\mu\nu\kappa} s_\kappa$, if
 $\eta_{\mu\nu\kappa}=0$ for all $\kappa$, i.e.~$s_\mu s_\nu=0$, then
 any term with $r_{\mu\nu}>0$ will vanish.  Our second restriction on
 the sums in \eqref{eq:SS_simp} is therefore to fix $r_{\mu\nu}=0$ for
 all $\mu,\nu$ with $s_\mu s_\nu=0$.  Finally, we can avoid the
-nullifying effect of any additional zeros in the multiplication table
-$\eta_{\mu\nu\kappa}$, which appear as factors in
+nullifying effect of zeros from $\eta_{\mu\nu\kappa}$
 $\v\eta_{\v\rho}\propto\p{\eta_{\mu\nu\kappa}}^{\rho^{\mu\nu}_\kappa}$
-as defined in \eqref{eq:eta_rho}, by restricting
-$\rho^{\mu\nu}_\kappa=0$ for all $\mu,\nu,\kappa$ with
+by fixing $\rho^{\mu\nu}_\kappa=0$ for all $\mu,\nu,\kappa$ with
 $\eta_{\mu\nu\kappa}=0$.  These restrictions are sufficient to ensure
 that all individual terms in \eqref{eq:SS_simp} are nonzero, although
 they do not rule out the possibility of several terms canceling out.
