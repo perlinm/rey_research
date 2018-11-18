@@ -16,7 +16,7 @@ spins = [ -1, 1 ] # numerical values for pseudospins: g <--> -1 and e <--> 1
 
 ### constants in SI units
 
-hbar_SI = 6.626070040e-34 / (2*pi) # reduced planck constant
+hbar_SI = 6.62607015e-34 / (2*pi) # reduced planck constant
 c_SI = 299792458 # speed of light
 m_e_SI = 9.10938291e-31 # mass of electron
 bohr_SI = 5.2917721067e-11 # bohr radius
