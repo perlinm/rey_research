@@ -15,112 +15,106 @@ from special_functions import *
 ##########################################################################################
 
 # natural logarithm of factors which appear in the expetation value for |X>
-def ln_factors_X(SS, kk, ll, nn):
-    return ( ln_factorial(SS - kk)
-             - ln_factorial(SS + kk)
-             - ln_factorial(SS - kk - ll)
-             - ln_factorial(SS - kk - nn) )
+def ln_factors_X(NN, kk, ll, nn):
+    return ( ln_factorial(NN - kk)
+             - ln_factorial(kk)
+             - ln_factorial(NN - ll - kk)
+             - ln_factorial(NN - nn - kk) )
 ln_factors_X = np.vectorize(ln_factors_X)
 
 # correlator < X | S_+^ll S_\z^mm S_-^nn | X >
-def op_val_X(op, SS, vals = {}):
+def op_val_X(op, NN, vals = {}):
     ll, mm, nn = op
     ll, nn = max(ll,nn), min(ll,nn)
-    try: return vals[ll,mm,nn,SS]
+    try: return vals[ll,mm,nn,NN]
     except: None
 
     if ll == 0 and nn == 0 and mm % 2 == 1: return 0
-    if ll > 2*SS: return 0
+    if ll > NN: return 0
 
-    ln_prefactor = ln_factorial(2*SS) - 2*SS*np.log(2)
-    k_vals = np.arange(-SS,SS-ll+0.5)
-    val = ( k_vals**mm * np.exp(ln_factors_X(SS,k_vals,ll,nn) + ln_prefactor) ).sum()
-    vals[ll,mm,nn,SS] = val
+    ln_prefactor = ln_factorial(NN) - NN*np.log(2)
+    k_vals = np.arange(NN-ll+0.5, dtype = int)
+    val = ((k_vals-NN/2)**mm * np.exp(ln_factors_X(NN,k_vals,ll,nn)+ln_prefactor)).sum()
+    vals[ll,mm,nn,NN] = val
     return val
 
 # correlator < Z | S_+^ll S_\z^mm S_-^nn | Z >
-def op_val_Z_p(op, SS, vals = {}):
-    try: return vals[ll,mm,SS]
+def op_val_Z_p(op, NN, vals = {}):
+    try: return vals[ll,mm,NN]
     except: None
 
     ll, mm, nn = op
     if ll != nn: return 0
-    spin_num = int(round(2*SS))
-    if nn > spin_num: return 0
+    if nn > NN: return 0
 
-    ln_factorials_num = ln_factorial(spin_num) + ln_factorial(nn)
-    ln_factorials_den = ln_factorial(spin_num-nn)
-    val = (SS-nn)**mm * np.exp(ln_factorials_num - ln_factorials_den)
-    vals[ll,mm,SS] = val
+    ln_factorials_num = ln_factorial(NN) + ln_factorial(nn)
+    ln_factorials_den = ln_factorial(NN-nn)
+    val = (NN/2-nn)**mm * np.exp(ln_factorials_num - ln_factorials_den)
+    vals[ll,mm,NN] = val
     return val
 
 # correlator < Z | S_-^ll S_\z^mm S_+^nn | Z >
-def op_val_Z_m(op, SS):
+def op_val_Z_m(op, NN):
     ll, mm, nn = op
     if ll != 0 or nn != 0: return 0
-    return (-SS)**mm
+    return (-NN/2)**mm
 
 # correlator ln | < X | S_+^ll S_\z^mm S_-^nn | X > |
-def op_ln_val_X(op, SS, vals = {}):
+def op_ln_val_X(op, NN, vals = {}):
     ll, mm, nn = op
     ll, nn = max(ll,nn), min(ll,nn)
-    try: return vals[ll,mm,nn,SS]
+    try: return vals[ll,mm,nn,NN]
     except: None
 
     if ll == 0 and nn == 0 and mm % 2 == 1: return None
-    if ll > 2*SS: return None
+    if ll > NN: return None
 
-    ln_prefactor = ln_factorial(2*SS) - 2*SS*np.log(2)
-    ln_factors = lambda kk : ln_factors_X(SS,kk,ll,nn)
+    ln_prefactor = ln_factorial(NN) - NN*np.log(2)
+    ln_factors = lambda kk : ln_factors_X(NN,kk,ll,nn)
 
-    k_vals = np.arange(-SS,SS-ll+0.5)
+    k_vals = np.arange(NN-ll+0.5, dtype = int)
 
-    # remove kk == 0 if necessary
-    if mm > 0 and SS % 1 == 0 and k_vals[-1] >= 0:
-        k_vals = np.delete(k_vals,int(SS+1/4))
+    # remove kk == NN/2 term if necessary
+    if mm > 0 and NN % 2 == 0 and k_vals[-1] >= NN/2:
+        k_vals = np.delete(k_vals, NN//2)
 
     # compute the logarithm of the magnitude of each term
-    if mm == 0:
-        ln_terms = ln_factors(k_vals) + ln_prefactor
-    else:
-        ln_terms = mm * np.log(np.abs(k_vals)) + ln_factors(k_vals) + ln_prefactor
+    ln_terms = ln_factors(k_vals) + ln_prefactor
+    if mm != 0: ln_terms += mm * np.log(abs(NN/2-k_vals))
 
     # compute the absolute value of terms divided by the largest term
     ln_term_max = ln_terms.max()
     terms = np.exp(ln_terms-ln_term_max)
 
-    # compute the logarithm of the sum of the terms (up to an overall sign)
+    # compute the logarithm of the sum of the terms
     if mm % 2 == 1:
-        # we need te account for the sign of kk in each term
-        val = ln_term_max + np.log(np.abs(np.sum(np.sign(k_vals)*terms)))
+        val = ln_term_max + np.log(np.sum(np.sign(NN/2-k_vals)*terms))
     else:
-        # the sign of the kk does not matter, as it is raised to an even power
-        val = ln_term_max + np.log(abs(np.sum(terms)))
+        val = ln_term_max + np.log(np.sum(terms))
 
-    vals[ll,mm,nn,SS] = val
+    vals[ll,mm,nn,NN] = val
     return val
 
 # correlator ln | < Z | S_+^ll S_\z^mm S_-^nn | Z > |
-def op_ln_val_Z_p(op, SS, vals = {}):
-    try: return vals[ll,mm,SS]
+def op_ln_val_Z_p(op, NN, vals = {}):
+    try: return vals[ll,mm,NN]
     except: None
 
     ll, mm, nn = op
     if ll != nn: return None
-    spin_num = int(round(2*SS))
-    if ll > spin_num: return None
+    if ll > NN: return None
 
-    ln_factorials_num = ln_factorial(spin_num) + ln_factorial(ll)
-    ln_factorials_den = ln_factorial(spin_num-ll)
-    val = mm*np.log(SS-ll) + ln_factorials_num - ln_factorials_den
-    vals[ll,mm,SS] = val
+    ln_factorials_num = ln_factorial(NN) + ln_factorial(ll)
+    ln_factorials_den = ln_factorial(NN-ll)
+    val = mm*np.log(NN/2-ll) + ln_factorials_num - ln_factorials_den
+    vals[ll,mm,NN] = val
     return val
 
 # correlator ln | < Z | S_-^ll S_\z^mm S_+^nn | Z > |
-def op_ln_val_Z_m(op, SS):
+def op_ln_val_Z_m(op, NN):
     ll, mm, nn = op
     if ll != 0 or nn != 0: return None
-    return mm*np.log(SS)
+    return mm*np.log(NN/2)
 
 
 ##########################################################################################
@@ -463,10 +457,10 @@ def op_image_coherent(op, h_vec):
     return image
 
 # full image of a single operator under the time derivative operator
-def op_image(op, h_vec, SS, dec_vecs, mu):
+def op_image(op, h_vec, spin_num, dec_vecs, mu):
     image = op_image_coherent(op, h_vec)
     for dec_vec in dec_vecs:
-        add_left(image, op_image_decoherence(op, SS, dec_vec, mu))
+        add_left(image, op_image_decoherence(op, spin_num/2, dec_vec, mu))
     return clean(image)
 
 
@@ -490,16 +484,15 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
     assert(state_dir in [ "Z", "X", "Y" ])
     nu = +1 if state_sign == "+" else -1
 
-    total_spin = spin_num/2
     if state_dir == "Z":
         if mu == nu:
-            init_ln_val = lambda op : op_ln_val_Z_p(op, total_spin)
+            init_ln_val = lambda op : op_ln_val_Z_p(op, spin_num)
             init_val_sign = lambda op : 1
         else:
-            init_ln_val = lambda op : op_ln_val_Z_m(op, total_spin)
+            init_ln_val = lambda op : op_ln_val_Z_m(op, spin_num)
             init_val_sign = lambda op : (-1)**op[1]
     else: # if state_dir in [ "X", "Y" ]
-        init_ln_val = lambda op : op_ln_val_X(op, total_spin)
+        init_ln_val = lambda op : op_ln_val_X(op, spin_num)
         if state_dir == "X":
             init_val_sign = lambda op : (-1)**op[1] * nu**(op[0]-op[2])
         if state_dir == "Y":
@@ -509,7 +502,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
     # arguments for computing operator pre-image under infinitesimal time translation
-    op_image_args = ( convert_zxy(h_vec,mu), total_spin, dec_vecs, mu )
+    op_image_args = ( convert_zxy(h_vec,mu), spin_num, dec_vecs, mu )
 
     if method == "taylor":
         derivs = compute_squeezing_derivs(order_cap, op_image_args,
