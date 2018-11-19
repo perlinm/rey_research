@@ -158,16 +158,15 @@ decoherence is strong, however, or when the number of jump operators
 grows extensively with system size (e.g.~for single-spin decay), these
 Monte Carlo methods can take a prohibitively long time to converge, as
 simulations become dominated by incoherent jumps that generate large
-numbers of distinct trajectories over which to average.  [Unclear?]
+numbers of distinct trajectories over which to average.
 
 In this work, we develop a new method to simulate short-time dynamics
-of collective spin systems with arbitrary-strength
-permutationally-symmetric decoherence.  This method is based on a
-short-time expansion of exact solutions to the equations of motion for
-Heisenberg operators.  Evaluating this expansion requires use of the
-structure factors of a collective spin operator algebra; the
-calculation of these structure factors is one of the main technical
-results of this work.
+of collective spin systems with permutationally-symmetric decoherence.
+This method is based on a short-time expansion of exact solutions to
+the equations of motion for Heisenberg operators.  Evaluating this
+expansion requires use of the structure factors of a collective spin
+operator algebra; the calculation of these structure factors is one of
+the main technical results of this work.
 
 
 \section{Theory}
@@ -176,11 +175,12 @@ In this section we provide the basic theory for our method to compute
 expectation values of collective spin operators, deferring lengthy
 derivations to the Appendices.  We consider systems composed of $N$
 distinct spin-1/2 particles.  Defining individual spin-1/2 operators
-$s_{n=\x,\y,\z}\equiv\sigma_n/2$ and $s_\pm\equiv s_\x\pm is_\y$ with
-Pauli operators $\sigma_n$, we denote an operator which acts with
-$s_n$ on the spin indexed by $j$ and trivially (i.e.~with the identity
-$\1$) on all other spins by $s_n^{(j)}$.  We then define the
-collective spin operators $S_n\equiv\sum_{j=1}^Ns_n^{(j)}$ for
+$s_{n=\x,\y,\z}\equiv\sigma_n/2$ and
+$s_\pm\equiv s_\x\pm is_\y=\sigma_\pm$ with Pauli operators
+$\sigma_n$, we denote an operator which acts with $s_n$ on the spin
+indexed by $j$ and trivially (i.e.~with the identity $\1$) on all
+other spins by $s_n^{(j)}$.  We then define the collective spin
+operators $S_n\equiv\sum_{j=1}^Ns_n^{(j)}$ for
 $n\in\set{\x,\y,\z,+,-}$.  Identifying the set $\set{\S_{\v m}}$ as a
 basis for all collective spin operators, with
 $\v m\equiv\p{m_+,m_\z,m_-}\in\N_0^3$ and
@@ -205,10 +205,16 @@ where $\sp{X,Y}_\pm\equiv XY\pm YX$, $\J$ is a set of jump operators
 with a corresponding decoherence rate $\gamma_\J$, and
 \begin{align}
   \D\p{\J;\O}
-  \equiv \sum_{J\in\J} \p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+}.
+  \equiv \sum_{J\in\J} \p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+}
 \end{align}
-The commutator in Eq.~\eqref{eq:EOM} can be determined from the
-structure factors of $f_{\v n\v m\v\ell}$ of the general product
+is the Heisenberg picture dissipator, or Lindblad superoperator, for
+all jump operators $J\in\J$.  Decoherence via uncorrelated decay of
+individual spins at a rate $\gamma_-$, for example, would be described
+by the set of jump operators
+$\J_-=\set{\sigma_-^{(j)}:j=1,2,\cdots,N}$ with
+$\gamma_{\J_-}=\gamma_-$.  The commutator in Eq.~\eqref{eq:EOM} can be
+determined from the structure factors of $f_{\v n\v m\v\ell}$ of the
+general product
 $\S_{\v n}\S_{\v m}=\sum_{\v\ell}f_{\v n\v m\v\ell}S_{\v\ell}$ worked
 out in Appendix \ref{sec:prod_general}, while the effects of
 decoherence from jump operators (i.e.~elements of $\J$) of the form
@@ -256,8 +262,8 @@ limitations:
 \end{enumerate*}
 The last limitation in particular unavoidably applies in some form to
 any method tracking only a subset of all relevant operators.  We
-therefore devise an alternate truncation strategy built around point
-\ref{pt:limitation}.
+therefore devise an alternate truncation strategy built around
+limitation \ref{pt:limitation}.
 
 We can expand Heisenberg operators in a Taylor series about $t=0$ to
 write
@@ -289,7 +295,7 @@ Eq.~\eqref{eq:time_series} by taking
   \sum_{\v n} T^k_{\v m\v n} \bk{\S_{\v n}}_{t=0}.
 \end{align}
 Unlike the truncation in Eq.~\eqref{eq:weight_truncation}, the nonzero
-entries $T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ now explicitly tell us
+matrix elements $T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ now tell us
 which operators are relevant for computing the expectation value
 $\bk{\S_{\v m}}$ to a fixed order $M$.  Note that the relation
 $\S_{\v m}^\dag=\S_{\v m^*}$ for $\v m^*\equiv\p{m_-,m_\z,m_+}$ can be
@@ -336,27 +342,29 @@ takes the form
 \begin{align}
   H_{\t{OAT}}
   = \chi S_\z^2
-  = \f14 \chi \sum_{j,k} \sigma_\z^{(j)} \sigma_\z^{(k)}
   = \f12 \chi \sum_{j<k} \sigma_\z^{(j)} \sigma_\z^{(k)} + \f14 N \chi,
 \end{align}
-where $\sigma_z^{(j)}$ represents a Pauli-$z$ operator acting on spin
-$j$.  This Hamiltonian admits an exact solution previously worked out
-in Ref.~[\citenum{foss-feig2013nonequilibrium}].  Adapting the
-expectation values therein with respect to the initial state
-$\ket{\X}$ satisfying $S_\x\ket{\X}=S\ket{\X}$, in terms of
-$S\equiv N/2$ and $\mu,\nu\in\set{+1,-1}$ we find that
+where $\sigma_\z^{(j)}$ represents a Pauli-$z$ operator acting on spin
+$j$.  This Hamiltonian is a special case of the Ising Hamiltonian
+previously solved in Ref.~[\citenum{foss-feig2013nonequilibrium}] via
+exact, analytical treatment of the quantum jump Monte Carlo method for
+computing expectation values.  The solution therein accounts for
+coherent evolution in addition to decoherence via uncorrelated
+single-spin decay, excitation, and dephasing respectively at rates
+$\gamma_-$, $\gamma_+$, and $\gamma_\z$ (denoted by $\Gamma_{\t{ud}}$,
+$\Gamma_{\t{du}}$, and $\Gamma_{\t{el}}$ in
+Ref.~[\citenum{foss-feig2013nonequilibrium}]).  Letting $S\equiv N/2$
+and $\mu,\nu\in\set{+1,-1}$, we adapt expectation values computed in
+Ref.~[\citenum{foss-feig2013nonequilibrium}] for the initial state
+$\ket{\X}$ satisfying $S_\x\ket{\X}=S\ket{\X}$ evolving under
+$H_{\t{OAT}}$, finding
 \begin{align}
   \bk{S_+}
-  &= \sum_j\bk{\sigma_+^{(j)}}
-  = S e^{-\Gamma t} \Phi\p{\chi,t}^{N-1}, \label{eq:S+_OAT} \\
+  &= S e^{-\Gamma t} \Phi\p{\chi,t}^{N-1}, \label{eq:S+_OAT} \\
   \bk{S_\mu S_\z}
-  &= \f12\sum_j\bk{\sigma_\mu^{(j)}\sigma_\z^{(j)}}
-  + \f12\sum_{j\ne k} \bk{\sigma_\mu^{(j)} \sigma_\z^{(k)}} \\
   &= -\f{\mu}{2}\bk{S_\mu} + S \p{S-\f12} e^{-\Gamma t}
   \Psi\p{\mu\chi,t} \Phi\p{\chi,t}^{N-2}, \\
   \bk{S_\mu S_\nu}
-  &= \sum_j \bk{\sigma_\mu^{(j)} \sigma_\nu^{(j)}}
-  + \sum_{j\ne k} \bk{\sigma_\mu^{(j)} \sigma_\nu^{(k)}} \\
   &= \delta_{\mu,-\nu} \p{S + \mu\bk{S_\z}}
   + S \p{S-\f12} e^{-2\Gamma t}
   \Phi\p{\sp{\mu+\nu}\chi,t}^{N-2}, \label{eq:SS+-_OAT}
@@ -383,10 +391,6 @@ for
   &&
   s_X \equiv X + i\gamma,
 \end{align}
-defined respectively in terms of uncorrelated single-spin decay,
-excitation, and dephasing rates $\gamma_-$, $\gamma_+$, $\gamma_\z$
-(respectively $\Gamma_{\t{ud}}$, $\Gamma_{\t{du}}$, and
-$\Gamma_{\t{el}}$ in Ref.~[\citenum{foss-feig2013nonequilibrium}]).
 The last ingredients we need to compute spin squeezing at any time are
 $\bk{S_\z}$ and $\bk{S_\z^2}$.  As these operators commute with the
 OAT Hamiltonian, their evolution is governed entirely by decoherence
@@ -410,9 +414,9 @@ then imply
   \label{eq:Sz_OAT}
 \end{align}
 The expectation values in \eqref{eq:S+_OAT}-\eqref{eq:SS+-_OAT} and
-\eqref{eq:Sz_OAT} are sufficient to compute the spin squeezing
-parameter at any time throughout evolution of the initial state
-$\ket{\X}$ under $H_{\t{OAT}}$.
+\eqref{eq:Sz_OAT} are sufficient to compute the spin squeezing at any
+time throughout evolution of the initial state $\ket{\X}$ under
+$H_{\t{OAT}}$.
 
 
 \section{Basic spin operator identities}
@@ -489,10 +493,10 @@ Multiplying \eqref{eq:push_z_mu} through by $\p{\mu\nu}^\ell$ (for
 $\nu\in\set{+1,-1}$) and taking its Hermitian conjugate, we can say
 that more generally
 \begin{align}
-  \p{\nu S_z}^\ell S_\mu^m
+  \p{\nu S_\z}^\ell S_\mu^m
   = S_\mu^m \p{\mu\nu m+\nu S_\z}^\ell,
   &&
-  S_\mu^m \p{\nu S_z}^\ell
+  S_\mu^m \p{\nu S_\z}^\ell
   = \p{-\mu\nu m+\nu S_\z}^\ell S_\mu^m.
 \end{align}
 Finding commutation relations between powers of transverse spin
@@ -1355,7 +1359,7 @@ $\bmu\equiv-\mu$ we then have
      \delta_{n,0} \p{-S}^m & \mu \ne \nu,
   \end{cases}
 \end{align}
-and
+1and
 \begin{align}
   \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}
   &=  \f{\mu^m}{2^N} \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
@@ -1368,9 +1372,11 @@ and
   &= \mu^m \f{N!}{2^N} \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
   ^{S-\delta_{\mu,1}\max\set{\ell,n}}
   \f{k^m \p{S-\mu k}!}
-  {\p{S+\mu k}!\p{S-\mu k-\ell}!\p{S-\mu k-n}!} \\
+  {\p{S+\mu k}!\p{S-\ell-\mu k}!\p{S-n-\mu k}!} \\
   &= \f{N!}{2^N} \sum_{k=-S}^{S-\max\set{\ell,n}}
-  \f{k^m \p{S-k}!}{\p{S+k}!\p{S-k-\ell}!\p{S-k-n}!}.
+  \f{k^m \p{S-k}!}{\p{S+k}!\p{S-\ell-k}!\p{S-n-k}!} \\
+  &= \p{-1}^m\f{N!}{2^N} \sum_{k=0}^{N-\max\set{\ell,n}}
+  \f{\p{S-k}^m \p{N-k}!}{k!\p{N-\ell-k}!\p{N-n-k}!}.
 \end{align}
 Furthermore, using the fact that
 \begin{align}
@@ -1388,53 +1394,24 @@ and say that
   \bk{\tilde\phi|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\tilde\phi}
   = e^{i\mu\p{\ell-n}\phi} \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}.
 \end{align}
-Alternatively, with the help of Mathematica we can find
-\begin{align}
-  \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}
-  = \f{\p{N!}^2}{2^N\p{N-\ell}!\p{N-n}!}
-  \sp{\p{-S}^m \alpha_{N\ell n}
-    + \f{\p{N-\ell}\p{N-n}}{N} \beta_{N\ell mn}},
-  \label{eq:X_hyper}
-\end{align}
-where $\alpha_{N\ell n}$ and $\beta_{N\ell mn}$ are defined in terms
-of the generalized hypergeometric function $\F$ by
-\begin{align}
-  \alpha_{N\ell n}
-  \equiv \F\p{\let\scriptstyle\textstyle
-    \substack{\ell-N,~n-N \\ -N}~; -1},
-\end{align}
-and
-\begin{align}
-  \beta_{N\ell mn}
-  \equiv \sum_{p=0}^{m-1} \p{-S}^p { m \choose p }
-  \tilde\F_{m-p-1}\p{\let\scriptstyle\textstyle
-    \substack{1+\ell-N,~1+n-N \\ 1-N}~; -1},
-\end{align}
-for
-\begin{align}
-  \tilde\F_q\p{\let\scriptstyle\textstyle
-    \substack{a,~b\\c}~; z}
-  \equiv \F\p{\let\scriptstyle\textstyle
-    \substack{2,2,\cdots,2,a,b \\ 1,1,\cdots,1,c}~; z}
-\end{align}
-with $q$ repetitions of 2 and 1.
 
 
 \section{Changing bases for collective spin operators}
 
 For a collective spin system composed of many small spins, the
-operators $\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ keep track
-of $\abs{\v m}$-body operators (for $\abs{\v m}\equiv\sum_\mu m_\mu$),
-but also carry lots of ``baggage'' in the form of $k$-body operators
-with $k<\abs{\v m}$.  To cut down on this overhead, we change our
-basis for collective spin operators from $\S_{\v m}$ to the
-purely-$\abs{\v m}$-body operators
+operators $\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ contain
+genuinely $\abs{\v m}$-body operators (for
+$\abs{\v m}\equiv\sum_\mu m_\mu$), but also carry lots of ``baggage''
+in the form of $k$-body operators with $k<\abs{\v m}$.  To cut down on
+this overhead, we try to change our basis for collective spin
+operators from $\S_{\v m}$ to the purely-$\abs{\v m}$-body operators
 \begin{align}
   \tilde\S_{\v m} \equiv \sum_{\p{\v j;\v m}} P_{\v j},
   &&
   P_{\v j} \equiv \prod_{\mu,a} s_\mu^{\p{j^\mu_a}},
+  \label{eq:S_P}
 \end{align}
-where $\v m \equiv \p{m_\z,m_+,m_-}\in\mathbb{N}_0^3$ with $m_\mu$ the
+where $\v m \equiv \p{m_+,m_\z,m_-}\in\mathbb{N}_0^3$ with $m_\mu$ the
 number of $s_\mu$ operators in each term of $\S_{\v m}$; $\v j$ is an
 ordered list of indices for the spins addressed by $P_{\v j}$; and the
 sum over $\p{\v j;\v m}$ denotes a sum over all possible $\v j$ for
@@ -1455,7 +1432,7 @@ both operators:
   \label{eq:SS_PP}
 \end{align}
 Collecting terms in which $r_{\mu\nu}$ of the $s_\mu$ operators in
-$P_{\v j}$ address the same spin as a $s_\nu$ operator in $P_{\v k}$,
+$P_{\v j}$ address the same spin as an $s_\nu$ operator in $P_{\v k}$,
 we have
 \begin{align}
   \tilde\S_{\v m} \tilde\S_{\v n}
@@ -1483,14 +1460,13 @@ operators in $P_{\v j}$ and $P_{\v k}$ according to $\v r$, or
     { m_\mu - \sum_{\rho<\nu} r_{\mu\rho} \choose r_{\mu\nu} }
     { n_\mu - \sum_{\rho<\nu} r_{\rho\mu} \choose r_{\nu\mu} }}
   \sp{\prod_{\mu,\nu} r_{\mu\nu}!} \\
-  &= \sp{\prod_\mu \p{m_\mu}_{\sum_\rho r_{\mu\rho}}
-    \p{n_\mu}_{\sum_\rho r_{\rho\mu}}}
-  \sp{\prod_{\mu,\nu} r_{\mu\nu}!}^{-1},
+  &= \sp{\prod_\mu \f{m_\mu!}{\p{m_\mu-\sum_\rho r_{\mu\rho}}!}
+    \f{n_\mu!}{\p{n_\mu-\sum_\rho r_{\rho\mu}}!}}
+  \sp{\prod_{\mu,\nu} r_{\mu\nu}!}^{-1};
 \end{align}
-with $\p{n}_k\equiv\prod_{j=0}^{k-1}\p{n-j}$ denoting a falling
-factorial; $\v J$ and $\v K$ are respectively ordered lists of indices
-for spins addressed by one and two single-spin operators in a term of
-the product $P_{\v j} P_{\v k}$ with fixed $\v r$; the sum over
+$\v J$ and $\v K$ are respectively ordered lists of indices for spins
+addressed by one and two single-spin operators in a term of the
+product $P_{\v j} P_{\v k}$ with fixed $\v r$; the sum over
 $\p{\v J,\v K;\v m,\v n,\v r}$ denotes a sum over all values of
 $\v J,\v K$ with the restrictions
 \begin{align}
@@ -1499,9 +1475,10 @@ $\v J,\v K$ with the restrictions
   &&
   \abs{\set{K^{\mu\nu}_a}} = r_{\mu\nu},
   &&
-  \set{J_a^\lambda} \cap \set{K_b^{\mu\nu}} = \set{};
+  \set{J_a^\lambda} \cap \set{K_b^{\mu\nu}} = \varnothing,
 \end{align}
-and finally, similarly to $P_{\v j}$ in \eqref{eq:SS_PP} we define
+with $\varnothing$ denoting the empty set; and finally, similarly to
+$P_{\v j}$ in \eqref{eq:SS_P} we define
 \begin{align}
   Q_{\v K} \equiv \prod_{\mu,\nu,a}
   s_\mu^{(K^{\mu\nu}_a)} s_\nu^{(K^{\mu\nu}_a)}.
@@ -1600,7 +1577,8 @@ $\v\rho$ and with the restrictions
 the combinatorial factor
 \begin{align}
   c_{\v\ell\v\rho}
-  \equiv \p{ N - \sum_\kappa\ell_\kappa }_{\sum_{\mu,\nu}\rho^{\mu\nu}_0}
+  \equiv \f{\p{N - \abs{\v\ell}}!}
+  {\p{N - \abs{\v\ell} - \sum_{\mu,\nu}\rho^{\mu\nu}_0}!}
 \end{align}
 accounts for the number of terms which are equivalent up to a
 permutation of indices involving the identity operators in
