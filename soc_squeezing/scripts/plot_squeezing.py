@@ -173,10 +173,10 @@ print("t_opt_OAT_D (sec):", times_SI[sqz_OAT_D.argmax()])
 print("sqz_opt_OAT_D (dB):", sqz_OAT_D.max())
 
 # construct TAT Hamiltonian in (z,x,y) format
-h_TAT = { (2,0,0) : +1/3,
+h_TAT = { (0,2,0) : +1/3,
           (0,0,2) : -1/3 }
-init_state = "+X"
-init_state_vec = coherent_spin_state([0,1,0], N)
+init_state = "-Z"
+init_state_vec = coherent_spin_state([-1,0,0], N)
 
 # construct spin transformation matrix for the TAT protocol
 dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy))
