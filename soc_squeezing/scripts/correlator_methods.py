@@ -244,6 +244,21 @@ def convert_zxy(vec_zxy, mu = 1):
         vec = { op : np.real(val) for op, val in vec.items() }
     return clean(vec)
 
+# given correlators of the form < S_\mu^ll (\mu S_z)^mm S_\bmu^nn >,
+#   convert them into correlators of the form < S_\bmu^ll (\bmu S_z)^mm S_\mu^nn >
+def invert_vals(vals):
+    inverted_vals = {}
+    target_ops = list(vals.keys())
+    for ll, mm, nn in target_ops:
+        if vals.get((nn,mm,ll)) is None:
+            vals[(nn,mm,ll)] = np.conj(vals[(ll,mm,nn)])
+    for ll, mm, nn in target_ops:
+        coeffs_mm_nn = multiply_terms((0,mm,0),(nn,0,0))
+        coeffs_ll_mm_nn = multiply_vecs({(0,0,ll):1}, coeffs_mm_nn, (-1)**mm)
+        inverted_vals[(ll,mm,nn)] = sum([ coeff * vals[op]
+                                          for op, coeff in coeffs_ll_mm_nn.items() ])
+    return inverted_vals
+
 
 ##########################################################################################
 # single-spin decoherence
@@ -518,15 +533,9 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
     if mu == 1:
         return correlators
     else:
-        reversed_corrs = {}
-        reversed_corrs[(0,1,0)] = -correlators[(0,1,0)]
-        reversed_corrs[(0,2,0)] = correlators[(0,2,0)]
-        reversed_corrs[(1,0,0)] = np.conj(correlators[(1,0,0)])
-        reversed_corrs[(2,0,0)] = np.conj(correlators[(2,0,0)])
-        reversed_corrs[(1,1,0)] = np.conj(-correlators[(1,1,0)] - correlators[(1,0,0)])
-        reversed_corrs[(1,0,1)] = correlators[(1,0,1)] - 2 * correlators[(0,1,0)]
-        return reversed_corrs
-
+        # we computed correlators < S_-^ll (-S_z)^mm S_+^nn >,
+        #   so we need to invert them into correlators < S_+^ll S_z^mm S_-^nn >
+        return invert_vals(correlators)
 
 # compute derivatives of squeezing operators:
 #   derivs[op][kk] = < (d/dt)^kk op >_0 / kk!
