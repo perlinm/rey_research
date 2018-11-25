@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import itertools, scipy
-from correlator_methods import compute_correlators
+from correlator_methods import compute_correlators, invert_vals
 
 from random import random, seed
 seed(0)
@@ -22,16 +22,16 @@ max_time = 0.03
 init_state = "+X"
 
 chi_times = np.linspace(0,max_time,100)
-ivp_tolerance = 1e-5
+ivp_tolerance = 1e-10
+mu = -1
 
 ### construct a random system
 
 def rand(magnitude = 1):
     return ( random() + 1j*random() ) * magnitude
 
-mag = 5
-dec_rates = [ (rand(mag), rand(mag), rand(mag)),
-              (rand(mag), rand(mag), rand(mag)) ]
+mag = 0
+dec_rates = [ (rand(mag), 0, 0), (rand(mag), 0, 0) ]
 dec_mat = np.array([ [ random() for jj in range(3) ] for kk in range(3) ])
 
 h_rand = { (ll,mm,nn) : random()
@@ -128,7 +128,9 @@ states = [ states[:,tt].reshape((2**N,2**N)) for tt in range(chi_times.size) ]
 
 # operators that we track
 def mat(op):
-    return S_p**op[0] * S_z**op[1] * S_m**op[2]
+    if mu == +1: S_mu, S_bmu = S_p, S_m
+    if mu == -1: S_mu, S_bmu = S_m, S_p
+    return S_mu**op[0] * (mu*S_z)**op[1] * S_bmu**op[2]
 op_mats = { op : mat(op).data.toarray() for op in track_ops }
 
 # exact correlators
@@ -140,13 +142,18 @@ for op in correlators_exact.keys():
 
 # compute correlators using taylor expansion method and compare
 correlators = {}
-for mu in [ +1, -1 ]:
-    correlators[mu] = compute_correlators(N, order_cap, chi_times, init_state, h_rand,
-                                          dec_rates, dec_mat, mu = mu)
+for nu in [ +1, -1 ]:
+    correlators[nu] = compute_correlators(N, order_cap, chi_times, init_state, h_rand,
+                                          dec_rates, dec_mat, mu = nu)
+
+if mu == -1:
+    correlators[+1] = invert_vals(correlators[+1])
+    correlators[-1] = invert_vals(correlators[-1])
 
 for op in correlators[1].keys():
     plt.figure()
     plt.title(op)
+
     plt.plot(np.real(correlators_exact[op]))
     plt.plot(np.real(correlators[+1][op]), "--")
     plt.plot(np.real(correlators[-1][op]), ":")
