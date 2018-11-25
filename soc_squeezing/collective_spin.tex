@@ -1,4 +1,4 @@
-\documentclass[aps,11pt,notitlepage,nofootinbib]{revtex4-1}
+\documentclass[aps,11pt,notitlepage,nofootinbib,longbibliography]{revtex4-1}
 
 % linking references
 \usepackage{hyperref}
@@ -85,15 +85,18 @@
 
 Collective spin systems attract considerable attention for providing a
 window into many-body quantum phenomena that are both experimentally
-accessible\cite{fernholz2008spin, takano2009spin,
+accessible\cite{takano2009spin, chen2010heralded,
   riedel2010atomchipbased, gross2010nonlinear, martin2013quantum,
-  bohnet2016quantum, hosten2016quantum, norcia2018cavitymediated} and
-metrologically useful\cite{wineland1992spin, kitagawa1993squeezed,
-  ma2011quantum}.  Theoretical interest in such systems dates back to
-the mid-twentieth century with the introduction of the
-Lipkin-Meshkov-Glick (LMG) model as a toy model for testing many-body
-approximation methods in contemporary nuclear
-physics\cite{lipkin1965validity, meshkov1965validity,
+  bohnet2016quantum, hosten2016quantum, norcia2018cavitymediated,
+  jones2009magnetic} and metrologically
+useful\cite{riedel2010atomchipbased, gross2010nonlinear,
+  hosten2016quantum, jones2009magnetic, zhong2010simplified,
+  huang2015quantum, agarwal1997atomic, lau2014proposal,
+  wineland1992spin, kitagawa1993squeezed, ma2011quantum}.  Theoretical
+interest in such systems dates back to the mid-twentieth century with
+the introduction of the Lipkin-Meshkov-Glick (LMG) model as a toy
+model for testing many-body approximation methods in contemporary
+nuclear physics\cite{lipkin1965validity, meshkov1965validity,
   glick1965validity}.  Since then, collective system systems have
 additionally featured in theoretical studies of quantum
 criticality\cite{latorre2005entanglement, alcalde2007functional,
@@ -101,64 +104,80 @@ criticality\cite{latorre2005entanglement, alcalde2007functional,
   majd2014lmg}, non-equilibrium
 phenomena\cite{morrison2008dissipationdriven,
   bhattacherjee2014nonequilibrium, klinder2015dynamical,
-  zhiqiang2017nonequilibrium, smale2018observation}, and most notably
-spin squeezing\cite{wineland1992spin, kitagawa1993squeezed,
-  ma2011quantum}.  With the development of advanced atomic trapping,
-cooling, and control techniques, collective spin systems have been
-experimentally realized in atomic ensembles\cite{fernholz2008spin,
-  takano2009spin}, Bose-Einstein
+  zhiqiang2017nonequilibrium, smale2018observation}, and precision
+metrology\cite{wineland1992spin, kitagawa1993squeezed, ma2011quantum,
+  zhong2010simplified}.  With the development of advanced atomic
+trapping, cooling, and control techniques, collective spin systems
+have been experimentally realized in atomic
+ensembles\cite{takano2009spin, chen2010heralded}, Bose-Einstein
 condensates\cite{riedel2010atomchipbased, gross2010nonlinear},
 ultracold Fermi gasses\cite{martin2013quantum}, trapped
-ions\cite{bohnet2016quantum}, and optical
-cavities\cite{hosten2016quantum, norcia2018cavitymediated}.
+ions\cite{bohnet2016quantum}, optical cavities\cite{hosten2016quantum,
+  norcia2018cavitymediated}, and molecular
+sensors\cite{jones2009magnetic}.
 
-One of the primary current motivations for studying collective spin
-systems is their capability to dynamically generate spin-squeezed
-states, which enable measurement of phase angles $\phi$ with an error
-$\Delta\phi$ below the standard quantum limit
-$\Delta\phi\sim1/\sqrt{N}$ set by quantum projection noise from the
-measurement of $N$ independent particles\cite{ma2011quantum}.  The
-nonlinear dynamics necessary to generate spin-squeezed states can be
-implemented with long-range collisional, photon-, or phonon-mediated
-interactions, typically resulting in a one-axis twising (OAT) model
-described by the Hamiltonian\cite{kitagawa1993squeezed}
-\begin{align}
-  H_{\t{OAT}} = \chi S_\z^2,
-  \label{eq:OAT}
-\end{align}
-where $S_\z\equiv\sum_{j=1}^N\sigma_\z^{(j)}/2$ is a collective
-spin-$z$ operator defined in terms of Pauli-$z$ operators
-$\sigma_\z^{(j)}$ addressing spin $j$.  The OAT model prepares a
-spin-squeezed state that allows measurement of a phase angle $\phi$
-with error $\Delta\phi\sim N^{-2/3}$ at times
-$t\sim\chi^{-1}N^{-2/3}$\cite{ma2011quantum}.  Although a truly
-collective spin model requires uniform, all-to-all interactions, as
-long as measurements do not distinguish between constituent particles
-even non-uniform systems can be effectively described by a uniform
-model with renormalized parameters\cite{hu2015entangled}.  Various
-works have proposed improvements over OAT through the addition of
-auxiliary control fields\cite{law2001coherent, liu2011spin,
-  huang2015twoaxis, muessel2015twistandturn} or a modified
-vacuum\cite{hu2017vacuum}, thereby realizing different collective spin
-models.
+One of the primary motivations for studying collective spin systems is
+their application to quantum-enhanced metrology.  Quantum projection
+noise limits the error $\Delta\phi$ in the measurement of a phase
+angle $\phi$ with $N$ independent spins to
+$\Delta\phi\sim1/\sqrt{N}$\cite{wineland1992spin, itano1993quantum,
+  ma2011quantum}.  Collective spin systems enable a means to break
+through this limit via the preparation of many-body entangled states
+such as NOON\cite{jones2009magnetic, chen2010heralded,
+  zhong2010simplified}, spin-cat\cite{huang2015quantum,
+  agarwal1997atomic, lau2014proposal}, and spin-squeezed
+states\cite{takano2009spin, riedel2010atomchipbased,
+  gross2010nonlinear, hosten2016quantum, norcia2018cavitymediated,
+  wineland1992spin, kitagawa1993squeezed, ma2011quantum} that allow
+for measurement errors $\Delta\phi\sim1/N^\epsilon$ with
+$\epsilon>1/2$.  Generating such states requires nonlinear dynamics
+that are typically realized using long-range collisional, photon-, or
+phonon-mediated interactions.
+% typically resulting in a one-axis twising (OAT) model described by
+% the Hamiltonian\cite{kitagawa1993squeezed}
+% \begin{align}
+%   H_{\t{OAT}} = \chi S_\z^2,
+%   \label{eq:OAT}
+% \end{align}
+% where $S_\z\equiv\sum_{j=1}^N\sigma_\z^{(j)}/2$ is a collective
+% spin-$z$ operator defined in terms of Pauli-$z$ operators
+% $\sigma_\z^{(j)}$ addressing spin $j$.  The OAT model prepares a
+% spin-squeezed state that allows measurement of a phase angle $\phi$
+% with error $\Delta\phi\sim N^{-2/3}$ at times
+% $t\sim\chi^{-1}N^{-2/3}$\cite{ma2011quantum}.
+Although a truly collective spin model requires uniform, all-to-all
+interactions, as long as measurements do not distinguish between
+constituent particles even non-uniform systems can be effectively
+described by a uniform model with renormalized
+parameters\cite{hu2015entangled}.
+% Various works have proposed improvements over OAT through the
+% addition of auxiliary control fields\cite{law2001coherent,
+% liu2011spin, huang2015twoaxis, muessel2015twistandturn} or a
+% modified vacuum\cite{hu2017vacuum}, thereby realizing different
+% collective spin models.
 
-While the OAT model admits exact
-solutions\cite{foss-feig2013nonequilibrium}, the same is not true of
-more general, non-Ising Hamiltonians.  Nonetheless, in the absence of
-decoherence, permutation symmetry and total spin conservation divide
-the total Hilbert space of a collective spin system into superseletion
-sectors that grow only linearly with system size, thereby admitting
-efficient classical simulation of its dynamics.  If decoherence is
-present, but sufficiently weak, dynamics of collective spin systems
-are still numerically solvable via ``quantum jump'' Monte Carlo
-methods\cite{plenio1998quantumjump, zhang2018montecarlo} (also known
-as ``quantum trajectory'' or ``Monte Carlo wavefunction'' methods)
-that can reproduce all expectation values of interest.  When
-decoherence is strong, however, or when the number of jump operators
-grows extensively with system size (e.g.~for single-spin decay), these
-Monte Carlo methods can take a prohibitively long time to converge, as
-simulations become dominated by incoherent jumps that generate large
-numbers of distinct trajectories over which to average.
+% While the OAT model admits exact
+% solutions\cite{foss-feig2013nonequilibrium}, the same is not true of
+% more general, non-Ising Hamiltonians.  Nonetheless,
+In the absence of decoherence, permutation symmetry and total spin
+conservation divide the total Hilbert space of a collective spin
+system into superseletion sectors that grow only linearly with system
+size $N$, thereby admitting efficient classical simulation of its
+dynamics.  Decoherence will generally violate total spin conservation
+and require the use of density operators, increasing the dimension of
+accessible state space to $\sim N^3$\cite{hartmann2016generalized,
+  xu2013simulating} and allowing for exact simulations of
+$N\lesssim100$ particles.  If decoherence is sufficiently weak,
+dynamics are numerically solvable for $N\lesssim10^4$ particles via
+``quantum jump'' Monte Carlo methods\cite{plenio1998quantumjump,
+  zhang2018montecarlo} (also known as ``quantum trajectory'' or
+``Monte Carlo wavefunction'' methods) that can reproduce all
+expectation values of interest.  When decoherence is strong, however,
+or when the number of jump operators grows extensively with system
+size (e.g.~for single-spin decay), these Monte Carlo methods can take
+a prohibitively long time to converge, as simulations become dominated
+by incoherent jumps that generate large numbers of distinct
+trajectories over which to average.
 
 In this work, we develop a new method to simulate short-time dynamics
 of collective spin systems with permutationally-symmetric decoherence.
@@ -166,7 +185,9 @@ This method is based on a short-time expansion of exact solutions to
 the equations of motion for Heisenberg operators.  Evaluating this
 expansion requires use of the structure factors of a collective spin
 operator algebra; the calculation of these structure factors is one of
-the main technical results of this work.
+the main technical results of this work, which we hope will enable
+future studies to develop additional analytical insights into the
+structure and dynamics of collective spin systems.
 
 
 \section{Theory}
@@ -240,9 +261,9 @@ would be to take
   \label{eq:weight_truncation}
 \end{align}
 for some weight measure $w$, e.g.~$w\p{\v n}=\abs{\v n}$, and cutoff
-$W$.  The truncation in Eq.~\eqref{eq:weight_truncation} will close
-the system of differential equations defined by Eq.~\eqref{eq:EOM},
-and allow us to solve it using standard numerical methods.  Initial
+$W$.  The truncation in Eq.~\eqref{eq:weight_truncation} closes the
+system of differential equations defined by Eq.~\eqref{eq:EOM}, and
+allow us to solve it using standard numerical methods.  Initial
 conditions for this system of differential equations, i.e.~expectation
 values of collective spin operators with respect to states that are
 simple to prepare experimentally, are provided in Appendix
@@ -257,8 +278,8 @@ limitations:
   optimal measure is generally system-dependent,
 \item simulation results can only be trusted up to the time at which
   the initial value of operators $\S_{\v m}$ with weight
-  $w\p{\v m}\ge W$ have a non-negligible contribution to operators of
-  interest.\label{pt:limitation}
+  $w\p{\v m}\ge W$ have a non-negligible contribution to expectation
+  values of interest.\label{pt:limitation}
 \end{enumerate*}
 The last limitation in particular unavoidably applies in some form to
 any method tracking only a subset of all relevant operators.  We
@@ -304,7 +325,9 @@ expectation values $\bk{\S_{\v m}}_{t=0}$ that we need to explicitly
 compute roughly in half.
 
 
-\section{Benchmarking}
+\section{Spin squeezing}
+
+
 
 Our measure of spin squeezing is
 \begin{align}
@@ -1359,19 +1382,19 @@ $\bmu\equiv-\mu$ we then have
      \delta_{n,0} \p{-S}^m & \mu \ne \nu,
   \end{cases}
 \end{align}
-1and
+and
 \begin{align}
   \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}
-  &=  \f{\mu^m}{2^N} \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
-  ^{S-\delta_{\mu,1}\max\set{\ell,n}} k^m
+  &=  \f1{2^N} \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
+  ^{S-\delta_{\mu,1}\max\set{\ell,n}} \p{\mu k}^m
   \sp{{ N \choose S+k+\mu\ell } { N \choose S+k+\mu n }}^{1/2}
   \notag \\
   &\qquad\qquad\qquad\qquad
   \times \prod_{p=0}^{\ell-1} g_\mu\p{S,k+\mu p}
   \prod_{q=0}^{n-1} g_\bmu\p{S,k+\mu\sp{n-q}} \\
-  &= \mu^m \f{N!}{2^N} \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
-  ^{S-\delta_{\mu,1}\max\set{\ell,n}}
-  \f{k^m \p{S-\mu k}!}
+  &= \f{N!}{2^N} \sum_{\mu k=-\mu S-\delta_{\mu,-1}\max\set{\ell,n}}
+  ^{\mu S-\delta_{\mu,1}\max\set{\ell,n}}
+  \f{\p{\mu k}^m \p{S-\mu k}!}
   {\p{S+\mu k}!\p{S-\ell-\mu k}!\p{S-n-\mu k}!} \\
   &= \f{N!}{2^N} \sum_{k=-S}^{S-\max\set{\ell,n}}
   \f{k^m \p{S-k}!}{\p{S+k}!\p{S-\ell-k}!\p{S-n-k}!} \\
@@ -1389,7 +1412,7 @@ we can define the state
   \p{\cos\phi S_\x + \sin\phi S_\y} \ket{\tilde\phi}
   = S \ket{\tilde\phi},
 \end{align}
-and say that
+and compute
 \begin{align}
   \bk{\tilde\phi|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\tilde\phi}
   = e^{i\mu\p{\ell-n}\phi} \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}.
@@ -1478,7 +1501,7 @@ $\v J,\v K$ with the restrictions
   \set{J_a^\lambda} \cap \set{K_b^{\mu\nu}} = \varnothing,
 \end{align}
 with $\varnothing$ denoting the empty set; and finally, similarly to
-$P_{\v j}$ in \eqref{eq:SS_P} we define
+$P_{\v j}$ in \eqref{eq:S_P} we define
 \begin{align}
   Q_{\v K} \equiv \prod_{\mu,\nu,a}
   s_\mu^{(K^{\mu\nu}_a)} s_\nu^{(K^{\mu\nu}_a)}.
