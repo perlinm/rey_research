@@ -26,7 +26,7 @@ plt.rcParams.update(params)
 
 N = 100 # number of spins
 order_cap = 40 # order limit for short-time correlator expansion
-trajectories = 500 # number of trajectories to use in quantum jump simulations
+trajectories = 200 # number of trajectories to use in quantum jump simulations
 
 time_steps = 200 # time steps in plot
 ivp_tolerance = 1e-10 # relative error tolerance in numerical integrator
@@ -114,7 +114,7 @@ sqz_TNT_D = squeezing_from_correlators(N, correlators_TNT_D)
 
 del correlators_TAT_D, correlators_TNT_D
 
-compute correlators and squeezing using the quantum jump method
+# compute correlators and squeezing using the quantum jump method
 init_state_vec = coherent_spin_state(init_state, N)
 def jump_args(hamiltonian):
     return [ N, trajectories, times, init_state_vec, hamiltonian, dec_rates ]
@@ -162,13 +162,16 @@ plt.plot(times[:lim_TNT_D], sqz_TNT_D[:lim_TNT_D],
          ":", color = line_TNT.get_color())
 
 plt.plot(times, sqz_TAT_J, ".", color = line_TAT.get_color())
-plt.plot(times, sqz_TNT_J, ".", color = line_TAT.get_color())
+plt.plot(times, sqz_TNT_J, ".", color = line_TNT.get_color())
 
 plt.xlim(0,times[-1])
 plt.ylim(0,sqz_TAT.max()*1.1)
+
 plt.xlabel(r"$\chi t$")
 plt.ylabel(r"$-10\log_{10}(\xi^2)$")
 plt.legend(loc = "best")
+
+plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 plt.tight_layout()
 
 if show: plt.show()
