@@ -191,7 +191,8 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
 
             # simulate until a jump occurs
             ivp_solution = solve_ivp(time_derivative, (time, max_time), state,
-                                     events = dec_event, rtol = ivp_tolerance)
+                                     events = dec_event,
+                                     rtol = ivp_tolerance, atol = ivp_tolerance)
             times = ivp_solution.t
             states = ivp_solution.y
 

@@ -123,7 +123,8 @@ def time_deriv(time,state):
     return ham(state) + dec(state)
 
 states = scipy.integrate.solve_ivp(time_deriv, (0,chi_times[-1]), init_state_vec,
-                                   t_eval = chi_times, rtol = ivp_tolerance).y
+                                   t_eval = chi_times,
+                                   rtol = ivp_tolerance, atol = ivp_tolerance).y
 states = [ states[:,tt].reshape((2**N,2**N)) for tt in range(chi_times.size) ]
 
 # operators that we track

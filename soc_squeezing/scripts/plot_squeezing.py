@@ -70,10 +70,10 @@ def deriv_TNT(time, state): return -1j * H_TNT.dot(state)
 init_nZ = np.zeros(S_op_vec[0].shape[0], dtype = complex)
 init_nZ[0] = 1
 
-state_TAT = scipy.integrate.solve_ivp(deriv_TAT, (0,times[-1]), init_nZ,
-                                      t_eval = times, rtol = ivp_tolerance).y
-state_TNT = scipy.integrate.solve_ivp(deriv_TNT, (0,times[-1]), init_nZ,
-                                      t_eval = times, rtol = ivp_tolerance).y
+state_TAT = scipy.integrate.solve_ivp(deriv_TAT, (0,times[-1]), init_nZ, t_eval = times,
+                                      rtol = ivp_tolerance, atol = ivp_tolerance).y
+state_TNT = scipy.integrate.solve_ivp(deriv_TNT, (0,times[-1]), init_nZ, t_eval = times,
+                                      rtol = ivp_tolerance, atol = ivp_tolerance).y
 
 sqz_TAT = np.array([ spin_squeezing(N, state_TAT[:,tt], S_op_vec, SS_op_mat)
                      for tt in range(times.size) ])
@@ -142,9 +142,11 @@ plt.figure(figsize = figsize)
 plt.title(f"$N={N}$")
 
 line_OAT, = plt.plot(times, sqz_OAT, label = "OAT")
+line_TAT, = plt.plot(times, sqz_TAT, label = "TAT")
+line_TNT, = plt.plot(times, sqz_TNT, label = "TNT")
+
 plt.plot(times, sqz_OAT_D, ":", color = line_OAT.get_color())
 
-line_TAT, = plt.plot(times, sqz_TAT, label = "TAT")
 lim_TAT_B = plot_lim_idx(sqz_TAT_B)
 plt.plot(times[:lim_TAT_B], sqz_TAT_B[:lim_TAT_B],
          "--", color = line_TAT.get_color())
@@ -152,7 +154,6 @@ lim_TAT_D = plot_lim_idx(sqz_TAT_D)
 plt.plot(times[:lim_TAT_D], sqz_TAT_D[:lim_TAT_D],
          ":", color = line_TAT.get_color())
 
-line_TNT, = plt.plot(times, sqz_TNT, label = "TNT")
 lim_TNT_B = plot_lim_idx(sqz_TNT_B)
 plt.plot(times[:lim_TNT_B], sqz_TNT_B[:lim_TNT_B],
          "--", color = line_TNT.get_color())
