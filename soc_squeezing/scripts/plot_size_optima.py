@@ -19,8 +19,8 @@ fig_dir = "../figures/"
 sqz_fname = data_dir + "sqz_{}.txt"
 time_fname = data_dir + "time_{}.txt"
 
-methods = [ "OAT", "TVF", "TAT" ]
-OAT, TVF, TAT = methods
+methods = [ "OAT", "TAT", "TNT" ]
+OAT, TAT, TNT = methods
 
 def pd_read_csv(fname):
     return pd.read_csv(fname, comment = "#", squeeze = True, header = None, index_col = 0)

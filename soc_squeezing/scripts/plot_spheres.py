@@ -24,8 +24,8 @@ ivp_tolerance = 1e-5
 max_time = max_tau * N**(-2/3)
 times = np.linspace(0, max_time, time_steps)
 
-methods = [ "OAT", "TVF", "TAT" ]
-OAT, TVF, TAT = methods
+methods = [ "OAT", "TAT", "TNT" ]
+OAT, TAT, TNT = methods
 
 def save_state(state, file_name):
     plot_dicke_state(state, grid_size = grid_size)
@@ -37,8 +37,8 @@ S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
 
 H = {}
 H[OAT] = SS_op_mat[0][0]
-H[TVF] = SS_op_mat[0][0] + N/2 * S_op_vec[1]
 H[TAT] = 1/3 * ( SS_op_mat[0][0] - SS_op_mat[2][2] )
+H[TNT] = SS_op_mat[0][0] + N/2 * S_op_vec[1]
 
 def time_deriv(state, H):
     return -1j * H.dot(state)

@@ -38,7 +38,7 @@ drive_mod_index_xy_2 = 2.2213461342426544 # for TAT protocol about (x,y)
 
 # (excitation, dephasing, decay) rates for single- and collective-spin operators
 # in units of the OAT strength (i.e. \chi in \chi S_\z^2)
-dec_rates = [ (0, 0, 1), (0, 0, 0) ]
+dec_rates = [ (1, 1, 1), (0, 0, 0) ]
 
 
 ##########################################################################################
@@ -55,26 +55,32 @@ times = tau_vals * N**(-2/3) # in units of the OAT strength \chi
 # compute OAT squeezing parameters
 sqz_OAT = squeezing_OAT(N, times)
 
-# compute Hamiltonian, spin vector, spin-spin matrix, and initial states for TVF and TAT,
+# compute Hamiltonian, spin vector, spin-spin matrix, and initial states for TAT and TNT,
 #   exploiting a parity symmetry in both cases to reduce the size of the Hilbert space
 S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
 S_op_vec = [ X[::2,::2] for X in S_op_vec ]
 SS_op_mat = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
 
 H_TAT = 1/3 * ( SS_op_mat[1][2] + SS_op_mat[2][1] )
+H_TNT = SS_op_mat[1][1] - N/2 * S_op_vec[0]
 
 def deriv_TAT(time, state): return -1j * H_TAT.dot(state)
+def deriv_TNT(time, state): return -1j * H_TNT.dot(state)
 
 init_nZ = np.zeros(S_op_vec[0].shape[0], dtype = complex)
 init_nZ[0] = 1
 
 state_TAT = scipy.integrate.solve_ivp(deriv_TAT, (0,times[-1]), init_nZ,
                                       t_eval = times, rtol = ivp_tolerance).y
+state_TNT = scipy.integrate.solve_ivp(deriv_TNT, (0,times[-1]), init_nZ,
+                                      t_eval = times, rtol = ivp_tolerance).y
 
 sqz_TAT = np.array([ spin_squeezing(N, state_TAT[:,tt], S_op_vec, SS_op_mat)
                      for tt in range(times.size) ])
+sqz_TNT = np.array([ spin_squeezing(N, state_TNT[:,tt], S_op_vec, SS_op_mat)
+                     for tt in range(times.size) ])
 
-del state_TAT
+del S_op_vec, SS_op_mat, H_TAT, H_TNT, init_nZ, state_TAT, state_TNT
 
 
 ##########################################################################################
@@ -83,34 +89,43 @@ del state_TAT
 
 sqz_OAT_D = squeezing_OAT(N, times, dec_rates[0])
 
-# construct TAT Hamiltonian in (z,x,y) format
+# construct Hamiltonians in (z,x,y) format
 h_TAT = { (0,2,0) : +1/3,
           (0,0,2) : -1/3 }
+h_TNT = { (0,2,0) : 1,
+          (1,0,0) : -N/2 }
 init_state = "-Z"
-
-# construct spin transformation matrix for the TAT protocol
-dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_xy_2))
 
 # compute correlators and squeezing without dechoerence for benchmarking
 correlators_TAT_B = compute_correlators(N, order_cap, times, init_state, h_TAT)
-sqz_TAT_B = squeezing_from_correlators(N, correlators_TAT_B)
+correlators_TNT_B = compute_correlators(N, order_cap, times, init_state, h_TNT)
 
-del correlators_TAT_B
+sqz_TAT_B = squeezing_from_correlators(N, correlators_TAT_B)
+sqz_TNT_B = squeezing_from_correlators(N, correlators_TNT_B)
+
+del correlators_TAT_B, correlators_TNT_B
 
 # compute correlators and squeezing with decoherence
-correlators_TAT_D = compute_correlators(N, order_cap, times, init_state, h_TAT,
-                                        dec_rates, dec_mat_TAT)
+correlators_TAT_D = compute_correlators(N, order_cap, times, init_state, h_TAT, dec_rates)
+correlators_TNT_D = compute_correlators(N, order_cap, times, init_state, h_TNT, dec_rates)
+
 sqz_TAT_D = squeezing_from_correlators(N, correlators_TAT_D)
+sqz_TNT_D = squeezing_from_correlators(N, correlators_TNT_D)
 
-del correlators_TAT_D
+del correlators_TAT_D, correlators_TNT_D
 
-# compute correlators and squeezing using the quantum jump method
+compute correlators and squeezing using the quantum jump method
 init_state_vec = coherent_spin_state(init_state, N)
-jump_args = [ N, trajectories, times, init_state_vec, h_TAT, dec_rates, dec_mat_TAT ]
-correlators_TAT_J = correlators_from_trajectories(*jump_args)
-sqz_TAT_J = squeezing_from_correlators(N, correlators_TAT_J)
+def jump_args(hamiltonian):
+    return [ N, trajectories, times, init_state_vec, hamiltonian, dec_rates ]
 
-del correlators_TAT_J
+correlators_TAT_J = correlators_from_trajectories(*jump_args(h_TAT))
+correlators_TNT_J = correlators_from_trajectories(*jump_args(h_TNT))
+
+sqz_TAT_J = squeezing_from_correlators(N, correlators_TAT_J)
+sqz_TNT_J = squeezing_from_correlators(N, correlators_TNT_J)
+
+del correlators_TAT_J, correlators_TNT_J
 
 
 ##########################################################################################
@@ -136,7 +151,17 @@ plt.plot(times[:lim_TAT_B], sqz_TAT_B[:lim_TAT_B],
 lim_TAT_D = plot_lim_idx(sqz_TAT_D)
 plt.plot(times[:lim_TAT_D], sqz_TAT_D[:lim_TAT_D],
          ":", color = line_TAT.get_color())
+
+line_TNT, = plt.plot(times, sqz_TNT, label = "TNT")
+lim_TNT_B = plot_lim_idx(sqz_TNT_B)
+plt.plot(times[:lim_TNT_B], sqz_TNT_B[:lim_TNT_B],
+         "--", color = line_TNT.get_color())
+lim_TNT_D = plot_lim_idx(sqz_TNT_D)
+plt.plot(times[:lim_TNT_D], sqz_TNT_D[:lim_TNT_D],
+         ":", color = line_TNT.get_color())
+
 plt.plot(times, sqz_TAT_J, ".", color = line_TAT.get_color())
+plt.plot(times, sqz_TNT_J, ".", color = line_TAT.get_color())
 
 plt.xlim(0,times[-1])
 plt.ylim(0,sqz_TAT.max()*1.1)

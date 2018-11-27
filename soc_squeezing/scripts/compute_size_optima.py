@@ -16,8 +16,8 @@ data_dir = "../data/"
 sqz_fname = data_dir + "sqz_{}.txt"
 time_fname = data_dir + "time_{}.txt"
 
-methods = [ "OAT", "TVF", "TAT" ]
-OAT, TVF, TAT = methods
+methods = [ "OAT", "TAT", "TNT" ]
+OAT, TAT, TNT = methods
 
 max_tau = 2
 max_time = lambda N : max_tau * N**(-2/3)
@@ -26,7 +26,7 @@ N_min = 5
 N_max = 1e4
 N_vals = 200
 
-# value of N at which we switch methods for determining optimal TVF/TAT parameters
+# value of N at which we switch methods for determining optimal TAT/TNT parameters
 N_crossover = 900
 
 particle_nums = np.logspace(np.log10(N_min), np.log10(N_max), N_vals)
@@ -63,8 +63,8 @@ for N in particle_nums:
     S_op_vec = [ X[::2,::2] for X in S_op_vec ]
     SS_op_mat = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
 
-    H_TVF = SS_op_mat[1][1] - N/2 * S_op_vec[0]
     H_TAT = 1/3 * ( SS_op_mat[2][2] - SS_op_mat[1][1] ).real
+    H_TNT = SS_op_mat[1][1] - N/2 * S_op_vec[0]
 
     state_nZ = np.zeros(N//2+1)
     state_nZ[0] = 1
@@ -74,11 +74,11 @@ for N in particle_nums:
     else:
         get_optima = get_optima_simulation
 
-    sqz_vals[TVF].at[N], time_vals[TVF].at[N] = \
-        get_optima(N, H_TVF, S_op_vec, SS_op_mat, state_nZ, max_time(N))
-
     sqz_vals[TAT].at[N], time_vals[TAT].at[N] = \
         get_optima(N, H_TAT, S_op_vec, SS_op_mat, state_nZ, max_time(N))
+
+    sqz_vals[TNT].at[N], time_vals[TNT].at[N] = \
+        get_optima(N, H_TNT, S_op_vec, SS_op_mat, state_nZ, max_time(N))
 
 
 ##########################################################################################
