@@ -61,6 +61,17 @@ def spin_op_vec_mat_dicke(N):
 
     return S_op_vec, SS_op_mat
 
+# return vector along an axis specified by text
+def axis_str(text):
+    sign, axis = text
+    assert(sign in [ "+", "-" ])
+    assert(axis in [ "Z", "X", "Y" ])
+    if axis == "Z": vec = np.array([ 1, 0, 0 ])
+    if axis == "X": vec = np.array([ 0, 1, 0 ])
+    if axis == "Y": vec = np.array([ 0, 0, 1 ])
+    if sign == "-": vec = -vec
+    return vec
+
 # get polar and azimulthal angles of a vector (v_z, v_x, v_y)
 def vec_theta_phi(v):
     return np.array([ np.arccos(v[0]/linalg.norm(v)), np.arctan2(v[2],v[1]) ])
@@ -84,6 +95,7 @@ def coherent_spin_state_angles(theta, phi, N = 10):
     return np.exp(ln_magnitudes) * phases
 
 def coherent_spin_state(vec, N = 10):
+    if type(vec) is str: return coherent_spin_state(axis_str(vec), N)
     theta, phi = vec_theta_phi(vec)
     return coherent_spin_state_angles(theta, phi, N)
 
