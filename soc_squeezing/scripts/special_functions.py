@@ -4,27 +4,26 @@
 
 import numpy as np
 
-from scipy.special import gamma, gammaln
-from scipy.special import binom as scipy_binom
+import scipy.special
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 
 # factorial and its logarithm
 def factorial(nn, vals = {}):
     try: return vals[nn]
     except: None
-    vals[nn] = gamma(nn+1)
+    vals[nn] = scipy.special.factorial(nn, exact = (type(nn) == int))
     return vals[nn]
 def ln_factorial(nn, vals = {}):
     try: return vals[nn]
     except: None
-    vals[nn] = gammaln(nn+1)
+    vals[nn] = scipy.special.gammaln(nn+1)
     return vals[nn]
 
 # falling factorial and its logarithm
 def poch(nn, kk, vals = {}):
     try: return vals[nn,kk]
     except: None
-    vals[nn,kk] = np.prod([ nn-cc for cc in range(kk) ])
+    vals[nn,kk] = np.prod([ nn-cc for cc in range(kk) ], dtype = int)
     return vals[nn,kk]
 def ln_poch(nn, kk, vals = {}):
     try: return vals[nn,kk]
@@ -36,7 +35,8 @@ def ln_poch(nn, kk, vals = {}):
 def binom(nn, kk, vals = {}):
     try: return vals[nn,kk]
     except: None
-    vals[nn,kk] = scipy_binom(nn,kk)
+    integer_inputs = ( type(nn) is int ) and ( type(kk) is int )
+    vals[nn,kk] = scipy.special.comb(nn, kk, exact = integer_inputs)
     return vals[nn,kk]
 
 # unsigned stirling number of the first kind
@@ -53,7 +53,7 @@ def zeta(mm, nn, pp, qq, vals = {}):
     except: None
     val = (-1)**pp * 2**qq * np.sum([ stirling(pp,ss) * binom(ss,qq)
                                       * (mm+nn-2*pp)**(ss-qq)
-                                      for ss in range(qq,pp+1) ])
+                                      for ss in range(qq,pp+1) ], dtype = int)
     vals[mm,nn,pp,qq] = val
     vals[nn,mm,pp,qq] = val
     return val
