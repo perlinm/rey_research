@@ -207,12 +207,12 @@ def get_optima_diagonalization(N, H, S_op_vec, SS_op_mat, init_state, max_time):
                               for XS in SS_op_mat ])
     this_init_state = eig_vecs.T @ init_state
 
-    def squeezing_TVF_nval(chi_t):
+    def squeezing_nval(chi_t):
         state_t =  np.exp(-1j * chi_t * eig_vals) * this_init_state
         return -spin_squeezing(N, state_t, this_S_op_vec, this_SS_op_mat)
-    optimum_TVF = optimize.minimize_scalar(squeezing_TVF_nval, method = "bounded",
-                                           bounds = (0, max_time))
-    return -optimum_TVF.fun, optimum_TVF.x
+    optimum = optimize.minimize_scalar(squeezing_nval, method = "bounded",
+                                       bounds = (0, max_time))
+    return -optimum.fun, optimum.x
 
 # get optimal squeezing parameters by simulation
 def get_optima_simulation(N, H, S_op_vec, SS_op_mat, init_state, max_time,
