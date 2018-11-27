@@ -5,7 +5,7 @@
 import numpy as np
 import scipy.sparse as sparse
 import scipy.linalg as linalg
-import scipy.optimize  as optimize
+import scipy.optimize as optimize
 
 from correlator_methods import correlators_OAT
 
@@ -19,7 +19,8 @@ def evolve_left(state, hamiltonian, time):
 def evolve_right(state, hamiltonian, time):
     return evolve_left(state.conj().T, hamiltonian, time).conj().T
 def evolve_left_right(state, hamiltonian, time):
-    return evolve_right(evolve_left(state, hamiltonian, time), hamiltonian, time)
+    return evolve_right(evolve_left(state, hamiltonian, time),
+                        hamiltonian, time)
 
 # time evolution of a state with a sparse hamiltonian
 def evolve(state, hamiltonian, time):
