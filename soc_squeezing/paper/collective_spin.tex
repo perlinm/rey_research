@@ -1,4 +1,4 @@
-\documentclass[aps,11pt,notitlepage,nofootinbib,longbibliography]{revtex4-1}
+\documentclass[pra,reprint,longbibliography]{revtex4-1}
 
 % linking references
 \usepackage{hyperref}
@@ -44,12 +44,13 @@
 \usepackage{dsfont} % for identity operator
 \newcommand{\1}{\mathds{1}}
 
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
 \usepackage[inline]{enumitem} % for inline enumeration
 
 %%% figures
 \usepackage{graphicx} % for figures
-\usepackage{grffile} % help latex properly identify figure extensions
-\usepackage[caption=false]{subfig} % subfigures (via \subfloat[]{})
 \graphicspath{{./figures/}} % set path for all figures
 
 % for strikeout text
@@ -169,15 +170,15 @@ accessible state space to $\sim N^3$\cite{hartmann2016generalized,
   xu2013simulating} and allowing for exact simulations of
 $N\lesssim100$ particles.  If decoherence is sufficiently weak,
 dynamics are numerically solvable for $N\lesssim10^4$ particles via
-``quantum jump'' Monte Carlo methods\cite{plenio1998quantumjump,
-  zhang2018montecarlo} (also known as ``quantum trajectory'' or
-``Monte Carlo wavefunction'' methods) that can reproduce all
-expectation values of interest.  When decoherence is strong, however,
-or when the number of jump operators grows extensively with system
-size (e.g.~for single-spin decay), these Monte Carlo methods can take
-a prohibitively long time to converge, as simulations become dominated
-by incoherent jumps that generate large numbers of distinct
-trajectories over which to average.
+``quantum trajectory'' Monte Carlo methods\cite{plenio1998quantumjump,
+  zhang2018montecarlo} (also known as ``quantum jump'' or ``Monte
+Carlo wavefunction'' methods) that can reproduce all expectation
+values of interest.  When decoherence is strong, however, or when the
+number of jump operators grows extensively with system size (e.g.~for
+single-spin decay), these Monte Carlo methods can take a prohibitively
+long time to converge, as simulations become dominated by incoherent
+jumps that generate large numbers of distinct trajectories over which
+to average.
 
 In this work, we develop a new method to simulate short-time dynamics
 of collective spin systems with permutationally-symmetric decoherence.
@@ -186,8 +187,10 @@ the equations of motion for Heisenberg operators.  Evaluating this
 expansion requires use of the structure factors of a collective spin
 operator algebra; the calculation of these structure factors is one of
 the main technical results of this work, which we hope will enable
-future studies to develop additional analytical insights into the
-structure and dynamics of collective spin systems.
+future studies to develop new analytical insights into the structure
+and dynamics of collective spin systems.
+
+[Paragraph or so about benchmarking and the discussion section?]
 
 
 \section{Theory}
@@ -211,25 +214,26 @@ collective spin Hamiltonians in the form
   H = \sum_{\v m} h_{\v m} \S_{\v m},
   \label{eq:H_general}
 \end{align}
-where Hermiticity requires that $h_{m_+,m_\z,m_-}=h_{m_-,m_\z,m_+}^*$.
-The time evolution of a particular Heisenberg operator $\S_{\v m}$
-under a Hamiltonian of the form in Eq.~\eqref{eq:H_general} is then
-given by
+where Hermiticity requires that $h_{\v m}^*=h_{\v m^*}$ for
+$\v m^*\equiv\p{m_-,m_\z,m_+}$.  The time evolution of a particular
+Heisenberg operator $\S_{\v m}$ under a Hamiltonian of the form in
+Eq.~\eqref{eq:H_general} is then given by
 \begin{align}
   \f{d}{dt}\S_{\v m}
-  = i\sum_{\v n}h_{\v n}\sp{\S_{\v n},\S_{\v m}}_-
-  + \sum_\J \gamma_\J \D\p{\J;\S_{\v m}}
-  \equiv \sum_{\v n} T_{\v m\v n} \S_{\v n},
+  &= i\sum_{\v n}h_{\v n}\sp{\S_{\v n},\S_{\v m}}_-
+  + \sum_\J \gamma_\J \D\p{\J;\S_{\v m}} \\
+  &= \sum_{\v n} T_{\v m\v n} \S_{\v n},
   \label{eq:EOM}
 \end{align}
-where $\sp{X,Y}_\pm\equiv XY\pm YX$, $\J$ is a set of jump operators
-with a corresponding decoherence rate $\gamma_\J$, and
+where $\sp{X,Y}_\pm\equiv XY\pm YX$; $\J$ is a set of jump operators
+with a corresponding decoherence rate $\gamma_\J$;
 \begin{align}
   \D\p{\J;\O}
   \equiv \sum_{J\in\J} \p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+}
 \end{align}
 is the Heisenberg picture dissipator, or Lindblad superoperator, for
-all jump operators $J\in\J$.  Decoherence via uncorrelated decay of
+all jump operators $J\in\J$; and $T_{\v m\v n}$ is a matrix element of
+the time derivative operator.  Decoherence via uncorrelated decay of
 individual spins at a rate $\gamma_-$, for example, would be described
 by the set of jump operators
 $\J_-=\set{\sigma_-^{(j)}:j=1,2,\cdots,N}$ with
@@ -237,14 +241,14 @@ $\gamma_{\J_-}=\gamma_-$.  The commutator in Eq.~\eqref{eq:EOM} can be
 determined from the structure factors of $f_{\v n\v m\v\ell}$ of the
 general product
 $\S_{\v n}\S_{\v m}=\sum_{\v\ell}f_{\v n\v m\v\ell}S_{\v\ell}$ worked
-out in Appendix \ref{sec:prod_general}, while the effects of
-decoherence from jump operators (i.e.~elements of $\J$) of the form
-$\gamma^{(j)}=\sum_n\gamma_ns_n^{(j)}$ and $\Gamma=\sum_n\Gamma_nS_n$
-are respectively worked out in Appendices \ref{sec:decoherence_single}
-and \ref{sec:decoherence_collective}.  These ingredients are
-sufficient to compute matrix elements $T_{\v m\v n}$ of the time
-derivative operator $d/dt$ in Eq.~\eqref{eq:EOM} in most cases of
-interest.
+out in Appendices \ref{sec:identities}--\ref{sec:prod_general}, while
+the effects of decoherence from jump operators (i.e.~elements of $\J$)
+of the form $\gamma^{(j)}=\sum_n\gamma_ns_n^{(j)}$ and
+$\Gamma=\sum_n\Gamma_nS_n$ are respectively worked out in Appendices
+\ref{sec:sandwich_single}--\ref{sec:decoherence_collective}.  These
+ingredients are sufficient to compute matrix elements $T_{\v m\v n}$
+of the time derivative operator $d/dt$ in Eq.~\eqref{eq:EOM} in most
+cases of experimental relevance.
 
 The time derivative operator $d/dt$ will generally couple spin
 operators $\S_{\v m}$ to spin operators $\S_{\v n}$ with higher
@@ -298,12 +302,10 @@ write
 where the matrix elements $T^k_{\v m\v n}$ of the $k$-th time
 derivative are
 \begin{align}
-  T^0_{\v m\v n} \equiv \delta_{\v m\v n},
-  &&
-  T^1_{\v m\v n} \equiv T_{\v m\v n},
-  &&
+  T^0_{\v m\v n} &\equiv \delta_{\v m\v n}, \\
+  T^1_{\v m\v n} &\equiv T_{\v m\v n}, \\
   T^{k>1}_{\v m\v n}
-  \equiv \sum_{\v p_1,\v p_2,\cdots,\v p_{k-1}}
+  &\equiv \sum_{\v p_1,\v p_2,\cdots,\v p_{k-1}}
   T_{\v m\v p_1} T_{\v p_1\v p_2} T_{\v p_2\v p_3}
   \cdots T_{\v p_{k-1}\v n},
 \end{align}
@@ -314,47 +316,155 @@ Eq.~\eqref{eq:time_series} by taking
   \bk{\S_{\v m}}
   \to \sum_{k=0}^M \f{t^k}{k!}
   \sum_{\v n} T^k_{\v m\v n} \bk{\S_{\v n}}_{t=0}.
+  \label{eq:order_truncation}
 \end{align}
 Unlike the truncation in Eq.~\eqref{eq:weight_truncation}, the nonzero
 matrix elements $T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ now tell us
 which operators are relevant for computing the expectation value
 $\bk{\S_{\v m}}$ to a fixed order $M$.  Note that the relation
-$\S_{\v m}^\dag=\S_{\v m^*}$ for $\v m^*\equiv\p{m_-,m_\z,m_+}$ can be
-exploited to cut both the number of matrix elements $T_{\v m\v n}$ and
-expectation values $\bk{\S_{\v m}}_{t=0}$ that we need to explicitly
-compute roughly in half.
+$\S_{\v m^*}=\S_{\v m}^\dag$, which by Hermitian conjugation of
+Eq.~\eqref{eq:EOM} also implies that
+$T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can be exploited to cut both the
+number of expectation values $\bk{\S_{\v m}}_{t=0}$ and matrix
+elements $T_{\v m\v n}$ that we need to explicitly compute roughly in
+half.
+
+In principle, the factorial suppression of terms at higher orders
+(i.e.~in $k$) of the expansion in Eq.~\eqref{eq:order_truncation}
+implies for any given time $t$, there exists a truncation order $M_t$
+for which truncation error is negligibly small.  In practice, only a
+fixed maximal truncation order $\overline M$ is accessible with
+limited computational resources, such that
+Eq.~\eqref{eq:order_truncation} only allows computation of the
+correlator $\bk{\S_{\v m}}$ to a maximal time $t_{\overline M}$.  The
+maximal accessible truncation order $\overline M$ generally depends on
+the choice of operator basis for collective spin systems, which we
+discuss briefly at the end of Appendix \ref{sec:new_basis}.  As we
+will see in the following sections, our choice of the basis
+$\set{\S_{\v m}}$ allows us to accurately compute spin correlators to
+times that are relevant e.g.~for spin squeezing protocols.
 
 
 \section{Spin squeezing}
 
-
-
-Our measure of spin squeezing is
+To benchmark our method for computing collective spin correlators, we
+consider three collective spin models known to dynamically generate
+spin-squeezed states: the one-axis twisting (OAT), two-axis twisting
+(TAT), and twist-and-turn (TNT) models described by the collective
+spin Hamiltonians\cite{kitagawa1993squeezed, micheli2003manyparticle}
 \begin{align}
-  \xi^2 \equiv \f{N}{\abs{\bk{\v S}}^2}
+  \label{eq:OAT}
+  H_{\t{OAT}} &= \chi S_\z^2, \\
+  \label{eq:TAT}
+  H_{\t{TAT}} &= \f{\chi}{3} \p{S_\z^2 - S_\y^2}, \\
+  \label{eq:TNT}
+  H_{\t{TNT}} &= \chi S_\z^2 + \Omega S_\x,
+\end{align}
+where we include a factor of $1/3$ in the TAT Hamiltonian because it
+naturally appears in realistic proposals to experimentally realize
+TAT\cite{liu2011spin, huang2015twoaxis}.  For simplicity, we further
+fix $\Omega=S\chi$ (with $S\equiv N/2$ throughout this work) to the
+critical value known to maximize the entanglement generation rate of
+of TNT in the large-$N$ limit\cite{micheli2003manyparticle,
+  sorelli2015fast}.  Note that the OAT model is a special case of the
+zero-field Ising model, whose quantum dynamics in the presence of
+decoherence via uncorrelated decay, excitation, and dephasing of
+individual spins have been previously solved
+analytically\cite{foss-feig2013nonequilibrium} (see Appendix
+\ref{sec:OAT}, as well as the Supplementary Material of
+Ref.~[\citenum{bohnet2016quantum}] for more general multi-spin
+correlators).  We will benchmark against these analytical OAT results
+wherever applicable.
+
+The Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT} squeeze the
+initial product state $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$
+with $S_\x\ket{\X}=S\ket{\X}$.  Our measure of spin squeezing is the
+directionally-unbiased squeezing parameter determined by the maximal
+gain in resolution $\Delta\phi$ of a phase angle $\phi$ over that
+achieved by any spin-polarized product state
+(e.g.~$\ket{\X}$)\cite{wineland1992spin, ma2011quantum},
+\begin{align}
+  \xi^2
+  \equiv \f{\p{\Delta\phi_{\t{min}}}^2}{\p{\Delta\phi_{\t{polarized}}}^2}
+  = \f{N}{\abs{\bk{\v S}}^2}
   \min_{\uv n\perp\bk{\v S}} \bk{\p{\v S\c\uv n}^2},
   \label{eq:squeezing}
 \end{align}
-where $N$ is the total number of spins, $\v S$ is the collective spin
-vector, and the minimization is performed over all unit vectors
-$\uv n$ in the plane orthogonal to the mean spin vector $\bk{\v S}$.
-This squeezing parameter is entirely determined by one- and two-spin
-correlators of the form $\bk{S_\alpha}$ and $\bk{S_\alpha S_\beta}$.
+where $\v S\equiv\p{S_\z,S_\x,S_\y}$ is a collective spin vector, and
+the minimization is performed over all unit vectors $\uv n$ in the
+plane orthogonal to the mean spin vector $\bk{\v S}$.  This squeezing
+parameter is entirely determined by one- and two-spin correlators of
+the form $\bk{S_m}$ and $\bk{S_m S_n}$.  In the case of coherent
+dynamics under TAT or TNT, these correlators are obtainable via exact
+simulations of quantum dynamics in the $\p{N+1}$-dimensional Dicke
+manifold of states $\set{\ket{S,m}}$ with net spin $S$ and spin
+projection $m$ onto the $z$ axis, i.e.~with
+$\bk{S,m|\v S^2|S,m}=S\p{S+1}$ and $\bk{S,m|S_\z|S,m}=m$ for
+$\abs{m}\le S$.  In the presence of permutationally-symmetric
+decoherence, these correlators are obtainable with the collective-spin
+quantum trajectory Monte Carlo method recently developed in
+ref.~\cite{zhang2018montecarlo}.  These exact and quantum trajectory
+simulations will serve as our methods for benchmarking the expansion
+in Eq.~\eqref{eq:order_truncation}.
+
+\begin{figure}
+  \centering
+  \includegraphics{coherent.pdf}
+  \caption{Spin squeezing of $N=10^4$ spins under coherent evolution,
+    as computed using exact methods (solid lines) and the expansion in
+    Eq.~\eqref{eq:order_truncation} with $M=40$ (dashed lines).  Solid
+    circles mark the times for TAT and TNT after which the latter
+    method gives an unphysical result with $\xi^2<0$.  Both methods
+    agree exactly in the OAT case for all times shown.}
+  \label{fig:coherent}
+\end{figure}
+
+Figure \ref{fig:coherent} compares the squeezing parameter $\xi^2$ for
+$N=10^4$ spins initially in the state $\ket{\X}$ coherently evolved
+under the Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}, as
+computed via both benchmarking simulations and the prescription in
+Eq.~\eqref{eq:order_truncation} with $M=40$.  Similarly, Figure
+\ref{fig:weak_decoherence} compares squeezing in the same scenario
+with the addition of decoherence through uncorrelated emission,
+absorption, and dephasing of individual spins at a rate $\chi$,
+respectively described by the sets of jump operators
+$\J_n=\set{s_n^{(j)}}$ with corresponding decoherence rates
+$\gamma_n=\chi$ for $n\in\set{-,+,\z}$.  The squeezing results shown
+in Figures \ref{fig:coherent} and \ref{fig:weak_decoherence} were
+computed in a rotated basis with $\p{s_\z,s_\x}\to\p{s_\x,-s_\z}$ and
+$\ket\X\to\ket{-\Z}\equiv\ket\dn^{\otimes N}$; the only effect of this
+rotation on the results presented in these figures is to roughly
+double the time span of near-perfect agreement in squeezing via TNT.
+The reason for different results in rotated bases has to do with the
+breakdown of the expansion in Eq.~\eqref{eq:order_truncation}, which
+we discuss further in Section \ref{sec:breakdown}.
+
+[Comment on near-perfect agreement right up until a sudden and drastic
+departure from the correct result.  Reference figure showing squeezing
+for large system with strong decoherence.  Mention that this method
+was used to put a lower bound on squeezing via TAT in our
+SOC+interactions squeezing paper.]
 
 
-\section{Discussion}
+\section{Many-body correlators}
 
 Many-body correlators and cumulants \`a la
-Ref.~\cite{schweigler2017solving}?
+Ref.~[\citenum{schweigler2017solving}]?
 
 
-\section{Conclusion}
+\section{Breakdown}
+\label{sec:breakdown}
 
 
 
-\bibliography{\jobname}
+
+\section{Conclusions}
+
+
+
 
 \newpage
+\onecolumngrid
 \appendix
 
 \section{Exact results for the one-axis twisting model}
@@ -368,14 +478,14 @@ takes the form
   = \f12 \chi \sum_{j<k} \sigma_\z^{(j)} \sigma_\z^{(k)} + \f14 N \chi,
 \end{align}
 where $\sigma_\z^{(j)}$ represents a Pauli-$z$ operator acting on spin
-$j$.  This Hamiltonian is a special case of the Ising Hamiltonian
+$j$.  This model is a special case of the zero-field Ising Hamiltonian
 previously solved in Ref.~[\citenum{foss-feig2013nonequilibrium}] via
-exact, analytical treatment of the quantum jump Monte Carlo method for
-computing expectation values.  The solution therein accounts for
-coherent evolution in addition to decoherence via uncorrelated
-single-spin decay, excitation, and dephasing respectively at rates
-$\gamma_-$, $\gamma_+$, and $\gamma_\z$ (denoted by $\Gamma_{\t{ud}}$,
-$\Gamma_{\t{du}}$, and $\Gamma_{\t{el}}$ in
+exact, analytical treatment of the quantum trajectory Monte Carlo
+method for computing expectation values.  The solution therein
+accounts for coherent evolution in addition to decoherence via
+uncorrelated single-spin decay, excitation, and dephasing respectively
+at rates $\gamma_-$, $\gamma_+$, and $\gamma_\z$ (denoted by
+$\Gamma_{\t{ud}}$, $\Gamma_{\t{du}}$, and $\Gamma_{\t{el}}$ in
 Ref.~[\citenum{foss-feig2013nonequilibrium}]).  Letting $S\equiv N/2$
 and $\mu,\nu\in\set{+1,-1}$, we adapt expectation values computed in
 Ref.~[\citenum{foss-feig2013nonequilibrium}] for the initial state
@@ -414,10 +524,12 @@ for
   &&
   s_X \equiv X + i\gamma,
 \end{align}
-The last ingredients we need to compute spin squeezing at any time are
-$\bk{S_\z}$ and $\bk{S_\z^2}$.  As these operators commute with the
-OAT Hamiltonian, their evolution is governed entirely by decoherence
-(see Appendix \ref{sec:decay_single}), which means
+In order to compute spin squeezing as measured by $\xi^2$ in
+\eqref{eq:squeezing}, we additionally need analytical expressions for
+$\bk{S_\z}$ and $\bk{S_\z^2}$.  As these operators commute with both
+the OAT Hamiltonian and the single-spin operators $\sigma_\z^{(j)}$,
+their evolution is governed entirely by decay-type decoherence (see
+Appendix \ref{sec:decay_single}), which means
 \begin{align}
   \f{d}{dt} S_\z
   &= S\p{\gamma_+-\gamma_-} - \p{\gamma_++\gamma_-} S_\z,
@@ -430,16 +542,16 @@ The initial conditions $\bk{S_\z}_{t=0}=0$ and $\bk{S_\z^2}_{t=0}=S/2$
 then imply
 \begin{align}
   \bk{S_\z}
-  = S\p{\f{\gamma_+-\gamma_-}{\gamma_++\gamma_-}}
-  \p{1-e^{-\p{\gamma_+ + \gamma_-} t}},
-  &&
-  \bk{S_\z^2} = S \sp{\f12 + \p{S-\f12} \f{\bk{S_\z}^2}{S^2}}.
+  &= S\p{\f{\gamma_+-\gamma_-}{\gamma_++\gamma_-}}
+  \p{1-e^{-\p{\gamma_+ + \gamma_-} t}}, \\
+  \bk{S_\z^2} &= S \sp{\f12 + \p{S-\f12} \f{\bk{S_\z}^2}{S^2}}.
   \label{eq:Sz_OAT}
 \end{align}
 The expectation values in \eqref{eq:S+_OAT}-\eqref{eq:SS+-_OAT} and
-\eqref{eq:Sz_OAT} are sufficient to compute the spin squeezing at any
-time throughout evolution of the initial state $\ket{\X}$ under
-$H_{\t{OAT}}$.
+\eqref{eq:Sz_OAT} are sufficient to compute the spin squeezing
+parameter $\xi^2$ in \eqref{eq:squeezing} at any time throughout
+evolution of the initial state $\ket{\X}$ under $H_{\t{OAT}}$, under
+appropriate assumptions about the relevant sources of decoherence.
 
 
 \section{Basic spin operator identities}
@@ -551,8 +663,14 @@ products of spin operators, which will ensure that we only keep track
 of operators that are linearly independent.  We choose (for now) to
 impose an ordering with all $s_\bmu^{(j)}$ operators on the left, and
 all $s_\z^{(j)}$ operators on the right, as such an ordering will
-prove convenient for the calculations in this section.  This choice of
-ordering compels us to expand
+prove convenient for the calculations in this section\footnote{In
+  retrospect, it would likely have been nicer to have all
+  $s_\mu^{(j)}$ operators on the right throughout these calculations,
+  due to the enhanced symmetry of expressions with respect to
+  Hermitian conjugation.  In any case, we express the final result of
+  this section in both ordering conventions, and thus feel no need to
+  reproduce these calculations with a different ordering.}.  This
+choice of ordering compels us to expand
 \begin{align}
   \sum_{k=0}^{m-1} S_\mu^k 2\mu s_\z^{(j)} S_\mu^{m-k-1}
   &= \sum_{k=0}^{m-1} S_\mu^k
@@ -577,9 +695,9 @@ and in turn
 As the next logical step, we take on the task of computing
 \begin{align}
   S_\mu^m S_\bmu^n
-  &= S_\mu^{m-1} S_\bmu^n S_\mu
-  + n \sp{S_\mu^{m-1} S_\bmu^{n-1} \p{1 - n + 2\mu S_\z}} \\
-  &= S_\bmu^n S_\mu^m
+  = S_\mu^{m-1} S_\bmu^n S_\mu
+  + n \sp{S_\mu^{m-1} S_\bmu^{n-1} \p{1 - n + 2\mu S_\z}}
+  = S_\bmu^n S_\mu^m
   + n \sum_{k=0}^{m-1} S_\mu^{m-k-1} S_\bmu^{n-1}
   \p{1 - n + 2\mu S_\z} S_\mu^k,
 \end{align}
@@ -848,17 +966,18 @@ operators is then
 
 In this section we derive several identities which will be necessary
 for computing the effects of single-spin decoherence on ordered
-products of collective spin operators.  These identities all involve
+products of collective spin operators, i.e.~on operators of the form
+$S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$.  These identities all involve
 sandwiching a collective spin operator between operators that act on
-individual spins only, and summing such terms over all individual spin
-indices.  Our general strategy will be to use commutation relations to
-push single-spin operators together, and then evaluate the sum to
-arrive at an expression in terms of collective spin operators only.
+individual spins only, and summing over all individual spin indices.
+Our general strategy will be to use commutation relations to push
+single-spin operators together, and then evaluate the sum to arrive at
+an expression in terms of only collective spin operators.
 
 We first compute sums of single-spin operators sandwiching
-$\p{\mu S_\z}^m$, which will in turn be used to compute similar sums
-sandwiching $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$.  Up to Hermitian
-conjugation, the unique cases are, for $\mu,\nu\in\set{+1,-1}$,
+$\p{\mu S_\z}^m$, when necessary making use of the identity in
+\eqref{eq:push_z_mu_Ss}.  Up to Hermitian conjugation, the unique
+cases are, for $\mu,\nu\in\set{+1,-1}$,
 \begin{align}
   \sum_j s_\z^{(j)} \p{\mu S_\z}^m s_\z^{(j)}
   &= \sum_j s_\z^{(j)} s_\z^{(j)} \p{\mu S_\z}^m
@@ -875,8 +994,8 @@ conjugation, the unique cases are, for $\mu,\nu\in\set{+1,-1}$,
   &= \sum_j s_\bnu^{(j)} s_\nu^{(j)} \p{\mu\nu+\mu S_\z}^m
   = \p{S-\nu S_\z} \p{\mu\nu+\mu S_\z}^m.
 \end{align}
-We are now equipped to derive similar identities for general ordered
-products of collective spin operators.  Making heavy use of identities
+We are now equipped to derive similar identities for more general
+collective spin operators.  Making heavy use of identities
 \eqref{eq:push_z_mu_sS} and \eqref{eq:push_mu_Ss} to push single-spin
 operators through transverse collective-spin operators, we again work
 through all combinations that are unique up to Hermitian conjugation,
@@ -907,8 +1026,8 @@ finding
   \label{eq:san_mu_bmu} \allowdisplaybreaks \\
   \sum_j s_\bmu^{(j)} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n s_\mu^{(j)}
   &= S_\mu^\ell \p{S - \ell - n - \mu S_\z}
-  \p{1+\mu S_\z}^m S_\bmu^n \notag \\
-  &\qquad + \ell n \p{2S - \ell - n + 2}
+  \p{1+\mu S_\z}^m S_\bmu^n
+  + \ell n \p{2S - \ell - n + 2}
   S_\mu^{\ell-1} \p{\mu S_\z}^m S_\bmu^{n-1} \notag \\
   &\qquad + \ell n \p{\ell-1} \p{n-1} S_\mu^{\ell-2} \p{S+\mu S_\z}
   \p{-1+\mu S_\z}^m S_\bmu^{n-2}.
@@ -921,8 +1040,8 @@ finding
 \label{sec:decoherence_single}
 
 In this section we work out the effects of permutationally-symmetric
-decoherence of individual spins on ordered products of collective spin
-operators.  For shorthand, we define
+decoherence of individual spins on collective spin operators of the
+form $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$.  For shorthand, we define
 \begin{align}
   \D\p{\gamma;\O} \equiv \D\p{\set{\gamma^{(j)}};\O}
   = \sum_j\p{{\gamma^{(j)}}^\dag \O \gamma^{(j)}
@@ -930,7 +1049,7 @@ operators.  For shorthand, we define
 \end{align}
 where $\gamma$ is an operator that acts on a single spin, and
 $\gamma^{(j)}$ is an operator that acts with $\gamma$ on spin $j$ and
-the identity on all other spins.
+the identity $\1$ on all other spins.
 
 
 \subsection{Decay-type decoherence}
@@ -945,8 +1064,8 @@ excitation ($\mu=1$) of individual spins is described by
   = \sum_j s_\bmu^{(j)} \O s_\mu^{(j)}
   - S \O + \f{\mu}{2} \sp{S_\z, \O}_+.
 \end{align}
-In order to determine the effect of this decoherence on ordered
-products of collective spin operators, we expand the anti-commutator
+In order to determine the effect of this decoherence on general
+collective spin operators, we expand the anti-commutator
 \begin{align}
   \sp{S_\z, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
   = S_\z S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n
@@ -978,8 +1097,8 @@ $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$ to operators
 $S_\mu^\ell \p{\mu S_\z}^{m'} S_\bmu^n$ with $m'\le m$.  Decoherence
 via jump operators $s_\mu^{(j)}$, meanwhile, makes operators
 $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$ ``grow'' in $m$ through the last
-term in \eqref{eq:decay_same} with $k=m$, although the sum $\ell+m+n$
-does not grow.
+term in \eqref{eq:decay_same}, although the sum $\ell+m+n$ does not
+grow.
 
 
 \subsection{Dephasing}
@@ -1044,16 +1163,16 @@ which implies
   &\qquad -\f14 \sum_\mu \mu
   \p{\gamma_\z^*\gamma_\mu - \gamma_\bmu^*\gamma_\z} \sp{S_\mu, \O}_+.
 \end{align}
-In order to compute the effect of this decoherence on ordered products
-of collective spin operators, we expand the anti-commutator
+In order to compute the effect of this decoherence on general
+collective spin operators, we expand the anti-commutator
 \begin{align}
   \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
   = S_\mu^{\ell+1} \sp{\p{\mu S_\z}^m+\p{1+\mu S_\z}^m} S_\bmu^n
   - n S_\mu^\ell \p{n-1+2\mu S_\z} \p{\mu S_\z}^m S_\bmu^{n-1}.
   \label{eq:S_mu_acomm}
 \end{align}
-Recognizing a resemblance between \eqref{eq:S_mu_acomm} and
-\eqref{eq:san_z_mu}, we can collect terms to simplify
+Recognizing a resemblance between terms in \eqref{eq:S_mu_acomm} and
+\eqref{eq:san_z_mu}, we collect terms to simplify
 \begin{align}
   \sum_j s_\z^{(j)} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n s_\mu^{(j)}
   - \f14 \mu \sp{S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
@@ -1074,8 +1193,8 @@ with
   \sp{\p{1+\mu S_\z}^m-\p{\mu S_\z}^m} S_\bmu^n, \\
   L_{\ell mn;\mu}
   &\equiv -\mu n S_\mu^\ell \sp{S-\ell-\f34\p{n-1}-\f12\mu S_\z}
-  \p{\mu S_\z}^m S_\bmu^{n-1} \notag \\
-  &\qquad - \mu\ell n\p{n-1} S_\mu^{\ell-1}
+  \p{\mu S_\z}^m S_\bmu^{n-1}
+  - \mu\ell n\p{n-1} S_\mu^{\ell-1}
   \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^{n-2}, \\
   M_{\ell mn;\mu}
   &\equiv \mu n S_\mu^\ell \sp{\p{S+\mu S_\z}\p{-1+\mu S_\z}^m
@@ -1085,8 +1204,8 @@ Defining for completion
 \begin{align}
   P_{\ell mn;\mu}
   &\equiv \sum_j s_\mu^{(j)} S_\mu^\ell
-  \p{\mu S_\z}^m S_\bmu^n s_\mu^{(j)} \\
-  &= n S_\mu^{\ell+1} \p{\mu S_\z}^m S_\bmu^{n-1}
+  \p{\mu S_\z}^m S_\bmu^n s_\mu^{(j)}
+  = n S_\mu^{\ell+1} \p{\mu S_\z}^m S_\bmu^{n-1}
   - n\p{n-1} S_\mu^\ell \p{S+\mu S_\z} \p{-1+\mu S_\z}^m S_\bmu^{n-2},
 \end{align}
 and
@@ -1166,7 +1285,7 @@ where
 \begin{multline}
   S_\bmu \p{\mu S_\z}^m S_\mu
   = S_\bmu S_\mu \p{1+\mu S_\z}^m
-  = \p{S_\mu S_\bmu - 2\mu S_\z} \p{1+\mu S_\z}^m \\
+  = \p{S_\mu S_\bmu - 2\mu S_\z} \p{1+\mu S_\z}^m
   = S_\mu \p{2+\mu S_\z}^m S_\bmu - 2\mu S_\z \p{1+\mu S_\z}^m,
 \end{multline}
 so
@@ -1185,28 +1304,25 @@ so
 \section{Collective spin decoherence}
 \label{sec:decoherence_collective}
 
-In this section we work out the effects of decoherence via collective
-jump operators on ordered products of collective spin operators.  For
-shorthand, we define
+In this section we work out the effects of collective decoherence on
+general collective spin operators.  For shorthand, we define
 \begin{align}
   \D\p{\Gamma;\O}
   \equiv \D\p{\set{\Gamma};\O}
   = \Gamma^\dag \O \Gamma - \f12\sp{\Gamma^\dag \Gamma, \O}_+,
 \end{align}
-where $\Gamma$ is a collective spin operator with unit weight, i.e.~a
-linear combination of $S_\z$, $S_\mu$, and $S_\bmu$.
+where $\Gamma$ is a collective spin jump operator.
 
 \subsection{Decay-type decoherence and dephasing}
 \label{sec:decay_dephasing_collective}
 
 Making use of the results in Appendix \ref{sec:sandwich_collective},
 we find that the effects of collective decay-type decoherence on
-ordered products of collective spin operators are given by
+general collective spin operators are given by
 \begin{align}
   \D\p{S_\bmu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
-  &= -S_\mu^{\ell+1} \sp{\p{1+\mu S_\z}^m - \p{\mu S_\z}^m}
-  S_\bmu^{n+1} \notag \\
-  &\qquad + \f12 S_\mu^\ell \sp{\ell\p{\ell-1} + n\p{n-1}
+  = -S_\mu^{\ell+1} \sp{\p{1+\mu S_\z}^m - \p{\mu S_\z}^m} S_\bmu^{n+1}
+  + \f12 S_\mu^\ell \sp{\ell\p{\ell-1} + n\p{n-1}
     + 2\p{\ell+n}\mu S_\z} \p{\mu S_\z}^m S_\bmu^n,
 \end{align}
 and
@@ -1224,8 +1340,7 @@ and
   \sp{\p{\ell-1}\p{n-1}+2\p{\ell+n-2}\mu S_\z + 4\p{\mu S_\z}^2}
   \p{\mu S_\z}^m S_\bmu^{n-1}.
 \end{align}
-Similarly, we can work out that the effect of collective spin
-dephasing is given by
+Similarly, the effect of collective dephasing is given by
 \begin{align}
   \D\p{S_\z; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = -\f12 \p{\ell-n}^2 S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n.
@@ -1235,8 +1350,7 @@ dephasing is given by
 \subsection{The general case}
 \label{sec:general_collective}
 
-More generally, we may need to consider collective-spin jump operators
-of the form
+More generally, we consider jump operators of the form
 \begin{align}
   \Gamma \equiv \Gamma_\z S_\z + \Gamma_+ S_+ + \Gamma_- S_-,
 \end{align}
@@ -1270,16 +1384,15 @@ which implies
     + \Gamma_\z^*\Gamma_\mu \sp{S_\z S_\mu, \O}_+
     + \Gamma_\bmu^* \Gamma_\z \sp{S_\mu S_\z, \O}_+}.
 \end{align}
-In order to compute the effect of this decoherence on ordered products
-of collective spin operators, we expand the anti-commutators
+In order to compute the effect of this decoherence on general
+collective spin operators, we expand the anti-commutators
 \begin{align}
   \sp{S_\mu^2, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
   &= S_\mu^{\ell+2} \sp{\p{2+\mu S_\z}^m+\p{\mu S_\z}^m} S_\bmu^n
   - 2n S_\mu^{\ell+1} \p{n+2\mu S_\z} \p{1+\mu S_\z}^m S_\bmu^{n-1}
   \notag \\
   &\qquad + n\p{n-1} S_\mu^\ell \sp{\p{n-1}\p{n-2}
-    + 2\p{2n-3}\mu S_\z + 4\p{\mu S_\z}^2} \notag \\
-  &\qquad\qquad\qquad\qquad \times \p{\mu S_\z}^m S_\bmu^{n-2},
+    + 2\p{2n-3}\mu S_\z + 4\p{\mu S_\z}^2} \p{\mu S_\z}^m S_\bmu^{n-2},
   \allowdisplaybreaks \\
   \sp{S_\z S_\mu, S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}_+
   &= \mu S_\mu^{\ell+1} \sp{\p{\ell+1+\mu S_\z}\p{\mu S_\z}^m
@@ -1420,6 +1533,7 @@ and compute
 
 
 \section{Changing bases for collective spin operators}
+\label{sec:new_basis}
 
 For a collective spin system composed of many small spins, the
 operators $\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ contain
@@ -1643,5 +1757,8 @@ that all individual terms in \eqref{eq:SS_simp} are nonzero, although
 they do not rule out the possibility of several terms canceling out.
 
 TODO: comment on the use of this new basis vs.~the old one.
+
+
+\bibliography{\jobname}
 
 \end{document}
