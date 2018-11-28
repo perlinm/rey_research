@@ -201,16 +201,16 @@ plt.figure(figsize = figsize)
 line = {}
 for method in methods:
     linestyle = "-" if method == "OAT" else "."
-    line[method], = plt.plot(times, sqz_D_exact[method], linestyle, label = method)
+    line[method], = plt.semilogy(times, sqz_D_exact[method], linestyle, label = method)
     positive_vals = positive(sqz_D[method])
-    plt.plot(times[:positive_vals], sqz_D[method][:positive_vals],
-             ":", color = line[method].get_color())
+    plt.semilogy(times[:positive_vals], sqz_D[method][:positive_vals],
+                 ":", color = line[method].get_color())
     if positive_vals < len(times):
-        plt.plot(times[positive_vals-1],[sqz_D[method][positive_vals-1]],
-                 "o", color = line[method].get_color())
+        plt.semilogy(times[positive_vals-1],[sqz_D[method][positive_vals-1]],
+                     "o", color = line[method].get_color())
 
 plt.xlabel(r"$\chi t$")
-plt.ylabel(r"$-10\log_{10}(\xi^2)$")
+plt.ylabel(r"$\xi^2$")
 
 plt.xlim(0, max_plot_time)
 plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
