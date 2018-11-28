@@ -341,7 +341,7 @@ the atoms can then be written in the form
 \end{align}
 where $\c_{in\mu s}$ is a fermionic operator which annihilates a
 single atom on lattice site $i\in\mathbb{Z}^3$ in motional state
-$n\in\mathbb{N}_0^3$ with nuclear spin $\mu\in\set{-I,I+1,\cdots,I}$
+$n\in\mathbb{N}_0^3$ with nuclear spin $\mu\in\set{-I,-I+1,\cdots,I}$
 (i.e.~projected onto a quantization axis) and orbital state
 $s\in\set{\g,\e}$; and $E_n$ is the energy of a single atom in
 motional state $n$.  In a harmonic trap approximation we would have
@@ -631,21 +631,21 @@ which are commonly used in the atomic physics and quantum optics
 communities to develop effective theories for e.g.~the low-lying
 levels of a Lambda system \cite{brion2007adiabatic,
   james2007effective, reiter2012effective, sanz2016adiabatic}.  Unlike
-the perturbative, but exact Schieffer-Wolff transformation, adiabatic
-elimination methods use approximations which rely on the fast dynamics
-of excited states.  While generally reasonable, these approximations
-must be made carefully to avoid potential problems with
-self-consistency (see section 3 of ref.~\cite{brion2007adiabatic}),
-and yield no obvious or straightforward means to compute effective
-corrections beyond second order in the couplings between low- and
-high-energy sectors of a Hilbert space \cite{james2007effective,
-  reiter2012effective, sanz2016adiabatic}.  While at least one attempt
-at systematically computing higher-order corrections in the framework
-of adiabatic elimination has recently been made
-\cite{sanz2016adiabatic}, the resulting expressions do not lend
-themselves as nicely to analytical treatment, and were in any case
-found by the authors to be equivalent to a Schrieffer-Wolff
-transformation.
+the perturbatively expressed, but otherwise exact Schieffer-Wolff
+transformation, adiabatic elimination methods use approximations which
+rely on the fast dynamics of excited states.  While generally
+reasonable, these approximations must be made carefully to avoid
+potential problems with self-consistency (see section 3 of
+ref.~\cite{brion2007adiabatic}), and yield no obvious or
+straightforward means to compute effective corrections beyond second
+order in the couplings between low- and high-energy sectors of a
+Hilbert space \cite{james2007effective, reiter2012effective,
+  sanz2016adiabatic}.  While at least one attempt at systematically
+computing higher-order corrections in the framework of adiabatic
+elimination has recently been made \cite{sanz2016adiabatic}, the
+resulting expressions do not lend themselves as nicely to analytical
+treatment, and were in any case found by the authors to be equivalent
+to a Schrieffer-Wolff transformation.
 
 \subsection{Diagrammatic representation of effective Hamiltonians}
 
@@ -654,14 +654,13 @@ The form of the bare two-body interaction Hamiltonian $H_{\t{int}}$ in
 the effective Hamiltonian $H_{\t{eff}}$ in \eqref{eq:H_int_eff},
 similarly to the diagrams used to represent elements of the scattering
 matrix in field theory.  Effective $M$-body interaction terms at order
-$p$ in $H_{\t{int}}$ can be represented by directed, weakly connected
-graphs (i.e.~which are connected when ignoring edge direction)
-containing $p$ internal vertices.  Each internal vertex and its
-associated edges correspond respectively to a coupling constant and
-the associated field operators in $H_{\t{int}}$.  An example 2-vertex
-diagram representing an effective 3-body interaction term is provided
-in figure \ref{fig:diagram}.  All diagrams are read from left to right
-to construct a sequence of operators from right to left; the internal
+$p$ in $H_{\t{int}}$ can be represented by graphs containing $p$
+internal vertices.  Each internal vertex and its associated edges
+correspond respectively to a coupling constant and the associated
+field operators in $H_{\t{int}}$.  An example 2-vertex diagram
+representing an effective 3-body interaction term is provided in
+figure \ref{fig:diagram}.  All diagrams are read from left to right to
+construct a sequence of operators from right to left; the internal
 vertices of a diagram are thus strictly ordered, with the $n$-th
 internal vertex from the left corresponding to the $n$-th interaction
 Hamiltonian $H_{\t{int}}$ from the right in \eqref{eq:H_int_1_2} or
