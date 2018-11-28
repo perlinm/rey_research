@@ -6,19 +6,29 @@ import numpy as np
 from time import time as system_time
 
 from dicke_methods import coherent_spin_state
-from correlator_methods import compute_correlators, dec_mat_drive
 from jump_methods import correlators_from_trajectories
 
 start_time = system_time()
 
-if len(sys.argv[1:]) != 3:
-    print(f"usage: {sys.argv[0]} method lattice_depth lattice_size")
+if len(sys.argv[1:]) not in  [ 3, 4 ]:
+    print(f"usage: {sys.argv[0]} method lattice_depth lattice_size [rational]")
     exit()
 
 method = sys.argv[1]
 lattice_depth = sys.argv[2]
 lattice_size = int(sys.argv[3])
+rational_correlators = ( len(sys.argv[1:]) == 4 )
 assert(method in [ "exact", "jump" ])
+
+if rational_correlators:
+    from correlator_methods_rat import compute_correlators, dec_mat_drive
+    from fractions import Fraction as frac
+    h_TAT = { (2,0,0) : +frac(1,3),
+              (0,0,2) : -frac(1,3) }
+else:
+    from correlator_methods import compute_correlators, dec_mat_drive
+    h_TAT = { (2,0,0) : +1/3,
+              (0,0,2) : -1/3 }
 
 data_dir = os.path.dirname(os.path.realpath(__file__)) + "/../data/"
 output_dir = data_dir + "TAT/"
@@ -32,7 +42,9 @@ trajectories = 1000
 time_steps = 100
 
 recoil_energy_NU = 21801.397815091557
-drive_mod_index_zy = 0.9057195866712102
+drive_mod_index_zy = 0.9057195866712102 # for TAT protocol about (z,y)
+drive_mod_index_xy_1 = 1.6262104442160061 # for TAT protocol about (x,y)
+drive_mod_index_xy_2 = 2.2213461342426544 # for TAT protocol about (x,y)
 
 spin_num = lattice_size**lattice_dim
 
@@ -82,8 +94,6 @@ dec_rates = [ (0, 0, decay_rate), (0, 0, 0) ]
 
 times = np.linspace(0, 2, time_steps) * spin_num**(-2/3)
 
-h_TAT = { (2,0,0) : +1/3,
-          (0,0,2) : -1/3 }
 init_state = "+X"
 init_state_vec = coherent_spin_state([0,1,0], spin_num)
 dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy))

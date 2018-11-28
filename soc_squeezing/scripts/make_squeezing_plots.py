@@ -47,6 +47,8 @@ def pd_read_2D(fname):
     data.columns = pd.to_numeric(data.columns)
     return data
 
+def to_dB(vals): return 10*np.log10(vals)
+
 J_0 = pd_read_1D(data_dir + "J_0.txt")
 U_int = pd_read_2D(data_dir + "U_int_2D.txt")
 all_depths = J_0.index
@@ -165,7 +167,7 @@ lines = { "OAT" : "k-",
 sqz_vals = {}
 t_opt = {}
 for method in sqz_methods:
-    sqz_opt = pd_read_1D(data_dir + f"sqz_{method}.txt")
+    sqz_opt = -to_dB(pd_read_1D(data_dir + f"sqz_{method}.txt"))
     t_opt[method] = pd_read_2D(data_dir + f"optimization/t_opt_{method}_L_2D.txt")
     t_opt[method] /= recoil_energy_NU
     depths, sizes = t_opt[method].index, t_opt[method].columns
@@ -226,9 +228,9 @@ def get_sqz_floor(method, lattice_depth, lattice_size):
             op = squeezing_ops[op_idx]
             correlators[op] = data[op_idx,:]
 
-        plt.plot(squeezing_from_correlators(spin_num, correlators), "k.")
-
-        return squeezing_from_correlators(spin_num, correlators).max()
+        sqz = squeezing_from_correlators(spin_num, correlators, in_dB = True)
+        plt.plot(sqz, "k.")
+        return sqz.max()
 
     if method == "exact":
 
@@ -257,7 +259,7 @@ def get_sqz_floor(method, lattice_depth, lattice_size):
                 op = squeezing_ops[op_idx]
                 correlators[op] = derivs[op_idx,:order] @ times_k[:order,:]
 
-            sqz = squeezing_from_correlators(spin_num, correlators)
+            sqz = squeezing_from_correlators(spin_num, correlators, in_dB = True)
 
             # get index of first local maximum and inflection point
             d_sqz = sqz[1:] - sqz[:-1] # first derivative
@@ -298,7 +300,7 @@ for idx, _ in np.ndenumerate(sqz["TAT"]):
 depths = { "TAT" : depths_TAT }
 sizes = { "TAT" : sizes_TAT }
 
-sqz["OAT"] = pd_read_2D(data_dir + f"optimization/sqz_opt_OAT_dec_L_2D.txt")
+sqz["OAT"] = -to_dB(pd_read_2D(data_dir + f"optimization/sqz_opt_OAT_dec_L_2D.txt"))
 depths["OAT"], sizes["OAT"], sqz["OAT"] \
     = sqz["OAT"].index, sqz["OAT"].columns, sqz["OAT"].values
 
@@ -314,9 +316,9 @@ fig, ( ax["OAT"], ax["TAT"], cax ) \
 # plot data
 for method in sqz_methods:
     mesh = ax[method].pcolormesh(depths[method], sizes[method], sqz[method].T,
-                             cmap = plt.get_cmap(color_map),
-                             vmin = sqz_min, vmax = sqz_max,
-                             zorder = 0, rasterized = True)
+                                 cmap = plt.get_cmap(color_map),
+                                 vmin = sqz_min, vmax = sqz_max,
+                                 zorder = 0, rasterized = True)
     ax[method].set_xlabel(depth_label, zorder = 1)
     make_U_axis(ax[method])
 

@@ -97,11 +97,11 @@ def get_optima(length, V_0, V_T, phi, method,
 
     # return optimum squeezing value and time for OAT or TAT appropriately
     if method[:3] == "OAT":
-        def sqz_OAT_nval(chi_t):
-            return -squeezing_OAT(N, chi_t, dec_rates)
-        optimum_OAT = optimize.minimize_scalar(sqz_OAT_nval, method = "bounded",
+        def sqz_OAT_val(chi_t):
+            return squeezing_OAT(N, chi_t, dec_rates)
+        optimum_OAT = optimize.minimize_scalar(sqz_OAT_val, method = "bounded",
                                                bounds = (0, max_time(N)))
-        sqz_opt, t_opt = -optimum_OAT.fun, optimum_OAT.x
+        sqz_opt, t_opt = optimum_OAT.fun, optimum_OAT.x
 
     if method[:3] == "TAT":
         if optima_TAT.get(N) is None:
@@ -120,8 +120,8 @@ def get_optima(length, V_0, V_T, phi, method,
             else:
                 get_optima = get_optima_simulation
 
-            optima_TAT[N] = \
-                get_optima(N, H_TAT, S_op_vec, SS_op_mat, state_nZ, max_time(N))
+            optima_TAT[N] = get_optima(N, H_TAT, S_op_vec, SS_op_mat,
+                                       state_nZ, max_time(N))
 
         sqz_opt, t_opt = optima_TAT[N]
 
@@ -180,7 +180,7 @@ if dependent_variable == "phi":
 header += "# all dimensionful values are in units with the recoil energy"
 header += r" E_R \approx 3.47 x 2\pi kHz equal to 1" + "\n"
 
-header_sqz = r"# squeezing given in decibels: -10 log10(\xi^2)" + "\n"
+header_sqz = r"# squeezing given as \xi^2" + "\n"
 
 # save all data
 data_fname_headers = [ [ t_opt, t_opt_fname, header ] ]

@@ -3,6 +3,7 @@
 # FILE CONTENTS: plots optimal squeezing times and values as a function of system size
 
 import sys
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -25,10 +26,12 @@ OAT, TAT, TNT = methods
 def pd_read_csv(fname):
     return pd.read_csv(fname, comment = "#", squeeze = True, header = None, index_col = 0)
 
+def to_dB(vals): return 10*np.log10(vals)
+
 sqz_vals = {}
 time_vals = {}
 for method in methods:
-    sqz_vals[method] = pd_read_csv(sqz_fname.format(method))
+    sqz_vals[method] = -to_dB(pd_read_csv(sqz_fname.format(method)))
     time_vals[method] = pd_read_csv(time_fname.format(method))
 
 N_min, N_max = time_vals[OAT].index[0], time_vals[OAT].index[-1]

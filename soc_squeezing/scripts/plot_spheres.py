@@ -53,7 +53,7 @@ for method in methods:
     print(method)
     states = solve_ivp(ivp_deriv(H[method]), (0,times[-1]), init_state,
                        t_eval = times, rtol = ivp_tolerance, atol = ivp_tolerance).y
-    sqz = np.array([ spin_squeezing(N, states[:,tt], S_op_vec, SS_op_mat)
+    sqz = np.array([ spin_squeezing(N, states[:,tt], S_op_vec, SS_op_mat, in_dB = True)
                      for tt in range(times.size) ])
     opt_idx = sqz.argmax()
     save_state(states[:,opt_idx], f"sphere_{method}_opt.pdf")

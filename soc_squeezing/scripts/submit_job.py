@@ -2,13 +2,13 @@
 
 import os, sys
 
-if len(sys.argv[1:]) != 3:
-    print(f"usage: {sys.argv[0]} method lattice_depth lattice_size")
+if len(sys.argv[1:]) not in [ 3, 4 ]:
+    print(f"usage: {sys.argv[0]} method lattice_depth lattice_size [rational]")
     exit()
 
 method = sys.argv[1]
-
 spin_num = int(sys.argv[3])**2
+rational = ( len(sys.argv[1:]) == 4 )
 
 if method == "jump":
     memory_cap = "4G"
@@ -18,6 +18,9 @@ elif method == "exact":
     memory_cap = "2G"
     cores = 1
     time = "01:00:00"
+    if rational:
+        time = "01-00"
+        memory_cap = "4G"
 else:
     print("method must be one of 'jump' or 'exact'")
     exit()

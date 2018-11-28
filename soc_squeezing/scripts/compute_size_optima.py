@@ -51,10 +51,10 @@ for N in particle_nums:
 
     ### use exact analytical results for one-axis twisting (OAT)
 
-    def sqz_OAT_nval(chi_t): return -squeezing_OAT(N, chi_t)
-    optimum_OAT = optimize.minimize_scalar(sqz_OAT_nval, method = "bounded",
+    def sqz_OAT_val(chi_t): return squeezing_OAT(N, chi_t, in_dB = True)
+    optimum_OAT = optimize.minimize_scalar(sqz_OAT_val, method = "bounded",
                                            bounds = (0, max_time(N)))
-    sqz_vals[OAT].at[N] = -optimum_OAT.fun
+    sqz_vals[OAT].at[N] = optimum_OAT.fun
     time_vals[OAT].at[N] = optimum_OAT.x
 
     ### compute spin vectors, spin-spin matrices, Hamiltonians, and initial state,
@@ -86,6 +86,7 @@ for N in particle_nums:
 ##########################################################################################
 
 header_common = "# first column = particle number\n"
+header_sqz = r"# squeezing given as \xi^2" + "\n"
 header_time = "# time in units with OAT twisting strength chi = 1\n"
 
 for method in methods:
@@ -93,5 +94,6 @@ for method in methods:
                           [ time_vals[method], time_fname.format(method) ] ]:
         with open(fname, "w") as f:
             f.write(header_common)
+            if "sqz" in fname: f.write(header_sqz)
             if "time" in fname: f.write(header_time)
         frame.to_csv(fname, header = False, mode = "a")

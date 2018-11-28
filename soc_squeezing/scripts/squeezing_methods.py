@@ -102,7 +102,7 @@ def minimal_orthogonal_variance(S_vec, SS_mat):
     return optimum.fun
 
 # return spin squeezing parameter
-def spin_squeezing(spin_num, state, S_op_vec, SS_op_mat, in_dB = True):
+def spin_squeezing(spin_num, state, S_op_vec, SS_op_mat, in_dB = False):
     S_vec, SS_mat = spin_vec_mat_vals(state, S_op_vec, SS_op_mat)
     variance = minimal_orthogonal_variance(S_vec, SS_mat)
     squeezing = variance * spin_num / linalg.norm(S_vec)**2
@@ -110,7 +110,7 @@ def spin_squeezing(spin_num, state, S_op_vec, SS_op_mat, in_dB = True):
     return squeezing
 
 # return  from a set of spin correlators
-def squeezing_from_correlators(spin_num, correlators, in_dB = True, zxy_basis = False):
+def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis = False):
     if not zxy_basis:
         Sz    = correlators[(0,1,0)]
         Sz_Sz = correlators[(0,2,0)]
@@ -167,7 +167,7 @@ def squeezing_from_correlators(spin_num, correlators, in_dB = True, zxy_basis = 
     return squeezing
 
 # squeezing parameter from one-axis twisting
-def squeezing_OAT(spin_num, chi_t, dec_rates = (0,0,0), in_dB = True):
+def squeezing_OAT(spin_num, chi_t, dec_rates = (0,0,0), in_dB = False):
 
     # if there is no decoherence, we have simple analytical formulas
     if dec_rates == (0,0,0):
@@ -198,7 +198,8 @@ def squeezing_OAT(spin_num, chi_t, dec_rates = (0,0,0), in_dB = True):
 ##########################################################################################
 
 # get optimal squeezing parameters by exact diagonalization
-def get_optima_diagonalization(N, H, S_op_vec, SS_op_mat, init_state, max_time):
+def get_optima_diagonalization(N, H, S_op_vec, SS_op_mat, init_state, max_time,
+                               in_dB = False):
     this_H = H.toarray()
     diags_H = np.diag(this_H)
     off_diags_H = np.diag(this_H,1)
@@ -208,26 +209,30 @@ def get_optima_diagonalization(N, H, S_op_vec, SS_op_mat, init_state, max_time):
                               for XS in SS_op_mat ])
     this_init_state = eig_vecs.T @ init_state
 
-    def squeezing_nval(chi_t):
+    def squeezing_val(chi_t):
         state_t =  np.exp(-1j * chi_t * eig_vals) * this_init_state
-        return -spin_squeezing(N, state_t, this_S_op_vec, this_SS_op_mat)
-    optimum = optimize.minimize_scalar(squeezing_nval, method = "bounded",
+        return spin_squeezing(N, state_t, this_S_op_vec, this_SS_op_mat)
+    optimum = optimize.minimize_scalar(squeezing_val, method = "bounded",
                                        bounds = (0, max_time))
-    return -optimum.fun, optimum.x
+    sqz, time = optimum.fun, optimum.x
+
+    if in_dB: sqz = -10*np.log10(sqz)
+    return sqz, time
 
 # get optimal squeezing parameters by simulation
 def get_optima_simulation(N, H, S_op_vec, SS_op_mat, init_state, max_time,
-                          time_steps = 1000):
+                          in_dB = False, time_steps = 1000):
     chi_times = np.linspace(0, max_time, time_steps)
     d_chi_t = ( chi_times[-1] - chi_times[0] ) / time_steps
     state = init_state.copy()
 
-    sqz_val = -1
+    sqz_val = 2
     for tt in range(time_steps):
         last_sqz_val = sqz_val
         state = evolve(state, H, d_chi_t)
         sqz_val = spin_squeezing(N, state, S_op_vec, SS_op_mat)
-        if sqz_val < last_sqz_val:
+        if sqz_val > last_sqz_val:
+            if in_dB: last_sqz_val = -10*np.log10(last_sqz_val)
             return last_sqz_val, chi_times[tt-1]
 
     return None, None

@@ -52,6 +52,8 @@ def pd_read_1D(fname):
 def pd_read_2D(fname):
     return pd.read_csv(fname, comment = "#", header = 0, index_col = 0)
 
+def to_dB(vals): return 10*np.log10(vals)
+
 # set file names
 base_name_2D = optimization_dir + f"{{}}_{method}_{dependent_variable}_{lattice_dim}D"
 t_opt_base = base_name_2D.format("t_opt")
@@ -62,7 +64,7 @@ U_int_base = f"U_int_{lattice_dim}D"
 J_0 = pd_read_1D(data_dir + "J_0.txt")
 U_int = pd_read_2D(data_dir + U_int_base + ".txt")
 if sqz_subplot:
-    sqz_opt = pd_read_1D(data_dir + f"sqz_{method}.txt")
+    sqz_opt = -to_dB(pd_read_1D(data_dir + f"sqz_{method}.txt"))
 
 depths = J_0.index
 U_J = (U_int.T / J_0.T).T
@@ -98,6 +100,8 @@ def make_plot(base_name, label):
     data = pd_read_2D(data_fname)
     if "t_opt" in base_name:
         data /= recoil_energy_NU
+    if "sqz_opt" in base_name:
+        data = -to_dB(data)
 
     columns = pd.to_numeric(data.columns)
     if dependent_variable == "phi":

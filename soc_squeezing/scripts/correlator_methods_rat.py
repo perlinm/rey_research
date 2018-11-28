@@ -5,7 +5,12 @@
 import itertools, scipy
 import numpy as np
 
-from scipy.integrate import solve_ivp
+from scipy.special import factorial as scipy_factorial
+from scipy.special import comb as scipy_binom
+from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
+
+from fractions import Fraction as frac
+from cfractions import CFraction as cfrac
 
 from special_functions import *
 
@@ -15,15 +20,18 @@ from special_functions import *
 ##########################################################################################
 
 # natural logarithm of factors which appear in the expetation value for |X>
-def ln_factors_X(NN, kk, ll, nn):
-    return ( ln_factorial(NN - kk)
-             - ln_factorial(kk)
-             - ln_factorial(NN - ll - kk)
-             - ln_factorial(NN - nn - kk) )
-ln_factors_X = np.vectorize(ln_factors_X)
+def factors_X(NN, kk, ll, nn):
+    num = factorial(NN - kk)
+    den = factorial(kk) * factorial(NN - ll - kk) * factorial(NN - nn - kk)
+    return frac(num, den)
+factors_X = np.vectorize(factors_X)
 
 # correlator < X | S_+^ll S_\z^mm S_-^nn | X >
 def op_val_X(op, NN, vals = {}):
+    if NN % 2 != 0:
+        print("calculating <X|O|X> is only allowed for even total spin")
+        exit()
+
     ll, mm, nn = op
     ll, nn = max(ll,nn), min(ll,nn)
     try: return vals[ll,mm,nn,NN]
@@ -32,9 +40,9 @@ def op_val_X(op, NN, vals = {}):
     if ll == 0 and nn == 0 and mm % 2 == 1: return 0
     if ll > NN: return 0
 
-    ln_prefactor = ln_factorial(NN) - NN*np.log(2)
-    k_vals = np.arange(NN-ll+0.5, dtype = int)
-    val = ((k_vals-NN/2)**mm * np.exp(ln_factors_X(NN,k_vals,ll,nn)+ln_prefactor)).sum()
+    prefactor = frac(factorial(NN), 2**NN)
+    k_vals = np.arange(NN-ll+0.5, dtype = frac)
+    val = prefactor * ( k_vals**mm * factors_X(NN,k_vals,ll,nn) ).sum()
     vals[ll,mm,nn,NN] = val
     return val
 
@@ -47,9 +55,9 @@ def op_val_Z_p(op, NN, vals = {}):
     if ll != nn: return 0
     if nn > NN: return 0
 
-    ln_factorials_num = ln_factorial(NN) + ln_factorial(nn)
-    ln_factorials_den = ln_factorial(NN-nn)
-    val = (NN/2-nn)**mm * np.exp(ln_factorials_num - ln_factorials_den)
+    num = factorial(NN) * factorial(nn)
+    den = factorial(NN-nn)
+    val = (frac(NN,2)-nn)**mm * frac(num,den)
     vals[ll,mm,NN] = val
     return val
 
@@ -57,64 +65,7 @@ def op_val_Z_p(op, NN, vals = {}):
 def op_val_Z_m(op, NN):
     ll, mm, nn = op
     if ll != 0 or nn != 0: return 0
-    return (-NN/2)**mm
-
-# correlator ln | < X | S_+^ll S_\z^mm S_-^nn | X > |
-def op_ln_val_X(op, NN, vals = {}):
-    ll, mm, nn = op
-    ll, nn = max(ll,nn), min(ll,nn)
-    try: return vals[ll,mm,nn,NN]
-    except: None
-
-    if ll == 0 and nn == 0 and mm % 2 == 1: return None
-    if ll > NN: return None
-
-    ln_prefactor = ln_factorial(NN) - NN*np.log(2)
-    ln_factors = lambda kk : ln_factors_X(NN,kk,ll,nn)
-
-    k_vals = np.arange(NN-ll+0.5, dtype = int)
-
-    # remove kk == NN/2 term if necessary
-    if mm > 0 and NN % 2 == 0 and k_vals[-1] >= NN/2:
-        k_vals = np.delete(k_vals, NN//2)
-
-    # compute the logarithm of the magnitude of each term
-    ln_terms = ln_factors(k_vals) + ln_prefactor
-    if mm != 0: ln_terms += mm * np.log(abs(NN/2-k_vals))
-
-    # compute the absolute value of terms divided by the largest term
-    ln_term_max = ln_terms.max()
-    terms = np.exp(ln_terms-ln_term_max)
-
-    # compute the logarithm of the sum of the terms
-    if mm % 2 == 1:
-        val = ln_term_max + np.log(np.sum(np.sign(NN/2-k_vals)*terms))
-    else:
-        val = ln_term_max + np.log(np.sum(terms))
-
-    vals[ll,mm,nn,NN] = val
-    return val
-
-# correlator ln | < Z | S_+^ll S_\z^mm S_-^nn | Z > |
-def op_ln_val_Z_p(op, NN, vals = {}):
-    try: return vals[ll,mm,NN]
-    except: None
-
-    ll, mm, nn = op
-    if ll != nn: return None
-    if ll > NN: return None
-
-    ln_factorials_num = ln_factorial(NN) + ln_factorial(ll)
-    ln_factorials_den = ln_factorial(NN-ll)
-    val = mm*np.log(NN/2-ll) + ln_factorials_num - ln_factorials_den
-    vals[ll,mm,NN] = val
-    return val
-
-# correlator ln | < Z | S_-^ll S_\z^mm S_+^nn | Z > |
-def op_ln_val_Z_m(op, NN):
-    ll, mm, nn = op
-    if ll != 0 or nn != 0: return None
-    return mm*np.log(NN/2)
+    return (-frac(NN,2))**mm
 
 
 ##########################################################################################
@@ -218,19 +169,11 @@ def multiply_vecs(vec_left, vec_right, prefactor = 1):
 def dec_mat_drive(A):
     const = np.array([[ 1, 0, 1 ],
                       [ 0, 0, 0 ],
-                      [ 1, 0, 1 ]]) * 1/2
+                      [ 1, 0, 1 ]]) * frac(1,2)
     var = np.array([[  1, 0, -1 ],
                     [  0, 2,  0 ],
-                    [ -1, 0,  1 ]]) * 1/2
+                    [ -1, 0,  1 ]]) * frac(1,2)
     return const + A * var
-
-# convert decoherence transformation matrix from (z,x,y) format to (mu,z,bmu) format
-def convert_zxy_mat(mat_zxy, mu = 1):
-    zxy_to_pzm = np.array([ [ 0, 1, +mu*1j ],
-                            [ 1, 0,  0  ],
-                            [ 0, 1, -mu*1j ] ])
-    pzm_to_zxy = np.linalg.inv(zxy_to_pzm)
-    return zxy_to_pzm @ mat_zxy @ pzm_to_zxy
 
 # convert vector from (z,x,y) format to (mu,z,bmu) format
 def convert_zxy(vec_zxy, mu = 1):
@@ -242,7 +185,7 @@ def convert_zxy(vec_zxy, mu = 1):
                (0,0,1) :  1 }
     for op_zxy, val_zxy in vec_zxy.items():
         ll, mm, nn = op_zxy
-        lmn_fac = val_zxy * 1j**nn * mu**(ll+nn) / 2**(mm+nn)
+        lmn_fac = val_zxy * cfrac(0,1)**nn * mu**(ll+nn) / 2**(mm+nn)
         # starting from the left, successively multiply all factors on the right
         lmn_vec = { (0,ll,0) : 1 }
         for jj in range(mm): lmn_vec = multiply_vecs(lmn_vec, Sx_2)
@@ -284,7 +227,7 @@ def op_image_decoherence_diag_individual(op, SS, dec_vec, mu):
     image_mu = {}
     if D_mu != 0:
         image_mu = ext_binom_op(*op, [ SS-ll-nn, -1 ], 1, D_mu)
-        add_left(image_mu, insert_z_poly({op:1}, [ SS-(ll+nn)/2, -1 ]), -D_mu)
+        add_left(image_mu, insert_z_poly({op:1}, [ SS-frac(ll+nn,2), -1 ]), -D_mu)
         if ll >= 1 and nn >= 1:
             image_mu[(ll-1, mm, nn-1)] = ll*nn * (2*SS-ll-nn+2) * D_mu
         if ll >= 2 and nn >= 2:
@@ -295,7 +238,7 @@ def op_image_decoherence_diag_individual(op, SS, dec_vec, mu):
     image_nu = {}
     if D_nu != 0:
         image_nu = ext_binom_op(*op, [ SS, 1 ], -1, D_nu)
-        add_left(image_nu, insert_z_poly({op:1}, [ SS+(ll+nn)/2, 1 ]), -D_nu)
+        add_left(image_nu, insert_z_poly({op:1}, [ SS+frac(ll+nn,2), 1 ]), -D_nu)
 
     image_z = {}
     if D_z != 0 and ll + nn != 0:
@@ -326,7 +269,7 @@ def op_image_decoherence_Q_individual(op, SS, dec_vec, mu):
 
     image_K = {}
     if gg_zp + gg_mz != 0:
-        image_K = binom_op(ll+1, mm, nn, 1, mu/4 * (gg_zp + gg_mz))
+        image_K = binom_op(ll+1, mm, nn, 1, frac(mu,4) * (gg_zp + gg_mz))
         del image_K[(ll+1,mm,nn)]
 
     image_L = {}
@@ -334,13 +277,13 @@ def op_image_decoherence_Q_individual(op, SS, dec_vec, mu):
         if nn >= 2 and ll >= 1:
             factor = -mu*ll*nn*(nn-1)
             image_L = ext_binom_op(ll-1, mm, nn-2, [ SS, 1 ], -1, factor * gg_zp)
-        coefficients = [ SS-ll-3/4*(nn-1), -1/2 ]
-        image_L.update(insert_z_poly({(ll,mm,nn-1):-1}, coefficients, mu*nn * gg_zp))
+        coefficients = [ SS-ll-frac(3,4)*(nn-1), -frac(1,2) ]
+        image_L.update(insert_z_poly({(ll,mm,nn-1):1}, coefficients, mu*nn * gg_zp))
 
     image_M = {}
     if gg_mz != 0 and nn != 0:
         image_M = ext_binom_op(ll, mm, nn-1, [ SS, 1 ], -1, mu*nn * gg_mz)
-        coefficients = [ (nn-1)/2, 1 ]
+        coefficients = [ frac(nn-1,2), 1 ]
         add_left(image_M, insert_z_poly({(ll,mm,nn-1):1}, coefficients, -mu*nn * gg_mz))
 
     return sum_vecs(image_P, image_K, image_L, image_M)
@@ -366,7 +309,7 @@ def op_image_decoherence_diag_collective(op, SS, dec_vec, mu):
         coefficients = [ ll*(ll+1) + nn*(nn+1), 2*(ll+nn+1) ]
         image_mu.update(ext_binom_op(*op, coefficients, 1, -D_mu))
         coefficients = [ ll*(ll+1) + nn*(nn+1), 2*(ll+nn+2) ]
-        add_left(image_mu, insert_z_poly({op:1}, coefficients, D_mu/2))
+        add_left(image_mu, insert_z_poly({op:1}, coefficients, frac(D_mu,2)))
         if ll >= 1 and nn >= 1:
             vec = { (ll-1,mm,nn-1) : 1 }
             coefficients = [ (ll-1)*(nn-1), 2*(ll+nn-2), 4 ]
@@ -377,11 +320,11 @@ def op_image_decoherence_diag_collective(op, SS, dec_vec, mu):
         image_nu = binom_op(ll+1, mm, nn+1, 1, -D_nu)
         del image_nu[(ll+1,mm,nn+1)]
         coefficients = [ ll*(ll-1) + nn*(nn-1), 2*(ll+nn) ]
-        image_nu.update(insert_z_poly({op:1}, coefficients, D_nu/2))
+        image_nu.update(insert_z_poly({op:1}, coefficients, frac(D_nu,2)))
 
     image_z = {}
     if D_z != 0 and ll != nn:
-        image_z = { (ll,mm,nn) : -D_z/2 * (ll-nn)**2 }
+        image_z = { (ll,mm,nn) : -frac(D_z,2) * (ll-nn)**2 }
 
     return sum_vecs(image_mu, image_nu, image_z)
 
@@ -397,8 +340,8 @@ def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
     gg_mp = np.conj(g_nu) * g_mu
     gg_zp = np.conj(g_z) * g_mu
     gg_mz = np.conj(g_nu) * g_z
-    gg_P = ( gg_zp + gg_mz ) / 2
-    gg_M = ( gg_zp - gg_mz ) / 2
+    gg_P = frac(gg_zp + gg_mz, 2)
+    gg_M = frac(gg_zp - gg_mz, 2)
 
     image_P = {}
     if gg_mp != 0:
@@ -411,22 +354,22 @@ def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
             add_left(image_P, {op_1 : nn*(-nn+1) * gg_mp})
         if nn >= 2:
             vec = { (ll, mm, nn-2) : -nn*(nn-1) * gg_mp }
-            coefficients = [ (nn-1)*(nn-2)/2, (2*nn-3), 2 ]
+            coefficients = [ frac((nn-1)*(nn-2),2), (2*nn-3), 2 ]
             add_left(image_P, insert_z_poly(vec, coefficients))
 
     image_L = {}
     image_M = {}
     if gg_P != 0 or gg_M != 0:
-        factor_ll = mu * ( (ll-nn+1/2) * gg_P + (ll+1/2) * gg_M )
-        factor_nn = mu * ( (ll-nn+1/2) * gg_P + (nn+1/2) * gg_M )
+        factor_ll = mu * ( (ll-nn+frac(1,2)) * gg_P + (ll+frac(1,2)) * gg_M )
+        factor_nn = mu * ( (ll-nn+frac(1,2)) * gg_P + (nn+frac(1,2)) * gg_M )
         image_L = binom_op(ll+1, mm, nn, 1, factor_ll)
         image_L[(ll+1,mm,nn)] -= factor_nn
         add_left(image_L, ext_binom_op(ll+1, mm, nn, [ 0, 1 ], 1, mu * gg_M))
         del image_L[(ll+1,mm+1,nn)]
 
         if nn >= 1:
-            factor_mm_0 = (ll-nn+1/2) * gg_P + (ll-1/2) * gg_M
-            factor_mm_1 = (ll-nn+1/2) * gg_P + (ll+nn/2-1) * gg_M
+            factor_mm_0 = (ll-nn+frac(1,2)) * gg_P + (ll-frac(1,2)) * gg_M
+            factor_mm_1 = (ll-nn+frac(1,2)) * gg_P + (ll+frac(nn,2)-1) * gg_M
             factors = [ -mu*nn*(nn-1) * factor_mm_0,
                         -2*mu*nn * factor_mm_1,
                         -2*mu*nn * gg_M ]
@@ -447,6 +390,8 @@ def get_dec_vecs(dec_rates, dec_mat):
         dec_vec_g = dec_mat[:,jj] * np.sqrt(dec_rates[0][jj])
         dec_vec_G = dec_mat[:,jj] * np.sqrt(dec_rates[1][jj])
         if max(abs(dec_vec_g)) == 0 and max(abs(dec_vec_G)) == 0: continue
+        dec_vec_g = np.array([ frac(x) for x in dec_vec_g ])
+        dec_vec_G = np.array([ frac(x) for x in dec_vec_G ])
         dec_vecs.append((dec_vec_g,dec_vec_G))
     return dec_vecs
 
@@ -475,15 +420,15 @@ def op_image_coherent(op, h_vec):
     if op == (0,0,0): return {}
     image = {}
     for h_op, h_val in h_vec.items():
-        add_left(image, multiply_terms(h_op, op), +1j*h_val)
-        add_left(image, multiply_terms(op, h_op), -1j*h_val)
+        add_left(image, multiply_terms(h_op, op), +cfrac(0,1)*h_val)
+        add_left(image, multiply_terms(op, h_op), -cfrac(0,1)*h_val)
     return image
 
 # full image of a single operator under the time derivative operator
 def op_image(op, h_vec, spin_num, dec_vecs, mu):
     image = op_image_coherent(op, h_vec)
     for dec_vec in dec_vecs:
-        add_left(image, op_image_decoherence(op, spin_num/2, dec_vec, mu))
+        add_left(image, op_image_decoherence(op, frac(spin_num,2), dec_vec, mu))
     return clean(image)
 
 
@@ -507,19 +452,19 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
     assert(state_dir in [ "Z", "X", "Y" ])
     nu = +1 if state_sign == "+" else -1
 
+    assert(spin_num % 2 == 0)
     if state_dir == "Z":
         if mu == nu:
-            init_ln_val = lambda op : op_ln_val_Z_p(op, spin_num)
-            init_val_sign = lambda op : 1
+            init_val = lambda op : op_val_Z_p(op, spin_num)
         else:
-            init_ln_val = lambda op : op_ln_val_Z_m(op, spin_num)
-            init_val_sign = lambda op : (-1)**op[1]
+            init_val = lambda op : op_val_Z_m(op, spin_num)
+        def init_val_sign(op): return 1
     else: # if state_dir in [ "X", "Y" ]
-        init_ln_val = lambda op : op_ln_val_X(op, spin_num)
+        init_val = lambda op : op_val_X(op, spin_num)
         if state_dir == "X":
-            init_val_sign = lambda op : (-1)**op[1] * nu**(op[0]-op[2])
+            init_val_sign = lambda op : frac(nu)**(op[0]-op[2])
         if state_dir == "Y":
-            init_val_sign = lambda op : (-1)**op[1] * (1j*mu*nu)**(op[0]-op[2])
+            init_val_sign = lambda op : (cfrac(0,1)*mu*nu)**(op[0]-op[2])
 
     if dec_mat is None: dec_mat = np.eye(3)
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
@@ -529,14 +474,17 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
 
     if method == "taylor":
         derivs = compute_squeezing_derivs(order_cap, op_image_args,
-                                          init_ln_val, init_val_sign, initial_state)
+                                          init_val, init_val_sign, initial_state)
         if return_derivs: return derivs
-        times_k = np.array([ chi_times**order for order in range(order_cap) ])
-        correlators = { op : derivs[op] @ times_k for op in squeezing_ops }
+        times = np.array([ frac(tt, chi_times.size) * frac(chi_times[-1])
+                           for tt in range(chi_times.size) ])
+        times_k = np.array([ times**order for order in range(order_cap) ])
+        correlators = { op : derivs[op].dot(times_k).astype(complex)
+                        for op in squeezing_ops }
 
     else: # method == "diffeq"
         correlators = compute_correlators_diffeq(chi_times, order_cap, op_image_args,
-                                                 init_ln_val, init_val_sign)
+                                                 init_val, init_val_sign)
 
     if mu == 1:
         return correlators
@@ -547,7 +495,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
 
 # compute derivatives of squeezing operators:
 #   derivs[op][kk] = < (d/dt)^kk op >_0 / kk!
-def compute_squeezing_derivs(order_cap, op_image_args, init_ln_val, init_val_sign,
+def compute_squeezing_derivs(order_cap, op_image_args, init_val, init_val_sign,
                              initial_state):
 
     if initial_state == "-Z":
@@ -597,31 +545,27 @@ def compute_squeezing_derivs(order_cap, op_image_args, init_ln_val, init_val_sig
                     del time_derivs[sqz_op,order][op]
 
     # compute initial values of relevant operators
-    init_ln_vals = {}
+    init_vals = {}
     for sqz_op in squeezing_ops:
         for order in range(order_cap):
             for op in time_derivs[sqz_op,order]:
-                if init_ln_vals.get(op) == None:
-                    init_ln_vals[op] = init_ln_val(op)
+                if init_vals.get(op) == None:
+                    init_vals[op] = init_val(op) * init_val_sign(op)
                     if op[0] != op[-1]:
-                        try: init_ln_vals[op[::-1]] = init_ln_vals[op]
-                        except: init_ln_vals[op[::-1]] = None
+                        init_vals[op[::-1]] = np.conj(init_vals[op])
 
     derivs = {}
     for sqz_op in squeezing_ops:
-        derivs[sqz_op] = np.zeros(order_cap, dtype = complex)
+        derivs[sqz_op] = np.array([ cfrac(0,0) for ii in range(order_cap) ])
         for order in range(order_cap):
             for T_op, T_val in time_derivs[sqz_op,order].items():
-                init_ln_val = init_ln_vals[T_op]
-                if init_ln_val is None: continue
-                term_ln_mag = np.log(complex(T_val)) + init_ln_val
-                derivs[sqz_op][order] += np.exp(term_ln_mag) * init_val_sign(T_op)
+                derivs[sqz_op][order] += T_val * init_vals[T_op]
 
     return derivs
 
 # compute correlators by solving an initial value problem (i.e. differential equation)
 def compute_correlators_diffeq(chi_times, order_cap, op_image_args,
-                               init_ln_val, init_val_sign, ivp_tolerance = 1e-10):
+                               init_val, ivp_tolerance = 1e-10):
     op_num = 0 # counts number of operaters we keep track of
     op_idx = {} # dictionary taking operator to unique integer index
 
@@ -636,7 +580,7 @@ def compute_correlators_diffeq(chi_times, order_cap, op_image_args,
             diff_op[op] = op_image(op, *op_image_args)
             op_idx[op] = op_num
             op_num += 1
-            try: init_vals[op] = np.exp(init_ln_val(op)) * init_val_sign(op)
+            try: init_vals[op] = init_val(op)
             except: init_vals[op] = 0
             if op[0] != op[-1]:
                 diff_op[op[::-1]] = conj_vec(diff_op[op])
@@ -656,9 +600,9 @@ def compute_correlators_diffeq(chi_times, order_cap, op_image_args,
 
     def time_derivative(time, vec): return diff_mat.dot(vec)
 
-    ivp_solution = solve_ivp(time_derivative, (0,chi_times[-1]), init_vec,
-                             t_eval = chi_times,
-                             rtol = ivp_tolerance, atol = ivp_tolerance)
+    ivp_solution = scipy.integrate.solve_ivp(time_derivative, (0,chi_times[-1]), init_vec,
+                                             t_eval = chi_times,
+                                             rtol = ivp_tolerance, atol = ivp_tolerance)
 
     return { op : ivp_solution.y[op_idx[op],:] for op in squeezing_ops }
 
