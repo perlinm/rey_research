@@ -341,7 +341,7 @@ def op_image_decoherence_Q_individual(op, SS, dec_vec, mu):
     if gg_mz != 0 and nn != 0:
         image_M = ext_binom_op(ll, mm, nn-1, [ SS, 1 ], -1, mu*nn * gg_mz)
         coefficients = [ (nn-1)/2, 1 ]
-        add_left(image_M, insert_z_poly({(ll,mm,nn-1):1}, coefficients, -mu*nn * gg_mz))
+        add_left(image_M, insert_z_poly({(ll,mm,nn-1):1}, coefficients, -mu*nn/2 * gg_mz))
 
     return sum_vecs(image_P, image_K, image_L, image_M)
 
