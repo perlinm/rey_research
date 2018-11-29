@@ -149,21 +149,16 @@ del init_state_vec, correlators_TAT_J, correlators_TNT_J
 # make squeezing plots
 ##########################################################################################
 
+time_pad = 1/3
+sqz_pad = 1/10
+trajectory_marker_size = 2
+
 def positive(vals):
     idx = np.argmax(vals < 0)
     if idx == 0: return len(vals)
     else: return idx
 
-def useful(vals):
-    idx = np.argmax(vals < 1)
-    if idx == 0: return len(vals)
-    else: return idx
-
-def last_plot(sqz_vals):
-    return min(positive(vals), useful(vals))
-
-sqz_pad = 1/10
-max_plot_time = min(max_time, times[np.argmin(sqz_TAT)]*4/3)
+max_plot_time = min(max_time, times[np.argmin(sqz_TAT)]*(1+time_pad))
 
 ### coherent evolution
 
@@ -194,14 +189,14 @@ plt.legend(loc = "best")
 plt.tight_layout()
 if save: plt.savefig(fig_dir + "coherent.pdf")
 
-
 ### evolution with weak decoherence
 
 plt.figure(figsize = figsize)
 line = {}
 for method in methods:
     linestyle = "-" if method == "OAT" else "."
-    line[method], = plt.semilogy(times, sqz_D_exact[method], linestyle, label = method)
+    line[method], = plt.semilogy(times, sqz_D_exact[method], linestyle, label = method,
+                                 markersize = trajectory_marker_size)
     positive_vals = positive(sqz_D[method])
     plt.semilogy(times[:positive_vals], sqz_D[method][:positive_vals],
                  ":", color = line[method].get_color())
