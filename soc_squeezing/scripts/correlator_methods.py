@@ -106,7 +106,7 @@ def op_ln_val_Z_p(op, NN, vals = {}):
 
     ln_factorials_num = ln_factorial(NN) + ln_factorial(ll)
     ln_factorials_den = ln_factorial(NN-ll)
-    val = mm*np.log(NN/2-ll) + ln_factorials_num - ln_factorials_den
+    val = mm*np.log(abs(NN/2-ll)) + ln_factorials_num - ln_factorials_den
     vals[ll,mm,NN] = val
     return val
 
@@ -226,10 +226,10 @@ def dec_mat_drive(A):
 
 # convert decoherence transformation matrix from (z,x,y) format to (mu,z,bmu) format
 def convert_zxy_mat(mat_zxy, mu = 1):
-    zxy_to_pzm = np.array([ [ 0, 1, +mu*1j ],
-                            [ 1, 0,  0  ],
-                            [ 0, 1, -mu*1j ] ])
-    pzm_to_zxy = np.linalg.inv(zxy_to_pzm)
+    pzm_to_zxy = np.array([ [      0, 1,      0 ],
+                            [      1, 0,      1 ],
+                            [ +mu*1j, 0, -mu*1j ] ])
+    zxy_to_pzm = np.linalg.inv(pzm_to_zxy)
     return zxy_to_pzm @ mat_zxy @ pzm_to_zxy
 
 # convert vector from (z,x,y) format to (mu,z,bmu) format
@@ -510,7 +510,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
     if state_dir == "Z":
         if mu == nu:
             init_ln_val = lambda op : op_ln_val_Z_p(op, spin_num)
-            init_val_sign = lambda op : 1
+            init_val_sign = lambda op : 1 if spin_num/2 > op[0] else (-1)**op[1]
         else:
             init_ln_val = lambda op : op_ln_val_Z_m(op, spin_num)
             init_val_sign = lambda op : (-1)**op[1]
