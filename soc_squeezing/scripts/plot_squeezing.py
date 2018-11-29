@@ -168,7 +168,7 @@ for method in methods:
     line[method], = plt.semilogy(times, sqz[method], label = method)
     positive_vals = positive(sqz_B[method])
     plt.semilogy(times[:positive_vals], sqz_B[method][:positive_vals],
-                 ":", color = line[method].get_color())
+                 "--", color = line[method].get_color())
     if positive_vals < len(times):
         plt.semilogy(times[positive_vals-1],[sqz_B[method][positive_vals-1]],
                      "o", color = line[method].get_color())
@@ -199,7 +199,7 @@ for method in methods:
                                  markersize = trajectory_marker_size)
     positive_vals = positive(sqz_D[method])
     plt.semilogy(times[:positive_vals], sqz_D[method][:positive_vals],
-                 ":", color = line[method].get_color())
+                 "--", color = line[method].get_color())
     if positive_vals < len(times):
         plt.semilogy(times[positive_vals-1],[sqz_D[method][positive_vals-1]],
                      "o", color = line[method].get_color())
@@ -222,3 +222,8 @@ if save: plt.savefig(fig_dir + "decoherence_weak.pdf")
 
 
 if show: plt.show()
+
+# TODO:
+# test use of convert_zxy_mat
+# save/read squeezing from data files
+# write script to submit this job to terra
