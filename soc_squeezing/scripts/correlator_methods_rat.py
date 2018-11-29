@@ -175,6 +175,14 @@ def dec_mat_drive(A):
                     [ -1, 0,  1 ]]) * frac(1,2)
     return const + A * var
 
+# convert decoherence transformation matrix from (z,x,y) format to (mu,z,bmu) format
+def convert_zxy_mat(mat_zxy, mu = 1):
+    pzm_to_zxy = np.array([ [      0, 1,      0 ],
+                            [      1, 0,      1 ],
+                            [ +mu*1j, 0, -mu*1j ] ])
+    zxy_to_pzm = np.linalg.inv(pzm_to_zxy)
+    return zxy_to_pzm @ mat_zxy @ pzm_to_zxy
+
 # convert vector from (z,x,y) format to (mu,z,bmu) format
 def convert_zxy(vec_zxy, mu = 1):
     vec = {}
