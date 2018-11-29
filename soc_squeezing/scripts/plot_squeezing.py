@@ -49,7 +49,8 @@ methods = [ "OAT", "TAT", "TNT" ]
 max_time = max_tau * N**(-2/3)
 times = np.linspace(0, max_time, time_steps)
 
-# compute OAT squeezing parameters
+### exact calculations
+
 sqz_OAT = squeezing_OAT(N, times)
 
 # compute Hamiltonian, spin vector, spin-spin matrix, and initial states for TAT and TNT,
@@ -84,24 +85,8 @@ sqz = { "OAT" : sqz_OAT, "TAT" : sqz_TAT, "TNT" : sqz_TNT }
 sqz_max = max([ max(sqz[method]) for method in methods ])
 sqz_min = min([ min(sqz[method]) for method in methods ])
 
+### correlator expansions
 
-##########################################################################################
-# compute squeezing parameters with decoherence
-##########################################################################################
-
-# construct Hamiltonians in (z,x,y) format
-h_OAT = { (0,2,0) : 1 }
-h_TAT = { (0,2,0) : +1/3,
-          (0,0,2) : -1/3 }
-h_TNT = { (0,2,0) : 1,
-          (1,0,0) : -N/2 }
-init_state = "-Z"
-dec_mat_zxy = np.array([ [ 0, -1, 0 ],
-                         [ 1,  0, 0 ],
-                         [ 0,  0, 1 ]])
-dec_mat = convert_zxy_mat(dec_mat_zxy)
-
-# compute correlators and squeezing without dechoerence for benchmarking
 correlators_OAT_B = compute_correlators(N, order_cap, times, init_state, h_OAT)
 correlators_TAT_B = compute_correlators(N, order_cap, times, init_state, h_TAT)
 correlators_TNT_B = compute_correlators(N, order_cap, times, init_state, h_TNT)
@@ -114,7 +99,44 @@ del correlators_OAT_B, correlators_TAT_B, correlators_TNT_B
 
 sqz_B = { "OAT" : sqz_OAT_B, "TAT" : sqz_TAT_B, "TNT" : sqz_TNT_B }
 
-# compute correlators and squeezing with decoherence
+
+##########################################################################################
+# compute squeezing parameters with decoherence -- in a rotated basis (z,x) --> (x,-z)
+##########################################################################################
+
+# construct Hamiltonians in (z,x,y) format
+h_OAT = { (0,2,0) : 1 }
+h_TAT = { (0,2,0) : +1/3,
+          (0,0,2) : -1/3 }
+h_TNT = { (0,2,0) : 1,
+          (1,0,0) : -N/2 }
+init_state = "-Z"
+
+# construct transformation matrix to rotate jump operators
+dec_mat_zxy = np.array([ [ 0, -1, 0 ],
+                         [ 1,  0, 0 ],
+                         [ 0,  0, 1 ]])
+dec_mat = convert_zxy_mat(dec_mat_zxy)
+
+### exact and quantum trajectory calculations
+
+sqz_OAT_D_exact = squeezing_OAT(N, times, dec_rates[0])
+
+init_state_vec = coherent_spin_state(init_state, N)
+def jump_args(hamiltonian):
+    return [ N, trajectories, times, init_state_vec, hamiltonian, dec_rates, dec_mat ]
+correlators_TAT_J = correlators_from_trajectories(*jump_args(h_TAT))
+correlators_TNT_J = correlators_from_trajectories(*jump_args(h_TNT))
+
+sqz_TAT_J = squeezing_from_correlators(N, correlators_TAT_J)
+sqz_TNT_J = squeezing_from_correlators(N, correlators_TNT_J)
+
+sqz_D_exact = { "OAT" : sqz_OAT_D_exact, "TAT" : sqz_TAT_J, "TNT" : sqz_TNT_J }
+
+del init_state_vec, correlators_TAT_J, correlators_TNT_J
+
+### correlator expansions
+
 def correlator_args(hamiltonian):
     return [ N, order_cap, times, init_state, hamiltonian, dec_rates, dec_mat ]
 correlators_OAT_D = compute_correlators(*correlator_args(h_OAT))
@@ -129,27 +151,12 @@ del correlators_TAT_D, correlators_OAT_D, correlators_TNT_D
 
 sqz_D = { "OAT" : sqz_OAT_D, "TAT" : sqz_TAT_D, "TNT" : sqz_TNT_D }
 
-# compute correlators and squeezing using the quantum jump method
-init_state_vec = coherent_spin_state(init_state, N)
-def jump_args(hamiltonian):
-    return [ N, trajectories, times, init_state_vec, hamiltonian, dec_rates, dec_mat ]
-correlators_TAT_J = correlators_from_trajectories(*jump_args(h_TAT))
-correlators_TNT_J = correlators_from_trajectories(*jump_args(h_TNT))
-
-sqz_TAT_J = squeezing_from_correlators(N, correlators_TAT_J)
-sqz_TNT_J = squeezing_from_correlators(N, correlators_TNT_J)
-sqz_OAT_D_exact = squeezing_OAT(N, times, dec_rates[0])
-
-sqz_D_exact = { "OAT" : sqz_OAT_D_exact, "TAT" : sqz_TAT_J, "TNT" : sqz_TNT_J }
-
-del init_state_vec, correlators_TAT_J, correlators_TNT_J
-
 
 ##########################################################################################
 # make squeezing plots
 ##########################################################################################
 
-time_pad = 1/3
+time_pad = 1/3 # fractional time to add past TAT squeezing minimum
 sqz_pad = 1/10
 trajectory_marker_size = 2
 
@@ -220,10 +227,8 @@ plt.legend(loc = "best")
 plt.tight_layout()
 if save: plt.savefig(fig_dir + "decoherence_weak.pdf")
 
-
 if show: plt.show()
 
 # TODO:
-# test use of convert_zxy_mat
 # save/read squeezing from data files
 # write script to submit this job to terra
