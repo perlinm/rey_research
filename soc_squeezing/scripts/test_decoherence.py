@@ -7,11 +7,14 @@ import itertools
 from random import random
 from scipy.special import factorial, binom
 
+from correlator_methods import op_image_decoherence
+
 N = 6
 S = N/2
 
 I2 = qt.qeye(2)
 II = qt.tensor([I2]*N)
+ZZ = 0 * II
 
 s_z_j = []
 s_p_j = []
@@ -43,26 +46,35 @@ def check(X):
         print("FAIL")
         exit()
 
+def op_from_dict(op_dict, mu):
+    S_mu, S_nu, _, _ = ops(mu)
+    return sum([ val * S_mu**op[0] * (mu*S_z)**op[1] * S_nu**op[2]
+                 for op, val in op_dict.items() ] + [ZZ])
 
-g_z, g_p, g_m = int(random()*(N-2)), int(random()*(N-2)), int(random()*(N-2))
-g_z += 1
-g_p += 1
-g_m += 1
 
-g_mp = np.conj(g_m) * g_p
-g_zp = np.conj(g_z) * g_p
-g_mz = np.conj(g_m) * g_z
-gg_p = ( g_zp + g_mz ) / 2
-gg_m = ( g_zp - g_mz ) / 2
+def get_random_decs():
+    g_p, g_z, g_m = int(random()*(N-2)), int(random()*(N-2)), int(random()*(N-2))
+    g_p += 1
+    g_z += 1
+    g_m += 1
 
-print(g_z, g_p, g_m)
-print()
+    g_mp = np.conj(g_m) * g_p
+    g_zp = np.conj(g_z) * g_p
+    g_mz = np.conj(g_m) * g_z
+    gg_p = ( g_zp + g_mz ) / 2
+    gg_m = ( g_zp - g_mz ) / 2
 
+    return g_p, g_z, g_m, g_mp, g_zp, g_mz, gg_p, gg_m
 
 for l, m, n in itertools.product(range(N), repeat = 3):
 
     for mu in [ 1, -1 ]:
         print(l,m,n,f"{mu:2d}")
+
+        g_p, g_z, g_m, g_mp, g_zp, g_mz, gg_p, gg_m = get_random_decs()
+
+        if mu == +1: dec_vec = (g_p,g_z,g_m)
+        if mu == -1: dec_vec = (g_m,g_z,g_p)
 
         S_mu, S_nu, s_mu_j, s_nu_j = ops(mu)
 
@@ -135,7 +147,11 @@ for l, m, n in itertools.product(range(N), repeat = 3):
         b = abs(g_z)**2 * d_z + abs(g_p)**2 * d_p + abs(g_m)**2 * d_m
         b += Q(l,m,n,mu) + Q(n,m,l,mu).dag()
 
+        c_dict = op_image_decoherence((l,m,n), S, [dec_vec,(0,0,0)], mu)
+        c = op_from_dict(c_dict, mu)
+
         check(a == b)
+        check(b == c)
 
         ############################################################
 
@@ -187,4 +203,8 @@ for l, m, n in itertools.product(range(N), repeat = 3):
         B = abs(g_z)**2 * D_z + abs(g_p)**2 * D_p + abs(g_m)**2 * D_m
         B += Q(l,m,n,mu) + Q(n,m,l,mu).dag()
 
+        C_dict = op_image_decoherence((l,m,n), S, [(0,0,0),dec_vec], mu)
+        C = op_from_dict(C_dict, mu)
+
         check(A == B)
+        check(B == C)
