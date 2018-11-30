@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-import sys
+import os, sys
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from scipy.integrate import solve_ivp
@@ -24,6 +25,9 @@ params = { "text.usetex" : True,
            "font.size" : 8 }
 plt.rcParams.update(params)
 
+def pd_read_1D(fname):
+    return pd.read_csv(fname, comment = "#", squeeze = True, header = None, index_col = 0)
+
 
 ##########################################################################################
 # simulation options
@@ -37,6 +41,10 @@ trajectories = 1000 # number of trajectories to use in quantum jump simulations
 time_steps = 200 # time steps in plot
 ivp_tolerance = 1e-10 # relative error tolerance in numerical integrator
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
+
+# determine simulation times in units of the OAT strength \chi
+max_time = max_tau * N**(-2/3)
+times = np.linspace(0, max_time, time_steps)
 
 # (excitation, dephasing, decay) rates for single- and collective-spin operators
 # in units of the OAT strength (i.e. \chi in \chi S_\z^2)
@@ -54,14 +62,16 @@ h_TNT = { (0,2,0) : 1,
           (1,0,0) : -N/2 }
 h_vec = { OAT : h_OAT, TAT : h_TAT, TNT : h_TNT }
 
+sqz_header = ""
+sqz_header += r"# first column: time in units of the OAT stregth \chi" + "\n"
+sqz_header += r"# second column: squeezing as \xi^2" + "\n"
+order_header = f"# order_cap: {order_cap}\n"
+trajectory_header = f"# trajectories: {trajectories}\n"
+
 
 ##########################################################################################
 # compute squeezing parameters without decoherence
 ##########################################################################################
-
-# determine simulation times in units of the OAT strength \chi
-max_time = max_tau * N**(-2/3)
-times = np.linspace(0, max_time, time_steps)
 
 ### exact calculations
 
@@ -78,29 +88,52 @@ H = { TAT : 1/3 * ( SS_op_mat[1][2] + SS_op_mat[2][1] ),
 
 init_nZ = np.zeros(S_op_vec[0].shape[0], dtype = complex)
 init_nZ[0] = 1
-states = { method : solve_ivp(lambda time, state : -1j * H[method].dot(state),
-                              (0,times[-1]), init_nZ, t_eval = times,
-                              rtol = ivp_tolerance, atol = ivp_tolerance).y
-          for method in [ TAT, TNT ] }
-def states_to_sqz(states):
-    return np.array([ spin_squeezing(N, states[:,tt], S_op_vec, SS_op_mat)
-                      for tt in range(times.size) ])
 
-sqz_C_exact.update({ method : states_to_sqz(states[method]) for method in [ TAT, TNT ] })
+for method in [ TAT, TNT ]:
+    sqz_path = data_dir + f"sqz_C_exact_logN{log10_N}_{method}.txt"
 
-del S_op_vec, SS_op_mat, H, init_nZ, states
+    if not os.path.isfile(sqz_path):
+        states = solve_ivp(lambda time, state : -1j * H[method].dot(state),
+                           (0,times[-1]), init_nZ, t_eval = times,
+                           rtol = ivp_tolerance, atol = ivp_tolerance).y
+        sqz = np.array([ spin_squeezing(N, states[:,tt], S_op_vec, SS_op_mat)
+                         for tt in range(times.size) ])
+        del states
+
+        with open(sqz_path, "w") as f:
+            f.write(sqz_header)
+        pd.Series(sqz, index = times).to_csv(sqz_path, mode = "a")
+
+    sqz_data = pd_read_1D(sqz_path)
+    assert(abs(sqz_data.index - times).max() < times[1]/1e10)
+    sqz_C_exact[method] = sqz_data.values
+    del sqz_data
+
+del S_op_vec, SS_op_mat, H, init_nZ
 
 sqz_max = max([ max(sqz_C_exact[method]) for method in methods ])
 sqz_min = min([ min(sqz_C_exact[method]) for method in methods ])
 
 ### correlator expansions
 
-correlators = { method : compute_correlators(N, order_cap, times, init_state, h_vec[method])
-                for method in methods }
-sqz_C_trunc = { method : squeezing_from_correlators(N, correlators[method])
-                for method in methods }
+sqz_C_trunc = {}
+for method in methods:
+    sqz_path = data_dir + f"sqz_C_trunc_logN{log10_N}_{method}.txt"
 
-del correlators
+    if not os.path.isfile(sqz_path):
+        correlators = compute_correlators(N, order_cap, times, init_state, h_vec[method])
+        sqz = squeezing_from_correlators(N, correlators)
+        del correlators
+
+        with open(sqz_path, "w") as f:
+            f.write(sqz_header)
+            f.write(order_header)
+        pd.Series(sqz, index = times).to_csv(sqz_path, mode = "a")
+
+    sqz_data = pd_read_1D(sqz_path)
+    assert(abs(sqz_data.index - times).max() < times[1]/1e10)
+    sqz_C_trunc[method] = sqz_data.values
+    del sqz_data
 
 
 ##########################################################################################
@@ -153,7 +186,7 @@ trajectory_marker_size = 2
 
 def positive(vals):
     idx = np.argmax(vals < 0)
-    if idx == 0: return len(vals)
+    if idx == 0: return vals.size
     else: return idx
 
 max_plot_time = min(max_time, times[np.argmin(sqz_C_exact[TAT])]*(1+time_pad))
@@ -188,7 +221,6 @@ plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 plt.legend(loc = "best")
 plt.tight_layout()
 if save: plt.savefig(fig_dir + "coherent.pdf")
-
 
 ### evolution with weak decoherence
 
