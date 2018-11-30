@@ -140,40 +140,65 @@ for method in methods:
 # compute squeezing parameters with decoherence -- in a rotated basis (z,x) --> (x,-z)
 ##########################################################################################
 
-# construct transformation matrix to rotate jump operators
-dec_mat_zxy = np.array([ [ 0, -1, 0 ],
-                         [ 1,  0, 0 ],
-                         [ 0,  0, 1 ]])
-dec_mat = convert_zxy_mat(dec_mat_zxy)
-
 ### exact and quantum trajectory calculations
 
 sqz_D_exact = { OAT : squeezing_OAT(N, times, dec_rates[0]) }
 if dec_rates[1] != (0,0,0):
     print("WARNING: 'exact' OAT simulations do not account for collective decoherence!")
 
+# construct transformation matrix to rotate jump operators
+dec_mat_zxy = np.array([ [ 0, -1, 0 ],
+                         [ 1,  0, 0 ],
+                         [ 0,  0, 1 ]])
+dec_mat = convert_zxy_mat(dec_mat_zxy)
+
 init_state_vec = coherent_spin_state(init_state, N)
 def jump_args(hamiltonian):
     return [ N, trajectories, times, init_state_vec, hamiltonian, dec_rates, dec_mat ]
-correlators = { method : correlators_from_trajectories(*jump_args(h_vec[method]))
-                for method in [ TAT, TNT ] }
 
-sqz_D_exact.update({ method : squeezing_from_correlators(N, correlators[method])
-                     for method in [ TAT, TNT ] })
+for method in [ TAT, TNT ]:
+    sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
 
-del init_state_vec, correlators
+    if not os.path.isfile(sqz_path):
+        correlators = correlators_from_trajectories(*jump_args(h_vec[method]))
+        sqz = squeezing_from_correlators(N, correlators)
+        del correlators
+
+        with open(sqz_path, "w") as f:
+            f.write(sqz_header)
+            f.write(trajectory_header)
+        pd.Series(sqz, index = times).to_csv(sqz_path, mode = "a")
+
+    sqz_data = pd_read_1D(sqz_path)
+    assert(abs(sqz_data.index - times).max() < times[1]/1e10)
+    sqz_D_exact[method] = sqz_data.values
+    del sqz_data
+
+del init_state_vec
 
 ### correlator expansions
 
 def correlator_args(h_vec):
     return [ N, order_cap, times, init_state, h_vec, dec_rates, dec_mat ]
-correlators = { method : compute_correlators(*correlator_args(h_vec[method]))
-                for method in methods }
 
-sqz_D_trunc = { method : squeezing_from_correlators(N, correlators[method])
-                for method in methods }
+sqz_D_trunc = {}
+for method in methods:
+    sqz_path = data_dir + f"sqz_D_trunc_logN{log10_N}_{method}.txt"
 
-del correlators
+    if not os.path.isfile(sqz_path):
+        correlators = compute_correlators(*correlator_args(h_vec[method]))
+        sqz = squeezing_from_correlators(N, correlators)
+        del correlators
+
+        with open(sqz_path, "w") as f:
+            f.write(sqz_header)
+            f.write(order_header)
+        pd.Series(sqz, index = times).to_csv(sqz_path, mode = "a")
+
+    sqz_data = pd_read_1D(sqz_path)
+    assert(abs(sqz_data.index - times).max() < times[1]/1e10)
+    sqz_D_trunc[method] = sqz_data.values
+    del sqz_data
 
 
 ##########################################################################################
@@ -251,5 +276,4 @@ if save: plt.savefig(fig_dir + "decoherence_weak.pdf")
 if show: plt.show()
 
 # TODO:
-# save/read squeezing from data files
 # write script to submit this job to terra
