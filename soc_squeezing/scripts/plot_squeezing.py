@@ -2,7 +2,6 @@
 
 import os, sys
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
 from scipy.integrate import solve_ivp
@@ -24,9 +23,6 @@ figsize = (3,2.4)
 params = { "text.usetex" : True,
            "font.size" : 8 }
 plt.rcParams.update(params)
-
-def pd_read_1D(fname):
-    return pd.read_csv(fname, comment = "#", squeeze = True, header = None, index_col = 0)
 
 
 ##########################################################################################
@@ -68,6 +64,18 @@ sqz_header += r"# second column: squeezing as \xi^2" + "\n"
 order_header = f"# order_cap: {order_cap}\n"
 trajectory_header = f"# trajectories: {trajectories}\n"
 
+def write_sqz(sqz, sqz_path, extra_header = ""):
+    with open(sqz_path, "w") as f:
+        f.write(sqz_header)
+        f.write(extra_header)
+        for tt in range(times.size):
+            f.write(f"{times[tt]},{sqz[tt]}\n")
+
+def read_sqz(fname):
+    sqz_times, sqz = np.loadtxt(sqz_path, delimiter = ",", unpack = True)
+    assert(abs(sqz_times - times).max() < times[1]/1e10)
+    return sqz
+
 
 ##########################################################################################
 # compute squeezing parameters without decoherence
@@ -98,16 +106,10 @@ for method in [ TAT, TNT ]:
                            rtol = ivp_tolerance, atol = ivp_tolerance).y
         sqz = np.array([ spin_squeezing(N, states[:,tt], S_op_vec, SS_op_mat)
                          for tt in range(times.size) ])
-        del states
+        write_sqz(sqz, sqz_path)
+        del states, sqz
 
-        with open(sqz_path, "w") as f:
-            f.write(sqz_header)
-        pd.Series(sqz, index = times).to_csv(sqz_path, mode = "a")
-
-    sqz_data = pd_read_1D(sqz_path)
-    assert(abs(sqz_data.index - times).max() < times[1]/1e10)
-    sqz_C_exact[method] = sqz_data.values
-    del sqz_data
+    sqz_C_exact[method] = read_sqz(sqz_path)
 
 del S_op_vec, SS_op_mat, H, init_nZ
 
@@ -123,17 +125,10 @@ for method in methods:
     if not os.path.isfile(sqz_path):
         correlators = compute_correlators(N, order_cap, times, init_state, h_vec[method])
         sqz = squeezing_from_correlators(N, correlators)
-        del correlators
+        write_sqz(sqz, sqz_path, order_header)
+        del correlators, sqz
 
-        with open(sqz_path, "w") as f:
-            f.write(sqz_header)
-            f.write(order_header)
-        pd.Series(sqz, index = times).to_csv(sqz_path, mode = "a")
-
-    sqz_data = pd_read_1D(sqz_path)
-    assert(abs(sqz_data.index - times).max() < times[1]/1e10)
-    sqz_C_trunc[method] = sqz_data.values
-    del sqz_data
+    sqz_C_trunc[method] = read_sqz(sqz_path)
 
 
 ##########################################################################################
@@ -162,17 +157,10 @@ for method in [ TAT, TNT ]:
     if not os.path.isfile(sqz_path):
         correlators = correlators_from_trajectories(*jump_args(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
-        del correlators
+        write_sqz(sqz, sqz_path, trajectory_header)
+        del correlators, sqz
 
-        with open(sqz_path, "w") as f:
-            f.write(sqz_header)
-            f.write(trajectory_header)
-        pd.Series(sqz, index = times).to_csv(sqz_path, mode = "a")
-
-    sqz_data = pd_read_1D(sqz_path)
-    assert(abs(sqz_data.index - times).max() < times[1]/1e10)
-    sqz_D_exact[method] = sqz_data.values
-    del sqz_data
+    sqz_D_exact[method] = read_sqz(sqz_path)
 
 del init_state_vec
 
@@ -188,17 +176,10 @@ for method in methods:
     if not os.path.isfile(sqz_path):
         correlators = compute_correlators(*correlator_args(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
-        del correlators
+        write_sqz(sqz, sqz_path, order_header)
+        del correlators, sqz
 
-        with open(sqz_path, "w") as f:
-            f.write(sqz_header)
-            f.write(order_header)
-        pd.Series(sqz, index = times).to_csv(sqz_path, mode = "a")
-
-    sqz_data = pd_read_1D(sqz_path)
-    assert(abs(sqz_data.index - times).max() < times[1]/1e10)
-    sqz_D_trunc[method] = sqz_data.values
-    del sqz_data
+    sqz_D_trunc[method] = read_sqz(sqz_path)
 
 
 ##########################################################################################
