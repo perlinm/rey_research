@@ -25,13 +25,13 @@ s_m = np.array([[0,0],[1,0]])
 
 # collective S_z and S_m operators for net spin J
 def base_ops(J, base_ops = {}):
-    if base_ops.get(J) == None:
+    if base_ops.get(J) is None:
         base_ops[J] = [ spin_op_z_dicke(int(2*J)), spin_op_m_dicke(int(2*J)) ]
     return base_ops[J]
 
 # collective operators of the form S_+^ll S_z^mm S_-^nn
 def op_mat(J, pows, ops = {}):
-    if ops.get((J,pows)) == None:
+    if ops.get((J,pows)) is None:
         S_z, S_m = base_ops(J)
         ops[J,pows] = S_m.T**pows[0] * S_z**pows[1] * S_m**pows[2]
     return ops[J,pows]
@@ -92,7 +92,7 @@ def P_JM(N, J, M, d_J, d_M):
 
 # jump transition amplitude vectors
 def P_J(N, J, d_J, d_M, vecs = {}):
-    if vecs.get((N,J,d_J,d_M)) == None:
+    if vecs.get((N,J,d_J,d_M)) is None:
         vecs[N,J,d_J,d_M] = \
             np.array([ P_JM(N, J, -J+mm, d_J, d_M) for mm in range(int(2*J+1)) ])
     return vecs[N,J,d_J,d_M]
