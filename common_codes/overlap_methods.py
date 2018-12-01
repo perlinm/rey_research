@@ -8,13 +8,15 @@ from numpy.polynomial import hermite # hermite polynomial
 from scipy.integrate import quad # numerical integration
 from collections import Counter as counter # count unique objects in list
 
+import math
+
 from mathieu_methods import mathieu_solution
 
 ##########################################################################################
 # on-site wavefunctions
 ##########################################################################################
 
-def harmonic_wavefunction(z, n, lattic_depth):
+def harmonic_wavefunction(z, n, lattice_depth):
     # lattice potential V sin^2(k z) <--> harmonic oscillator 1/2 m w^2 x^2
     # so V k^2 z^2 = 1/2 m w^2 z^2 --> m*w = sqrt(2*V*m) k
     # in lattice units, k = 1 and m = 1/2, so m*w = sqrt(V)
