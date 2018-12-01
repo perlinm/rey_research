@@ -139,7 +139,7 @@ for method in methods:
 
 sqz_D_exact = { OAT : squeezing_OAT(N, times, dec_rates[0]) }
 if dec_rates[1] != (0,0,0):
-    print("WARNING: 'exact' OAT simulations do not account for collective decoherence!")
+    print("WARNING: 'exact' simulations do not account for collective decoherence!")
 
 # construct transformation matrix to rotate jump operators
 dec_mat_zxy = np.array([ [ 0, -1, 0 ],
