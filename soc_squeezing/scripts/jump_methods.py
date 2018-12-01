@@ -25,20 +25,16 @@ s_m = np.array([[0,0],[1,0]])
 
 # collective S_z and S_m operators for net spin J
 def base_ops(J, base_ops = {}):
-    try:
-        return base_ops[J]
-    except:
-        base_ops[J] =  [ spin_op_z_dicke(int(2*J)), spin_op_m_dicke(int(2*J)) ]
-        return base_ops[J]
+    if base_ops.get(J) == None:
+        base_ops[J] = [ spin_op_z_dicke(int(2*J)), spin_op_m_dicke(int(2*J)) ]
+    return base_ops[J]
 
 # collective operators of the form S_+^ll S_z^mm S_-^nn
 def op_mat(J, pows, ops = {}):
-    try:
-        return ops[J,pows]
-    except:
+    if ops.get((J,pows)) == None:
         S_z, S_m = base_ops(J)
         ops[J,pows] = S_m.T**pows[0] * S_z**pows[1] * S_m**pows[2]
-        return ops[J,pows]
+    return ops[J,pows]
 
 # matrix representation of sinple-spin jump operator \gamma
 # note that 2*s_z is the Pauli-z operator
@@ -51,33 +47,21 @@ def gg_mat(dec):
     return g_vec.conj().T @ g_vec
 
 # \sum_\gamma \gamma^\dag \gamma over all jump operators \gamma
-def eff_jump_ops(N, J, dec_vecs, ops = {}):
-    if dec_vecs != []: hashable_decs = tuple(np.hstack(dec_vecs))
-    else: hashable_decs = 0
-    try:
-        return ops[N,J,hashable_decs]
-    except:
-        S_z, S_m = base_ops(J)
-        N_I = N * sparse.identity(int(2*J)+1)
-        ops[N,J,hashable_decs] = [ sum( np.trace(op.conj().T @ gg_mat(dec_vec)) * OP
-                                        for op, OP in [ (s_i/2,N_I), (s_z,2*S_z),
-                                                        (s_p,S_m.T), (s_m,S_m) ] )
-                                   for dec_vec in dec_vecs ]
-        return ops[N,J,hashable_decs]
+def eff_jump_ops(N, J, dec_vecs):
+    S_z, S_m = base_ops(J)
+    N_I = N * sparse.identity(int(2*J)+1)
+    return [ sum( np.trace(op.conj().T @ gg_mat(dec_vec)) * OP
+                  for op, OP in [ (s_i/2,N_I), (s_z,2*S_z),
+                                  (s_p,S_m.T), (s_m,S_m) ] )
+             for dec_vec in dec_vecs ]
 
 # build Hamiltonian for coherent evolution
-def build_H(N, J, h_pzm, built_H = {}):
-    hashable_h_pzm = tuple([ (*op, val) for op, val in h_pzm.items() ])
-    try:
-        return built_H[N,J,hashable_h_pzm]
-    except:
-        built_H[N,J,hashable_h_pzm] \
-            = sum( val * op_mat(J, pows) for pows, val in h_pzm.items() )
-        return built_H[N,J,hashable_h_pzm]
+def build_H(J, h_pzm):
+    return sum( val * op_mat(J, pows) for pows, val in h_pzm.items() )
 
 # build effective Hamiltonian
 def build_H_eff(N, J, h_pzm, dec_vecs):
-    return build_H(N, J, h_pzm) - 1j/2 * sum( op for op in eff_jump_ops(N,J,dec_vecs) )
+    return build_H(J, h_pzm) - 1j/2 * sum( op for op in eff_jump_ops(N, J, dec_vecs) )
 
 # jump transition amplitudes
 def P_JM(N, J, M, d_J, d_M):
