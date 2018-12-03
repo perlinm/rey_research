@@ -84,36 +84,33 @@
 
 \section{Introduction}
 
-Collective spin systems attract considerable attention for providing a
-window into many-body quantum phenomena that are both experimentally
-accessible\cite{takano2009spin, chen2010heralded,
-  riedel2010atomchipbased, gross2010nonlinear, martin2013quantum,
-  bohnet2016quantum, hosten2016quantum, norcia2018cavitymediated,
-  jones2009magnetic} and metrologically
-useful\cite{riedel2010atomchipbased, gross2010nonlinear,
-  hosten2016quantum, jones2009magnetic, zhong2010simplified,
-  huang2015quantum, agarwal1997atomic, lau2014proposal,
-  wineland1992spin, kitagawa1993squeezed, ma2011quantum}.  Theoretical
-interest in such systems dates back to the mid-twentieth century with
-the introduction of the Lipkin-Meshkov-Glick (LMG) model as a toy
-model for testing many-body approximation methods in contemporary
-nuclear physics\cite{lipkin1965validity, meshkov1965validity,
+Collective spin systems are a versatile resource in quantum science
+for a range of applications including quantum-enhanced metrology,
+quantum simulation, and quantum information.  Theoretical interest in
+such systems dates back to the mid-twentieth century with the
+introduction of the Lipkin-Meshkov-Glick (LMG) model as a toy model
+for testing many-body approximation methods in contemporary nuclear
+physics\cite{lipkin1965validity, meshkov1965validity,
   glick1965validity}.  Since then, collective system systems have
-additionally featured in theoretical studies of quantum
-criticality\cite{latorre2005entanglement, alcalde2007functional,
+additionally featured in both theoretical and experimental studies of
+quantum criticality\cite{latorre2005entanglement,
+  alcalde2007functional, morrison2008dissipationdriven,
   morrison2008collective, sarandy2009classical, wang2012quantum,
-  majd2014lmg}, non-equilibrium
-phenomena\cite{morrison2008dissipationdriven,
+  kessler2012dissipative, majd2014lmg}, non-equilibrium
+phenomena\cite{walls1978nonequilibrium, morrison2008dynamical,
   bhattacherjee2014nonequilibrium, klinder2015dynamical,
-  zhiqiang2017nonequilibrium, smale2018observation}, and precision
+  maghrebi2016nonequilibrium, zhiqiang2017nonequilibrium,
+  lang2018concurrence, smale2018observation}, and precision
 metrology\cite{wineland1992spin, kitagawa1993squeezed, ma2011quantum,
   zhong2010simplified}.  With the development of advanced atomic
 trapping, cooling, and control techniques, collective spin systems
 have been experimentally realized in atomic
 ensembles\cite{takano2009spin, chen2010heralded}, Bose-Einstein
-condensates\cite{riedel2010atomchipbased, gross2010nonlinear},
-ultracold Fermi gasses\cite{martin2013quantum}, trapped
+condensates\cite{riedel2010atomchipbased, gross2010nonlinear,
+  klinder2015dynamical}, ultracold Fermi
+gasses\cite{martin2013quantum, smale2018observation}, trapped
 ions\cite{bohnet2016quantum}, optical cavities\cite{hosten2016quantum,
+  zhiqiang2017nonequilibrium, lewis-swan2018robust,
   norcia2018cavitymediated}, and molecular
 sensors\cite{jones2009magnetic}.
 
@@ -125,18 +122,19 @@ $\Delta\phi\sim1/\sqrt{N}$\cite{wineland1992spin, itano1993quantum,
   ma2011quantum}.  Collective spin systems enable a means to break
 through this limit via the preparation of many-body entangled states
 such as NOON\cite{jones2009magnetic, chen2010heralded,
-  zhong2010simplified}, spin-cat\cite{huang2015quantum,
-  agarwal1997atomic, lau2014proposal}, and spin-squeezed
+  zhong2010simplified}, spin-cat\cite{agarwal1997atomic,
+  lau2014proposal, huang2015quantum}, and spin-squeezed
 states\cite{takano2009spin, riedel2010atomchipbased,
-  gross2010nonlinear, hosten2016quantum, norcia2018cavitymediated,
-  wineland1992spin, kitagawa1993squeezed, ma2011quantum} that allow
-for measurement errors $\Delta\phi\sim1/N^\epsilon$ with
-$\epsilon>1/2$.  Generating such states requires nonlinear dynamics
-that are typically realized using long-range collisional, photon-, or
-phonon-mediated interactions.  Although a truly collective spin model
-requires uniform, all-to-all interactions, as long as measurements do
-not distinguish between constituent particles even non-uniform systems
-can be effectively described by a uniform model with renormalized
+  gross2010nonlinear, hosten2016quantum, lewis-swan2018robust,
+  norcia2018cavitymediated, wineland1992spin, kitagawa1993squeezed,
+  ma2011quantum} that allow for measurement errors
+$\Delta\phi\sim1/N^\epsilon$ with $\epsilon>1/2$.  Generating such
+states requires nonlinear dynamics that are typically realized using
+long-range collisional, photon-, or phonon-mediated interactions.
+Although a truly collective spin model requires uniform, all-to-all
+interactions, as long as measurements do not distinguish between
+constituent particles even non-uniform systems can be effectively
+described by a uniform model with renormalized
 parameters\cite{hu2015entangled}.
 
 In the absence of decoherence, permutation symmetry and total spin
@@ -148,7 +146,7 @@ and require the use of density operators, increasing the dimension of
 accessible state space to $\sim N^3$\cite{hartmann2016generalized,
   xu2013simulating} and allowing for exact simulations of
 $N\lesssim100$ particles.  If decoherence is sufficiently weak,
-dynamics are numerically solvable for $N\lesssim10^4$ particles via
+dynamics can be numerically solvable for $N\lesssim10^5$ particles via
 ``quantum trajectory'' Monte Carlo methods\cite{plenio1998quantumjump,
   zhang2018montecarlo} (also known as ``quantum jump'' or ``Monte
 Carlo wavefunction'' methods) that can reproduce all expectation
@@ -319,9 +317,10 @@ correlator $\bk{\S_{\v m}}$ to a maximal time $t_{\overline M}$.  The
 maximal accessible truncation order $\overline M$ generally depends on
 the choice of operator basis for collective spin systems, which we
 discuss briefly at the end of Appendix \ref{sec:new_basis}.  As we
-will see in the following sections, our choice of the basis
-$\set{\S_{\v m}}$ allows us to accurately compute spin correlators to
-times that are relevant e.g.~for spin squeezing protocols.
+will see in the following sections, our choice of basis elements
+$\S_{\v m}=S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ allows us to accurately
+compute spin correlators to times that are relevant e.g.~for spin
+squeezing protocols.
 
 
 \section{Spin squeezing}
