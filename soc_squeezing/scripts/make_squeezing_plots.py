@@ -107,10 +107,15 @@ for N, col_N in [ (12, 0), (9, 2) ]:
             axes[row,col].plot(x_vals, y_vals[-len(x_vals):,jj], lines[jj],
                                label = labels[jj], linewidth = linewidth)
 
+# reference lines for U/J = 2
+for row in [0,1]:
+    for col in [0,2]:
+        axes[row,col].axvline(2, linewidth = 0.5)
+
 # set axis range and ticks
 for row in range(2):
     for col in range(2):
-        axes[row,2*col].set_xticks([0,4,8])
+        axes[row,2*col].set_xticks([0,2,4,6,8])
 for col in range(4):
     axes[0,col].set_yticks([0,2,4,6])
     axes[0,col].set_ylim(axes[0,0].get_ylim())
@@ -145,6 +150,7 @@ axes[0,0].legend(handles, labels, loc = "best")
 
 plt.tight_layout(rect = (0,0.03,1,1))
 plt.savefig(fig_dir + "model_benchmarking.pdf")
+plt.close()
 
 
 ##########################################################################################
