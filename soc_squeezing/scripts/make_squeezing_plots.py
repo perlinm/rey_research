@@ -12,7 +12,6 @@ from correlator_methods import squeezing_ops
 from squeezing_methods import squeezing_from_correlators
 from sr87_olc_constants import recoil_energy_NU
 
-
 confining_depth = 60
 data_dir = "../data/"
 fig_dir = "../figures/"
@@ -75,42 +74,33 @@ method_box = dict(boxstyle = "round", facecolor = "white", alpha = 1)
 ##########################################################################################
 
 figsize = (6.5,3.5)
+linewidth = 2
+
+U_val = 2
+phi_val = np.pi/100
 
 # set up figure with eight panels
 fig, axes = plt.subplots(figsize = figsize, nrows = 2, ncols = 4)
-lines = [ "k-", "r:", "b--" ]
-labels = [ "FH", "spin", "OAT" ]
-line_order = [ 0, 2, 1 ]
-legend_order = [ 0, 2, 1 ]
-linewidth = 2
-
-bench_dir = data_dir + "model_benchmarking/old/"
 
 # load horizontal axis ranges
+bench_dir = data_dir + "model_benchmarking/"
 U_vals = np.loadtxt(bench_dir + "U_range.dat")
 phi_vals = np.loadtxt(bench_dir + "phi_range.dat")
-phi_vals = np.log10(1/phi_vals[phi_vals >= phi_cutoff])
+
+U_idx = abs(U_vals-U_val).argmin()
+phi_idx = abs(phi_vals-phi_val).argmin()
+phi_vals = np.log10(phi_vals/np.pi)
 
 # load and plot data
 for N, col_N in [ (12, 0), (9, 2) ]:
-    basename = bench_dir + f"L12N{N:02d}_"
-    data_U_sqz = np.loadtxt(basename + "phi_pi-50_sq.dat")
-    data_U_time = np.loadtxt(basename + "phi_pi-50_topt.dat")/(2*np.pi)
-    data_phi_sqz = np.loadtxt(basename + "U_2_sq.dat")
-    data_phi_time = np.loadtxt(basename + "U_2_topt.dat")/(2*np.pi)
-
-    for x_vals, y_vals, row, col in [ (U_vals, data_U_sqz.T, 0, col_N),
-                                      (U_vals, data_U_time.T, 1, col_N),
-                                      (phi_vals, data_phi_sqz.T, 0, col_N+1),
-                                      (phi_vals, data_phi_time.T, 1, col_N+1) ]:
-        for jj in line_order:
-            axes[row,col].plot(x_vals, y_vals[-len(x_vals):,jj], lines[jj],
-                               label = labels[jj], linewidth = linewidth)
-
-# reference lines for U/J = 2
-for row in [0,1]:
-    for col in [0,2]:
-        axes[row,col].axvline(2, linewidth = 0.5)
+    for row, dtype, scale in [ ( 0, "sq", 1 ), ( 1, "t", 2*np.pi ) ]:
+        for model, label, line in [ ( "Hubbard", "FH", "k-" ),
+                                    ( "OAT", "OAT", "b--" ),
+                                    ( "Spin", "Spin", "r:" ) ]:
+            data = np.loadtxt(bench_dir + f"{model}12{N:02d}_{dtype}.dat") / scale
+            axes[row,col_N].plot(U_vals, data[:,phi_idx], line, linewidth = linewidth,
+                                 label = label)
+            axes[row,col_N+1].plot(phi_vals, data[U_idx,:], line, linewidth = linewidth)
 
 # set axis range and ticks
 for row in range(2):
@@ -134,9 +124,9 @@ axes[1,3].set_xlabel("(ii) " + phi_label)
 # clear unused axis labels
 for col in range(4):
     axes[0,col].set_xticklabels([])
-    if col > 0:
-        for row in range(2):
-            axes[row,col].set_yticklabels([])
+    if col == 0: continue
+    for row in range(2):
+        axes[row,col].set_yticklabels([])
 
 # add labels for left and right panels
 fig.text(0.235, 0.015, r"{\large (a) $f=1$}", transform = fig.transFigure)
@@ -144,8 +134,8 @@ fig.text(0.685, 0.015, r"{\large (b) $f=3/4$}", transform = fig.transFigure)
 
 # make legend
 handles, labels = axes[0,0].get_legend_handles_labels()
-handles = [ handles[jj] for jj in legend_order ]
-labels = [ labels[jj] for jj in legend_order ]
+handles = [ handles[jj] for jj in [0,2,1] ]
+labels = [ labels[jj] for jj in [0,2,1] ]
 axes[0,0].legend(handles, labels, loc = "best")
 
 plt.tight_layout(rect = (0,0.03,1,1))
