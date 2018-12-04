@@ -84,7 +84,7 @@ line_order = [ 0, 2, 1 ]
 legend_order = [ 0, 2, 1 ]
 linewidth = 2
 
-bench_dir = data_dir + "model_benchmarking/"
+bench_dir = data_dir + "model_benchmarking/old/"
 
 # load horizontal axis ranges
 U_vals = np.loadtxt(bench_dir + "U_range.dat")
@@ -113,8 +113,9 @@ for row in range(2):
         axes[row,2*col].set_xticks([0,4,8])
 for col in range(4):
     axes[0,col].set_yticks([0,2,4,6])
-    ymin = axes[0,col].get_ylim()[0]
-    axes[0,col].set_ylim(ymin, 6 + abs(ymin))
+    axes[0,col].set_ylim(axes[0,0].get_ylim())
+    axes[1,col].set_yticks([ x for x in axes[1,0].get_yticks() if x >= 0 ])
+    axes[1,col].set_ylim(axes[1,0].get_ylim())
 
 # set all axis labels
 axes[0,0].set_ylabel(sqz_label)
@@ -144,7 +145,6 @@ axes[0,0].legend(handles, labels, loc = "best")
 
 plt.tight_layout(rect = (0,0.03,1,1))
 plt.savefig(fig_dir + "model_benchmarking.pdf")
-plt.close()
 
 
 ##########################################################################################
