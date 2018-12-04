@@ -51,7 +51,7 @@ for N in particle_nums:
 
     ### use exact analytical results for one-axis twisting (OAT)
 
-    def sqz_OAT_val(chi_t): return squeezing_OAT(N, chi_t, in_dB = True)
+    def sqz_OAT_val(chi_t): return squeezing_OAT(N, chi_t)
     optimum_OAT = optimize.minimize_scalar(sqz_OAT_val, method = "bounded",
                                            bounds = (0, max_time(N)))
     sqz_vals[OAT].at[N] = optimum_OAT.fun
