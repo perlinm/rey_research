@@ -35,19 +35,6 @@ subplot(2,2,4); % bottom right
 make_plot('09', 't', '(b.ii)');
 
 % make legend
-% subplot(2,2,1); % top left
-% patches(1) = patch(NaN, NaN, color_FH, 'EdgeAlpha', 0);
-% %patches(2) = plot(NaN, NaN, 'k', 'LineWidth', .8);
-% patches(2) = patch(NaN, NaN, 'w');
-% patches(3) = patch(NaN, NaN, color_OAT, 'EdgeAlpha', 0, 'FaceAlpha', 0.5);
-% leg = legend(patches, 'FH', 'Spin', 'OAT');
-% leg.Location = 'east';
-% leg.Units = 'normalized';
-% width = leg.Position(3);
-% height = leg.Position(4);
-% left = 0.5 - width/2;
-% bottom = 0.5 - height/2;
-% leg.Position = [ left bottom width height ];
 bars = bar(rand(2,3),'Visible','off');
 set(bars(1), 'FaceColor', color_FH, 'EdgeAlpha', 0);
 set(bars(2), 'FaceColor', 'w');
