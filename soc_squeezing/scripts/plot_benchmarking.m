@@ -11,8 +11,7 @@ data_dir = "../data/model_benchmarking/";
 
 % import and process axis data
 U_vals = importdata(data_dir + "U_range.dat");
-phi_vals = importdata(data_dir + "phi_range.dat");
-phi_vals = log10(phi_vals/pi);
+phi_vals = importdata(data_dir + "phi_range.dat")/pi;
 [ U_vals, phi_vals ] = meshgrid(U_vals, phi_vals);
 U_vals = transpose(U_vals);
 phi_vals = transpose(phi_vals);
@@ -41,7 +40,7 @@ set(bars(2), 'FaceColor', 'w');
 set(bars(3), 'FaceColor', color_OAT, 'EdgeAlpha', 0, 'FaceAlpha', 0.5);
 [legend_obj,patch_obj,~,~] = ...
     legendflex(bars, {'FH', 'Spin', 'OAT'}, ...
-                      'ref', gcf, 'anchor', {'s' 's'}, 'bufferunit', 'normalized', 'buffer', [0 0.45]);
+                      'ref', gcf, 'anchor', {'s' 's'}, 'bufferunit', 'normalized', 'buffer', [0 0.48]);
 hatchfill2(patch_obj(length(bars)+2), 'cross', 'HatchAngle', 0, 'HatchDensity', 6);
 
 % scale figure properly and save it to a file
@@ -54,7 +53,7 @@ function make_plot_full(N_tag, dtype, title_text, ...
                         data_dir, U_vals, phi_vals, color_FH, color_OAT)
     % scale data by 2\pi if we are plotting squeezing times
     if dtype == 't'
-        data_scale = 2*pi;
+        data_scale = 2*pi * 100;
     else
         data_scale = 1;
     end
@@ -69,32 +68,38 @@ function make_plot_full(N_tag, dtype, title_text, ...
     surf(U_vals, phi_vals, data_FH, 'FaceColor', color_FH, 'EdgeAlpha', 0); hold on;
     mesh(U_vals, phi_vals, data_spin, 'FaceAlpha', 0, 'EdgeColor', [0 0 0]);
     surf(U_vals, phi_vals, data_OAT, 'FaceColor', color_OAT, 'EdgeAlpha', 0, 'FaceAlpha', 0.5);
+    set(gca, 'YScale', 'Log');
 
     % set axis ticks and labels
-    set(gca, 'XLim', [0 8]);
-    set(gca, 'XTick', 0:2:8);
-    set(gca, 'YLim', [-2 -1]);
-    set(gca, 'YTick', -2:0.5:-1);
+    set(gca, 'XLim', [0 8], 'XTick', 0:2:8);
+    set(gca, 'YLim', [1/100 1/10], 'YTick', [1/100 1/30 1/10]);
+    set(gca, 'YTickLabel', {'$\pi/100$', '$\pi/30$', '$\pi/10$'});
+    set(gca, 'TickLabelInterpreter', 'latex');
     xlabel('$U/J$', 'interpreter', 'latex');
-    ylabel_obj = ylabel('$\log_{10}(\phi/\pi)$', 'interpreter', 'latex');
+    ylabel_obj = ylabel('$\phi$', 'interpreter', 'latex');
+    ylabel_obj.Units = 'normalized';
+    ylabel_obj.Position = ylabel_obj.Position + [0 0.02 0];
     if dtype == 'sq'
         set(gca, 'ZTick', 0:2:6);
         z_text = 'Squeezing (dB)';
     else
         z_text = 'Time ($2\pi/J$)';
+        zlim = get(gca, 'ZLim');
+        text(-1, 1/10, zlim(2)*1.2, '$\times10^2$', 'interpreter', 'latex');
     end
     zlabel_obj = zlabel(z_text, 'interpreter', 'latex');
     
-    % adjust position of axis labels
-    ylabel_obj.Units = 'normalized';
-    ylabel_obj.Position = [ ylabel_obj.Position(1)-0.05 ylabel_obj.Position(2)+0.1 ];
+    % adjust position of the vertical axis labels
     if dtype == 'sq'
-        zlabel_obj.Units = 'normalized';
-        zlabel_obj.Position = [ zlabel_obj.Position(1)-0.04 zlabel_obj.Position(2) ];
+        dz = [ -0.03 0.07 0 ];
+    else
+        dz = [ 0 0.03 0 ];
     end
+    zlabel_obj.Units = 'normalized';
+    zlabel_obj.Position = zlabel_obj.Position + dz;
     
     % set plot title
     title_obj = title(title_text);
     title_obj.Units = 'normalized';
-    title_obj.Position = [ .18 .9 ];
+    title_obj.Position = [ .2 .95 ];
 end
