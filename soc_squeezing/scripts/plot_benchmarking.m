@@ -46,14 +46,15 @@ set(bars(1), 'FaceColor', color_FH, 'EdgeAlpha', 0);
 set(bars(2), 'FaceColor', 'w');
 set(bars(3), 'FaceColor', color_OAT, 'EdgeAlpha', 0, 'FaceAlpha', 0.5);
 [legend_obj,patch_obj,~,~] = ...
-    legendflex(bars, {'FH', 'Spin', 'OAT'}, 'ref', gcf, 'anchor', {'ne' 'ne'});
+    legendflex(bars, {'FH', 'Spin', 'OAT'}, 'interpreter', 'latex', ...
+               'ref', gcf, 'anchor', {'ne' 'ne'});
 hatchfill2(patch_obj(length(bars)+2), 'cross', 'HatchAngle', 0, 'HatchDensity', 6);
 
 % make insets showing "acceptable" parameter regimes
 width = 0.1;
 height = 0.12;
-bottom = 0.505 - height/2;
-shift = 0.31;
+bottom = 0.5 - height/2;
+shift = 0.3;
 ax_left = subplot(2,2,3);
 ax_right = subplot(2,2,4);
 offset_lt = ax_left.Position(1);
@@ -66,8 +67,6 @@ make_inset([ offset_rt+shift bottom width height], ...
 % scale figure properly and save it
 set(gcf, 'Units', 'inches');
 set(gcf, 'OuterPosition', [ 0 0 fig_size(1) fig_size(2) ]);
-print(fig_dir + 'model_benchmarking', '-dpng', '-r1200');
-
 set(gcf, 'Renderer', 'Painters');
 fig_pos = get(gcf, 'Position');
 set(gcf, 'PaperPositionMode', 'Auto', 'PaperUnits', 'Inches', 'PaperSize', [fig_pos(3) fig_pos(4)]);
@@ -97,9 +96,9 @@ function [ acceptable_params ] = ...
     acceptable_params = 1 - data_min./data_max < acceptable_error;
 
     % make all surface plots
-    surf(U_vals, phi_vals, data_FH, 'FaceColor', color_FH, 'EdgeAlpha', 0); hold on;
+    surf(U_vals, phi_vals, data_FH, 'FaceColor', color_FH, 'EdgeColor', 'none'); hold on;
     mesh(U_vals, phi_vals, data_spin, 'FaceAlpha', 0, 'EdgeColor', [0 0 0]);
-    surf(U_vals, phi_vals, data_OAT, 'FaceColor', color_OAT, 'EdgeAlpha', 0, 'FaceAlpha', 0.5);
+    surf(U_vals, phi_vals, data_OAT, 'FaceColor', color_OAT, 'EdgeColor', 'none', 'FaceAlpha', 0.5);
     set(gca, 'YScale', 'Log');
 
     % set axis ticks and labels
@@ -111,7 +110,7 @@ function [ acceptable_params ] = ...
         xlabel('$U/J$', 'interpreter', 'latex');
         ylabel_obj = ylabel('$\phi$', 'interpreter', 'latex');
         ylabel_obj.Units = 'normalized';
-        ylabel_obj.Position = ylabel_obj.Position + [0.06 0.02 0];
+        ylabel_obj.Position = ylabel_obj.Position + [0 0.02 0];
         z_max = max(max(data_max));
         set(gca, 'ZLim', [0 z_max], 'ZTick', 0:5:z_max);
         text(0.1, 1/10, z_max*1.05, '$\times10^2$', 'interpreter', 'latex');
@@ -155,6 +154,6 @@ function make_inset_full(position, acceptable_params, U_vec, phi_vec, cmap)
     set(ylabel_obj, 'rotation', 0, 'VerticalAlignment','middle');
     xlabel_obj.Units = 'normalized';
     ylabel_obj.Units = 'normalized';
-    xlabel_obj.Position = xlabel_obj.Position + [ 0 0.2 0 ];
-    ylabel_obj.Position = ylabel_obj.Position + [ 0.35 0 0 ];
+    xlabel_obj.Position = xlabel_obj.Position + [ 0 0.1 0 ];
+    ylabel_obj.Position = ylabel_obj.Position + [ 0.25 0 0 ];
 end
