@@ -37,9 +37,8 @@ def op_mat(J, pows, ops = {}):
     return ops[J,pows]
 
 # matrix representation of sinple-spin jump operator \gamma
-# note that 2*s_z is the Pauli-z operator
 def decoherence_op(dec_vec):
-    return dec_vec[0] * s_p + dec_vec[1] * 2*s_z + dec_vec[2] * s_m
+    return dec_vec[0] * s_p + dec_vec[1] * s_z + dec_vec[2] * s_m
 
 # \gamma^\dag \gamma for jump operator \gamma
 def gg_mat(dec):
@@ -49,9 +48,9 @@ def gg_mat(dec):
 # \sum_\gamma \gamma^\dag \gamma over all jump operators \gamma
 def eff_jump_ops(N, J, dec_vecs):
     S_z, S_m = base_ops(J)
-    N_I = N * sparse.identity(int(2*J)+1)
+    I = sparse.identity(int(2*J)+1)
     return [ sum( np.trace(op.conj().T @ gg_mat(dec_vec)) * OP
-                  for op, OP in [ (s_i/2,N_I), (s_z,2*S_z),
+                  for op, OP in [ (s_i/2,N*I), (2*s_z,S_z),
                                   (s_p,S_m.T), (s_m,S_m) ] )
              for dec_vec in dec_vecs ]
 
@@ -86,9 +85,7 @@ def P_JM(N, J, M, d_J, d_M):
         sign = -1 if d_M == 1 else 1
         P_JM = sign * np.sqrt( (N-2*J) / (4*(J+1)*(2*J+1)) * coeff )
 
-    # add a factor of 2 for dephasing-type decoherence due to our choice of conventions
-    # for decoherence rates
-    return P_JM * ( 2 if d_M == 0 else 1 )
+    return P_JM
 
 # jump transition amplitude vectors
 def P_J(N, J, d_J, d_M, vecs = {}):
@@ -135,8 +132,11 @@ def choose_index(probs):
 # compute correlators via the quantum jump method
 def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_state, h_vec,
                                   dec_rates = [], dec_mat = None, ivp_tolerance = 1e-10,
-                                  print_updates = True, seed = 0):
+                                  print_updates = True, seed = 0, solver = None):
     np.random.seed(seed)
+    if solver is None: ivp_solver = "RK45"
+    else: ivp_solver = solver
+
     max_time = chi_times[-1]
     h_pzm = convert_zxy(h_vec)
     if dec_mat is None: dec_mat = np.eye(3)
@@ -174,7 +174,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
 
             # simulate until a jump occurs
             ivp_solution = solve_ivp(time_derivative, (time, max_time), state,
-                                     events = dec_event,
+                                     events = dec_event, method = ivp_solver,
                                      rtol = ivp_tolerance, atol = ivp_tolerance)
             times = ivp_solution.t
             states = ivp_solution.y
