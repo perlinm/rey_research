@@ -46,6 +46,7 @@ times = np.linspace(0, max_time, time_steps)
 # in units of the OAT strength (i.e. \chi in \chi S_\z^2)
 dec_rates = [ (1,1,1), (0,0,0) ]
 
+
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
 methods = [ OAT, TAT, TNT ]
 
@@ -91,13 +92,15 @@ S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
 S_op_vec = [ X[::2,::2] for X in S_op_vec ]
 SS_op_mat = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
 
-H = { TAT : 1/3 * ( SS_op_mat[1][2] + SS_op_mat[2][1] ),
+H = { OAT : SS_op_mat[1][1],
+      TAT : 1/3 * ( SS_op_mat[1][2] + SS_op_mat[2][1] ),
       TNT : SS_op_mat[1][1] - N/2 * S_op_vec[0] }
 
 init_nZ = np.zeros(S_op_vec[0].shape[0], dtype = complex)
 init_nZ[0] = 1
 
-for method in [ TAT, TNT ]:
+for method in methods:
+    if method == OAT: continue
     sqz_path = data_dir + f"sqz_C_exact_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path):
@@ -151,7 +154,8 @@ init_state_vec = coherent_spin_state(init_state, N)
 def jump_args(hamiltonian):
     return [ N, trajectories, times, init_state_vec, hamiltonian, dec_rates, dec_mat ]
 
-for method in [ TAT, TNT ]:
+for method in methods:
+    if method == OAT: continue
     sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path):
@@ -255,6 +259,3 @@ plt.tight_layout()
 if save: plt.savefig(fig_dir + "decoherence_weak.pdf")
 
 if show: plt.show()
-
-# TODO:
-# write script to submit this job to terra
