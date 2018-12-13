@@ -17,21 +17,21 @@ np.set_printoptions(linewidth = 200)
 show = "show" in sys.argv
 save = "save" in sys.argv
 
-data_dir = "../data/squeezing/"
 fig_dir = "../figures/squeezing/"
 
 figsize = (6.5,3)
 font = { "family" : "serif",
          "sans-serif" : "Computer Modern Sans serif" }
 plt.rc("font",**font)
-params = { "text.usetex" : True }
+params = { "text.usetex" : True,
+           "font.size" : 12 }
 plt.rcParams.update(params)
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
 TAT_X, TAT_Z = r"TAT$_{+,\mathrm{z}}$", r"TAT$_{-,\mathrm{z}}$"
 methods = [ OAT, TAT, TAT_X, TAT_Z ]
 
-max_pulses = 20
+max_pulses = 15
 time_steps = 200 # time steps in plot
 ivp_tolerance = 1e-10 # relative error tolerance in numerical integrator
 max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
@@ -76,7 +76,7 @@ for N in N_vals:
     init_nZ = np.zeros(S_op_vec[0].shape[0], dtype = complex)
     init_nZ[0] = 1
 
-    min_sqz = { method : np.zeros(21) for method in methods }
+    min_sqz = { method : np.zeros(max_pulses+1) for method in methods }
     for method in [ OAT, TAT ]:
         print(method)
         states = solve_ivp(lambda time, state : -1j * H[method].dot(state),
@@ -123,9 +123,8 @@ for N in N_vals:
             min_sqz[method][pulses] = sqz.min()
 
     for method in methods:
-        ax[N].plot(range(max_pulses+1), -10*np.log10(min_sqz[method]), label = method,
-                   linestyle = "--", marker = "o")
-    ax[N].set_xlabel(r"$\pi$-pulses")
+        ax[N].plot(range(max_pulses+1), -10*np.log10(min_sqz[method]), "o", label = method)
+    ax[N].set_xlabel(r"Pulses")
 
 ax[N_vals[0]].set_ylabel(r"Squeezing (dB)")
 ax[N_vals[1]].legend(loc = "best")
@@ -134,4 +133,4 @@ ax[N_vals[0]].set_title(r"{\bf (a)} " + f"$N={N_vals[0]}$")
 ax[N_vals[1]].set_title(r"{\bf (b)} " + f"$N={N_vals[1]}$")
 
 plt.tight_layout()
-plt.savefig(f"pulsed_squeezing.pdf")
+plt.savefig(fig_dir + "pulsed_squeezing.pdf")
