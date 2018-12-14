@@ -18,13 +18,13 @@ def ln_binom(N,m): return ln_factorial(N) - ln_factorial(m) - ln_factorial(N-m)
 
 # spin operators for N particles in the S = N/2 Dicke manifold
 def spin_op_z_dicke(N):
-    return sparse.diags(np.arange(N+1)-N/2, format = "csr")
+    return sparse.diags(np.arange(N+1)-N/2)
 
 def spin_op_m_dicke(N):
     S = N/2
     m_z = np.arange(N) - N/2
     diag_vals = np.sqrt((S-m_z)*(S+m_z+1))
-    return sparse.diags(diag_vals, 1, format = "csr")
+    return sparse.diags(diag_vals, 1)
 
 def spin_op_p_dicke(N):
     return spin_op_m_dicke(N).T
