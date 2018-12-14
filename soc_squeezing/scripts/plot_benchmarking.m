@@ -1,5 +1,10 @@
 clear all;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FILE CONTENTS:
+% makes the model benchmarking figure for the SOC / squeezing paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % set figure options
 fig_size = [ 6.5 5.5 ];
 color_FH = [ .1 .6 .8 ];
@@ -83,7 +88,7 @@ function [ acceptable_params ] = ...
     else
         data_scale = 1;
     end
-    
+
     % import all data
     data_FH = importdata(data_dir + 'Hubbard12' + N_text + '_' + dtype + '.dat') / data_scale;
     data_spin = importdata(data_dir + 'Spin12' + N_text + '_' + dtype + '.dat') / data_scale;
@@ -129,7 +134,7 @@ function [ acceptable_params ] = ...
         zlabel_obj.Units = 'normalized';
         zlabel_obj.Position = zlabel_obj.Position + dz;
     end
-    
+
     % set plot title
     title_obj = title(title_text, 'interpreter', 'latex');
     title_obj.Units = 'normalized';

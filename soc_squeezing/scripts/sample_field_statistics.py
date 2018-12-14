@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 
+##########################################################################################
+# FILE CONTENTS:
+# computes (via Monte Carlo sampling) the expected ratio of mean to standard deviation
+# of on-site SOC field in a 2-D lattice
+##########################################################################################
+
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
 import random
 
 random.seed(0)
+
+make_figure = len(sys.argv) > 1
 
 figsize = (4,3)
 font = { "family" : "serif",
@@ -14,11 +23,12 @@ plt.rc("font",**font)
 params = { "text.usetex" : True,
            "font.size" : 8 }
 
-N_vals = [ 100, 1000, 10000 ]
-filling = 3/4
+N_vals = [ 100, 1000 ]
+filling = 5/6
 phi = np.pi / 50
 samples = 10000
 
+# value of the on-site field for a site indexed by n
 def splitting(n, sites, phi = phi):
     n_x = n / np.sqrt(sites)
     n_y = n % np.sqrt(sites)
@@ -37,13 +47,14 @@ for N in N_vals:
 
     rms = np.sqrt(np.mean((means/stds)**2))
     print(N, rms)
-    plt.figure(figsize = figsize)
-    plt.hist(abs(means/stds))
-    plt.xlabel(r"$\overline{B}/\widetilde{B}$")
-    plt.ylabel("Samples")
-    plt.title(f"$N={N}$")
 
-    plt.tight_layout()
+    if make_figure:
+        plt.figure(figsize = figsize)
+        plt.hist(abs(means/stds))
+        plt.xlabel(r"$\overline{B}/\widetilde{B}$")
+        plt.ylabel("Samples")
+        plt.title(f"$N={N}$")
 
-plt.show()
+        plt.tight_layout()
 
+if make_figure: plt.show()

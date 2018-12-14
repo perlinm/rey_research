@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+##########################################################################################
+# FILE CONTENTS:
+# plots optimal squeezing as a function of CPMG pulse number for several protocols
+##########################################################################################
+
 import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -38,17 +43,20 @@ max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
 
 N_vals = [ 100, 1000 ]
 
-# < \bar{B} / \tilde{B} >^{rms}_{f} at f = 5/6 as a function of N
-B_fac = { 100 : 0.057603548563242575,
-          1000 : 0.01798638849064955 }
+# < \bar{B} / \tilde{B} >^{rms}_{f} at filling = 5/6 as a function of N
+# computed via Monte Carlo sampling (output of sample_field_statistics.py)
+filling = 5/6
+B_fac = { 100 : 0.041222217002695134,
+          1000 : 0.01497047524310684 }
 
 # suppression factors on S_z from the rotating frame of the TAT protocol
-sup_x = 0.8051961132022772
-sup_z = 0.09852764489020495
+# i.e. J_0(\beta_\pm) for \beta_\pm satisfying J_0(2\beta_\pm) = \pm 1/3
+sup_x = 0.8051961132022772 # for \beta_+
+sup_z = 0.09852764489020495 # for \beta_-
 
 # strength of the S_z term in units with the OAT strength \chi = 1
 # equal to 2 f ( \tilde{B} / U ) ( B_fac ) (N/2)
-field_strength = { N : 40*5/6 * B_fac[N] * N/2 for N in N_vals }
+field_strength = { N : 40 * filling * B_fac[N] * N/2 for N in N_vals }
 
 # initial state for each protocol
 init_state = { OAT : "+X", TAT : "+X", TAT_X : "+X", TAT_Z : "-Z" }
@@ -68,15 +76,20 @@ for N in N_vals:
     def spin_sqz(state):
         return spin_squeezing(N, state, S_op_vec, SS_op_mat)
 
+    # construct all Hamiltonians
     H = { OAT : SS_op_mat[1][1],
           TAT : 1/3 * ( SS_op_mat[1][1] - SS_op_mat[2][2] ) }
     H.update({ TAT_X : H[TAT] + field_strength[N] * sup_x * S_op_vec[1],
                TAT_Z : H[TAT] + field_strength[N] * sup_z * S_op_vec[0] })
 
+    # define initial state in -Z
     init_nZ = np.zeros(S_op_vec[0].shape[0], dtype = complex)
     init_nZ[0] = 1
 
+    # initialize minimum squeezing values for all methods
     min_sqz = { method : np.zeros(max_pulses+1) for method in methods }
+
+    # compute minimal squeezing for OAT and TAT without pulses
     for method in [ OAT, TAT ]:
         print(method)
         states = solve_ivp(lambda time, state : -1j * H[method].dot(state),
@@ -87,6 +100,7 @@ for N in N_vals:
         if method == TAT:
             max_TAT_time = times[np.argmin(sqz)]
 
+    # compute minimal squeezing for TAT_X and TAT_Z with pulses
     for method in [ TAT_X, TAT_Z ]:
         print(method)
         for pulses in range(max_pulses+1):
@@ -94,11 +108,11 @@ for N in N_vals:
             if pulses > 0:
                 pulse_period = max_TAT_time / pulses
             else:
-                pulse_period = 2*max_time
+                pulse_period = 2*max_time # long enough that we simulate until max_time
             time = 0
             pulse = 0
             state = init_nZ.copy()
-            sqz = np.zeros(times.size)
+            sqz = np.zeros(times.size) # initialize squeezing values at sampled times
             sqz[0] = spin_squeezing(N, state, S_op_vec, SS_op_mat)
             while time < max_time:
                 pulse_time = min(pulse_period * (pulse+1/2), max_time)
@@ -112,9 +126,9 @@ for N in N_vals:
                 sqz[save_idx] = np.array([ spin_sqz(states[:,tt])
                                            for tt in range(np.sum(save_idx)) ])
                 state = states[:,-1]
-                if init_state[method] == "-Z":
+                if init_state[method] == "-Z": # apply a pi-pulse about X
                     state = state[::-1]
-                elif init_state[method] == "+X":
+                elif init_state[method] == "+X": # apply a pi-pulse about Z
                     state = np.array([ (-1)**nn for nn in range(N+1) ]) * state
                 else:
                     print("invalid initial state:",init_state[method])

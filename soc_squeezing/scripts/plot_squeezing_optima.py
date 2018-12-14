@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+##########################################################################################
+# FILE CONTENTS:
+# makes the 2-D squeezing figures for the SOC/squeezing paper
+##########################################################################################
+
 import os, sys
 import numpy as np
 import pandas as pd
@@ -20,11 +25,11 @@ OAT, TAT = "OAT", "TAT"
 sqz_methods = [ OAT, TAT ]
 
 method_TAT = "exact"
-depths_TAT = np.arange(20,81,2)/10
-sizes_TAT = np.arange(10,101,5)
+depths_TAT = np.arange(20,81,2)/10 # lattice depths in plots
+sizes_TAT = np.arange(10,101,5) # linear lattice sizes in plots
 phi_cutoff = 10 # minimum value of (\phi/\pi)^{-1}
 
-color_map = "jet"
+color_map = "jet" # for the 2-D color plots
 dpi = 600
 
 font = { "family" : "serif",
@@ -33,6 +38,7 @@ plt.rc("font",**font)
 params = { "text.usetex" : True }
 plt.rcParams.update(params)
 
+# define some common axis labels that we will use several times
 depth_label = r"Lattice depth ($V_0/E_R$)"
 size_label = r"Linear lattice size ($\ell$)"
 sqz_label = r"Squeezing (dB)"
@@ -40,14 +46,13 @@ time_label = r"Time"
 U_J_label = r"$U/J$"
 phi_label = r"$\log_{10}(\phi/\pi)$"
 
+# read in 1-D or 2-D data files
 def pd_read_1D(fname):
     return pd.read_csv(fname, comment = "#", squeeze = True, header = None, index_col = 0)
 def pd_read_2D(fname):
     data = pd.read_csv(fname, comment = "#", header = 0, index_col = 0)
     data.columns = pd.to_numeric(data.columns)
     return data
-
-def to_dB(vals): return 10*np.log10(vals)
 
 J_0 = pd_read_1D(data_dir + "J_0.txt")
 U_int = pd_read_2D(data_dir + "U_int_2D.txt")
@@ -57,6 +62,7 @@ U_J_interp = interpolate.interp1d(U_J.values, all_depths)
 U_J_ticks = np.array(range(int(U_J.values.max()))) + 1
 depth_U_ticks = [ float(U_J_interp(val)) for val in U_J_ticks ]
 
+# make a secondary axis marking values of U/J (against lattice depths)
 def make_U_axis(axis):
     ax = axis.twiny()
     ax.set_xlim(all_depths[0],all_depths[-1])
@@ -65,9 +71,13 @@ def make_U_axis(axis):
     ax.set_xlabel(U_J_label)
     return ax
 
-# box object for OAT / TAT labels in 2-D plots
+# add text to a sub-plot
 method_box = dict(boxstyle = "round", facecolor = "white", alpha = 1)
+def add_text(axis, text):
+    axis.text(0.9, 0.1, text, transform = axis.transAxes, bbox = method_box,
+              verticalalignment = "bottom", horizontalalignment = "right")
 
+def to_dB(vals): return 10*np.log10(vals) # convert values to decibels
 
 ##########################################################################################
 # squeezing without decoherence
@@ -113,8 +123,9 @@ for method in sqz_methods:
     ax[method].set_yticklabels([])
     make_U_axis(ax[method])
 
-    ax[method].text(0.9, 0.1, method, transform = ax[method].transAxes, bbox = method_box,
-                    verticalalignment = "bottom", horizontalalignment = "right")
+add_text(ax_sqz, r"{\bf (a)}")
+add_text(ax[OAT], r"{\bf (b)} OAT")
+add_text(ax[TAT], r"{\bf (c)} TAT")
 
 ax_sqz.legend(loc = "best").get_frame().set_alpha(1)
 fig.colorbar(mesh, cax = cax, label = time_label + " (sec)", format = "%.1f")
@@ -242,8 +253,8 @@ for method in sqz_methods:
     ax[method].set_xlabel(depth_label, zorder = 1)
     make_U_axis(ax[method])
 
-    ax[method].text(0.9, 0.1, method, transform = ax[method].transAxes, bbox = method_box,
-                    verticalalignment = "bottom", horizontalalignment = "right")
+add_text(ax[OAT], r"{\bf (a)} OAT")
+add_text(ax[TAT], r"{\bf (b)} TAT")
 
 ax[OAT].set_ylabel(size_label)
 ax[TAT].set_yticklabels([])

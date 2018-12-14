@@ -48,7 +48,7 @@ dec_rates = [ (1,1,1), (0,0,0) ]
 
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
-methods = [ OAT, TAT, TNT ]
+methods = [ OAT, TAT ]
 
 # construct Hamiltonians in (z,x,y) format
 init_state = "-Z"
@@ -200,13 +200,13 @@ def positive(vals):
     else: return idx
 
 max_plot_time = min(max_time, times[np.argmin(sqz_C_exact[TAT])]*(1+time_pad))
-def ylims(sqz_exact, sqz_trunc):
-    idx_TAT = min(positive(sqz_trunc[TAT]), np.argmax(times > max_plot_time))
-    idx_TNT = min(positive(sqz_trunc[TNT]), np.argmax(times > max_plot_time))
-    ymin = min(sqz_exact[TAT].min(), sqz_trunc[TAT][:idx_TAT].min())
-    ymax = min(sqz_exact[TNT].max(), sqz_trunc[TNT][:idx_TNT].max())
-    yscale = (ymax/ymin)**sqz_pad
-    return ymin/yscale, ymax*yscale
+# def ylims(sqz_exact, sqz_trunc):
+#     idx_TAT = min(positive(sqz_trunc[TAT]), np.argmax(times > max_plot_time))
+#     idx_TNT = min(positive(sqz_trunc[TNT]), np.argmax(times > max_plot_time))
+#     ymin = min(sqz_exact[TAT].min(), sqz_trunc[TAT][:idx_TAT].min())
+#     ymax = min(sqz_exact[TNT].max(), sqz_trunc[TNT][:idx_TNT].max())
+#     yscale = (ymax/ymin)**sqz_pad
+#     return ymin/yscale, ymax*yscale
 
 ### coherent evolution
 
@@ -225,7 +225,7 @@ plt.xlabel(r"$\chi t$")
 plt.ylabel(r"$\xi^2$")
 
 plt.xlim(0, max_plot_time)
-plt.ylim(*ylims(sqz_C_exact,sqz_C_trunc))
+# plt.ylim(*ylims(sqz_C_exact,sqz_C_trunc))
 plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 
 plt.legend(loc = "best")
@@ -235,11 +235,10 @@ if save: plt.savefig(fig_dir + "coherent.pdf")
 ### evolution with weak decoherence
 
 plt.figure(figsize = figsize)
-line = {}
 for method in methods:
     linestyle = "-" if method == OAT else "."
-    line[method], = plt.semilogy(times, sqz_D_exact[method], linestyle, label = method,
-                                 markersize = trajectory_marker_size)
+    plt.semilogy(times, sqz_D_exact[method], linestyle, label = method,
+                 markersize = trajectory_marker_size)
     positive_vals = positive(sqz_D_trunc[method])
     plt.semilogy(times[:positive_vals], sqz_D_trunc[method][:positive_vals],
                  "--", color = line[method].get_color())
@@ -251,7 +250,7 @@ plt.xlabel(r"$\chi t$")
 plt.ylabel(r"$\xi^2$")
 
 plt.xlim(0, max_plot_time)
-plt.ylim(*ylims(sqz_D_exact,sqz_D_trunc))
+# plt.ylim(*ylims(sqz_D_exact,sqz_D_trunc))
 plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 
 plt.legend(loc = "best")
