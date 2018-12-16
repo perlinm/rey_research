@@ -166,7 +166,7 @@ def get_all_partitions(collection):
         yield [ [ first ] ] + smaller
 
 # get all vectors acquired by subsystem permutation and purification duals
-def get_mirror_vecs(seed_vec):
+def get_seeded_vecs(seed_vec):
     # get all unique permutations of the input vector
     permutation_vecs = set( seed_vec.relabeled(permutation).split()
                             for permutation in itertools.permutations(seed_vec.subs) )
@@ -176,19 +176,35 @@ def get_mirror_vecs(seed_vec):
                              for vec in permutation_vecs
                              for sub in vec.subs )
 
-    return set.union(permutation_vecs, purification_vecs)
+    # collect all vectors of the same "rank" as the seed vector
+    full_vecs = set.union(permutation_vecs, purification_vecs)
+
+    all_vecs = full_vecs.copy()
+    for vec in full_vecs:
+        print(vec)
+        exit()
+
+    return full_vecs
 
 # given a seed vector, compute all corresponding "mirror vectors",
 # then collect all vectors of the same form as the mirror vectors for a larger system
 def get_super_vectors(subsystem_text, seed_vector):
     subsystems = primary_subsystems(subsystem_text)
-    mirror_vectors = get_mirror_vecs(seed_vector)
-    supersystem_vecs = []
-    for partition in get_all_partitions(subsystems):
-        new_subsystems = [ "".join(sorted(parts)) for parts in partition ]
-        supersystem_vecs += [ vec.relabeled(new_subsystems) for vec in mirror_vectors
-                              if len(partition) == len(vec.subs) ]
-    return set(supersystem_vecs)
+    seeded_vectors = get_seeded_vecs(seed_vector)
+    supersystem_vecs = set()
+    # the seed vector addresses a k-partite system, while our system is n-partite (n >= k)
+    # for each size p from k to n
+    for size in range(len(seed_vector.subs), len(subsystems)+1):
+        # consider all p-partite combinations of the n subsystems
+        for combination in itertools.combinations(subsystems, size):
+            # for each of these p-partite combinations, consider all k-partitions
+            for partition in get_all_partitions(list(combination)):
+                if len(partition) != len(seed_vector.subs): continue
+                # generate all mirror vectors on this k-partition
+                new_subsystems = [ "".join(sorted(parts)) for parts in partition ]
+                supersystem_vecs.update([ vec.relabeled(new_subsystems)
+                                          for vec in seeded_vectors ])
+    return supersystem_vecs
 
 # subadditivity, strong subadditivity, and negativity of tripartite information
 SA = e_vec([ ("A",1), ("B",1), ("AB",-1) ])
@@ -196,7 +212,7 @@ SSA = e_vec([ ("AB",1), ("BC",1), ("B",-1), ("ABC",-1) ])
 NTI = e_vec([ ("AB",1), ("AC",1), ("BC",1), ("A",-1), ("B",-1), ("C",-1), ("ABC",-1) ])
 
 
-systems = "AB"
+systems = "ABC"
 subsystems = [ "".join(subsystem)
                for subsystem in list(power_set(systems))[1:] ]
 symbols = [ sympy.symbols(subsystem.lower(), positive = True)
@@ -221,14 +237,23 @@ for vec in positive_vecs:
             key[val] = sign
             positive_cones[vec].append(vec.evaluated(key))
 
-print(processing_monotone)
-print()
-for vec in positive_vecs:
-    print(vec)
-    print(positive_cones[vec])
-    print()
+# print(processing_monotone)
+# print()
+# for vec in positive_vecs:
+#     print(vec)
+#     print(positive_cones[vec])
+#     print()
 
 
-vecs_SA = get_super_vectors(systems, SA)
 vecs_SSA = get_super_vectors(systems, SSA)
 vecs_NTI = get_super_vectors(systems, NTI)
+vecs_SA = get_super_vectors(systems, SA)
+
+for vec in vecs_SA: print(vec)
+print(len(vecs_SA))
+print()
+for vec in vecs_SSA: print(vec)
+print(len(vecs_SSA))
+print()
+for vec in vecs_NTI: print(vec)
+print(len(vecs_NTI))
