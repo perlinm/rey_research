@@ -125,12 +125,6 @@ def get_partitions(collection):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
         yield [ [ first ] ] + smaller
 
-# def get_partitions(collection, parts):
-#     if parts == 1: return [ collection ]
-#     else:
-#         return [ [ collection[:jj] ] + get_partitions(collection[jj:], parts-1)
-#                  for jj in range(1,len(collection)) ]
-
 # use a single k-partite entropy vector to generate entropy vectors of
 #   k-partitions of an n-partite system
 def get_vecs(subsystem_text, vec, known_permutations = None):
