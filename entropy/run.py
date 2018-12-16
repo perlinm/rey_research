@@ -104,6 +104,18 @@ class e_vec:
             vec[sub_power_set.index(text_parts[jj])] = self.vals[jj]
         return vec
 
+    # return "purification dual" with respect to a given subsystem
+    def purification_dual(self, subsystem):
+        subs_set = set(range(len(self.subs)))
+        idx = self.subs.index(subsystem)
+        def trim(part): return set(part).difference(set([idx]))
+        def dual_part(part): return sorted(list(subs_set.difference(trim(part))))
+        new_parts = [ part if idx not in part else dual_part(part)
+                      for part in self.parts ]
+        new_vec = e_vec(self.subs, new_parts, self.vals)
+        new_vec.sort()
+        return new_vec
+
     # return human-readable text identifying this entropy vector
     def __repr__(self):
         signs = [ "+" if val > 0 else "-" for val in self.vals ]
@@ -145,37 +157,35 @@ def get_partitions(collection):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
         yield [ [ first ] ] + smaller
 
-# use a single k-partite entropy vector to generate entropy vectors of
-#   k-partitions of an n-partite system
-def get_vecs(subsystem_text, input_vec):
-    subsystems = get_subsystems(subsystem_text) # identify subsystems from given text
-    if len(subsystems) < len(input_vec.subs): return []
+# get all vectors acquired by subsystem permutation and purification duals
+def get_mirror_vecs(seed_vec):
+    # get all unique permutations of the input vector
+    permutation_vecs = set( seed_vec.relabeled(permutation).split()
+                            for permutation in itertools.permutations(seed_vec.subs) )
 
-    # get all unique permutations of the input entropy vector
-    permuted_vecs = set( input_vec.relabeled(permutation)
-                         for permutation in itertools.permutations(input_vec.subs) )
+    # get all purification duals of all permutation vectors
+    purification_vecs = set( vec.purification_dual(sub)
+                             for vec in permutation_vecs
+                             for sub in vec.subs )
 
-    # collect entropy vectors for all partitions
-    partition_vecs = []
+    return set.union(permutation_vecs, purification_vecs)
+
+# given a seed vector, compute all corresponding "mirror vectors",
+# then collect all vectors of the same form as the mirror vectors for a larger system
+def get_super_vectors(subsystem_text, seed_vector):
+    subsystems = get_subsystems(subsystem_text)
+    mirror_vectors = get_mirror_vecs(seed_vector)
+    supersystem_vecs = []
     for partition in get_partitions(subsystems):
-        if len(partition) != len(input_vec.subs): continue
         new_subsystems = [ "".join(sorted(parts)) for parts in partition ]
-        for vec in permuted_vecs:
-            partition_vecs.append(vec.relabeled(new_subsystems))
+        supersystem_vecs += [ vec.relabeled(new_subsystems) for vec in mirror_vectors
+                              if len(partition) == len(vec.subs) ]
+    return set(supersystem_vecs)
 
-    return partition_vecs
+SA = e_vec([ ("A",1), ("B",1), ("AB",-1) ])
+SSA = e_vec([ ("AB",1), ("BC",1), ("B",-1), ("ABC",-1) ])
+NTI = e_vec([ ("AB",1), ("AC",1), ("BC",1), ("A",-1), ("B",-1), ("C",-1), ("ABC",-1) ])
 
-subadditivity = e_vec([ ("A",1), ("B",1), ("AB",-1) ])
-
-SSA_1 = e_vec([ ("AB",1), ("BC",1), ("B",-1), ("ABC",-1) ])
-
-SSA_2 = e_vec([ ("AB",1), ("BC",1), ("A",-1), ("C",-1) ])
-
-MMI = e_vec([ ("AB",1), ("AC",1), ("BC",1), ("A",-1), ("B",-1), ("C",-1), ("ABC",-1) ])
-
-vecs = get_vecs("ABCDE", subadditivity)
-print(len(vecs))
-exit()
-
-for vec in vecs:
-    print(+vec.split())
+vecs_SA = get_super_vectors("ABCD", SA)
+vecs_SSA = get_super_vectors("ABCD", SSA)
+vecs_NTI = get_super_vectors("ABCD", NTI)
