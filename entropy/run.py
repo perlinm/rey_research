@@ -217,7 +217,7 @@ def get_seeded_vecs(seed_vec):
     seeded_vecs = set( vec.reduce(subset)
                        for vec in set.union(permutation_vecs, purification_vecs)
                        for subset in power_set(vec.subs) )
-    return seeded_vecs
+    return set([ vec for vec in seeded_vecs if vec != e_vec() ])
 
 # given a seed vector, compute all corresponding "mirror vectors",
 # then collect all vectors of the same form as the mirror vectors for a larger system
@@ -225,23 +225,24 @@ def get_super_vectors(subsystem_text, seed_vector):
     subsystems = primary_subsystems(subsystem_text)
     seeded_vectors = get_seeded_vecs(seed_vector)
 
-    full_vecs = set()
-    # each seeded vector addresses a k-partite system, while our system is n-partite,
-    # so for each size p from k to n
-    for size in range(len(seed_vector.subs), len(subsystems)+1):
+    supersystem_vecs = set() # keep track of vectors addressing the entire system
+
+    # the seeded vectors address k-partite systems for k >= 2; our system is n-partite,
+    # so for each size p from 2 to n
+    for size in range(2, len(subsystems)+1):
         # consider all p-partite combinations of the n subsystems
         for combination in itertools.combinations(subsystems, size):
             # for each of these p-partite combinations, consider all k-partitions
             for partition in get_all_partitions(list(combination)):
                 # generate all mirror vectors on this k-partition
                 new_subsystems = [ "".join(sorted(parts)) for parts in partition ]
-                full_vecs.update([ vec.relabeled(new_subsystems)
-                                   for vec in seeded_vectors
-                                   if len(new_subsystems) == len(vec.subs) ])
+                supersystem_vecs.update([ vec.relabeled(new_subsystems)
+                                          for vec in seeded_vectors
+                                          if len(new_subsystems) == len(vec.subs) ])
 
     # collect all vectors obtained by making subsystems trivial
     system_vecs = set( vec.reduce(subset)
-                       for vec in full_vecs
+                       for vec in supersystem_vecs
                        for subset in power_set(vec.subs) )
     return set([ vec for vec in system_vecs if vec != e_vec() ])
 
