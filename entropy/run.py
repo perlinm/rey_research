@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
-import itertools
+import itertools, sympy
+
+def is_numeric(val): return isinstance(val, (int, float))
 
 # split partition into subsystems
-def get_subsystems(input_partition):
+def primary_subsystems(input_partition):
     partition = input_partition.replace(" ","")
     subsystems = []
     start_idx = 0
@@ -40,7 +42,7 @@ class e_vec:
 
         # if necessary, properly identify subsystems and partitions (by index of subsystem)
         if len(args) < 3:
-            text_parts = [ get_subsystems(part) for part in input_parts ]
+            text_parts = [ primary_subsystems(part) for part in input_parts ]
             subs_set = set.union(*[ set(part) for part in text_parts ])
 
             self.subs = sorted(list(subs_set))
@@ -96,7 +98,7 @@ class e_vec:
         return e_vec(self.text_parts(), self.vals)
 
     # returns a full vector in an ordered basis
-    def full_vec(self):
+    def standard_form(self):
         text_parts = self.text_parts()
         sub_power_set = [ "".join(part) for part in power_set(self.subs)[1:] ]
         vec = [ 0 ] * len(sub_power_set)
@@ -116,13 +118,19 @@ class e_vec:
         new_vec.sort()
         return new_vec
 
+    # evaluate symbolic entries according to dictionary
+    def evaluated(self, dict):
+        vals = [ val if is_numeric(val) else val.subs(dict) for val in self.vals ]
+        return e_vec(self.subs, self.parts, vals)
+
     # return human-readable text identifying this entropy vector
     def __repr__(self):
         signs = [ "+" if val > 0 else "-" for val in self.vals ]
-        abs_vals = [ "" if abs(val) == 1 else f" {str(abs(val))}"
-                      for val in self.vals ]
+        abs_vals = [ "" if val in [1,-1]
+                     else ( f" {val}" if val > 0 else f" {-val}" )
+                     for val in self.vals]
         parts = self.text_parts()
-        return " ".join([ "{}{} {}".format(signs[jj],abs_vals[jj],parts[jj])
+        return " ".join([ "{}{} ({})".format(signs[jj],abs_vals[jj],parts[jj])
                           for jj in range(len(self.vals)) ])
 
     def __hash__(self):
@@ -136,8 +144,8 @@ class e_vec:
         return e_vec(self.subs, self.parts, [ -val for val in self.vals ])
     def __add__(self, other): # addition of vectors: x + y
         left, right = self.split(), other.split()
-        subs = sorted(list(set(left.subs + right.subs))) # get all subsystems
-        parts = [ sorted([ subs.index(sys) for sys in get_subsystems(text_part) ])
+        subs = sorted(list(set(left.subs + right.subs)))
+        parts = [ sorted([ subs.index(sys) for sys in primary_subsystems(text_part) ])
                   for text_part in left.text_parts() + right.text_parts() ]
         vals = left.vals + right.vals
         new_vec = e_vec(subs, parts, vals)
@@ -147,12 +155,12 @@ class e_vec:
     def __sub__(self, other): return self + (-other) # subtraction of vectors: x - y
 
 # return iterator over all partitions of a collection of items
-def get_partitions(collection):
+def get_all_partitions(collection):
     if len(collection) == 1:
         yield [ collection ]
         return
     first = collection[0]
-    for smaller in get_partitions(collection[1:]):
+    for smaller in get_all_partitions(collection[1:]):
         for n, subset in enumerate(smaller):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
         yield [ [ first ] ] + smaller
@@ -173,10 +181,10 @@ def get_mirror_vecs(seed_vec):
 # given a seed vector, compute all corresponding "mirror vectors",
 # then collect all vectors of the same form as the mirror vectors for a larger system
 def get_super_vectors(subsystem_text, seed_vector):
-    subsystems = get_subsystems(subsystem_text)
+    subsystems = primary_subsystems(subsystem_text)
     mirror_vectors = get_mirror_vecs(seed_vector)
     supersystem_vecs = []
-    for partition in get_partitions(subsystems):
+    for partition in get_all_partitions(subsystems):
         new_subsystems = [ "".join(sorted(parts)) for parts in partition ]
         supersystem_vecs += [ vec.relabeled(new_subsystems) for vec in mirror_vectors
                               if len(partition) == len(vec.subs) ]
@@ -186,6 +194,36 @@ SA = e_vec([ ("A",1), ("B",1), ("AB",-1) ])
 SSA = e_vec([ ("AB",1), ("BC",1), ("B",-1), ("ABC",-1) ])
 NTI = e_vec([ ("AB",1), ("AC",1), ("BC",1), ("A",-1), ("B",-1), ("C",-1), ("ABC",-1) ])
 
-vecs_SA = get_super_vectors("ABCD", SA)
-vecs_SSA = get_super_vectors("ABCD", SSA)
-vecs_NTI = get_super_vectors("ABCD", NTI)
+
+systems = "AB"
+subsystems = [ "".join(subsystem)
+               for subsystem in list(power_set(systems))[1:] ]
+symbols = [ sympy.symbols(subsystem.lower(), positive = True)
+            for subsystem in subsystems ]
+
+processing_monotone = e_vec(subsystems, symbols)
+positive_vecs = set( processing_monotone.relabeled([sub],[sub+" Q"]).split()
+                     - processing_monotone
+                     for sub in primary_subsystems(systems) )
+
+positive_cones = {}
+for vec in positive_vecs:
+    positive_cones[vec] = []
+    restricted_vals = set([ val if val > 0 else -val for val in vec.vals ])
+    for val in restricted_vals:
+        key = { symbol : 0 for symbol in symbols }
+        for sign in [ 1, -1 ]:
+            key[val] = sign
+            positive_cones[vec].append(vec.evaluated(key))
+
+print(processing_monotone)
+print()
+for vec in positive_vecs:
+    print(vec)
+    print(positive_cones[vec])
+    print()
+
+
+vecs_SA = get_super_vectors(systems, SA)
+vecs_SSA = get_super_vectors(systems, SSA)
+vecs_NTI = get_super_vectors(systems, NTI)
