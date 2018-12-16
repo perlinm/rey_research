@@ -31,39 +31,33 @@ class e_vec:
             input_parts, self.vals = args[0], args[1]
         elif len(args) == 3:
             # args[0] is an ordered list of subsystems
-            # args[1] is an ordered list of partitions (defined by indices)
+            # args[1] is an ordered list of partitions (by index of subsystems)
             # args[2] is an ordered list of coefficients
             self.subs, self.parts, self.vals = args
         else:
             print("invalid initialization of an entropy vector!")
             exit()
 
-        self.vals = list(self.vals)
-        if len(args) == 3: return None
+        # if necessary, properly identify subsystems and partitions (by index of subsystem)
+        if len(args) < 3:
+            text_parts = [ get_subsystems(part) for part in input_parts ]
+            subs_set = set.union(*[ set(part) for part in text_parts ])
 
-        # remove zeros
-        zero_indices = [ jj for jj in range(len(self.vals)) if self.vals[jj] == 0 ]
-        for idx in zero_indices[::-1]:
-            del input_parts[idx]
-            del self.vals[idx]
+            self.subs = sorted(list(subs_set))
+            self.parts = [ sorted([ self.subs.index(sys) for sys in part ])
+                           for part in text_parts ]
 
-        # identify subsystems and partitions
-        all_subs = set()
-        parts_text = []
-        for jj in range(len(input_parts)):
-            parts_text.append([])
-            for subsystem in get_subsystems(input_parts[jj]):
-                all_subs.add(subsystem)
-                parts_text[jj].append(subsystem)
-        self.subs = sorted(list(all_subs))
-        self.parts = [ sorted([ self.subs.index(sys) for sys in part ])
-                       for part in parts_text ]
+        self.sort()
+        self.simplify()
 
-        # sort partitions and values
-        self.parts, self.vals = zip(*sorted(zip(self.parts, self.vals),
-                                            key = lambda x : (len(x[0]),x[0])))
+    # sort vector partitions and coefficients
+    def sort(self):
+        zipped_vec = sorted(zip(self.parts, self.vals), key = lambda x : (len(x[0]),x[0]))
+        self.parts, self.vals = map(list,zip(*zipped_vec))
 
-        # if any partitions are identical, combine them
+    # simplify entropy vector
+    def simplify(self):
+        # combine identical partitions
         for part in self.parts:
             indices = [ jj for jj in range(len(self.parts)) if self.parts[jj] == part ]
             if len(indices) > 1:
@@ -72,8 +66,18 @@ class e_vec:
                     del self.vals[jj]
                     del self.parts[jj]
 
+        # remove zeros
+        zero_indices = [ jj for jj in range(len(self.vals)) if self.vals[jj] == 0 ]
+        for idx in zero_indices[::-1]:
+            del self.parts[idx]
+            del self.vals[idx]
+
     # return new entropy vector with relabeled subsystems
-    def relabeled(self, old_subsystems, new_subsystems):
+    def relabeled(self, *args):
+        if len(args) == 1:
+            old_subsystems, new_subsystems = self.subs, args[0]
+        else:
+            old_subsystems, new_subsystems = args
         subsystems = self.subs.copy()
         for jj in range(len(old_subsystems)):
             old_subsystem, new_subsystem = old_subsystems[jj], new_subsystems[jj]
@@ -109,16 +113,32 @@ class e_vec:
         return " ".join([ "{}{} {}".format(signs[jj],abs_vals[jj],parts[jj])
                           for jj in range(len(self.vals)) ])
 
-    # compare two entropy vectors
-    def __eq__(self, other):
+    def __hash__(self):
+        return hash(self.split().__repr__())
+
+    # relations and operations
+    def __eq__(self, other): # comparison x == y
         return self.split().__repr__() == other.split().__repr__()
+    def __pos__(self): return self # unary "+"
+    def __neg__(self): # unary "-", i.e. negation
+        return e_vec(self.subs, self.parts, [ -val for val in self.vals ])
+    def __add__(self, other): # addition of vectors: x + y
+        left, right = self.split(), other.split()
+        subs = sorted(list(set(left.subs + right.subs))) # get all subsystems
+        parts = [ sorted([ subs.index(sys) for sys in get_subsystems(text_part) ])
+                  for text_part in left.text_parts() + right.text_parts() ]
+        vals = left.vals + right.vals
+        new_vec = e_vec(subs, parts, vals)
+        new_vec.sort()
+        new_vec.simplify()
+        return new_vec
+    def __sub__(self, other): return self + (-other) # subtraction of vectors: x - y
 
 # return iterator over all partitions of a collection of items
 def get_partitions(collection):
     if len(collection) == 1:
         yield [ collection ]
         return
-
     first = collection[0]
     for smaller in get_partitions(collection[1:]):
         for n, subset in enumerate(smaller):
@@ -127,45 +147,35 @@ def get_partitions(collection):
 
 # use a single k-partite entropy vector to generate entropy vectors of
 #   k-partitions of an n-partite system
-def get_vecs(subsystem_text, vec, known_permutations = None):
-    vec_subs = len(vec.subs) # number of subsystems in entropy vector
+def get_vecs(subsystem_text, input_vec):
     subsystems = get_subsystems(subsystem_text) # identify subsystems from given text
-    if len(subsystems) < vec_subs: return []
+    if len(subsystems) < len(input_vec.subs): return []
 
-    if known_permutations == None:
-        # if no permutations were given, collect all permutations of vec_subs elements
-        permutations = list(itertools.permutations(range(vec_subs)))
-    else:
-        # otherwise, use only the given permutations
-        permutations = known_permutations.copy()
+    # get all unique permutations of the input entropy vector
+    permuted_vecs = set( input_vec.relabeled(permutation)
+                         for permutation in itertools.permutations(input_vec.subs) )
 
-    partition_vecs = [] # collect entropy vectors for all partitions
+    # collect entropy vectors for all partitions
+    partition_vecs = []
     for partition in get_partitions(subsystems):
-        if len(partition) != vec_subs: continue
+        if len(partition) != len(input_vec.subs): continue
         new_subsystems = [ "".join(sorted(parts)) for parts in partition ]
-        for permutation in permutations:
-            new_subsystems_permuted = [ new_subsystems[permutation[jj]]
-                                        for jj in range(vec_subs) ]
-            partition_vecs.append(vec.relabeled(vec.subs, new_subsystems_permuted))
-    output_vecs = []
-    for vec in partition_vecs:
-        if vec not in output_vecs:
-            output_vecs.append(vec)
-    return output_vecs
+        for vec in permuted_vecs:
+            partition_vecs.append(vec.relabeled(new_subsystems))
+
+    return partition_vecs
 
 subadditivity = e_vec([ ("A",1), ("B",1), ("AB",-1) ])
-subadditivity_perms = [ [0,1] ]
 
 SSA_1 = e_vec([ ("AB",1), ("BC",1), ("B",-1), ("ABC",-1) ])
-SSA_1_perms = [ [0,1,2], [1,2,0], [2,0,1] ]
 
 SSA_2 = e_vec([ ("AB",1), ("BC",1), ("A",-1), ("C",-1) ])
-SSA_2_perms = [ [0,1,2], [1,2,0], [2,0,1] ]
 
 MMI = e_vec([ ("AB",1), ("AC",1), ("BC",1), ("A",-1), ("B",-1), ("C",-1), ("ABC",-1) ])
-MMI_perms = [ [0,1,2] ]
 
-vecs = get_vecs("ABC", subadditivity)
+vecs = get_vecs("ABCDE", subadditivity)
+print(len(vecs))
+exit()
+
 for vec in vecs:
-    print(vec.split())
-
+    print(+vec.split())
