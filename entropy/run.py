@@ -190,6 +190,7 @@ def get_super_vectors(subsystem_text, seed_vector):
                               if len(partition) == len(vec.subs) ]
     return set(supersystem_vecs)
 
+# subadditivity, strong subadditivity, and negativity of tripartite information
 SA = e_vec([ ("A",1), ("B",1), ("AB",-1) ])
 SSA = e_vec([ ("AB",1), ("BC",1), ("B",-1), ("ABC",-1) ])
 NTI = e_vec([ ("AB",1), ("AC",1), ("BC",1), ("A",-1), ("B",-1), ("C",-1), ("ABC",-1) ])
@@ -201,11 +202,15 @@ subsystems = [ "".join(subsystem)
 symbols = [ sympy.symbols(subsystem.lower(), positive = True)
             for subsystem in subsystems ]
 
+# declare a dual vector describing a quantity that is monotone under sub-system processing
 processing_monotone = e_vec(subsystems, symbols)
+
+# identify all positive vectors derived from the processing monotone
 positive_vecs = set( processing_monotone.relabeled([sub],[sub+" Q"]).split()
                      - processing_monotone
                      for sub in primary_subsystems(systems) )
 
+# identify cones restricting the positive vectors
 positive_cones = {}
 for vec in positive_vecs:
     positive_cones[vec] = []
