@@ -82,7 +82,7 @@ class e_vec:
                     del self.subs[jj]
                     del text_subs[jj]
 
-        # remove zeros
+        # remove zero entries from this vector
         zero_indices = [ jj for jj in range(len(self.vals)) if self.vals[jj] == 0 ]
         for idx in zero_indices[::-1]:
             del self.subs[idx]
@@ -117,27 +117,26 @@ class e_vec:
         return e_vec([ "".join(sub) for sub in self.subs ], self.vals)
 
     # returns a full vector in an ordered basis
-    def standard_form(self, system = None):
-        if system == None: subs = self.systems
-        else: subs = system
-        sub_power_set = list(power_set(subs))[1:]
-        if any(part not in sub_power_set for part in self.subs):
-            return self.split().standard_form(system)
-        vec = [ 0 ] * len(sub_power_set)
-        for part, val in zip(self.subs, self.vals):
-            vec[sub_power_set.index(part)] = val
+    def standard_form(self, systems = None):
+        if systems == None: systems = self.systems
+        subsystems = list(power_set(systems))[1:]
+        if any(sub not in subsystems for sub in self.subs):
+            return self.split().standard_form(systems)
+        vec = [ 0 ] * len(subsystems)
+        for sub, val in zip(self.subs, self.vals):
+            vec[subsystems.index(sub)] = val
         return vec
 
     # return "purification dual" with respect to a given primary system
     def purification_dual(self, system):
-        subs_set = set(range(len(self.systems)))
-        idx = self.systems.index(system)
-        def trim(part): return set(part).difference(set([idx]))
-        def dual_part(part): return sorted(list(subs_set.difference(trim(part))))
-        new_parts = [ part if idx not in part else dual_part(part)
-                      for part in self.subs ]
-        new_vec = e_vec(self.systems, new_parts, self.vals)
-        return new_vec
+        systems = set(self.systems)
+        def trim(subsystem):
+            return set(subsystem).difference(set([system]))
+        def dual_subsystem(subsystem):
+            return sorted(list(systems.difference(trim(subsystem))))
+        new_subsystems = [ sub if system not in sub else dual_subsystem(sub)
+                           for sub in self.subs ]
+        return e_vec(self.systems, new_subsystems, self.vals)
 
     # evaluate symbolic entries according to dictionary
     def evaluated(self, dict):
