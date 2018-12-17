@@ -69,9 +69,7 @@ inequality_rays = [ get_super_vectors(systems_ext, vec) for vec in inequality_ve
 inequality_cones = [ sage.geometry.cone.Cone([ ray.standard_form(systems_ext)
                                                for ray in rays ])
                      for rays in inequality_rays ]
-inequality_cone = inequality_cones[0]
-for jj in range(1,len(inequality_cones)):
-    inequality_cone = rest_cone.intersection(inequality_cones[jj])
+inequality_cone = reduce(lambda x, y : x.intersection(y), inequality_cones)
 
 # intersect cones restricting positive dual vectors
 for sys in positive_cones.keys():
@@ -94,9 +92,7 @@ for sys, cone in positive_cones.items():
         pullback_rays.append([ -1 if nn == idx else 0 for nn in range(len(symbols)) ])
     pullback_cone[sys] = sage.geometry.cone.Cone(pullback_rays)
 
-final_cone = pullback_cone[systems[0]]
-for jj in range(1,len(systems)):
-    final_cone = final_cone.intersection(pullback_cone[systems[jj]])
+final_cone = reduce(lambda x, y : x.intersection(y), pullback_cone.values())
 
 for ray in final_cone.rays():
     print(e_vec(ray,systems))
