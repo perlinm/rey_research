@@ -13,6 +13,10 @@ if system_num > 4:
     print("no.")
     exit()
 
+sage_cone = sage.geometry.cone.Cone
+def cone_contains(outer, inner):
+    return all([ outer.contains(ray) for ray in inner.rays() ])
+
 # identify primary systems by the first system_num capital letters
 systems = [ chr(jj) for jj in range(ord("A"), ord("Z")) ][:system_num]
 systems_ext = systems + [ "Z" ] # "extended" systems
@@ -23,18 +27,6 @@ SSA = e_vec([ ("AB",1), ("BC",1), ("B",-1), ("ABC",-1) ])
 MMI = e_vec([ ("AB",1), ("AC",1), ("BC",1), ("A",-1), ("B",-1), ("C",-1), ("ABC",-1) ])
 
 inequality_vecs = [ SSA ]
-
-##########################################################################################
-
-sage_cone = sage.geometry.cone.Cone
-def cone_contains(outer, inner):
-    return all([ outer.contains(ray) for ray in inner.rays() ])
-
-def cones_equal(first, second):
-    return ( len(first.rays()) == len(second.rays()) and
-             all([ ray in first.rays() for ray in second.rays() ]) )
-
-##########################################################################################
 
 # subsystems of the entire system
 subsystems = [ "".join(sys) for sys in list(power_set(systems))[1:] ]
