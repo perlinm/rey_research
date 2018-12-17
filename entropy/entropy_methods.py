@@ -2,6 +2,27 @@
 
 import itertools, sage
 
+sage_cone = sage.geometry.cone.Cone
+
+# return power set of a collection of objects
+def power_set(collection):
+    if type(collection) == str:
+        collection = primary_subsystems(collection)
+    iterable = itertools.chain.from_iterable(itertools.combinations(collection, nn)
+                                             for nn in range(len(collection)+1))
+    return list( list(part) for part in iterable )
+
+# return iterator over all partitions of a collection of items
+def get_all_partitions(collection):
+    if len(collection) == 1:
+        yield [ collection ]
+        return
+    first = collection[0]
+    for smaller in get_all_partitions(collection[1:]):
+        for n, subset in enumerate(smaller):
+            yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
+        yield [ [ first ] ] + smaller
+
 # split a system into its primary subsystems
 def primary_subsystems(system):
     systems = []
@@ -16,14 +37,6 @@ def primary_subsystems(system):
         systems.append(system[start_idx:end_idx])
         start_idx = end_idx
     return systems
-
-# return power set of a collection of objects
-def power_set(collection):
-    if type(collection) == str:
-        collection = primary_subsystems(collection)
-    iterable = itertools.chain.from_iterable(itertools.combinations(collection, nn)
-                                             for nn in range(len(collection)+1))
-    return list( list(part) for part in iterable )
 
 # entropy vector object class
 class e_vec:
@@ -197,16 +210,11 @@ class e_vec:
         return new_vec
     def __sub__(self, other): return self + (-other) # subtraction of vectors: x - y
 
-# return iterator over all partitions of a collection of items
-def get_all_partitions(collection):
-    if len(collection) == 1:
-        yield [ collection ]
-        return
-    first = collection[0]
-    for smaller in get_all_partitions(collection[1:]):
-        for n, subset in enumerate(smaller):
-            yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
-        yield [ [ first ] ] + smaller
+# given a set of entropy vectors on a system with a given partitioning,
+# return the extreme rays of the minimal cone containing all vectors
+def minimal_cone(rays, systems):
+    minimal_cone = sage_cone([ ray.standard_form(systems) for ray in rays ])
+    return set([ e_vec(ray, systems) for ray in minimal_cone.rays() ])
 
 # get minimal entropy cone implied by positivity of a given entropy vector
 # entropy cone determined by all implied positive quantities, determined by
@@ -228,10 +236,7 @@ def get_minimal_cone(positive_vec):
                          for vec in set.union(permutation_vecs, purification_vecs)
                          for subsystem in power_set(vec.systems) )
 
-    # determine the extreme rays of the minimal cone containing all seeded vectors
-    positive_cone = sage.geometry.cone.Cone([ vec.standard_form(systems)
-                                              for vec in positive_vecs ])
-    return set([ e_vec(ray, systems) for ray in positive_cone.rays() ])
+    return minimal_cone(positive_vecs, systems)
 
 # given a single positive entropy vector, generate all implied positive entropy vectors
 # for a given n-partite system
@@ -239,16 +244,18 @@ def get_positive_vectors(systems, positive_vec):
     if type(systems) is str:
         systems = primary_subsystems(systems)
     positive_cone = get_minimal_cone(positive_vec)
+    partition_numbers = set([ len(ray.systems) for ray in positive_cone ])
 
     system_vecs = set() # keep track of entropy vectors for this system
 
-    # the extreme rays of the positive cone address k-partite systems for k >= 2;
+    # the extreme rays of the positive cone address k-partite systems;
     #   our system is n-partite, so for each size p from 2 to n
-    for size in range(2, len(systems)+1):
+    for size in range(min(partition_numbers), len(systems)+1):
         # consider all subsystems of size p (there are n choose p such subsystems)
         for subsystem in itertools.combinations(systems, size):
             # for each of these subsystems, consider all k-partitions
             for partition in get_all_partitions(list(subsystem)):
+                if len(partition) not in partition_numbers: continue
                 # generate all seeded k-partite entropy vectors on this partition
                 new_systems = [ "".join(sorted(parts)) for parts in partition ]
                 system_vecs.update([ vec.relabeled(new_systems)
