@@ -24,9 +24,9 @@ MMI = e_vec([ ("AB",1), ("AC",1), ("BC",1), ("A",-1), ("B",-1), ("C",-1), ("ABC"
 
 inequality_vecs = [ SSA ]
 
-
 ##########################################################################################
 
+sage_cone = sage.geometry.cone.Cone
 def cone_contains(outer, inner):
     return all([ outer.contains(ray) for ray in inner.rays() ])
 
@@ -52,6 +52,7 @@ positive_vecs_full = { sys : vec.standard_form(systems_ext)
 
 # find cones containing (i.e. restricting allowable) positive dual vectors
 # defined by monotinicity under sub-system processing
+print("constructing positivity cones...")
 positive_cones = {}
 for sys, vec in positive_vecs.items():
     extreme_rays = []
@@ -61,21 +62,23 @@ for sys, vec in positive_vecs.items():
         for sign in [ 1, -1 ]:
             key[val] = sign
             extreme_rays.append(vec.evaluated(key).standard_form(systems_ext))
-    positive_cones[sys] = sage.geometry.cone.Cone(extreme_rays)
+    positive_cones[sys] = sage_cone(extreme_rays)
 
 # find cone containing (i.e. restricting allowable) positive dual vectors
 # defined by choices of entropic inequalities that states must satisfy
-inequality_rays = [ get_super_vectors(systems_ext, vec) for vec in inequality_vecs ]
-inequality_cones = [ sage.geometry.cone.Cone([ ray.standard_form(systems_ext)
-                                               for ray in rays ])
+print("constructing inequality restriction cone...")
+inequality_rays = [ get_positive_vectors(systems_ext, vec) for vec in inequality_vecs ]
+inequality_cones = [ sage_cone([ ray.standard_form(systems_ext) for ray in rays ])
                      for rays in inequality_rays ]
 inequality_cone = reduce(lambda x, y : x.intersection(y), inequality_cones)
 
 # intersect cones restricting positive dual vectors
+print("intersecting positivity and inequality restriction cones...")
 for sys in positive_cones.keys():
     positive_cones[sys] = positive_cones[sys].intersection(inequality_cone)
 
 # pull back cone restricting positive dual vectors
+print("constructing pullback cones...")
 pullback_cone = {}
 for sys, cone in positive_cones.items():
     rays = [ list(ray) for ray in cone.rays() ]
@@ -90,8 +93,9 @@ for sys, cone in positive_cones.items():
         if symbol in positive_vecs_full[sys]: continue
         pullback_rays.append([ +1 if nn == idx else 0 for nn in range(len(symbols)) ])
         pullback_rays.append([ -1 if nn == idx else 0 for nn in range(len(symbols)) ])
-    pullback_cone[sys] = sage.geometry.cone.Cone(pullback_rays)
+    pullback_cone[sys] = sage_cone(pullback_rays)
 
+print("intersecting pullback cones...")
 final_cone = reduce(lambda x, y : x.intersection(y), pullback_cone.values())
 
 for ray in final_cone.rays():
