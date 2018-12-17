@@ -208,13 +208,13 @@ def get_all_partitions(collection):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
         yield [ [ first ] ] + smaller
 
-# get all vectors acquired by subsystem permutation, purification duals
+# get all vectors acquired by subsystem permutation, purification duals, and reductions
 def get_seeded_vecs(seed_vec):
-    # get all unique permutations of the input vector
+    # get all unique permutations of the seed vector
     permutation_vecs = set( seed_vec.relabeled(permutation)
                             for permutation in itertools.permutations(seed_vec.systems) )
 
-    # get all purification duals of all permutation vectors
+    # get all purification duals of all permuted vectors
     purification_vecs = set( vec.purification_dual(sys)
                              for vec in permutation_vecs
                              for sys in vec.systems )
@@ -223,32 +223,28 @@ def get_seeded_vecs(seed_vec):
     seeded_vecs = set( vec.reduce(subsystem)
                        for vec in set.union(permutation_vecs, purification_vecs)
                        for subsystem in power_set(vec.systems) )
-    return set([ vec for vec in seeded_vecs if vec != e_vec() ])
+    return set([ vec for vec in seeded_vecs if len(vec.vals) > 1 ])
 
-# given a seed vector, compute all corresponding "mirror vectors",
-# then collect all vectors of the same form as the mirror vectors for a larger system
+# given a single positive entropy vector, generate all implied positive entropy vectors
+# for a given n-partite system
 def get_super_vectors(systems, seed_vector):
     if type(systems) is str:
         systems = primary_subsystems(systems)
     seeded_vectors = get_seeded_vecs(seed_vector)
 
-    system_vecs = set() # keep track of vectors addressing the entire system
+    system_vecs = set() # keep track of entropy vectors for this system
 
     # the seeded vectors address k-partite systems for k >= 2; our system is n-partite,
     # so for each size p from 2 to n
     for size in range(2, len(systems)+1):
-        # consider all p-partite combinations of the n primary systems
-        for combination in itertools.combinations(systems, size):
-            # for each of these p-partite combinations, consider all k-partitions
-            for partition in get_all_partitions(list(combination)):
-                # generate all mirror vectors on this k-partition
+        # consider all subsystems of size p (there are n choose p such subsystems)
+        for subsystem in itertools.combinations(systems, size):
+            # for each of these subsystems, consider all k-partitions
+            for partition in get_all_partitions(list(subsystem)):
+                # generate all seeded k-partite entropy vectors on this partition
                 new_systems = [ "".join(sorted(parts)) for parts in partition ]
                 system_vecs.update([ vec.relabeled(new_systems)
-                                          for vec in seeded_vectors
-                                          if len(vec.systems) == len(new_systems) ])
+                                     for vec in seeded_vectors
+                                     if len(vec.systems) == len(new_systems) ])
 
-    # collect all vectors obtained by making subsystems trivial
-    subsystem_vecs = set( vec.reduce(sys)
-                       for vec in system_vecs
-                       for sys in power_set(vec.systems) )
-    return set([ vec for vec in subsystem_vecs if vec != e_vec() ])
+    return set([ vec for vec in system_vecs if len(vec.vals) > 1 ])
