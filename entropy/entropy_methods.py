@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-import itertools
+import itertools, sage
 
 # split a system into its primary subsystems
 def primary_subsystems(system):
@@ -208,11 +208,15 @@ def get_all_partitions(collection):
             yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
         yield [ [ first ] ] + smaller
 
-# get all vectors acquired by subsystem permutation, purification duals, and reductions
-def get_seeded_vecs(seed_vec):
+# get minimal entropy cone implied by positivity of a given entropy vector
+# entropy cone determined by all implied positive quantities, determined by
+# permutation, purification duals, and reductions of the seed vector
+def get_minimal_cone(positive_vec):
+    systems = positive_vec.systems
+
     # get all unique permutations of the seed vector
-    permutation_vecs = set( seed_vec.relabeled(permutation)
-                            for permutation in itertools.permutations(seed_vec.systems) )
+    permutation_vecs = set( positive_vec.relabeled(permutation)
+                            for permutation in itertools.permutations(systems) )
 
     # get all purification duals of all permuted vectors
     purification_vecs = set( vec.purification_dual(sys)
@@ -220,22 +224,26 @@ def get_seeded_vecs(seed_vec):
                              for sys in vec.systems )
 
     # collect all vectors obtained by additionally making subsystems trivial
-    seeded_vecs = set( vec.reduce(subsystem)
-                       for vec in set.union(permutation_vecs, purification_vecs)
-                       for subsystem in power_set(vec.systems) )
-    return set([ vec for vec in seeded_vecs if len(vec.vals) > 1 ])
+    positive_vecs = set( vec.reduce(subsystem)
+                         for vec in set.union(permutation_vecs, purification_vecs)
+                         for subsystem in power_set(vec.systems) )
+
+    # determine the extreme rays of the minimal cone containing all seeded vectors
+    positive_cone = sage.geometry.cone.Cone([ vec.standard_form(systems)
+                                              for vec in positive_vecs ])
+    return set([ e_vec(ray, systems) for ray in positive_cone.rays() ])
 
 # given a single positive entropy vector, generate all implied positive entropy vectors
 # for a given n-partite system
-def get_super_vectors(systems, seed_vector):
+def get_positive_vectors(systems, positive_vec):
     if type(systems) is str:
         systems = primary_subsystems(systems)
-    seeded_vectors = get_seeded_vecs(seed_vector)
+    positive_cone = get_minimal_cone(positive_vec)
 
     system_vecs = set() # keep track of entropy vectors for this system
 
-    # the seeded vectors address k-partite systems for k >= 2; our system is n-partite,
-    # so for each size p from 2 to n
+    # the extreme rays of the positive cone address k-partite systems for k >= 2;
+    #   our system is n-partite, so for each size p from 2 to n
     for size in range(2, len(systems)+1):
         # consider all subsystems of size p (there are n choose p such subsystems)
         for subsystem in itertools.combinations(systems, size):
@@ -244,7 +252,7 @@ def get_super_vectors(systems, seed_vector):
                 # generate all seeded k-partite entropy vectors on this partition
                 new_systems = [ "".join(sorted(parts)) for parts in partition ]
                 system_vecs.update([ vec.relabeled(new_systems)
-                                     for vec in seeded_vectors
+                                     for vec in positive_cone
                                      if len(vec.systems) == len(new_systems) ])
 
     return set([ vec for vec in system_vecs if len(vec.vals) > 1 ])
