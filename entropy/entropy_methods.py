@@ -31,8 +31,17 @@ class e_vec:
     def __init__(self, *args):
         if len(args) == 1: # args is a list of pairs: (subsystem, coefficient)
             self.subs, self.vals = zip(*args[0])
-        elif len(args) == 2: # args is two ordered lists: subsystems, coefficients
-            self.subs, self.vals = args[0], args[1]
+        elif len(args) == 2:
+            if len(args[0]) == len(args[1]):
+                # args is two ordered lists: subsystems, coefficients
+                self.subs, self.vals = args
+            else:
+                # args[0] is an entropy vector in standard form
+                # args[1] defines the primary systems
+                self.vals, self.systems = args
+                if type(self.systems) is str:
+                    self.systems = primary_subsystems(self.systems)
+                self.subs = list(power_set(self.systems))[1:]
         elif len(args) == 3:
             # args[0] is an ordered list of primary systems
             # args[1] is an ordered list of subsystems
