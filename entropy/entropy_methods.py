@@ -38,6 +38,10 @@ def primary_subsystems(system):
         start_idx = end_idx
     return systems
 
+# return subsystem in text form
+def subsystem_text(subsystem):
+    return "".join([ str(sys) for sys in sorted(subsystem) ])
+
 # entropy vector object class
 class e_vec:
     # initialize an entropy vector
@@ -94,7 +98,7 @@ class e_vec:
     # simplify entropy vector
     def simplify(self):
         # combine identical subsystems
-        text_subs = [ "".join(sub) for sub in self.subs ]
+        text_subs = [ subsystem_text(sub) for sub in self.subs ]
         for sub in set(text_subs):
             indices = [ jj for jj in range(len(text_subs)) if text_subs[jj] == sub ]
             if len(indices) > 1:
@@ -110,8 +114,11 @@ class e_vec:
             del self.subs[idx]
             del self.vals[idx]
 
+    # return new entropy vector with subsystems split into primary components
+    def split(self):
+        return e_vec([ subsystem_text(sub) for sub in self.subs ], self.vals)
+
     # return new entropy vector with relabeled systems
-    # note: always splits resulting vector
     def relabeled(self, *args):
         args = list(args)
         if len(args) == 1:
@@ -134,9 +141,28 @@ class e_vec:
                        for sub in self.subs ]
         return e_vec(systems, subsystems, self.vals).split()
 
-    # return new entropy vector with split subsystems
-    def split(self):
-        return e_vec([ "".join(sub) for sub in self.subs ], self.vals)
+    # return "purification dual" with respect to a given primary system
+    def purification_dual(self, system):
+        systems = set(self.systems)
+        def trim(subsystem):
+            return set(subsystem).difference(set([system]))
+        def dual_subsystem(subsystem):
+            return sorted(list(systems.difference(trim(subsystem))))
+        new_subsystems = [ sub if system not in sub else dual_subsystem(sub)
+                           for sub in self.subs ]
+        return e_vec(self.systems, new_subsystems, self.vals)
+
+    # return "reduced" vector obtained by making some subsystem trivial
+    def reduced(self, trivial_subsystem):
+        if type(trivial_subsystem) == str:
+            trivial_subsystem = primary_subsystems(trivial_subsystem)
+        systems = [ sys for sys in self.systems if sys not in trivial_subsystem ]
+        subsystems = [ [ sys for sys in part if sys not in trivial_subsystem ]
+                       for part in self.subs ]
+        if all( len(sub) == 0 for sub in subsystems ): return e_vec()
+        subsystems, vals = zip(*[ (sub, val) for sub, val in zip(subsystems, self.vals)
+                                  if len(sub) > 0 ])
+        return e_vec(systems, subsystems, vals)
 
     # returns a full vector in an ordered basis
     def standard_form(self, systems = None):
@@ -149,34 +175,24 @@ class e_vec:
             vec[subsystems.index(sub)] = val
         return vec
 
-    # return "purification dual" with respect to a given primary system
-    def purification_dual(self, system):
-        systems = set(self.systems)
-        def trim(subsystem):
-            return set(subsystem).difference(set([system]))
-        def dual_subsystem(subsystem):
-            return sorted(list(systems.difference(trim(subsystem))))
-        new_subsystems = [ sub if system not in sub else dual_subsystem(sub)
-                           for sub in self.subs ]
-        return e_vec(self.systems, new_subsystems, self.vals)
-
     # evaluate symbolic entries according to dictionary
     def evaluated(self, dict):
         vals = [ val if isinstance(val, (int)) else int(val.subs(dict))
                  for val in self.vals ]
         return e_vec(self.systems, self.subs, vals)
 
-    # reduced "reduced" vector obtained by making some subsystem trivial
-    def reduce(self, trivial_subsystem):
-        if type(trivial_subsystem) == str:
-            trivial_subsystem = primary_subsystems(trivial_subsystem)
-        systems = [ sys for sys in self.systems if sys not in trivial_subsystem ]
-        subsystems = [ [ sys for sys in part if sys not in trivial_subsystem ]
-                       for part in self.subs ]
-        if all( len(sub) == 0 for sub in subsystems ): return e_vec()
-        subsystems, vals = zip(*[ (sub, val) for sub, val in zip(subsystems, self.vals)
-                                  if len(sub) > 0 ])
-        return e_vec(systems, subsystems, vals)
+    # return new entropy vector which forgets about all unaddressed subsystems
+    def stripped(self):
+        used_systems = set( sys for sub in self.subs for sys in sub )
+        vec = self
+        for sys in vec.systems:
+            if sys not in used_systems:
+                vec = vec.reduced(sys)
+        return vec.relabeled(range(len(used_systems)))
+
+    # determine whether two entropy vectors are "equivalent"
+    def equivalent(self, other):
+        return self.stripped() == other.stripped()
 
     # return human-readable text identifying this entropy vector
     def __repr__(self):
@@ -184,7 +200,7 @@ class e_vec:
         abs_vals = [ "" if val in [1,-1]
                      else ( " {}".format(val) if val > 0 else " {}".format(-val) )
                      for val in self.vals]
-        text_subs = [ "".join(sub) for sub in self.subs ]
+        text_subs = [ subsystem_text(sub) for sub in self.subs ]
         return " ".join([ "{}{} ({})".format(sign,abs_val,sub)
                           for sign,abs_val,sub in zip(signs,abs_vals,text_subs) ])
 
@@ -217,8 +233,8 @@ def minimal_cone(rays, systems):
     return set([ e_vec(ray, systems) for ray in minimal_cone.rays() ])
 
 # get minimal entropy cone implied by positivity of a given entropy vector
-# entropy cone determined by all implied positive quantities, determined by
-# permutation, purification duals, and reductions of the seed vector
+# this entropy cone is determined by all positive quantities implied by
+# permutation, purification duals, and reductions of the original positive vector
 def get_minimal_cone(positive_vec):
     systems = positive_vec.systems
 
@@ -232,7 +248,7 @@ def get_minimal_cone(positive_vec):
                              for sys in vec.systems )
 
     # collect all vectors obtained by additionally making subsystems trivial
-    positive_vecs = set( vec.reduce(subsystem)
+    positive_vecs = set( vec.reduced(subsystem)
                          for vec in set.union(permutation_vecs, purification_vecs)
                          for subsystem in power_set(vec.systems) )
 
@@ -243,8 +259,22 @@ def get_minimal_cone(positive_vec):
 def get_positive_vectors(systems, positive_vec):
     if type(systems) is str:
         systems = primary_subsystems(systems)
+
+    # get minimal positive cone impliet by the given positive vector
     positive_cone = get_minimal_cone(positive_vec)
-    partition_numbers = set([ len(ray.systems) for ray in positive_cone ])
+
+    # of the extreme rays of the positive cone, collect those that are "distinct"
+    # i.e. equivalent up to (i) forgetting about subsystems which are not addressed,
+    #                  and (ii) an order-preserving relabeling of primary subsystems
+    distinct_rays = set( vec.stripped() for vec in positive_cone )
+
+    # each ray above addressed k disjoint subsystems for some k; collect the set { k }
+    partition_numbers = set([ len(ray.systems) for ray in distinct_rays ])
+
+    # organize the distinct rays by the number of disjoint subsystems they address
+    distinct_rays = { num : set([ ray for ray in distinct_rays
+                                  if len(ray.systems) == num ])
+                      for num in partition_numbers }
 
     system_vecs = set() # keep track of entropy vectors for this system
 
@@ -257,9 +287,8 @@ def get_positive_vectors(systems, positive_vec):
             for partition in get_all_partitions(list(subsystem)):
                 if len(partition) not in partition_numbers: continue
                 # generate all seeded k-partite entropy vectors on this partition
-                new_systems = [ "".join(sorted(parts)) for parts in partition ]
+                new_systems = [ subsystem_text(parts) for parts in partition ]
                 system_vecs.update([ vec.relabeled(new_systems)
-                                     for vec in positive_cone
-                                     if len(vec.systems) == len(new_systems) ])
+                                     for vec in distinct_rays[len(partition)] ])
 
-    return set([ vec for vec in system_vecs if len(vec.vals) > 1 ])
+    return system_vecs
