@@ -16,6 +16,8 @@ if system_num > 4:
 sage_cone = sage.geometry.cone.Cone
 def cone_contains(outer, inner):
     return all([ outer.contains(ray) for ray in inner.rays() ])
+def intersect_all(cone_list):
+    return reduce(lambda x, y : x.intersection(y), cone_list)
 
 # identify primary systems by the first system_num capital letters
 systems = [ chr(jj) for jj in range(ord("A"), ord("Z")) ][:system_num]
@@ -58,14 +60,14 @@ for sys, vec in positive_vecs.items():
 
 # find cone containing (i.e. restricting allowable) positive dual vectors
 # defined by choices of entropic inequalities that states must satisfy
-print("constructing inequality restriction cone...")
+print("constructing inequality cone...")
 inequality_rays = [ get_positive_vectors(systems_ext, vec) for vec in inequality_vecs ]
 inequality_cones = [ sage_cone([ ray.standard_form(systems_ext) for ray in rays ])
                      for rays in inequality_rays ]
-inequality_cone = reduce(lambda x, y : x.intersection(y), inequality_cones)
+inequality_cone = intersect_all(inequality_cones)
 
 # intersect cones restricting positive dual vectors
-print("intersecting positivity and inequality restriction cones...")
+print("intersecting positivity and inequality cones...")
 for sys in positive_cones.keys():
     positive_cones[sys] = positive_cones[sys].intersection(inequality_cone)
 
@@ -88,7 +90,7 @@ for sys, cone in positive_cones.items():
     pullback_cone[sys] = sage_cone(pullback_rays)
 
 print("intersecting pullback cones...")
-final_cone = reduce(lambda x, y : x.intersection(y), pullback_cone.values())
+final_cone = intersect_all(pullback_cone.values())
 
 for ray in final_cone.rays():
     print(e_vec(ray,systems))
