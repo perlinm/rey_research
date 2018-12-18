@@ -3,25 +3,31 @@
 import itertools, sage
 
 sage_cone = sage.geometry.cone.Cone
+alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 # return power set of a collection of objects
 def power_set(collection):
     if type(collection) == str:
         collection = primary_subsystems(collection)
-    iterable = itertools.chain.from_iterable(itertools.combinations(collection, nn)
-                                             for nn in range(len(collection)+1))
-    return list( list(part) for part in iterable )
+    power_set = itertools.chain.from_iterable(itertools.combinations(collection, nn)
+                                              for nn in range(len(collection)+1))
+    return ( set(subset) for subset in power_set )
 
 # return iterator over all partitions of a collection of items
 def get_all_partitions(collection):
+    collection = collection
     if len(collection) == 1:
-        yield [ collection ]
+        yield [ set(collection) ]
         return
     first = collection[0]
     for smaller in get_all_partitions(collection[1:]):
+        smaller = sorted(list(smaller))
         for n, subset in enumerate(smaller):
-            yield smaller[:n] + [[ first ] + subset]  + smaller[n+1:]
-        yield [ [ first ] ] + smaller
+            subset = list(subset)
+            yield [ set(x) for x in smaller[:n] ] \
+                + [set([ first ] + subset)]  \
+                + [ set(x) for x in smaller[n+1:] ]
+        yield [ set([ first ]) ] + [ set(x) for x in smaller ]
 
 # split a system into its primary subsystems
 def primary_subsystems(system):
@@ -36,11 +42,22 @@ def primary_subsystems(system):
             end_idx += 1
         systems.append(system[start_idx:end_idx])
         start_idx = end_idx
-    return systems
+    return set(systems)
 
 # return subsystem in text form
 def subsystem_text(subsystem):
-    return "".join([ str(sys) for sys in sorted(subsystem) ])
+    return ",".join([ str(sys) for sys in sorted(subsystem) ])
+
+# return index of subsystem
+def subsystem_index(subsystem, systems):
+    power_set_iterator = power_set(sorted(systems))
+    power_set_iterator.next() # skip the empty set
+    index = 0
+    for item in power_set_iterator:
+        if item == subsystem:
+            return index
+        index += 1
+    return None
 
 # entropy vector object class
 class e_vec:
@@ -64,49 +81,47 @@ class e_vec:
             # args[1] is an ordered list of subsystems
             # args[2] is an ordered list of coefficients
             self.systems, self.subs, self.vals = args
+            self.systems = set(self.systems)
         elif len(args) == 0: # empty vector
-            self.systems, self.subs, self.vals = [], [], []
+            self.systems, self.subs, self.vals = set(), [], []
             return
         else:
             print("invalid initialization of an entropy vector!")
             exit()
 
         if len(self.subs) == 0:
-            self.systems = []
+            self.systems = set()
             return
+
+        self.subs = [ set([ str(sys) for sys in sub ]) for sub in self.subs ]
 
         # if necessary, properly identify primary systems and subsystems
         if len(args) in [ 1, 2 ]:
-            self.subs = list(self.subs)
-            self.systems = sorted(list(set.union(*[ set(sub) for sub in self.subs ])))
+            self.systems = set.union(*self.subs)
 
-        self.sort()
+        self.systems = set( str(sys) for sys in self.systems )
+        self.sort_subsystems()
         self.simplify()
 
     # sort vector subsystems and coefficients
-    def sort(self):
-        # sort the systems within each subsystem
-        self.subs = [ sorted(sub, key = lambda sys : self.systems.index(sys))
-                       for sub in self.subs ]
+    def sort_subsystems(self):
+        if self.subs == []: return
         # sort the list of subsystems and corresponding values
-        def subsystem_sort_key(sub):
-            return tuple([len(sub)] + [self.systems.index(sys) for sys in sub])
         zipped_vec = sorted(zip(self.subs, self.vals),
-                            key = lambda x : subsystem_sort_key(x[0]))
+                            key = lambda x : subsystem_index(x[0], self.systems))
         self.subs, self.vals = map(list,zip(*zipped_vec))
 
     # simplify entropy vector
     def simplify(self):
         # combine identical subsystems
-        text_subs = [ subsystem_text(sub) for sub in self.subs ]
-        for sub in set(text_subs):
-            indices = [ jj for jj in range(len(text_subs)) if text_subs[jj] == sub ]
+        for sub_tuple in set( tuple(sorted(sub)) for sub in self.subs ):
+            sub = set(sub_tuple)
+            indices = [ jj for jj in range(len(self.subs)) if self.subs[jj] == sub ]
             if len(indices) > 1:
                 self.vals[indices[0]] = sum([ self.vals[jj] for jj in indices ])
                 for jj in indices[1:][::-1]:
                     del self.vals[jj]
                     del self.subs[jj]
-                    del text_subs[jj]
 
         # remove zero entries from this vector
         zero_indices = [ jj for jj in range(len(self.vals)) if self.vals[jj] == 0 ]
@@ -116,14 +131,19 @@ class e_vec:
 
     # return new entropy vector with subsystems split into primary components
     def split(self):
-        return e_vec([ subsystem_text(sub) for sub in self.subs ], self.vals)
+        if self.systems == set(): return self
+        def with_primary(subsystem):
+            return set.union(*[ primary_subsystems(sys) for sys in subsystem ])
+        systems = with_primary(self.systems)
+        subs = [ with_primary(sub) for sub in self.subs ]
+        return e_vec(systems, subs, self.vals)
 
     # return new entropy vector with relabeled systems
-    def relabeled(self, *args):
+    def relabeled(self, *args, **kwargs):
         args = list(args)
         if len(args) == 1:
             # args is a single list of new subsystem names
-            old_systems, new_systems = self.systems, args[0]
+            old_systems, new_systems = sorted(self.systems), args[0]
         elif len(args) == 2 and type(args[0]) == list:
             # args is two lists: old subsystems and new ones
             old_systems, new_systems = args
@@ -136,18 +156,20 @@ class e_vec:
                 return new_systems[old_systems.index(system)]
             else: return system
 
-        systems = [ relabel(sys) for sys in self.systems ]
-        subsystems = [ [ relabel(sys) for sys in sub ]
+        systems = [ str(relabel(sys)) for sys in self.systems ]
+        subsystems = [ [ str(relabel(sys)) for sys in sub ]
                        for sub in self.subs ]
-        return e_vec(systems, subsystems, self.vals).split()
+        if kwargs.get("split") and kwargs["split"] == True:
+            return e_vec(systems, subsystems, self.vals).split()
+        else:
+            return e_vec(systems, subsystems, self.vals)
 
     # return "purification dual" with respect to a given primary system
     def purification_dual(self, system):
-        systems = set(self.systems)
         def trim(subsystem):
-            return set(subsystem).difference(set([system]))
+            return subsystem.difference(set([system]))
         def dual_subsystem(subsystem):
-            return sorted(list(systems.difference(trim(subsystem))))
+            return self.systems.difference(trim(subsystem))
         new_subsystems = [ sub if system not in sub else dual_subsystem(sub)
                            for sub in self.subs ]
         return e_vec(self.systems, new_subsystems, self.vals)
@@ -167,10 +189,12 @@ class e_vec:
     # returns a full vector in an ordered basis
     def standard_form(self, systems = None):
         if systems == None: systems = self.systems
-        systems = [ str(x) for x in systems ]
+        systems = set( str(sys) for sys in systems )
         subsystems = list(power_set(systems))[1:]
         if any(sub not in subsystems for sub in self.subs):
-            print("found more subsystems than there should be...")
+            print("some subsystems are not in the power set of the primary systems:")
+            print(self.subs)
+            print(subsystems)
             exit()
         vec = [ 0 ] * len(subsystems)
         for sub, val in zip(self.subs, self.vals):
@@ -183,16 +207,21 @@ class e_vec:
                  for val in self.vals ]
         return e_vec(self.systems, self.subs, vals)
 
-    # return new entropy vector which forgets about all unaddressed subsystems
+    # return new entropy vector which forgets about all subsystems that are not addressed
+    # and enforces standardized labels for remaining primary systems
     def stripped(self):
         used_systems = set( sys for sub in self.subs for sys in sub )
         vec = self
         for sys in vec.systems:
             if sys not in used_systems:
                 vec = vec.reduced(sys)
-        return vec.relabeled(range(len(used_systems)))
+        return vec.relabeled(alphabet[:len(used_systems)])
 
-    # determine whether two entropy vectors are "equivalent"
+    # determine whether two entropy vectors are "equivalent",
+    # i.e. equal up to (i) forgetting about subsystems that are not addressed
+    #             and (ii) enforcing standardized labels on primary systems
+    # note: equivalency is sensistive to lexicographic ordering of primary subsystem names,
+    #       such that e.g. (A,B) - (A) is not equivalent to (A,B) - (B)
     def equivalent(self, other):
         return self.stripped() == other.stripped()
 
@@ -218,21 +247,18 @@ class e_vec:
     def __neg__(self): # unary "-", i.e. negation
         return e_vec(self.systems, self.subs, [ -val for val in self.vals ])
     def __add__(self, other): # addition of vectors: x + y
-        left, right = self.split(), other.split()
-        systems = sorted(list(set(left.systems + right.systems)))
-        subs = left.subs + right.subs
-        vals = left.vals + right.vals
-        new_vec = e_vec(systems, subs, vals)
-        new_vec.sort()
-        new_vec.simplify()
-        return new_vec
+        vec_L, vec_R = self.split(), other.split()
+        systems = set.union(vec_L.systems, vec_R.systems)
+        subs = vec_L.subs + vec_R.subs
+        vals = vec_L.vals + vec_R.vals
+        return e_vec(systems, subs, vals)
     def __sub__(self, other): return self + (-other) # subtraction of vectors: x - y
 
 # given a set of entropy vectors on a system with a given partitioning,
 # return the extreme rays of the minimal cone containing all vectors
-def minimal_cone(rays, systems):
-    minimal_cone = sage_cone([ ray.standard_form(systems) for ray in rays ])
-    return set([ e_vec(ray, systems) for ray in minimal_cone.rays() ])
+def get_extreme_rays(rays, systems):
+    cone = sage_cone([ ray.standard_form(systems) for ray in rays ])
+    return set([ e_vec(ray, systems) for ray in cone.rays() ])
 
 # get minimal entropy cone implied by positivity of a given entropy vector
 # this entropy cone is determined by all positive quantities implied by
@@ -254,7 +280,7 @@ def get_minimal_cone(positive_vec):
                          for vec in set.union(permutation_vecs, purification_vecs)
                          for subsystem in power_set(vec.systems) )
 
-    return minimal_cone(positive_vecs, systems)
+    return get_extreme_rays(positive_vecs, systems)
 
 # given a single positive entropy vector, generate all implied positive entropy vectors
 # for a given n-partite system
@@ -287,17 +313,15 @@ def get_positive_vectors(systems, positive_vec):
     for system_num in range(min(subsystem_numbers), len(systems)+1):
         positive_vecs[system_num] = { }
         # for every partition of p elements (i.e. every choice of disjoint subsystems)
-        for subsystems in get_all_partitions(range(system_num)):
+        for subsystems in get_all_partitions(alphabet[:system_num]):
             subsystem_num = len(subsystems)
             # if we don't have any distinct rays addressing this subsystem number, skip it
             if subsystem_num not in subsystem_numbers: continue
             if positive_vecs[system_num].get(subsystem_num) is None:
                 positive_vecs[system_num][subsystem_num] = set()
-            # identify the "new" systems with which to relabel a ray,
-            # e.g. we might take the labeling (A,B,C) --> (B,A,CD)
-            new_systems = [ subsystem_text(sub) for sub in subsystems ]
+            new_systems = [ "".join(sorted(sub)) for sub in subsystems ]
             # construct all relabeled vectors and add them to the set of vectors we track
-            relabeled_vecs = [ vec.relabeled(new_systems)
+            relabeled_vecs = [ vec.relabeled(new_systems).split()
                                for vec in distinct_rays[subsystem_num] ]
             positive_vecs[system_num][subsystem_num].update(relabeled_vecs)
 
@@ -307,12 +331,12 @@ def get_positive_vectors(systems, positive_vec):
         for subsystem_num in positive_vecs[system_num].keys():
             # find minimal cone containing all of these positive vectors
             cone = positive_vecs[system_num][subsystem_num] # THIS IS WRONG!!
-            # cone = minimal_cone(positive_vecs[system_num][subsystem_num],
-            #                     range(system_num))
+            # cone = get_extreme_rays(positive_vecs[system_num][subsystem_num],
+            #                         alphabet[:system_num])
             # for choice of system_num primary systems
             for chosen_systems in itertools.combinations(systems, system_num):
                 # relabel the vectors we kept track of appropriately, and save them
-                new_vecs = [ vec.relabeled(chosen_systems) for vec in cone ]
+                new_vecs = [ vec.relabeled(chosen_systems).split() for vec in cone ]
                 system_vecs.update(new_vecs)
 
     return system_vecs
