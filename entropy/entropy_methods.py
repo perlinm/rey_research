@@ -167,9 +167,11 @@ class e_vec:
     # returns a full vector in an ordered basis
     def standard_form(self, systems = None):
         if systems == None: systems = self.systems
+        systems = [ str(x) for x in systems ]
         subsystems = list(power_set(systems))[1:]
         if any(sub not in subsystems for sub in self.subs):
-            return self.split().standard_form(systems)
+            print("found more subsystems than there should be...")
+            exit()
         vec = [ 0 ] * len(subsystems)
         for sub, val in zip(self.subs, self.vals):
             vec[subsystems.index(sub)] = val
@@ -261,34 +263,56 @@ def get_positive_vectors(systems, positive_vec):
         systems = primary_subsystems(systems)
 
     # get minimal positive cone impliet by the given positive vector
-    positive_cone = get_minimal_cone(positive_vec)
+    minimal_positive_cone = get_minimal_cone(positive_vec)
 
-    # of the extreme rays of the positive cone, collect those that are "distinct"
+    # from the extreme rays of the positive cone, collect those that are "distinct"
     # i.e. equivalent up to (i) forgetting about subsystems which are not addressed,
     #                  and (ii) an order-preserving relabeling of primary subsystems
-    distinct_rays = set( vec.stripped() for vec in positive_cone )
+    distinct_rays = set( vec.stripped() for vec in minimal_positive_cone )
 
     # each ray above addressed k disjoint subsystems for some k; collect the set { k }
-    partition_numbers = set([ len(ray.systems) for ray in distinct_rays ])
+    subsystem_numbers = set([ len(ray.systems) for ray in distinct_rays ])
 
     # organize the distinct rays by the number of disjoint subsystems they address
     distinct_rays = { num : set([ ray for ray in distinct_rays
                                   if len(ray.systems) == num ])
-                      for num in partition_numbers }
+                      for num in subsystem_numbers }
 
     system_vecs = set() # keep track of entropy vectors for this system
+    positive_vecs = {} # keep track the positive entropy vectors for each p-partite system
 
-    # the extreme rays of the positive cone address k-partite systems;
-    #   our system is n-partite, so for each size p from 2 to n
-    for size in range(min(partition_numbers), len(systems)+1):
-        # consider all subsystems of size p (there are n choose p such subsystems)
-        for subsystem in itertools.combinations(systems, size):
-            # for each of these subsystems, consider all k-partitions
-            for partition in get_all_partitions(list(subsystem)):
-                if len(partition) not in partition_numbers: continue
-                # generate all seeded k-partite entropy vectors on this partition
-                new_systems = [ subsystem_text(parts) for parts in partition ]
-                system_vecs.update([ vec.relabeled(new_systems)
-                                     for vec in distinct_rays[len(partition)] ])
+    # any given extreme ray of the positive cone addresses some k-partite system,
+    # but we generally may want to consider n-partite systems for n >= k,
+    # so for each system size p we may need to consider
+    for system_num in range(min(subsystem_numbers), len(systems)+1):
+        positive_vecs[system_num] = { }
+        # for every partition of p elements (i.e. every choice of disjoint subsystems)
+        for subsystems in get_all_partitions(range(system_num)):
+            subsystem_num = len(subsystems)
+            # if we don't have any distinct rays addressing this subsystem number, skip it
+            if subsystem_num not in subsystem_numbers: continue
+            if positive_vecs[system_num].get(subsystem_num) is None:
+                positive_vecs[system_num][subsystem_num] = set()
+            # identify the "new" systems with which to relabel a ray,
+            # e.g. we might take the labeling (A,B,C) --> (B,A,CD)
+            new_systems = [ subsystem_text(sub) for sub in subsystems ]
+            # construct all relabeled vectors and add them to the set of vectors we track
+            relabeled_vecs = [ vec.relabeled(new_systems)
+                               for vec in distinct_rays[subsystem_num] ]
+            positive_vecs[system_num][subsystem_num].update(relabeled_vecs)
+
+    # for each number of primary systems
+    for system_num in positive_vecs.keys():
+        # for each number of disjoint subsystems
+        for subsystem_num in positive_vecs[system_num].keys():
+            # find minimal cone containing all of these positive vectors
+            cone = positive_vecs[system_num][subsystem_num] # THIS IS WRONG!!
+            # cone = minimal_cone(positive_vecs[system_num][subsystem_num],
+            #                     range(system_num))
+            # for choice of system_num primary systems
+            for chosen_systems in itertools.combinations(systems, system_num):
+                # relabel the vectors we kept track of appropriately, and save them
+                new_vecs = [ vec.relabeled(chosen_systems) for vec in cone ]
+                system_vecs.update(new_vecs)
 
     return system_vecs
