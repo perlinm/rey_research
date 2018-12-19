@@ -58,28 +58,13 @@ for sys, vec in positive_vecs.items():
             extreme_rays.append(vec.evaluated(key).standard_form(systems_ext))
     positive_cones[sys] = sage_cone(extreme_rays)
 
-##########################################################################################
-##########################################################################################
-##########################################################################################
-
-# # find cone containing (i.e. restricting allowable) positive dual vectors
-# # defined by choices of entropic inequalities that states must satisfy
-# print("constructing inequality cone...")
-# inequality_rays = [ get_positive_vectors(systems_ext, vec) for vec in inequality_vecs ]
-# inequality_cones = [ sage_cone([ ray.standard_form(systems_ext) for ray in rays ])
-#                      for rays in inequality_rays ]
-# inequality_cone = intersect_all(inequality_cones)
-
-print("constructing SSA cone...")
-SSA_5_rays = []
-with open("SSA_5_rays.txt", "r") as f:
-    for line in f:
-        SSA_5_rays.append([ int(x) for x in line.split() ])
-inequality_cone = sage_cone(SSA_5_rays, check = False)
-
-##########################################################################################
-##########################################################################################
-##########################################################################################
+# find cone containing (i.e. restricting allowable) positive dual vectors
+# defined by choices of entropic inequalities that states must satisfy
+print("constructing inequality cone...")
+inequality_rays = [ get_positive_vectors(systems_ext, vec) for vec in inequality_vecs ]
+inequality_cones = [ sage_cone([ ray.standard_form(systems_ext) for ray in rays ])
+                     for rays in inequality_rays ]
+inequality_cone = intersect_all(inequality_cones)
 
 # intersect cones restricting positive dual vectors
 print("intersecting positivity and inequality cones...")
