@@ -19,10 +19,16 @@
 \renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
 \renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
 \newcommand{\bk}{\braket} % shorthand for braket
+
 \newcommand{\g}{\text{g}}
 \newcommand{\e}{\text{e}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\z}{\text{z}}
+
 \renewcommand{\c}{\hat{c}}
 \newcommand{\n}{\hat{n}}
+
 \newcommand{\A}{\mathcal{A}}
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\D}{\mathcal{D}}
@@ -345,10 +351,11 @@ $n\in\mathbb{N}_0^3$ with nuclear spin $\mu\in\set{-I,-I+1,\cdots,I}$
 (i.e.~projected onto a quantization axis) and orbital state
 $s\in\set{\g,\e}$; and $E_n$ is the energy of a single atom in
 motional state $n$.  In a harmonic trap approximation we would have
-$E_n=\p{3/2+n_x+n_y+n_z}\omega$ for an on-site angular trap frequency
-$\omega$ (with the reduced Planck constant $\hbar=1$ throughout this
-paper), but in general the aharmonicity of the lattice potential will
-cause a non-negligible shift in motional state energies.
+$E_n=\p{3/2+n_\x+n_\y+n_\z}\omega$ for an on-site angular trap
+frequency $\omega$ (with the reduced Planck constant $\hbar=1$
+throughout this paper), but in general the aharmonicity of the lattice
+potential will cause a non-negligible shift in motional state
+energies.
 
 In the absence of hyperfine coupling, as when addressing the spinless
 ${}^1S_0$ ($\g$) and ${}^3P_0$ ($\e$) orbital states, interactions
