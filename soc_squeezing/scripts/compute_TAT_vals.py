@@ -36,7 +36,7 @@ file_name = "_".join(sys.argv[1:]) + ".txt"
 
 lattice_dim = 2
 confining_depth = 60 # recoil energies
-excited_lifetime_SI = 10 # seconds
+dec_time_SI = 10 # seconds
 order_cap = 70
 trajectories = 1000
 time_steps = 100
@@ -88,9 +88,9 @@ if None in [ J, U, phi ]:
 h_std = 2**(1+lattice_dim/2)*J*np.sin(phi/2)
 chi = h_std**2 / U / (spin_num-1)
 
-decay_rate_LU = 1/excited_lifetime_SI / recoil_energy_NU
-decay_rate = decay_rate_LU / chi
-dec_rates = [ (0, 0, decay_rate), (0, 0, 0) ]
+dec_rate_LU = 1/dec_time_SI / recoil_energy_NU
+dec_rate = dec_rate_LU / chi
+dec_rates = [ (0, dec_rate, dec_rate), (0, 0, 0) ]
 
 times = np.linspace(0, 2, time_steps) * spin_num**(-2/3)
 

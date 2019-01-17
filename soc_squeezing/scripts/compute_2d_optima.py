@@ -22,8 +22,8 @@ methods = [ "OAT", "OAT_dec", "TAT" ]
 dependent_variables = [ "L", "T", "phi" ]
 
 lattice_dim = 2
-method = "OAT"
-dependent_variable = "T"
+method = "OAT_dec"
+dependent_variable = "L"
 assert(method in methods)
 assert(dependent_variable in dependent_variables)
 
@@ -37,8 +37,8 @@ site_number = 1000
 lengths_1D = np.arange(10,101,1).astype(int)
 SOC_angles = np.linspace(0,1/10,101)[1:] * np.pi
 
-excited_lifetime_SI = 10 # seconds; lifetime of excited state (from e --> g decay)
-decay_rate = 1/excited_lifetime_SI / recoil_energy_NU
+dec_time_SI = 10 # seconds; time scale of decoherence
+dec_rate = 1/dec_time_SI / recoil_energy_NU
 
 max_tau = 2 # maximum value of reduced time in OAT squeezing minimization
 max_time = lambda N : max_tau * N**(-2/3)
@@ -91,7 +91,7 @@ def get_optima(length, V_0, V_T, phi, method,
     chi = soc_field_variance[V_0,phi] / ( (N-1) * U_int.at[V_0,str(V_T)] )
 
     if method[4:] == "dec":
-        dec_rates = (0, 0, decay_rate / chi)
+        dec_rates = (0, dec_rate/chi, dec_rate/chi)
     else:
         dec_rates = (0,0,0)
 
