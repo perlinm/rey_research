@@ -79,6 +79,7 @@ def add_text(axis, text):
 
 def to_dB(vals): return 10*np.log10(vals) # convert values to decibels
 
+
 ##########################################################################################
 # squeezing without decoherence
 ##########################################################################################
@@ -123,12 +124,17 @@ for method in sqz_methods:
     ax[method].set_yticklabels([])
     make_U_axis(ax[method])
 
+    ax[method].set_xlim(2, 6)
+
 add_text(ax_sqz, r"{\bf (a)}")
 add_text(ax[OAT], r"{\bf (b)} OAT")
 add_text(ax[TAT], r"{\bf (c)} TAT")
 
 ax_sqz.legend(loc = "best").get_frame().set_alpha(1)
-fig.colorbar(mesh, cax = cax, label = time_label + " (sec)", format = "%.1f")
+cbar = fig.colorbar(mesh, cax = cax, label = time_label + " (sec)", format = "%.1f")
+cbar_ticks = [ int(tick) for tick in cbar.get_ticks() if tick == int(tick) ]
+cbar.set_ticks(cbar_ticks)
+cbar.set_ticklabels(cbar_ticks)
 
 # clean up figure
 ax_sqz.set_xlim(10, 35)
@@ -252,6 +258,8 @@ for method in sqz_methods:
                                  zorder = 0, rasterized = True)
     ax[method].set_xlabel(depth_label, zorder = 1)
     make_U_axis(ax[method])
+
+    ax[method].set_xlim(2,6)
 
 add_text(ax[OAT], r"{\bf (a)} OAT")
 add_text(ax[TAT], r"{\bf (b)} TAT")
