@@ -24,6 +24,8 @@ fig_dir = "../figures/"
 OAT, TAT = "OAT", "TAT"
 sqz_methods = [ OAT, TAT ]
 
+depth_min, depth_max = 2, 6
+
 method_TAT = "exact"
 depths_TAT = np.arange(20,81,2)/10 # lattice depths in plots
 sizes_TAT = np.arange(10,101,5) # linear lattice sizes in plots
@@ -102,6 +104,9 @@ for method in sqz_methods:
     t_opt[method] /= recoil_energy_NU
     depths, sizes = t_opt[method].index, t_opt[method].columns
 
+    err = abs(depths[1] - depths[0]) / 2
+    use_depths = (depths >= depth_min-err) & (depths <= depth_max+err)
+
     sqz_interp = interpolate.interp1d(sqz_opt.index, sqz_opt.values)
     sqz_vals[method] = np.array([ float(sqz_interp(L**2)) for L in sizes ])
 
@@ -114,7 +119,8 @@ t_max = max([ t_opt[method].values.max() for method in sqz_methods ])
 for method in sqz_methods:
     ax_sqz.plot(sqz_vals[method], sizes, lines[method], label = method)
 
-    mesh = ax[method].pcolormesh(depths, sizes, t_opt[method].T,
+    data = t_opt[method].values[use_depths,:].T
+    mesh = ax[method].pcolormesh(depths[use_depths], sizes, data,
                                  cmap = plt.get_cmap(color_map),
                                  vmin = t_min, vmax = t_max,
                                  zorder = 0, rasterized = True)
@@ -123,7 +129,7 @@ for method in sqz_methods:
     ax[method].set_yticklabels([])
     make_U_axis(ax[method])
 
-    ax[method].set_xlim(2, 6)
+    ax[method].set_xlim(depth_min, depth_max)
 
 add_text(ax_sqz, r"{\bf (a)}")
 add_text(ax[OAT], r"{\bf (b)} OAT")
@@ -240,6 +246,11 @@ sqz[OAT] = -to_dB(pd_read_2D(data_dir + f"optimization/sqz_opt_OAT_dec_L_2D.txt"
 depths[OAT], sizes[OAT], sqz[OAT] \
     = sqz[OAT].index, sqz[OAT].columns, sqz[OAT].values
 
+for method in sqz_methods:
+    err = abs(depths[method][1] - depths[method][0]) / 2
+    use_depths = (depths[method] >= depth_min-err) & (depths[method] <= depth_max+err)
+    depths[method], sqz[method] = depths[method][use_depths], sqz[method][use_depths,:]
+
 sqz_min = min([ sqz[method].min() for method in sqz_methods ])
 sqz_max = max([ sqz[method].max() for method in sqz_methods ])
 
@@ -258,7 +269,7 @@ for method in sqz_methods:
     ax[method].set_xlabel(depth_label, zorder = 1)
     make_U_axis(ax[method])
 
-    ax[method].set_xlim(2,6)
+    ax[method].set_xlim(depth_min, depth_max)
 
 add_text(ax[OAT], r"{\bf (a)} OAT")
 add_text(ax[TAT], r"{\bf (b)} TAT")
