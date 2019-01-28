@@ -32,10 +32,9 @@ phi_cutoff = 10 # minimum value of (\phi/\pi)^{-1}
 color_map = "jet" # for the 2-D color plots
 dpi = 600
 
-font = { "family" : "serif",
-         "sans-serif" : "Computer Modern Sans serif" }
-plt.rc("font",**font)
-params = { "text.usetex" : True }
+params = { "font.family" : "sans-serif",
+           "font.serif" : "Computer Modern",
+           "text.usetex" : True }
 plt.rcParams.update(params)
 
 # define some common axis labels that we will use several times
