@@ -47,6 +47,9 @@
 \newcommand{\U}{\mathcal{U}}
 \newcommand{\1}{\mathds{1}}
 
+\newcommand{\mA}{m_{\text{A}}} % symbol for the mass of an atom
+
+
 % "left vector" arrow; requires tikz package
 \newcommand{\lvec}[1]
 {\reflectbox{\ensuremath{\vec{\reflectbox{\ensuremath{#1}}}}}}
@@ -99,6 +102,9 @@
 \newcommand{\re}{\mathcolor{lightred}{\text{e}}}
 
 
+\usepackage{setspace} % to modify spacing in table of contents
+
+
 % leave a note in the text, visible in the compiled document
 \newcommand{\note}[1]{\textcolor{red}{#1}}
 
@@ -126,8 +132,8 @@
   Rapid advancements in the experimental capabilities with ultracold
   alkaline-earth-like atoms (AEAs) bring to a surprisingly near term
   the prospect of performing quantum simulations of spin models and
-  lattice field theories exhibiting SU($N$) symmetry.  Motivated in
-  particular by recent experiments preparing high density samples of
+  lattice field theories exhibiting SU($N$) symmetry.  In order to
+  analyze recent experiments preparing high density samples of
   strongly interacting ${}^{87}$Sr atoms in a three-dimensional
   optical lattice, we develop a low-energy effective theory of
   fermionic AEAs which exhibits emergent multi-body SU($N$)-symmetric
@@ -145,37 +151,14 @@
 
 \maketitle
 
-\tableofcontents
+\begin{spacing}{1.3}
+  \tableofcontents
+\end{spacing}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 \label{sec:introduction}
-
-% Rapid advancements in the experimental capabilities with ultracold
-% alkaline-earth-like atoms (AEAs) \cite{fukuhara2007degenerate,
-% stellmer2009boseeinstein, deescobar2009boseeinstein,
-% tey2010doubledegenerate, desalvo2010degenerate, taie2012su,
-% martin2013quantum, cappellini2014direct, scazza2014observation,
-% zhang2014spectroscopic, cazalilla2014ultracold} bring to a
-% surprisingly near term the prospect of performing quantum
-% simulations of spin models and lattice field theories exhibiting
-% SU($N$) symmetry \cite{cazalilla2009ultracold, hermele2009mott,
-% hermele2011topological, gorshkov2010twoorbital, banerjee2013atomic,
-% cazalilla2014ultracold}.  AEAs have ground and metastable
-% (electronic) orbital states\note{[I want to briefly discuss how we
-% present this]} ${}^1S_0$ and ${}^3P_0$, often referred to as the
-% ``clock'' states due to their use in optical lattice clocks
-% \cite{derevianko2011colloquium, katori2011optical}, with
-% ultra-narrow (millihertz) optical transition linewidths and
-% associated $\sim10^2$ second excited-state lifetimes.  Due to the
-% lack of electronic orbital angular momentum in the ${}^1S_0$ and
-% ${}^3P_0$ states, AEAs exhibit decoupled orbital and nuclear spin
-% degrees of freedom.  For atoms with total nuclear spin $I$ and
-% $N=2I+1$ nuclear spin levels, this decoupling leads to
-% nuclear-spin-conserving SU($N$)-symmetric interactions governed
-% entirely by orbital-state parameters \cite{cazalilla2009ultracold,
-% taie2012su, zhang2014spectroscopic}.
 
 Fermionic alkaline-earth atoms (AEAs), in addition to other atoms such
 as ytterbium (Yb) sharing similar electronic structure, are currently
@@ -194,13 +177,13 @@ and 6 in ytterbium (${}^{173}$Yb).
 In 2015 the ${}^{87}$Sr optical lattice clock (OLC) at JILA, operated
 in a one-dimensional (1-D) lattice at microkelvin temperatures,
 achieved a total fractional uncertainty of $2\times10^{-18}$
-\cite{bloom2014optical, nicholson2015systematic}.  Last year (2017), a
-new generation of OLCs became operational at JILA, interrogating a
-Fermi degenerate gas of ${}^{87}$Sr atoms in a 3-D lattice at
-nanokelvin temperatures \cite{campbell2017fermidegenerate}.  All of
-these atoms' degrees of freedom, including the electronic orbital,
-nuclear spin, and motional states, can be fully controlled with high
-fidelity in a 3-D lattice \cite{daley2008quantum,
+\cite{bloom2014optical, nicholson2015systematic}.  More recently
+(2017), a new generation of OLCs became operational at JILA,
+interrogating a Fermi degenerate gas of ${}^{87}$Sr atoms in a 3-D
+lattice at nanokelvin temperatures \cite{campbell2017fermidegenerate}.
+All of these atoms' degrees of freedom, including the electronic
+orbital, nuclear spin, and motional states, can be fully controlled
+with high fidelity in a 3-D lattice \cite{daley2008quantum,
   gorshkov2009alkalineearthmetal, daley2011quantum,
   daley2011statedependent}.  With frequency measurements reaching the
 $10^{-19}$ fractional uncertainty level, the new OLCs are thus
@@ -248,49 +231,19 @@ e.g.~severe sign problems which plague classical simulations of
 strongly interacting fermionic systems \cite{wieseu.-j.2013ultracold,
   wu2003exact}.
 
-% One of the major drivers of experimental capabilities with AEAs is
-% the development of optical lattice clocks
-% \cite{derevianko2011colloquium, katori2011optical}.  These clocks
-% traditionally operate in a one-dimensional (1-D) geometry with
-% harmonic confinement of atoms in the plane orthogonal to the lattice
-% axis \cite{derevianko2011colloquium, hinkley2013atomic,
-% bloom2014optical}.  By operating at higher atomic densities, one can
-% simultaneously interrogate a larger number of atoms and thereby
-% increase the signal-to-noise ratio of the clock.  With the extreme
-% sensitivities accessible to state-of-the-art optical lattice clocks,
-% however, 1-D clock experiments with ${}^{87}$Sr and ${}^{171}$Yb
-% detect density-dependent fractional frequency shifts at the
-% $10^{-16}$ level \cite{campbell2009probing, lemke2009spin}.  For the
-% purpose of timekeeping, these frequency shifts amount to an
-% undesirable source of systematic error, but they introduced a new,
-% exciting paradigm for the field of quantum simulation: a marriage
-% between precision clock spectroscopy and quantum many-body physics
-% \cite{taie2012su, scazza2014observation, martin2013quantum,
-% cappellini2014direct, zhang2014spectroscopic, rey2014probing}.
-% Somewhat counter-intuitively, one of the most promising strategies
-% for improving the interaction-limited 1-D clock design has been to
-% use higher dimensional lattices to generate tighter on-site
-% confinement of atoms, thereby {\it increasing} the strength of
-% inter-atomic interactions and making evolution into interacting
-% many-body states energetically unfavorable
-% \cite{swallows2011suppression, lemke2011wave,
-% campbell2017fermidegenerate}.  A wonderful side-effect of this
-% strategy for building better clocks is the development of a highly
-% controllable quantum many-body system in the strongly-interacting
-% regime, where inter-atomic interactions set the largest energy scale
-% relevant for system dynamics.
-
 In this work, we investigate the first experimental capabilities with
 ultracold fermionic AEAs to prepare high-density samples in a 3-D
 lattice with multiple occupation of individual lattice sites
-\cite{goban2018emergence}.  Specifically, we consider the preparation
-of isolated few-body systems in the deep-lattice limit, and carry out
-a bottom-up investigation of emergent multi-body interactions on
-multiply-occupied lattice sites.  These multi-body interactions appear
-in a low-energy effective theory of the atoms, and inherit the SU($N$)
-symmetry of their bare, pair-wise interactions, thereby enabling
-experimental studies of multi-body SU($N$) physics through the
-exquisite capabilities with OLCs.
+\cite{goban2018emergence}.  Specifically, we consider ground-state
+preparation of isolated few-body systems in the deep-lattice limit,
+and carry out a bottom-up investigation of emergent multi-body
+interactions on multiply-occupied lattice sites.  These multi-body
+interactions appear in a low-energy effective theory of the atoms, and
+inherit the SU($N$) symmetry of their bare, pair-wise interactions,
+thereby enabling experimental studies of multi-body SU($N$) physics
+through the exquisite capabilities with OLCs.  We briefly summarize
+the experimental procedures relevant to our work in Appendix
+\ref{sec:experiment_summary}.
 
 Though effective multi-body interactions have previously been studied
 in the context of harmonically \cite{johnson2012effective,
@@ -358,14 +311,14 @@ potential will cause a non-negligible shift in motional state
 energies.
 
 In the absence of hyperfine coupling, as when addressing the spinless
-${}^1S_0$ ($\g$) and ${}^3P_0$ ($\e$) orbital states, interactions
-between any two atoms are governed by their orbital states alone, and
-are therefore characterized by four scattering lengths $a_X$ with
-$X\in\set{\g\g,\e\g^-,\e\g^+,\e\e}$, where the $+$ ($-$) superscript
-denotes symmetrization (anti-symmetrization) of a two-body orbital
-state under particle exchange.  In the low-energy limit, we can write
-the bare two-body interaction Hamiltonian in the form
-\cite{gorshkov2010twoorbital}
+${}^1S_0$ ($\g$) and ${}^3P_0$ ($\e$) orbital states of AEAs,
+interactions between any two atoms are governed by their orbital
+states alone, and are therefore characterized by four scattering
+lengths $a_X$ with $X\in\set{\g\g,\e\g^-,\e\g^+,\e\e}$, where the $+$
+($-$) superscript denotes symmetrization (anti-symmetrization) of a
+two-body orbital state under particle exchange.  In the low-energy
+limit, we can write the bare two-body interaction Hamiltonian in the
+form \cite{gorshkov2010twoorbital}
 \begin{align}
   H_{\t{int}} = \sum_{\substack{\mu<\nu\\s}}
   G_s \int d^3x~ \hat\rho_{\mu s} \hat\rho_{\nu s}
@@ -374,6 +327,7 @@ the bare two-body interaction Hamiltonian in the form
   + G_- \sum_{\mu,\nu} \int d^3x~
   \hat\psi_{\mu,\e}^\dag \hat\psi_{\nu,\g}^\dag
   \hat\psi_{\nu,\e} \hat\psi_{\mu,\g},
+  \label{eq:H_int_start}
 \end{align}
 where $\hat\psi_{\mu s}$ is a fermionic field operator for atoms with
 nuclear spin $\mu$ and orbital state $s$;
@@ -381,11 +335,11 @@ $\hat\rho_{\mu s}\equiv\hat\psi_{\mu s}^\dag\hat\psi_{\mu s}$ is an
 atomic density field operator; and the coupling constants $G_X$ are
 defined in terms of the scattering lengths by
 \begin{align}
-  G_{s=\g,\e} \equiv \f{4\pi}{m_A}~ a_{ss}, &&
-  G_\pm \equiv \f{2\pi}{m_A}~ \p{a_{\e\g+} \pm a_{\e\g-}},
+  G_{s=\g,\e} \equiv \f{4\pi}{\mA}~ a_{ss}, &&
+  G_\pm \equiv \f{2\pi}{\mA}~ \p{a_{\e\g+} \pm a_{\e\g-}},
   \label{eq:couplings}
 \end{align}
-where $m_A$ is the mass of a single atom.  Defining for brevity
+where $\mA$ is the mass of a single atom.  Defining for brevity
 \begin{align}
   G^{qr}_{st} \equiv \left\{
     \begin{array}{ll}
@@ -408,7 +362,17 @@ more compact form
 \end{align}
 For nuclear spins $\mu,\nu$, the symbol $G^{qr}_{st}$ gives the
 coupling constant between the two-atom states
-$(\mu,q)+(\nu,r)\leftrightarrow(\mu,s)+(\nu,t)$.
+$(\mu,q)+(\nu,r)\leftrightarrow(\mu,s)+(\nu,t)$.  Note that
+\eqref{eq:H_int_start} and \eqref{eq:H_int_fields} neglect
+momentum-dependent corrections to $s$-wave interactions, which are
+generally captured (in a low-energy limit) by the use of an
+energy-dependent interaction pseudo-potential \cite{blume2002fermi}.
+These corrections will appear only at third order in our effective
+theory, as corrections to two-body interaction energies, and do not
+affect our discussions of multi-body interactions.  We therefore defer
+further discussion of momentum-dependent corrections to the end of
+section \ref{sec:two_body}, and their calculation to Appendix
+\ref{sec:momentum_dependence}.
 
 We now expand the field operators $\hat\psi_{\mu s}$ in the Wannier
 basis for a 3-D lattice, such that
@@ -460,44 +424,60 @@ For simplicity, we will also generally work in a gauge for which all
 two-body overlap integrals are real, such that
 $K^{k\ell}_{mn}={K^{k\ell}_{mn}}^*=K^{mn}_{k\ell}$.  The existence of
 such a gauge is guaranteed by the analytic properties of the Wannier
-orbitals $\phi_{in}$ \cite{kohn1959analytic}.
+wavefunctions $\phi_{in}$ \cite{kohn1959analytic}.
 
-We are interested in the ground and low-lying orbital eigenstates of
-several interacting atoms on a single lattice site, as such states can
-be readily prepared and coherently addressed in current experiments
-with ultracold atoms \cite{goban2018emergence}.  Although these
-experiments operate at temperatures sufficiently low for negligible
-thermal occupation of excited motional states, simply neglecting
-excited single-particle motional states fails to reproduce the
-observed spectra of multiply-occupied lattice sites.  The reason for
-this failure lies in the fact that the bare two-body Hamiltonian
-$H_{\t{int}}$ in \eqref{eq:H_int} is not diagonal in the basis of
-single-particle motional states.  Even at zero temperature, therefore,
-the presence of excited motional states modifies many-body atomic
-energy spectra when the magnitude of off-diagonal elements of
-$H_{\t{int}}$ approach the scale of low-lying single-particle motional
-state energy gaps.  To address this problem, we develop a low-energy
-effective theory for ultracold two-level fermionic atoms on a lattice.
-As our work is motivated by progress in experiments which initialize
-all atoms in identical (i.e.~ground) orbital and motional states, to
-simplify our theory we assume that any $N$ atoms on a single lattice
-site occupy $N$ nuclear spin states.  Multiple occupation of a single
-nuclear spin state on the same lattice site is initially forbidden by
-fermionic statistics, and subsequently cannot be violated in the
-absence of tunneling and hyperfine coupling.
+Current experiments with ${}^{87}$Sr can prepare up to five atoms
+atoms in the same (ground) orbital state on a single lattice site, and
+coherently address states with a single orbital excitation per lattice
+site (see Appendix \ref{sec:experiment_summary})
+\cite{goban2018emergence}.  The temperature of the atoms in these
+experiments is much smaller than single-atom motional excitation
+energies $\Delta_n\equiv E_n-E_0$ for $n>0$, which implies a
+negligible thermal occupation of excited motional states.  A naive
+calculation of the multi-body orbital excitation spectrum, however,
+assuming that atoms only occupy motional ground states with spatial
+wavefunctions $\phi_{i,0}$, fails to reproduce the experimentally
+observed orbital excitation spectrum of multiply-occupied lattice
+sites.  The reason that such a calculation fails to reproduce the
+observed excitation spectrum has to do with the fact that the two-body
+Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int} is not diagonal in the
+basis of single-particle motional eigenstates (i.e.~$\phi_{in}$).  For
+interacting atoms, the true motional ground states are therefore
+admixtures of the non-interacting motional eigenstates; when the
+off-diagonal elements of $H_{\t{int}}$ are comparable in magnitude to
+the excitation energies $\Delta_n$, this admixture can have
+non-negligible weight outside the non-interacting motional
+ground-state subspace.  In order to compute the correct many-body
+orbital excitation spectrum, we develop a low-energy effective theory
+for such atoms.  As our work is motivated by experiments that
+initialize all atoms in identical (i.e.~ground) orbital and motional
+states, to simplify our theory we assume that any $N$ atoms on a
+single lattice site occupy $N$ nuclear spin states.  Ground-state
+preparation implies that multiple occupation of a single nuclear spin
+state on any given lattice site is initially forbidden by fermionic
+statistics, and subsequently cannot occur in the absence of inter-site
+effects or hyperfine coupling.
 
 Our low-energy effective theory exhibits SU($N$)-symmetric multi-body
 interactions, such that the effective interaction Hamiltonian can be
 written in the form
 \begin{align}
-  H_{\t{int}}^{\t{eff}} = \sum_{M=2}^{2I+1} H_M,
+  H_{\t{int}}^{\t{eff}} = \sum_{M=2}^{2I+1} \sum_{p\ge1} H_M^{(p)},
 \end{align}
-where $H_M$ is an $M$-body Hamiltonian, $I$ is the total nuclear spin
-of each atom (e.g.~$I=9/2$ for ${}^{87}$Sr), and the sum terminates at
+where $H_M^{(p)}$ is an $M$-body Hamiltonian of order $p$ in the
+coupling constants $G^{qr}_{st}$, $I$ is the total nuclear spin of
+each atom (e.g.~$I=9/2$ for ${}^{87}$Sr), and the sum terminates at
 $2I+1$ because this is the largest number of atoms which may initially
-occupy a single lattice site.  Focusing on the low-lying orbital state
-excitations of this theory, we find that SU($N$) symmetry allows us to
-express multi-body Hamiltonians in the simple form
+occupy a single lattice site.  We explicitly compute all $M$-body
+Hamiltonians $H_M\equiv\sum_p H_M^{(p)}$ through order $p=3$, yielding
+effective two-, three-, and four-body interactions.  To facilitate
+understanding and comparison with experimental measurements of
+density-dependent atomic energy spectra [34], in which states with
+multiple orbital excitations on a single lattice site are
+spectroscopically off-resonant, we also consider a restriction of our
+theory to states with at most one orbital excitation per lattice site.
+In this case, we find that SU($N$) symmetry allows us to express
+multi-body Hamiltonians in the simple form
 \begin{align}
   H_M = \sum_{\abs{\set{\mu_j}}=M}
   \p{U_{M,\g} \prod_{\alpha=1}^M \n_{\mu_\alpha,\g}
@@ -535,10 +515,10 @@ degrees of freedom of the atoms involved.  If we are interested in
 addressing internal atomic states at zero temperature, however, in
 principle we need only to consider the motional ground state
 associated with each many-body internal atomic state.  We can then
-ignore all excited many-body motional states, as they will be neither
-thermally occupied nor externally interrogated.  This procedure makes
-the many-body problem more tractable by greatly reducing the
-dimensionality of our the relevant Hilbert space.
+ignore all excited motional states, as they will be neither thermally
+occupied nor externally interrogated.  This procedure makes the
+many-body problem more tractable by greatly reducing the
+dimensionality of the relevant Hilbert space.
 
 We denote the space of all internal states of atoms in
 single-particle, non-interacting (multi-particle, interacting)
@@ -836,19 +816,25 @@ expanded in the form
   \label{eq:H_2_expansion}
 \end{align}
 where the blob on the right schematically represents the net effective
-two-body interaction.  In general, the sums over excited states in the
-loop diagrams of \eqref{eq:H_2_expansion} will diverge
-\cite{johnson2012effective}, which implies the need to renormalize the
-coupling constants in our theory.  Even if these diagrams do not
-diverge, we would like to express the effective two-body interactions
-in terms of net, physically observable two-body coupling constants as
-on the right-hand side of \eqref{eq:H_2_expansion}, rather than in
-terms of long sums at all orders of the bare coupling constants.  We
-therefore renormalize our coupling constants by introducing
+two-body interaction.  On physical grounds, the net effective two-body
+interaction must clearly be finite, but individual sums over excited
+states in the loop diagrams of \eqref{eq:H_2_expansion} may generally
+diverge \cite{johnson2012effective}.  These divergences ultimately
+appear due to our use of effective field theory to describe
+inter-atomic interactions in \eqref{eq:H_int_start}, rather than a
+detailed microscopic description of two-atom scattering.  Divergences
+of this sort are a generic feature of field theories, and can be dealt
+with using standard techniques, in particular through renormalization.
+We therefore renormalize our coupling constants by introducing
 counter-terms $\tilde G_X$ into the effective interaction Hamiltonians
-via $G_X\to G_X+\tilde G_X$.  The values of these counter-terms are
-fixed by enforcing that $G_X$ is equal to the net two-body interaction
-strength.  Diagrammatically, this renormalization condition is
+via $G_X\to G_X+\tilde G_X$.  The values of counter-terms can be fixed
+by enforcing that $G_X$ is equal to the net two-body interaction
+strength, which has the added benefit of allowing us to express the
+effective two-body interactions in terms of net, physically observable
+two-body coupling constants on the right-hand side of
+\eqref{eq:H_2_expansion}, rather than in terms of long sums at all
+orders of the bare coupling constants.  Diagrammatically, this
+renormalization condition is
 \begin{align}
   \substack{
     \shrink{
@@ -924,12 +910,12 @@ strength.  Diagrammatically, this renormalization condition is
   \label{eq:counter_term}
 \end{align}
 where we represent counter-terms by a crossed dot (i.e.~$\otimes$) at
-a vertex. To leading order in the coupling constants, it follows that
-the counter-terms are second order in the coupling constants,
-i.e.~$\tilde G\sim G^2$.  This finding implies that counter-terms only
-come into play at next-to-leading order (NLO) in the calculation of
-any effective $M$-body interaction Hamiltonian.  By construction,
-these counter-terms exactly cancel all terms beyond leading order in
+a vertex. To leading order, it follows that the counter-terms are
+second order in the coupling constants, i.e.~$\tilde G\sim G^2$.  This
+finding implies that counter-terms only come into play at
+next-to-leading order (NLO) in the calculation of any effective
+$M$-body interaction Hamiltonian.  By construction, these
+counter-terms exactly cancel all terms beyond leading order in
 \eqref{eq:H_2_expansion}, which implies that the effective two-body
 interaction Hamiltonian is simply
 \begin{align}
@@ -975,21 +961,21 @@ calculation of effective coupling constants in Appendix
 
 Second, the overview we provided in section \ref{sec:overview}, and
 consequently our result in \eqref{eq:H_2}, neglects the effect of
-momentum-dependent two-body scattering.  When the effective range of
-momentum-dependent interactions is comparable to the scattering
-lengths $a_X$, as is the case for ultracold ${}^{87}$Sr, these
-interactions are third order in the coupling constants $G_X$.  Just as
-the $\O\p{G^2}$ counter-terms do not affect $M$-body interactions
-until next-to-leading order (NLO), the $\O\p{G^3}$ momentum-dependent
-interactions do not come into play until next-next-leading order
-(NNLO).  Given that we develop our low-energy effective theory through
-third order in the coupling constants, these interactions will not
-appear in any of our three- and four-body calculations, but they do
-need to be considered in the calculation of pair-wise interaction
-energies.  The primary interest of our work, however, concerns
-effective $M$-body interactions for $M\ge3$; we therefore defer the
-calculation of momentum-dependent two-body interactions to Appendix
-\ref{sec:momentum_dependence}.
+momentum-dependent two-body scattering \cite{blume2002fermi}.  When
+the effective range of momentum-dependent interactions is comparable
+to the scattering lengths $a_X$, as is the case for ultracold
+${}^{87}$Sr, these interactions are third order in the coupling
+constants $G_X$.  Just as the $\O\p{G^2}$ counter-terms do not affect
+$M$-body interactions until next-to-leading order (NLO), the
+$\O\p{G^3}$ momentum-dependent interactions do not come into play
+until next-next-leading order (NNLO).  Given that we develop our
+low-energy effective theory through third order in the coupling
+constants, these interactions will not appear in any of our three- and
+four-body calculations, but they do need to be considered in the
+calculation of pair-wise interaction energies.  The primary interest
+of our work, however, concerns effective $M$-body interactions for
+$M\ge3$; we therefore defer the calculation of momentum-dependent
+two-body interactions to Appendix \ref{sec:momentum_dependence}.
 
 \subsection{Effective three-body interactions at second order}
 
@@ -2115,10 +2101,12 @@ where
 Current experiments with ultracold ${}^{87}$Sr on a lattice can
 coherently address ground states and their low-lying orbital
 excitations for up to five atoms per lattice site
-\cite{goban2018emergence}.  Due to the SU($N$) symmetry of
-inter-atomic interactions, manifest in the fact that all coupling
-constants are independent of nuclear spin, we can write all effective
-$M$-body Hamiltonians which address these states in the form
+\cite{goban2018emergence} (see Appendix \ref{sec:experiment_summary}
+for a summary of relevant experimental procedures).  Due to the
+SU($N$) symmetry of inter-atomic interactions, manifest in the fact
+that all coupling constants are independent of nuclear spin, we can
+write all effective $M$-body Hamiltonians which address these states
+in the form
 \begin{align}
   H_M = \sum_{\abs{\set{\mu_j}}=M}
   \p{U_{M,\g} \prod_{\alpha=1}^M \n_{\mu_\alpha,\g}
@@ -2230,17 +2218,17 @@ excitation energy, we realize the Hamiltonian
 \begin{align}
   H_{\t{Rabi}}
   = \sum_X E_X \P_X
-  + \sum_\mu\p{\Delta T_\mu^z + \Omega_\mu T_\mu^x},
+  + \sum_\mu\p{\Delta T_\mu^\z + \Omega_\mu T_\mu^\x},
   \label{eq:H_rabi}
 \end{align}
 where $E_X$ is an eigenvalue of the effective interaction Hamiltonian
 $H_{\t{int}}^{\t{eff}}$, $\P_X$ is a projector onto the corresponding
 eigenspace, and
 \begin{align}
-  T_\mu^z \equiv \f12 \p{\c_{\mu,\e}^\dag \c_{\mu,\e}
+  T_\mu^\z \equiv \f12 \p{\c_{\mu,\e}^\dag \c_{\mu,\e}
     - \c_{\mu,\g}^\dag \c_{\mu,\g}},
   &&
-  T_\mu^x \equiv \f12 \p{\c_{\mu,\e}^\dag \c_{\mu,\g}
+  T_\mu^\x \equiv \f12 \p{\c_{\mu,\e}^\dag \c_{\mu,\g}
     + \c_{\mu,\g}^\dag \c_{\mu,\e}},
 \end{align}
 are single-atom pseudospin operators.  The Rabi frequency $\Omega_\mu$
@@ -2260,14 +2248,14 @@ $X\in\set{+,-}$, then in the subspace of the target states
 $\set{\ket{\N,0},\ket{\N X}}$ the Hamiltonian in \eqref{eq:H_rabi}
 becomes
 \begin{align}
-  H_{\N X} = \delta S_{\N X}^z + \Omega_{\N X} S_{\N X}^x,
+  H_{\N X} = \delta S_{\N X}^\z + \Omega_{\N X} S_{\N X}^\x,
   \label{eq:H_NX}
 \end{align}
 where
 \begin{align}
-  S_{\N X}^z &\equiv \f12\p{\op{\N X}-\op{\N,0}},
+  S_{\N X}^\z &\equiv \f12\p{\op{\N X}-\op{\N,0}},
   \label{eq:S_NX_z} \\
-  S_{\N X}^x &\equiv \f12\p{\op{\N X}{\N,0}+\op{\N,0}{\N X}},
+  S_{\N X}^\x &\equiv \f12\p{\op{\N X}{\N,0}+\op{\N,0}{\N X}},
   \label{eq:S_NX_x}
 \end{align}
 are many-body pseudospin operators, and the Rabi frequencies
@@ -2350,9 +2338,9 @@ pronounced for larger single-site occupation numbers.
   \caption{\footnotesize Population (in arbitrary units) of the
     excited ${}^3P_0$ orbital state of ${}^{87}$Sr atoms in a uniform
     mixture of nuclear spins.  Atoms are prepared in the ground state
-    of a lattice with depth $\U=54E_R$, where
-    $E_R\approx3.5\times2\pi~\t{kHz}$ is the lattice photon recoil
-    energy of the atoms, and interrogated by a laser with Rabi
+    of a lattice with depth $\U=54 E_{\t{R}}$, where
+    $E_{\t{R}}\approx3.5\times2\pi~\t{kHz}$ is the lattice photon
+    recoil energy of the atoms, and interrogated by a laser with Rabi
     frequency $\Omega_I=50\times2\pi~\t{Hz}$ for a time
     $t=\pi/\Omega_I$.  ({\bf Left}) Populations predicted by the
     low-energy effective theory (with $s$-wave scattering parameters
@@ -2369,16 +2357,16 @@ pronounced for larger single-site occupation numbers.
 We now consider samples of ${}^{87}$Sr atoms in a uniform mixture of
 nuclear spins $\mu\in\set{-I,\cdots,I}$ prepared in motional ground
 states of a rectangular lattice with depths
-$\U=\p{\U_x,\U_y,\U_z}=\p{41,55,69}E_R$, where
-$E_R\approx3.5\times2\pi~\t{kHz}$ is the lattice photon recoil energy
-of the atoms.  Such samples can be prepared in experiments which can
-vary the single-site occupation number $N$, and which can control for
-the total number of atoms that are addressed by an external
-interrogation laser.  Figure \ref{fig:sweep} shows the population of
-the excited ${}^3P_0$ orbital state when these atoms are interrogated
-for a time $t=\pi/\Omega_I$ by a laser with Rabi frequency
-$\Omega_I=50\times2\pi~\t{Hz}$ (i.e.~for individual atoms with nuclear
-spin $\mu=I$) and detuning $\Delta$ from the single-atom
+$\U=\p{\U_\x,\U_\y,\U_\z}=\p{41,55,69} E_{\t{R}}$, where
+$E_{\t{R}}\approx3.5\times2\pi~\t{kHz}$ is the lattice photon recoil
+energy of the atoms.  Such samples can be prepared in experiments
+which can vary the single-site occupation number $N$, and which can
+control for the total number of atoms that are addressed by an
+external interrogation laser.  Figure \ref{fig:sweep} shows the
+population of the excited ${}^3P_0$ orbital state when these atoms are
+interrogated for a time $t=\pi/\Omega_I$ by a laser with Rabi
+frequency $\Omega_I=50\times2\pi~\t{Hz}$ (i.e.~for individual atoms
+with nuclear spin $\mu=I$) and detuning $\Delta$ from the single-atom
 ${}^1S_0\to{}^3P_0$ orbital excitation energy.  The ${}^3P_0$
 population peaks when the laser detuning $\Delta$ is equal to the
 many-body excitation energy $\Delta_{NX}\equiv E_{NX}-E_{N,0}$ for
@@ -2475,13 +2463,13 @@ resonant with the excitation energy $\Delta_{N,\pm}$ then gives us the
 state
 \begin{align}
   \rho_N^{(\pm)}\p{t} = \f1{\Tr\P_{N,0}}
-  \sum_{\abs{\N}=N} \exp\p{-it\Omega_{\N,\pm}S_{\N,\pm}^x}
-  \op{\N,0} \exp\p{it\Omega_{\N,\pm}S_{\N,\pm}^x},
+  \sum_{\abs{\N}=N} \exp\p{-it\Omega_{\N,\pm}S_{\N,\pm}^\x}
+  \op{\N,0} \exp\p{it\Omega_{\N,\pm}S_{\N,\pm}^\x},
 \end{align}
 where the Rabi frequencies $\Omega_{\N,+},\Omega_{\N,-}$ and
-pseudo-spin operators $S_{\N,\pm}^x$ are respectively given in
+pseudo-spin operators $S_{\N,\pm}^\x$ are respectively given in
 \eqref{eq:O_N+}, \eqref{eq:O_N-}, and \eqref{eq:S_NX_x}.  Denoting the
-eigenstates of $S_{\N,\pm}^x$ by
+eigenstates of $S_{\N,\pm}^\x$ by
 \begin{align}
   \ket{\N,\S_\pm} \equiv \f1{\sqrt2} \p{\ket{\N,0} + \ket{\N,\pm}},
   &&
@@ -2592,37 +2580,34 @@ near-term quantum simulations of SU($N$) spin models and lattice field
 theories.  Working in the deep-lattice limit, we have derived a
 low-energy effective theory of such atoms.  This theory exhibits
 emergent multi-body interactions that inherit the SU($N$) symmetry of
-the atoms' bare, two-body interactions.  The SU($N$) symmetry of
-$M$-body Hamiltonians in the effective theory has allowed us to
-express them in a simple form, and fully characterize their
-corresponding eigenstates and spectra.  Capitalizing on the extreme
-precision of state-of-the-art clock spectroscopy, we have tested
-spectral predictions of our theory against direct experimental
-measurements of the many-body ${}^{87}$Sr excitation spectrum.  This
-comparison shows good agreement between theory and experiment, clearly
-demonstrating the need to consider multi-body effects for
-understanding the low-energy physics of high density AEA samples on a
-3-D lattice.  Finally, we analyzed the many-body orbital-state
-dynamics of multiply-occupied lattice sites prepared in a nuclear spin
-mixture and interrogated via Rabi spectroscopy.  This analysis is
-useful for future experimental probes of many-body state structures,
-as well as for the preparation of long-lived states with multi-partite
-entanglement (i.e.~$\ket{\N,\pm}$) which may be used as a resource to
-perform quantum information processing tasks.
+the atoms' bare, two-body interactions.  When considering the
+low-lying orbital excitations of our effective theory, the SU($N$)
+symmetry of $M$-body Hamiltonians allowed us to express them in a
+simple form, and to fully characterize their eigenstates and spectra.
+Capitalizing on the extreme precision of state-of-the-art clock
+spectroscopy, we have tested spectral predictions of our theory
+against direct experimental measurements of the many-body ${}^{87}$Sr
+excitation spectrum.  This comparison shows good agreement between
+theory and experiment, clearly demonstrating the need to consider
+multi-body effects for understanding the low-energy physics of high
+density AEA samples on a 3-D lattice.  Finally, we analyzed the
+many-body orbital-state dynamics of multiply-occupied lattice sites
+prepared in a nuclear spin mixture and interrogated via Rabi
+spectroscopy.  This analysis is useful for future experimental probes
+of many-body state structures, as well as for the preparation of
+long-lived states with multi-partite entanglement
+(i.e.~$\ket{\N,\pm}$) which may be used as a resource to perform
+quantum information processing tasks.
 
 Despite the nominal success of our low-energy effective theory in
 reproducing experimental observations, there remains room for
 improvement in the form of controlled, systematic treatment of
-higher-order and tunneling processes.
-% These efforts will be necessary to go beyond the deep-lattice limit
-% and study inter-site orbital-state and nuclear spin exchange
-% dynamics.  Nonetheless, our work makes a major step towards the
-% experimental investigation of multi-body SU($N$) physics.
-Nonetheless, our work makes a major step towards the experimental
-investigation of multi-body SU($N$) physics, providing the necessary
-framework for future studies going beyond the deep-lattice limit to
-realize multi-body super-exchange dynamics and orbital SU($N$) quantum
-magnetism with AEAs.
+higher-order and tunneling processes.  Nonetheless, our work makes a
+major step towards the experimental investigation of multi-body
+SU($N$) physics, providing the necessary framework for future studies
+going beyond the deep-lattice limit to realize multi-body
+super-exchange dynamics and orbital SU($N$) quantum magnetism with
+AEAs.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2646,6 +2631,53 @@ National Institute of Standards and Technology (NIST).
 \section*{Appendices}
 \appendix
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary of experimental procedures}
+\label{sec:experiment_summary}
+
+The work in this paper is closely tied to the experimental work in
+ref.~\cite{goban2018emergence}; for quick reference, we here provide a
+short summary of the experimental procedures used therein.  The
+experiment begins by preparing a degenerate gas of $10^4$-$10^5$
+(fermionic) ${}^{87}$Sr atoms, in a uniform mixture of their ten
+nuclear spin states, at $\sim0.1$ of their fermi temperature (10 to 20
+nanokelvin) \cite{campbell2017fermidegenerate, marti2018imaging}.
+This gas is loaded into a primitive cubic optical lattice at the
+``magic wavelength'' for which both ground (${}^1S_0$) and
+first-excited (${}^3P_0$) electronic orbital states of the atoms
+experience the same lattice potential.  Lattice depths along the
+principal axes of the lattice are comparable in magnitude, with a
+geometric mean that can be varied from 30 to 80 $E_{\t{R}}$, where
+$E_{\t{R}}\approx3.5\times2\pi~\t{kHz}$ is the lattice photon recoil
+energy of the atoms.  These lattice depths are sufficiently large as
+to neglect tunneling on the time scales relevant to the experiment.
+Atoms are then addressed by an external (``clock'') interrogation
+laser with an ultranarrow (26 mHz) linewidth, detuned by $\Delta$ from
+the single-atom ${}^1S_0-{}^3P_0$ transition frequency.  When
+$\Delta=0$, non-interacting atoms in singly-occupied lattice sites
+thus undergo Rabi oscillations.  After a chosen time, the experiment
+removes all ground-state (${}^1S_0$) atoms from the lattice and uses
+absorption imaging to identify the remaining excited-state (${}^3P_0$)
+atoms.  As discussed in section \ref{sec:spectra}, a similar procedure
+with $\Delta\ne0$ leads to the spectrum shown in figure
+\ref{fig:sweep}, thereby constituting a measurement of the many-body
+atomic excitation spectrum.  The many-body atomic excitation spectrum
+is different from the single-body atomic excitation spectrum due to
+the presence of inter-atomic interactions.  We note that this
+spectroscopic protocol addresses only singly-excited orbital states of
+any lattice site.  Doubly-excited states are manifestly off-resonant
+for single-photon absorption processes, while multi-photon absorption
+processes are always off-resonant due to
+\begin{enumerate*}
+\item the non-linearity (on the scale of kHz) of on-site electronic
+  orbital excitation energies (resulting from non-uniform coupling
+  constants $G_X$), combined with
+\item the ultranarrow linewidth (on the scale of mHz) of the
+  interrogation laser.
+\end{enumerate*}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Derivation of the effective Hamiltonian expansion}
 \label{sec:eff_derivation}
@@ -2654,9 +2686,9 @@ Suppose we have a Hamiltonian $H_0$ on a Hilbert space
 $\H=\G_0\oplus\E_0$ for a zero-energy manifold $\G_0$ decoupled from a
 positive-energy manifold $\E_0$, and that we perturb $H_0$ by an
 operator $V$ which weakly couples $\G_0$ and $\E_0$.  For all
-$\ket{\psi_g}\in\G_0$ and $\ket{\psi_e},\ket{\chi_e}\in\E_0$, we have
-$\bk{\psi_g|H_0|\psi_g}=0$, $\bk{\psi_e|H_0|\psi_g}=0$, and
-$\abs{\bk{\psi_e|V|\psi_g}}\ll\bk{\chi_e|H_0|\chi_e}$.  The net
+$\ket{\psi_\g}\in\G_0$ and $\ket{\phi_\e},\ket{\chi_\e}\in\E_0$, we
+have $\bk{\psi_\g|H_0|\psi_\g}=0$, $\bk{\phi_\e|H_0|\psi_\g}=0$, and
+$\abs{\bk{\phi_\e|V|\psi_\g}}\ll\bk{\chi_\e|H_0|\chi_\e}$.  The net
 Hamiltonian $H=H_0+V$ will naturally admit a decomposition of the
 Hilbert space as $\H=\G\oplus\E$ for a subspace $\G$ which is spanned
 by the low-energy eigenstates of $H$ and has the same dimension as
@@ -3197,7 +3229,7 @@ use the effective coupling constants to compute interaction energies.
 As the renormalization procedure $G_X\to G_X^{\t{lattice}}$ is
 identical for all coupling constants, we henceforth drop the subscript
 $X\in\set{\g\g,\e\g^-,\e\g^+,\e\e}$ on coupling constants $G_X$ in the
-remainder of this appendix.  To further simplify notation, we will
+remainder of this Appendix.  To further simplify notation, we will
 also neglect the explicit dependence of parameters on the lattice
 depth $\U$, which we generally keep fixed.
 
@@ -3277,22 +3309,23 @@ oscillator interacting via $s$-wave scattering.  In order to adapt
 these results for a lattice, we expand the lattice potential about a
 lattice site centered at $x=(0,0,0)$ as
 \begin{align}
-  \U\sin^2\p{k_L\cdot x} \approx \U \p{k_L^x k_L^y k_L^z}^{2/3} x^2
-  = \f12 m_A \omega_{\t{eff}}^2 x^2,
+  \U\sin^2\p{k_{\t{L}} \cdot x}
+  \approx \U \sp{\p{k_{\t{L}}^\x k_{\t{L}}^\y k_{\t{L}}^\z}^{1/3} x}^2
+  = \f12 \mA \omega_{\t{eff}}^2 x^2,
   &&
-  \omega_{\t{eff}} \equiv \sqrt{2~ \U k_L^2 / m_A},
+  \omega_{\t{eff}} \equiv \sqrt{2~ \U k_{\t{L}}^2 / \mA},
 \end{align}
-where $k_L=\p{k_L^x,k_L^y,k_L^z}$ is the lattice wavenumber, $m_A$ is
-the atomic mass, and $\omega_{\t{eff}}$ is an effective angular
-harmonic trap frequency.  We then use $\omega_{\t{eff}}$ in place of
-$\omega$ in \eqref{eq:harmonic_gamma}, and use an overlap integral $K$
-computed with the ground-state wavefunctions $\phi_0$ in a lattice
-rather than those in a harmonic oscillator.  We retrieve free-space
-$s$-wave scattering lengths $a_{\t{free}}$ for ${}^{87}$Sr from
-ref.~\cite{zhang2014spectroscopic} to determine the free-space
-coupling constants $G_{\t{free}} \equiv \p{4\pi/m_A} a_{\t{free}}$.
-This procedure yields an effective coupling constant $G_{\t{lattice}}$
-given by
+where $k_{\t{L}}=\p{k_{\t{L}}^\x,k_{\t{L}}^\y,k_{\t{L}}^\z}$ is the
+lattice wavenumber, $\mA$ is the atomic mass, and $\omega_{\t{eff}}$
+is an effective angular harmonic trap frequency.  We then use
+$\omega_{\t{eff}}$ in place of $\omega$ in \eqref{eq:harmonic_gamma},
+and use an overlap integral $K$ computed with the ground-state
+wavefunctions $\phi_0$ in a lattice rather than those in a harmonic
+oscillator.  We retrieve free-space $s$-wave scattering lengths
+$a_{\t{free}}$ for ${}^{87}$Sr from ref.~\cite{zhang2014spectroscopic}
+to determine the free-space coupling constants
+$G_{\t{free}} \equiv \p{4\pi/\mA} a_{\t{free}}$.  This procedure
+yields an effective coupling constant $G_{\t{lattice}}$ given by
 \begin{align}
   \p{G_{\t{free}} K/\omega_{\t{eff}}}^{-1}
   = \f{\sqrt{\pi}~ \Gamma\p{-G_{\t{lattice}}K/2\omega_{\t{eff}}}}
@@ -3341,7 +3374,7 @@ Waals $C_6$ coefficient by \cite{flambaum1999analytical}
   &&
   \xi \equiv \f{\Gamma\p{3/4}}{\Gamma\p{1/4}},
   &&
-  \chi \equiv \sqrt{2}~ \xi~ \f{\p{m_AC_6}^{1/4}}{a},
+  \chi \equiv \sqrt{2}~ \xi~ \f{\p{\mA C_6}^{1/4}}{a},
   \label{eq:effective_range}
 \end{align}
 and $\Gamma$ is the gamma function.  As $\chi\sim1$ for ${}^{87}$Sr,
@@ -3371,8 +3404,8 @@ where
 and the primed couplings ${G'}^{qr}_{st}$ are defined similarly to
 unprimed couplings $G^{qr}_{st}$ in \eqref{eq:couplings} and
 \eqref{eq:coupling_tensor}, but with scattering lengths
-$a\to r_{\t{eff}}a^2/2$ and the effective range defined by
-\eqref{eq:effective_range} for each scattering length with the
+$a\to r_{\t{eff}}a^2/2$ and the effective range $r_{\t{eff}}$ defined
+by \eqref{eq:effective_range} for each scattering length with an
 appropriate $C_6$ coefficient.  We retrieve $C_6$ coefficients for
 ${}^{87}$Sr from the supplementary material of
 ref.~\cite{zhang2014spectroscopic}.  The squared relative momentum
@@ -3405,7 +3438,7 @@ ultracold atoms on a lattice (section \ref{sec:overview}), we made two
 approximations which introduce error into the low-energy effective
 theory.  Both approximations concern the on-site locality of the
 single- and two-body Hamiltonians: we assumed that
-\begin{enumerate*}[label=\roman*)]
+\begin{enumerate*}
 \item tunneling between lattice sites and
 \item inter-site interactions are negligible.
 \end{enumerate*}
@@ -3593,8 +3626,8 @@ excitations can be written in the form
     \c_{\mu_2,\g} \c_{\mu_1,\e} \prod_{\alpha=3}^M \n_{\mu_\alpha,\g}},
 \end{align}
 where the coefficients can be expanded as
-$U_{M,X} = \sum_p U_{M,X}^{(p)}$ with terms $U_{M,X}^{(p)}$ at order
-$p$ in the coupling constants $G_Y$.  The terms $U_{M,X}^{(p)}$ can be
+$U_{MX} = \sum_p U_{MX}^{(p)}$ with terms $U_{MX}^{(p)}$ at order $p$
+in the coupling constants $G_Y$.  The terms $U_{MX}^{(p)}$ can be
 determined from the $M$-body $p$-order Hamiltonians $H_M^{(p)}$
 derived in section \ref{sec:low_energy}, i.e.~in \eqref{eq:H_2},
 \eqref{eq:H_3_2}, \eqref{eq:H_3_3}, and \eqref{eq:H_4_3}.  For the
