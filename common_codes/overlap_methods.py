@@ -10,7 +10,6 @@ from collections import Counter as counter # count unique objects in list
 
 import math
 
-from mathieu_methods import mathieu_solution
 
 ##########################################################################################
 # on-site wavefunctions
