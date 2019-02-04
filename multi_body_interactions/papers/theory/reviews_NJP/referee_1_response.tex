@@ -1,0 +1,803 @@
+\documentclass[preprint]{revtex4-1}
+
+% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+}
+
+% general physics / math packages and commands
+\usepackage{physics,amsmath,amssymb,braket,dsfont,bm}
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}{\dfrac} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\newcommand{\bk}{\braket} % shorthand for braket
+
+\newcommand{\g}{\text{g}}
+\newcommand{\e}{\text{e}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\z}{\text{z}}
+
+\renewcommand{\c}{\hat{c}}
+\newcommand{\n}{\hat{n}}
+
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\K}{\mathcal{K}}
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\N}{\mathcal{N}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\1}{\mathds{1}}
+
+% inline lists
+\usepackage[inline]{enumitem}
+\setlist[enumerate]{leftmargin=*} % nice margins for enumerate
+
+
+% color definitions (used in a figure)
+\usepackage{xcolor}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
+\definecolor{lightblue}{RGB}{31,119,180}
+\definecolor{orange}{RGB}{255,127,14}
+\definecolor{green}{RGB}{44,160,44}
+\definecolor{lightred}{RGB}{214,39,40}
+
+
+% for strikeout text
+% normalem included to prevent underlining titles in the bibliography
+\usepackage[normalem]{ulem}
+
+
+\begin{document}
+
+\section*{Referee 1}
+
+We thank the referee for taking the time to carefully read our
+manuscript, and for providing thoughtful and constructive feedback.
+Below, we address the comments and concerns brought up by the referee.
+We hope that the referee finds our responses and revisions
+satisfactory, deeming our manuscript acceptable for publication in New
+Journal of Physics.
+
+Excerpts from the referee reports are written in \blue{blue}, excerpts
+from our original manuscript are written in \red{red}, and new text in
+the revised version of our manuscript is written in \green{green}.
+All page, line, and reference numbers generally refer to those in our
+original manuscript.
+
+
+\begin{enumerate}
+\item Concerning:
+
+  \blue{The authors study the effective on-site interactions for the
+    description of several fermionic particles confined in a very deep
+    optical lattice. The focus is on alkaline earth atoms, where the
+    s-wave interaction strength is independent on the nuclear spin,
+    and on all atoms in the lowest state of the trapping
+    potential. The manuscript is an extended version on the
+    theoretical tools applied in the comparison between experiment and
+    theory of Ref. [34].  The analysis is very important and
+    timely. However, in the present form, the manuscript has some
+    significant short comings, which have to be improved before a
+    decision about publication can be made.}
+
+  \blue{One of the main points of criticism is that the manuscript is
+    very poorly written and very difficult to access. A few examples
+    are listed below:}
+
+  We thank the referee for the succinct summary of our work, and for
+  recognizing that our analysis is ``very important and timely''.  We
+  hope that thew revisions outlined below have made our manuscript
+  more accessible, and that we have addressed shortcomings identified
+  by the reviewer to a satisfactory degree.
+
+
+\item Concerning the comment:
+
+  \blue{(i) The authors try to be rather general in their description
+    such as title, abstract and introduction. During the description
+    of the results, they start to apply several approximations, which
+    are neither mentioned before or justified.  As an example: the
+    authors claim to derive a general low energy theory for orbital
+    and nuclear spin stats. However, in Eq.(10) the authors suddenly
+    restrict the analysis to a low density of excitations in the ``e''
+    orbital state. This restriction is never explained nor motivated.}
+
+  \label{pt:general}
+
+  The referee is correct that we do not ``derive a general low energy
+  theory for orbital and nuclear spin states''.  In our abstract, for
+  example, we merely claim that (page 1, line 27)
+
+  \red{Motivated in particular by recent experiments ... we develop a
+    low-energy effective theory ... which exhibits emergent multi-body
+    SU($N$)-symmetric interactions ...}
+
+  In our introduction, meanwhile, the very first sentence discussing
+  the technical contributions of our manuscript (page 4, line 19)
+  explicitly states that
+
+  \red{In this work, we investigate the first experimental
+    capabilities with ultracold fermionic AEAs to prepare high-density
+    samples in a 3-D lattice with multiple occupation of individual
+    lattice sites [34].}
+
+  We similarly begin both our abstract and introduction with a
+  discussion of specific experiments, and make frequent reference to
+  experimental developments and capabilities.  We thus believe that
+  our presentation is faithful to the technical content of our
+  manuscript; we do not make any claim of having developed a
+  completely general theory two-orbital multi-body SU($N$)-symmetric
+  interactions.  We claim only to have developed a low-energy theory
+  that (i) is relevant for current experiments, and (ii) exhibits
+  multi-body SU($N$)-symmetric interactions.  For these reasons, we do
+  indeed introduce several approximations even in the first paragraph
+  of our theory overview (section II, page 5).  We believe that
+  theoretical work motivated by specific experiments is generally
+  justified in making approximations that are relevant to the
+  parameter regimes of these experiments.
+
+  Nonetheless, we fully recognize and agree with the referee on the
+  importance of making the scope of our technical contributions clear
+  (as the referee comments later in point \ref{pt:restrictions}).  The
+  fact that the referee at any point believed we will present a
+  general theory without applying several experimentally-motivated
+  approximations clearly signifies that we need to be more explicit in
+  our aims.  Consequently, we have modified the second sentence of our
+  original abstract, from (page 1, line 27)
+
+  \red{Motivated in particular by recent experiments ...}
+
+  to
+
+  \green{In order to analyze recent experiments ...}
+
+  We have also clarified an important point in our introduction,
+  replacing the following text (page 4, line 22)
+
+  \red{Specifically, we consider the preparation of isolated few-body
+    systems in the deep-lattice limit, ...}
+
+  with
+
+  \green{Specifically, we consider ground-state preparation of
+    isolated few-body systems in the deep-lattice limit, ...}
+
+  The point on ground-state preparation in the deep lattice limit is
+  important for a restriction we make later concerning single
+  occupation of nuclear spin states on individual lattice sites.  This
+  restriction (discussed in point \ref{pt:single_nuclear} below)
+  together with the experimentally-motivated approximations made in
+  the first paragraph of the theory overview (section II, page 5)
+  constitute all key restrictions of our theory.
+
+  We hope that these changes, together with those discussed in the
+  examples below (points \ref{pt:orbital_state} and
+  \ref{pt:single_nuclear}), clarify the motivation and scope of our
+  manuscript, such that a reader is not led to believe that we present
+  a general theory without applying several well-motivated
+  approximations that are relevant to current experiments.
+
+
+\item Concerning the specific example:
+
+  \blue{However, in Eq.(10) the authors suddenly restrict the analysis
+    to a low density of excitations in the ``e'' orbital state. This
+    restriction is never explained nor motivated.}
+
+  \label{pt:orbital_state}
+
+  It is true, as the referee points out, that in Eq.~(10) (page 8) we
+  present an effective Hamiltonian addressing only states with at most
+  one orbital excitation (``e'') per lattice site.  We motivate this
+  restriction immediately after Eq.~(8) in our theory overview, as
+  soon as we begin a technical discussion of multi-body interactions
+  (page 7, line 20):
+
+  \red{We are interested in the ground and low-lying orbital
+    eigenstates of several interacting atoms on a single lattice site,
+    as such states can be readily prepared and coherently addressed in
+    current experiments with ultracold atoms [34].}
+
+  We acknowledge that the referee found the paragraph containing this
+  sentence confusing, and have consequently rewritten the paragraph
+  between Eqs.~(8) and (9) entirely (see point \ref{pt:confusion}).
+  In any case, our actual results in section III (page 8) take the
+  general form of Eq.~(9) (page 7), and make no restrictions on the
+  number of orbital excitations per lattice site.  The expression in
+  Eq.~(10) is merely a simplified restriction of our technical
+  results, made (i) to highlight important features of the low-lying
+  orbital excitations in our multi-body SU($N$) theory, and (ii) to
+  facilitate comparison with optical lattice clock experiments.
+
+  To clarify this point, we have made more explicit the fact that our
+  actual results take the form of Eq.~(9), and added additional
+  discussion of Eq.~(10).  Specifically, we have replaced the
+  following text (page 7, line 48):
+
+  \red{Our low-energy effective theory exhibits SU($N$)-symmetric
+    multi-body interactions, such that the effective interaction
+    Hamiltonian can be written in the form
+    \begin{align}
+      H_{\t{int}}^{\t{eff}} = \sum_{M=2}^{2I+1} H_M, \tag{9}
+    \end{align}
+    where $H_M$ is an $M$-body Hamiltonian, $I$ is the total nuclear
+    spin of each atom (e.g.~$I=9/2$ for ${}^{87}$Sr), and the sum
+    terminates at $2I+1$ because this is the largest number of atoms
+    which may initially occupy a single lattice site.  Focusing on the
+    low-lying orbital state excitations of this theory, we find that
+    SU($N$) symmetry allows us to express multi-body Hamiltonians in
+    the simple form}
+
+  with
+
+  \green{Our low-energy effective theory exhibits SU($N$)-symmetric
+    multi-body interactions, such that the effective interaction
+    Hamiltonian can be written in the form
+    \begin{align}
+      H_{\t{int}}^{\t{eff}} = \sum_{M=2}^{2I+1} \sum_{p\ge1} H_M^{(p)},
+      \tag{9}
+    \end{align}
+    where $H_M^{(p)}$ is an $M$-body Hamiltonian of order $p$ in the
+    coupling constants $G^{qr}_{st}$, $I$ is the total nuclear spin of
+    each atom (e.g.~$I=9/2$ for ${}^{87}$Sr), and the sum terminates
+    at $2I+1$ because this is the largest number of atoms which may
+    initially occupy a single lattice site.  We explicitly compute all
+    $M$-body Hamiltonians $H_M\equiv\sum_p H_M^{(p)}$ through order
+    $p=3$, yielding effective two-, three-, and four-body
+    interactions.  To facilitate understanding and comparison with
+    experimental measurements of density-dependent atomic energy
+    spectra [34], in which states with multiple orbital excitations on
+    a single lattice site are spectroscopically off-resonant, we also
+    consider a restriction of our theory to states with at most one
+    orbital excitation per lattice site.  In this case, we find that
+    SU($N$) symmetry allows us to express multi-body Hamiltonians in
+    the simple form}
+
+  We have also modified the following sentence in our summary (page
+  28, line 43):
+
+  \red{The SU($N$) symmetry of $M$-body Hamiltonians allowed us to
+    express them in a simple form, and fully characterize their
+    corresponding eigenstates and spectra.}
+
+  to:
+
+  \green{When considering the low-lying orbitalexcitations of our
+    effective theory, the SU($N$) symmetry of $M$-body Hamiltonians
+    allowed us to express them in a simple form, and to fully
+    characterize their eigenstates and spectra.}
+
+  Finally, the new appendix we have added as a part of point
+  \ref{pt:description} (below) contains additional discussion of the
+  restriction to at most one orbital excitation per lattice site.
+
+  We hope that these changes clarify the scope of our work, in
+  particular highlighting that the theory developed in section III
+  applies to any number of orbital excitations, despite the
+  restriction to the single-excitation case for the sake of comparison
+  with experiments in section IV (page 18).
+
+
+\item Concerning the next example:
+
+  \blue{In addition, the restriction to a single occupation of the
+    nuclear spin state is never motivated or justified but just
+    introduced at some point.}
+
+  \label{pt:single_nuclear}
+
+  The referee is correct that we restrict our theory to the case of
+  single occupation of nuclear spin states on any given lattice site.
+  We do so because (i) this regime is precisely that relevant to
+  current experiments with ultracold atoms, which begin with
+  ground-state preparation of the atoms, and (ii) this restriction
+  greatly simplifies our theory.  We explained both the motivation and
+  the justification for this restriction in the overview of our theory
+  (page 7, line 40):
+
+  \red{As our work is motivated by progress in experiments which
+    initialize all atoms in identical (i.e.~ground) orbital and
+    motional states, to simplify our theory we assume that any $N$
+    atoms on a single lattice site occupy $N$ nuclear spin states.
+    Multiple occupation of a single nuclear spin state on the same
+    lattice site is initially forbidden by fermionic statistics, and
+    subsequently cannot be violated in the absence of tunneling and
+    hyperfine coupling.}
+
+  Deferring the referee's later comment that this text was confusing
+  to point \ref{pt:confusion}, we emphasize the fact that our theory
+  is the first to include hyperfine structure when considering
+  multi-body interactions of ultracold atoms on a lattice.  Of course,
+  a more general theory relaxing the above restriction (i.e.~on the
+  occupation of nuclear spin states) will eventually be necessary for
+  future experiments with a shallower lattice or additional control
+  fields.  Such a general theory will need to consider inter-site
+  effects or hyperfine coupling (or, less likely, non-ground-state
+  preparation protocols), as these are the mechanisms by which a
+  nuclear spin state can become multiply-occupied on a single lattice
+  site.  Given the that these mechanisms (i) are largely irrelevant
+  for the experiments that prompted this work, and (ii) introduce
+  major complications into the study of SU($N$) multi-body
+  interactions, we believe that it is appropriate to leave such
+  considerations for future work.
+
+  For clarification, we have modified the sentence on page 7, line 43
+  from
+
+  \red{Multiple occupation of a single nuclear spin state on the same
+    lattice site is initially forbidden by fermionic statistics, and
+    subsequently cannot be violated in the absence of tunneling and
+    hyperfine coupling.}
+
+  to
+
+  \green{Ground-state preparation implies that multiple occupation of
+    a single nuclear spin state on any given lattice site is initially
+    forbidden by fermionic statistics, and subsequently cannot occur
+    in the absence of inter-site effects or hyperfine coupling.}
+
+  We hope that this modification, together with the modifications
+  mentioned in point \ref{pt:general}, clarifies our justification for
+  restricting to the case of single occupation of nuclear spin states.
+
+
+\item Concerning the following comments:
+
+  \blue{The referee understands, that these restrictions are justified
+    for the comparison with the experiment in Ref.[34]. However, it
+    should be clearly pointed, that the analysis is not general and
+    adapted to the description to these experiments in the abstract
+    and introduction.}
+
+  \label{pt:restrictions}
+
+  We thank the referee for pointing out the potential to mislead
+  readers on the generality of our theory, and hope that the new
+  version of our manuscript does a better job of calibrating the
+  expectations of a reader with regard to restrictions and
+  approximations that we make.  In particular, we hope that the
+  current text makes clear to readers that we are developing a theory
+  for the purpose of understanding current optical lattice clock
+  experiments, and not to understand SU($N$) multi-body interactions
+  in full generality.
+
+
+\item Concerning the description of the experiment with which we
+  compare:
+
+  \blue{Furthermore, a short description of the experiment would be
+    mandatory for an independent manuscript.}
+
+  \label{pt:description}
+
+  We thank the referee for pointing out that a description of relevant
+  experimental procedures would make our manuscript more
+  self-contained, and we recognize the value in doing so.  We have
+  therefore added a new appendix to our manuscript, summarizing all
+  relevant experimental procedures:
+
+  \green{{\bf Appendix A:~Summary of experimental procedures}}
+
+  \green{The work in this paper is closely tied to the experimental
+    work in ref.~[34]; for quick reference, we here provide a short
+    summary of the experimental procedures used therein.  The
+    experiment begins by preparing a degenerate gas of $10^4$-$10^5$
+    (fermionic) ${}^{87}$Sr atoms, in a uniform mixture of their ten
+    nuclear spin states, at $\sim0.1$ of their fermi temperature (10
+    to 20 nanokelvin) [8, 52].  This gas is loaded into a primitive
+    cubic optical lattice at the ``magic wavelength'' for which both
+    ground (${}^1S_0$) and first-excited (${}^3P_0$) electronic
+    orbital states of the atoms experience the same lattice potential.
+    Lattice depths along the principal axes of the lattice are
+    comparable in magnitude, with a geometric mean that can be varied
+    from 30 to 80 $E_{\t{R}}$, where
+    $E_{\t{R}}\approx3.5\times2\pi~\t{kHz}$ is the lattice photon
+    recoil energy of the atoms.  These lattice depths are sufficiently
+    large as to neglect tunneling on the time scales relevant to the
+    experiment.  Atoms are then addressed by an external (``clock'')
+    laser with an ultranarrow (26 mHz) linewidth, detuned by $\Delta$
+    from the single-atom ${}^1S_0-{}^3P_0$ transition frequency.  When
+    $\Delta=0$, non-interacting atoms in singly-occupied lattice sites
+    thus undergo Rabi oscillations.  After a chosen time, the
+    experiment removes all ground-state (${}^1S_0$) atoms from the
+    lattice and uses absorption imaging to identify the remaining
+    excited-state (${}^3P_0$) atoms.  As discussed in section IV, a
+    similar procedure with $\Delta\ne0$ leads to the spectrum shown in
+    figure 3, thereby constituting a measurement of the many-body
+    atomic excitation spectrum.  The many-body atomic excitation
+    spectrum is different from the single-body atomic excitation
+    spectrum due to the presence of inter-atomic interactions.  We
+    note that this spectroscopic protocol addresses only
+    singly-excited orbital states of any lattice site.  Doubly-excited
+    states are manifestly off-resonant for single-photon absorption
+    processes, while multi-photon absorption processes are always
+    off-resonant due to (i) the non-linearity (on the scale of kHz) of
+    on-site electronic orbital excitation energies (resulting from
+    non-uniform coupling constants $G_X$), combined with (ii) the
+    ultranarrow linewidth (on the scale of mHz) of the interrogation
+    laser.}
+
+  We have also added, at the end of the first paragraph in our
+  introduction that discusses our technical contributions, a sentence
+  directing readers to the above summary of experimental procedures.
+  Specifically, the text (page 4, line 31)
+
+  \red{... through the exquisite capabilities with OLCs.}
+
+  now reads
+
+  \green{... through the exquisite capabilities with OLCs.  We briefly
+    summarize the experimental procedures relevant to our work in
+    Appendix A.}
+
+  We have likewise directed readers to the new appendix at the
+  beginning of the experiment/theory comparisons in section IV (page
+  18), such that the first sentence of this section, previously
+
+  \red{Current experiments with ultracold ${}^{87}$Sr on a lattice can
+    coherently address ground states and their low-lying orbital
+    excitations for up to five atoms per lattice site [34].}
+
+  now reads
+
+  \green{Current experiments with ultracold ${}^{87}$Sr on a lattice
+    can coherently address ground states and their low-lying orbital
+    excitations for up to five atoms per lattice site [34] (see
+    Appendix A for a summary of relevant experimental procedures).}
+
+  We hope that these additions provide a satisfactory description of
+  the experimental procedures in ref.~[34], deeming our manuscript
+  sufficiently self-contained for independent publication.
+
+
+\item Concerning:
+
+  \blue{(ii) The paragraph between Eq.(8) and Eq.(9) is unreadable and
+    extremely hard to understand. E.g., the following sentences ``Even
+    at zero temperature, therefore, the presence of excited motional
+    states modifies many-body atomic ...'', or ``As our work is
+    motivated by progress in experiments which initialize all atoms in
+    identical (i.e. ground) orbital and motional states, to simplify
+    our theory we assume that ...''.}
+
+  \label{pt:confusion}
+
+  We thank the referee for their careful reading of our manuscript,
+  and for pointing out that our discussion in the paragraph between
+  Eqs.~(8) and (9) is poorly worded.  The paragraph in question
+  appears on page 7 lines 20--47:
+
+  \red{We are interested in the ground and low-lying orbital
+    eigenstates of several interacting atoms on a single lattice site,
+    as such states can be readily prepared and coherently addressed in
+    current experiments with ultracold atoms [34].  Although these
+    experiments operate at temperatures sufficiently low for
+    negligible thermal occupation of excited motional states, simply
+    neglecting excited single-particle motional states fails to
+    reproduce the observed spectra of multiply-occupied lattice sites.
+    The reason for this failure lies in the fact that the bare
+    two-body Hamiltonian $H_{\t{int}}$ in (7) is not diagonal in the
+    basis of single-particle motional states.  Even at zero
+    temperature, therefore, the presence of excited motional states
+    modifies many-body atomic energy spectra when the magnitude of
+    off-diagonal elements of $H_{\t{int}}$ approach the scale of
+    low-lying single-particle motional state energy gaps.  To address
+    this problem, we develop a low-energy effective theory for
+    ultracold two-level fermionic atoms on a lattice.  As our work is
+    motivated by progress in experiments which initialize all atoms in
+    identical (i.e.~ground) orbital and motional states, to simplify
+    our theory we assume that any $N$ atoms on a single lattice site
+    occupy $N$ nuclear spin states.  Multiple occupation of a single
+    nuclear spin state on the same lattice site is initially forbidden
+    by fermionic statistics, and subsequently cannot be violated in
+    the absence of tunneling and hyperfine coupling.}
+
+  We have re-written this paragraph in its entirety, replacing it with
+  the following text:
+
+  \green{Current experiments with ${}^{87}$Sr can prepare up to five
+    atoms atoms in the same (ground) orbital state on a single lattice
+    site, and coherently address states with a single orbital
+    excitation per lattice site (see Appendix A) [34].  The
+    temperature of the atoms in these experiments is much smaller than
+    single-atom motional excitation energies $\Delta_n\equiv E_n-E_0$
+    for $n>0$, which implies a negligible thermal occupation of
+    excited motional states.  A naive calculation of the multi-body
+    orbital excitation spectrum, however, assuming that atoms only
+    occupy motional ground states with spatial wavefunctions
+    $\phi_{i,0}$, fails to reproduce the experimentally observed
+    orbital excitation spectrum of multiply-occupied lattice sites.
+    The reason that such a calculation fails to reproduce the observed
+    excitation spectrum has to do with the fact that the two-body
+    Hamiltonian $H_{\t{int}}$ in (7) is not diagonal in the basis of
+    single-particle motional eigenstates (i.e.~$\phi_{in}$).  For
+    interacting atoms, the true motional ground states are therefore
+    admixtures of the non-interacting motional eigenstates; when the
+    off-diagonal elements of $H_{\t{int}}$ are comparable in magnitude
+    to the excitation energies $\Delta_n$, this admixture can have
+    non-negligible weight outside the non-interacting motional
+    ground-state subspace.  In order to compute the correct many-body
+    orbital excitation spectrum, we develop a low-energy effective
+    theory for such atoms.  As our work is motivated by experiments
+    that initialize all atoms in identical (i.e.~ground) orbital and
+    motional states, to simplify our theory we assume that any $N$
+    atoms on a single lattice site occupy $N$ nuclear spin states.
+    Ground-state preparation implies that multiple occupation of a
+    single nuclear spin state on any given lattice site is initially
+    forbidden by fermionic statistics, and subsequently cannot occur
+    in the absence of inter-site effects or hyperfine coupling.}
+
+  We hope that the new text is more readable and easier to understand.
+
+
+\item Concerning:
+
+  \blue{(iii) Eq. (10) and Eq. (42) are identical.}
+
+  Indeed, Eq.~(10) (page 8) and Eq.~(42) (page 18) of our manuscript
+  are identical.  The purpose of Eq.~(10) is to provide a preview and
+  some brief discussion of one of our main results.  This same
+  equation, however, is central to the discussions in section IV, so
+  we provide this equation again in Eq.~(42) for quick reference.  We
+  believe that the small cost in space is worth the added benefit of
+  decoupling section IV (page 18) from section II (page 5), both (i)
+  from a stylistic standpoint, and (ii) to save readers the need to
+  locate Eq.~(10), and repeatedly flip back and forth between
+  disparate sections of the manuscript.
+
+  With these considerations in mind, we leave the choice of whether it
+  is okay to have two identical equations up to the editors.  If the
+  editors decide we must remove Eq.~(42), we would replace the
+  following text (page 18, line 48):
+
+  \red{Due to the SU($N$) symmetry of inter-atomic interactions,
+    manifest in the fact that all coupling constants are independent
+    of nuclear spin, we can write all effective $M$-body Hamiltonians
+    which address these states in the form
+    \begin{align}
+      H_M = \sum_{\abs{\set{\mu_j}}=M}
+      \p{U_{M,\g} \prod_{\alpha=1}^M \n_{\mu_\alpha,\g}
+        + U_{M,+} \n_{\mu_1,\e} \prod_{\alpha=2}^M \n_{\mu_\alpha,\g}
+        + U_{M,-} \c_{\mu_1,\g}^\dag \c_{\mu_2,\e}^\dag
+        \c_{\mu_2,\g} \c_{\mu_1,\e} \prod_{\alpha=3}^M \n_{\mu_\alpha,\g}},
+    \end{align}
+    where $\n_{\mu s}\equiv \c_{\mu s}^\dag\c_{\mu s}$ is a number
+    operator, and the coefficients $U_X$ can be determined from the
+    coupling constants $G_Y$ and prefactors $\alpha_Z^{(p)}$ of the
+    effective $M$-body Hamiltonians derived in section III (see
+    Appendix G).}
+
+  with
+
+  \green{Due to the SU($N$) symmetry of inter-atomic interactions,
+    manifest in the fact that all coupling constants are independent
+    of nuclear spin, we can write all effective $M$-body Hamiltonians
+    which address these states in the form of (10).}
+
+  Note that we have not made this replacement in the re-submitted
+  version of our manuscript, but will do so at the editors' request.
+
+
+\item Concerning the interaction pseudopotential:
+
+  \blue{(iv) It is well established that Eq.(2) is incorrect as the
+    s-wave interaction in three-dimensions is described by a
+    pseudo-potential and not a delta-function interaction. It is
+    rather misleading that the authors to not point out the problem at
+    the relevant position, but only afterwards require a
+    renormalization of the divergencies without explaining the reason
+    for their appearance.}
+
+  There are two related matters to address in this comment:~one
+  concerning the use of an interaction pseudo-potential, and another
+  concerning divergences that appear in our effective theory.  We
+  first address the question of a pseudo-potential.
+
+  The referee is right that Eq.~(2) (page 6) is not the ``correct''
+  form of the two-body interaction between two ultracold atoms.
+  Rather, Eq.~(2) is a standard approximate form for two-body
+  interactions (see, for example, Eqs.~(1) of
+  refs.~[\href{https://www.nature.com/articles/nphys3061}{17}],
+  [\href{https://iopscience.iop.org/article/10.1088/1367-2630/11/10/103033/meta}{21}],
+  [\href{https://iopscience.iop.org/article/10.1088/1367-2630/14/5/053037/meta}{35}],
+  [\href{https://iopscience.iop.org/article/10.1088/1367-2630/11/9/093022/meta}{37}],
+  [\href{https://www.nature.com/articles/nphys1535}{41}],
+  [\href{https://journals.aps.org/pra/abstract/10.1103/PhysRevA.87.033601}{52}],
+  and
+  [\href{https://link.springer.com/article/10.1023\%2FA\%3A1018705520999}{53}];
+  and Eqs.~(4) and (5) of
+  ref.~[\href{https://journals.aps.org/pra/abstract/10.1103/PhysRevA.90.043631}{36}])
+  that appears in an effective field theory (EFT) description of
+  low-energy scattering.  In general, an EFT description of
+  interactions would also include terms with derivatives of field
+  operators, taking the form of e.g.~Eqs.~(2) and (4) of
+  ref.~[\href{https://journals.aps.org/pra/abstract/10.1103/PhysRevA.90.043631}{36}];
+  scattering is thus generally momentum-dependent, implying the need
+  to use a momentum-dependent (commonly referred to as an
+  energy-dependent) interaction pseudo-potential.  The precise form of
+  the dominant low-energy correction to the zero-momentum contact
+  interaction in EFT is well-known (see
+  refs.~[\href{https://journals.aps.org/pra/abstract/10.1103/PhysRevA.65.043613}{55}]
+  and
+  [\href{https://journals.aps.org/pra/abstract/10.1103/PhysRevA.59.1998}{57}]
+  for studies of this correction, as well as
+  refs.~[\href{https://iopscience.iop.org/article/10.1088/1367-2630/14/5/053037/meta}{35}],
+  [\href{https://journals.aps.org/pra/abstract/10.1103/PhysRevA.90.043631}{36}],
+  and
+  [\href{https://iopscience.iop.org/article/10.1088/1367-2630/11/9/093022/meta}{37}]
+  for their application to EFT calculations), and amounts to using an
+  effective scattering length
+  \begin{align*}
+    a_{\t{eff}} = a - \f12 r_{\t{eff}} a^2 k^2,
+  \end{align*}
+  where $a$ is the zero-momentum scattering length, $r_{\t{eff}}$
+  ($\sim a$ our case) is an effective range of the leading-order
+  momentum-dependent interaction, and $k$ is the relative momentum of
+  two atoms.  We include these corrections in our all of our numerical
+  results, as discussed in the last paragraph of section III B (page
+  13, line 24):
+
+  \red{Second, the overview we provided in section II ...  neglects
+    the effect of momentum-dependent two-body scattering. ... these
+    interactions are third order in the coupling constants $G_X$.
+    ... [and therefore] will not appear in any of our three- and
+    four-body calculations ... The primary interest of our work
+    ... concerns effective $M$-body interactions for $M\ge3$; we
+    therefore defer the calculation of momentum-dependent two-body
+    interactions to Appendix D.}
+
+  A more detailed discussion of momentum-dependent corrections (and
+  thereby our use of an energy-dependent pseudo-potential) is provided
+  in Appendix D (page 36).
+
+  Given the standard use of a zero-momentum contact interaction in the
+  relevant literature, we did not consider it necessary to complicate
+  our discussion in the overview of our manuscript (section II) by
+  introducing an energy-dependent pseudo-potential.  In light of the
+  referee's comment, however, we now see that our omission of this
+  subtlety following Eq.~(2) may confuse some readers, or mislead them
+  about the nature of two-body interactions.  In order to avoid such
+  confusion without introducing major complications to our overview,
+  we have therefore appended the following sentence to the paragraph
+  containing Eq.~(5) (page 6, before line 36):
+
+  \green{Note that (2) and (5) neglect momentum-dependent corrections
+    to $s$-wave interactions, which are generally captured (in a
+    low-energy limit) by the use of an energy-dependent interaction
+    pseudo-potential [42].  These corrections will appear only at
+    third order in our effective theory, as corrections to two-body
+    interaction energies, and do not affect our discussions of
+    multi-body interactions.  We therefore defer further discussion of
+    momentum-dependent corrections to the end of section III B, and
+    their calculation to Appendix E.}
+
+  For an immediate reference on the subject matter, we have also added
+  ref.~[55] (now ref.~[42] in the revised manuscript) to the end of
+  the sentence on page 13, line 24, previously:
+
+  \red{Second, the overview we provided in section II, and
+    consequently our result in (17), neglects the effect of
+    momentum-dependent two-body scattering.}
+
+  and now:
+
+  \green{Second, the overview we provided in section II, and
+    consequently our result in (17), neglects the effect of
+    momentum-dependent two-body scattering [42].}
+
+  We hope that these additions clarify the point about our use of an
+  energy-dependent pseudo-potential.
+
+
+\item Concerning the second half of the previous comment by the
+  referee, on divergences and renormalization:
+
+  \blue{It is rather misleading that the authors to not point out the
+    problem at the relevant position, but only afterwards require a
+    renormalization of the divergencies without explaining the reason
+    for their appearance.}
+
+  We thank the referee for pointing out a potential point of confusion
+  in our manuscript due to the appearance of divergent terms that must
+  be regulated (in our case, by the introduction of counter-terms).
+  To address this point of confusion, we have replaced the following
+  text (page 12, line 25):
+
+  \red{In general, the sums over excited states in the loop diagrams
+    of (15) will diverge [35], which implies the need to renormalize
+    the coupling constants in our theory.  Even if these diagrams do
+    not diverge, we would like to express the effective two-body
+    interactions in terms of net, physically observable two-body
+    coupling constants as on the right-hand side of (15), rather than
+    in terms of long sums at all orders of the bare coupling
+    constants.  We therefore renormalize our coupling constants by
+    introducing counter-terms $\tilde G_X$ into the effective
+    interaction Hamiltonians via $G_X\to G_X+\tilde G_X$.  The values
+    of these counter-terms are fixed by enforcing that $G_X$ is equal
+    to the net two-body interaction strength.}
+
+  with:
+
+  \green{On physical grounds, the net effective two-body interaction
+    must clearly be finite, but individual sums over the excited
+    states in loop diagrams of (15) may generally diverge [35].  These
+    divergences ultimately appear due to our use of effective field
+    theory to describe inter-atomic interactions in (2), rather than a
+    detailed microscopic description of two-atom scattering.
+    Divergences of this sort are a generic feature of field theories,
+    and can be dealt with using standard techniques, in particular
+    through renormalization.  We therefore renormalize our coupling
+    constants by introducing counter-terms $\tilde G_X$ into the
+    effective interaction Hamiltonians via $G_X\to G_X+\tilde G_X$.
+    The values of counter-terms can be fixed by enforcing that $G_X$
+    is equal to the net two-body interaction strength, which has the
+    added benefit of allowing us to express the effective two-body
+    interactions in terms of net, physically observable two-body
+    coupling constants on the right-hand side of (15), rather than in
+    terms of long sums at all orders of the bare coupling constants.}
+
+  We hope that this discussion helps clarify confusions regarding the
+  appearance of divergences in our effective theory.
+
+
+\item Concerning the effective theory corrections to many-body energy
+  eigenstates:
+
+  \blue{(v) On page 10: For the sentence ``Finally, the effective
+    theory involves no corrections to the many-body energy
+    eigenstates.'' the referee can again only guess, what the authors
+    would like to express, but as it is written it is just plain
+    wrong. The states between the non-interacting and the interacting
+    theory are connected by a unitary transformation and are therefore
+    not identical to the non-interacting ones. }
+
+  We thank the referee for pointing out a subtle point that we need to
+  clarify about effective theories constructed with a Schrieffer-Wolff
+  transformation.  It is true, as the referee states, that the energy
+  eigenstates $\set{\ket\alpha}$ of an interacting theory are not
+  identical to those of a non-interacting theory,
+  $\set{\ket{\alpha_0}}$, and that these sets of energy eigenstates
+  are related by a unitary transformation
+  $U=\sum_\alpha \op{\alpha_0}{\alpha}$.  While the non-interacting
+  eigenstates $\set{\ket{\alpha_0}}$ are typically simple to identify,
+  however, the interacting eigenstates $\set{\ket\alpha}$ are
+  generally difficult to represent in the same basis as the
+  Hamiltonian $H=H_0+H_{\t{int}}$ of the interacting theory, where in
+  our case $H_0$ ($H_{\t{int}}$) contains only single-body (two-body)
+  terms.  The purpose of an effective theory is then to construct an
+  {\it effective Hamiltonian} $H_{\t{eff}}$ with two key
+  properties:~(i) $H_{\t{eff}}$ is diagonal in the ``simple'' basis
+  $\set{\ket{\alpha_0}}$, and (ii) the spectrum of $H_{\t{eff}}$ is
+  identical to that of the true Hamiltonian $H$.  That is, if the
+  non-interacting and interacting Hamiltonians respectively have
+  decompositions $H_0 = \sum_\alpha E_\alpha \op{\alpha_0}$ and
+  $H = \sum_\alpha \E_\alpha \op\alpha$, an effective Hamiltonian
+  takes the form
+  $H_{\t{eff}} = U H U^\dag = \sum_\alpha \E_\alpha \op{\alpha_0}$.
+  The energy eigenstates of the effective theory are therefore
+  identical to those of the non-interacting theory, namely
+  $\set{\ket{\alpha_0}}$.
+
+\end{enumerate}
+
+
+\end{document}
