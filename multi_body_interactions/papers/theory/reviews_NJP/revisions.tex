@@ -1,0 +1,226 @@
+\documentclass[preprint]{revtex4-1}
+
+% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+}
+
+% general physics / math packages and commands
+\usepackage{physics,amsmath,amssymb,braket,dsfont,bm}
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}{\dfrac} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\newcommand{\bk}{\braket} % shorthand for braket
+
+\newcommand{\g}{\text{g}}
+\newcommand{\e}{\text{e}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\z}{\text{z}}
+
+\renewcommand{\c}{\hat{c}}
+\newcommand{\n}{\hat{n}}
+
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\K}{\mathcal{K}}
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\N}{\mathcal{N}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\1}{\mathds{1}}
+
+% inline lists
+\usepackage[inline]{enumitem}
+\setlist[enumerate,1]{label={(\roman*)}}
+
+% color definitions (used in a figure)
+\usepackage{xcolor} \newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
+\definecolor{lightblue}{RGB}{31,119,180}
+\definecolor{orange}{RGB}{255,127,14}
+\definecolor{green}{RGB}{44,160,44}
+\definecolor{lightred}{RGB}{214,39,40}
+
+
+% for strikeout text
+% normalem included to prevent underlining titles in the bibliography
+\usepackage[normalem]{ulem}
+
+
+\begin{document}
+
+Dear editors,
+
+In this document, we summarize and comment on all revisions made to
+our manuscript since its initial submission.  Revisions made in
+response to comments and recommendations made by Referee 1 (Referee 2)
+are numbered R1.$X$ (R2.$X$).  In addition, we summarize a few minor
+revisions made to refine wording or fix errors in the original
+manuscript; these revisions are numbered R3.$X$.
+
+Excerpts from the referee reports are written in \blue{blue}, excerpts
+from our original manuscript are written in \red{red}, and new text in
+the revised version of our manuscript is written in \green{green}.
+All page, line, and reference numbers generally refer to those in our
+original manuscript.
+
+
+\section*{Revisions prompted by Referee 1}
+
+\begin{enumerate}[label=(R1.\arabic*)]
+\item
+\end{enumerate}
+
+
+\section*{Revisions prompted by Referee 2}
+
+\begin{enumerate}[label=(R2.\arabic*)]
+\item
+\end{enumerate}
+
+
+\section*{Miscellaneous revisions}
+
+\begin{enumerate}[label=(R3.\arabic*)]
+\item Page 3, line 24 of our original manuscript previously said:
+
+  \red{Last year (2017), a new generation of OLCs became operational
+    at JILA}
+
+  Reflecting the fact that it is now 2019, the new version of the
+  manuscript says:
+
+  \green{More recently (2017), a new generation of OLCs became
+    operational at JILA}
+
+
+\item Page 5, line 40 of our original manuscript previously said:
+
+  \red{motional state $n\in\mathbb{N}_0^3$ with nuclear spin
+    $\mu\in\set{-I,I+1,\cdots,I}$}
+
+  This text contains a sign error; in the version of our manuscript,
+  this text reads:
+
+  \green{motional state $n\in\mathbb{N}_0^3$ with nuclear spin
+    $\mu\in\set{-I,-I+1,\cdots,I}$}
+
+
+\item Page 5, lines 43-44 of our original manuscript previously said:
+
+  \red{In a harmonic trap approximation we would have
+    $E_n=\p{3/2+n_x+n_y+n_z}\omega$}
+
+  For clarity, we have modified this text so that all subscripts
+  denoting free variables (e.g.~the $n$ in $E_n$, as $n$ can here be
+  any element of $\mathbb{N}_0^3$) are italic, while all subscripts
+  denoting fixed symbols (e.g.~the $x$ in $n_x$, as here $x$ denotes a
+  fixed spatial axis) are in roman font.  The new text thus reads:
+
+  \green{In a harmonic trap approximation we would have
+    $E_n=\p{3/2+n_\x+n_\y+n_\z}\omega$}
+
+  We have similarly replaced all appearances of $m_A$ (denoting the
+  mass of a single atom) with $m_{\text{A}}$; all $E_R$ (denoting the
+  lattice photon recoil energy) with $E_{\t{R}}$; all
+  $k_L,k_L^x,k_L^y,k_L^z$ (denoting the wavenumber of the lattice
+  laser and its projection onto three principal axes) by
+  $k_{\text{L}}, k_{\text{L}}^\x, k_{\text{L}}^\y, k_{\text{L}}^\z$;
+  all $\U_x,\U_y,\U_z$ (denoting lattice depths along principal axes)
+  respectively by $\U_\x,\U_\y,\U_\z$; and all
+  $T_\mu^z,T_\mu^x,S_{\N X}^z,S_{\N X}^x$ (denoting single-atom and
+  many-body pseudospin operators) respectively by
+  $T_\mu^\z,T_\mu^\x,S_{\N X}^\z,S_{\N X}^\x$.
+
+  Finally, we have fixed a few discrepancies in our general convention
+  that multiple subscripts on a given mathematical symbol should only
+  be separated by a comma if at least one of these subscripts has a
+  fixed value (as e.g.~in $K^{k\ell}_{mn}$, $K^{\ell,3}_{2,5}$,
+  $\c_{\mu n}$, and $\c_{\mu,\g}$).  To this end, in our last appendix
+  (page 40, line 17) we have replaced all instances of $U_{M,X}$ and
+  $U_{M,X}^{(p)}$ respectively with $U_{MX}$ and $U_{MX}^{(p)}$.
+
+
+\item On page 7, line 17 we previously had the text:
+
+  \red{The existence of such a gauge is guaranteed by the analytic
+    properties of Wannier orbitals $\phi_{in}$ [42].}
+
+  With the exception of this sentence, our manuscript has generally
+  reserved the word ``orbital'' to refer to electronic degrees of
+  freedom of atoms, and ``motional state'' to refer to atoms' spatial
+  degrees of freedom.  To avoid potential confusion, we have therefore
+  modified the above sentence to read:
+
+  \green{The existence of such a gauge is guaranteed by the analytic
+    properties of Wannier wavefunctions $\phi_{in}$ [42].}
+
+
+\item The last two lines of page 10 and line 26 of page 11 previously
+  said:
+
+  \red{Effective $M$-body interaction terms at order $p$ in
+    $H_{\t{int}}$ can be represented by directed, weakly connected
+    graphs (i.e.~which are connected when ignoring edge direction)
+    containing $p$ internal vertices.}
+
+  Though the final expressions in our perturbation theory can indeed
+  be represented by weakly connected graphs, intermediate terms that
+  cancel out may be represented by graphs that are not connected, as
+  e.g.~in Eq.~(35) on page 17.  For clarity, we have therefore
+  modified the above text to read:
+
+  \green{Effective $M$-body interaction terms at order $p$ in
+    $H_{\t{int}}$ can be represented by directed graphs containing $p$
+    internal vertices.}
+
+
+\item To clean up repetitive wording, we have replaced the sentence
+  (page 12, line 45):
+
+  \red{To leading order in the coupling constants, it follows that the
+    counter-terms are second order in the coupling constants,
+    i.e. $\tilde G\sim G^2$.}
+
+  with:
+
+  \green{To leading order, it follows that the counter-terms are
+    second order in the coupling constants, i.e.~$\tilde G\sim G^2$.}
+
+
+\item To make our first appendix more self-contained, we have defined
+  $\P_0$ therein, such that the text (page 30, line 38):
+
+  \red{Letting $\Q_0\equiv1-\P_0$ denote the projector onto $\E_0$ and
+    $X$ ...}
+
+  now reads:
+
+  \green{Letting $\P_0$ denote the projector onto $\G_0$,
+    $\Q_0\equiv\1-\P_0$ denote the projector onto $\E_0$, and $X$ ...}
+
+
+\item Reference 34 of the original manuscript has been published since
+  the original submission of our manuscript.  We have updated this
+  reference accordingly in the bibliography of our revised manuscript.
+
+\end{enumerate}
+
+\end{document}
