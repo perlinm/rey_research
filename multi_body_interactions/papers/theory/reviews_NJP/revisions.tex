@@ -18,6 +18,7 @@
 \renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
 \newcommand{\bk}{\braket} % shorthand for braket
 
+\renewcommand{\d}{\text{d}}
 \newcommand{\g}{\text{g}}
 \newcommand{\e}{\text{e}}
 \newcommand{\x}{\text{x}}
@@ -47,10 +48,24 @@
 
 % inline lists
 \usepackage[inline]{enumitem}
-\setlist[enumerate,1]{label={(\roman*)}}
+\setlist[enumerate]{leftmargin=*} % nice margins for enumerate
+
+
+% for feynman diagrams
+\usepackage{tikz,tikz-feynman}
+\tikzset{
+  baseline = (current bounding box.center)
+}
+\tikzfeynmanset{
+  compat = 1.1.0,
+  every feynman = {/tikzfeynman/small}
+}
+\newcommand{\shrink}[1]{\scalebox{0.8}{#1}} % for smaller diagrams
+
 
 % color definitions (used in a figure)
-\usepackage{xcolor} \newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\usepackage{xcolor}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
 \newcommand{\red}[1]{\textcolor{red}{#1}}
 \newcommand{\green}[1]{\textcolor{green}{#1}}
 \definecolor{lightblue}{RGB}{31,119,180}
@@ -79,7 +94,7 @@ Excerpts from the referee reports are written in \blue{blue}, excerpts
 from our original manuscript are written in \red{red}, and new text in
 the revised version of our manuscript is written in \green{green}.
 All page, line, and reference numbers generally refer to those in our
-original manuscript.
+original manuscript, unless explicitly stated otherwise.
 
 
 \section*{Revisions prompted by Referee 1}
@@ -141,9 +156,9 @@ original manuscript.
   mass of a single atom) with $m_{\text{A}}$; all $E_R$ (denoting the
   lattice photon recoil energy) with $E_{\t{R}}$; all
   $k_L,k_L^x,k_L^y,k_L^z$ (denoting the wavenumber of the lattice
-  laser and its projection onto three principal axes) by
+  laser and its projection onto three lattice axes) by
   $k_{\text{L}}, k_{\text{L}}^\x, k_{\text{L}}^\y, k_{\text{L}}^\z$;
-  all $\U_x,\U_y,\U_z$ (denoting lattice depths along principal axes)
+  all $\U_x,\U_y,\U_z$ (denoting lattice depths along lattice axes)
   respectively by $\U_\x,\U_\y,\U_\z$; and all
   $T_\mu^z,T_\mu^x,S_{\N X}^z,S_{\N X}^x$ (denoting single-atom and
   many-body pseudospin operators) respectively by
@@ -205,8 +220,55 @@ original manuscript.
     second order in the coupling constants, i.e.~$\tilde G\sim G^2$.}
 
 
+\item We fixed an inconsistency in our convention for the ordering of
+  operators associated with the coupling symbol
+  $G^{\mu q;\nu r}_{\rho s;\sigma t}$.  The text which previously read
+  (page 14, line 47):
+
+  \red{for more general
+    $\p{\mu,q}+\p{\nu,r}\leftrightarrow\p{\rho,s}+\p{\sigma,t}$
+    coupling induced by terms proportional to
+    $\c_{\mu q}^\dag \c_{\nu r}^\dag \c_{\sigma t} \c_{\rho s}$.}
+
+  now reads:
+
+  \green{for more general
+    $\p{\mu,q}+\p{\nu,r}\leftrightarrow\p{\rho,s}+\p{\sigma,t}$
+    coupling induced by terms proportional to
+    $\c_{\rho s}^\dag \c_{\sigma t}^\dag \c_{\nu r} \c_{\mu q}$.}
+
+  Both examples are correct due to the fact that
+  $G^{\mu q;\nu r}_{\rho s;\sigma t}$ is self-adjoint, but the latter
+  ordering convention is used throughout the rest of the manuscript.
+
+
+
+\item In Eq.~(21), we have fixed an error in the nuclear spin indices
+  ($\mu,\nu$) on the two rightmost operators of the middle term, such
+  that (page 14, line 53):
+
+  \red{\begin{align*}
+      G^{\mu q;\nu r}_{\nu s;\mu t}
+      \c_{\nu s}^\dag \c_{\mu t}^\dag \c_{\nu r} \c_{\mu q}
+      = -G^{qr}_{ts} \c_{\nu s}^\dag \c_{\mu t}^\dag \c_{\mu r} \c_{\nu q}
+      = G^{qr}_{ts} \c_{\mu t}^\dag \c_{\nu s}^\dag \c_{\nu r} \c_{\mu q}.
+      \tag{21}
+    \end{align*}}
+
+  now reads:
+
+  \green{\begin{align*}
+      G^{\mu q;\nu r}_{\nu s;\mu t}
+      \c_{\nu s}^\dag \c_{\mu t}^\dag \c_{\nu r} \c_{\mu q}
+      = -G^{qr}_{ts} \c_{\nu s}^\dag \c_{\mu t}^\dag \c_{\nu r} \c_{\mu q}
+      = G^{qr}_{ts} \c_{\mu t}^\dag \c_{\nu s}^\dag \c_{\nu r} \c_{\mu q}.
+      \tag{21}
+    \end{align*}}
+
+
 \item To make our first appendix more self-contained, we have defined
-  $\P_0$ therein, such that the text (page 30, line 38):
+  the projector $\P_0$ used therein, such that the text (page 30, line
+  38):
 
   \red{Letting $\Q_0\equiv1-\P_0$ denote the projector onto $\E_0$ and
     $X$ ...}

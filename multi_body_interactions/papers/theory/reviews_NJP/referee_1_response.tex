@@ -18,6 +18,7 @@
 \renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
 \newcommand{\bk}{\braket} % shorthand for braket
 
+\renewcommand{\d}{\text{d}}
 \newcommand{\g}{\text{g}}
 \newcommand{\e}{\text{e}}
 \newcommand{\x}{\text{x}}
@@ -48,6 +49,18 @@
 % inline lists
 \usepackage[inline]{enumitem}
 \setlist[enumerate]{leftmargin=*} % nice margins for enumerate
+
+
+% for feynman diagrams
+\usepackage{tikz,tikz-feynman}
+\tikzset{
+  baseline = (current bounding box.center)
+}
+\tikzfeynmanset{
+  compat = 1.1.0,
+  every feynman = {/tikzfeynman/small}
+}
+\newcommand{\shrink}[1]{\scalebox{0.8}{#1}} % for smaller diagrams
 
 
 % color definitions (used in a figure)
@@ -81,7 +94,7 @@ Excerpts from the referee reports are written in \blue{blue}, excerpts
 from our original manuscript are written in \red{red}, and new text in
 the revised version of our manuscript is written in \green{green}.
 All page, line, and reference numbers generally refer to those in our
-original manuscript.
+original manuscript, unless explicitly stated otherwise.
 
 \begin{enumerate}
 \item Concerning:
@@ -106,7 +119,7 @@ original manuscript.
   recognizing that our analysis is ``very important and timely''.  We
   hope that thew revisions outlined below have made our manuscript
   more accessible, and that we have addressed shortcomings identified
-  by the reviewer to a satisfactory degree.
+  by the referee to a satisfactory degree.
 
 
 \item Concerning the generality of our multi-body theory:
@@ -128,8 +141,6 @@ original manuscript.
     in the abstract and introduction. Furthermore, a short description
     of the experiment would be mandatory for an independent
     manuscript.}
-
-  \label{pt:limitations}
 
   We thank the referee for pointing out the potential to mislead
   readers on the generality of our theory.  The referee is correct
@@ -160,14 +171,13 @@ original manuscript.
     the latter restriction is a consequence of initial ground-state
     preparation.  We fully characterize...}
 
-  In the introduction, we have modified the following sentence (in the
-  first paragraph discussing our technical contributions) (page 4,
-  line 22):
+  We then added explicit mention of ground-state preparation to the
+  introduction, replacing (page 4, line 22):
 
   \red{Specifically, we consider the preparation of isolated few-body
     systems in the deep-lattice limit, ...}
 
-  which now reads:
+  by:
 
   \green{Specifically, we consider ground-state preparation of
     isolated few-body systems in the deep-lattice limit, ...}
@@ -184,8 +194,9 @@ original manuscript.
     occupying each nuclear spin state on any lattice site, which is a
     consequence initial ground-state preparation.}
 
-  We have also rearranged and rewritten some of the following
-  paragraph (page 4, line 33):
+  In order to motivate a later restriction to one orbital excitation
+  per lattice site, we have rearranged and rewritten some of the next
+  paragraph in the introduction, changing the text (page 4, line 33):
 
   \red{Though effective multi-body interactions have previously been
     studied in the context of harmonically [35, 36] and
@@ -214,7 +225,7 @@ original manuscript.
     interaction energies predicted by our low-energy effective theory
     and the experimental measurements of the density-dependent orbital
     excitation spectra performed in ref.~[34], similarly to the
-    measurements with bosons performed in ref.~[38]. To facilitate
+    measurements with bosons performed in ref.~[38].  To facilitate
     this comparison of excitation spectra and characterize the
     low-lying excitations in our effective theory, we consider a
     restriction of the theory to states with at most one orbital
@@ -226,15 +237,16 @@ original manuscript.
 
   We also clarify the limitations of our theory in the overview
   between Eqs.~(8) and (9), as discussed later in point
-  \ref{pt:confusion}, and have replaced the following text (page 7,
-  line 48):
+  \ref{pt:confusion}, and have made our technical contributions more
+  explicit in the preview of our main results (in section II),
+  replacing (page 7, line 48):
 
   \red{Our low-energy effective theory exhibits SU($N$)-symmetric
     multi-body interactions, such that the effective interaction
     Hamiltonian can be written in the form
-    \begin{align}
+    \begin{align*}
       H_{\t{int}}^{\t{eff}} = \sum_{M=2}^{2I+1} H_M, \tag{9}
-    \end{align}
+    \end{align*}
     where $H_M$ is an $M$-body Hamiltonian, $I$ is the total nuclear
     spin of each atom (e.g.~$I=9/2$ for ${}^{87}$Sr), and the sum
     terminates at $2I+1$ because this is the largest number of atoms
@@ -243,15 +255,15 @@ original manuscript.
     SU($N$) symmetry allows us to express multi-body Hamiltonians in
     the simple form}
 
-  with
+  by:
 
   \green{Our low-energy effective theory exhibits SU($N$)-symmetric
     multi-body interactions, such that the effective interaction
     Hamiltonian can be written in the form
-    \begin{align}
+    \begin{align*}
       H_{\t{int}}^{\t{eff}} = \sum_{M=2}^{2I+1} \sum_{p\ge1} H_M^{(p)},
       \tag{9}
-    \end{align}
+    \end{align*}
     where $H_M^{(p)}$ is an $M$-body Hamiltonian of order $p$ in the
     coupling constants $G_X$, $I$ is the total nuclear spin of each
     atom (e.g.~$I=9/2$ for ${}^{87}$Sr), and the sum terminates at
@@ -268,8 +280,8 @@ original manuscript.
     SU($N$) symmetry of atomic collisions allows us to express
     multi-body Hamiltonians in the simple form}
 
-  In section IV (page 18), we have changed the first sentence from
-  (page 18, line line 45):
+  In section IV (page 18), we have similarly changed the first
+  sentence from (page 18, line line 45):
 
   \red{Current experiments with ultracold ${}^{87}$Sr on a lattice can
     coherently address ground states and their low-lying orbital
@@ -289,8 +301,11 @@ original manuscript.
     a restriction of the $M$-body Hamiltonians $H_M=\sum_p H_M^{(p)}$
     to the subspace of experimentally addressed states takes the form}
 
-  Finally, we have modified the following text in our summary (page
-  28, line 40):
+  Finally, we have modified some text in our summary to emphasize that
+  our main theory is general with respect to orbital excitations, and
+  that the restriction to one orbital excitation per lattice site is
+  made to facilitate comparison with experiments; specifically, we
+  have changed (page 28, line 40):
 
   \red{Working in the deep-lattice limit, we have derived a low-energy
     effective theory of such atoms. This theory exhibits emergent
@@ -396,7 +411,7 @@ original manuscript.
     between lattice sites, and assume that both atomic orbital states
     experience identical lattice potentials.}
 
-  To reflect the addition of new text, we have modified the
+  To reflect this change to section II, we have modified the
   description of section II on page 4, line 52, previously:
 
   \red{In section II we provide an overview of the relevant one- and
@@ -407,8 +422,8 @@ original manuscript.
   and now:
 
   \green{In section II we summarize the experimental procedures
-    relevant to our work, provide an overview one- and two-body
-    physics of ultracold atoms on a lattice, and preview our main
+    relevant to our work, provide an overview of the one- and two-body
+    physics of ultracold atoms in a deep lattice, and preview our main
     technical results.}
 
   We have also removed the now redundant parenthetical text on page 5,
@@ -465,8 +480,9 @@ original manuscript.
     by fermionic statistics, and subsequently cannot be violated in
     the absence of tunneling and hyperfine coupling.}
 
-  We have re-written this paragraph in its entirety, replacing it with
-  the following text:
+  We have re-written this paragraph in its entirety to walk through
+  the arguments and explanations therein more carefully, replacing it
+  with the following text:
 
   \green{Current experiments with ${}^{87}$Sr can prepare up to five
     atoms atoms in the same (ground) orbital state on a single lattice
@@ -505,7 +521,8 @@ original manuscript.
     states.}
 
   Accordingly, we have modified language in section III that makes
-  reference to the re-written paragraph, changing (page 9, line 45):
+  reference to the re-written paragraph above, changing (page 9, line
+  45):
 
   \red{The naive idea of neglecting all excited states and using
     $H_{\t{int}}$ directly to describe the spectrum of single-particle
@@ -520,7 +537,8 @@ original manuscript.
     equivalent to truncating our expansion for $H_{\t{int}}^{\t{eff}}$
     at first order.}
 
-  We hope that the new text is more readable and easier to understand.
+  We hope that the new text between Eqs.~(8) and (9) is more readable
+  and easier to understand.
 
 
 \item Concerning:
@@ -532,13 +550,13 @@ original manuscript.
   redundancy while still providing a preview of our main results, we
   have replaced the following text in section II (page 8, line 10):
 
-  \red{\begin{align} H_M = \sum_{\abs{\set{\mu_j}}=M} \p{U_{M,\g}
+  \red{\begin{align*} H_M = \sum_{\abs{\set{\mu_j}}=M} \p{U_{M,\g}
         \prod_{\alpha=1}^M \n_{\mu_\alpha,\g} + U_{M,+} \n_{\mu_1,\e}
         \prod_{\alpha=2}^M \n_{\mu_\alpha,\g} + U_{M,-}
         \c_{\mu_1,\g}^\dag \c_{\mu_2,\e}^\dag \c_{\mu_2,\g}
         \c_{\mu_1,\e} \prod_{\alpha=3}^M \n_{\mu_\alpha,\g}},
       \tag{10}
-    \end{align}
+    \end{align*}
     where $\c_{\mu s}\equiv\c_{0,\mu s}$ is a fermionic annihilation
     operator for an atom in the motional ground state with nuclear
     spin $\mu$ and orbital state $s$;
@@ -557,11 +575,11 @@ original manuscript.
 
   by:
 
-  \green{\begin{align}
+  \green{\begin{align*}
       H_M = \sum_{\abs{\set{\mu_j}}=M}
       H_2^{(\mu_1,\mu_2)} \prod_{\alpha=3}^M \n_{\mu_\alpha,\g},
       \tag{10}
-    \end{align}
+    \end{align*}
     where $H_2^{(\mu_1,\mu_2)}$ is a two-body Hamiltonian addressing
     atoms with nuclear spin $\mu_1,\mu_2$;
     $\n_{\mu s}=\c_{\mu s}^\dag\c_{\mu s}$ is a number operator for
@@ -575,29 +593,32 @@ original manuscript.
     ultimately take the same form as two-body interactions, but with
     the addition of $M-2$ spectator atoms.}
 
-  and have modified Eq.~(42) to take the explicit form advertised in
-  the new Eq.~(10), changing (page 18, line 54):
+  and we have modified Eq.~(42) to take the explicit form advertised
+  in the new version of Eq.~(10), changing (page 18, line 54):
 
-  \red{\begin{align}
+  \red{\begin{align*}
       H_M = \sum_{\abs{\set{\mu_j}}=M}
       \p{U_{M,\g} \prod_{\alpha=1}^M \n_{\mu_\alpha,\g}
         + U_{M,+} \n_{\mu_1,\e} \prod_{\alpha=2}^M \n_{\mu_\alpha,\g}
         + U_{M,-} \c_{\mu_1,\g}^\dag \c_{\mu_2,\e}^\dag
         \c_{\mu_2,\g} \c_{\mu_1,\e} \prod_{\alpha=3}^M \n_{\mu_\alpha,\g}},
       \tag{42}
-    \end{align}}
+    \end{align*}}
 
   to:
 
-  \green{\begin{align}
+  \green{\begin{align*}
       H_M = \sum_{\abs{\set{\mu_j}}=M}
       \p{U_{M,\g} \n_{\mu_1,\g} \n_{\mu_2,\g}
         + U_{M,+} \n_{\mu_1,\e} \n_{\mu_2,\g}
         + U_{M,-} \c_{\mu_1,\g}^\dag \c_{\mu_2,\e}^\dag
         \c_{\mu_2,\g} \c_{\mu_1,\e}}
       \prod_{\alpha=3}^M \n_{\mu_\alpha,\g},
-      \tag{42}
-    \end{align}}
+      \tag{44}
+    \end{align*}}
+
+  Note that the new equation number is 44 due to the addition of two
+  new equations in response to point \ref{pt:divergence} below.
 
 
 \item Concerning the use of an interaction pseudopotential:
@@ -610,13 +631,14 @@ original manuscript.
     renormalization of the divergencies without explaining the reason
     for their appearance.}
 
+  \label{pt:pseudo-potential}
+
   We thank the referee for their attention to detail, and for pointing
   out the potential to mislead readers with respect to the nature of
   $s$-wave interactions by our expression of Eq.~(2).  We have
-  therefore added the following paragraph to section II of our
-  manuscript, following the re-statement of Eq.~(2) in Eq.~(5)
-  (i.e.~the following text has been inserted in between lines 35 and
-  36 of page 6):
+  therefore added the a paragraph to section II, following the
+  re-statement of Eq.~(2) in Eq.~(5).  Specifically, the following
+  text has been inserted in between lines 35 and 36 of page 6:
 
   \green{Note that the Hamiltonian in (5) is not the true microscopic
     interaction Hamiltonian of AEAs, but rather a generic form for a
@@ -630,22 +652,24 @@ original manuscript.
     [45], or through renormalization of the coupling constants in the
     theory.  We chose the latter approach, as we will in any case find
     it convenient to renormalize the coupling constants in the
-    effective theory developed in section III.  Second, (5) is only
-    the first term in a low-energy expansion of two-body interactions
-    in effective field theory, which generally includes additional
-    terms containing derivatives of field operators.  Derivative terms
-    correspond to the dependence of two-body scattering on the
-    relative momentum $k$ of particles involved, with $k\to0$ in the
-    zero-energy limit.  In the present case of $s$-wave scattering,
-    the leading dependence of the two-body interaction Hamiltonian on
-    the relative momentum $k$ can be captured by use of an
-    energy-dependent pseudo-potential, which amounts to using a
-    $k$-dependent effective scattering length [46].  This effective
-    scattering length can be determined by expanding the $s$-wave
-    collisional phase shift in powers of the relative momentum $k$
-    [45, 47].  Details of this expansion will depend on the
-    characteristic length scale of finite-range interactions.  In our
-    work, these corrections to (5) will be relevant only for the
+    effective theory developed in section III.  The choice of method
+    to regulate divergences has no effect on the underlying physics.}
+
+  \green{Second, (5) is only the first term in a low-energy expansion
+    of two-body interactions in effective field theory, which
+    generally includes additional terms containing derivatives of
+    field operators.  Derivative terms correspond to the dependence of
+    two-body scattering on the relative momentum $k$ of particles
+    involved, with $k\to0$ in the zero-energy limit.  In the present
+    case of $s$-wave scattering, the leading dependence of the
+    two-body interaction Hamiltonian on the relative momentum $k$ can
+    be captured by use of an energy-dependent pseudo-potential, which
+    amounts to using a $k$-dependent effective scattering length [46].
+    This effective scattering length can be determined by expanding
+    the $s$-wave collisional phase shift in powers of the relative
+    momentum $k$ [45, 47].  Details of this expansion will depend on
+    the characteristic length scale of finite-range interactions.  In
+    our work, these corrections to (5) will be relevant only for the
     calculation of two-body interaction energies, appearing at third
     order in the coupling constants $G_X$.  As we are primarily
     interested in $M$-body interactions for $M\ge3$, we defer this
@@ -653,10 +677,14 @@ original manuscript.
     unregularized contact potential, renormalizing coupling constants,
     and separately accounting for momentum-dependent scattering is
     essentially the same as that used for similar calculations in
-    refs.~[35--37].}
+    refs.~[35--37].  While this approach does not provide insight into
+    the microscopic nature of atomic interactions, it is suitable for
+    the phenomenological description of these interactions, and
+    particular for our eventual development of a low-energy effective
+    theory.}
 
-  Expanding on our use of renormalization, we have changed the
-  following text in section III B (page 12, line 15):
+  Expanding on our use and method of renormalization, we have changed
+  the following text in section III B (page 12, line 15):
 
   \red{In general, the sums over excited states in the loop diagrams
     of (15) will diverge [35], which implies the need to renormalize
@@ -677,19 +705,16 @@ original manuscript.
     must clearly be finite, but individual sums over the excited
     states in loop diagrams of (15) may generally diverge [35].  These
     divergences ultimately appear due to our use of effective field
-    theory to describe inter-atomic interactions in (2) and (5),
+    theory to describe inter-atomic interactions in (2), (5), and (7),
     rather than a detailed microscopic description of two-atom
     scattering.  Divergences of this sort are a generic feature of
     field theories, and can be dealt with using standard techniques
     such as renormalization.  We therefore renormalize our coupling
     constants by introducing counter-terms $\tilde G_X$ into the
-    effective interaction Hamiltonians via $G_X\to G_X+\tilde G_X$.
-    The values of counter-terms can be fixed by enforcing that $G_X$
-    is equal to the net two-body interaction strength, which has the
-    added benefit of allowing us to express the effective two-body
-    interactions in terms of net, physically observable two-body
-    coupling constants on the right-hand side of (15), rather than in
-    terms of long sums at all orders of the bare coupling constants.}
+    interaction Hamiltonian.}
+
+  We further discuss our method of renormalization later in point
+  \ref{pt:renormalization}.
 
   We have also modified the wording in our discussion of corrections
   to Eqs.~(2) and (5) at the end of section III B, replacing the text
@@ -708,7 +733,7 @@ original manuscript.
 
   by:
 
-  \green{Second, our result in (17) neglects the effect of
+  \green{Finally, our result in (17) neglects the effect of
     momentum-dependent two-body scattering.  When the effective range
     of interactions is comparable to the scattering lengths $a_X$, as
     is the case for ultracold ${}^{87}$Sr, these momentum-dependent
@@ -724,8 +749,8 @@ original manuscript.
   interaction Hamiltonian.
 
 
-\item Concerning the effective theory corrections to many-body energy
-  eigenstates:
+\item Concerning corrections to many-body energy eigenstates in our
+  effective theory:
 
   \blue{(v) On page 10: For the sentence ``Finally, the effective
     theory involves no corrections to the many-body energy
@@ -740,13 +765,13 @@ original manuscript.
   transformation.  Between the non-interacting Hamiltonian $H_0$, the
   interacting Hamiltonian $H = H_0 + H_{\t{int}}$, and the effective
   Hamiltonian $H_{\t{eff}}$ constructed from $H$ with a unitary
-  transformation, there are many different sets of energies and
-  eigenstates to keep track of.
+  transformation, there are different sets of energies and eigenstates
+  to keep track of.
 
-  To help clarify the relationship between $H_0$, $H$, and
-  $H_{\t{eff}}$, as well as their respective eigenstates and spectra,
-  we have re-written our opening to section III, replacing the
-  following paragraphs (page 8, line 36):
+  To help clarify the relationship between these different
+  Hamiltonians, their eigenstates, and spectra, we have re-written our
+  opening to section III, replacing the first two paragraphs (page 8,
+  line 36):
 
   \red{As the bare two-body Hamiltonian $H_{\t{int}}$ is not diagonal
     with respect to single-particle motional states, the problem of
@@ -782,22 +807,23 @@ original manuscript.
 
   \green{The net Hamiltonian $H = H_0 + H_{\t{int}}$ for interacting
     AEAs on a lattice is not diagonal with respect to single-particle
-    motional state indices.  The problem of determining interacting
-    atoms' orbital excitation spectrum therefore nominally involves
-    all atomic motional degrees of freedom.  At zero temperature,
-    however, each orbital state of interacting atoms is associated
-    with a single motional ground state.  In order to compute an
-    orbital excitation spectrum at zero temperature, in principle we
-    need to identify these motional ground states.  We can then ignore
-    all excited motional states, which will be neither thermally
-    occupied nor externally interrogated.  Such a procedure would
-    drastically reduce the dimensionality of the Hilbert space
-    necessary to describe the atoms, thereby greatly simplifying any
-    description of the atoms' orbital spectrum and dynamics.  In
-    practice, however, identifying the motional ground states of
-    interacting atoms and writing down a Hamiltonian restricted to
-    this subspace is a very difficult process to carry out
-    analytically.}
+    motional state indices (e.g.~$n\in\mathbb{N}_0^3$).  The problem
+    of determining interacting atoms' orbital excitation spectrum
+    therefore nominally involves all atomic motional degrees of
+    freedom.  At zero temperature, however, each orbital state of a
+    collection of interacting atoms is associated with a single
+    motional ground state.  In order to compute an orbital excitation
+    spectrum at zero temperature, in principle we need to identify
+    these motional ground states.  We can then ignore all excited
+    motional states, which will be neither thermally occupied nor
+    externally interrogated.  Such a procedure would drastically
+    reduce the dimensionality of the Hilbert space necessary to
+    describe the atoms, thereby greatly simplifying any description of
+    the atoms' orbital spectrum and internal (i.e.~nuclear and
+    orbital) dynamics.  In practice, however, identifying the motional
+    ground states of interacting atoms and writing down a Hamiltonian
+    restricted to this subspace is a very difficult process to carry
+    out analytically.}
 
   \green{We denote the motional ground-state subspace of the
     non-interacting Hamiltonian $H_0$ by
@@ -833,8 +859,8 @@ original manuscript.
     application in relating the Anderson and Kondo models of magnetic
     impurities in metals [50].}
 
-  We have also modified the text pointed out by the referee, changing
-  (page 10, line 19):
+  We have also modified the particular text pointed out by the
+  referee, changing (page 10, line 19):
 
   \red{Finally, the effective theory involves no corrections to the
     many-body energy eigenstates.  Including such corrections would
@@ -845,13 +871,14 @@ original manuscript.
   to:
 
   \green{Finally, the effective theory involves no corrections to the
-    non-interacting many-body energy eigenstates; the purpose of the
-    effective Hamiltonian $H_{\t{eff}} = H_0 + H_{\t{int}}^{\t{eff}}$
-    is to reproduce, on the eigenstates of the non-interacting
-    Hamiltonian $H_0$ within $\H_{\t{ground}}^{\t{single}}$, the
-    spectrum of the interacting Hamiltonian $H = H_0 + H_{\t{int}}$ on
-    $\H_{\t{ground}}^{\t{multi}}$.  Modifying the eigenstates of the
-    non-interacting Hamiltonian $H_0$ on
+    non-interacting many-body energy eigenstates; the purpose of
+    constructing the effective Hamiltonian
+    $H_{\t{eff}} = H_0 + H_{\t{int}}^{\t{eff}}$ is to reproduce, on
+    the known eigenstates of the non-interacting Hamiltonian $H_0$
+    within $\H_{\t{ground}}^{\t{single}}$, the spectrum of the
+    interacting Hamiltonian $H = H_0 + H_{\t{int}}$ on
+    $\H_{\t{ground}}^{\t{multi}}$.  ``Correcting'' the eigenstates of
+    the non-interacting Hamiltonian $H_0$ on
     $\H_{\t{ground}}^{\t{single}}$ thus invalidates the effective
     theory.}
 
@@ -871,8 +898,397 @@ original manuscript.
     based on the pseudo-potential would be certainly help to justify
     this approach.}
 
-  
+  We agree with the referee that a microscopic derivation of our
+  effective theory based on a regularized pseudo-potential would
+  provide additional insights, but respectfully disagree that doing so
+  is worthwhile for our manuscript.  Microscopic treatment of
+  interactions is generally a difficult task; we do not know of any
+  analytical descriptions of even {\it two}-body interactions of atoms
+  on a lattice (as exist e.g.~in the case of a harmonic trap,
+  considered in
+  ref.~[\href{https://link.springer.com/article/10.1023\%2FA\%3A1018705520999}{53}]),
+  nevermind multi-body interactions that appear in an effective theory
+  of the two-body case.  Effective field theory and renormalization,
+  meanwhile, are standard and powerful tools for studying interacting
+  quantum systems.  These tools are therefore well-suited to our goal
+  at hand: to interpret the results of experiments exhibiting
+  signatures of multi-body interactions, and build towards the use of
+  such experiments to perform interesting quantum simulations.  We
+  discussed our use of effective field theory and renormalization in
+  our response to point \ref{pt:pseudo-potential}, commenting on our
+  particular choice of methods in a pair new sentences inserted
+  between Eqs.~(5) and (6):
 
+  \green{We note that our approach of using an unregularized contact
+    potential, renormalizing coupling constants, and separately
+    accounting for momentum-dependent scattering is essentially the
+    same as that used for similar calculations in refs.~[35--37].
+    While this approach does not provide insight into the microscopic
+    structure of inter-atomic interactions, it is suitable for the
+    phenomenological description of these interactions, and particular
+    for our eventual development of a low-energy effective theory.}
+
+  We hope that the referee understands our position on this matter,
+  and does not consider a microscopic treatment of interactions to be
+  compulsory for the publication of our manuscript.
+
+
+\item Concerning the diagram in Eq.~(22):
+
+  \blue{The referee tried to follow the authors approach, but was
+    stuck with the following two problems:}
+
+  \blue{(1) It is unclear to the referee, why the diagram in Eq.(22)
+    converges. For large n and m motional state reduces to free
+    particles with energy $\sim$ n\^{}2 and m\^{}2 as the energy is
+    much higher than the lattice. In addition, the overlap K become a
+    constant. Then, a dimensional analysis shows that this term
+    diverges logarithmically. It is a significant short coming of the
+    manuscript that the authors fail to provide a detailed discussion
+    of potential diverging terms. Therefore, it is unclear to the
+    referee, whether the chosen approach is well defined.}
+
+  \label{pt:divergence}
+
+  We thank the referee for their careful consideration of our theory,
+  for pointing out a potential concern about divergences.  The
+  argument for a divergence in our theory essentially concerns a
+  quantity in Eq.~(30) on page 16:
+  \begin{align*}
+    \alpha_3^{(3)} \equiv \sum_{\substack{\ell+m>0\\\ell+n>0}}
+    \f{K_{\ell m} K^m_n K_{\ell n}}{\p{E_\ell+E_m}\p{E_\ell+E_n}},
+  \end{align*}
+  for $\ell,m,n\in\mathbb{N}_0^3$ with
+  e.g.~$\ell\equiv\p{\ell_\x,\ell_\y,\ell_\z}$ and $E_\ell$ equal to
+  the motional energy of a non-interacting atom in motional state
+  $\ell$.  The referee correctly recognizes that when $\ell$ is large,
+  it indexes the state of a free particle with an asymptotic energy
+  $E_\ell\sim\ell^2\equiv\ell_\x^2+\ell_\y^2+\ell_\z^2$.  If spatial
+  overlap integrals (e.g.~$K_{\ell m}$) become constant for large
+  $\ell,m,n$, the sum above asymptotically takes the form
+  \begin{align*}
+    \alpha_3^{(3)} \stackrel{?}{\sim}
+    \int \f{\d^3\ell~\d^3m~\d^3n}{\p{\ell^2+m^2}\p{\ell^2+n^2}},
+  \end{align*}
+  which diverges by dimensional analysis.
+
+  The problem with the above argument is that the overlap integral
+  $K_{\ell m}$ does not become constant at large $\ell,m$, but rather
+  becomes sharply peaked at $\ell\approx m$.  We address and explain
+  this point in the following text, which we have appended to section
+  III D after Eq.~(32) on page 16:
+
+  \green{Note that although (22) is a loop diagram, the associated
+    factors $\alpha_3^{(3)}$ and $\alpha_5^{(3)}$ in $H_3^{(3)}$ are
+    finite.  At large $n$, atoms become free particles for which $n$
+    essentially indexes discrete momentum states.  These atoms thus
+    have an energy which asymptotically scales as
+    $E_n\sim n^2\equiv n_\x^2+n_\y^2+n_\z^2$.  Furthermore, the
+    oscillatory behavior of atomic wavefunctions with increasing
+    motional state indices $\ell,m$ implies that the overlap integral
+    $K_{\ell m}$ (and similarly $K^\ell_m$) becomes sharply peaked at
+    $\ell\approx m$ as $\ell$ and $m$ get large.  The asymptotic
+    behavior of $\alpha_3^{(3)}$ at large $\ell,m,n$ is therefore
+    \begin{align*}
+      \alpha_3^{(3)}
+      \sim \int \f{\d^3\ell~\d^3m~\d^3n}{\p{\ell^2+m^2}\p{\ell^2+n^2}}
+      ~\delta\p{\ell-m}\delta\p{\ell-n}
+      \sim \int \f{\d^3\ell}{\ell^4}
+      \sim \int_{\ell_{\t{min}}}^\infty \f{\d\ell}{\ell^2}
+      \sim \f1{\ell_{\t{min}}},
+      \tag{33}
+    \end{align*}
+    where in the last integral we changed to spherical coordinates,
+    and $\ell_{\t{min}}^2$ is the minimum value of $\ell^2$ for which
+    (i) the energy $E_\ell\sim\ell^2$, and (ii) the integral
+    expression in (33) is a good approximation to the corresponding
+    sum in (30).  Note that the introduction of $\ell_{\t{min}}$
+    amounts to neglecting a finite number of terms in the sum over
+    $\ell,m,n$ in (30), whose contribution to the value of
+    $\alpha_3^{(3)}$ is finite.  Convergence of $\alpha_5^{(3)}$ is
+    similarly guaranteed by the fact that the overlap integral $K_n$
+    does not asymptotically grow with increasing $n$, such that
+    $\alpha_5^{(3)}$ asymptotically behaves as
+    \begin{align*}
+      \alpha_5^{(3)} \sim \int \f{\d^3 n}{n^4}
+      \sim \int_{n_{\t{min}}}^\infty \f{\d n}{n^2}
+      \sim \f1{n_{\t{min}}},
+      \tag{34}
+    \end{align*}
+    where $n_{\t{min}}$ is defined similarly to $\ell_{\t{min}}$.}
+
+  We hope that this new text addresses potential concerns about
+  divergences in a satisfactory manner.
+
+
+\item Concerning the last point:
+
+  \blue{(ii) The referee is a bit familiar with counter terms in
+    standard renormalization of field theories like QED. However,
+    there it is required that a counter term in each order
+    perturbation theory is introduced. In turn, the authors in the
+    present manuscript just introduce a single counter term. The
+    referee would expect that a careful theoretical manuscript
+    properly discusses the regularization and renormalization of the
+    theory as well as all diverging diagrams.}
+
+  \label{pt:renormalization}
+
+  We thank the referee for pointing out that our manuscript would
+  benefit from a careful explanation of our renormalization scheme.
+  Renormalization is a class of techniques, the details of which may
+  look different in the context of different field theories; worse
+  still, any chosen means to renormalize a field theory is generally
+  not unique.
+
+  In order to clarify our introduction and use of counter-terms, we
+  have replaced the following text (page 12, line 35):
+
+  \red{The values of these counter-terms are fixed by enforcing that
+    $G_X$ is equal to the net two-body interaction
+    strength. Diagrammatically, this renormalization condition is
+    \begin{align*}
+      \substack{
+        \shrink{
+          \begin{tikzpicture}
+            \begin{feynman}
+              \vertex (v);
+              \vertex[above left = of v] (f1);
+              \vertex[below left = of v] (f2);
+              \vertex[above right = of v] (f3);
+              \vertex[below right = of v] (f4);
+              \diagram* {
+                (f1) -- (v),
+                (f2) -- (v),
+                (v) -- (f3),
+                (v) -- (f4) };
+            \end{feynman}
+          \end{tikzpicture}}
+        \\ \O(G)}
+      + \substack{
+        \shrink{
+          \begin{tikzpicture}
+            \begin{feynman}
+              \vertex[crossed dot] (v) {};
+              \vertex[above left = of v] (f1);
+              \vertex[below left = of v] (f2);
+              \vertex[above right = of v] (f3);
+              \vertex[below right = of v] (f4);
+              \diagram* {
+                (f1) -- (v),
+                (f2) -- (v),
+                (v) -- (f3),
+                (v) -- (f4) };
+            \end{feynman}
+          \end{tikzpicture}}
+        \\ \O(\tilde G)}
+      - \substack{
+        \shrink{
+          \begin{tikzpicture}
+            \begin{feynman}
+              \vertex (v1);
+              \vertex[above left = of v1] (f1);
+              \vertex[below left = of v1] (f2);
+              \vertex[right = of v1] (v2);
+              \vertex[above right = of v2] (f3);
+              \vertex[below right = of v2] (f4);
+              \diagram* {
+                (f1) -- (v1),
+                (f2) -- (v1),
+                (v2) -- (f3),
+                (v2) -- (f4),
+                (v1) --[scalar, half left] (v2),
+                (v1) --[scalar, half right] (v2) };
+            \end{feynman}
+          \end{tikzpicture}}
+        \\ \O(G^2)}
+      + \cdots = \substack{
+        \shrink{
+          \begin{tikzpicture}
+            \begin{feynman}
+              \vertex (v);
+              \vertex[above left = of v] (f1);
+              \vertex[below left = of v] (f2);
+              \vertex[above right = of v] (f3);
+              \vertex[below right = of v] (f4);
+              \diagram* {
+                (f1) -- (v),
+                (f2) -- (v),
+                (v) -- (f3),
+                (v) -- (f4) };
+            \end{feynman}
+          \end{tikzpicture}}
+        \\ \O(G)}.
+      \tag{16}
+    \end{align*}
+    where we represent counter-terms by a crossed dot (i.e.~$\otimes$)
+    at a vertex. To leading order in the coupling constants, it
+    follows that the counter-terms are second order in the coupling
+    constants, i.e.~$\tilde G\sim G^2$. This finding implies that
+    counter-terms only come into play at next- to-leading order (NLO)
+    in the calculation of any effective $M$-body interaction
+    Hamiltonian.}
+
+  by a new paragraph with more detailed discussion of counter-terms
+  and the renormalization condition:
+
+  \green{The introduction of counter-terms is merely a formal
+    decomposition of the ``bare'' coupling constants $G_X^{\t{bare}}$
+    that are used in (15) as $G_X^{\t{bare}} = G_X + \tilde G_X$.  In
+    performing such a decomposition, we are free to choose the values
+    of $G_X$, which in turn fixes the values of
+    $\tilde G_X \equiv G_X^{\t{bare}} - G_X$.  For convenience, we can
+    choose the values of $G_X$ to be those of the physically observed
+    effective coupling constants on the right-hand side of (15).
+    Representing the new coupling constants $G_X$ by regular vertices
+    and the counter-terms $\tilde G_X$ by a crossed dot
+    (i.e.~$\otimes$), this choice leads to the {\it renormalization
+      condition}
+    \begin{align*}
+      \substack{
+        \shrink{
+          \begin{tikzpicture}
+            \begin{feynman}
+              \vertex (v);
+              \vertex[above left = of v] (f1);
+              \vertex[below left = of v] (f2);
+              \vertex[above right = of v] (f3);
+              \vertex[below right = of v] (f4);
+              \diagram* {
+                (f1) -- (v),
+                (f2) -- (v),
+                (v) -- (f3),
+                (v) -- (f4) };
+            \end{feynman}
+          \end{tikzpicture}}
+        \\ \O(G)}
+      + \substack{
+        \shrink{
+          \begin{tikzpicture}
+            \begin{feynman}
+              \vertex[crossed dot] (v) {};
+              \vertex[above left = of v] (f1);
+              \vertex[below left = of v] (f2);
+              \vertex[above right = of v] (f3);
+              \vertex[below right = of v] (f4);
+              \diagram* {
+                (f1) -- (v),
+                (f2) -- (v),
+                (v) -- (f3),
+                (v) -- (f4) };
+            \end{feynman}
+          \end{tikzpicture}}
+        \\ \O(\tilde G)}
+      - \substack{
+        \shrink{
+          \begin{tikzpicture}
+            \begin{feynman}
+              \vertex (v1);
+              \vertex[above left = of v1] (f1);
+              \vertex[below left = of v1] (f2);
+              \vertex[right = of v1] (v2);
+              \vertex[above right = of v2] (f3);
+              \vertex[below right = of v2] (f4);
+              \diagram* {
+                (f1) -- (v1),
+                (f2) -- (v1),
+                (v2) -- (f3),
+                (v2) -- (f4),
+                (v1) --[scalar, half left] (v2),
+                (v1) --[scalar, half right] (v2) };
+            \end{feynman}
+          \end{tikzpicture}}
+        \\ \O(G^2)}
+      + \cdots = \substack{
+        \shrink{
+          \begin{tikzpicture}
+            \begin{feynman}
+              \vertex (v);
+              \vertex[above left = of v] (f1);
+              \vertex[below left = of v] (f2);
+              \vertex[above right = of v] (f3);
+              \vertex[below right = of v] (f4);
+              \diagram* {
+                (f1) -- (v),
+                (f2) -- (v),
+                (v) -- (f3),
+                (v) -- (f4) };
+            \end{feynman}
+          \end{tikzpicture}}
+        \\ \O(G)}.
+      \tag{16}
+    \end{align*}
+    This renormalization condition has the benefit of allowing us to
+    express effective two-body interactions simply in terms of
+    physically observed effective two-body coupling constants, rather
+    than in terms of long sums at all order of the bare coupling
+    constants.}
+
+  We have also added a paragraph explaining where and why counter-term
+  diagrams should appear in our effective theory, in particular
+  explaining why counter-terms do not appear at leading order for
+  effective $M$-body interactions.  This new paragraph is inserted
+  between lines 23 and 24 on page 13:
+
+  \green{Second, the renormalization condition in (16) implies that
+    the counter terms $\tilde G_X$ are second order in the coupling
+    constants $G_X$, i.e.~$\tilde G_X\sim G_X^2$.  Although the
+    effective Hamiltonian expansions in (13) and (14) are organized in
+    powers of the interaction Hamiltonian $H_{\t{int}}$, the couplings
+    $G_X$ are the ``small'' parameters in which we can formally
+    organize a perturbation theory; more specifically, the formally
+    small quantities organizing our perturbation theory are two-body
+    ground-state interaction energies (proportional to the couplings
+    $G_X$) divided by the spectral gap of the single-atom Hamiltonian
+    $H_0$.  If $M$ atoms can only couple through terms represented by
+    a $p$-vertex diagrams for $p\ge p_M^{\t{min}}$, then the leading
+    order contribution to $M$-body interactions is order
+    $p_M^{\t{min}}$ in the couplings $G_X$.  If the same
+    $p_M^{\t{min}}$-vertex diagrams involve any counter-terms,
+    however, then these diagrams are at least order $p_M^{\t{min}}+1$
+    in the couplings $G_X$.  Counter-terms therefore only appear at
+    next-to-leading order (NLO) in the calculation of effective
+    $M$-body interactions.}
+
+  To reflect this added paragraph, we have modified the text on page
+  13, line 7:
+
+  \red{Before moving on to consider effective three-body interactions,
+    there are two comments we must make concerning the result in
+    (17).}
+
+  to read:
+
+  \green{Before moving on to consider effective three-body
+    interactions, there are a few comments we must make concerning
+    renormalization and the result in (17).}
+
+  We also addressed the subject of divergences and the reason for
+  their appearance in new text immediately following Eq.~(15) (page
+  12), as discussed earlier in point \ref{pt:pseudo-potential}.
+
+  We hope that these changes clarify any confusions about our
+  renormalization scheme, and in particular about the appearances (or
+  lack thereof) of counter-terms at different orders in our
+  perturbative effective theory.
+
+
+\item Finally:
+
+  \blue{In summary, the manuscript can not be published in the present
+    form without strongly improving the readability and in addition
+    provide a more detailed analysis of all diverging diagrams and a
+    proper discussion of their renormalization.}
+
+  We thank the referee for their extensive and detailed review of our
+  manuscript.  The referee brought up many good points, which we have
+  addressed by the addition of new discussions and the modification of
+  existing text.  In light of these revisions, we hope that the
+  referee deems our manuscript suitable for publication.  In
+  particular, we hope the referee considers our revised manuscript
+  more readable and accessible, with sufficient discussion and
+  clarification of the potential confusions and concerns brought up by
+  the referee.
 
 \end{enumerate}
 

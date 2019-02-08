@@ -46,6 +46,7 @@
 \newcommand{\Q}{\mathcal{Q}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\U}{\mathcal{U}}
+
 \newcommand{\1}{\mathds{1}}
 
 \newcommand{\mA}{m_{\text{A}}} % symbol for the mass of an atom
@@ -276,18 +277,18 @@ multi-body interactions in the form of quantum phase revivals
 
 The remainder of this paper is structured as follows.  In section
 \ref{sec:overview} we summarize the experimental procedures relevant
-to our work, provide an overview one- and two-body physics of
-ultracold atoms on a lattice, and preview our main technical results.
-In section \ref{sec:low_energy} we discuss our method for deriving a
-low-energy effective theory, provide a perturbative expansion for the
-net effective Hamiltonian, and compute all $M$-body Hamiltonians
-through third order in the low-energy effective theory.  We then
-analyze the low-lying excitations of the effective theory in section
-\ref{sec:spectra}, comparing spectral predictions with experimental
-measurements, and study the orbital-state dynamics of nuclear spin
-mixtures interrogated via Rabi spectroscopy.  Finally, we summarize
-and conclude our findings in section \ref{sec:summary}, and provide
-some discussion of future outlooks.
+to our work, provide an overview of the one- and two-body physics of
+ultracold atoms in a deep lattice, and preview our main technical
+results.  In section \ref{sec:low_energy} we discuss our method for
+deriving a low-energy effective theory, provide a perturbative
+expansion for the net effective Hamiltonian, and compute all $M$-body
+Hamiltonians through third order in the low-energy effective theory.
+We then analyze the low-lying excitations of the effective theory in
+section \ref{sec:spectra}, comparing spectral predictions with
+experimental measurements, and study the orbital-state dynamics of
+nuclear spin mixtures interrogated via Rabi spectroscopy.  Finally, we
+summarize and conclude our findings in section \ref{sec:summary}, and
+provide some discussion of future outlooks.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -436,31 +437,38 @@ of \eqref{eq:H_int_fields} \cite{giorgini2008theory}, or through
 renormalization of the coupling constants in the theory.  We chose the
 latter approach, as we will in any case find it convenient to
 renormalize the coupling constants in the effective theory developed
-in section \ref{sec:low_energy}.  Second, \eqref{eq:H_int_fields} is
-only the first term in a low-energy expansion of two-body interactions
-in effective field theory, which generally includes additional terms
-containing derivatives of field operators.  Derivative terms
-correspond to the dependence of two-body scattering on the relative
-momentum $k$ of particles involved, with $k\to0$ in the zero-energy
-limit.  In the present case of $s$-wave scattering, the leading
-dependence of the two-body interaction Hamiltonian on the relative
-momentum $k$ can be captured by use of an energy-dependent
-pseudo-potential, which amounts to using a $k$-dependent effective
-scattering length \cite{blume2002fermi}.  This effective scattering
-length can be determined by expanding the $s$-wave collisional phase
-shift in powers of the relative momentum $k$ \cite{giorgini2008theory,
-  flambaum1999analytical}.  Details of this expansion will depend on
-the characteristic length scale of finite-range interactions.  In our
-work, these corrections to \eqref{eq:H_int_fields} will be relevant
-only for the calculation of two-body interaction energies, appearing
-at third order in the coupling constants $G_X$.  As we are primarily
-interested in $M$-body interactions for $M\ge3$, we defer this
-calculation to Appendix \ref{sec:momentum_dependence}.  We note that
-our approach of using an unregularized contact potential,
-renormalizing coupling constants, and separately accounting for
-momentum-dependent scattering is essentially the same as that used for
-similar calculations in refs.~\cite{johnson2012effective,
-  yin2014universal, johnson2009effective}.
+in section \ref{sec:low_energy}.  The choice of method to regulate
+divergences has no effect on the underlying physics.
+
+Second, \eqref{eq:H_int_fields} is only the first term in a low-energy
+expansion of two-body interactions in effective field theory, which
+generally includes additional terms containing derivatives of field
+operators.  Derivative terms correspond to the dependence of two-body
+scattering on the relative momentum $k$ of particles involved, with
+$k\to0$ in the zero-energy limit.  In the present case of $s$-wave
+scattering, the leading dependence of the two-body interaction
+Hamiltonian on the relative momentum $k$ can be captured by use of an
+energy-dependent pseudo-potential, which amounts to using a
+$k$-dependent effective scattering length \cite{blume2002fermi}.  This
+effective scattering length can be determined by expanding the
+$s$-wave collisional phase shift in powers of the relative momentum
+$k$ \cite{giorgini2008theory, flambaum1999analytical}.  Details of
+this expansion will depend on the characteristic length scale of
+finite-range interactions.  In our work, these corrections to
+\eqref{eq:H_int_fields} will be relevant only for the calculation of
+two-body interaction energies, appearing at third order in the
+coupling constants $G_X$.  As we are primarily interested in $M$-body
+interactions for $M\ge3$, we defer this calculation to Appendix
+\ref{sec:momentum_dependence}.  We note that our approach of using an
+unregularized contact potential, renormalizing coupling constants, and
+separately accounting for momentum-dependent scattering is essentially
+the same as that used for similar calculations in
+refs.~\cite{johnson2012effective, yin2014universal,
+  johnson2009effective}.  While this approach does not provide insight
+into the microscopic structure of inter-atomic interactions, it is
+suitable for the phenomenological description of these interactions,
+and particular for our eventual development of a low-energy effective
+theory.
 
 We now expand the field operators $\hat\psi_{\mu s}$ in the Wannier
 basis for a 3-D lattice, such that
@@ -591,27 +599,27 @@ This form is a direct consequence of the SU($N$) symmetry of
 underlying two-body interactions.
 
 
-\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Low-energy effective theory}
 \label{sec:low_energy}
 
 The net Hamiltonian $H = H_0 + H_{\t{int}}$ for interacting AEAs on a
 lattice is not diagonal with respect to single-particle motional state
-indices.  The problem of determining interacting atoms' orbital
-excitation spectrum therefore nominally involves all atomic motional
-degrees of freedom.  At zero temperature, however, each orbital state
-of interacting atoms is associated with a single motional ground
-state.  In order to compute an orbital excitation spectrum at zero
-temperature, in principle we need to identify these motional ground
-states.  We can then ignore all excited motional states, which will be
-neither thermally occupied nor externally interrogated.  Such a
-procedure would drastically reduce the dimensionality of the Hilbert
-space necessary to describe the atoms, thereby greatly simplifying any
-description of the atoms' orbital spectrum and dynamics.  In practice,
-however, identifying the motional ground states of interacting atoms
-and writing down a Hamiltonian restricted to this subspace is a very
-difficult process to carry out analytically.
+indices (e.g.~$n\in\mathbb{N}_0^3$).  The problem of determining
+interacting atoms' orbital excitation spectrum therefore nominally
+involves all atomic motional degrees of freedom.  At zero temperature,
+however, each orbital state of a collection of interacting atoms is
+associated with a single motional ground state.  In order to compute
+an orbital excitation spectrum at zero temperature, in principle we
+need to identify these motional ground states.  We can then ignore all
+excited motional states, which will be neither thermally occupied nor
+externally interrogated.  Such a procedure would drastically reduce
+the dimensionality of the Hilbert space necessary to describe the
+atoms, thereby greatly simplifying any description of the atoms'
+orbital spectrum and internal (i.e.~nuclear and orbital) dynamics.  In
+practice, however, identifying the motional ground states of
+interacting atoms and writing down a Hamiltonian restricted to this
+subspace is a very difficult process to carry out analytically.
 
 We denote the motional ground-state subspace of the non-interacting
 Hamiltonian $H_0$ by $\H_{\t{ground}}^{\t{single}}$, and the motional
@@ -721,13 +729,14 @@ the operator norm, with no restrictions on spectral gaps or
 degeneracies within $\H_{\t{ground}}^{\t{single}}$ \cite{davis1969new,
   bravyi2011schrieffer}.  Finally, the effective theory involves no
 corrections to the non-interacting many-body energy eigenstates; the
-purpose of the effective Hamiltonian
+purpose of constructing the effective Hamiltonian
 $H_{\t{eff}} = H_0 + H_{\t{int}}^{\t{eff}}$ is to reproduce, on the
-eigenstates of the non-interacting Hamiltonian $H_0$ within
+known eigenstates of the non-interacting Hamiltonian $H_0$ within
 $\H_{\t{ground}}^{\t{single}}$, the spectrum of the interacting
 Hamiltonian $H = H_0 + H_{\t{int}}$ on $\H_{\t{ground}}^{\t{multi}}$.
-Modifying the eigenstates of the non-interacting Hamiltonian $H_0$ on
-$\H_{\t{ground}}^{\t{single}}$ thus invalidates the effective theory.
+``Correcting'' the eigenstates of the non-interacting Hamiltonian
+$H_0$ on $\H_{\t{ground}}^{\t{single}}$ thus invalidates the effective
+theory.
 
 As a last comment, we note that our chosen method for constructing an
 effective Hamiltonian is distinct from adiabatic elimination methods
@@ -758,26 +767,26 @@ The form of the bare two-body interaction Hamiltonian $H_{\t{int}}$ in
 \eqref{eq:H_int} motivates a diagrammatic representation of terms in
 the effective Hamiltonian $H_{\t{eff}}$ in \eqref{eq:H_int_eff},
 similarly to the diagrams used to represent elements of the scattering
-matrix in field theory.  Effective $M$-body interaction terms at order
-$p$ in $H_{\t{int}}$ can be represented by directed graphs containing
-$p$ internal vertices.  Each internal vertex and its associated edges
-correspond respectively to a coupling constant and the associated
-field operators in $H_{\t{int}}$.  An example 2-vertex diagram
-representing an effective 3-body interaction term is provided in
-figure \ref{fig:diagram}.  All diagrams are read from left to right to
-construct a sequence of operators from right to left; the internal
-vertices of a diagram are thus strictly ordered, with the $n$-th
-internal vertex from the left corresponding to the $n$-th interaction
-Hamiltonian $H_{\t{int}}$ from the right in \eqref{eq:H_int_1_2} or
-\eqref{eq:H_int_3}.  Solid (dashed) lines represent field operators
-acting on the lowest (arbitrary) motional states.  Spatial overlap
-factors at each vertex are determined by the motional states of the
-edges which connect to (i.e.~field operators associated with) that
-vertex.  While it is possible to construct explicit rules for
-determining the energetic suppression factors (i.e.~from $\I$) of the
-term represented by a diagram, these factors are most easily
-determined by examination of the effective Hamiltonians in
-\eqref{eq:H_int_1_2} and \eqref{eq:H_int_3}.
+matrix in standard quantum field theory.  Effective $M$-body
+interaction terms at order $p$ in $H_{\t{int}}$ can be represented by
+directed graphs containing $p$ internal vertices.  Each internal
+vertex and its associated edges correspond respectively to a coupling
+constant and the associated field operators in $H_{\t{int}}$.  An
+example 2-vertex diagram representing an effective 3-body interaction
+term is provided in figure \ref{fig:diagram}.  All diagrams are read
+from left to right to construct a sequence of operators from right to
+left; the internal vertices of a diagram are thus strictly ordered,
+with the $n$-th internal vertex from the left corresponding to the
+$n$-th interaction Hamiltonian $H_{\t{int}}$ from the right in
+\eqref{eq:H_int_1_2} or \eqref{eq:H_int_3}.  Solid (dashed) lines
+represent field operators acting on the lowest (arbitrary) motional
+states.  Spatial overlap factors at each vertex are determined by the
+motional states of the edges which connect to (i.e.~field operators
+associated with) that vertex.  While it is possible to construct
+explicit rules for determining the energetic suppression factors
+(i.e.~from $\I$) of the term represented by a diagram, these factors
+are most easily determined by examination of the effective
+Hamiltonians in \eqref{eq:H_int_1_2} and \eqref{eq:H_int_3}.
 
 \begin{figure}
   \centering
@@ -832,8 +841,8 @@ determined by examination of the effective Hamiltonians in
     represented by a diagram.  We will also drop explicit appearances
     of the ground-state projector $\P_0$ in our expressions, with the
     understanding that the low-energy effective theory implicitly
-    addresses only single-atom motional ground states.}
-  \label{fig:diagram}
+    addresses only single-atom motional ground states.
+    \label{fig:diagram}}
 \end{figure}
 
 The diagram in figure \ref{fig:diagram} explicitly labels all edges
@@ -940,20 +949,26 @@ interaction must clearly be finite, but individual sums over excited
 states in the loop diagrams of \eqref{eq:H_2_expansion} may generally
 diverge \cite{johnson2012effective}.  These divergences ultimately
 appear due to our use of effective field theory to describe
-inter-atomic interactions in \eqref{eq:H_int_start} and
-\eqref{eq:H_int_fields}, rather than a detailed microscopic
-description of two-atom scattering.  Divergences of this sort are a
-generic feature of field theories, and can be dealt with using
-standard techniques such as renormalization.  We therefore renormalize
-our coupling constants by introducing counter-terms $\tilde G_X$ into
-the effective interaction Hamiltonians via $G_X\to G_X+\tilde G_X$.
-The values of counter-terms can be fixed by enforcing that $G_X$ is
-equal to the net two-body interaction strength, which has the added
-benefit of allowing us to express the effective two-body interactions
-in terms of net, physically observable two-body coupling constants on
-the right-hand side of \eqref{eq:H_2_expansion}, rather than in terms
-of long sums at all orders of the bare coupling constants.
-Diagrammatically, this renormalization condition is
+inter-atomic interactions in \eqref{eq:H_int_start},
+\eqref{eq:H_int_fields}, and \eqref{eq:H_int}, rather than a detailed
+microscopic description of two-atom scattering.  Divergences of this
+sort are a generic feature of field theories, and can be dealt with
+using standard techniques such as renormalization.  We therefore
+renormalize our coupling constants by introducing counter-terms
+$\tilde G_X$ into the interaction Hamiltonian.
+
+The introduction of counter-terms is merely a formal decomposition of
+the ``bare'' coupling constants $G_X^{\t{bare}}$ that are used in
+\eqref{eq:H_2_expansion} as $G_X^{\t{bare}} = G_X + \tilde G_X$.  In
+performing such a decomposition, we are free to choose the values of
+$G_X$, which in turn fixes the values of
+$\tilde G_X \equiv G_X^{\t{bare}} - G_X$.  For convenience, we can
+choose the values of $G_X$ to be those of the physically observed
+effective coupling constants on the right-hand side of
+\eqref{eq:H_2_expansion}.  Representing the new coupling constants
+$G_X$ by regular vertices and the counter-terms $\tilde G_X$ by a
+crossed dot (i.e.~$\otimes$), this choice leads to the {\it
+  renormalization condition}
 \begin{align}
   \substack{
     \shrink{
@@ -1025,18 +1040,16 @@ Diagrammatically, this renormalization condition is
             (v) -- (f4) };
         \end{feynman}
       \end{tikzpicture}}
-    \\ \O(G)},
+    \\ \O(G)}.
   \label{eq:counter_term}
 \end{align}
-where we represent counter-terms by a crossed dot (i.e.~$\otimes$) at
-a vertex. To leading order, it follows that the counter-terms are
-second order in the coupling constants, i.e.~$\tilde G\sim G^2$.  This
-finding implies that counter-terms only come into play at
-next-to-leading order (NLO) in the calculation of any effective
-$M$-body interaction Hamiltonian.  By construction, these
-counter-terms exactly cancel all terms beyond leading order in
-\eqref{eq:H_2_expansion}, which implies that the effective two-body
-interaction Hamiltonian is simply
+This renormalization condition has the benefit of allowing us to
+express effective two-body interactions simply in terms of physically
+observed effective two-body coupling constants, rather than in terms
+of long sums at all order of the bare coupling constants.  By
+construction, the counter-terms we have introduced exactly cancel all
+terms beyond leading order in \eqref{eq:H_2_expansion}, which implies
+that the effective two-body interaction Hamiltonian is simply
 \begin{align}
   H_2 = \shrink{
     \begin{tikzpicture}
@@ -1063,9 +1076,10 @@ overlap integral between two atoms occupying single-particle motional
 ground states.
 
 Before moving on to consider effective three-body interactions, there
-are two comments we must make concerning the result in \eqref{eq:H_2}.
-First, this effective two-body interaction takes the same form as the
-bare two-body interaction in \eqref{eq:H_int}, but without excited
+are a few comments we must make concerning renormalization and the
+result in \eqref{eq:H_2}.  First, this effective two-body interaction
+$H_2$ in \eqref{eq:H_2} takes the same form as the bare two-body
+interaction $H_{\t{int}}$ in \eqref{eq:H_int}, but without excited
 motional states, and with renormalized coupling constants in place of
 bare ones.  Our choice of renormalization scheme, while convenient for
 the analytical development of a low-energy effective theory, no longer
@@ -1078,7 +1092,27 @@ coupling constants to compute interaction energies.  We discuss the
 calculation of effective coupling constants in Appendix
 \ref{sec:renormalization}.
 
-Second, our result in \eqref{eq:H_2} neglects the effect of
+Second, the renormalization condition in \eqref{eq:counter_term}
+implies that the counter terms $\tilde G_X$ are second order in the
+coupling constants $G_X$, i.e.~$\tilde G_X\sim G_X^2$.  Although the
+effective Hamiltonian expansions in \eqref{eq:H_int_1_2} and
+\eqref{eq:H_int_3} are organized in powers of the interaction
+Hamiltonian $H_{\t{int}}$, the couplings $G_X$ are the ``small''
+parameters in which we can formally organize a perturbation theory;
+more specifically, the formally small quantities organizing our
+perturbation theory are two-body ground-state interaction energies
+(proportional to the couplings $G_X$) divided by the spectral gap of
+the single-atom Hamiltonian $H_0$.  If $M$ atoms can only couple
+through terms represented by a $p$-vertex diagrams for
+$p\ge p_M^{\t{min}}$, then the leading order contribution to $M$-body
+interactions is order $p_M^{\t{min}}$ in the couplings $G_X$.  If the
+same $p_M^{\t{min}}$-vertex diagrams involve any counter-terms,
+however, then these diagrams are at least order $p_M^{\t{min}}+1$ in
+the couplings $G_X$.  Counter-terms therefore only appear at
+next-to-leading order (NLO) in the calculation of effective $M$-body
+interactions.
+
+Finally, our result in \eqref{eq:H_2} neglects the effect of
 momentum-dependent two-body scattering.  When the effective range of
 interactions is comparable to the scattering lengths $a_X$, as is the
 case for ultracold ${}^{87}$Sr, these momentum-dependent effects are
@@ -1190,7 +1224,7 @@ order, we introduce an expanded coupling symbol
 for more general
 $\p{\mu,q}+\p{\nu,r}\leftrightarrow\p{\rho,s}+\p{\sigma,t}$ coupling
 induced by terms proportional to
-$\c_{\mu q}^\dag \c_{\nu r}^\dag \c_{\sigma t} \c_{\rho s}$.  The
+$\c_{\rho s}^\dag \c_{\sigma t}^\dag \c_{\nu r} \c_{\mu q}$.  The
 minus sign in \eqref{eq:G_expanded} accounts for fermionic statistics:
 if $\p{\mu,\nu}=\p{\sigma,\rho}$, then we are considering a term of
 the form
@@ -1672,6 +1706,7 @@ where, letting $E_{mn}\equiv E_m+E_n$,
   &&
   \alpha_5^{(3)}
   \equiv  K \sum_{n>0} \f{K_n^2}{E_n^2},
+  \label{eq:alph_3_3}
 \end{align}
 \begin{align}
   \H_{3,1}^{(3)} \equiv \sum_{\abs{\set{\mu,\nu,\rho}}=3}
@@ -1685,6 +1720,47 @@ where, letting $E_{mn}\equiv E_m+E_n$,
   \c_{\mu r''}^\dag \c_{\nu s'''}^\dag \c_{\rho t'}^\dag
   \c_{\rho t} \c_{\nu s} \c_{\mu r}.
 \end{align}
+Note that although \eqref{eq:H_3_3_S} is a loop diagram, the
+associated factors $\alpha_3^{(3)}$ and $\alpha_5^{(3)}$ in
+$H_3^{(3)}$ are finite.  At large $n$, atoms become free particles for
+which $n$ essentially indexes discrete momentum states.  These atoms
+thus have an energy which asymptotically scales as
+$E_n\sim n^2\equiv n_\x^2+n_\y^2+n_\z^2$.  Furthermore, the
+oscillatory behavior of atomic wavefunctions with increasing motional
+state indices $\ell,m$ implies that the overlap integral $K_{\ell m}$
+(and similarly $K^\ell_m$) becomes sharply peaked at $\ell\approx m$
+as $\ell$ and $m$ get large.  The asymptotic behavior of
+$\alpha_3^{(3)}$ at large $\ell,m,n$ is therefore
+\begin{align}
+  \alpha_3^{(3)}
+  \sim \int \f{\d^3\ell~\d^3m~\d^3n}{\p{\ell^2+m^2}\p{\ell^2+n^2}}
+  ~\delta\p{\ell-m}\delta\p{\ell-n}
+  \sim \int \f{\d^3\ell}{\ell^4}
+  \sim \int_{\ell_{\t{min}}}^\infty \f{\d\ell}{\ell^2}
+  \sim \f1{\ell_{\t{min}}},
+  \label{eq:alph_3_3_integral}
+\end{align}
+where in the last integral we changed to spherical coordinates, and
+$\ell_{\t{min}}^2$ is the minimum value of $\ell^2$ for which
+\begin{enumerate*}
+\item the energy $E_\ell\sim\ell^2$, and
+\item the integral expression in \eqref{eq:alph_3_3_integral} is a
+  good approximation to the corresponding sum in \eqref{eq:alph_3_3}.
+\end{enumerate*}
+Note that the introduction of $\ell_{\t{min}}$ amounts to neglecting a
+finite number of terms in the sum over $\ell,m,n$ in
+\eqref{eq:alph_3_3}, whose contribution to the value of
+$\alpha_3^{(3)}$ is finite.  Convergence of $\alpha_5^{(3)}$ is
+similarly guaranteed by the fact that the overlap integral $K_n$ does
+not asymptotically grow with increasing $n$, such that
+$\alpha_5^{(3)}$ asymptotically behaves as
+\begin{align}
+  \alpha_5^{(3)} \sim \int \f{\d^3 n}{n^4}
+  \sim \int_{n_{\t{min}}}^\infty \f{\d n}{n^2}
+  \sim \f1{n_{\t{min}}},
+  \label{eq:alph_5_3_integral}
+\end{align}
+where again $n_{\t{min}}$ is defined similarly to $\ell_{\t{min}}$.
 
 
 \subsection{Effective four-body interactions at third order}
@@ -2437,8 +2513,7 @@ is
     $\omega_{\N X}\equiv\Omega_{\N X}/\Omega_0\sqrt{N}$ in a lattice
     with a uniform mixture of nuclear spins with $I=9/2$ and
     single-site occupation numbers $N$ which are achievable in current
-    ${}^{87}$Sr experiments.}
-  \label{fig:coefficients}
+    ${}^{87}$Sr experiments.  \label{fig:coefficients}}
 \end{figure}
 
 Figure \ref{fig:coefficients} shows multiplicities of the magnitudes
@@ -2472,8 +2547,8 @@ pronounced for larger single-site occupation numbers.
     Experimental measurements of ${}^3P_0$ populations retrieved from
     ref.~\cite{goban2018emergence}, with Lorentzian fits to each peak
     as a visual guide.  Resonance peaks are identified by the
-    many-body orbital states which are excited at the peak.}
-  \label{fig:sweep}
+    many-body orbital states which are excited at the peak.
+    \label{fig:sweep}}
 \end{figure}
 
 We now consider samples of ${}^{87}$Sr atoms in a uniform mixture of
@@ -2519,8 +2594,7 @@ fixed $N$.
     bars represent experimental error or conservatively estimated
     theoretical uncertainties from nearest-neighbor hopping of virtual
     states in the low-energy effective theory (see Appendix
-    \ref{sec:error}).}
-  \label{fig:shifts}
+    \ref{sec:error}).  \label{fig:shifts}}
 \end{figure}
 
 \begin{figure}
@@ -2528,8 +2602,7 @@ fixed $N$.
   \includegraphics{shifts_summary.pdf}
   \caption{\footnotesize Summary of the many-body excitation spectra
     in figure \ref{fig:shifts}, retrieved from
-    ref.~\cite{goban2018emergence}.}
-  \label{fig:shifts_summary}
+    ref.~\cite{goban2018emergence}.  \label{fig:shifts_summary}}
 \end{figure}
 
 Identifying peaks in excitation spectra such as in figure
@@ -2637,8 +2710,8 @@ average of $X$ over all choices of $N$ distinct nuclear spins.
     time $t$) by a laser with bare Rabi frequency $\Omega_0$ which is
     resonant with the $N$-body excitation energy $\Delta_{NX}$.  Here
     $\P_{NX}$, defined in \eqref{eq:P_NX}, is a projector onto the
-    space of the $N$-body orbital states $\ket{\N X}$.}
-  \label{fig:time}
+    space of the $N$-body orbital states $\ket{\N X}$.
+    \label{fig:time}}
 \end{figure}
 
 Figure \ref{fig:time} shows the excited-state population
