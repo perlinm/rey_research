@@ -327,9 +327,7 @@ A sweep across different detunings $\Delta$ (on the scale of
 inter-atomic interaction energies) thus constitutes a measurement of
 the many-body orbital excitation spectrum.  We note that this
 spectroscopic protocol addresses only singly-excited orbital states of
-lattice sites.  Doubly-excited states are manifestly off-resonant for
-single-photon absorption processes as $\abs{\Delta}\ll\omega_0$, while
-multi-photon absorption processes are always off-resonant due to
+lattice sites.  Doubly-excited states are off resonant due to
 \begin{enumerate*}
 \item the interaction-induced non-linearity ($\sim$kHz) of the orbital
   excitation energies, and
@@ -575,14 +573,13 @@ effective two-, three-, and four-body interactions.  To
 \begin{enumerate*}
 \item facilitate a comparison with the experimental measurements of
   many-body orbital excitation spectra performed in
-  ref.~\cite{goban2018emergence} andr
+  ref.~\cite{goban2018emergence} and
 \item characterize the low-lying excitations in our effective theory,
 \end{enumerate*}
-we also consider a restriction of the multi-body Hamiltonians $H_M$ to
-states with at most one orbital excitation per lattice site.  Under
-this restriction, we find that the SU($N$) symmetry of atomic
-collisions allows us to express all multi-body Hamiltonians in the
-simple form
+we additionally restrict the multi-body Hamiltonians $H_M$ to states
+with at most one orbital excitation per lattice site.  Under this
+restriction, we find that the SU($N$) symmetry of atomic collisions
+allows us to express all multi-body Hamiltonians in the simple form
 \begin{align}
   H_M = \sum_{\abs{\set{\mu_j}}=M}
   H_2^{(\mu_1,\mu_2)} \prod_{\alpha=3}^M \n_{\mu_\alpha,\g},
@@ -707,7 +704,7 @@ $H_{\t{int}}$ directly to describe the orbital spectrum of interacting
 atoms is thus equivalent to truncating our expansion for
 $H_{\t{int}}^{\t{eff}}$ at first order.  In addition to this first
 order term, the expansion involves {\it effective corrections} to the
-action of $H_{\t{int}}$ on the single-particle motional ground states
+action of $H_{\t{int}}$ on the non-interacting motional ground states
 (i.e.~on $\H_{\t{ground}}^{\t{single}}$) in the form of higher-order
 terms with {\it intermediate} or {\it virtual occupation} of excited
 states, manifest in $\I$.
@@ -1075,7 +1072,7 @@ effective two-body interaction Hamiltonian is simply
 \end{align}
 where for consistency with existing literature
 \cite{johnson2012effective} we define $\alpha_2^{(1)} \equiv K$ as the
-overlap integral between two atoms occupying single-particle motional
+overlap integral between two atoms occupying non-interacting motional
 ground states.
 
 Before moving on to consider effective three-body interactions, there
@@ -2661,46 +2658,46 @@ prepare the mixed state $\rho_{N,0}=\P_{N,0}/\Tr\P_{N,0}$, where
 \end{align}
 is a projector onto the space of the $N$-body orbital states
 $\ket{\N X}$.  Interrogating the atoms for a time $t$ by a laser
-resonant with the excitation energy $\Delta_{N,\pm}$ then gives us the
+resonant with the excitation energy $\Delta_{N\pm}$ then gives us the
 state
 \begin{align}
   \rho_N^{(\pm)}\p{t} = \f1{\Tr\P_{N,0}}
-  \sum_{\abs{\N}=N} \exp\p{-it\Omega_{\N,\pm}S_{\N,\pm}^\x}
-  \op{\N,0} \exp\p{it\Omega_{\N,\pm}S_{\N,\pm}^\x},
+  \sum_{\abs{\N}=N} \exp\p{-it\Omega_{\N\pm}S_{\N\pm}^\x}
+  \op{\N,0} \exp\p{it\Omega_{\N\pm}S_{\N\pm}^\x},
 \end{align}
 where the Rabi frequencies $\Omega_{\N,+},\Omega_{\N,-}$ and
-pseudo-spin operators $S_{\N,\pm}^\x$ are respectively given in
+pseudo-spin operators $S_{\N\pm}^\x$ are respectively given in
 \eqref{eq:O_N+}, \eqref{eq:O_N-}, and \eqref{eq:S_NX_x}.  Denoting the
-eigenstates of $S_{\N,\pm}^\x$ by
+eigenstates of $S_{\N\pm}^\x$ by
 \begin{align}
-  \ket{\N,\S_\pm} \equiv \f1{\sqrt2} \p{\ket{\N,0} + \ket{\N,\pm}},
+  \ket{\N,\S_\pm} \equiv \f1{\sqrt2} \p{\ket{\N,0} + \ket{\N\pm}},
   &&
-  \ket{\N,\A_\pm} \equiv \f1{\sqrt2} \p{\ket{\N,0} - \ket{\N,\pm}},
+  \ket{\N,\A_\pm} \equiv \f1{\sqrt2} \p{\ket{\N,0} - \ket{\N\pm}},
 \end{align}
 and defining the identity operator projected to the relevant subspace,
 \begin{align}
-  \1_{\N,\pm} \equiv \op{\N,0} + \op{\N,\pm}
+  \1_{\N\pm} \equiv \op{\N,0} + \op{\N\pm}
   = \op{\N,\S_\pm} + \op{\N,\A_\pm},
 \end{align}
 we can write the state $\rho_N^{(\pm)}\p{t}$ and excited-state
-projectors $\P_{N,\pm}$ in the form
+projectors $\P_{N\pm}$ in the form
 \begin{align}
   \rho_N^{(\pm)}\p{t} = \f1{\Tr\P_{N,0}} \sum_{\abs{\N}=N} \f12
-  \sp{\1_{\N,\pm} + e^{i2t\Omega_{\N,\pm}}\op{\N,\S_\pm}{\N,\A_\pm}
-    + e^{-i2t\Omega_{\N,\pm}}\op{\N,\A_\pm}{\N,\S_\pm}},
+  \sp{\1_{\N\pm} + e^{i2t\Omega_{\N\pm}}\op{\N,\S_\pm}{\N,\A_\pm}
+    + e^{-i2t\Omega_{\N\pm}}\op{\N,\A_\pm}{\N,\S_\pm}},
   \label{eq:rho_N_pm_t}
 \end{align}
 and
 \begin{align}
-  \P_{N,\pm} = \sum_{\abs{\N}=N} \f12
-  \sp{\1_{\N,\pm}-\op{\N,\S_\pm}{\N,\A_\pm}-\op{\N,\A_\pm}{\N,\S_\pm}},
+  \P_{N\pm} = \sum_{\abs{\N}=N} \f12
+  \sp{\1_{\N\pm}-\op{\N,\S_\pm}{\N,\A_\pm}-\op{\N,\A_\pm}{\N,\S_\pm}},
 \end{align}
 from which it follows that the net excited-state population at time
 $t$ is
 \begin{align}
-  \bk{\P_{N,\pm}\p{t}}
-  \equiv \Tr\sp{\rho_N^{(\pm)}\p{t}\P_{N,\pm}}
-  = \f12 - \f12 \bk{\cos\p{2t\Omega_{\N,\pm}}}_{\abs{\N}=N},
+  \bk{\P_{N\pm}\p{t}}
+  \equiv \Tr\sp{\rho_N^{(\pm)}\p{t}\P_{N\pm}}
+  = \f12 - \f12 \bk{\cos\p{2t\Omega_{\N\pm}}}_{\abs{\N}=N},
   \label{eq:P_N_pm_t}
 \end{align}
 where $\bk{X}_{\abs{\N}=N}\equiv\sum_{\abs{\N}=N}X/\Tr\P_{N,0}$ is an
@@ -2710,7 +2707,7 @@ average of $X$ over all choices of $N$ distinct nuclear spins.
   \centering
   \includegraphics{time_table.pdf}
   \caption{\footnotesize Net population of the $N$-body orbital
-    excited states $\set{\ket{\N,\pm}}$ after interrogation of an
+    excited states $\set{\ket{\N\pm}}$ after interrogation of an
     initial mixed state $\rho_{N,0}=\P_{N,0}/\Tr\P_{N,0}$ for a
     reduced time $\tau_N\equiv t\Omega_0/\sqrt{N}$ (i.e.~with real
     time $t$) by a laser with bare Rabi frequency $\Omega_0$ which is
@@ -2721,7 +2718,7 @@ average of $X$ over all choices of $N$ distinct nuclear spins.
 \end{figure}
 
 Figure \ref{fig:time} shows the excited-state population
-$\bk{\P_{N,\pm}\p{t}}$ for several occupation numbers $N$.  With the
+$\bk{\P_{N\pm}\p{t}}$ for several occupation numbers $N$.  With the
 exception of $N=2$, the asymmetric-state populations generally have an
 initial short period of growth before falling back to
 $\bk{\P_{N,-}}\approx1/2$.  This behavior can be understood by the
@@ -2799,9 +2796,9 @@ many-body orbital-state dynamics of multiply-occupied lattice sites
 prepared in a nuclear spin mixture and interrogated via Rabi
 spectroscopy.  This analysis is useful for future experimental probes
 of many-body state structures, as well as for the preparation of
-long-lived states with multi-partite entanglement
-(i.e.~$\ket{\N,\pm}$) which may be used as a resource to perform
-quantum information processing tasks.
+long-lived states with multi-partite entanglement (i.e.~$\ket{\N\pm}$)
+which may be used as a resource to perform quantum information
+processing tasks.
 
 Despite the nominal success of our low-energy effective theory in
 reproducing experimental observations, there remains room for
@@ -3421,7 +3418,7 @@ with angular trap frequency $\omega$ can be written in the form
   \label{eq:harmonic_gamma}
 \end{align}
 where $G_{\t{HO}}$ is an effective coupling constant in the harmonic
-trap, $\phi_0^{\t{HO}}\p{x}$ is the corresponding single-particle
+trap, $\phi_0^{\t{HO}}\p{x}$ is the corresponding non-interacting
 ground-state wavefunction, and $\Gamma$ is the gamma function.  The
 expression in \eqref{eq:harmonic_gamma} can be solved numerically as
 is, or expanded about $G_{\t{HO}}K_{\t{HO}}/\omega=0$ to get
