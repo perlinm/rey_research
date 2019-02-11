@@ -2651,7 +2651,7 @@ interactions, they provide tools and intuition for addressing the
 low-lying orbital excitations which are readily accessible in an
 experimental setting.  If we initialize all atoms in the $N$-body
 ground state with an incoherent mixture of all nuclear spins, then we
-prepare the mixed state $\rho_{N,0}=\P_{N,0}/\Tr\P_{N,0}$, where
+prepare the mixed state $\rho_{N,0}=\P_{N,0}/\tr\P_{N,0}$, where
 \begin{align}
   \P_{NX} \equiv \sum_{\abs{\N}=N}\op{\N X}
   \label{eq:P_NX}
@@ -2661,7 +2661,7 @@ $\ket{\N X}$.  Interrogating the atoms for a time $t$ by a laser
 resonant with the excitation energy $\Delta_{N\pm}$ then gives us the
 state
 \begin{align}
-  \rho_N^{(\pm)}\p{t} = \f1{\Tr\P_{N,0}}
+  \rho_N^{(\pm)}\p{t} = \f1{\tr\P_{N,0}}
   \sum_{\abs{\N}=N} \exp\p{-it\Omega_{\N\pm}S_{\N\pm}^\x}
   \op{\N,0} \exp\p{it\Omega_{\N\pm}S_{\N\pm}^\x},
 \end{align}
@@ -2682,7 +2682,7 @@ and defining the identity operator projected to the relevant subspace,
 we can write the state $\rho_N^{(\pm)}\p{t}$ and excited-state
 projectors $\P_{N\pm}$ in the form
 \begin{align}
-  \rho_N^{(\pm)}\p{t} = \f1{\Tr\P_{N,0}} \sum_{\abs{\N}=N} \f12
+  \rho_N^{(\pm)}\p{t} = \f1{\tr\P_{N,0}} \sum_{\abs{\N}=N} \f12
   \sp{\1_{\N\pm} + e^{i2t\Omega_{\N\pm}}\op{\N,\S_\pm}{\N,\A_\pm}
     + e^{-i2t\Omega_{\N\pm}}\op{\N,\A_\pm}{\N,\S_\pm}},
   \label{eq:rho_N_pm_t}
@@ -2696,11 +2696,11 @@ from which it follows that the net excited-state population at time
 $t$ is
 \begin{align}
   \bk{\P_{N\pm}\p{t}}
-  \equiv \Tr\sp{\rho_N^{(\pm)}\p{t}\P_{N\pm}}
+  \equiv \tr\sp{\rho_N^{(\pm)}\p{t}\P_{N\pm}}
   = \f12 - \f12 \bk{\cos\p{2t\Omega_{\N\pm}}}_{\abs{\N}=N},
   \label{eq:P_N_pm_t}
 \end{align}
-where $\bk{X}_{\abs{\N}=N}\equiv\sum_{\abs{\N}=N}X/\Tr\P_{N,0}$ is an
+where $\bk{X}_{\abs{\N}=N}\equiv\sum_{\abs{\N}=N}X/\tr\P_{N,0}$ is an
 average of $X$ over all choices of $N$ distinct nuclear spins.
 
 \begin{figure}
@@ -2708,7 +2708,7 @@ average of $X$ over all choices of $N$ distinct nuclear spins.
   \includegraphics{time_table.pdf}
   \caption{\footnotesize Net population of the $N$-body orbital
     excited states $\set{\ket{\N\pm}}$ after interrogation of an
-    initial mixed state $\rho_{N,0}=\P_{N,0}/\Tr\P_{N,0}$ for a
+    initial mixed state $\rho_{N,0}=\P_{N,0}/\tr\P_{N,0}$ for a
     reduced time $\tau_N\equiv t\Omega_0/\sqrt{N}$ (i.e.~with real
     time $t$) by a laser with bare Rabi frequency $\Omega_0$ which is
     resonant with the $N$-body excitation energy $\Delta_{NX}$.  Here
@@ -2760,7 +2760,7 @@ $\left.\rho_N^{(\pm)}\p{t}\right|_{\tau_N=n\pi} = \rho_N^{(\pm)}\p{0}
 phases $2t\Omega_{\N,+}$ are all odd (even) integer multiples of $\pi$
 for odd (even) $n$.  This alignment of phases implies a complete
 population transfer to the excited state
-$\rho_{N,-}\equiv\P_{N,-}/\Tr\P_{N,-}$ for odd $n$, and a collapse
+$\rho_{N,-}\equiv\P_{N,-}/\tr\P_{N,-}$ for odd $n$, and a collapse
 back to the orbital ground state $\rho_{N,0}$ for even $n$, precisely
 as observed in figure \ref{fig:time}.
 
@@ -2874,7 +2874,7 @@ rotation $U_{\t{min}}$ is minimal in the sense that it minimizes the
 distance of candiate unitaries $U$ from the identity $\1$ with respect
 to the Euclidian operator norm\footnote{The Euclidean operator norm is
   also known as the $L_{2,2}$, Hilbert-Schmidt, or Frobenius norm.}
-$\norm{X}_{\t{E}}\equiv\sqrt{\Tr\p{X^\dag X}}$.  This rotation is
+$\norm{X}_{\t{E}}\equiv\sqrt{\tr\p{X^\dag X}}$.  This rotation is
 determined uniquely by enforcing
 \begin{enumerate*}
 \item that the generator $S$ is strictly block-off-diagonal with
