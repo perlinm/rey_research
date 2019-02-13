@@ -833,7 +833,10 @@ determined by examination of the effective Hamiltonians in
   \)
   \caption{\footnotesize An example second-order diagram and the
     corresponding three-body interaction term in $H_{\t{int}}^{(2)}$,
-    with $n>0$ and $\c_{\mu s}\equiv\c_{0,\mu s}$.  For the sake of
+    with $n>0$ and $\c_{\mu s}\equiv\c_{0,\mu s}$.  Diagrams are read
+    from left to right to construct a sequence of operators from right
+    to left.  Solid (dashed) lines represent field operators acting on
+    the lowest (arbitrary) motional states.  For the sake of
     presentation, this diagram has colors associated with nuclear spin
     and orbital states, an arrow on each line to emphasize that they
     are directed left-to-right, and an explicit coupling constant
@@ -842,8 +845,8 @@ determined by examination of the effective Hamiltonians in
     represented by a diagram.  We will also drop explicit appearances
     of the ground-state projector $\P_0$ in our expressions, with the
     understanding that the low-energy effective theory implicitly
-    addresses only single-atom motional ground states.
-    \label{fig:diagram}}
+    addresses only non-interacting motional ground states.}
+  \label{fig:diagram}
 \end{figure}
 
 The diagram in figure \ref{fig:diagram} explicitly labels all edges
@@ -2388,20 +2391,20 @@ $E_{NX}^{(M)}$ by $E_{NX}=\sum_ME_{NX}^{(M)}$.
     & $M! {N \choose M} U_{M,\g}$ \\ \hline
     $\ket{\N,+}$
     & $M! {N-1 \choose M} U_{M,\g}
-      + \p{M-1}! {N-1 \choose M-1} \p{U_{M,+} + U_{M,-}}$ \\ \hline
+    + \p{M-1}! {N-1 \choose M-1} \p{U_{M,+} + U_{M,-}}$ \\ \hline
     $\ket{\N,-}$
     & $M! {N-1 \choose M} U_{M,\g}
-      + \p{M-1}! {N-1 \choose M-1} U_{M,+}
-      - \p{M-2}! {N-2 \choose M-2} U_{M,-}$ \\ \hline\hline
+    + \p{M-1}! {N-1 \choose M-1} U_{M,+}
+    - \p{M-2}! {N-2 \choose M-2} U_{M,-}$ \\ \hline\hline
     $\ket{\N,0}$
     & ${N \choose M} E_{M,0}^{(M)}$ \\ \hline
     $\ket{\N,+}$
     & ${N-1 \choose M} E_{M,0}^{(M)}
-      + {N-1 \choose M-1} E_{M,+}^{(M)}$ \\ \hline
+    + {N-1 \choose M-1} E_{M,+}^{(M)}$ \\ \hline
     $\ket{\N,-}$
     & ${N-1 \choose M} E_{M,0}^{(M)}
-      + M^{-1} \sp{{N-1 \choose M-1} - {N-2 \choose M-2}} E_{M,+}^{(M)}
-      + \sp{\p{1 - M^{-1}} {N-1 \choose M-1}
+    + M^{-1} \sp{{N-1 \choose M-1} - {N-2 \choose M-2}} E_{M,+}^{(M)}
+    + \sp{\p{1 - M^{-1}} {N-1 \choose M-1}
       + M^{-1} {N-2 \choose M-2}} E_{M,-}^{(M)}$
   \end{tabular}
 \end{table}
@@ -2516,7 +2519,8 @@ is
     $\omega_{\N X}\equiv\Omega_{\N X}/\Omega_0\sqrt{N}$ in a lattice
     with a uniform mixture of nuclear spins with $I=9/2$ and
     single-site occupation numbers $N$ which are achievable in current
-    ${}^{87}$Sr experiments.  \label{fig:coefficients}}
+    ${}^{87}$Sr experiments.}
+  \label{fig:coefficients}
 \end{figure}
 
 Figure \ref{fig:coefficients} shows multiplicities of the magnitudes
@@ -2598,7 +2602,8 @@ fixed $N$.
     bars represent experimental error or conservatively estimated
     theoretical uncertainties from nearest-neighbor hopping of virtual
     states in the low-energy effective theory (see Appendix
-    \ref{sec:error}).  \label{fig:shifts}}
+    \ref{sec:error}).}
+  \label{fig:shifts}
 \end{figure}
 
 \begin{figure}
@@ -2606,40 +2611,57 @@ fixed $N$.
   \includegraphics{shifts_summary.pdf}
   \caption{\footnotesize Summary of the many-body excitation spectra
     in figure \ref{fig:shifts}, retrieved from
-    ref.~\cite{goban2018emergence}.  \label{fig:shifts_summary}}
+    ref.~\cite{goban2018emergence}.}
+  \label{fig:shifts_summary}
 \end{figure}
 
 Identifying peaks in excitation spectra such as in figure
 \ref{fig:sweep} constitutes a measurement of many-body excitation
 energies, which was performed in ref.~\cite{goban2018emergence} to
 detect signatures of effective multi-body interactions.  Figure
-\ref{fig:shifts} shows a comparison between experimental measurements
-of the many-body excitation energies $\Delta_{NX}$ for
-$N\in\set{3,4,5}$ at various lattice depths $\U$, and the
-corresponding values of $\Delta_{NX}$ predicted by the low-energy
-effective theory at different orders in the coupling constants.  A
-summary of the data in figure \ref{fig:shifts} is provided in figure
-\ref{fig:shifts_summary}.  These figures show a clear improvement of
-the low-energy effective theory we have developed with increasing
-order in the coupling constants, in particular demonstrating the need
-to consider multi-body interactions in a single-band model of the
-atoms without motional excitations.
-
-We expect that the dominant source of error in the third-order
-effective theory comes from the fact that we neglect the inter-site
-matrix elements of all Hamiltonians.  This source of error is
+\ref{fig:shifts} shows a comparison between
+\begin{enumerate*}
+\item experimental measurements of the many-body excitation energies
+  $\Delta_{NX}$ for all $\p{N,X}\in\set{3,4,5}\times\set{+,-}$ at
+  various lattice depths $\U$, and
+\item the corresponding values of $\Delta_{NX}$ predicted by the
+  low-energy effective theory at different orders in the coupling
+  constants.
+\end{enumerate*}
+A known source of error in our effective theory comes from neglecting
+the inter-site matrix elements of all Hamiltonians.  This error is
 discussed in Appendix \ref{sec:error}, and leads to theoretical
-uncertainties represented by error bars in figure \ref{fig:shifts}.
-As these uncertainties are sometimes unable to account for the
-residual disagreement between experimental measurements and the
-effective theory, better agreement requires either a better
-understanding of experimental procedures and error, a better
-understanding of theoretical uncertainties, or consideration of yet
-higher-order terms in the effective theory.  Due to a combinatorial
-explosion in the number of diagrams which appear at increasing
-perturbative orders of the effective theory, we need more systematic
-methods to compute effective multi-body Hamiltonians at fourth order;
-we therefore leave this calculation for future work.
+uncertainties represented by error bars on the $\O\p{G^3}$ theory in
+figure \ref{fig:shifts}.  A summary of figure \ref{fig:shifts} is
+provided in figure \ref{fig:shifts_summary}.  We note that many-body
+interaction energy shifts are smaller for asymmetric ($-$) states than
+symmetric ($+$) ones due to the competition between contributions of
+opposite sign in the asymmetric case (see rows 2 and 3 of table
+\ref{tab:eigen}).
+
+The results in figures \ref{fig:shifts} and \ref{fig:shifts_summary}
+highlight a few important points about ultracold, high-density
+${}^{87}$Sr experiments and our low-energy effective theory.  First,
+these experiments exhibit clear signatures of multi-body interactions,
+as evidenced by a stark disagreement between the observed many-body
+excitation energies $\Delta_{NX}$ and those that are predicted by the
+two-body $\O\p{G}$ theory.  Multi-body interactions are thus crucial
+for understanding these high-density experiments in the context of a
+single-band Hubbard model, which naturally arises in the
+zero-temperature limit when all atoms occupy their motional ground
+state.  Second, the inter-atomic interactions in these experiments are
+strong enough to require going beyond leading order for the
+description of multi-body interactions in the low-energy effective
+theory.  As experiments begin to work with more atoms and shallower
+lattices, therefore, reliably predicting interaction energies may
+require going to yet higher orders in perturbation theory.  Due to a
+combinatorial explosion of the number of diagrams which appear at
+increasing orders in the effective theory, however, we need more
+systematic methods to compute effective multi-body Hamiltonians at
+fourth order.  In any case, we are agnostic as to whether such a
+calculation would provide better agreement between experiment and
+theory without first performing a detailed analysis of systematic
+errors.
 
 
 \subsection{Orbital-state dynamics of a nuclear spin mixture}
@@ -2714,8 +2736,8 @@ average of $X$ over all choices of $N$ distinct nuclear spins.
     time $t$) by a laser with bare Rabi frequency $\Omega_0$ which is
     resonant with the $N$-body excitation energy $\Delta_{NX}$.  Here
     $\P_{NX}$, defined in \eqref{eq:P_NX}, is a projector onto the
-    space of the $N$-body orbital states $\ket{\N X}$.
-    \label{fig:time}}
+    space of the $N$-body orbital states $\ket{\N X}$.}
+  \label{fig:time}
 \end{figure}
 
 Figure \ref{fig:time} shows the excited-state population

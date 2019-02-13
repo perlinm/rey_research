@@ -1,0 +1,312 @@
+\documentclass[preprint]{revtex4-1}
+
+% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+}
+
+% general physics / math packages and commands
+\usepackage{physics,amsmath,amssymb,braket,dsfont}
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}{\dfrac} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\newcommand{\bk}{\braket} % shorthand for braket
+
+\renewcommand{\d}{\text{d}}
+\newcommand{\g}{\text{g}}
+\newcommand{\e}{\text{e}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\z}{\text{z}}
+
+\renewcommand{\c}{\hat{c}}
+\newcommand{\n}{\hat{n}}
+
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\K}{\mathcal{K}}
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\N}{\mathcal{N}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\1}{\mathds{1}}
+
+% inline lists
+\usepackage[inline]{enumitem}
+\setlist[enumerate]{leftmargin=*} % nice margins for enumerate
+
+
+% for feynman diagrams
+\usepackage{tikz,tikz-feynman}
+\tikzset{
+  baseline = (current bounding box.center)
+}
+\tikzfeynmanset{
+  compat = 1.1.0,
+  every feynman = {/tikzfeynman/small}
+}
+\newcommand{\shrink}[1]{\scalebox{0.8}{#1}} % for smaller diagrams
+
+
+% color definitions (used in a figure)
+\usepackage{xcolor}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
+\definecolor{lightblue}{RGB}{31,119,180}
+\definecolor{orange}{RGB}{255,127,14}
+\definecolor{green}{RGB}{44,160,44}
+\definecolor{lightred}{RGB}{214,39,40}
+
+
+% for strikeout text
+% normalem included to prevent underlining titles in the bibliography
+\usepackage[normalem]{ulem}
+
+
+\begin{document}
+
+\section*{Referee 2}
+
+We thank the referee for taking the time to carefully read our
+manuscript, and for providing thoughtful and constructive feedback.
+Below, we address the comments and concerns brought up by the referee.
+We hope that the referee finds our responses and revisions
+satisfactory, deeming our manuscript acceptable for publication in New
+Journal of Physics.
+
+Excerpts from the referee reports are written in \blue{blue}, excerpts
+from our original manuscript are written in \red{red}, and excerpts
+from the revised version of our manuscript is written in
+\green{green}.  All page, line, equation, and reference numbers
+generally refer to those in our original manuscript, unless explicitly
+stated otherwise.
+
+
+\begin{enumerate}
+\item Concerning:
+
+  \blue{Largely motivated by the experimental spectroscopy data on
+    87Sr atoms, the authors of manuscript NJP-109533 have studied
+    effective few-body interactions in mesoscopic Sr atomic clusters
+    confined by optical lattice potentials and applied the effective
+    Hamiltonian to characterize the spectra of interacting Sr atoms.
+    The authors have also compared the result of theory with data and
+    shown general consistency.}
+
+  \blue{The main results are summarized in section III and IV.  In
+    section II, the authors presented the detailed discussions on the
+    effective interactions via the standard Schrieffer-Wolff
+    transformation. The low energy manifold where the orbital motion
+    is fixed in the ground state is separated from excited manifolds
+    involving excited orbitals. The low energy physics therefore is
+    purely driven by the internal SU(N) spin dynamics and the excited
+    orbitals will further induce few-body interaction between SU(N)
+    spins.  These can be systematically studied at least in the weakly
+    interacting systems or in the perturbative limit where the single
+    particle orbital motion is well gapped and Schrieffer-Wolff
+    transformation is applicable. In section IV, the authors benched
+    their numerical results against the data on 87Sr and emphasized
+    the situation where the induced effective interactions might play
+    a substantial role.}
+
+  \blue{I find the article is well written and results have been
+    carefully organized and are well presented.  Although at
+    qualitatively level, these higher order effects are relatively
+    small (not surprising as perturbative effects) and do not modify
+    the results in a drastic way, they do offer better agreements with
+    experimental data. And in the extreme cases in Fig.5 (3+, 4+, 5+
+    lines), numerical values of these effects o(G\^{}3) can be as
+    larger as 10-20\% (to my bare eyes) although in this limit it
+    becomes less clear whether the contributions not included are also
+    substantial.}
+
+  \blue{A few suggestions the authors can take into account to improve
+    the presentation.}
+
+  We thank the referee for their summary of our work, and for
+  remarking that our ``article is well written'', and that our
+  ``results have been carefully organized are well presented''.  We
+  hope that the revisions we outline below address the referee's
+  suggestions to a satisfactory degree.
+
+
+\item Concerning:
+
+  \blue{1) In the caption of Fig 1, the authors shall include the
+    dashed solid line definitions to make it self-contained.}
+
+  We thank the referee for the suggestion to make figure 1 more
+  self-contained.  Following this suggestion, we have added the
+  definition of solid and dashed lines to the caption of figure 1, as
+  well as a sentence describing how to translate a diagram into a
+  sequence of operators.  In total, we have replaced the text (page
+  11, line 13):
+
+  \red{... $n>0$ and $\c_{\mu s}\equiv\c_{0,\mu s}$.  For the sake
+    presentation, ...}
+
+  by:
+
+  \green{... $n>0$ and $\c_{\mu s}\equiv\c_{0,\mu s}$.  Diagrams are
+    read from left to right to construct a sequence of operators from
+    right to left.  Solid (dashed) lines represent field operators
+    acting on the lowest (arbitrary) motional states.  For the sake
+    presentation, ...}
+
+
+\item Concerning the closely related comments/questions::
+
+  \blue{2) Section IV, the author shall add discussions about why some
+    states are more affected than the others by the 4-body interaction
+    etc.  Data are clearly presented and well compared with
+    experiments but there seems to be a lack of central message. What
+    is the main lesson? After all, they are high order effects so
+    naively and logically one would say they play little role in the
+    system. But on other hand, numerically in some cases they appear
+    to be amplified up to 20\%, not so small anymore.  Is it
+    accidental for 3+, 4+, 5+ states or there are some more
+    fundamental reasons for that?}
+
+  \blue{3) Related to 2), when the correction becomes 10-20\%, shall
+    we expect that higher order effects of order of o(G\^{}4) etc also
+    become important?}
+
+  We thank the referee for their careful reading of our results in
+  section IV, and for pointing out that our manuscript would greatly
+  benefit from a deeper discussion of figures 4 and 5.  The referee
+  asks questions that follow naturally from an inspection of these
+  figures, which our manuscript should address directly.
+
+  Indeed, there is a good reason why multi-body interaction energy
+  corrections are more prominent for the symmetric ($3+$, $4+$, $5+$)
+  states than for the asymmetric ($3-$, $4-$, $5-$) ones.
+  Specifically, there is a competition between contributions of
+  opposite sign to the interaction energy of asymmetric states.
+  Concerning higher-order effects, it is not obvious when exactly
+  further corrections ($\sim G^4$) should become relevant.  Computing
+  higher-order corrections requires more systematic methods than those
+  used in our manuscript, and we are simply unsure whether considering
+  these corrections is worthwhile without first performing a more
+  detailed analysis of systematic errors in both theory and
+  experiment.
+
+  To address these questions and add a more pointed discussion of the
+  lessons from figures 4 and 5, we have rearranged, rewritten, and
+  added new text to the following two paragraphs (page 23, line 54):
+
+  \red{Identifying peaks in excitation spectra such as in figure 3
+    constitutes a measurement of many-body excitation energies, which
+    was performed in ref.~[34] to detect signatures of effective
+    multi-body interactions.  Figure 4 shows a comparison between
+    experimental measurements of the many-body excitation energies
+    $\Delta_{NX}$ for $N\in\set{3,4,5}$ at various lattice depths
+    $\U$, and the corresponding values of $\Delta_{NX}$ predicted by
+    the low-energy effective theory at different orders in the
+    coupling constants.  A summary of the data in figure 4 is provided
+    in figure 5.  These figures show a clear improvement of the
+    low-energy effective theory we have developed with increasing
+    order in the coupling constants, in particular demonstrating the
+    need to consider multi-body interactions in a single-band model of
+    the atoms without motional excitations.}
+
+  \red{We expect that the dominant source of error in the third-order
+    effective theory comes from the fact that we neglect the
+    inter-site matrix elements of all Hamiltonians.  This source of
+    error is discussed in Appendix E, and leads to theoretical
+    uncertainties represented by error bars in figure 4.  As these
+    uncertainties are sometimes unable to account for the residual
+    disagreement between experimental measurements and the effective
+    theory, better agreement requires either a better understanding of
+    experimental procedures and error, a better understanding of
+    theoretical uncertainties, or consideration of yet higher-order
+    terms in the effective theory.  Due to a combinatorial explosion
+    in the number of diagrams which appear at increasing perturbative
+    orders of the effective theory, we need more systematic methods to
+    compute effective multi-body Hamiltonians at fourth order; we
+    therefore leave this calculation for future work.}
+
+  which now read:
+
+  \green{Identifying peaks in excitation spectra such as in figure 3
+    constitutes a measurement of many-body excitation energies, which
+    was performed in ref.~[34] to detect signatures of effective
+    multi-body interactions.  Figure 4 shows a comparison between (i)
+    experimental measurements of the many-body excitation energies
+    $\Delta_{NX}$ for all $\p{N,X}\in\set{3,4,5}\times\set{+,-}$ at
+    various lattice depths $\U$, and (ii) the corresponding values of
+    $\Delta_{NX}$ predicted by the low-energy effective theory at
+    different orders in the coupling constants.  A known source of
+    error in our effective theory comes from neglecting the inter-site
+    matrix elements of all Hamiltonians.  This error is discussed in
+    Appendix E, and leads to theoretical uncertainties represented by
+    error bars on the $\O\p{G^3}$ theory in figure 4.  A summary of
+    figure 4 is provided in figure 5.  We note that many-body
+    interaction energy shifts are smaller for asymmetric ($-$) states
+    than symmetric ($+$) ones due to the competition between
+    contributions of opposite sign in the asymmetric case (see rows 2
+    and 3 of table I).}
+
+  \green{The results in figures 4 and 5 highlight a few important
+    points about ultracold, high-density ${}^{87}$Sr experiments and
+    our low-energy effective theory.  First, these experiments exhibit
+    clear signatures of multi-body interactions, as evidenced by a
+    stark disagreement between the observed many-body excitation
+    energies $\Delta_{NX}$ and those that are predicted by the
+    two-body $\O\p{G}$ theory.  Multi-body interactions are thus
+    crucial for understanding these high-density experiments in the
+    context of a single-band Hubbard model, which naturally arises in
+    the zero-temperature limit when all atoms occupy their motional
+    ground state.  Second, the inter-atomic interactions in these
+    experiments are strong enough to require going beyond leading
+    order for the description of multi-body interactions in the
+    low-energy effective theory.  As experiments begin to work with
+    more atoms and shallower lattices, therefore, reliably predicting
+    interaction energies may require going to yet higher orders in
+    perturbation theory.  Due to a combinatorial explosion of the
+    number of diagrams which appear at increasing orders in the
+    effective theory, however, we need more systematic methods to
+    compute effective multi-body Hamiltonians at fourth order.  In any
+    case, we are agnostic as to whether such a calculation would
+    provide better agreement between experiment and theory without
+    first performing a more detailed analysis of systematic errors.}
+
+  We hope that this revision has clarified the questions brought up by
+  the referee, and provided a central message for the results in
+  figures 4 and 5.
+
+
+\item Concerning:
+
+  \blue{4) At a phenomenological level, the author shall describe, in
+    connection to the experiment, the range of the perturbation
+    parameter [ a\_X K/Delta] that measures the two-particle
+    interaction energy. For Sr atoms with typical background
+    scattering lengths, this is usually small but does depend on the
+    lattice depth quite sensitively.  The authors shall provide the
+    typical numerical range of this dimensionless interaction energy
+    for the optical lattices (up to 70E\_R in Fig 5) they studied (and
+    experimentally studied). This will help readers to better
+    appreciate their numerical results (surprising or anticipated).}
+
+
+
+
+\end{enumerate}
+
+\end{document}
