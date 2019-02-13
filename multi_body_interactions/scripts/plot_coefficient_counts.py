@@ -5,6 +5,8 @@ import sympy as sp
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
+from matplotlib.ticker import MaxNLocator
+
 from sympy.physics.quantum.cg import CG as clebsch
 from itertools import combinations
 
@@ -50,9 +52,11 @@ def make_plot(plot, even_vals, odd_vals,
     plt.plot(unique_vals(odd_vals), counts(odd_vals), "x",
              label = r"$X=-$", zorder = 0)
 
-    plt.ylim(0,plt.gca().get_ylim()[1])
     plt.xlim(-0.03,1.03)
     plt.xticks([0, 1/3, 2/3, 1], ["0", "1/3", "2/3", "1"])
+    plt.ylim(0, plt.gca().get_ylim()[1])
+    plt.gca().yaxis.set_major_locator(MaxNLocator(integer = True, nbins = 4,
+                                                  steps = [ 2, 3, 10 ]))
 
     plt.legend(loc="best").get_frame().set_alpha(1)
     handles, labels = plt.gca().get_legend_handles_labels()
