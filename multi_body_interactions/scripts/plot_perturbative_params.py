@@ -21,6 +21,7 @@ plt.rcParams.update(params)
 
 params = np.zeros((len(depths),4))
 for dd in range(len(depths)):
+    print(depths[dd])
     # determine spectral gap and ground-state overlap intergral
     momenta, fourier_vecs, energies = mathieu_solution(depths[dd], bands, site_number)
     band_energies = np.mean(energies,0)
@@ -48,6 +49,7 @@ plt.xlabel(r"Lattice depth $\mathcal{U}$ ($E_R$)")
 plt.ylabel(r"$K G_X/\Delta$")
 
 plt.legend(loc = "best", ncol = 2)
+plt.gca().tick_params(right = True)
 
 plt.tight_layout()
 plt.savefig("../figures/perturbative_params.pdf")
