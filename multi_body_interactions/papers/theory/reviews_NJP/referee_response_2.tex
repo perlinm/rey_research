@@ -1,4 +1,5 @@
-\documentclass[preprint]{revtex4-1}
+\documentclass[preprint,showkeys,nofootinbib]{revtex4-1}
+
 
 % linking references
 \usepackage{hyperref}
@@ -8,6 +9,7 @@
   linkcolor=blue,
   urlcolor=cyan,
 }
+
 
 % general physics / math packages and commands
 \usepackage{physics,amsmath,amssymb,braket,dsfont}
@@ -44,11 +46,26 @@
 \newcommand{\Q}{\mathcal{Q}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\U}{\mathcal{U}}
+
 \newcommand{\1}{\mathds{1}}
+
+\newcommand{\mA}{m_{\text{A}}} % symbol for the mass of an atom
+
+
+% "left vector" arrow; requires tikz package
+\newcommand{\lvec}[1]
+{\reflectbox{\ensuremath{\vec{\reflectbox{\ensuremath{#1}}}}}}
+
+
+% figures
+\usepackage{graphicx} % for figures
+\usepackage{grffile} % help latex properly identify figure extensions
+\graphicspath{{./figures/}} % set path for all figures
+\usepackage[caption=false]{subfig} % subfigures (via \subfloat[]{})
+
 
 % inline lists
 \usepackage[inline]{enumitem}
-\setlist[enumerate]{leftmargin=*} % nice margins for enumerate
 
 
 % for feynman diagrams
@@ -65,18 +82,39 @@
 
 % color definitions (used in a figure)
 \usepackage{xcolor}
-\newcommand{\blue}[1]{\textcolor{blue}{#1}}
-\newcommand{\red}[1]{\textcolor{red}{#1}}
-\newcommand{\green}[1]{\textcolor{green}{#1}}
 \definecolor{lightblue}{RGB}{31,119,180}
 \definecolor{orange}{RGB}{255,127,14}
 \definecolor{green}{RGB}{44,160,44}
 \definecolor{lightred}{RGB}{214,39,40}
 
 
+% proper coloring inside math environment
+\makeatletter
+\def\mathcolor#1#{\@mathcolor{#1}}
+\def\@mathcolor#1#2#3{
+  \protect\leavevmode
+  \begingroup
+    \color#1{#2}#3
+  \endgroup
+}
+\makeatother
+\newcommand{\bmu}{\mathcolor{lightblue}{\mu}}
+\newcommand{\onu}{\mathcolor{orange}{\nu}}
+\newcommand{\grho}{\mathcolor{green}{\rho}}
+\newcommand{\re}{\mathcolor{lightred}{\text{e}}}
+
+
+% leave a note in the text, visible in the compiled document
+\newcommand{\note}[1]{\textcolor{red}{#1}}
+
 % for strikeout text
 % normalem included to prevent underlining titles in the bibliography
 \usepackage[normalem]{ulem}
+
+
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
 
 
 \begin{document}
@@ -187,11 +225,13 @@ stated otherwise.
     we expect that higher order effects of order of o(G\^{}4) etc also
     become important?}
 
+  \label{pt:figs}
+
   We thank the referee for their careful reading of our results in
   section IV, and for pointing out that our manuscript would greatly
   benefit from a deeper discussion of figures 4 and 5.  The referee
   asks questions that follow naturally from an inspection of these
-  figures, which our manuscript should address directly.
+  figures; our manuscript should address these questions directly.
 
   Indeed, there is a good reason why multi-body interaction energy
   corrections are more prominent for the symmetric ($3+$, $4+$, $5+$)
@@ -208,7 +248,8 @@ stated otherwise.
 
   To address these questions and add a more pointed discussion of the
   lessons from figures 4 and 5, we have rearranged, rewritten, and
-  added new text to the following two paragraphs (page 23, line 54):
+  added new text to the following two paragraphs about these figures
+  (page 23, line 54):
 
   \red{Identifying peaks in excitation spectra such as in figure 3
     constitutes a measurement of many-body excitation energies, which
@@ -249,18 +290,18 @@ stated otherwise.
     multi-body interactions.  Figure 4 shows a comparison between (i)
     experimental measurements of the many-body excitation energies
     $\Delta_{NX}$ for all $\p{N,X}\in\set{3,4,5}\times\set{+,-}$ at
-    various lattice depths $\U$, and (ii) the corresponding values of
-    $\Delta_{NX}$ predicted by the low-energy effective theory at
-    different orders in the coupling constants.  A known source of
-    error in our effective theory comes from neglecting the inter-site
-    matrix elements of all Hamiltonians.  This error is discussed in
-    Appendix E, and leads to theoretical uncertainties represented by
-    error bars on the $\O\p{G^3}$ theory in figure 4.  A summary of
-    figure 4 is provided in figure 5.  We note that many-body
-    interaction energy shifts are smaller for asymmetric ($-$) states
-    than symmetric ($+$) ones due to the competition between
-    contributions of opposite sign in the asymmetric case (see rows 2
-    and 3 of table I).}
+    various mean lattice depths $\U$, and (ii) the corresponding
+    values of $\Delta_{NX}$ predicted by the low-energy effective
+    theory at different orders in the coupling constants.  A known
+    source of error in our effective theory comes from neglecting the
+    inter-site matrix elements of all Hamiltonians.  This error is
+    discussed in Appendix E, and leads to theoretical uncertainties
+    represented by error bars on the $\O\p{G^3}$ theory in figure 4.
+    A summary of figure 4 is provided in figure 5.  We note that
+    many-body interaction energy shifts are smaller for asymmetric
+    ($-$) states than symmetric ($+$) ones due to the competition
+    between contributions of opposite sign in the asymmetric case (see
+    rows 2 and 3 of table I).}
 
   \green{The results in figures 4 and 5 highlight a few important
     points about ultracold, high-density ${}^{87}$Sr experiments and
@@ -275,20 +316,30 @@ stated otherwise.
     ground state.  Second, the inter-atomic interactions in these
     experiments are strong enough to require going beyond leading
     order for the description of multi-body interactions in the
-    low-energy effective theory.  As experiments begin to work with
-    more atoms and shallower lattices, therefore, reliably predicting
-    interaction energies may require going to yet higher orders in
-    perturbation theory.  Due to a combinatorial explosion of the
-    number of diagrams which appear at increasing orders in the
-    effective theory, however, we need more systematic methods to
-    compute effective multi-body Hamiltonians at fourth order.  In any
-    case, we are agnostic as to whether such a calculation would
-    provide better agreement between experiment and theory without
-    first performing a more detailed analysis of systematic errors.}
+    low-energy effective theory.  The formally small quantities
+    organizing our perturbation theory are two-body ground-state
+    interaction energies (proportional to the couplings $G_X$) divided
+    by the spectral gap of the single-atom Hamiltonian $H_0$.  These
+    reduced (dimensionless) interaction energies vary from
+    $\sim0.05-0.15$ in the parameter regimes of the ${}^{87}$Sr
+    experiments considered here (see Appendix F).  As experiments
+    begin to work with more atoms and different lattice depths,
+    therefore, reliably predicting interaction energies may require
+    going to yet higher orders in perturbation theory.  Due to a
+    combinatorial explosion of the number of diagrams which appear at
+    increasing orders in the effective theory, however, we need more
+    systematic methods to compute effective multi-body Hamiltonians at
+    fourth order.  In any case, we are agnostic as to whether such a
+    calculation would provide better agreement between experiment and
+    theory without first performing a detailed analysis of systematic
+    errors.}
 
-  We hope that this revision has clarified the questions brought up by
-  the referee, and provided a central message for the results in
-  figures 4 and 5.
+  Note that the Appendix F referenced above is not the same as that in
+  the original version of our manuscript, but a new appendix discussed
+  in point \ref{pt:pert_params} below.  We hope that the new text
+  above adequately addresses the questions brought up by the referee,
+  and provides a clear central message for the results in figures 4
+  and 5.
 
 
 \item Concerning:
@@ -304,8 +355,81 @@ stated otherwise.
     experimentally studied). This will help readers to better
     appreciate their numerical results (surprising or anticipated).}
 
+  \label{pt:pert_params}
+
+  We thank the referee for pointing out that we had overlooked this
+  important bit of information for interpreting the numerical results
+  in our manuscript.  Consequently, we now provide typical values for
+  our perturbative parameters in the discussion of figures 4 and 5
+  (see point \ref{pt:figs} above), and we have added the following new
+  Appendix to our manuscript:
+
+  \setcounter{figure}{0}
+  \renewcommand\thefigure{F.\arabic{figure}}
+
+  \begin{figure}
+    \centering
+    \includegraphics{../figures/perturbative_params.pdf}
+    \caption{\footnotesize Dependence of the perturbative parameters
+      $KG_X/\Delta$ on the lattice depth $\U$.}
+  \end{figure}
+
+  \green{{\bf Appendix F: Perturbative parameters for the effective
+      theory}}
+
+  \green{The perturbative effective theory developed in Section III is
+    organized in powers of the coupling constants $G_X$.  The formally
+    small, dimensionless quantities for this perturbation theory are
+    the two-body interaction energies $K G_X$, where $K$ is a
+    ground-state two-body overlap integral and $G_X$ is a coupling
+    constant, divided by the spectral gap $\Delta$ of the
+    non-interacting Hamiltonian $H_0$.  The quantities $K$, $G_X$, and
+    $\Delta$ all depend on the lattice depth $\U$.  Figure F.1 shows
+    these parameters for the case of ${}^{87}$Sr atoms with
+    $X\in\set{\g\g, \e\g_-, \e\g_+, \e\e}$ at lattice depths
+    $\U\in\sp{30,80}E_{\t{R}}$, where
+    $E_{\t{R}}\approx3.5\times2\pi~\t{kHz}$ is the lattice photon
+    recoil energy of the atoms.  The fact that these perturbative
+    parameters grow with increasing lattice depth $\U$ is a
+    consequence of the fact that the overlap integral $K$ grows faster
+    with $\U$ than the spectral gap $\Delta$.  In the case of a
+    harmonic trap with angular frequency $\omega$, for example, these
+    parameters would be
+    \begin{multline*}
+      \f{K_{\t{HO}} G_X}{\omega}
+      = \f{G_X}{\omega} \int \d^3 x~\abs{\phi_{\t{HO}}}^4
+      = \f{G_X}{\omega} \sp{\int \d x~
+        \abs{\p{\f{\mA\omega}{\pi}}^{1/4} e^{-\mA\omega x^2/2}}^4}^3 \\
+      \sim \f1{\omega}
+      \sp{\omega \int\f{\d\p{\sqrt\omega x}}{\sqrt\omega}
+        ~\abs{e^{-\mA\omega x^2/2}}^4}^3
+      \propto \sqrt{\omega},
+      \tag{F1}
+    \end{multline*}
+    where we assumed that the coupling constants $G_X$ vary weakly
+    with $\omega$.  While this result may seem to suggest that the
+    low-energy effective theory should become better at smaller
+    lattice depths, smaller lattice depths also result in increased
+    theoretical uncertainties from the growing relevance of the
+    inter-site effects discussed in Appendix E.}
+
+  We hope that these additions help improve readers' interpretations
+  of the numerical results in our manuscript.
 
 
+\item Finally:
+
+  \blue{Overall, the manuscript contains substantial and solid results
+    and data on few-body spectra of SU(N) atoms and can be quite
+    useful to future studies on these atoms. I recommend the
+    publication of the manuscript in NJP after my concerns above are
+    addressed.}
+
+  We thank the referee for remarking that our manuscript ``contains
+  substantial and results'', and hope that our results will indeed be
+  ``quite useful to future studies''.  We hope that the revisions we
+  outlined above have addressed the referee's concerns and suggestions
+  to a satisfactory degree,
 
 \end{enumerate}
 

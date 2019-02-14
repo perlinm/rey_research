@@ -1,4 +1,5 @@
-\documentclass[preprint]{revtex4-1}
+\documentclass[preprint,showkeys,nofootinbib]{revtex4-1}
+
 
 % linking references
 \usepackage{hyperref}
@@ -8,6 +9,7 @@
   linkcolor=blue,
   urlcolor=cyan,
 }
+
 
 % general physics / math packages and commands
 \usepackage{physics,amsmath,amssymb,braket,dsfont}
@@ -44,11 +46,26 @@
 \newcommand{\Q}{\mathcal{Q}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\U}{\mathcal{U}}
+
 \newcommand{\1}{\mathds{1}}
+
+\newcommand{\mA}{m_{\text{A}}} % symbol for the mass of an atom
+
+
+% "left vector" arrow; requires tikz package
+\newcommand{\lvec}[1]
+{\reflectbox{\ensuremath{\vec{\reflectbox{\ensuremath{#1}}}}}}
+
+
+% figures
+\usepackage{graphicx} % for figures
+\usepackage{grffile} % help latex properly identify figure extensions
+\graphicspath{{./figures/}} % set path for all figures
+\usepackage[caption=false]{subfig} % subfigures (via \subfloat[]{})
+
 
 % inline lists
 \usepackage[inline]{enumitem}
-\setlist[enumerate]{leftmargin=*} % nice margins for enumerate
 
 
 % for feynman diagrams
@@ -65,18 +82,38 @@
 
 % color definitions (used in a figure)
 \usepackage{xcolor}
-\newcommand{\blue}[1]{\textcolor{blue}{#1}}
-\newcommand{\red}[1]{\textcolor{red}{#1}}
-\newcommand{\green}[1]{\textcolor{green}{#1}}
 \definecolor{lightblue}{RGB}{31,119,180}
 \definecolor{orange}{RGB}{255,127,14}
 \definecolor{green}{RGB}{44,160,44}
 \definecolor{lightred}{RGB}{214,39,40}
 
+% proper coloring inside math environment
+\makeatletter
+\def\mathcolor#1#{\@mathcolor{#1}}
+\def\@mathcolor#1#2#3{
+  \protect\leavevmode
+  \begingroup
+    \color#1{#2}#3
+  \endgroup
+}
+\makeatother
+\newcommand{\bmu}{\mathcolor{lightblue}{\mu}}
+\newcommand{\onu}{\mathcolor{orange}{\nu}}
+\newcommand{\grho}{\mathcolor{green}{\rho}}
+\newcommand{\re}{\mathcolor{lightred}{\text{e}}}
+
+
+% leave a note in the text, visible in the compiled document
+\newcommand{\note}[1]{\textcolor{red}{#1}}
 
 % for strikeout text
 % normalem included to prevent underlining titles in the bibliography
 \usepackage[normalem]{ulem}
+
+
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
 
 
 \begin{document}
@@ -626,8 +663,10 @@ stated otherwise.
 
   Note that the new equation number is 44 due to the addition of two
   new equations in response to point \ref{pt:divergence} below.  We
-  have made the same change to equation (F1), which is included in
-  Appendix F for quick reference.
+  have made the same change to Eq.~(F1), which is included in Appendix
+  F for quick reference.  Appendix F and Eq.~(F1) are respectively
+  Appendix G and Eq.~(G1) in the revised version of our manuscript, as
+  we have added a new appendix in one of our responses to referee 2.
 
 
 \item Concerning the use of an interaction pseudopotential:
@@ -1268,18 +1307,19 @@ stated otherwise.
     small quantities organizing our perturbation theory are two-body
     ground-state interaction energies (proportional to the couplings
     $G_X$) divided by the spectral gap of the single-atom Hamiltonian
-    $H_0$.  If $M$ atoms can only couple through terms represented by
-    a $p$-vertex diagrams for $p\ge p_M^{\t{min}}$, then the leading
-    order contribution to $M$-body interactions is order
-    $p_M^{\t{min}}$ in the couplings $G_X$.  If the same
-    $p_M^{\t{min}}$-vertex diagrams involve any counter-terms,
-    however, then these diagrams are at least order $p_M^{\t{min}}+1$
-    in the couplings $G_X$.  Counter-terms therefore only appear at
-    next-to-leading order (NLO) in the calculation of effective
-    $M$-body interactions.}
+    $H_0$ (see Appendix F).  If $M$ atoms can only couple through
+    terms represented by a $p$-vertex diagrams for
+    $p\ge p_M^{\t{min}}$, then the leading order contribution to
+    $M$-body interactions is order $p_M^{\t{min}}$ in the couplings
+    $G_X$.  If the same $p_M^{\t{min}}$-vertex diagrams involve any
+    counter-terms, however, then these diagrams are at least order
+    $p_M^{\t{min}}+1$ in the couplings $G_X$.  Counter-terms therefore
+    only appear at next-to-leading order (NLO) in the calculation of
+    effective $M$-body interactions.}
 
-  To reflect this added paragraph, we have modified the text on page
-  13, line 7:
+  Note that Appendix F referenced above is a new appendix we have
+  added in our response to referee 2.  To reflect the addition of the
+  above paragraph, we have modified the text on page 13, line 7:
 
   \red{Before moving on to consider effective three-body interactions,
     there are two comments we must make concerning the result in

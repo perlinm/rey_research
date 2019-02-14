@@ -1108,13 +1108,14 @@ parameters in which we can formally organize a perturbation theory;
 more specifically, the formally small quantities organizing our
 perturbation theory are two-body ground-state interaction energies
 (proportional to the couplings $G_X$) divided by the spectral gap of
-the single-atom Hamiltonian $H_0$.  If $M$ atoms can only couple
-through terms represented by a $p$-vertex diagrams for
-$p\ge p_M^{\t{min}}$, then the leading order contribution to $M$-body
-interactions is order $p_M^{\t{min}}$ in the couplings $G_X$.  If the
-same $p_M^{\t{min}}$-vertex diagrams involve any counter-terms,
-however, then these diagrams are at least order $p_M^{\t{min}}+1$ in
-the couplings $G_X$.  Counter-terms therefore only appear at
+the single-atom Hamiltonian $H_0$ (see Appendix
+\ref{sec:pert_params}).  If $M$ atoms can only couple through terms
+represented by a $p$-vertex diagrams for $p\ge p_M^{\t{min}}$, then
+the leading order contribution to $M$-body interactions is order
+$p_M^{\t{min}}$ in the couplings $G_X$.  If the same
+$p_M^{\t{min}}$-vertex diagrams involve any counter-terms, however,
+then these diagrams are at least order $p_M^{\t{min}}+1$ in the
+couplings $G_X$.  Counter-terms therefore only appear at
 next-to-leading order (NLO) in the calculation of effective $M$-body
 interactions.
 
@@ -2623,7 +2624,7 @@ detect signatures of effective multi-body interactions.  Figure
 \begin{enumerate*}
 \item experimental measurements of the many-body excitation energies
   $\Delta_{NX}$ for all $\p{N,X}\in\set{3,4,5}\times\set{+,-}$ at
-  various lattice depths $\U$, and
+  various mean lattice depths $\U$, and
 \item the corresponding values of $\Delta_{NX}$ predicted by the
   low-energy effective theory at different orders in the coupling
   constants.
@@ -2652,8 +2653,14 @@ zero-temperature limit when all atoms occupy their motional ground
 state.  Second, the inter-atomic interactions in these experiments are
 strong enough to require going beyond leading order for the
 description of multi-body interactions in the low-energy effective
-theory.  As experiments begin to work with more atoms and shallower
-lattices, therefore, reliably predicting interaction energies may
+theory.  The formally small quantities organizing our perturbation
+theory are two-body ground-state interaction energies (proportional to
+the couplings $G_X$) divided by the spectral gap of the single-atom
+Hamiltonian $H_0$.  These reduced (dimensionless) interaction energies
+vary from $\sim0.05-0.15$ in the parameter regimes of the ${}^{87}$Sr
+experiments considered here (see Appendix \ref{sec:pert_params}).  As
+experiments begin to work with more atoms and different lattice
+depths, therefore, reliably predicting interaction energies may
 require going to yet higher orders in perturbation theory.  Due to a
 combinatorial explosion of the number of diagrams which appear at
 increasing orders in the effective theory, however, we need more
@@ -2854,6 +2861,8 @@ National Institute of Standards and Technology (NIST).
 
 \section*{Appendices}
 \appendix
+\setcounter{figure}{0}
+\renewcommand\thefigure{\thesection.\arabic{figure}}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3793,11 +3802,60 @@ single-particle ground-state tunneling rates.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Perturbative parameters for the effective theory}
+\label{sec:pert_params}
+
+The perturbative effective theory developed in Section
+\ref{sec:low_energy} is organized in powers of the coupling constants
+$G_X$.  The formally small, dimensionless quantities for this
+perturbation theory are the two-body interaction energies $K G_X$,
+where $K$ is a ground-state two-body overlap integral and $G_X$ is a
+coupling constant, divided by the spectral gap $\Delta$ of the
+non-interacting Hamiltonian $H_0$.  The quantities $K$, $G_X$, and
+$\Delta$ all depend on the lattice depth $\U$.  Figure
+\ref{fig:pert_params} shows these parameters for the case of
+${}^{87}$Sr atoms with $X\in\set{\g\g, \e\g_-, \e\g_+, \e\e}$ at
+lattice depths $\U\in\sp{30,80}E_{\t{R}}$, where
+$E_{\t{R}}\approx3.5\times2\pi~\t{kHz}$ is the lattice photon recoil
+energy of the atoms.  The fact that these perturbative parameters grow
+with increasing lattice depth $\U$ is a consequence of the fact that
+the overlap integral $K$ grows faster with $\U$ than the spectral gap
+$\Delta$.  In the case of a harmonic trap with angular frequency
+$\omega$, for example, these parameters would be
+\begin{multline}
+  \f{K_{\t{HO}} G_X}{\omega}
+  = \f{G_X}{\omega} \int \d^3 x~\abs{\phi_{\t{HO}}}^4
+  = \f{G_X}{\omega} \sp{\int \d x~
+    \abs{\p{\f{\mA\omega}{\pi}}^{1/4} e^{-\mA\omega x^2/2}}^4}^3 \\
+  \sim \f1{\omega}
+  \sp{\omega \int\f{\d\p{\sqrt\omega x}}{\sqrt\omega}
+    ~\abs{e^{-\mA\omega x^2/2}}^4}^3
+  \propto \sqrt{\omega},
+\end{multline}
+where we assumed that the coupling constants $G_X$ vary weakly with
+$\omega$.  While this result may seem to suggest that the low-energy
+effective theory should become better at smaller lattice depths,
+smaller lattice depths also result in increased theoretical
+uncertainties from the growing relevance of the inter-site effects
+discussed in Appendix \ref{sec:error}.
+
+\begin{figure}
+  \centering
+  \includegraphics{perturbative_params.pdf}
+  \caption{\footnotesize Dependence of the perturbative parameters
+    $KG_X/\Delta$ on the lattice depth $\U$.}
+  \label{fig:pert_params}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Low-excitation $M$-body Hamiltonian coefficients}
 \label{sec:U_X}
 
-The $M$-body Hamiltonians addressing low-lying orbital state
-excitations can be written in the form
+When restricted to the subspace of at most one orbital excitation per
+lattice site, the $M$-body Hamiltonians of the low-energy effective
+theory developed in Section \ref{sec:low_energy} can be written in the
+form
 \begin{align}
   H_M = \sum_{\abs{\set{\mu_j}}=M}
   \p{U_{M,\g} \n_{\mu_1,\g} \n_{\mu_2,\g}

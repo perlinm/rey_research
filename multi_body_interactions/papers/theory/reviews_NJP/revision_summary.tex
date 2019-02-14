@@ -1,4 +1,5 @@
-\documentclass[preprint]{revtex4-1}
+\documentclass[preprint,showkeys,nofootinbib]{revtex4-1}
+
 
 % linking references
 \usepackage{hyperref}
@@ -8,6 +9,7 @@
   linkcolor=blue,
   urlcolor=cyan,
 }
+
 
 % general physics / math packages and commands
 \usepackage{physics,amsmath,amssymb,braket,dsfont}
@@ -44,11 +46,26 @@
 \newcommand{\Q}{\mathcal{Q}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\U}{\mathcal{U}}
+
 \newcommand{\1}{\mathds{1}}
+
+\newcommand{\mA}{m_{\text{A}}} % symbol for the mass of an atom
+
+
+% "left vector" arrow; requires tikz package
+\newcommand{\lvec}[1]
+{\reflectbox{\ensuremath{\vec{\reflectbox{\ensuremath{#1}}}}}}
+
+
+% figures
+\usepackage{graphicx} % for figures
+\usepackage{grffile} % help latex properly identify figure extensions
+\graphicspath{{./figures/}} % set path for all figures
+\usepackage[caption=false]{subfig} % subfigures (via \subfloat[]{})
+
 
 % inline lists
 \usepackage[inline]{enumitem}
-\setlist[enumerate]{leftmargin=*} % nice margins for enumerate
 
 
 % for feynman diagrams
@@ -65,19 +82,38 @@
 
 % color definitions (used in a figure)
 \usepackage{xcolor}
-\newcommand{\blue}[1]{\textcolor{blue}{#1}}
-\newcommand{\red}[1]{\textcolor{red}{#1}}
-\newcommand{\green}[1]{\textcolor{green}{#1}}
 \definecolor{lightblue}{RGB}{31,119,180}
 \definecolor{orange}{RGB}{255,127,14}
 \definecolor{green}{RGB}{44,160,44}
 \definecolor{lightred}{RGB}{214,39,40}
 
+% proper coloring inside math environment
+\makeatletter
+\def\mathcolor#1#{\@mathcolor{#1}}
+\def\@mathcolor#1#2#3{
+  \protect\leavevmode
+  \begingroup
+    \color#1{#2}#3
+  \endgroup
+}
+\makeatother
+\newcommand{\bmu}{\mathcolor{lightblue}{\mu}}
+\newcommand{\onu}{\mathcolor{orange}{\nu}}
+\newcommand{\grho}{\mathcolor{green}{\rho}}
+\newcommand{\re}{\mathcolor{lightred}{\text{e}}}
+
+
+% leave a note in the text, visible in the compiled document
+\newcommand{\note}[1]{\textcolor{red}{#1}}
 
 % for strikeout text
 % normalem included to prevent underlining titles in the bibliography
 \usepackage[normalem]{ulem}
 
+
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
 
 % for numbering points in response to referees
 \newcounter{point}
@@ -1001,15 +1037,15 @@ stated otherwise.
     small quantities organizing our perturbation theory are two-body
     ground-state interaction energies (proportional to the couplings
     $G_X$) divided by the spectral gap of the single-atom Hamiltonian
-    $H_0$.  If $M$ atoms can only couple through terms represented by
-    a $p$-vertex diagrams for $p\ge p_M^{\t{min}}$, then the leading
-    order contribution to $M$-body interactions is order
-    $p_M^{\t{min}}$ in the couplings $G_X$.  If the same
-    $p_M^{\t{min}}$-vertex diagrams involve any counter-terms,
-    however, then these diagrams are at least order $p_M^{\t{min}}+1$
-    in the couplings $G_X$.  Counter-terms therefore only appear at
-    next-to-leading order (NLO) in the calculation of effective
-    $M$-body interactions.}
+    $H_0$ (see Appendix F).  If $M$ atoms can only couple through
+    terms represented by a $p$-vertex diagrams for
+    $p\ge p_M^{\t{min}}$, then the leading order contribution to
+    $M$-body interactions is order $p_M^{\t{min}}$ in the couplings
+    $G_X$.  If the same $p_M^{\t{min}}$-vertex diagrams involve any
+    counter-terms, however, then these diagrams are at least order
+    $p_M^{\t{min}}+1$ in the couplings $G_X$.  Counter-terms therefore
+    only appear at next-to-leading order (NLO) in the calculation of
+    effective $M$-body interactions.}
 
 
 \item The following text (page 13, line 7):
@@ -1211,6 +1247,14 @@ stated otherwise.
   \green{... nuclear spins $\mu\in\set{-I,-I+1,\cdots,I}$ ...}
 
 
+\item For clarity, we have replaced a few instances of the text
+  ``\red{single-particle}'' or ``\red{single-atom}'' by
+  ``\green{non-interacting}'' when referring to motional ground states
+  of non-interacting particles; specifically, we have done so on page
+  9, line 50; on page 11, line 22; on page 13, line 5; and on page 35,
+  line 26.
+
+
 \item To make our first appendix more self-contained, we have defined
   the projector $\P_0$ used therein, such that the text (page 30, line
   38):
@@ -1224,12 +1268,22 @@ stated otherwise.
     $\Q_0\equiv\1-\P_0$ denote the projector onto $\E_0$, and $X$ ...}
 
 
-\item For clarity, we have replaced a few instances of the text
-  ``\red{single-particle}'' or ``\red{single-atom}'' by
-  ``\green{non-interacting}'' when referring to motional ground states
-  of non-interacting particles; specifically, we have done so on page
-  9, line 50; on page 11, line 22; on page 13, line 5; and on page 35,
-  line 26.
+\item To be more explicit about the restrictions made in Eq.~(F1) in
+  Appendix F, we have changed the text (page 40, line 17):
+
+  \red{The $M$-body Hamiltonians addressing low-lying orbital state
+    excitations can be writtenin the form}
+
+  to:
+
+  \green{When restricted to the subspace of at most one orbital
+    excitation per lattice site, the $M$-body Hamiltonians of the
+    low-energy effective theory developed in Section III can be
+    written in the form}
+
+  Note that due to the addition of a new appendix in the revised
+  version of our manuscript, the above text now appears in Appendix G.
+
 
 \item Reference 34 of the original manuscript has been published since
   the original submission of our manuscript.  We have updated this
