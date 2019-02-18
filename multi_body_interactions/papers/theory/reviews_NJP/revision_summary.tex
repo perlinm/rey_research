@@ -1067,7 +1067,170 @@ stated otherwise.
 
 \setcounter{point}{1}
 \begin{enumerate}[label=(R2.\arabic{point}.\arabic*)]
-\item
+  \step
+\item We have made the caption of figure 1 more self-contained,
+  replacing the text (page 11, line 13):
+
+  \red{... $n>0$ and $\c_{\mu s}\equiv\c_{0,\mu s}$.  For the sake
+    presentation, ...}
+
+  by:
+
+  \green{... $n>0$ and $\c_{\mu s}\equiv\c_{0,\mu s}$.  Diagrams are
+    read from left to right to construct a sequence of operators from
+    right to left.  Solid (dashed) lines represent field operators
+    acting on the lowest (arbitrary) motional states.  For the sake
+    presentation, ...}
+
+
+  \step
+\item We have rewritten our discussion of figures 4 and 5, replacing
+  the text (page 23, line 54):
+
+  \red{Identifying peaks in excitation spectra such as in figure 3
+    constitutes a measurement of many-body excitation energies, which
+    was performed in ref.~[34] to detect signatures of effective
+    multi-body interactions.  Figure 4 shows a comparison between
+    experimental measurements of the many-body excitation energies
+    $\Delta_{NX}$ for $N\in\set{3,4,5}$ at various lattice depths
+    $\U$, and the corresponding values of $\Delta_{NX}$ predicted by
+    the low-energy effective theory at different orders in the
+    coupling constants.  A summary of the data in figure 4 is provided
+    in figure 5.  These figures show a clear improvement of the
+    low-energy effective theory we have developed with increasing
+    order in the coupling constants, in particular demonstrating the
+    need to consider multi-body interactions in a single-band model of
+    the atoms without motional excitations.}
+
+  \red{We expect that the dominant source of error in the third-order
+    effective theory comes from the fact that we neglect the
+    inter-site matrix elements of all Hamiltonians.  This source of
+    error is discussed in Appendix E, and leads to theoretical
+    uncertainties represented by error bars in figure 4.  As these
+    uncertainties are sometimes unable to account for the residual
+    disagreement between experimental measurements and the effective
+    theory, better agreement requires either a better understanding of
+    experimental procedures and error, a better understanding of
+    theoretical uncertainties, or consideration of yet higher-order
+    terms in the effective theory.  Due to a combinatorial explosion
+    in the number of diagrams which appear at increasing perturbative
+    orders of the effective theory, we need more systematic methods to
+    compute effective multi-body Hamiltonians at fourth order; we
+    therefore leave this calculation for future work.}
+
+  by:
+
+  \green{Identifying peaks in excitation spectra such as in figure 3
+    constitutes a measurement of many-body excitation energies, which
+    was performed in ref.~[34] to detect signatures of effective
+    multi-body interactions.  Figure 4 shows a comparison between (i)
+    experimental measurements of the many-body excitation energies
+    $\Delta_{NX}$ for all $\p{N,X}\in\set{3,4,5}\times\set{+,-}$ at
+    various mean lattice depths $\U$, and (ii) the corresponding
+    values of $\Delta_{NX}$ predicted by the low-energy effective
+    theory at different orders in the coupling constants.  A known
+    source of error in our effective theory comes from neglecting the
+    inter-site matrix elements of all Hamiltonians.  This error is
+    discussed in Appendix E, and leads to theoretical uncertainties
+    represented by error bars on the $\O\p{G^3}$ theory in figure 4.
+    A summary of figure 4 is provided in figure 5.  We note that
+    many-body interaction energy shifts are smaller for asymmetric
+    ($-$) states than symmetric ($+$) ones due to the competition
+    between contributions of opposite sign in the asymmetric case (see
+    rows 2 and 3 of table I, where as a consequence of positive
+    scattering lengths in the case of $^{87}$Sr, all $U_{MX}$ for
+    fixed $M$ have the same sign).  This competition is a many-body
+    analogue of the two-body case with a competition between direct
+    and exchange terms in the interaction energies of singly-excited
+    states.}
+
+  \green{The results in figures 4 and 5 highlight a few important
+    points about ultracold, high-density ${}^{87}$Sr experiments and
+    our low-energy effective theory.  First, these experiments exhibit
+    clear signatures of multi-body interactions, as evidenced by a
+    stark disagreement between the observed many-body excitation
+    energies $\Delta_{NX}$ and those that are predicted by the
+    two-body $\O\p{G}$ theory.  Multi-body interactions are thus
+    crucial for understanding these high-density experiments in the
+    context of a single-band Hubbard model, which naturally arises in
+    the zero-temperature limit when all atoms occupy their motional
+    ground state.  Second, the inter-atomic interactions in these
+    experiments are strong enough to require going beyond leading
+    order for the description of multi-body interactions in the
+    low-energy effective theory.  The formally small quantities
+    organizing our perturbation theory are two-body ground-state
+    interaction energies (proportional to the couplings $G_X$) divided
+    by the spectral gap of the single-atom Hamiltonian $H_0$.  These
+    reduced (dimensionless) interaction energies vary from
+    $\sim0.05-0.15$ in the parameter regimes of the ${}^{87}$Sr
+    experiments considered here (see Appendix F).  As experiments
+    begin to operate at higher atom densities with amplified
+    interaction effects, reliably predicting interaction energies may
+    require going to yet higher orders in perturbation theory.  Due to
+    a combinatorial explosion of the number of diagrams which appear
+    at increasing orders in the effective theory, however, we need
+    more systematic methods to compute effective multi-body
+    Hamiltonians at fourth order.  In any case, we are agnostic as to
+    whether such a calculation would provide better agreement between
+    experiment and theory without first performing a detailed analysis
+    of systematic errors.}
+
+  Note that the Appendix F referenced above is not the same as that in
+  the original version of our manuscript, but a new appendix that we
+  have added in the revised version.
+
+
+  \step
+\item We have added the following appendix to our manuscript:
+
+  \setcounter{figure}{0}
+  \renewcommand\thefigure{F.\arabic{figure}}
+
+  \begin{figure}
+    \centering
+    \includegraphics{../figures/perturbative_params.pdf}
+    \caption{\footnotesize Dependence of the perturbative parameters
+      $KG_X/\Delta$ on the lattice depth $\U$.}
+  \end{figure}
+
+  \green{{\bf Appendix F: Perturbative parameters for the effective
+      theory}}
+
+  \green{The perturbative effective theory developed in Section III is
+    organized in powers of the coupling constants $G_X$.  The formally
+    small, dimensionless quantities for this perturbation theory are
+    the two-body interaction energies $K G_X$ divided by the spectral
+    gap $\Delta$ of the non-interacting Hamiltonian $H_0$.  Here $K$
+    is a ground-state two-body overlap integral and $G_X$ is a
+    coupling constant.  The quantities $K$, $G_X$, and $\Delta$ all
+    depend on the lattice depth $\U$.  Figure F.1 shows these
+    parameters for the case of ${}^{87}$Sr atoms with
+    $X\in\set{\g\g, \e\g_-, \e\g_+, \e\e}$ at lattice depths
+    $\U\in\sp{30,80}E_{\t{R}}$, where
+    $E_{\t{R}}\approx3.5\times2\pi~\t{kHz}$ is the lattice photon
+    recoil energy of the atoms.  The fact that these perturbative
+    parameters grow with increasing lattice depth $\U$ is a
+    consequence of the fact that the overlap integral $K$ grows faster
+    with $\U$ than the spectral gap $\Delta$.  In the case of a
+    harmonic trap with angular frequency $\omega$, for example, by
+    dimensional analysis these parameters would be
+    \begin{align*}
+      \f{K_{\t{HO}} G_X}{\omega}
+      = \f{G_X}{\omega} \int \d^3 x~\abs{\phi_{\t{HO}}}^4
+      = \f{G_X}{\omega} \sp{\int \d x~
+        \abs{\p{\f{\mA\omega}{\pi}}^{1/4} e^{-\mA\omega x^2/2}}^4}^3
+      \sim \omega^{1/2},
+      \tag{F1}
+    \end{align*}
+    where we assumed that the coupling constants $G_X$ vary weakly
+    with $\omega$.  While this result may seem to suggest that the
+    low-energy effective theory should become better at smaller
+    lattice depths, smaller lattice depths also result in increased
+    theoretical uncertainties from the growing relevance of the
+    inter-site effects discussed in Appendix E.}
+
+
+
 \end{enumerate}
 
 
@@ -1148,6 +1311,14 @@ stated otherwise.
     properties of Wannier wavefunctions $\phi_{in}$ [42].}
 
 
+\item For clarity, we have replaced a few instances of the text
+  ``\red{single-particle}'' or ``\red{single-atom}'' by
+  ``\green{non-interacting}'' when referring to motional ground states
+  of non-interacting particles; specifically, we have done so on page
+  9, line 50; on page 11, line 22; on page 13, line 5; and on page 35,
+  line 26.
+
+
 \item The last two lines of page 10 and line 26 of page 11 previously
   said:
 
@@ -1203,9 +1374,9 @@ stated otherwise.
   Both examples are ``correct'' due to the fact that
   $G^{\mu q;\nu r}_{\rho s;\sigma t}$ is self-adjoint, but the latter
   ordering convention is used throughout the rest of the manuscript:
-  $G^{\mu q;\nu r}_{\rho s;\sigma t}$ is gives the coupling constant
-  for destroying two atoms in state $\p{\mu q}+\p{\nu r}$, and
-  creating them in $\p{\rho s}+\p{\sigma t}$.
+  $G^{\mu q;\nu r}_{\rho s;\sigma t}$ gives the coupling constant for
+  destroying two atoms in state $\p{\mu q}+\p{\nu r}$, and creating
+  them in $\p{\rho s}+\p{\sigma t}$.
 
 
 \item In Eq.~(21), we have fixed an error in the nuclear spin indices
@@ -1231,6 +1402,28 @@ stated otherwise.
     \end{align*}}
 
 
+\item In table I, we have change the following sentence of the caption
+  (page 20, line 7):
+
+  \red{The corresponding $N$-body eigenvalues $E_{NX}^{(M)}$ of $H_M$
+    are given in terms of the coefficients $U_{MX}$ as appearing in
+    (42), in addition to the $M$-body eigenvalues $E_{MX}^{(M)}$.}
+
+  to:
+
+  \green{The corresponding $N$-body eigenvalues $E_{NX}^{(M)}$ of
+    $H_M$ are given in terms of the coefficients $U_{MX}$ as appearing
+    in (44) (first three rows), in addition to the $M$-body
+    eigenvalues $E_{MX}^{(M)}$ (last three rows).}
+
+  Note that the equation referenced in this text has only changed due
+  to the addition of two more equations in the revised version of our
+  manuscript.  In addition, we have made explicit that this table
+  applies for $M\le N$, by changing the column header (page 20, line
+  13) ``\red{$H_M$ eigenvalue}'' to ``\green{$H_M$ eigenvalue
+    ($M\le N$)}''.
+
+
 \item In figure 2 (page 22), all multiplicities (i.e.~values on the
   vertical axes) are integer-valued.  We have therefore adjusted the
   vertical axis on the top left panel of this figure, such that now
@@ -1245,14 +1438,6 @@ stated otherwise.
   to:
 
   \green{... nuclear spins $\mu\in\set{-I,-I+1,\cdots,I}$ ...}
-
-
-\item For clarity, we have replaced a few instances of the text
-  ``\red{single-particle}'' or ``\red{single-atom}'' by
-  ``\green{non-interacting}'' when referring to motional ground states
-  of non-interacting particles; specifically, we have done so on page
-  9, line 50; on page 11, line 22; on page 13, line 5; and on page 35,
-  line 26.
 
 
 \item To make our first appendix more self-contained, we have defined
@@ -1283,6 +1468,14 @@ stated otherwise.
 
   Note that due to the addition of a new appendix in the revised
   version of our manuscript, the above text now appears in Appendix G.
+
+
+\item We have fixed an error in our list of low-excitation $M$-body
+  Hamiltonian coefficients, replacing
+  \red{$\p{\alpha_{4,1}^{(3)} - \alpha_5^{(3)}}$} by
+  \green{$\p{2\alpha_{4,1}^{(3)} - \alpha_5^{(3)}}$} in Eqs.~(F8),
+  (F9), and (F10) on page 41.  Note that these equations are
+  respectively (G8), (G9), and (G10) in the revised manuscript.
 
 
 \item Reference 34 of the original manuscript has been published since

@@ -2382,12 +2382,12 @@ $E_{NX}^{(M)}$ by $E_{NX}=\sum_ME_{NX}^{(M)}$.
     symmetric ($+$), or singly-excited asymmetric ($-$) state.  The
     corresponding $N$-body eigenvalues $E_{NX}^{(M)}$ of $H_M$ are
     given in terms of the coefficients $U_{MX}$ as appearing in
-    \eqref{eq:H_M}, in addition to the $M$-body eigenvalues
-    $E_{MX}^{(M)}$.}
+    \eqref{eq:H_M} (first three rows), in addition to the $M$-body
+    eigenvalues $E_{MX}^{(M)}$ (last three rows).}
   \label{tab:eigen}
   \begin{tabular}{c|c}
     Eigenstate
-    & $H_M$ eigenvalue \\ \hline\hline
+    & $H_M$ eigenvalue ($M\le N$) \\ \hline\hline
     $\ket{\N,0}$
     & $M! {N \choose M} U_{M,\g}$ \\ \hline
     $\ket{\N,+}$
@@ -2638,7 +2638,11 @@ provided in figure \ref{fig:shifts_summary}.  We note that many-body
 interaction energy shifts are smaller for asymmetric ($-$) states than
 symmetric ($+$) ones due to the competition between contributions of
 opposite sign in the asymmetric case (see rows 2 and 3 of table
-\ref{tab:eigen}).
+\ref{tab:eigen}, where as a consequence of positive scattering lengths
+in the case of $^{87}$Sr, all $U_{MX}$ for fixed $M$ have the same
+sign).  This competition is a many-body analogue of the two-body case
+with a competition between direct and exchange terms in the
+interaction energies of singly-excited states.
 
 The results in figures \ref{fig:shifts} and \ref{fig:shifts_summary}
 highlight a few important points about ultracold, high-density
@@ -2659,8 +2663,8 @@ the couplings $G_X$) divided by the spectral gap of the single-atom
 Hamiltonian $H_0$.  These reduced (dimensionless) interaction energies
 vary from $\sim0.05-0.15$ in the parameter regimes of the ${}^{87}$Sr
 experiments considered here (see Appendix \ref{sec:pert_params}).  As
-experiments begin to work with more atoms and different lattice
-depths, therefore, reliably predicting interaction energies may
+experiments begin to operate at higher atom densities with amplified
+interaction effects, reliably predicting interaction energies may
 require going to yet higher orders in perturbation theory.  Due to a
 combinatorial explosion of the number of diagrams which appear at
 increasing orders in the effective theory, however, we need more
@@ -3808,11 +3812,11 @@ single-particle ground-state tunneling rates.
 The perturbative effective theory developed in Section
 \ref{sec:low_energy} is organized in powers of the coupling constants
 $G_X$.  The formally small, dimensionless quantities for this
-perturbation theory are the two-body interaction energies $K G_X$,
-where $K$ is a ground-state two-body overlap integral and $G_X$ is a
-coupling constant, divided by the spectral gap $\Delta$ of the
-non-interacting Hamiltonian $H_0$.  The quantities $K$, $G_X$, and
-$\Delta$ all depend on the lattice depth $\U$.  Figure
+perturbation theory are the two-body interaction energies $K G_X$
+divided by the spectral gap $\Delta$ of the non-interacting
+Hamiltonian $H_0$.  Here $K$ is a ground-state two-body overlap
+integral and $G_X$ is a coupling constant.  The quantities $K$, $G_X$,
+and $\Delta$ all depend on the lattice depth $\U$.  Figure
 \ref{fig:pert_params} shows these parameters for the case of
 ${}^{87}$Sr atoms with $X\in\set{\g\g, \e\g_-, \e\g_+, \e\e}$ at
 lattice depths $\U\in\sp{30,80}E_{\t{R}}$, where
@@ -3821,17 +3825,15 @@ energy of the atoms.  The fact that these perturbative parameters grow
 with increasing lattice depth $\U$ is a consequence of the fact that
 the overlap integral $K$ grows faster with $\U$ than the spectral gap
 $\Delta$.  In the case of a harmonic trap with angular frequency
-$\omega$, for example, these parameters would be
-\begin{multline}
+$\omega$, for example, by dimensional analysis these parameters would
+be
+\begin{align}
   \f{K_{\t{HO}} G_X}{\omega}
   = \f{G_X}{\omega} \int \d^3 x~\abs{\phi_{\t{HO}}}^4
   = \f{G_X}{\omega} \sp{\int \d x~
-    \abs{\p{\f{\mA\omega}{\pi}}^{1/4} e^{-\mA\omega x^2/2}}^4}^3 \\
-  \sim \f1{\omega}
-  \sp{\omega \int\f{\d\p{\sqrt\omega x}}{\sqrt\omega}
-    ~\abs{e^{-\mA\omega x^2/2}}^4}^3
+    \abs{\p{\f{\mA\omega}{\pi}}^{1/4} e^{-\mA\omega x^2/2}}^4}^3
   \propto \sqrt{\omega},
-\end{multline}
+\end{align}
 where we assumed that the coupling constants $G_X$ vary weakly with
 $\omega$.  While this result may seem to suggest that the low-energy
 effective theory should become better at smaller lattice depths,
@@ -3908,19 +3910,19 @@ coupling constants, the coefficients are
 \end{align}
 \begin{align}
   U_{4,\g}^{(3)}
-  = \p{\alpha_{4,1}^{(3)} - \alpha_5^{(3)}} G_\g^3
+  = \p{2\alpha_{4,1}^{(3)} - \alpha_5^{(3)}} G_\g^3
   + \p{\alpha_{4,2}^{(3)} - \alpha_5^{(3)}} 2 G_\g^3,
 \end{align}
 \begin{align}
   U_{4,+}^{(3)}
-  &= \p{\alpha_{4,1}^{(3)} - \alpha_5^{(3)}}
+  &= \p{2\alpha_{4,1}^{(3)} - \alpha_5^{(3)}}
   2 G_+ G_\g \p{G_+ + G_\g} \nonumber \\
   &\quad + \p{\alpha_{4,2}^{(3)} - \alpha_5^{(3)}}
   G_+ \p{G_+^2 + 2 G_+ G_\g + 5 G_\g^2},
 \end{align}
 \begin{align}
   U_{4,-}^{(3)}
-  &= \p{\alpha_{4,1}^{(3)} - \alpha_5^{(3)}}
+  &= \p{2\alpha_{4,1}^{(3)} - \alpha_5^{(3)}}
   2 G_- G_\g \p{2 G_+ + G_- + G_\g} \nonumber \\
   &\quad + \p{\alpha_{4,2}^{(3)} - \alpha_5^{(3)}}
   G_- \p{3 G_+^2 + 3 G_+ G_- + 4 G_+ G_\g + G_-^2

@@ -237,13 +237,17 @@ stated otherwise.
   corrections are more prominent for the symmetric ($3+$, $4+$, $5+$)
   states than for the asymmetric ($3-$, $4-$, $5-$) ones.
   Specifically, there is a competition between contributions of
-  opposite sign to the interaction energy of asymmetric states.
-  Concerning higher-order effects, it is not obvious when exactly
-  further corrections ($\sim G^4$) should become relevant.  Computing
-  higher-order corrections requires more systematic methods than those
-  used in our manuscript, and we are simply unsure whether considering
-  these corrections is worthwhile without first performing a more
-  detailed analysis of systematic errors in both theory and
+  opposite sign to the interaction energy of asymmetric states.  This
+  competition is a many-body analogue of the two-body case with a
+  competition between direct and exchange terms in the interaction
+  energies of singly-excited states.
+
+  Concerning higher-order effects, it is not obvious to us when
+  exactly further corrections ($\sim G^4$) should become relevant.
+  Computing higher-order corrections requires more systematic methods
+  than those used in our manuscript, and we are simply unsure whether
+  considering these corrections is worthwhile without first performing
+  a more detailed analysis of systematic errors in both theory and
   experiment.
 
   To address these questions and add a more pointed discussion of the
@@ -301,7 +305,12 @@ stated otherwise.
     many-body interaction energy shifts are smaller for asymmetric
     ($-$) states than symmetric ($+$) ones due to the competition
     between contributions of opposite sign in the asymmetric case (see
-    rows 2 and 3 of table I).}
+    rows 2 and 3 of table I, where as a consequence of positive
+    scattering lengths in the case of $^{87}$Sr, all $U_{MX}$ for
+    fixed $M$ have the same sign).  This competition is a many-body
+    analogue of the two-body case with a competition between direct
+    and exchange terms in the interaction energies of singly-excited
+    states.}
 
   \green{The results in figures 4 and 5 highlight a few important
     points about ultracold, high-density ${}^{87}$Sr experiments and
@@ -323,16 +332,16 @@ stated otherwise.
     reduced (dimensionless) interaction energies vary from
     $\sim0.05-0.15$ in the parameter regimes of the ${}^{87}$Sr
     experiments considered here (see Appendix F).  As experiments
-    begin to work with more atoms and different lattice depths,
-    therefore, reliably predicting interaction energies may require
-    going to yet higher orders in perturbation theory.  Due to a
-    combinatorial explosion of the number of diagrams which appear at
-    increasing orders in the effective theory, however, we need more
-    systematic methods to compute effective multi-body Hamiltonians at
-    fourth order.  In any case, we are agnostic as to whether such a
-    calculation would provide better agreement between experiment and
-    theory without first performing a detailed analysis of systematic
-    errors.}
+    begin to operate at higher atom densities with amplified
+    interaction effects, reliably predicting interaction energies may
+    require going to yet higher orders in perturbation theory.  Due to
+    a combinatorial explosion of the number of diagrams which appear
+    at increasing orders in the effective theory, however, we need
+    more systematic methods to compute effective multi-body
+    Hamiltonians at fourth order.  In any case, we are agnostic as to
+    whether such a calculation would provide better agreement between
+    experiment and theory without first performing a detailed analysis
+    of systematic errors.}
 
   Note that the Appendix F referenced above is not the same as that in
   the original version of our manuscript, but a new appendix discussed
@@ -361,13 +370,13 @@ stated otherwise.
   important bit of information for interpreting the numerical results
   in our manuscript.  Consequently, we now provide typical values for
   our perturbative parameters in the discussion of figures 4 and 5
-  (see point \ref{pt:figs} above), and we have added the following new
-  Appendix to our manuscript:
+  (see point \ref{pt:figs} above), where we also direct readers to
+  the following new Appendix in our manuscript:
 
   \setcounter{figure}{0}
   \renewcommand\thefigure{F.\arabic{figure}}
 
-  \begin{figure}
+  \begin{figure}[b]
     \centering
     \includegraphics{../figures/perturbative_params.pdf}
     \caption{\footnotesize Dependence of the perturbative parameters
@@ -380,12 +389,12 @@ stated otherwise.
   \green{The perturbative effective theory developed in Section III is
     organized in powers of the coupling constants $G_X$.  The formally
     small, dimensionless quantities for this perturbation theory are
-    the two-body interaction energies $K G_X$, where $K$ is a
-    ground-state two-body overlap integral and $G_X$ is a coupling
-    constant, divided by the spectral gap $\Delta$ of the
-    non-interacting Hamiltonian $H_0$.  The quantities $K$, $G_X$, and
-    $\Delta$ all depend on the lattice depth $\U$.  Figure F.1 shows
-    these parameters for the case of ${}^{87}$Sr atoms with
+    the two-body interaction energies $K G_X$ divided by the spectral
+    gap $\Delta$ of the non-interacting Hamiltonian $H_0$.  Here $K$
+    is a ground-state two-body overlap integral and $G_X$ is a
+    coupling constant.  The quantities $K$, $G_X$, and $\Delta$ all
+    depend on the lattice depth $\U$.  Figure F.1 shows these
+    parameters for the case of ${}^{87}$Sr atoms with
     $X\in\set{\g\g, \e\g_-, \e\g_+, \e\e}$ at lattice depths
     $\U\in\sp{30,80}E_{\t{R}}$, where
     $E_{\t{R}}\approx3.5\times2\pi~\t{kHz}$ is the lattice photon
@@ -393,19 +402,16 @@ stated otherwise.
     parameters grow with increasing lattice depth $\U$ is a
     consequence of the fact that the overlap integral $K$ grows faster
     with $\U$ than the spectral gap $\Delta$.  In the case of a
-    harmonic trap with angular frequency $\omega$, for example, these
-    parameters would be
-    \begin{multline*}
+    harmonic trap with angular frequency $\omega$, for example, by
+    dimensional analysis these parameters would be
+    \begin{align*}
       \f{K_{\t{HO}} G_X}{\omega}
       = \f{G_X}{\omega} \int \d^3 x~\abs{\phi_{\t{HO}}}^4
       = \f{G_X}{\omega} \sp{\int \d x~
-        \abs{\p{\f{\mA\omega}{\pi}}^{1/4} e^{-\mA\omega x^2/2}}^4}^3 \\
-      \sim \f1{\omega}
-      \sp{\omega \int\f{\d\p{\sqrt\omega x}}{\sqrt\omega}
-        ~\abs{e^{-\mA\omega x^2/2}}^4}^3
-      \propto \sqrt{\omega},
+        \abs{\p{\f{\mA\omega}{\pi}}^{1/4} e^{-\mA\omega x^2/2}}^4}^3
+      \sim \omega^{1/2},
       \tag{F1}
-    \end{multline*}
+    \end{align*}
     where we assumed that the coupling constants $G_X$ vary weakly
     with $\omega$.  While this result may seem to suggest that the
     low-energy effective theory should become better at smaller
@@ -425,16 +431,14 @@ stated otherwise.
     publication of the manuscript in NJP after my concerns above are
     addressed.}
 
-  We thank the referee for their consideration
-
   We thank the referee for remarking that our manuscript ``contains
-  substantial and results'', and hope that our results will indeed be
-  ``quite useful to future studies''.  The referee has brought up some
-  fair questions and suggestions, which we have addressed by
-  additional discussion and a new appendix in our manuscript.  We hope
-  that these changes have addressed the referee's concerns to a
-  satisfactory degree, deeming our manuscript suitable for publication
-  in New Journal of Physics.
+  substantial and solid results'', and hope that our results will
+  indeed be ``quite useful to future studies''.  The referee has
+  brought up several good questions and suggestions, which we have
+  addressed through additional discussion and a new appendix in our
+  manuscript.  We hope that these changes have addressed the referee's
+  concerns to a satisfactory degree, deeming our manuscript suitable
+  for publication in New Journal of Physics.
 
 \end{enumerate}
 
