@@ -8,8 +8,8 @@ from sympy import *
 init_printing()
 
 from qubit_methods import fixed_spin_projector
-from interaction_sym_methods import H_2_1, H_3_2, H_3_3, H_4_3, c, c_vec, \
-    sorted_eigenvalues, sorted_coefficients
+from interaction_sym_methods import H_2_1, H_3_2, H_3_3, H_4_3, \
+    c_vec_g, c_vec_D, c_vec_X, sorted_eigenvalues, sorted_coefficients
 
 # construct actual hamiltonians from the coupling constants
 construct_actual_hamiltonians = True
