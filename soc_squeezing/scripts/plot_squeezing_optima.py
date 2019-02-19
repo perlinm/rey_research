@@ -24,7 +24,7 @@ fig_dir = "../figures/"
 OAT, TAT = "OAT", "TAT"
 sqz_methods = [ OAT, TAT ]
 
-depth_min, depth_max = 2, 6
+depth_min, depth_max = 2, 7
 
 method_TAT = "exact"
 depths_TAT = np.arange(20,81,2)/10 # lattice depths in plots
@@ -70,6 +70,7 @@ def make_U_axis(axis):
     ax.set_xticks(depth_U_ticks)
     ax.set_xticklabels(U_J_ticks)
     ax.set_xlabel(U_J_label)
+    ax.set_xlim(depth_min, depth_max)
     return ax
 
 # add text to a sub-plot
