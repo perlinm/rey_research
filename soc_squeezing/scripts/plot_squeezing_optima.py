@@ -40,7 +40,7 @@ params = { "font.family" : "sans-serif",
 plt.rcParams.update(params)
 
 # define some common axis labels that we will use several times
-depth_label = r"Lattice depth ($V_0/E_R$)"
+depth_label = r"Lattice depth ($V_0/E_{\mathrm{R}}$)"
 size_label = r"Linear lattice size ($\ell$)"
 sqz_label = r"Squeezing (dB)"
 time_label = r"Time"

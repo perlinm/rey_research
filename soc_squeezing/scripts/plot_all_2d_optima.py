@@ -89,7 +89,7 @@ U_J_ticks = np.array(range(int(U_J_max)))
 if dependent_variable == "L":
     ylabel = r"Linear lattice size ($\ell$)"
 if dependent_variable == "T":
-    ylabel = r"$V_T/E_R$"
+    ylabel = r"$V_T/E_{\mathrm{R}}$"
 if dependent_variable == "phi":
     ylabel = r"$\phi/\pi$"
 
@@ -132,7 +132,7 @@ def make_plot(base_name, label):
     mesh = ax_data.pcolormesh(depths, columns, data.T,
                               cmap = plt.get_cmap("jet"),
                               zorder = 0, rasterized = True)
-    plt.xlabel(r"Lattice depth ($V_0/E_R$)", zorder = 1)
+    plt.xlabel(r"Lattice depth ($V_0/E_{\mathrm{R}}$)", zorder = 1)
     plt.colorbar(mesh, label = label, format = "%.1f")
 
     # determine values of U / J on the top axis,
@@ -166,6 +166,6 @@ make_plot(t_opt_base, r"$t_{\mathrm{opt}}$ (seconds)")
 if decoherence_is_on:
     make_plot(sqz_opt_base, r"$-10\log_{10}(\xi_{\mathrm{opt}}^2)$")
 if dependent_variable == "T":
-    make_plot(U_int_base, r"$U_{\mathrm{int}}/E_R$")
+    make_plot(U_int_base, r"$U_{\mathrm{int}}/E_{\mathrm{R}}$")
 
 if show: plt.show()
