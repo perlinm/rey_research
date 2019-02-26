@@ -77,7 +77,7 @@ def energy_correction_coefficients(lattice_depths, site_number,
                                                          neighbors = 1)
                     K_t_1D[axis,mm,nn] = K_t_1D[axis,nn,mm]
 
-    K = prod(K_1D[:,0,0])
+    K = np.prod(K_1D[:,0,0])
 
     if pt_order == 2:
 
