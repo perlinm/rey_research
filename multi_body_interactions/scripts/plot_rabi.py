@@ -371,8 +371,8 @@ if "sweep" in sys.argv:
     # plot experimental data with reference lines from predictions
     for data_file, tag in [ (two_body_shift_file, 1), (shift_file, 3) ]:
         shift_data = np.loadtxt(data_file)
-        depths = shift_data[:,0]
-        shifts = shift_data[:,1:]
+        depths = ( np.prod(shift_data[:,:3], 1) )**(1/3)
+        shifts = shift_data[:,3:]
 
         for dd in range(len(depths)):
             if abs(depths[dd] - expt_depth) >= 1: continue
@@ -404,12 +404,12 @@ if "sweep" in sys.argv:
     detuning_pad = 20 * unit_rabi_frequency
 
     shift_data = np.loadtxt(shift_file)
-    depths = shift_data[:,0]
-    shifts = shift_data[:,1:]
+    depths = ( np.prod(shift_data[:,:3], 1) )**(1/3)
+    shifts = shift_data[:,3:]
 
     with open(shift_file,"r") as f:
         header_items = f.readline().split()
-        atom_numbers = list(set([ int(item[0]) for item in header_items[2:] ]))
+        atom_numbers = list(set([ int(item[0]) for item in header_items[4:] ]))
 
     for dd in range(len(depths)):
         print("({}/{}) {}".format(dd,len(depths),depths[dd]))
