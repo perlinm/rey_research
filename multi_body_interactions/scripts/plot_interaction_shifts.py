@@ -126,7 +126,8 @@ for dd in range(len(depths)):
     if pt_order > 1:
         a_3_2 = overlaps[2]
     if pt_order > 2:
-        a_3_3, a_4_3_1, a_4_3_2, a_4_3_3, a_5_3, g_2_2, g_3_1_2, g_3_2_2 = overlaps[3:]
+        a_3_3_1, a_3_3_2, a_4_3_1, a_4_3_2, a_4_3_3, a_5_3, g_2_2, g_3_2_1, g_3_2_2 \
+            = overlaps[3:]
 
     # determine renormalized coupling constants and corresponding eigenvalues
     couplings = np.zeros(4)
@@ -190,10 +191,10 @@ for dd in range(len(depths)):
     if pt_order == 2: continue
 
     # third order, three-body energy shifts
-    shifts_3_3[:,:,dd] = ( (a_3_3 - a_5_3) * e_3_3_S
-                           - (a_4_3_3 + a_5_3) * e_3_3_O )
-    err_shifts_3_3[:,:,dd] = ( (a_3_3 - a_5_3) * err_e_3_3_S
-                               - (a_4_3_3 + a_5_3) * err_e_3_3_O )
+    shifts_3_3[:,:,dd] = ( (a_3_3_1 - a_5_3) * e_3_3_S
+                           + (2*a_3_3_2 - a_4_3_3 - a_5_3) * e_3_3_O )
+    err_shifts_3_3[:,:,dd] = ( (a_3_3_1 - a_5_3) * err_e_3_3_S
+                               + (2*a_3_3_2 - a_4_3_3 - a_5_3) * err_e_3_3_O )
 
     # third order, four-body energy shifts
     shifts_3_4[:,:,dd] = ( (2*a_4_3_1 - a_5_3) * e_4_3_B
@@ -208,7 +209,7 @@ for dd in range(len(depths)):
         # there are 6 neighboring sites
         # two-body processes have no participating atoms in neighboring sites
         # three-body processes have N-1 participating atoms in neighboring sites
-        errs_tun[:,aa,dd] = 6 * max( abs(g_2_2), (N-1) * abs(g_3_1_2 + g_3_2_2) )
+        errs_tun[:,aa,dd] = 6 * max( abs(g_2_2), (N-1) * abs(g_3_2_1 + g_3_2_2) )
         # ground-state error: { N \choose 2 } = N(N-1)/2 on-site interaction terms
         errs_tun[0,aa,dd] *= N*(N-1)/2 * couplings[0]**2
         # excited-state error: the excited atom must be the one to hop,
@@ -518,4 +519,4 @@ if save:
     plt.savefig(fig_dir + "shifts_summary.pdf")
     plt.close()
 
-if not save or show: plt.show()
+if show: plt.show()

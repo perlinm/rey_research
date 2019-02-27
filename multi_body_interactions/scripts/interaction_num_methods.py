@@ -45,7 +45,7 @@ def energy_correction_coefficients(lattice_depths, site_number,
 
     # compute all 1-D band energies, spatial wavefunction overlaps, and tunneling rates
     band_energies = np.zeros((3,bands))
-    K_1D = np.zeros((3,bands,bands))
+    K_1D = np.zeros((3,bands,bands,bands))
     if pt_order > 2:
         K_t_1D = np.zeros((3,bands,bands))
         t_1D = np.zeros((3,bands))
@@ -53,7 +53,7 @@ def energy_correction_coefficients(lattice_depths, site_number,
         # if any of the lattice depths are the same, we can recycle our calculations
         if axis > 0 and lattice_depths[axis] == lattice_depths[axis-1]:
             band_energies[axis,:] = band_energies[axis-1,:]
-            K_1D[axis,:,:] = K_1D[axis-1,:,:]
+            K_1D[axis,:,:,:] = K_1D[axis-1,:,:,:]
             if pt_order > 2:
                 K_t_1D[axis,:,:] = K_t_1D[axis-1,:,:]
                 t_1D[axis,:] = t_1D[axis-1,:]
@@ -70,14 +70,16 @@ def energy_correction_coefficients(lattice_depths, site_number,
                 t_1D[axis,nn] = tunneling_1D(lattice_depths[axis],
                                              momenta, fourier_vecs, nn)
             for mm in range(nn,bands):
-                K_1D[axis,nn,mm] = pair_overlap_1D(momenta, fourier_vecs, nn, mm)
-                K_1D[axis,mm,nn] = K_1D[axis,nn,mm]
                 if pt_order > 2:
                     K_t_1D[axis,nn,mm] = pair_overlap_1D(momenta, fourier_vecs, nn, mm,
                                                          neighbors = 1)
                     K_t_1D[axis,mm,nn] = K_t_1D[axis,nn,mm]
 
-    K = np.prod(K_1D[:,0,0])
+                for ll in range(bands):
+                    K_1D[axis,nn,mm,ll] = pair_overlap_1D(momenta, fourier_vecs, nn, mm, ll)
+                    K_1D[axis,mm,nn,ll] = K_1D[axis,nn,mm,ll]
+
+    K = np.prod(K_1D[:,0,0,0])
 
     if pt_order == 2:
 
@@ -90,7 +92,7 @@ def energy_correction_coefficients(lattice_depths, site_number,
         # second order spatial overlap factor
         a_3_2 = 0
         for n_x, n_y, n_z in even_bands[1:]:
-            K_n = K_1D[x,0,n_x] * K_1D[y,0,n_y] * K_1D[z,0,n_z]
+            K_n = K_1D[x,n_x,0,0] * K_1D[y,n_y,0,0] * K_1D[z,n_z,0,0]
             E_n = band_energies[x,n_x] + band_energies[y,n_y] + band_energies[z,n_z]
             a_3_2 += K_n**2 / E_n * len(set(permutations([n_x,n_y,n_z])))
 
@@ -103,69 +105,91 @@ def energy_correction_coefficients(lattice_depths, site_number,
                   for n_x in range(n_y,bands) )
 
     # second and third order spatial overlap factors
-    a_3_2, a_3_3, a_4_3_1, a_4_3_2, a_4_3_3, a_5_3, g_2_2, g_3_1_2, g_3_2_2 = np.zeros(9)
+    a_3_2, a_3_3_1, a_3_3_2, a_4_3_1, a_4_3_2, a_4_3_3, a_5_3, g_2_2, g_3_2_1, g_3_2_2 \
+        = np.zeros(10)
     for n_x, n_y, n_z in all_bands:
         n_permutations = len(set(permutations([n_x,n_y,n_z])))
         E_n = band_energies[x,n_x] + band_energies[y,n_y] + band_energies[z,n_z]
-        K_n = K_1D[x,0,n_x] * K_1D[y,0,n_y] * K_1D[z,0,n_z]
+        K_n = K_1D[x,n_x,0,0] * K_1D[y,n_y,0,0] * K_1D[z,n_z,0,0]
 
         parity_x = n_x % 2
         parity_y = n_y % 2
         parity_z = n_z % 2
 
-        if E_n > 0 and (parity_x + parity_y + parity_z == 0):
-            K_t_n = K_n * (K_t_1D[x,0,n_x] / K_1D[x,0,n_x] +
-                           K_t_1D[y,0,n_y] / K_1D[y,0,n_y] +
-                           K_t_1D[z,0,n_z] / K_1D[z,0,n_z]) / 3
+        if E_n != 0 and K_n != 0:
+            K_t_n = K_n * (K_t_1D[x,n_x,0] / K_1D[x,n_x,0,0] +
+                           K_t_1D[y,n_y,0] / K_1D[y,n_y,0,0] +
+                           K_t_1D[z,n_z,0] / K_1D[z,n_z,0,0]) / 3
             t_n = (t_1D[x,n_x] + t_1D[y,n_y] + t_1D[z,n_z]) / 3
 
             a_3_2 += K_n**2 / E_n * n_permutations
-            a_5_3 += K_n**2 / E_n**2 * n_permutations # missing factor of K
-            g_3_1_2 += K_n * K_t_n / E_n * n_permutations
-            g_3_2_2 += K_n**2 * t_n / E_n**2 * n_permutations
-
+            a_5_3 += K_n**2 / E_n**2 * n_permutations
+            g_3_2_1 += K_n * K_t_n / E_n * n_permutations
+            g_3_2_2 += t_n * K_n**2 / E_n**2 * n_permutations
 
         for m_x, m_y, m_z in cartesian_product(range(parity_x,bands,2),
                                                range(parity_y,bands,2),
                                                range(parity_z,bands,2)):
 
             E_m = band_energies[x,m_x] + band_energies[y,m_y] + band_energies[z,m_z]
-            if E_n + E_m == 0: continue
+            E_mn = E_n + E_m
 
-            K_m = K_1D[x,0,m_x] * K_1D[y,0,m_y] * K_1D[z,0,m_z]
-            K_n_m = K_1D[x,n_x,m_x] * K_1D[y,n_y,m_y] * K_1D[z,n_z,m_z]
-            K_t_n_m = K_n_m * (K_t_1D[x,n_x,m_x] / K_1D[x,n_x,m_x] +
-                               K_t_1D[x,n_y,m_y] / K_1D[x,n_y,m_y] +
-                               K_t_1D[x,n_z,m_z] / K_1D[x,n_z,m_z]) / 3
+            if E_mn == 0: continue
 
-            if E_m > 0:
-                a_4_3_1 += K_n_m * K_n * K_m / ( (E_n+E_m) * E_m ) * n_permutations
+            K_m = K_1D[x,m_x,0,0] * K_1D[y,m_y,0,0] * K_1D[z,m_z,0,0]
+            K_mn = K_1D[x,m_x,n_x,0] * K_1D[y,m_y,n_y,0] * K_1D[z,m_z,n_z,0]
 
-                if E_n > 0:
-                    a_4_3_2 += K_n_m * K_n * K_m / (E_n * E_m) * n_permutations
+            if E_n != 0:
+                a_4_3_1 += K_mn * K_m * K_n / ( E_mn * E_n ) * n_permutations
 
-            a_4_3_3 += K_n_m**2 / (E_n+E_m)**2 * n_permutations # missing factor of K
-            g_2_2 += K_n_m * K_t_n_m / (E_n+E_m) * n_permutations
+            if E_n != 0 and E_m != 0:
+                K_m_n = K_1D[x,m_x,0,n_x] * K_1D[y,m_y,0,n_y] * K_1D[z,m_z,0,n_z]
+                a_4_3_2 += K_m * K_m_n * K_n / (E_m * E_n) * n_permutations
+
+            a_4_3_3 += (K_mn/E_mn)**2 * n_permutations
+
+            if K_mn == 0: continue
+
+            K_t_mn = K_mn * (K_t_1D[x,n_x,n_x] / K_1D[x,m_x,n_x,0] +
+                             K_t_1D[x,n_y,n_y] / K_1D[x,m_y,n_y,0] +
+                             K_t_1D[x,n_z,n_z] / K_1D[x,m_z,n_z,0]) / 3
+            g_2_2 += K_mn * K_t_mn / E_mn * n_permutations
 
             for l_x, l_y, l_z in cartesian_product(range(parity_x,bands,2),
                                                    range(parity_y,bands,2),
                                                    range(m_z,bands,2)):
 
                 E_l = band_energies[x,l_x] + band_energies[y,l_y] + band_energies[z,l_z]
-                if E_n + E_l == 0: continue
+                E_ln = E_l + E_n
+                multiplicity = n_permutations * ( 1 if l_z == m_z else 2 )
 
-                K_n_l = K_1D[x,n_x,l_x] * K_1D[y,n_y,l_y] * K_1D[z,n_z,l_z]
-                K_m_l = K_1D[x,m_x,l_x] * K_1D[y,m_y,l_y] * K_1D[z,m_z,l_z]
+                if E_ln == 0 or E_mn == 0: continue
 
-                prefactor = (-1)**(l_x+l_y+l_z) * n_permutations
-                if l_z != m_z: prefactor *= 2
-                a_3_3 += prefactor * K_n_m * K_m_l * K_n_l / ( (E_n+E_m) * (E_n+E_l) )
+                K_ln = K_1D[x,l_x,n_x,0] * K_1D[y,l_y,n_y,0] * K_1D[z,l_z,n_z,0]
+                K_l_m = K_1D[x,l_x,0,m_x] * K_1D[y,l_y,0,m_y] * K_1D[z,l_z,0,m_z]
+
+                a_3_3_1 += K_mn * K_l_m * K_ln / ( E_mn * E_ln ) * multiplicity
+
+            for l_x, l_y, l_z in cartesian_product(range(0,bands,2), repeat = 3):
+
+                E_l = band_energies[x,l_x] + band_energies[y,l_y] + band_energies[z,l_z]
+
+                if E_l == 0 or E_mn == 0: continue
+
+                K_l = K_1D[x,l_x,0,0] * K_1D[y,l_y,0,0] * K_1D[z,l_z,0,0]
+                K_lmn = K_1D[x,n_x,m_x,l_x] * K_1D[y,n_y,m_y,l_y] * K_1D[z,n_z,m_z,l_z]
+
+                fac = K_l * K_mn / (E_l * E_mn) * n_permutations
+                a_3_3_2 += fac * ( K_lmn - K_l * K_mn / K )
 
     a_4_3_3 *= K
     a_5_3 *= K
 
-    return a_2_1, a_prime_2_1, a_3_2, a_3_3, a_4_3_1, a_4_3_2, a_4_3_3, \
-        a_5_3, g_2_2, g_3_1_2, g_3_2_2
+    return a_2_1, a_prime_2_1, a_3_2, \
+        a_3_3_1, a_3_3_2, \
+        a_4_3_1, a_4_3_2, a_4_3_3, \
+        a_5_3, g_2_2, g_3_2_1, g_3_2_2
+
 
 ##########################################################################################
 # methods related to renormalization of coupling constants
