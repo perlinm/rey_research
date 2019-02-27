@@ -99,7 +99,7 @@ for dd in range(len(lattice_depths)):
     pair_overlap = pair_overlap_1D(momenta, fourier_vecs)
 
     overlaps = energy_correction_coefficients(lattice_depth * np.ones(3), site_number)
-    a_2_1, a_prime_2_1, a_3_2, a_3_3, a_4_3_1, a_4_3_2, a_4_3_3, a_5_3 = overlaps[:7]
+    a_2_1, a_prime_2_1, a_3_2, a_3_3_1, a_3_3_2, a_4_3_1, a_4_3_2, a_4_3_3, a_5_3 = overlaps[:8]
 
     for aa in range(len(atom_numbers)):
         atom_number = atom_numbers[aa]
@@ -108,8 +108,8 @@ for dd in range(len(lattice_depths)):
         # TODO: incorporate effect of renormalization and momentum-dependent coupling
         multi_body_energies = ( a_2_1 * eigenvalues_2_1[aa,:]
                                 - a_3_2 * eigenvalues_3_2[aa,:]
-                                + (a_3_3 - a_5_3) * eigenvalues_3_3_S[aa,:]
-                                - (a_4_3_3 + a_5_3) * eigenvalues_3_3_O[aa,:]
+                                + (a_3_3_1 - a_5_3) * eigenvalues_3_3_S[aa,:]
+                                + (2*a_3_3_1 - a_4_3_3 - a_5_3) * eigenvalues_3_3_O[aa,:]
                                 + (2*a_4_3_1 - a_5_3) * eigenvalues_4_3_B[aa,:]
                                 + (a_4_3_2 - a_5_3) * eigenvalues_4_3_C[aa,:] )
 
