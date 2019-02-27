@@ -1,0 +1,153 @@
+\documentclass[preprint,showkeys,nofootinbib]{revtex4-1}
+
+
+% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+}
+
+
+% general physics / math packages and commands
+\usepackage{physics,amsmath,amssymb,braket,dsfont}
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}{\dfrac} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\newcommand{\bk}{\braket} % shorthand for braket
+
+\renewcommand{\d}{\text{d}}
+\newcommand{\g}{\text{g}}
+\newcommand{\e}{\text{e}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\z}{\text{z}}
+
+\renewcommand{\c}{\hat{c}}
+\newcommand{\n}{\hat{n}}
+
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\K}{\mathcal{K}}
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\N}{\mathcal{N}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\U}{\mathcal{U}}
+
+\newcommand{\1}{\mathds{1}}
+
+\newcommand{\mA}{m_{\text{A}}} % symbol for the mass of an atom
+
+
+% "left vector" arrow; requires tikz package
+\newcommand{\lvec}[1]
+{\reflectbox{\ensuremath{\vec{\reflectbox{\ensuremath{#1}}}}}}
+
+
+% figures
+\usepackage{graphicx} % for figures
+\usepackage{grffile} % help latex properly identify figure extensions
+\graphicspath{{./figures/}} % set path for all figures
+\usepackage[caption=false]{subfig} % subfigures (via \subfloat[]{})
+
+
+% inline lists
+\usepackage[inline]{enumitem}
+
+
+% for feynman diagrams
+\usepackage{tikz,tikz-feynman}
+\tikzset{
+  baseline = (current bounding box.center)
+}
+\tikzfeynmanset{
+  compat = 1.1.0,
+  every feynman = {/tikzfeynman/small}
+}
+\newcommand{\shrink}[1]{\scalebox{0.8}{#1}} % for smaller diagrams
+
+
+% color definitions (used in a figure)
+\usepackage{xcolor}
+\definecolor{lightblue}{RGB}{31,119,180}
+\definecolor{orange}{RGB}{255,127,14}
+\definecolor{green}{RGB}{44,160,44}
+\definecolor{lightred}{RGB}{214,39,40}
+
+
+% proper coloring inside math environment
+\makeatletter
+\def\mathcolor#1#{\@mathcolor{#1}}
+\def\@mathcolor#1#2#3{
+  \protect\leavevmode
+  \begingroup
+    \color#1{#2}#3
+  \endgroup
+}
+\makeatother
+\newcommand{\bmu}{\mathcolor{lightblue}{\mu}}
+\newcommand{\onu}{\mathcolor{orange}{\nu}}
+\newcommand{\grho}{\mathcolor{green}{\rho}}
+\newcommand{\re}{\mathcolor{lightred}{\text{e}}}
+
+
+% leave a note in the text, visible in the compiled document
+\newcommand{\note}[1]{\textcolor{red}{#1}}
+
+% for strikeout text
+% normalem included to prevent underlining titles in the bibliography
+\usepackage[normalem]{ulem}
+
+
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
+
+
+\begin{document}
+
+\section*{Referee 2}
+
+We thank the referee for taking the time to read and reconsider our
+revised manuscript.  Concerning the comments:
+
+\blue{I read the replies from the authors and other report and
+  recommend the publication.}
+
+\blue{There are a few discussions on ``renormalization'' schemes in
+  the article and in Referee 1's report.  Let me comment on the scheme
+  in the manuscript. The scheme used here (more precisely
+  ``regularization'' scheme) is a quite standard and has been commonly
+  used in many-body studies since the beginning of many-body
+  diagrammatic calculations. It is based on a k-space ``pseudo''
+  potential.  From the point of view of low energy few-body physics
+  studied here, it is indeed equivalent to the other well known
+  standard real space ``differential pseudo'' potential Referee A
+  might have in mind (I speculate that what he/she meant by ``pseudo
+  potential''). But more importantly, it can be easily and
+  straightforwardly generalized to arbitrary dimensions and can be
+  integrated into studies of complex/sophisticated collective
+  many-body effects associated with Fermi surfaces and/or sound waves
+  in symmetry breaking states.}
+
+We thank the referee for their recommendation to publish our
+manuscript, and for their input to help clarify a point of confusion
+in our exchanges with referee 1.  While our original response to
+referee 1 was imprecise in conflating the term ``renormalization
+scheme'' with ``regularization scheme'', we have gone through to make
+sure that our manuscript uses these terms properly.
+
+\end{document}
