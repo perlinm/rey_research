@@ -99,7 +99,8 @@ for dd in range(len(lattice_depths)):
     pair_overlap = pair_overlap_1D(momenta, fourier_vecs)
 
     overlaps = energy_correction_coefficients(lattice_depth * np.ones(3), site_number)
-    a_2_1, a_prime_2_1, a_3_2, a_3_3_1, a_3_3_2, a_4_3_1, a_4_3_2, a_4_3_3, a_5_3 = overlaps[:8]
+    a_2_1, a_prime_2_1, a_3_2, a_3_3_1, a_3_3_2, a_4_3_1, a_4_3_2, a_4_3_3, a_5_3 \
+        = overlaps[:8]
 
     for aa in range(len(atom_numbers)):
         atom_number = atom_numbers[aa]

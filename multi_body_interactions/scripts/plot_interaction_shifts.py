@@ -191,16 +191,16 @@ for dd in range(len(depths)):
     if pt_order == 2: continue
 
     # third order, three-body energy shifts
-    shifts_3_3[:,:,dd] = ( (a_3_3_1 - a_5_3) * e_3_3_S
-                           + (2*a_3_3_2 - a_4_3_3 - a_5_3) * e_3_3_O )
-    err_shifts_3_3[:,:,dd] = ( (a_3_3_1 - a_5_3) * err_e_3_3_S
-                               + (2*a_3_3_2 - a_4_3_3 - a_5_3) * err_e_3_3_O )
+    shifts_3_3[:,:,dd] = ( (a_3_3_1 - a_5_3) * e_3_3_S +
+                           (2*a_3_3_2 - a_4_3_3 - a_5_3) * e_3_3_O )
+    err_shifts_3_3[:,:,dd] = ( (a_3_3_1 - a_5_3) * err_e_3_3_S +
+                               (2*a_3_3_2 - a_4_3_3 - a_5_3) * err_e_3_3_O )
 
     # third order, four-body energy shifts
-    shifts_3_4[:,:,dd] = ( (2*a_4_3_1 - a_5_3) * e_4_3_B
-                           + (a_4_3_2 - a_5_3) * e_4_3_C )
-    err_shifts_3_4[:,:,dd] = ( (2*a_4_3_1 - a_5_3) * err_e_4_3_B
-                               + (a_4_3_2 - a_5_3) * err_e_4_3_C )
+    shifts_3_4[:,:,dd] = ( (2*a_4_3_1 - a_5_3) * e_4_3_B +
+                           (a_4_3_2 - a_5_3) * e_4_3_C )
+    err_shifts_3_4[:,:,dd] = ( (2*a_4_3_1 - a_5_3) * err_e_4_3_B +
+                               (a_4_3_2 - a_5_3) * err_e_4_3_C )
 
     for aa in range(len(atom_numbers)):
         # estimate of error due to nearest-neighbor effects
@@ -221,8 +221,9 @@ for dd in range(len(depths)):
 shifts_total = shifts_1 + shifts_2 + shifts_3_3 + shifts_3_4
 
 # total potential error from renormalization
-errs_ren = ( shifts_1 + shifts_2 + shifts_3_3 + shifts_3_4
-             - ( err_shifts_1 + err_shifts_2 + err_shifts_3_3 + err_shifts_3_4 ) )
+errs_ren \
+    = ( shifts_1 + shifts_2 + shifts_3_3 + shifts_3_4 ) \
+    - ( err_shifts_1 + err_shifts_2 + err_shifts_3_3 + err_shifts_3_4 ) )
 
 ##########################################################################################
 # reading / writing interaction energies
