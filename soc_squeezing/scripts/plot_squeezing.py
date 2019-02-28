@@ -48,7 +48,7 @@ dec_rates = [ (1,1,1), (0,0,0) ]
 
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
-methods = [ OAT, TAT ]
+methods = [ OAT, TAT, TNT ]
 
 # construct Hamiltonians in (z,x,y) format
 init_state = "-Z"
@@ -89,8 +89,8 @@ sqz_C_exact = { OAT : squeezing_OAT(N, times) }
 # compute Hamiltonian, spin vector, spin-spin matrix, and initial states for TAT and TNT,
 #   exploiting a parity symmetry in both cases to reduce the size of the Hilbert space
 S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
-S_op_vec = [ X[::2,::2] for X in S_op_vec ]
-SS_op_mat = [ [ X[::2,::2] for X in XS ] for XS in SS_op_mat ]
+S_op_vec = [ X.todok()[::2,::2] for X in S_op_vec ]
+SS_op_mat = [ [ X.todok()[::2,::2] for X in XS ] for XS in SS_op_mat ]
 
 H = { OAT : SS_op_mat[1][1],
       TAT : 1/3 * ( SS_op_mat[1][2] + SS_op_mat[2][1] ),
@@ -156,6 +156,7 @@ def jump_args(hamiltonian):
 
 for method in methods:
     if method == OAT: continue
+    # if method == TNT: continue ##################################################################
     sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path):
@@ -200,13 +201,13 @@ def positive(vals):
     else: return idx
 
 max_plot_time = min(max_time, times[np.argmin(sqz_C_exact[TAT])]*(1+time_pad))
-# def ylims(sqz_exact, sqz_trunc):
-#     idx_TAT = min(positive(sqz_trunc[TAT]), np.argmax(times > max_plot_time))
-#     idx_TNT = min(positive(sqz_trunc[TNT]), np.argmax(times > max_plot_time))
-#     ymin = min(sqz_exact[TAT].min(), sqz_trunc[TAT][:idx_TAT].min())
-#     ymax = min(sqz_exact[TNT].max(), sqz_trunc[TNT][:idx_TNT].max())
-#     yscale = (ymax/ymin)**sqz_pad
-#     return ymin/yscale, ymax*yscale
+def ylims(sqz_exact, sqz_trunc):
+    idx_TAT = min(positive(sqz_trunc[TAT]), np.argmax(times > max_plot_time))
+    idx_TNT = min(positive(sqz_trunc[TNT]), np.argmax(times > max_plot_time))
+    ymin = min(sqz_exact[TAT].min(), sqz_trunc[TAT][:idx_TAT].min())
+    ymax = min(sqz_exact[TNT].max(), sqz_trunc[TNT][:idx_TNT].max())
+    yscale = (ymax/ymin)**sqz_pad
+    return ymin/yscale, ymax*yscale
 
 ### coherent evolution
 
@@ -225,20 +226,23 @@ plt.xlabel(r"$\chi t$")
 plt.ylabel(r"$\xi^2$")
 
 plt.xlim(0, max_plot_time)
-# plt.ylim(*ylims(sqz_C_exact,sqz_C_trunc))
+plt.ylim(*ylims(sqz_C_exact,sqz_C_trunc))
 plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 
 plt.legend(loc = "best")
 plt.tight_layout()
 if save: plt.savefig(fig_dir + "coherent.pdf")
 
+
 ### evolution with weak decoherence
 
 plt.figure(figsize = figsize)
 for method in methods:
     linestyle = "-" if method == OAT else "."
-    plt.semilogy(times, sqz_D_exact[method], linestyle, label = method,
-                 markersize = trajectory_marker_size)
+    try:
+        plt.semilogy(times, sqz_D_exact[method], linestyle, label = method,
+                     markersize = trajectory_marker_size)
+    except: None
     positive_vals = positive(sqz_D_trunc[method])
     plt.semilogy(times[:positive_vals], sqz_D_trunc[method][:positive_vals],
                  "--", color = line[method].get_color())
