@@ -15,7 +15,7 @@ from correlator_methods import get_dec_vecs, convert_zxy, squeezing_ops
 
 # squared norm of vector
 def sqr_norm(vec):
-    return abs(np.dot(vec.conj(),vec))
+    return abs(vec.conj() @ vec)
 
 # single-spin pauli operators
 s_i = np.array([[1,0],[0,1]])
@@ -26,7 +26,8 @@ s_m = np.array([[0,0],[1,0]])
 # collective S_z and S_m operators for net spin J
 def base_ops(J, base_ops = {}):
     if base_ops.get(J) is None:
-        base_ops[J] = [ spin_op_z_dicke(int(2*J)), spin_op_m_dicke(int(2*J)) ]
+        base_ops[J] = [ spin_op_z_dicke(int(2*J)),
+                        spin_op_m_dicke(int(2*J)) ]
     return base_ops[J]
 
 # collective operators of the form S_+^ll S_z^mm S_-^nn
@@ -49,10 +50,10 @@ def gg_mat(dec):
 def eff_jump_ops(N, J, dec_vecs):
     S_z, S_m = base_ops(J)
     I = sparse.identity(int(2*J)+1)
-    return [ sum( np.trace(op.conj().T @ gg_mat(dec_vec)) * OP
+    return ( sum( np.trace(op.conj().T @ gg_mat(dec_vec)) * OP
                   for op, OP in [ (s_i/2,N*I), (2*s_z,S_z),
                                   (s_p,S_m.T), (s_m,S_m) ] )
-             for dec_vec in dec_vecs ]
+             for dec_vec in dec_vecs )
 
 # build Hamiltonian for coherent evolution
 def build_H(J, h_pzm):
@@ -60,7 +61,8 @@ def build_H(J, h_pzm):
 
 # build effective Hamiltonian
 def build_H_eff(N, J, h_pzm, dec_vecs):
-    return build_H(J, h_pzm) - 1j/2 * sum( op for op in eff_jump_ops(N, J, dec_vecs) )
+    H_eff = build_H(J, h_pzm) - 1j/2 * sum( op for op in eff_jump_ops(N, J, dec_vecs) )
+    return H_eff.todia()
 
 # jump transition amplitudes
 def P_JM(N, J, M, d_J, d_M):
@@ -90,8 +92,8 @@ def P_JM(N, J, M, d_J, d_M):
 # jump transition amplitude vectors
 def P_J(N, J, d_J, d_M, vecs = {}):
     if vecs.get((N,J,d_J,d_M)) is None:
-        vecs[N,J,d_J,d_M] = \
-            np.array([ P_JM(N, J, -J+mm, d_J, d_M) for mm in range(int(2*J+1)) ])
+        vecs[N,J,d_J,d_M] = np.array([ P_JM(N, J, -J+mm, d_J, d_M)
+                                       for mm in range(int(2*J+1)) ])
     return vecs[N,J,d_J,d_M]
 
 # transform a state according to a quantum jump
@@ -113,12 +115,12 @@ def jump_state(state, d_J, dec_op, P_J_mat):
         if dec_op[0] != 0: state_new += dec_op[0] * P_J_mat[d_J,1][:-2]  * state[:-2]
         if dec_op[2] != 0: state_new += dec_op[2] * P_J_mat[d_J,-1][2:]  * state[2:]
 
-    return state_new / np.sqrt(np.dot(state_new.conj(),state_new))
+    return state_new / np.sqrt(state_new.conj() @ state_new)
 
 # compute expectation value of given operator with respect to a given state
 def correlator(op, state):
     J = (state.size-1)/2
-    return state.conj() @ op_mat(J,op) @  state / sqr_norm(state)
+    return state.conj() @ ( op_mat(J,op) @  state ) / sqr_norm(state)
 
 # choose an index at random, given some probability distribution
 def choose_index(probs):
@@ -163,7 +165,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
 
             # construct time derivative operator
             def time_derivative(time, state):
-                return -1j * H_eff @ state
+                return -1j * ( H_eff @ state )
 
             # construct dec event that returns zero when we do a jump
             jump_norm = np.random.random()
