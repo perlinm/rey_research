@@ -2,7 +2,7 @@ Dear editors,
 
 We thank you for considering our manuscript for publication.  In particular, we thank the Associate Editor for recommending that our article be "accepted once it is resubmitted without further review".
 
-In the attached files, we address the remaining comments made by the referees, and outline the latest revisions that we have made to our manuscript.
+In the attached files, we address the remaining comments made by the referees, and outline the latest revisions that we have made to our manuscript.  Note that in their last comment, referee 1 found a subtle error in our calculation of effective three-body interactions.  Our response to referee 1 discusses this error, and outlines the changes we have made to correct it.  We emphasize that these changes do not affect any of our numerical results and their discussion.  We therefore hope that there are no additional complications to publishing our manuscript in New Journal of Physics.
 
 Best,
 Michael A. Perlin
