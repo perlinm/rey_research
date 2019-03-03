@@ -17,21 +17,31 @@ from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state
 from sr87_olc_constants import recoil_energy_NU, colors
 
 
-lattice_size = 40 # linear size of 2-D lattice
+lattice_size = 100 # linear size of 2-D lattice
 lattice_depth = 4 # recoil energies
 confining_depth = 60 # recoil energies
 dec_rate_SI = 0.1 # 1/sec
 max_time_SI = 2 # seconds; maximum time in squeezing plot
+ymax = 36
 
-# WARNONG: manually retrieved from print_olc_squeezing_info.py (!!!)
-chi = 2.731876693400312e-07 # in lattice units with recoil_energy_NU = 1
+# WARNING: manually retrieved from print_olc_squeezing_info.py (!!!)
+# for (lattice_depth, confining_depth) = (4, 60) E_R
+if lattice_size == 40:
+    title = r"{\bf (a)} $\ell=40$"
+    chi = 2.731876693400312e-07 # in lattice units with recoil_energy_NU = 1
+elif lattice_size == 100:
+    title = r"{\bf (b)} $\ell=100$"
+    chi = 4.3687077035181746e-08
+else:
+    print(f"invalid lattice size: {lattice_size}")
+    exit()
 
 ivp_tolerance = 1e-10 # relative error tolerance in numerical integrator
 
 data_dir = "../data/"
 fig_dir = "../figures/"
 
-figsize = (4,3)
+figsize = (3,2.5)
 params = { "font.family" : "sans-serif",
            "font.serif" : "Computer Modern",
            "text.usetex" : True }
@@ -79,8 +89,9 @@ init_nZ[0] = 1
 states_TAT = solve_ivp(lambda time, state : -1j * H_TAT.dot(state),
                        (0,times[-1]), init_nZ, t_eval = times,
                        rtol = ivp_tolerance, atol = ivp_tolerance).y
-sqz_TAT = np.array([ -to_dB(spin_squeezing(N, states_TAT[:,tt], S_op_vec, SS_op_mat))
+sqz_TAT = np.array([ spin_squeezing(N, states_TAT[:,tt], S_op_vec, SS_op_mat))
                      for tt in range(times.size) ])
+sqz_TAT = -to_dB(sqz_TAT)
 
 # extract squeezing via TAT with decoherence
 file_name = data_dir + f"TAT/exact_{lattice_depth:.1f}_{lattice_size}.txt"
@@ -122,6 +133,7 @@ sqz_TAT_dec = sqz_vals[peak_idx.argmax(),:]
 # make and save figure
 
 plt.figure(figsize = figsize)
+plt.title(title)
 plt.plot(times_SI, sqz_OAT, "-", color = colors[0], label = "OAT")
 plt.plot(times_SI, sqz_OAT_dec, "--", color = colors[0])
 
@@ -130,11 +142,11 @@ plt.plot(times_SI[:max_time_TAT_dec_idx], sqz_TAT_dec[:max_time_TAT_dec_idx],
          "--", color = colors[1])
 
 plt.xlim(times_SI[0], max_time_SI)
-plt.ylim(0, plt.gca().get_ylim()[1])
+plt.ylim(0, ymax)
 plt.xlabel(time_label)
 plt.ylabel(sqz_label)
 
 plt.legend(loc = "best")
 plt.tight_layout()
 
-plt.savefig(fig_dir + "squeezing_example.pdf")
+plt.savefig(fig_dir + f"squeezing_example_L{lattice_size}.pdf")

@@ -111,15 +111,18 @@ function [ acceptable_params ] = ...
     set(gca, 'YLim', [1/100 1/10], 'YTick', [1/100 1/30 1/10]);
     set(gca, 'YTickLabel', {'$\pi/100$', '$\pi/30$', '$\pi/10$'});
     set(gca, 'TickLabelInterpreter', 'latex');
+
+    xlabel_obj = xlabel('$U/J$', 'interpreter', 'latex');
+    ylabel_obj = ylabel('$\phi$', 'interpreter', 'latex');
+    ylabel_obj.Units = 'normalized';
+    ylabel_obj.Position = ylabel_obj.Position + [0 0.02 0];
     if strcmp(dtype, 't')
-        xlabel('$U/J$', 'interpreter', 'latex');
-        ylabel_obj = ylabel('$\phi$', 'interpreter', 'latex');
-        ylabel_obj.Units = 'normalized';
-        ylabel_obj.Position = ylabel_obj.Position + [0 0.02 0];
         z_max = max(max(data_max));
         set(gca, 'ZLim', [0 z_max], 'ZTick', 0:5:z_max);
         text(0.1, 1/10, z_max*1.05, '$\times10^2$', 'interpreter', 'latex');
     else % if dtype == 'sq'
+        xlabel_obj.Units = 'normalized';
+        xlabel_obj.Position = xlabel_obj.Position + [-0.15 -0.03 0];
         set(gca, 'ZLim', [0 6], 'ZTick', 0:2:6);
     end
     if strcmp(N_text, '12')
