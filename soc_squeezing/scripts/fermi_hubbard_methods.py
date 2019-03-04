@@ -269,7 +269,7 @@ class c_seq:
     # sort operators change sign of prefactor if appropriate
     def sort(self):
         if len(self.seq) == 0: return None
-        sorted_ops = sorted([ [ self.seq[ii], ii ] for ii in range(len(self.seq)) ])
+        sorted_ops = sorted([ [ seq, ii ] for ii, seq in enumerate(self.seq) ])
         sorted_list, sorting_permutation = zip(*sorted_ops)
         self.seq = list(sorted_list)
         self.prefactor *= sympy_permutation(sorting_permutation).signature()

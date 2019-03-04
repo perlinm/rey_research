@@ -187,9 +187,8 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
 
             # compute correlators at save points
             correlators = np.zeros((len(squeezing_ops),times.size), dtype = complex)
-            for op_idx in range(len(squeezing_ops)):
-                op = squeezing_ops[op_idx]
-                correlators[op_idx,:] = np.array([ correlator(op, states[:,tt])
+            for op_idx, sqz_op in enumerate(squeezing_ops):
+                correlators[op_idx,:] = np.array([ correlator(sqz_op, states[:,tt])
                                                    for tt in range(times.size) ])
 
             # determine indices times at which we wish to save correlators
@@ -210,8 +209,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             P_J_mat = { (d_J,d_M) : P_J(spin_num,J,d_J,d_M)
                         for d_J in [1,0,-1] for d_M in [1,0,-1] }
             probs = np.zeros((len(dec_vecs),3))
-            for dec_idx in range(len(dec_vecs)):
-                dec_vec = dec_vecs[dec_idx]
+            for dec_idx, dec_vec in enumerate(dec_vecs):
                 for d_J in [ 1, 0, -1 ]:
                     probs[dec_idx,1-d_J] \
                         = sum( sqr_norm(dec_vec[1-d_M] * P_J_mat[d_J,d_M] * state)
@@ -230,7 +228,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             if d_J != 0: H_eff = build_H_eff(spin_num, J, h_pzm, dec_vecs)
 
     # average over all trajectories
-    correlators = { squeezing_ops[op_idx] : correlator_mat[:,op_idx,:].mean(0)
-                    for op_idx in range(len(squeezing_ops)) }
+    correlators = { sqz_op : correlator_mat[:,op_idx,:].mean(0)
+                    for op_idx, sqz_op in enumerate(squeezing_ops) }
 
     return correlators

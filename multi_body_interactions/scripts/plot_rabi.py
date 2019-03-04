@@ -49,11 +49,11 @@ def coeff(spins, symmetric):
 
 def rabi_populations(coupling, times, detunings):
     populations = np.zeros((len(detunings),len(times)))
-    for dd in range(len(detunings)):
-        D = np.sqrt(detunings[dd]**2 + coupling**2)
+    for dd, detuning in enumerate(detunings):
+        D = np.sqrt(detuning**2 + coupling**2)
         if D == 0: continue
-        for tt in range(len(times)):
-            populations[dd,tt] += (coupling/D*np.sin(D*times[tt]))**2
+        for tt, time in enumerate(times):
+            populations[dd,tt] += (coupling/D*np.sin(D*time))**2
     return populations
 
 def populations(N, symmetric, times, detunings, coupling_unit = 1):
@@ -374,17 +374,17 @@ if "sweep" in sys.argv:
         depths = ( np.prod(shift_data[:,:3], 1) )**(1/3)
         shifts = shift_data[:,3:]
 
-        for dd in range(len(depths)):
-            if abs(depths[dd] - expt_depth) >= 1: continue
+        for dd, depth in enumerate(depths):
+            if abs(depth - expt_depth) >= 1: continue
             for ss, ll in [ (1,"-"), (2,"+") ]:
                 shifts_ss = shifts[dd,ss::3] - shifts[dd,0::3]
-                for aa in range(len(atom_numbers)):
+                for aa, atom_number in enumerate(atom_numbers):
                     plt.axvline(shifts_ss[aa] * kHz,
                                 linestyle = ":", color = colors[aa+1], zorder = 0)
                     y_min, y_max = plt.gca().get_ylim()
                     text_y = y_max + (y_max - y_min) * 0.03
                     plt.gca().text(shifts_ss[aa] * kHz, text_y,
-                                   r"${}^{}$".format(atom_numbers[aa],ll),
+                                   r"${}^{}$".format(atom_number,ll),
                                    color = colors[aa+1])
 
         plt.tight_layout()
@@ -411,8 +411,8 @@ if "sweep" in sys.argv:
         header_items = f.readline().split()
         atom_numbers = list(set([ int(item[0]) for item in header_items[4:] ]))
 
-    for dd in range(len(depths)):
-        print("({}/{}) {}".format(dd,len(depths),depths[dd]))
+    for dd, depth in enumerate(depths):
+        print("({}/{}) {}".format(dd,len(depths),depth))
 
         plt.figure(figsize = sweep_figsize)
 
@@ -432,11 +432,11 @@ if "sweep" in sys.argv:
         peaks.append((0,max(signal)))
 
         for ss in range(2):
-            for aa in range(len(atom_numbers)):
+            for aa, atom_number in enumerate(atom_numbers):
                 resonance = resonances[ss,aa]
-                N_signal = populations(atom_numbers[aa], ss, [time],
+                N_signal = populations(atom_number, ss, [time],
                                        detunings - resonance,
-                                       unit_rabi_frequency) / atom_numbers[aa]
+                                       unit_rabi_frequency) / atom_number
                 signal += N_signal
                 peaks.append((resonance*kHz,max(N_signal)))
 

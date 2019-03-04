@@ -82,7 +82,7 @@ gams_g = [ vec[0] * s_p_j[jj] + vec[1] * s_z_j[jj] + vec[2] * s_m_j[jj]
 gams_G = [ vec[0] * S_p + vec[1] * S_z + vec[2] * S_m
            for vec in dec_vecs_G ]
 gams = gams_g + gams_G
-ggs = [ gams[jj].dag() * gams[jj] for jj in range(len(gams)) ]
+ggs = [ gam.dag() * gam for gam in gams ]
 
 # initial conditions
 vec_Z = qt.tensor([ dn ] * N)
@@ -114,9 +114,9 @@ def ham(state_vec):
 def dec(state_vec):
     if gams == []: return np.zeros(state_vec.size)
     state_mat = state_vec.reshape((2**N,2**N))
-    dec_mat = sum([ gams[jj] @ state_mat @ gams[jj].conj().T
+    dec_mat = sum([ gam @ state_mat @ gam.conj().T
                     - 1/2 * acomm(ggs[jj], state_mat)
-                    for jj in range(len(gams)) ])
+                    for jj, gam in enumerate(gams) ])
     return dec_mat.flatten()
 
 def time_deriv(time,state):

@@ -167,9 +167,8 @@ def get_sqz_floor(method, lattice_depth, lattice_size):
     correlators = {}
     if method == "jump":
         data = np.loadtxt(file_name, dtype = complex)
-        for op_idx in range(len(squeezing_ops)):
-            op = squeezing_ops[op_idx]
-            correlators[op] = data[op_idx,:]
+        for op_idx, sqz_op in enumerate(squeezing_ops):
+            correlators[sqz_op] = data[op_idx,:]
 
         sqz = squeezing_from_correlators(spin_num, correlators, in_dB = True)
         plt.plot(sqz, "k.")
@@ -198,9 +197,8 @@ def get_sqz_floor(method, lattice_depth, lattice_size):
         sqz_floors = np.zeros(orders.size)
         for order_idx in range(orders.size):
             order = orders[order_idx]
-            for op_idx in range(len(squeezing_ops)):
-                op = squeezing_ops[op_idx]
-                correlators[op] = derivs[op_idx,:order] @ times_k[:order,:]
+            for op_idx, sqz_op in enumerate(squeezing_ops):
+                correlators[sqz_op] = derivs[op_idx,:order] @ times_k[:order,:]
 
             sqz = squeezing_from_correlators(spin_num, correlators, in_dB = True)
 

@@ -23,8 +23,8 @@ def partition_1D(indices, partition_sizes):
 
 def partition_2D(indices, partition_sizes):
     split_indices = partition_1D(indices, partition_sizes.sum(1))
-    return [ partition_1D(split_indices[ii], partition_sizes[ii,:])
-             for ii in range(len(split_indices)) ]
+    return [ partition_1D(indices, partition_sizes[ii,:])
+             for ii, indices in enumerate(split_indices) ]
 
 def partition(indices, partition_sizes):
     assert(np.sum(partition_sizes) == len(indices))

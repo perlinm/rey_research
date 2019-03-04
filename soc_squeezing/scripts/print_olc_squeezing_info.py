@@ -61,8 +61,8 @@ U_int = g_int_LU[1] * K_T**(3-lattice_dim) * np.product(K_0)
 print("V_T (E_R):", confining_depth)
 print("J_T (2\pi Hz):", J_T * recoil_energy_Hz)
 print()
-for ii in range(len(J_0)):
-    print(f"J_{ii} (2\pi Hz):", J_0[ii] * recoil_energy_Hz)
+for ii, J_ii in enumerate(J_0):
+    print(f"J_{ii} (2\pi Hz):", J_ii * recoil_energy_Hz)
 print("U_int (2\pi Hz):", U_int * recoil_energy_Hz)
 
 

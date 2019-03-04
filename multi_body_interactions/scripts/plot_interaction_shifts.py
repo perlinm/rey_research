@@ -112,8 +112,8 @@ else:
                                 [ eigenvalues_3_3_O, 3, e_3_3_O ],
                                 [ eigenvalues_4_3_B, 4, e_4_3_B ],
                                 [ eigenvalues_4_3_C, 4, e_4_3_C ] ]:
-        for aa in range(len(atom_numbers)):
-            conversion = convert_eigenvalues(num,atom_numbers[aa])
+        for aa, atom_number in enumerate(atom_numbers):
+            conversion = convert_eigenvalues(num,atom_number)
             vals[:,aa] = conversion @ e_X
 
 for dd in range(len(depths)):
