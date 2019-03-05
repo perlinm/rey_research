@@ -15,7 +15,7 @@ TAT, TNT = "TAT", "TNT"
 if method == TAT:
     memory = "5G"
 elif method == TNT:
-    memory = "25G"
+    memory = "20G"
 else:
     print("method must be one of TAT or TNT")
     exit()

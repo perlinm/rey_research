@@ -31,11 +31,9 @@ def base_ops(J, base_ops = {}):
     return base_ops[J]
 
 # collective operators of the form S_+^ll S_z^mm S_-^nn
-def op_mat(J, pows, ops = {}):
-    if ops.get((J,pows)) is None:
-        S_z, S_m = base_ops(J)
-        ops[J,pows] = S_m.T**pows[0] * S_z**pows[1] * S_m**pows[2]
-    return ops[J,pows]
+def op_mat(J, op):
+    S_z, S_m = base_ops(J)
+    return S_m.T**op[0] * S_z**op[1] * S_m**op[2]
 
 # matrix representation of sinple-spin jump operator \gamma
 def decoherence_op(dec_vec):
@@ -56,12 +54,13 @@ def eff_jump_ops(N, J, dec_vecs):
              for dec_vec in dec_vecs )
 
 # build Hamiltonian for coherent evolution
-def build_H(J, h_pzm):
-    return sum( val * op_mat(J, pows) for pows, val in h_pzm.items() )
+def build_H(op_mats, h_pzm):
+    return sum( val * op_mats[op] for op, val in h_pzm.items() )
 
 # build effective Hamiltonian
-def build_H_eff(N, J, h_pzm, dec_vecs):
-    H_eff = build_H(J, h_pzm) - 1j/2 * sum( op for op in eff_jump_ops(N, J, dec_vecs) )
+def build_H_eff(N, J, op_mats, h_pzm, dec_vecs):
+    H_eff = ( build_H(op_mats, h_pzm)
+              - 1j/2 * sum( op for op in eff_jump_ops(N, J, dec_vecs) ) )
     return H_eff.todia()
 
 # jump transition amplitudes
@@ -118,9 +117,9 @@ def jump_state(state, d_J, dec_op, P_J_mat):
     return state_new / np.sqrt(state_new.conj() @ state_new)
 
 # compute expectation value of given operator with respect to a given state
-def correlator(op, state):
+def correlator(op_mat, state):
     J = (state.size-1)/2
-    return state.conj() @ ( op_mat(J,op) @  state ) / sqr_norm(state)
+    return state.conj() @ ( op_mat @  state ) / sqr_norm(state)
 
 # choose an index at random, given some probability distribution
 def choose_index(probs):
@@ -149,6 +148,8 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             exit()
     dec_vecs = [ vecs[0] for vecs in dec_vecs ]
 
+    all_ops = set(squeezing_ops).union(set(h_pzm.keys())) # all operators we care about
+
     correlator_mat_shape = (trajectories,len(squeezing_ops),chi_times.size)
     correlator_mat = np.zeros(correlator_mat_shape, dtype = complex)
 
@@ -158,7 +159,8 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             sys.stdout.flush()
         J = spin_num/2
         state = initial_state
-        H_eff = build_H_eff(spin_num, J, h_pzm, dec_vecs)
+        op_mats = { op : op_mat(J, op) for op in all_ops }
+        H_eff = build_H_eff(spin_num, J, op_mats, h_pzm, dec_vecs)
 
         time = 0
         while time < max_time:
@@ -188,8 +190,9 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             # compute correlators at save points
             correlators = np.zeros((len(squeezing_ops),times.size), dtype = complex)
             for op_idx, sqz_op in enumerate(squeezing_ops):
-                correlators[op_idx,:] = np.array([ correlator(sqz_op, states[:,tt])
-                                                   for tt in range(times.size) ])
+                correlators[op_idx,:] \
+                    = np.array([ correlator(op_mats[sqz_op], states[:,tt])
+                                 for tt in range(times.size) ])
 
             # determine indices times at which we wish to save correlators
             interp_time_idx = (chi_times >= times[0]) & (chi_times <= times[-1])
@@ -223,9 +226,12 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             d_J = 1 - choose_index(probs[dec_choice,:])
             J += d_J
 
+            # recompute matrix representations of all relevant operators
+            op_mats = { op : op_mat(J, op) for op in all_ops }
+
             # transform state according to jump, and rebuild Hamiltonian if necessary
             state = jump_state(state, d_J, dec_op, P_J_mat)
-            if d_J != 0: H_eff = build_H_eff(spin_num, J, h_pzm, dec_vecs)
+            if d_J != 0: H_eff = build_H_eff(spin_num, J, op_mats, h_pzm, dec_vecs)
 
     # average over all trajectories
     correlators = { sqz_op : correlator_mat[:,op_idx,:].mean(0)
