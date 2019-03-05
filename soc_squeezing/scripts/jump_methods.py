@@ -136,6 +136,9 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
     if solver is None: ivp_solver = "RK45"
     else: ivp_solver = solver
 
+    if print_updates:
+        from time import time as current_time
+
     max_time = chi_times[-1]
     h_pzm = convert_zxy(h_vec)
     if dec_mat is None: dec_mat = np.eye(3)
@@ -152,9 +155,12 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
     correlator_mat = np.zeros(correlator_mat_shape, dtype = complex)
 
     for trajectory in range(trajectories):
+
         if print_updates:
             print(f"{trajectory}/{trajectories}")
             sys.stdout.flush()
+            start_time = current_time()
+
         J = spin_num/2
         state = initial_state
         op_mats = { op : op_mat(J, op) for op in all_ops }
@@ -204,7 +210,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
                         = op_interp(interp_times)
 
 
-            else:
+            else: # not default savepoints
                 eval_times = chi_times[chi_times >= time]
                 add_first_time = time not in eval_times
                 if add_first_time:
@@ -240,7 +246,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             # print info about this jump
             jumps += 1
             if print_updates:
-                print(" ", jumps, time, time/max_time)
+                print(" ", jumps, time, time/max_time, current_time() - start_time)
                 sys.stdout.flush()
 
             # compute jump probabilities for each operater and change in net spin J
