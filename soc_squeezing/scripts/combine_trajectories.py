@@ -7,9 +7,8 @@ from squeezing_methods import squeezing_from_correlators
 
 log10_N = 4
 method = "TAT"
-time_steps = 200
 
-files = glob.glob(f"../data/squeezing/*/*logN{log10_N}*{method}*.txt")
+files = glob.glob(f"../data/squeezing/jumps/sqz_D_exact_logN{log10_N}_{method}_s???.txt")
 data = sum([ np.loadtxt(f, dtype = complex, delimiter = ",")
              for f in files ]) / len(files)
 
@@ -26,6 +25,8 @@ with open(files[0], "r") as f:
             trajectories_per_run = int(line.split()[-1])
         elif "max_tau" in line:
             max_tau = int(line.split()[-1])
+        elif "time_steps" in line:
+            time_steps = int(line.split()[-1])
         elif "ops" in line:
             nums = np.array([ int(nn) for nn in re.findall(r"[0-9]+", line) ])
             nums = nums.reshape((nums.size//3,3))

@@ -160,6 +160,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
         H_eff = build_H_eff(spin_num, J, op_mats, h_pzm, dec_vecs)
 
         time = 0
+        jumps = 0
         while time < max_time:
 
             # construct time derivative operator
@@ -171,7 +172,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             def dec_event(time, state):
                 return sqr_norm(state) - jump_norm
             dec_event.terminal = True
-            dec_event.direction = 0
+            dec_event.direction = -1
 
             # simulate until a jump occurs
             ivp_solution = solve_ivp(time_derivative, (time, max_time), state,
@@ -179,10 +180,6 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
                                      rtol = ivp_tolerance, atol = ivp_tolerance)
             times = ivp_solution.t
             states = ivp_solution.y
-
-            # set current time and state
-            time = times[-1]
-            state = states[:,-1] / np.sqrt(sqr_norm(states[:,-1]))
 
             # compute correlators at save points
             correlators = np.zeros((len(squeezing_ops),times.size), dtype = complex)
@@ -201,9 +198,18 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
                 correlator_mat[trajectory,op_idx,interp_time_idx] \
                     = op_interp(interp_times)
 
-            # if there are no decoherence operators
-            #   or the ivp solver terminated by reaching the maximum time, skip the jump
-            if len(dec_vecs) == 0 or ivp_solution.status == 0: continue
+            # if the ivp solver terminated by reaching the maximum time, then we're done
+            if ivp_solution.status == 0: break
+
+            # print info about this jump
+            jumps += 1
+            if print_updates:
+                print(" ", jumps, time, time/max_time)
+                sys.stdout.flush()
+
+            # set current time and state
+            time = times[-1]
+            state = states[:,-1] / np.sqrt(sqr_norm(states[:,-1]))
 
             # compute jump probabilities for each operater and change in net spin J
             P_J_mat = { (d_J,d_M) : P_J(spin_num,J,d_J,d_M)

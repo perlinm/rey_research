@@ -15,14 +15,14 @@ TAT, TNT = "TAT", "TNT"
 if method == TAT:
     memory = "5G"
 elif method == TNT:
-    memory = "20G"
+    memory = "10G"
 else:
     print("method must be one of TAT or TNT")
     exit()
 
 log10_N = 4
 N = 10**log10_N
-trajectories = 100
+trajectories = 10
 
 log_dir = "./logs/"
 data_dir = "../data/squeezing/jumps/"
@@ -77,6 +77,7 @@ correlators = correlators_from_trajectories(*jump_args(h_vec[method]), seed = se
 with open(data_dir + job_name + ".txt", "w") as f:
     f.write(f"# trajectories: {trajectories}\n")
     f.write(f"# max_tau: {max_tau}\n")
+    f.write(f"# time_steps: {time_steps}\n")
     ops = list(correlators.keys())
     f.write("# ops: " + " ".join([ str(op) for op in ops]) + "\n")
     for op in ops:
