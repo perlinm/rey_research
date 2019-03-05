@@ -15,7 +15,7 @@ TAT, TNT = "TAT", "TNT"
 if method == TAT:
     memory = "5G"
 elif method == TNT:
-    memory = "10G"
+    memory = "25G"
 else:
     print("method must be one of TAT or TNT")
     exit()
@@ -50,8 +50,8 @@ if len(sys.argv[1:]) == 3:
         f.write(log_text)
     exit()
 
-max_tau = 2
-time_steps = 200
+max_tau = 1
+time_steps = 100
 dec_rates = [ (1,1,1), (0,0,0) ]
 
 init_state = "-Z"
@@ -60,7 +60,6 @@ h_TAT = { (0,2,0) : +1/3,
 h_TNT = { (0,2,0) : 1,
           (1,0,0) : -N/2 }
 h_vec = { TAT : h_TAT, TNT : h_TNT }
-solver = { TAT : "RK45", TNT : "RK45" }
 
 dec_mat_zxy = np.array([ [ 0, -1, 0 ],
                          [ 1,  0, 0 ],
@@ -74,8 +73,7 @@ init_state_vec = coherent_spin_state(init_state, N)
 def jump_args(hamiltonian):
     return [ N, trajectories, times, init_state_vec, hamiltonian, dec_rates, dec_mat ]
 
-correlators = correlators_from_trajectories(*jump_args(h_vec[method]),
-                                            seed = seed, solver = solver[method])
+correlators = correlators_from_trajectories(*jump_args(h_vec[method]), seed = seed)
 with open(data_dir + job_name + ".txt", "w") as f:
     f.write(f"# trajectories: {trajectories}\n")
     f.write(f"# max_tau: {max_tau}\n")
