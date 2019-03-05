@@ -38,7 +38,7 @@ log_text = f"""#!/bin/sh
 #SBATCH --job-name={job_name}
 #SBATCH --output={log_dir}{job_name}.o
 #SBATCH --error={log_dir}{job_name}.e
-#SBATCH --time=05-00
+#SBATCH --time=03-00
 
 module load python3
 
@@ -53,6 +53,8 @@ if len(sys.argv[1:]) == 3:
 max_tau = 1
 time_steps = 100
 dec_rates = [ (1,1,1), (0,0,0) ]
+
+default_savepoints = (method != TNT)
 
 init_state = "-Z"
 h_TAT = { (0,2,0) : +1/3,
@@ -73,7 +75,8 @@ init_state_vec = coherent_spin_state(init_state, N)
 def jump_args(hamiltonian):
     return [ N, trajectories, times, init_state_vec, hamiltonian, dec_rates, dec_mat ]
 
-correlators = correlators_from_trajectories(*jump_args(h_vec[method]), seed = seed)
+correlators = correlators_from_trajectories(*jump_args(h_vec[method]), seed = seed,
+                                            default_savepoints = default_savepoints)
 with open(data_dir + job_name + ".txt", "w") as f:
     f.write(f"# trajectories: {trajectories}\n")
     f.write(f"# max_tau: {max_tau}\n")

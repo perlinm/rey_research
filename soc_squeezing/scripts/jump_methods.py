@@ -129,8 +129,9 @@ def choose_index(probs):
 
 # compute correlators via the quantum jump method
 def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_state, h_vec,
-                                  dec_rates = [], dec_mat = None, ivp_tolerance = 1e-10,
-                                  print_updates = True, seed = 0, solver = None):
+                                  dec_rates = [], dec_mat = None, seed = 0,
+                                  default_savepoints = True, print_updates = True,
+                                  ivp_tolerance = 1e-10, solver = None):
     np.random.seed(seed)
     if solver is None: ivp_solver = "RK45"
     else: ivp_solver = solver
@@ -175,28 +176,63 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             dec_event.direction = -1
 
             # simulate until a jump occurs
-            ivp_solution = solve_ivp(time_derivative, (time, max_time), state,
-                                     events = dec_event, method = ivp_solver,
-                                     rtol = ivp_tolerance, atol = ivp_tolerance)
-            times = ivp_solution.t
-            states = ivp_solution.y
+            if default_savepoints:
+                ivp_solution = solve_ivp(time_derivative, (time, max_time), state,
+                                         events = dec_event, method = ivp_solver,
+                                         rtol = ivp_tolerance, atol = ivp_tolerance)
+                times = ivp_solution.t
+                states = ivp_solution.y
 
-            # compute correlators at save points
-            correlators = np.zeros((len(squeezing_ops),times.size), dtype = complex)
-            for op_idx, sqz_op in enumerate(squeezing_ops):
-                correlators[op_idx,:] \
-                    = np.array([ correlator(op_mats[sqz_op], states[:,tt])
-                                 for tt in range(times.size) ])
+                # set current time and state
+                time = times[-1]
+                state = states[:,-1] / np.sqrt(sqr_norm(states[:,-1]))
 
-            # determine indices times at which we wish to save correlators
-            interp_time_idx = (chi_times >= times[0]) & (chi_times <= times[-1])
-            interp_times = chi_times[interp_time_idx]
+                # compute correlators at save points
+                correlators = np.zeros((len(squeezing_ops),times.size), dtype = complex)
+                for tt in range(times.size):
+                    for op_idx, sqz_op in enumerate(squeezing_ops):
+                        correlators[op_idx,:] = correlator(op_mats[sqz_op], states[:,tt])
 
-            # compute correlators at desired times by interpolation
-            for op_idx in range(len(squeezing_ops)):
-                op_interp = interpolate.interp1d(times,correlators[op_idx,:])
-                correlator_mat[trajectory,op_idx,interp_time_idx] \
-                    = op_interp(interp_times)
+                # determine indices times at which we wish to save correlators
+                interp_time_idx = (chi_times >= times[0]) & (chi_times <= times[-1])
+                interp_times = chi_times[interp_time_idx]
+
+                # compute correlators at desired times by interpolation
+                for op_idx in range(len(squeezing_ops)):
+                    op_interp = interpolate.interp1d(times,correlators[op_idx,:])
+                    correlator_mat[trajectory,op_idx,interp_time_idx] \
+                        = op_interp(interp_times)
+
+
+            else:
+                eval_times = chi_times[chi_times >= time]
+                add_first_time = time not in eval_times
+                if add_first_time:
+                    eval_times = [ time ] + list(eval_times)
+                ivp_solution = solve_ivp(time_derivative, (time, max_time), state,
+                                         events = dec_event, method = ivp_solver,
+                                         rtol = ivp_tolerance, atol = ivp_tolerance,
+                                         t_eval = eval_times)
+                times = ivp_solution.t[add_first_time:]
+                states = ivp_solution.y[:,add_first_time:]
+
+                # set current time and state
+                last_time = ivp_solution.t[-1]
+                last_state = ivp_solution.y[:,-1]
+                if ivp_solution.status != 0:
+                    time = ivp_solution.t_events[0][0]
+                    state = solve_ivp(time_derivative, (last_time, time), last_state,
+                                      events = dec_event, method = ivp_solver,
+                                      rtol = ivp_tolerance, atol = ivp_tolerance,
+                                      t_eval = (last_time, time)).y[:,-1]
+                    state /= np.sqrt(sqr_norm(state))
+
+                # compute correlators at save points
+                for tt in range(times.size):
+                    time_idx = np.argmax(chi_times == times[tt])
+                    for op_idx, sqz_op in enumerate(squeezing_ops):
+                        correlator_mat[trajectory,op_idx,time_idx] \
+                            = correlator(op_mats[sqz_op], states[:,tt])
 
             # if the ivp solver terminated by reaching the maximum time, then we're done
             if ivp_solution.status == 0: break
@@ -206,10 +242,6 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             if print_updates:
                 print(" ", jumps, time, time/max_time)
                 sys.stdout.flush()
-
-            # set current time and state
-            time = times[-1]
-            state = states[:,-1] / np.sqrt(sqr_norm(states[:,-1]))
 
             # compute jump probabilities for each operater and change in net spin J
             P_J_mat = { (d_J,d_M) : P_J(spin_num,J,d_J,d_M)
