@@ -89,11 +89,8 @@ def P_JM(N, J, M, d_J, d_M):
     return P_JM
 
 # jump transition amplitude vectors
-def P_J(N, J, d_J, d_M, vecs = {}):
-    if vecs.get((N,J,d_J,d_M)) is None:
-        vecs[N,J,d_J,d_M] = np.array([ P_JM(N, J, -J+mm, d_J, d_M)
-                                       for mm in range(int(2*J+1)) ])
-    return vecs[N,J,d_J,d_M]
+def P_J(N, J, d_J, d_M):
+    return np.array([ P_JM(N, J, -J+mm, d_J, d_M) for mm in range(int(2*J+1)) ])
 
 # transform a state according to a quantum jump
 def jump_state(state, d_J, dec_op, P_J_mat):
