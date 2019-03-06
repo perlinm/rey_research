@@ -12,13 +12,7 @@ method = sys.argv[1]
 seed = int(sys.argv[2])
 
 TAT, TNT = "TAT", "TNT"
-if method == TAT:
-    memory = "5G"
-elif method == TNT:
-    memory = "10G"
-else:
-    print("method must be one of TAT or TNT")
-    exit()
+assert(method in [ TAT, TNT ])
 
 log10_N = 4
 N = 10**log10_N
@@ -31,14 +25,14 @@ job_name = f"sqz_D_exact_logN{log10_N}_{method}_s{seed:03d}"
 log_text = f"""#!/bin/sh
 
 #SBATCH --partition=nistq,jila
-#SBATCH --mem={memory}
+#SBATCH --mem=5G
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --job-name={job_name}
 #SBATCH --output={log_dir}{job_name}.o
 #SBATCH --error={log_dir}{job_name}.e
-#SBATCH --time=03-00
+#SBATCH --time=05-00
 
 module load python3
 
@@ -54,7 +48,7 @@ max_tau = 1
 time_steps = 100
 dec_rates = [ (1,1,1), (0,0,0) ]
 
-default_savepoints = (method != TNT)
+default_savepoints = ( False if method == TNT else True )
 
 init_state = "-Z"
 h_TAT = { (0,2,0) : +1/3,

@@ -240,14 +240,14 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
                         correlator_mat[trajectory,op_idx,time_idx] \
                             = correlator(op_mats[sqz_op], states[:,tt])
 
-            # if the ivp solver terminated by reaching the maximum time, then we're done
-            if ivp_solution.status == 0: break
-
-            # print info about this jump
-            jumps += 1
+            # print status info
             if print_updates:
                 print(" ", jumps, time, time/max_time, current_time() - start_time)
                 sys.stdout.flush()
+
+            # if the ivp solver terminated by reaching the maximum time, then we're done
+            if ivp_solution.status == 0: break
+            else: jumps += 1 # otherwise, we're doing another jump
 
             # compute jump probabilities for each operater and change in net spin J
             P_J_mat = { (d_J,d_M) : P_J(spin_num,J,d_J,d_M)
