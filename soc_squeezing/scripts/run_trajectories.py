@@ -16,7 +16,18 @@ assert(method in [ TAT, TNT ])
 
 log10_N = 4
 N = 10**log10_N
-trajectories = 10
+
+if method == TAT:
+    trajectories = 100
+    max_tau = 2
+    time_steps = 200
+    default_savepoints = True
+
+else: # method == TNT
+    trajectories = 10
+    max_tau = 1
+    time_steps = 100
+    default_savepoints = False
 
 log_dir = "./logs/"
 data_dir = "../data/squeezing/jumps/"
@@ -44,11 +55,7 @@ if len(sys.argv[1:]) == 3:
         f.write(log_text)
     exit()
 
-max_tau = 1
-time_steps = 100
 dec_rates = [ (1,1,1), (0,0,0) ]
-
-default_savepoints = ( False if method == TNT else True )
 
 init_state = "-Z"
 h_TAT = { (0,2,0) : +1/3,
