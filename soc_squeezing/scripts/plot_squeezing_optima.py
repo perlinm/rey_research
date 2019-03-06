@@ -26,7 +26,7 @@ sqz_methods = [ OAT, TAT ]
 
 depth_min, depth_max = 2, 7
 
-method_TAT = "exact"
+method_TAT = "trunc"
 depths_TAT = np.arange(20,81,2)/10 # lattice depths in plots
 sizes_TAT = np.arange(10,101,5) # linear lattice sizes in plots
 phi_cutoff = 10 # minimum value of (\phi/\pi)^{-1}
@@ -174,7 +174,7 @@ def get_sqz_floor(method, lattice_depth, lattice_size):
         plt.plot(sqz, "k.")
         return sqz.max()
 
-    if method == "exact":
+    if method == "trunc":
 
         # if we have previously computed the squeezing floor, use it
         sqz_floor = None

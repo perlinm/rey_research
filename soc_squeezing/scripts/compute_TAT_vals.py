@@ -6,19 +6,16 @@ import numpy as np
 from time import time as system_time
 
 from dicke_methods import coherent_spin_state
-from jump_methods import correlators_from_trajectories
 
 start_time = system_time()
 
 if len(sys.argv[1:]) not in  [ 3, 4 ]:
-    print(f"usage: {sys.argv[0]} method lattice_depth lattice_size [rational]")
+    print(f"usage: {sys.argv[0]} lattice_depth lattice_size [rational]")
     exit()
 
-method = sys.argv[1]
-lattice_depth = sys.argv[2]
-lattice_size = int(sys.argv[3])
-rational_correlators = ( len(sys.argv[1:]) == 4 )
-assert(method in [ "exact", "jump" ])
+lattice_depth = sys.argv[1]
+lattice_size = int(sys.argv[2])
+rational_correlators = ( len(sys.argv[1:]) == 3 )
 
 if rational_correlators:
     from correlator_methods_rat import compute_correlators, dec_mat_drive
@@ -32,13 +29,14 @@ else:
 
 data_dir = os.path.dirname(os.path.realpath(__file__)) + "/../data/"
 output_dir = data_dir + "TAT/"
-file_name = "_".join(sys.argv[1:]) + ".txt"
+file_name = "_".join(["trunc"]+sys.argv[1:]) + ".txt"
 
 lattice_dim = 2
 confining_depth = 60 # recoil energies
 dec_time_SI = 10 # seconds
 order_cap = 70
-trajectories = 1000
+
+max_tau = 2
 time_steps = 100
 
 recoil_energy_NU = 21801.397815091557
@@ -92,7 +90,7 @@ dec_rate_LU = 1/dec_time_SI / recoil_energy_NU
 dec_rate = dec_rate_LU / chi
 dec_rates = [ (0, dec_rate, dec_rate), (0, 0, 0) ]
 
-times = np.linspace(0, 2, time_steps) * spin_num**(-2/3)
+times = np.linspace(0, max_tau, time_steps) * spin_num**(-2/3)
 
 init_state = "+X"
 init_state_vec = coherent_spin_state([0,1,0], spin_num)
@@ -100,15 +98,9 @@ dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy))
 
 header = f"# lattice_dim: {lattice_dim}\n"
 header += f"# confining depth (E_R): {confining_depth}\n"
-if method == "exact":
-    header += f"# order_cap: {order_cap}\n"
-    op_vals = compute_correlators(spin_num, order_cap, times, init_state, h_TAT,
-                                  dec_rates, dec_mat_TAT, return_derivs = True)
-if method == "jump":
-    header += f"# trajectories: {trajectories}\n"
-    header += f"# time_steps: {time_steps}\n"
-    op_vals = correlators_from_trajectories(spin_num, trajectories, times, init_state_vec,
-                                            h_TAT, dec_rates, dec_mat_TAT)
+header += f"# order_cap: {order_cap}\n"
+op_vals = compute_correlators(spin_num, order_cap, times, init_state, h_TAT,
+                              dec_rates, dec_mat_TAT, return_derivs = True)
 
 if not os.path.isdir(output_dir): os.mkdir(output_dir)
 
