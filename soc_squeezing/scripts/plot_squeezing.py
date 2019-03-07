@@ -65,7 +65,7 @@ sqz_header += r"# second column: squeezing as \xi^2" + "\n"
 order_header = f"# order_cap: {order_cap}\n"
 trajectory_header = f"# trajectories: {trajectories}\n"
 
-def write_sqz(sqz, sqz_path, extra_header = ""):
+def write_sqz(times, sqz, sqz_path, extra_header = ""):
     with open(sqz_path, "w") as f:
         f.write(sqz_header)
         f.write(extra_header)
@@ -73,9 +73,7 @@ def write_sqz(sqz, sqz_path, extra_header = ""):
             f.write(f"{times[tt]},{sqz[tt]}\n")
 
 def read_sqz(fname):
-    sqz_times, sqz = np.loadtxt(sqz_path, delimiter = ",", unpack = True)
-    assert(abs(sqz_times - times).max() < times[1]/1e10)
-    return sqz
+    return np.loadtxt(sqz_path, delimiter = ",", unpack = True)
 
 
 ##########################################################################################
@@ -84,7 +82,7 @@ def read_sqz(fname):
 
 ### exact calculations
 
-sqz_C_exact = { OAT : squeezing_OAT(N, times) }
+time_sqz_C_exact = { OAT : [ times, squeezing_OAT(N, times) ] }
 
 # compute Hamiltonian, spin vector, spin-spin matrix, and initial states for TAT and TNT,
 #   exploiting a parity symmetry in both cases to reduce the size of the Hilbert space
@@ -109,29 +107,29 @@ for method in methods:
                            rtol = ivp_tolerance, atol = ivp_tolerance).y
         sqz = np.array([ spin_squeezing(N, states[:,tt], S_op_vec, SS_op_mat)
                          for tt in range(times.size) ])
-        write_sqz(sqz, sqz_path)
+        write_sqz(times, sqz, sqz_path)
         del states, sqz
 
-    sqz_C_exact[method] = read_sqz(sqz_path)
+    time_sqz_C_exact[method] = read_sqz(sqz_path)
 
 del S_op_vec, SS_op_mat, H, init_nZ
 
-sqz_max = max([ max(sqz_C_exact[method]) for method in methods ])
-sqz_min = min([ min(sqz_C_exact[method]) for method in methods ])
+sqz_max = max([ max(time_sqz_C_exact[method][1]) for method in methods ])
+sqz_min = min([ min(time_sqz_C_exact[method][1]) for method in methods ])
 
 ### correlator expansions
 
-sqz_C_trunc = {}
+time_sqz_C_trunc = {}
 for method in methods:
     sqz_path = data_dir + f"sqz_C_trunc_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path):
         correlators = compute_correlators(N, order_cap, times, init_state, h_vec[method])
         sqz = squeezing_from_correlators(N, correlators)
-        write_sqz(sqz, sqz_path, order_header)
+        write_sqz(times, sqz, sqz_path, order_header)
         del correlators, sqz
 
-    sqz_C_trunc[method] = read_sqz(sqz_path)
+    time_sqz_C_trunc[method] = read_sqz(sqz_path)
 
 
 ##########################################################################################
@@ -140,7 +138,7 @@ for method in methods:
 
 ### exact and quantum trajectory calculations
 
-sqz_D_exact = { OAT : squeezing_OAT(N, times, dec_rates[0]) }
+time_sqz_D_exact = { OAT : [ times, squeezing_OAT(N, times, dec_rates[0]) ] }
 if dec_rates[1] != (0,0,0):
     print("WARNING: 'exact' simulations do not account for collective decoherence!")
 
@@ -156,16 +154,16 @@ def jump_args(hamiltonian):
 
 for method in methods:
     if method == OAT: continue
-    # if method == TNT: continue ##################################################################
+    if method == TNT: continue ##################################################################
     sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path):
         correlators = correlators_from_trajectories(*jump_args(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
-        write_sqz(sqz, sqz_path, trajectory_header)
+        write_sqz(times, sqz, sqz_path, trajectory_header)
         del correlators, sqz
 
-    sqz_D_exact[method] = read_sqz(sqz_path)
+    time_sqz_D_exact[method] = read_sqz(sqz_path)
 
 del init_state_vec
 
@@ -174,17 +172,17 @@ del init_state_vec
 def correlator_args(h_vec):
     return [ N, order_cap, times, init_state, h_vec, dec_rates, dec_mat ]
 
-sqz_D_trunc = {}
+time_sqz_D_trunc = {}
 for method in methods:
     sqz_path = data_dir + f"sqz_D_trunc_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path):
         correlators = compute_correlators(*correlator_args(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
-        write_sqz(sqz, sqz_path, order_header)
+        write_sqz(times, sqz, sqz_path, order_header)
         del correlators, sqz
 
-    sqz_D_trunc[method] = read_sqz(sqz_path)
+    time_sqz_D_trunc[method] = read_sqz(sqz_path)
 
 
 ##########################################################################################
@@ -200,33 +198,45 @@ def positive(vals):
     if idx == 0: return vals.size
     else: return idx
 
-max_plot_time = min(max_time, times[np.argmin(sqz_C_exact[TAT])]*(1+time_pad))
-def ylims(sqz_exact, sqz_trunc):
-    idx_TAT = min(positive(sqz_trunc[TAT]), np.argmax(times > max_plot_time))
-    idx_TNT = min(positive(sqz_trunc[TNT]), np.argmax(times > max_plot_time))
-    ymin = min(sqz_exact[TAT].min(), sqz_trunc[TAT][:idx_TAT].min())
-    ymax = min(sqz_exact[TNT].max(), sqz_trunc[TNT][:idx_TNT].max())
+max_plot_time = min(max_time, times[np.argmin(time_sqz_C_exact[TAT][1])]*(1+time_pad))
+def ylims(time_sqz_exact, time_sqz_trunc):
+    idx_TAT = min(positive(time_sqz_trunc[TAT][1]), np.argmax(times > max_plot_time))
+    idx_TNT = min(positive(time_sqz_trunc[TNT][1]), np.argmax(times > max_plot_time))
+    ymin = min(time_sqz_exact[TAT][1].min(), time_sqz_trunc[TAT][1][:idx_TAT].min())
+    ymax = min(time_sqz_exact[TNT][1].max(), time_sqz_trunc[TNT][1][:idx_TNT].max())
     yscale = (ymax/ymin)**sqz_pad
     return ymin/yscale, ymax*yscale
+
+# darken a color provided in hexidecimal format
+import colorsys
+def darken_color(color, darken_val = 0.08):
+    # convert hexidecimal to [0,1)^3 RGB format
+    color = tuple([ int(color[jj:jj+2], 16)/255 - darken_val
+                           for jj in (1, 3 ,5) ])
+    return tuple( min(max(cc-darken_val,0), 1) for cc in color )
 
 ### coherent evolution
 
 plt.figure(figsize = figsize)
-line = {}
+color = {}
 for method in methods:
-    line[method], = plt.semilogy(times, sqz_C_exact[method], label = method)
-    positive_vals = positive(sqz_C_trunc[method])
-    plt.semilogy(times[:positive_vals], sqz_C_trunc[method][:positive_vals],
-                 "--", color = line[method].get_color())
+    line, = plt.semilogy(time_sqz_C_exact[method][0],
+                         time_sqz_C_exact[method][1], label = method)
+    color[method] = line.get_color()
+    positive_vals = positive(time_sqz_C_trunc[method][1])
+    plt.semilogy(time_sqz_C_trunc[method][0][:positive_vals],
+                 time_sqz_C_trunc[method][1][:positive_vals],
+                 "--", color = darken_color(color[method]))
     if positive_vals < len(times):
-        plt.semilogy(times[positive_vals-1],[sqz_C_trunc[method][positive_vals-1]],
-                     "o", color = line[method].get_color())
+        plt.semilogy([time_sqz_C_trunc[method][0][positive_vals-1]],
+                     [time_sqz_C_trunc[method][1][positive_vals-1]],
+                     "o", color = darken_color(color[method]))
 
 plt.xlabel(r"$\chi t$")
 plt.ylabel(r"$\xi^2$")
 
 plt.xlim(0, max_plot_time)
-plt.ylim(*ylims(sqz_C_exact,sqz_C_trunc))
+plt.ylim(*ylims(time_sqz_C_exact,time_sqz_C_trunc))
 plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 
 plt.legend(loc = "best")
@@ -240,24 +250,27 @@ plt.figure(figsize = figsize)
 for method in methods:
     linestyle = "-" if method == OAT else "."
     try:
-        plt.semilogy(times, sqz_D_exact[method], linestyle, label = method,
-                     markersize = trajectory_marker_size)
+        plt.semilogy(time_sqz_D_exact[method][0],
+                     time_sqz_D_exact[method][1], linestyle, label = method,
+                     color = color[method], markersize = trajectory_marker_size)
     except: None
-    positive_vals = positive(sqz_D_trunc[method])
-    plt.semilogy(times[:positive_vals], sqz_D_trunc[method][:positive_vals],
-                 "--", color = line[method].get_color())
+    positive_vals = positive(time_sqz_D_trunc[method][1])
+    plt.semilogy(time_sqz_D_trunc[method][0][:positive_vals],
+                 time_sqz_D_trunc[method][1][:positive_vals],
+                 "--", color = darken_color(color[method]))
     if positive_vals < len(times):
-        plt.semilogy(times[positive_vals-1],[sqz_D_trunc[method][positive_vals-1]],
-                     "o", color = line[method].get_color())
+        plt.semilogy([time_sqz_D_trunc[method][0][positive_vals-1]],
+                     [time_sqz_D_trunc[method][1][positive_vals-1]],
+                     "o", color = darken_color(color[method]))
 
 plt.xlabel(r"$\chi t$")
 plt.ylabel(r"$\xi^2$")
 
 plt.xlim(0, max_plot_time)
-# plt.ylim(*ylims(sqz_D_exact,sqz_D_trunc))
+# plt.ylim(*ylims(time_sqz_D_exact,time_sqz_D_trunc))
 plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 
-plt.legend(loc = "best")
+plt.legend(loc = "best", numpoints = 3)
 plt.tight_layout()
 if save: plt.savefig(fig_dir + "decoherence_weak.pdf")
 
