@@ -57,7 +57,7 @@ def SS(mm):
         op += PP(jj,mm)
     return op
 
-def poch(nn, kk, vals = {}):
+def poch(nn, kk):
     return np.prod([ nn - cc for cc in range(kk) ])
 
 def eta_val(mu, nu, rho):
