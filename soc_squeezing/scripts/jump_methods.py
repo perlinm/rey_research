@@ -197,7 +197,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
                 correlators = np.zeros((len(squeezing_ops),times.size), dtype = complex)
                 for tt in range(times.size):
                     for op_idx, sqz_op in enumerate(squeezing_ops):
-                        correlators[op_idx,:] = correlator(op_mats[sqz_op], states[:,tt])
+                        correlators[op_idx,tt] = correlator(op_mats[sqz_op], states[:,tt])
 
                 # determine indices times at which we wish to save correlators
                 interp_time_idx = (chi_times >= times[0]) & (chi_times <= times[-1])
@@ -208,7 +208,6 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
                     op_interp = interpolate.interp1d(times,correlators[op_idx,:])
                     correlator_mat[trajectory,op_idx,interp_time_idx] \
                         = op_interp(interp_times)
-
 
             else: # not default savepoints
                 eval_times = chi_times[chi_times >= time]
