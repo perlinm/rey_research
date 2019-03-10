@@ -277,4 +277,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
     correlators = { sqz_op : correlator_mat[:,op_idx,:].mean(0)
                     for op_idx, sqz_op in enumerate(squeezing_ops) }
 
+    if print_updates:
+        print(f"{trajectories}/{trajectories}", current_time() - start_time)
+
     return correlators
