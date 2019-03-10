@@ -29,10 +29,11 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-log10_N = 4
-N = 10**log10_N # number of spins
+log10_N = 2
+N = int(10**log10_N) # number of spins
 order_cap = 40 # order limit for short-time correlator expansion
-trajectories = 1000 # number of trajectories to use in quantum jump simulations
+trajectories = 100 # number of trajectories to use in quantum jump simulations
+recompute = False
 
 time_steps = 200 # time steps in plot
 ivp_tolerance = 1e-10 # relative error tolerance in numerical integrator
@@ -101,7 +102,7 @@ for method in methods:
     if method == OAT: continue
     sqz_path = data_dir + f"sqz_C_exact_logN{log10_N}_{method}.txt"
 
-    if not os.path.isfile(sqz_path):
+    if not os.path.isfile(sqz_path) or recompute:
         states = solve_ivp(lambda time, state : -1j * H[method].dot(state),
                            (0,times[-1]), init_nZ, t_eval = times,
                            rtol = ivp_tolerance, atol = ivp_tolerance).y
@@ -123,7 +124,7 @@ time_sqz_C_trunc = {}
 for method in methods:
     sqz_path = data_dir + f"sqz_C_trunc_logN{log10_N}_{method}.txt"
 
-    if not os.path.isfile(sqz_path):
+    if not os.path.isfile(sqz_path) or recompute:
         correlators = compute_correlators(N, order_cap, times, init_state, h_vec[method])
         sqz = squeezing_from_correlators(N, correlators)
         write_sqz(times, sqz, sqz_path, order_header)
@@ -154,11 +155,11 @@ def jump_args(hamiltonian):
 
 for method in methods:
     if method == OAT: continue
-    if method == TNT: continue ##################################################################
     sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
 
-    if not os.path.isfile(sqz_path):
-        correlators = correlators_from_trajectories(*jump_args(h_vec[method]))
+    if not os.path.isfile(sqz_path) or recompute:
+        correlators = correlators_from_trajectories(*jump_args(h_vec[method]),
+                                                    ivp_tolerance = ivp_tolerance)
         sqz = squeezing_from_correlators(N, correlators)
         write_sqz(times, sqz, sqz_path, trajectory_header)
         del correlators, sqz
@@ -176,7 +177,7 @@ time_sqz_D_trunc = {}
 for method in methods:
     sqz_path = data_dir + f"sqz_D_trunc_logN{log10_N}_{method}.txt"
 
-    if not os.path.isfile(sqz_path):
+    if not os.path.isfile(sqz_path) or recompute:
         correlators = compute_correlators(*correlator_args(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
         write_sqz(times, sqz, sqz_path, order_header)
@@ -249,11 +250,9 @@ if save: plt.savefig(fig_dir + "coherent.pdf")
 plt.figure(figsize = figsize)
 for method in methods:
     linestyle = "-" if method == OAT else "."
-    try:
-        plt.semilogy(time_sqz_D_exact[method][0],
-                     time_sqz_D_exact[method][1], linestyle, label = method,
-                     color = color[method], markersize = trajectory_marker_size)
-    except: None
+    plt.semilogy(time_sqz_D_exact[method][0],
+                 time_sqz_D_exact[method][1], linestyle, label = method,
+                 color = color[method], markersize = trajectory_marker_size)
     positive_vals = positive(time_sqz_D_trunc[method][1])
     plt.semilogy(time_sqz_D_trunc[method][0][:positive_vals],
                  time_sqz_D_trunc[method][1][:positive_vals],
@@ -267,7 +266,7 @@ plt.xlabel(r"$\chi t$")
 plt.ylabel(r"$\xi^2$")
 
 plt.xlim(0, max_plot_time)
-# plt.ylim(*ylims(time_sqz_D_exact,time_sqz_D_trunc))
+plt.ylim(*ylims(time_sqz_D_exact,time_sqz_D_trunc))
 plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 
 plt.legend(loc = "best", numpoints = 3)
