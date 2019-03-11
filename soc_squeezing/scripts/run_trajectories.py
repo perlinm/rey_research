@@ -43,7 +43,7 @@ log_text = f"""#!/bin/sh
 #SBATCH --job-name={job_name}
 #SBATCH --output={log_dir}{job_name}.o
 #SBATCH --error={log_dir}{job_name}.e
-#SBATCH --time=05-00
+#SBATCH --time=10-00
 
 module load python3
 
