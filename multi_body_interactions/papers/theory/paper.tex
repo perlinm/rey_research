@@ -53,6 +53,7 @@
 
 
 % "left vector" arrow; requires tikz package
+\usepackage{tikz}
 \newcommand{\lvec}[1]
 {\reflectbox{\ensuremath{\vec{\reflectbox{\ensuremath{#1}}}}}}
 
@@ -335,7 +336,7 @@ lattice sites.  Doubly-excited states are off resonant due to
   laser.
 \end{enumerate*}
 
-While an external trapping potential will generally break discrete
+Although an external trapping potential will generally break discrete
 translational symmetry of the lattice, any background inhomogeneity
 can be made negligible by spectroscopically addressing a sufficiently
 small region of the lattice \cite{goban2018emergence}.  Throughout
@@ -383,7 +384,7 @@ where $\hat\psi_{\mu s}$ is a fermionic field operator for atoms with
 nuclear spin $\mu$ and orbital state $s$;
 $\hat\rho_{\mu s}\equiv\hat\psi_{\mu s}^\dag\hat\psi_{\mu s}$ is an
 atomic density field operator; and the coupling constants $G_X$ are
-defined in terms of the scattering lengths by
+defined in terms of the scattering lengths $a_Y$ by
 \begin{align}
   G_{s=\g,\e} \equiv \f{4\pi}{\mA}~ a_{ss}, &&
   G_\pm \equiv \f{2\pi}{\mA}~ \p{a_{\e\g+} \pm a_{\e\g-}},
@@ -1243,7 +1244,7 @@ the form
 \begin{align}
   G^{\mu q;\nu r}_{\nu s;\mu t}
   \c_{\nu s}^\dag \c_{\mu t}^\dag \c_{\nu r} \c_{\mu q}
-  = -G^{qr}_{ts} \c_{\nu s}^\dag \c_{\mu t}^\dag \c_{\mu r} \c_{\nu q}
+  = -G^{qr}_{ts} \c_{\nu s}^\dag \c_{\mu t}^\dag \c_{\nu r} \c_{\mu q}
   = G^{qr}_{ts} \c_{\mu t}^\dag \c_{\nu s}^\dag \c_{\nu r} \c_{\mu q}.
 \end{align}
 At the cost of introducing an additional sum over new nuclear spin
@@ -2009,7 +2010,7 @@ Hamiltonian $H_M$ in \eqref{eq:H_M} has an $\p{N-1}$-fold degenerate
 excited-state eigenspace which is asymmetric in the orbital degrees of
 freedom, spanned by the states
 \begin{align}
-  \ket{\N,-_j} \equiv \f1{\sqrt2}
+  \ket{\N,-,j} \equiv \f1{\sqrt2}
   \p{\c_{\mu_1,\e}^\dag \c_{\mu_1,\g} - \c_{\mu_j,\e}^\dag \c_{\mu_j,\g}}
   \ket{\N,0}
   \label{eq:states_A}
