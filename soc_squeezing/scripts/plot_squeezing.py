@@ -45,7 +45,7 @@ times = np.linspace(0, max_time, time_steps)
 
 # (excitation, dephasing, decay) rates for single- and collective-spin operators
 # in units of the OAT strength (i.e. \chi in \chi S_\z^2)
-dec_rates = [ (1,1,1), (0,0,0) ]
+dec_rates = [ (1,)*3, (0,0,0) ]
 
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
@@ -201,8 +201,8 @@ def positive(vals):
 
 max_plot_time = min(max_time, times[np.argmin(time_sqz_C_exact[TAT][1])]*(1+time_pad))
 def ylims(time_sqz_exact, time_sqz_trunc):
-    idx_TAT = min(positive(time_sqz_trunc[TAT][1]), np.argmax(times > max_plot_time))
-    idx_TNT = min(positive(time_sqz_trunc[TNT][1]), np.argmax(times > max_plot_time))
+    idx_TAT = positive(time_sqz_trunc[TAT][1])
+    idx_TNT = positive(time_sqz_trunc[TNT][1])
     ymin = min(time_sqz_exact[TAT][1].min(), time_sqz_trunc[TAT][1][:idx_TAT].min())
     ymax = min(time_sqz_exact[TNT][1].max(), time_sqz_trunc[TNT][1][:idx_TNT].max())
     yscale = (ymax/ymin)**sqz_pad
