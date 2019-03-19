@@ -24,7 +24,7 @@ if method == TAT:
     default_savepoints = True
 
 else: # method == TNT
-    trajectories = 10
+    trajectories = 1
     max_tau = 1
     time_steps = 100
     default_savepoints = False

@@ -131,7 +131,7 @@ def choose_index(probs):
 def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_state, h_vec,
                                   dec_rates = [], dec_mat = None, seed = 0,
                                   default_savepoints = True, print_updates = True,
-                                  ivp_tolerance = 1e-10, solver = None):
+                                  ivp_tolerance = 1e-15, solver = None):
     np.random.seed(seed)
     if solver is None: ivp_solver = "RK45"
     else: ivp_solver = solver
