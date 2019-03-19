@@ -24,7 +24,7 @@ with open(files[0], "r") as f:
         if "trajectories" in line:
             trajectories_per_run = int(line.split()[-1])
         elif "max_tau" in line:
-            max_tau = int(line.split()[-1])
+            max_tau = float(line.split()[-1])
         elif "time_steps" in line:
             time_steps = int(line.split()[-1])
         elif "ops" in line:

@@ -29,15 +29,15 @@ plt.rcParams.update(params)
 # simulation options
 ##########################################################################################
 
-log10_N = 2
+log10_N = 4
 N = int(10**log10_N) # number of spins
 order_cap = 40 # order limit for short-time correlator expansion
 trajectories = 100 # number of trajectories to use in quantum jump simulations
 recompute = False
 
-time_steps = 200 # time steps in plot
+time_steps = 100 # time steps in plot
 ivp_tolerance = 1e-10 # relative error tolerance in numerical integrator
-max_tau = 2 # for simulation: chi * max_time = max_tau * N **(-2/3)
+max_tau = 1 # for simulation: chi * max_time = max_tau * N **(-2/3)
 
 # determine simulation times in units of the OAT strength \chi
 max_time = max_tau * N**(-2/3)
@@ -158,8 +158,7 @@ for method in methods:
     sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path) or recompute:
-        correlators = correlators_from_trajectories(*jump_args(h_vec[method]),
-                                                    ivp_tolerance = ivp_tolerance)
+        correlators = correlators_from_trajectories(*jump_args(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
         write_sqz(times, sqz, sqz_path, trajectory_header)
         del correlators, sqz
@@ -193,6 +192,7 @@ for method in methods:
 time_pad = 1/3 # fractional time to add past TAT squeezing minimum
 sqz_pad = 1/10
 trajectory_marker_size = 2
+trunc_width = 2
 
 def positive(vals):
     idx = np.argmax(vals < 0)
@@ -227,7 +227,7 @@ for method in methods:
     positive_vals = positive(time_sqz_C_trunc[method][1])
     plt.semilogy(time_sqz_C_trunc[method][0][:positive_vals],
                  time_sqz_C_trunc[method][1][:positive_vals],
-                 "--", color = darken_color(color[method]))
+                 "--", linewidth = trunc_width, color = darken_color(color[method]))
     if positive_vals < len(times):
         plt.semilogy([time_sqz_C_trunc[method][0][positive_vals-1]],
                      [time_sqz_C_trunc[method][1][positive_vals-1]],
@@ -256,7 +256,7 @@ for method in methods:
     positive_vals = positive(time_sqz_D_trunc[method][1])
     plt.semilogy(time_sqz_D_trunc[method][0][:positive_vals],
                  time_sqz_D_trunc[method][1][:positive_vals],
-                 "--", color = darken_color(color[method]))
+                 "--", linewidth = trunc_width, color = darken_color(color[method]))
     if positive_vals < len(times):
         plt.semilogy([time_sqz_D_trunc[method][0][positive_vals-1]],
                      [time_sqz_D_trunc[method][1][positive_vals-1]],
