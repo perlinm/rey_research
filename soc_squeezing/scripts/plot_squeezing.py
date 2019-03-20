@@ -33,7 +33,8 @@ log10_N = 4
 N = int(10**log10_N) # number of spins
 order_cap = 40 # order limit for short-time correlator expansion
 trajectories = 100 # number of trajectories to use in quantum jump simulations
-recompute = False
+recompute_exact = False
+recompute_trunc = False
 
 time_steps = 100 # time steps in plot
 ivp_tolerance = 1e-10 # relative error tolerance in numerical integrator
@@ -46,7 +47,7 @@ times = np.linspace(0, max_time, time_steps)
 # (excitation, dephasing, decay) rates for single- and collective-spin operators
 # in units of the OAT strength (i.e. \chi in \chi S_\z^2)
 dec_rates = [ (1,)*3, (0,0,0) ]
-
+dec_rates_strong = [ (0,100,100), (0,0,0) ]
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
 methods = [ OAT, TAT, TNT ]
@@ -102,7 +103,7 @@ for method in methods:
     if method == OAT: continue
     sqz_path = data_dir + f"sqz_C_exact_logN{log10_N}_{method}.txt"
 
-    if not os.path.isfile(sqz_path) or recompute:
+    if not os.path.isfile(sqz_path) or recompute_exact:
         states = solve_ivp(lambda time, state : -1j * H[method].dot(state),
                            (0,times[-1]), init_nZ, t_eval = times,
                            rtol = ivp_tolerance, atol = ivp_tolerance).y
@@ -124,7 +125,7 @@ time_sqz_C_trunc = {}
 for method in methods:
     sqz_path = data_dir + f"sqz_C_trunc_logN{log10_N}_{method}.txt"
 
-    if not os.path.isfile(sqz_path) or recompute:
+    if not os.path.isfile(sqz_path) or recompute_trunc:
         correlators = compute_correlators(N, order_cap, times, init_state, h_vec[method])
         sqz = squeezing_from_correlators(N, correlators)
         write_sqz(times, sqz, sqz_path, order_header)
@@ -157,7 +158,7 @@ for method in methods:
     if method == OAT: continue
     sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
 
-    if not os.path.isfile(sqz_path) or recompute:
+    if not os.path.isfile(sqz_path) or recompute_exact:
         correlators = correlators_from_trajectories(*jump_args(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
         write_sqz(times, sqz, sqz_path, trajectory_header)
@@ -176,13 +177,33 @@ time_sqz_D_trunc = {}
 for method in methods:
     sqz_path = data_dir + f"sqz_D_trunc_logN{log10_N}_{method}.txt"
 
-    if not os.path.isfile(sqz_path) or recompute:
+    if not os.path.isfile(sqz_path) or recompute_trunc:
         correlators = compute_correlators(*correlator_args(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
         write_sqz(times, sqz, sqz_path, order_header)
         del correlators, sqz
 
     time_sqz_D_trunc[method] = read_sqz(sqz_path)
+
+
+##########################################################################################
+# compute squeezing parameters with strong decoherence
+##########################################################################################
+
+def correlator_args_strong(h_vec):
+    return [ N, order_cap, times, init_state, h_vec, dec_rates_strong, dec_mat ]
+
+time_sqz_D_trunc_strong = {}
+for method in methods:
+    sqz_path = data_dir + f"sqz_D_trunc_logN{log10_N}_{method}_strong.txt"
+
+    if not os.path.isfile(sqz_path) or recompute_trunc:
+        correlators = compute_correlators(*correlator_args_strong(h_vec[method]))
+        sqz = squeezing_from_correlators(N, correlators)
+        write_sqz(times, sqz, sqz_path, order_header)
+        del correlators, sqz
+
+    time_sqz_D_trunc_strong[method] = read_sqz(sqz_path)
 
 
 ##########################################################################################
@@ -272,5 +293,31 @@ plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 plt.legend(loc = "best", numpoints = 3)
 plt.tight_layout()
 if save: plt.savefig(fig_dir + "decoherence_weak.pdf")
+
+
+### evolution with strong decoherence
+
+plt.figure(figsize = figsize)
+for method in methods:
+    positive_vals = positive(time_sqz_D_trunc_strong[method][1])
+    plt.semilogy(time_sqz_D_trunc_strong[method][0][:positive_vals],
+                 time_sqz_D_trunc_strong[method][1][:positive_vals],
+                 color = color[method], label = method)
+    if positive_vals < len(times):
+        plt.semilogy([time_sqz_D_trunc_strong[method][0][positive_vals-1]],
+                     [time_sqz_D_trunc_strong[method][1][positive_vals-1]],
+                     "o", color = color[method])
+
+plt.xlabel(r"$\chi t$")
+plt.ylabel(r"$\xi^2$")
+
+strong_time_lim_idx = positive(time_sqz_D_trunc_strong[TAT][1])
+plt.xlim(0, time_sqz_D_trunc_strong[TAT][0][strong_time_lim_idx]*(1+time_pad))
+plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
+
+plt.legend(loc = "best")
+plt.tight_layout()
+if save: plt.savefig(fig_dir + "decoherence_strong.pdf")
+
 
 if show: plt.show()
