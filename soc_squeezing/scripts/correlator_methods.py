@@ -233,20 +233,20 @@ def convert_zxy_mat(mat_zxy, mu = 1):
     return zxy_to_pzm @ mat_zxy @ pzm_to_zxy
 
 # convert vector from (z,x,y) format to (mu,z,bmu) format
-def convert_zxy(vec_zxy, mu = 1):
+def convert_zxy_vec(vec_zxy, mu = 1):
     vec = {}
-    # define vectors for (2 * Sx) and (-i * 2 * Sy)
+    # define vectors for (2 * Sx) and (i * 2 * Sy)
     Sx_2 = { (1,0,0) : 1,
              (0,0,1) : 1 }
-    Sy_ni2 = { (1,0,0) : -1,
-               (0,0,1) :  1 }
+    Sy_i2 = { (1,0,0) : +mu,
+              (0,0,1) : -mu }
     for op_zxy, val_zxy in vec_zxy.items():
         ll, mm, nn = op_zxy
-        lmn_fac = val_zxy * 1j**nn * mu**(ll+nn) / 2**(mm+nn)
+        lmn_fac = val_zxy * mu**ll * (-1j)**nn / 2**(mm+nn)
         # starting from the left, successively multiply all factors on the right
         lmn_vec = { (0,ll,0) : 1 }
         for jj in range(mm): lmn_vec = multiply_vecs(lmn_vec, Sx_2)
-        for kk in range(nn): lmn_vec = multiply_vecs(lmn_vec, Sy_ni2)
+        for kk in range(nn): lmn_vec = multiply_vecs(lmn_vec, Sy_i2)
         add_left(vec, lmn_vec, lmn_fac)
     if np.array([ np.imag(val) == 0 for val in vec.values() ]).all():
         vec = { op : np.real(val) for op, val in vec.items() }
@@ -525,7 +525,7 @@ def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
     # arguments for computing operator pre-image under infinitesimal time translation
-    op_image_args = ( convert_zxy(h_vec,mu), spin_num, dec_vecs, mu )
+    op_image_args = ( convert_zxy_vec(h_vec,mu), spin_num, dec_vecs, mu )
 
     if method == "taylor":
         derivs = compute_squeezing_derivs(order_cap, op_image_args,
