@@ -149,7 +149,7 @@ for op in correlators_exact.keys():
 # compute correlators using taylor expansion method and compare
 correlators = {}
 for nu in [ +1, -1 ]:
-    correlators[nu] = compute_correlators(N, order_cap, chi_times, init_state, h_rand,
+    correlators[nu] = compute_correlators(chi_times, order_cap, N, init_state, h_rand,
                                           dec_rates, dec_mat, mu = nu)
     if mu == -1: correlators[nu] = invert_vals(correlators[nu])
 

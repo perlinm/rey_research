@@ -36,9 +36,6 @@ confining_depth = 60 # recoil energies
 dec_time_SI = 10 # seconds
 order_cap = 70
 
-max_tau = 2
-time_steps = 100
-
 recoil_energy_NU = 21801.397815091557
 drive_mod_index_zy = 0.9057195866712102 # for TAT protocol about (z,y)
 drive_mod_index_xy_1 = 1.6262104442160061 # for TAT protocol about (x,y)
@@ -90,8 +87,6 @@ dec_rate_LU = 1/dec_time_SI / recoil_energy_NU
 dec_rate = dec_rate_LU / chi
 dec_rates = [ (0, dec_rate, dec_rate), (0, 0, 0) ]
 
-times = np.linspace(0, max_tau, time_steps) * spin_num**(-2/3)
-
 init_state = "+X"
 init_state_vec = coherent_spin_state([0,1,0], spin_num)
 dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy))
@@ -99,8 +94,9 @@ dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy))
 header = f"# lattice_dim: {lattice_dim}\n"
 header += f"# confining depth (E_R): {confining_depth}\n"
 header += f"# order_cap: {order_cap}\n"
-op_vals = compute_correlators(spin_num, order_cap, times, init_state, h_TAT,
-                              dec_rates, dec_mat_TAT, return_derivs = True)
+
+op_vals = compute_correlators(order_cap, spin_num, init_state, h_TAT,
+                              dec_rates, dec_mat_TAT)
 
 if not os.path.isdir(output_dir): os.mkdir(output_dir)
 

@@ -31,7 +31,7 @@ plt.rcParams.update(params)
 
 log10_N = 4
 N = int(10**log10_N) # number of spins
-order_cap = 40 # order limit for short-time correlator expansion
+order_cap = 35 # order limit for short-time correlator expansion
 trajectories = 100 # number of trajectories to use in quantum jump simulations
 recompute_exact = False
 recompute_trunc = False
@@ -47,7 +47,7 @@ times = np.linspace(0, max_time, time_steps)
 # (excitation, dephasing, decay) rates for single- and collective-spin operators
 # in units of the OAT strength (i.e. \chi in \chi S_\z^2)
 dec_rates = [ (1,)*3, (0,0,0) ]
-dec_rates_strong = [ (0,100,100), (0,0,0) ]
+dec_rates_strong = [ (100,100,100), (0,0,0) ]
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
 methods = [ OAT, TAT, TNT ]
@@ -126,7 +126,7 @@ for method in methods:
     sqz_path = data_dir + f"sqz_C_trunc_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path) or recompute_trunc:
-        correlators = compute_correlators(N, order_cap, times, init_state, h_vec[method])
+        correlators = compute_correlators(times, order_cap, N, init_state, h_vec[method])
         sqz = squeezing_from_correlators(N, correlators)
         write_sqz(times, sqz, sqz_path, order_header)
         del correlators, sqz
@@ -171,7 +171,7 @@ del init_state_vec
 ### correlator expansions
 
 def correlator_args(h_vec):
-    return [ N, order_cap, times, init_state, h_vec, dec_rates, dec_mat ]
+    return [ times, order_cap, N, init_state, h_vec, dec_rates, dec_mat ]
 
 time_sqz_D_trunc = {}
 for method in methods:
@@ -191,7 +191,7 @@ for method in methods:
 ##########################################################################################
 
 def correlator_args_strong(h_vec):
-    return [ N, order_cap, times, init_state, h_vec, dec_rates_strong, dec_mat ]
+    return [ times, order_cap, N, init_state, h_vec, dec_rates_strong, dec_mat ]
 
 time_sqz_D_trunc_strong = {}
 for method in methods:

@@ -116,6 +116,30 @@ def op_ln_val_Z_m(op, NN):
     if ll != 0 or nn != 0: return None
     return mm*np.log(NN/2)
 
+# return functions to compute initial values
+def init_ln_val_functions(spin_num, initial_state, mu = 1):
+    state_sign, state_dir = initial_state
+    state_dir = initial_state[1]
+    assert(state_sign in [ "+", "-" ])
+    assert(state_dir in [ "Z", "X", "Y" ])
+    nu = +1 if state_sign == "+" else -1
+
+    if state_dir == "Z":
+        if mu == nu:
+            init_ln_val = lambda op : op_ln_val_Z_p(op, spin_num)
+            init_val_sign = lambda op : 1 if spin_num/2 > op[0] else (-1)**op[1]
+        else:
+            init_ln_val = lambda op : op_ln_val_Z_m(op, spin_num)
+            init_val_sign = lambda op : (-1)**op[1]
+    else: # if state_dir in [ "X", "Y" ]
+        init_ln_val = lambda op : op_ln_val_X(op, spin_num)
+        if state_dir == "X":
+            init_val_sign = lambda op : (-1)**op[1] * nu**(op[0]-op[2])
+        if state_dir == "Y":
+            init_val_sign = lambda op : (-1)**op[1] * (1j*mu*nu)**(op[0]-op[2])
+
+    return init_val_sign, init_ln_val
+
 
 ##########################################################################################
 # machinery for manipulating operator vectors
@@ -494,65 +518,16 @@ def op_image(op, h_vec, spin_num, dec_vecs, mu):
 # list of operators necessary for computing squeezing with (\mu,\z,\nu) exponents
 squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 
-# return correlators from evolution under a general Hamiltonian
-def compute_correlators(spin_num, order_cap, chi_times, initial_state, h_vec,
-                        dec_rates = [], dec_mat = None, method = "taylor", mu = 1,
-                        return_derivs = False):
-    assert(method == "taylor" or method == "diffeq")
-    if return_derivs: assert(method == "taylor")
-
-    state_sign, state_dir = initial_state
-    state_dir = initial_state[1]
-    assert(state_sign in [ "+", "-" ])
-    assert(state_dir in [ "Z", "X", "Y" ])
-    nu = +1 if state_sign == "+" else -1
-
-    if state_dir == "Z":
-        if mu == nu:
-            init_ln_val = lambda op : op_ln_val_Z_p(op, spin_num)
-            init_val_sign = lambda op : 1 if spin_num/2 > op[0] else (-1)**op[1]
-        else:
-            init_ln_val = lambda op : op_ln_val_Z_m(op, spin_num)
-            init_val_sign = lambda op : (-1)**op[1]
-    else: # if state_dir in [ "X", "Y" ]
-        init_ln_val = lambda op : op_ln_val_X(op, spin_num)
-        if state_dir == "X":
-            init_val_sign = lambda op : (-1)**op[1] * nu**(op[0]-op[2])
-        if state_dir == "Y":
-            init_val_sign = lambda op : (-1)**op[1] * (1j*mu*nu)**(op[0]-op[2])
-
+# compute (suppressed) derivatives of operators: derivs[op][kk] = < (d/dt)^k op >_0 / k!
+def compute_derivs(order_cap, spin_num, initial_state, h_zxy,
+                   dec_rates = [], dec_mat = None, mu = 1):
+    init_val_sign, init_ln_val = init_ln_val_functions(spin_num, initial_state, mu)
+    h_vec = convert_zxy_vec(h_zxy, mu)
     if dec_mat is None: dec_mat = np.eye(3)
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
-    # arguments for computing operator pre-image under infinitesimal time translation
-    op_image_args = ( convert_zxy_vec(h_vec,mu), spin_num, dec_vecs, mu )
-
-    if method == "taylor":
-        derivs = compute_squeezing_derivs(order_cap, op_image_args,
-                                          init_ln_val, init_val_sign, initial_state)
-        if return_derivs: return derivs
-        times_k = np.array([ chi_times**order for order in range(order_cap) ])
-        correlators = { op : derivs[op] @ times_k for op in squeezing_ops }
-
-    else: # method == "diffeq"
-        correlators = compute_correlators_diffeq(chi_times, order_cap, op_image_args,
-                                                 init_ln_val, init_val_sign)
-
-    if mu == 1:
-        return correlators
-    else:
-        # we computed correlators < S_-^ll (-S_z)^mm S_+^nn >,
-        #   so we need to invert them into correlators < S_+^ll S_z^mm S_-^nn >
-        return invert_vals(correlators)
-
-# compute derivatives of squeezing operators:
-#   derivs[op][kk] = < (d/dt)^kk op >_0 / kk!
-def compute_squeezing_derivs(order_cap, op_image_args, init_ln_val, init_val_sign,
-                             initial_state):
-
     if initial_state == "-Z":
         chop_operators = True
-        h_vec, dec_vecs = op_image_args[0], op_image_args[-2]
         max_transverse_step = max( op[0] for op in h_vec.keys() )
         pp, zz, mm = 0, 1, 2 # conventional ordering for decoherence vectors
         for vec in dec_vecs:
@@ -582,7 +557,7 @@ def compute_squeezing_derivs(order_cap, op_image_args, init_ln_val, init_val_sig
             for op, val in time_derivs[sqz_op,order-1].items():
                 try: add_left(time_derivs[sqz_op,order], diff_op[op], val/order)
                 except:
-                    diff_op[op] = op_image(op, *op_image_args)
+                    diff_op[op] = op_image(op, h_vec, spin_num, dec_vecs, mu)
                     if op[0] != op[-1]:
                         diff_op[op[::-1]] = conj_vec(diff_op[op])
                     add_left(time_derivs[sqz_op,order], diff_op[op], val/order)
@@ -619,9 +594,31 @@ def compute_squeezing_derivs(order_cap, op_image_args, init_ln_val, init_val_sig
 
     return derivs
 
+# compute correlators from evolution under a general Hamiltonian with decoherence
+def compute_correlators(chi_times, order_cap, spin_num, initial_state, h_vec,
+                        dec_rates = [], dec_mat = None, mu = 1):
+
+    derivs = compute_derivs(order_cap, spin_num, initial_state, h_vec,
+                            dec_rates, dec_mat, mu)
+    times_k = np.array([ chi_times**order for order in range(order_cap) ])
+    correlators = { op : derivs[op] @ times_k for op in squeezing_ops }
+
+    if mu == 1:
+        return correlators
+    else:
+        # we computed correlators < S_-^ll (-S_z)^mm S_+^nn >,
+        #   so we need to invert them into correlators < S_+^ll S_z^mm S_-^nn >
+        return invert_vals(correlators)
+
 # compute correlators by solving an initial value problem (i.e. differential equation)
-def compute_correlators_diffeq(chi_times, order_cap, op_image_args,
-                               init_ln_val, init_val_sign, ivp_tolerance = 1e-10):
+def compute_correlators_diffeq(chi_times, order_cap, spin_num, initial_state, h_zxy,
+                               dec_rates = [], dec_mat = None, mu = 1,
+                               ivp_tolerance = 1e-15):
+    init_val_sign, init_ln_val = init_ln_val_functions(spin_num, initial_state, mu)
+    h_vec = convert_zxy_vec(h_zxy, mu)
+    if dec_mat is None: dec_mat = np.eye(3)
+    dec_vecs = get_dec_vecs(dec_rates, dec_mat)
+
     op_num = 0 # counts number of operaters we keep track of
     op_idx = {} # dictionary taking operator to unique integer index
 
@@ -633,7 +630,7 @@ def compute_correlators_diffeq(chi_times, order_cap, op_image_args,
         for op in new_ops:
             try: diff_op[op]; continue
             except: None
-            diff_op[op] = op_image(op, *op_image_args)
+            diff_op[op] = op_image(op, h_vec, spin_num, dec_vecs, mu)
             op_idx[op] = op_num
             op_num += 1
             try: init_vals[op] = np.exp(init_ln_val(op)) * init_val_sign(op)
@@ -660,7 +657,14 @@ def compute_correlators_diffeq(chi_times, order_cap, op_image_args,
                              t_eval = chi_times,
                              rtol = ivp_tolerance, atol = ivp_tolerance)
 
-    return { op : ivp_solution.y[op_idx[op],:] for op in squeezing_ops }
+    correlators = { op : ivp_solution.y[op_idx[op],:] for op in squeezing_ops }
+
+    if mu == 1:
+        return correlators
+    else:
+        # we computed correlators < S_-^ll (-S_z)^mm S_+^nn >,
+        #   so we need to invert them into correlators < S_+^ll S_z^mm S_-^nn >
+        return invert_vals(correlators)
 
 # exact correlators for OAT with decoherence; derivations in foss-feig2013nonequilibrium
 def correlators_OAT(spin_num, chi_times, dec_rates):
