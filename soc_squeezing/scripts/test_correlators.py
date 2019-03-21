@@ -60,9 +60,16 @@ S_z = sum(s_z_j)
 S_x =   1/2 * ( S_p + S_m )
 S_y = -1j/2 * ( S_p - S_m )
 
+if mu == +1: S_mu, S_bmu = S_p, S_m
+if mu == -1: S_mu, S_bmu = S_m, S_p
+
 # Hamiltonian
-H = II
-for op, val in h_rand.items():
+H = 0*II
+for op, val in list(h_rand.items()):
+    arst = S_z**op[0] * S_x**op[1] * S_y**op[2] * val
+    if not arst.isherm:
+        del h_rand[op]
+        continue
     H += S_z**op[0] * S_x**op[1] * S_y**op[2] * val
 
 # decoherence vectors
@@ -129,8 +136,6 @@ states = [ states[:,tt].reshape((2**N,2**N)) for tt in range(chi_times.size) ]
 
 # operators that we track
 def mat(op):
-    if mu == +1: S_mu, S_bmu = S_p, S_m
-    if mu == -1: S_mu, S_bmu = S_m, S_p
     return S_mu**op[0] * (mu*S_z)**op[1] * S_bmu**op[2]
 op_mats = { op : mat(op).data.toarray() for op in track_ops }
 
@@ -146,23 +151,23 @@ correlators = {}
 for nu in [ +1, -1 ]:
     correlators[nu] = compute_correlators(N, order_cap, chi_times, init_state, h_rand,
                                           dec_rates, dec_mat, mu = nu)
+    if mu == -1: correlators[nu] = invert_vals(correlators[nu])
 
-if mu == -1:
-    correlators[+1] = invert_vals(correlators[+1])
-    correlators[-1] = invert_vals(correlators[-1])
-
-for op in correlators[1].keys():
+trunc_lw = 2.5
+squeezing_ops = list(correlators.values())[0].keys()
+for op in squeezing_ops:
     plt.figure()
     plt.title(op)
 
-    plt.plot(np.real(correlators_exact[op]))
-    plt.plot(np.real(correlators[+1][op]), "--")
-    plt.plot(np.real(correlators[-1][op]), ":")
+    plt.plot(np.real(correlators_exact[op]), label = f"exact ($\mu={mu}$)")
+    plt.plot(np.real(correlators[+1][op]), "--", linewidth = trunc_lw, label = r"$\nu=+1$")
+    plt.plot(np.real(correlators[-1][op]), ":", linewidth = trunc_lw, label = r"$\nu=-1$")
     plt.plot(np.imag(correlators_exact[op]))
-    plt.plot(np.imag(correlators[+1][op]), "--")
-    plt.plot(np.imag(correlators[-1][op]), ":")
+    plt.plot(np.imag(correlators[+1][op]), "--", linewidth = trunc_lw)
+    plt.plot(np.imag(correlators[-1][op]), ":", linewidth = trunc_lw)
 
     ylim = abs(correlators_exact[op]).max() * 1.1
     plt.ylim(-ylim,ylim)
+    plt.legend()
 
 plt.show()
