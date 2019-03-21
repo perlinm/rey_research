@@ -8,7 +8,7 @@ from scipy.integrate import solve_ivp
 
 from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state
 from squeezing_methods import spin_squeezing, squeezing_from_correlators, squeezing_OAT
-from correlator_methods import compute_correlators, convert_zxy_mat, convert_zxy
+from correlator_methods import compute_correlators, convert_zxy_mat
 from jump_methods import correlators_from_trajectories
 
 np.set_printoptions(linewidth = 200)

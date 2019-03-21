@@ -10,7 +10,7 @@ import scipy.interpolate as interpolate
 from scipy.integrate import solve_ivp
 
 from dicke_methods import spin_op_z_dicke, spin_op_m_dicke
-from correlator_methods import get_dec_vecs, convert_zxy, squeezing_ops
+from correlator_methods import get_dec_vecs, convert_zxy_vec, squeezing_ops
 
 
 # squared norm of vector
@@ -140,7 +140,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
         from time import time as current_time
 
     max_time = chi_times[-1]
-    h_pzm = convert_zxy(h_vec)
+    h_pzm = convert_zxy_vec(h_vec)
     if dec_mat is None: dec_mat = np.eye(3)
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
     for dec_vec in dec_vecs:
