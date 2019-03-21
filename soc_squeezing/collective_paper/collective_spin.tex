@@ -342,7 +342,7 @@ accessible with limited computational resources, such that the
 truncated Taylor expansion in Eq.~\eqref{eq:order_truncation} only
 allows computation of the correlator $\bk{\S_{\v m}}$ to a maximal
 time $t_{M_{\t{max}}}$.  As we will see in the following section,
-$M_{\t{max}}=40$ will suffice for the accurate computation of
+$M_{\t{max}}=35$ will suffice for the accurate computation of
 collective spin correlators up to times that are relevant e.g.~for
 spin squeezing protocols.
 
@@ -423,7 +423,7 @@ Eq.~\eqref{eq:order_truncation}.
     \sref{fig:squeezing_incoherent} incoherent evolution, computed
     using exact methods (solid lines), quantum trajectory simulations
     (dots), and the truncated Taylor expansion in
-    Eq.~\eqref{eq:order_truncation} with $M=40$ (darker dashed lines).
+    Eq.~\eqref{eq:order_truncation} with $M=35$ (darker dashed lines).
     Solid circles mark the times at which the truncated Taylor
     expansion gives an unphysical result with $\xi^2<0$.}
   \label{fig:benchmarking}
@@ -433,10 +433,10 @@ Figure \ref{fig:benchmarking} compares the squeezing parameter $\xi^2$
 for $N=10^4$ spins initially in the state $\ket{\X}$ evolved under the
 Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}, as computed via
 both benchmarking simulations and the truncated Taylor expansion in
-Eq.~\eqref{eq:order_truncation} with $M=40$.  Squeezing is shown for
+Eq.~\eqref{eq:order_truncation} with $M=35$.  Squeezing is shown for
 both coherent dynamics (Figure \ref{fig:squeezing_coherent}), as well
-as dynamics in the presence of uncorrelated emission, absorption, and
-dephasing of individual spins at a rate $\chi$ (Figure
+as dynamics in the presence of spontaneous decay, excitation, and
+dephasing of individual spins at rates $\chi$ (Figure
 \ref{fig:squeezing_incoherent}), respectively described by the sets of
 jump operators $\J_n=\set{s_n^{(j)}}$ with corresponding decoherence
 rates $\gamma_n=\chi$ for $n\in\set{-,+,\z}$.  The results shown in
@@ -489,22 +489,24 @@ computing hardware.
 Second, the truncated Taylor expansion enables computing spin
 correlators in strong-decoherence regimes entirely inaccessible to
 other methods.  As an example, Figure \ref{fig:decoherence_strong}
-shows squeezing of $N=10^4$ spins initially in $\ket{\X}$, with decay
-and dephasing of individual spins at rates
-$\gamma_-=\gamma_\z=100\chi$.  Computations of this sort were used to
-put lower bounds on theoretically achievable spin squeezing via TAT
-with decoherence in Ref.~[\citenum{he2019engineering}], exemplifying a
-concrete application of the truncated Taylor expansion and the
-collective-spin structure constants calculated in this work.
+shows squeezing of $N=10^4$ spins initially in $\ket{\X}$, undergoing
+spontaneous decay, excitation, and dephasing of individual spins at
+rates $\gamma_-=\gamma_+=\gamma_\z=100\chi$.  Computations of this
+sort were used to put lower bounds on theoretically achievable spin
+squeezing via TAT with decoherence in
+Ref.~[\citenum{he2019engineering}], exemplifying a concrete
+application of the truncated Taylor expansion and the collective-spin
+structure constants calculated in this work.
 
 \begin{figure}
   \centering
   \includegraphics{decoherence_strong.pdf}
   \caption{Spin squeezing of $N=10^4$ spins initially in $\ket\X$
-    under incoherent evolution with decay and dephasing of individual
-    spins at rates $\gamma_-=\gamma_\z=100\chi$, computed using the
+    under incoherent evolution spontaneous with decay, excitation, and
+    dephasing of individual spins at rates
+    $\gamma_-=\gamma_+=\gamma_\z=100\chi$, computed using the
     truncated Taylor expansion in Eq.~\eqref{eq:order_truncation} with
-    $M=40$.  Solid circles mark the times at which the truncated
+    $M=35$.  Solid circles mark the times at which the truncated
     Taylor expansion gives an unphysical result with $\xi^2<0$.}
   \label{fig:decoherence_strong}
 \end{figure}
@@ -512,22 +514,28 @@ collective-spin structure constants calculated in this work.
 
 
 
-\section{Out-of-time-ordered correlators}
-\label{sec:OTOC}
+\section{Two-time correlation functions}
+\label{sec:TTC}
+
+These are very easy to compute.
 
 
 
-Compare ``true'' OTOCs with decoherence vs.~``practical'' OTOCs in
-experiments with time-reversal of coherent dynamics and decoherence
+% \section{Out-of-time-ordered correlators}
+% \label{sec:OTOC}
 
-Discuss extension of this work to spin-boson systems
+% Compute some OTOCs?  There is a small chance that doing this will
+% take a prohibitively long amount of time...
 
+% Possibility: compare ``true'' OTOCs with decoherence
+% vs.~``practical'' OTOCs in experiments with decoherence and
+% time-reversal of coherent dynamics.
 
 
 
 \section{Conclusions}
 
-
+Mention/discuss extension of this work to spin-boson systems.
 
 
 \newpage
