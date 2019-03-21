@@ -30,16 +30,16 @@ mu = -1
 def rand(magnitude = 1):
     return ( random() + 1j*random() ) * magnitude
 
-mag = 0
-dec_rates = [ (rand(mag), 0, 0), (rand(mag), 0, 0) ]
+mag = 5
+dec_rates = [ (rand(mag), rand(mag), rand(mag)), (rand(mag), rand(mag), rand(mag)) ]
 dec_mat = np.array([ [ random() for jj in range(3) ] for kk in range(3) ])
 
 h_rand = { (ll,mm,nn) : random()
            for ll, mm, nn in itertools.product(range(3), repeat = 3)
-           if ll + mm + nn < 3 }
+           if ll + mm + nn <= 2 }
 
 track_ops = [ (ll,mm,nn) for ll, mm, nn in itertools.product(range(3), repeat = 3)
-              if ll + mm + nn < 3 ]
+              if ll + mm + nn <= 2 ]
 
 ### construct operators for exact simulation
 
@@ -64,13 +64,15 @@ if mu == +1: S_mu, S_bmu = S_p, S_m
 if mu == -1: S_mu, S_bmu = S_m, S_p
 
 # Hamiltonian
-H = 0*II
+H = ZZ
 for op, val in list(h_rand.items()):
-    arst = S_z**op[0] * S_x**op[1] * S_y**op[2] * val
-    if not arst.isherm:
+    op_mat = S_z**op[0] * S_x**op[1] * S_y**op[2]
+    if not op_mat.isherm:
+        ### note: this is a temporary patch
+        ###   ideally, we want to construct actual random weight-3 hamiltonians
         del h_rand[op]
         continue
-    H += S_z**op[0] * S_x**op[1] * S_y**op[2] * val
+    H += op_mat * val
 
 # decoherence vectors
 dec_vecs_g = []
@@ -153,18 +155,17 @@ for nu in [ +1, -1 ]:
                                           dec_rates, dec_mat, mu = nu)
     if mu == -1: correlators[nu] = invert_vals(correlators[nu])
 
-trunc_lw = 2.5
 squeezing_ops = list(correlators.values())[0].keys()
 for op in squeezing_ops:
     plt.figure()
     plt.title(op)
 
     plt.plot(np.real(correlators_exact[op]), label = f"exact ($\mu={mu}$)")
-    plt.plot(np.real(correlators[+1][op]), "--", linewidth = trunc_lw, label = r"$\nu=+1$")
-    plt.plot(np.real(correlators[-1][op]), ":", linewidth = trunc_lw, label = r"$\nu=-1$")
+    plt.plot(np.real(correlators[+1][op]), "--", linewidth = 3, label = r"$\nu=+1$")
+    plt.plot(np.real(correlators[-1][op]), ":", linewidth = 4, label = r"$\nu=-1$")
     plt.plot(np.imag(correlators_exact[op]))
-    plt.plot(np.imag(correlators[+1][op]), "--", linewidth = trunc_lw)
-    plt.plot(np.imag(correlators[-1][op]), ":", linewidth = trunc_lw)
+    plt.plot(np.imag(correlators[+1][op]), "--", linewidth = 3)
+    plt.plot(np.imag(correlators[-1][op]), ":", linewidth = 4)
 
     ylim = abs(correlators_exact[op]).max() * 1.1
     plt.ylim(-ylim,ylim)
