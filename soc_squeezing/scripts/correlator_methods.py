@@ -548,7 +548,7 @@ def compute_derivs(order_cap, spin_num, initial_state, h_zxy,
         chop_operators = False
 
     diff_op = {} # single time derivative operator
-    time_derivs = {} # [ deriv_op, derivative_order ] --> vector
+    time_derivs = {} # [ deriv_op, derivative_order ] --> vector of operators
     for deriv_op in deriv_ops:
         time_derivs[deriv_op,0] = { deriv_op : 1 }
         for order in range(1,order_cap):
@@ -571,27 +571,21 @@ def compute_derivs(order_cap, spin_num, initial_state, h_zxy,
                 for op in irrelevant_ops:
                     del time_derivs[deriv_op,order][op]
 
-    # compute initial values of relevant operators
-    init_ln_vals = {}
+    derivs = {} # [ deriv_op ] --> vector of values for each order
+    init_ln_vals = {} # initial values of relevant operators
     for deriv_op in deriv_ops:
+        derivs[deriv_op] = np.zeros(order_cap, dtype = complex)
         for order in range(order_cap):
-            for op in time_derivs[deriv_op,order]:
+            for op, val in time_derivs[deriv_op,order].items():
+
                 if init_ln_vals.get(op) is None:
                     init_ln_val_op = init_ln_val(op)
                     if init_ln_val_op is None: continue
                     init_ln_vals[op] = init_ln_val_op
-                    if op[0] != op[-1]:
-                        init_ln_vals[op[::-1]] = init_ln_vals[op]
+                    if op[0] != op[-1]: init_ln_vals[op[::-1]] = init_ln_vals[op]
 
-    derivs = {}
-    for deriv_op in deriv_ops:
-        derivs[deriv_op] = np.zeros(order_cap, dtype = complex)
-        for order in range(order_cap):
-            for T_op, T_val in time_derivs[deriv_op,order].items():
-                init_ln_val = init_ln_vals.get(T_op)
-                if init_ln_val is None: continue
-                term_ln_mag = np.log(complex(T_val)) + init_ln_val
-                derivs[deriv_op][order] += np.exp(term_ln_mag) * init_val_sign(T_op)
+                term_ln_mag = np.log(complex(val)) + init_ln_vals[op]
+                derivs[deriv_op][order] += np.exp(term_ln_mag) * init_val_sign(op)
 
     return derivs
 
