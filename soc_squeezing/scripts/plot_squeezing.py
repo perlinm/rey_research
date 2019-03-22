@@ -46,8 +46,8 @@ times = np.linspace(0, max_time, time_steps)
 
 # (excitation, dephasing, decay) rates for single- and collective-spin operators
 # in units of the OAT strength (i.e. \chi in \chi S_\z^2)
-dec_rates = [ (1,)*3, (0,0,0) ]
-dec_rates_strong = [ (100,100,100), (0,0,0) ]
+dec_rates = [ (1,)*3, (0,)*3 ]
+dec_rates_strong = [ (100,)*3, (0,)*3 ]
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
 methods = [ OAT, TAT, TNT ]
@@ -157,6 +157,8 @@ def jump_args(hamiltonian):
 for method in methods:
     if method == OAT: continue
     sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
+    if method == TNT:
+        sqz_path = data_dir + f"test_sqz_D_exact_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path) or recompute_exact:
         correlators = correlators_from_trajectories(*jump_args(h_vec[method]))
