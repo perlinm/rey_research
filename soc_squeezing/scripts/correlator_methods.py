@@ -520,7 +520,7 @@ squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 
 # compute (suppressed) derivatives of operators: derivs[op][kk] = < (d/dt)^k op >_0 / k!
 def compute_derivs(order_cap, spin_num, initial_state, h_zxy,
-                   dec_rates = [], dec_mat = None, mu = 1):
+                   dec_rates = [], dec_mat = None, deriv_ops = squeezing_ops, mu = 1):
     init_val_sign, init_ln_val = init_ln_val_functions(spin_num, initial_state, mu)
     h_vec = convert_zxy_vec(h_zxy, mu)
     if dec_mat is None: dec_mat = np.eye(3)
@@ -548,60 +548,62 @@ def compute_derivs(order_cap, spin_num, initial_state, h_zxy,
         chop_operators = False
 
     diff_op = {} # single time derivative operator
-    time_derivs = {} # [ sqz_op, derivative_order ] --> vector
-    for sqz_op in squeezing_ops:
-        time_derivs[sqz_op,0] = { sqz_op : 1 }
+    time_derivs = {} # [ deriv_op, derivative_order ] --> vector
+    for deriv_op in deriv_ops:
+        time_derivs[deriv_op,0] = { deriv_op : 1 }
         for order in range(1,order_cap):
             # compute relevant matrix elements of the time derivative operator
-            time_derivs[sqz_op,order] = {}
-            for op, val in time_derivs[sqz_op,order-1].items():
-                try: add_left(time_derivs[sqz_op,order], diff_op[op], val/order)
+            time_derivs[deriv_op,order] = {}
+            for op, val in time_derivs[deriv_op,order-1].items():
+                try: add_left(time_derivs[deriv_op,order], diff_op[op], val/order)
                 except:
                     diff_op[op] = op_image(op, h_vec, spin_num, dec_vecs, mu)
                     if op[0] != op[-1]:
                         diff_op[op[::-1]] = conj_vec(diff_op[op])
-                    add_left(time_derivs[sqz_op,order], diff_op[op], val/order)
-            clean(time_derivs[sqz_op,order])
+                    add_left(time_derivs[deriv_op,order], diff_op[op], val/order)
+            clean(time_derivs[deriv_op,order])
 
             if chop_operators and order > order_cap // 2:
                 # throw out operators with no contribution to correlators
                 max_steps = (order_cap-order) * max_transverse_step
-                irrelevant_ops = [ op for op in time_derivs[sqz_op,order].keys()
+                irrelevant_ops = [ op for op in time_derivs[deriv_op,order].keys()
                                    if op[0] > max_steps or op[2] > max_steps ]
                 for op in irrelevant_ops:
-                    del time_derivs[sqz_op,order][op]
+                    del time_derivs[deriv_op,order][op]
 
     # compute initial values of relevant operators
     init_ln_vals = {}
-    for sqz_op in squeezing_ops:
+    for deriv_op in deriv_ops:
         for order in range(order_cap):
-            for op in time_derivs[sqz_op,order]:
-                if init_ln_vals.get(op) == None:
-                    init_ln_vals[op] = init_ln_val(op)
+            for op in time_derivs[deriv_op,order]:
+                if init_ln_vals.get(op) is None:
+                    init_ln_val_op = init_ln_val(op)
+                    if init_ln_val_op is None: continue
+                    init_ln_vals[op] = init_ln_val_op
                     if op[0] != op[-1]:
-                        try: init_ln_vals[op[::-1]] = init_ln_vals[op]
-                        except: init_ln_vals[op[::-1]] = None
+                        init_ln_vals[op[::-1]] = init_ln_vals[op]
 
     derivs = {}
-    for sqz_op in squeezing_ops:
-        derivs[sqz_op] = np.zeros(order_cap, dtype = complex)
+    for deriv_op in deriv_ops:
+        derivs[deriv_op] = np.zeros(order_cap, dtype = complex)
         for order in range(order_cap):
-            for T_op, T_val in time_derivs[sqz_op,order].items():
-                init_ln_val = init_ln_vals[T_op]
+            for T_op, T_val in time_derivs[deriv_op,order].items():
+                init_ln_val = init_ln_vals.get(T_op)
                 if init_ln_val is None: continue
                 term_ln_mag = np.log(complex(T_val)) + init_ln_val
-                derivs[sqz_op][order] += np.exp(term_ln_mag) * init_val_sign(T_op)
+                derivs[deriv_op][order] += np.exp(term_ln_mag) * init_val_sign(T_op)
 
     return derivs
 
 # compute correlators from evolution under a general Hamiltonian with decoherence
 def compute_correlators(chi_times, order_cap, spin_num, initial_state, h_vec,
-                        dec_rates = [], dec_mat = None, mu = 1):
+                        dec_rates = [], dec_mat = None, correlator_ops = squeezing_ops,
+                        mu = 1):
 
     derivs = compute_derivs(order_cap, spin_num, initial_state, h_vec,
-                            dec_rates, dec_mat, mu)
+                            dec_rates, dec_mat, correlator_ops, mu)
     times_k = np.array([ chi_times**order for order in range(order_cap) ])
-    correlators = { op : derivs[op] @ times_k for op in squeezing_ops }
+    correlators = { op : derivs[op] @ times_k for op in correlator_ops }
 
     if mu == 1:
         return correlators
@@ -612,8 +614,9 @@ def compute_correlators(chi_times, order_cap, spin_num, initial_state, h_vec,
 
 # compute correlators by solving an initial value problem (i.e. differential equation)
 def compute_correlators_diffeq(chi_times, order_cap, spin_num, initial_state, h_zxy,
-                               dec_rates = [], dec_mat = None, mu = 1,
-                               ivp_tolerance = 1e-15):
+                               dec_rates = [], dec_mat = None,
+                               correlator_ops = squeezing_ops,
+                               mu = 1, ivp_tolerance = 1e-15):
     init_val_sign, init_ln_val = init_ln_val_functions(spin_num, initial_state, mu)
     h_vec = convert_zxy_vec(h_zxy, mu)
     if dec_mat is None: dec_mat = np.eye(3)
@@ -625,7 +628,7 @@ def compute_correlators_diffeq(chi_times, order_cap, spin_num, initial_state, h_
     # construct derivative operator and initial values
     init_vals = {}
     diff_op = {}
-    new_ops = squeezing_ops
+    new_ops = correlator_ops
     for order in range(order_cap):
         for op in new_ops:
             try: diff_op[op]; continue
@@ -657,7 +660,7 @@ def compute_correlators_diffeq(chi_times, order_cap, spin_num, initial_state, h_
                              t_eval = chi_times,
                              rtol = ivp_tolerance, atol = ivp_tolerance)
 
-    correlators = { op : ivp_solution.y[op_idx[op],:] for op in squeezing_ops }
+    correlators = { op : ivp_solution.y[op_idx[op],:] for op in correlator_ops }
 
     if mu == 1:
         return correlators
