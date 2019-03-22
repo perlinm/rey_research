@@ -523,7 +523,8 @@ squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 # deriv_op_vec[mm,kk] = (1/kk!) (d/dt)^kk S_mm
 #                     = (1/kk!) \sum_nn T^kk_{mm,nn} S_nn
 def get_deriv_op_vec(order_cap, spin_num, initial_state, h_zxy,
-                     dec_rates = [], dec_mat = None, deriv_ops = squeezing_ops, mu = 1):
+                     dec_rates = [], dec_mat = None, deriv_ops = squeezing_ops,
+                     append_op = None, mu = 1):
     h_vec = convert_zxy_vec(h_zxy, mu)
     if dec_mat is None: dec_mat = np.eye(3)
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
@@ -546,6 +547,8 @@ def get_deriv_op_vec(order_cap, spin_num, initial_state, h_zxy,
                 else:
                     # through S_\mu jump operator
                     max_transverse_step = max(max_transverse_step,1)
+        if append_op is not None:
+            max_transverse_step += max(append_op[0], append_op[-1])
     else:
         chop_operators = False
 
@@ -583,9 +586,8 @@ def compute_deriv_vals(order_cap, spin_num, initial_state, h_zxy,
                        dec_rates = [], dec_mat = None, deriv_ops = squeezing_ops,
                        append_op = None, mu = 1):
     init_val_sign, init_ln_val = init_ln_val_functions(spin_num, initial_state, mu)
-
     deriv_op_vec = get_deriv_op_vec(order_cap, spin_num, initial_state, h_zxy,
-                                    dec_rates, dec_mat, deriv_ops, mu)
+                                    dec_rates, dec_mat, deriv_ops, append_op, mu)
 
     if append_op is not None:
         for deriv_op, order in itertools.product(deriv_ops, range(order_cap)):
