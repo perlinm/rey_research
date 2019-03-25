@@ -149,7 +149,7 @@ def init_ln_val_functions(spin_num, initial_state, mu = 1):
 def clean(vec, spin_num = None):
     null_ops = [ op for op, val in vec.items() if abs(val) == 0 ]
     for op in null_ops: del vec[op]
-    if spin_num != None:
+    if spin_num is not None:
         overflow_ops = [ op for op in vec.keys()
                          if op[0] > spin_num or op[2] > spin_num ]
         for op in overflow_ops: del vec[op]
@@ -617,7 +617,6 @@ def compute_deriv_vals(order_cap, spin_num, initial_state, h_zxy,
 def compute_correlators(chi_times, order_cap, spin_num, initial_state, h_vec,
                         dec_rates = [], dec_mat = None, correlator_ops = squeezing_ops,
                         append_op = None, mu = 1):
-
     deriv_vals = compute_deriv_vals(order_cap, spin_num, initial_state, h_vec,
                             dec_rates, dec_mat, correlator_ops, append_op, mu)
     times_k = np.array([ chi_times**order for order in range(order_cap) ])

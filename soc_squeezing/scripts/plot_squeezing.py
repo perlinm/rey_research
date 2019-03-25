@@ -145,10 +145,10 @@ if dec_rates[1] != (0,0,0):
     print("WARNING: 'exact' simulations do not account for collective decoherence!")
 
 # construct transformation matrix to rotate jump operators
-dec_mat_zxy = np.array([ [ 0, -1, 0 ],
-                         [ 1,  0, 0 ],
-                         [ 0,  0, 1 ]])
-dec_mat = convert_zxy_mat(dec_mat_zxy)
+basis_change_zxy = np.array([ [ 0, -1, 0 ],
+                              [ 1,  0, 0 ],
+                              [ 0,  0, 1 ]])
+dec_mat = convert_zxy_mat(basis_change_zxy)
 
 init_state_vec = coherent_spin_state(init_state, N)
 def jump_args(hamiltonian):

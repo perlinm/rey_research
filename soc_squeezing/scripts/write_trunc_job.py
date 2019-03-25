@@ -3,21 +3,20 @@
 import os, sys
 
 if len(sys.argv[1:]) not in [ 3, 4 ]:
-    print(f"usage: {sys.argv[0]} lattice_depth lattice_size [rational]")
+    print(f"usage: {sys.argv[0]} method lattice_depth lattice_size [rational]")
     exit()
 
 method = sys.argv[1]
-spin_num = int(sys.argv[2])**2
-rational = ( len(sys.argv[1:]) == 3 )
+rational_correlators = ( len(sys.argv[1:]) == 4 )
 
-if not rational:
+if not rational_correlators:
     time = "01:00:00"
     memory_cap = "2G"
 else:
     time = "01-00"
     memory_cap = "4G"
 
-basename = "_".join(sys.argv[1:])
+basename = "_".join(["trunc"]+sys.argv[1:])
 
 header = f"""#!/bin/sh
 
@@ -33,8 +32,8 @@ header = f"""#!/bin/sh
 
 module load python3
 
-python3 compute_TAT_vals.py {" ".join(sys.argv[1:])}
+python3 compute_trunc_vals.py {" ".join(sys.argv[1:])}
 """
 
-with open(f"./logs/trunc_{basename}.sh", "w") as f:
+with open(f"./logs/{basename}.sh", "w") as f:
     f.write(header)

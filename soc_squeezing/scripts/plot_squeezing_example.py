@@ -89,12 +89,12 @@ init_nZ[0] = 1
 states_TAT = solve_ivp(lambda time, state : -1j * H_TAT.dot(state),
                        (0,times[-1]), init_nZ, t_eval = times,
                        rtol = ivp_tolerance, atol = ivp_tolerance).y
-sqz_TAT = np.array([ spin_squeezing(N, states_TAT[:,tt], S_op_vec, SS_op_mat))
+sqz_TAT = np.array([ spin_squeezing(N, states_TAT[:,tt], S_op_vec, SS_op_mat)
                      for tt in range(times.size) ])
 sqz_TAT = -to_dB(sqz_TAT)
 
 # extract squeezing via TAT with decoherence
-file_name = data_dir + f"TAT/exact_{lattice_depth:.1f}_{lattice_size}.txt"
+file_name = data_dir + f"trunc/TAT_{lattice_depth:.1f}_{lattice_size}.txt"
 derivs = np.loadtxt(file_name, dtype = complex)
 
 order_cap = derivs.shape[1]

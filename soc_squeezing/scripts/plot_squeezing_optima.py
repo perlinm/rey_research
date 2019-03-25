@@ -26,7 +26,6 @@ sqz_methods = [ OAT, TAT ]
 
 depth_min, depth_max = 2, 7
 
-method_TAT = "trunc"
 depths_TAT = np.arange(20,81,2)/10 # lattice depths in plots
 sizes_TAT = np.arange(10,101,5) # linear lattice sizes in plots
 phi_cutoff = 10 # minimum value of (\phi/\pi)^{-1}
@@ -159,76 +158,65 @@ plt.close()
 # squeezing with decoherence
 ##########################################################################################
 
-def get_sqz_floor(method, lattice_depth, lattice_size):
+def get_sqz_floor(lattice_depth, lattice_size):
 
-    file_name = data_dir + f"TAT/{method}_{lattice_depth}_{lattice_size}.txt"
+    file_name = data_dir + f"trunc/TAT_{lattice_depth}_{lattice_size}.txt"
     spin_num = int(lattice_size)**2
 
     correlators = {}
-    if method == "jump":
-        data = np.loadtxt(file_name, dtype = complex)
+    # if we have previously computed the squeezing floor, use it
+    sqz_floor = None
+    with open(file_name, "r") as f:
+        for line in f:
+            if "sqz_floor" in line:
+                sqz_floor = float(line.split()[-1])
+
+    if sqz_floor != None: return sqz_floor
+
+    # otherwise, calculate the squeezing floor
+    derivs = np.loadtxt(file_name, dtype = complex)
+    order_cap = derivs.shape[1]
+
+    times = np.linspace(0, 2, 100) * spin_num**(-2/3)
+    times_k = np.array([ times**kk for kk in range(order_cap) ])
+
+    # find squeezing floor at all (reasonable) orders
+    orders = np.arange(order_cap//2,order_cap+1)
+    sqz_floors = np.zeros(orders.size)
+    for order_idx in range(orders.size):
+        order = orders[order_idx]
         for op_idx, sqz_op in enumerate(squeezing_ops):
-            correlators[sqz_op] = data[op_idx,:]
+            correlators[sqz_op] = derivs[op_idx,:order] @ times_k[:order,:]
 
         sqz = squeezing_from_correlators(spin_num, correlators, in_dB = True)
-        plt.plot(sqz, "k.")
-        return sqz.max()
 
-    if method == "trunc":
+        # get index of first local maximum and inflection point
+        d_sqz = sqz[1:] - sqz[:-1] # first derivative
+        d_sqz_idx = np.argmax(d_sqz < 0) # index of first local maximum
+        dd_sqz = d_sqz[1:] - d_sqz[:-1] # second derivative
+        dd_sqz_idx = np.argmax(dd_sqz > 0) # index of first inflection point
 
-        # if we have previously computed the squeezing floor, use it
-        sqz_floor = None
-        with open(file_name, "r") as f:
-            for line in f:
-                if "sqz_floor" in line:
-                    sqz_floor = float(line.split()[-1])
+        # if either index is zero, it means we did not actually find what we needed
+        if  d_sqz_idx == 0:  d_sqz_idx = sqz.size
+        if dd_sqz_idx == 0: dd_sqz_idx = sqz.size
 
-        if sqz_floor != None: return sqz_floor
+        # the peak is at whichever event occurred first
+        peak_idx = min(d_sqz_idx, dd_sqz_idx+1)
 
-        # otherwise, calculate the squeezing floor
-        derivs = np.loadtxt(file_name, dtype = complex)
-        order_cap = derivs.shape[1]
+        # if we have no nans before the peak, use the squeezing value at the peak
+        # otherwise, use the maximum pre-nan squeezing value
+        if not np.isnan(sqz[:peak_idx+1]).any():
+            sqz_floors[order_idx] = sqz[peak_idx]
+        else:
+            nan_idx = np.argmax(np.isnan(sqz))
+            sqz_floors[order_idx] = sqz[:nan_idx].max()
 
-        times = np.linspace(0, 2, 100) * spin_num**(-2/3)
-        times_k = np.array([ times**kk for kk in range(order_cap) ])
+    # save squeezing floor to data file
+    sqz_floor = sqz_floors.max()
+    with open(file_name, "a") as f:
+        f.write(f"# sqz_floor: {sqz_floor}\n")
 
-        # find squeezing floor at all (reasonable) orders
-        orders = np.arange(order_cap//2,order_cap+1)
-        sqz_floors = np.zeros(orders.size)
-        for order_idx in range(orders.size):
-            order = orders[order_idx]
-            for op_idx, sqz_op in enumerate(squeezing_ops):
-                correlators[sqz_op] = derivs[op_idx,:order] @ times_k[:order,:]
-
-            sqz = squeezing_from_correlators(spin_num, correlators, in_dB = True)
-
-            # get index of first local maximum and inflection point
-            d_sqz = sqz[1:] - sqz[:-1] # first derivative
-            d_sqz_idx = np.argmax(d_sqz < 0) # index of first local maximum
-            dd_sqz = d_sqz[1:] - d_sqz[:-1] # second derivative
-            dd_sqz_idx = np.argmax(dd_sqz > 0) # index of first inflection point
-
-            # if either index is zero, it means we did not actually find what we needed
-            if  d_sqz_idx == 0:  d_sqz_idx = sqz.size
-            if dd_sqz_idx == 0: dd_sqz_idx = sqz.size
-
-            # the peak is at whichever event occurred first
-            peak_idx = min(d_sqz_idx, dd_sqz_idx+1)
-
-            # if we have no nans before the peak, use the squeezing value at the peak
-            # otherwise, use the maximum pre-nan squeezing value
-            if not np.isnan(sqz[:peak_idx+1]).any():
-                sqz_floors[order_idx] = sqz[peak_idx]
-            else:
-                nan_idx = np.argmax(np.isnan(sqz))
-                sqz_floors[order_idx] = sqz[:nan_idx].max()
-
-        # save squeezing floor to data file
-        sqz_floor = sqz_floors.max()
-        with open(file_name, "a") as f:
-            f.write(f"# sqz_floor: {sqz_floor}\n")
-
-        return sqz_floor
+    return sqz_floor
 
 figsize = (6,3)
 
@@ -236,7 +224,7 @@ figsize = (6,3)
 sqz = {}
 sqz[TAT] = np.zeros((depths_TAT.size,sizes_TAT.size))
 for idx, _ in np.ndenumerate(sqz[TAT]):
-    sqz[TAT][idx] = get_sqz_floor(method_TAT, depths_TAT[idx[0]], sizes_TAT[idx[1]])
+    sqz[TAT][idx] = get_sqz_floor(depths_TAT[idx[0]], sizes_TAT[idx[1]])
 
 depths = { TAT : depths_TAT }
 sizes = { TAT : sizes_TAT }

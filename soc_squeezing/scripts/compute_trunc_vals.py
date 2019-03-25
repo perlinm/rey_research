@@ -10,26 +10,20 @@ from dicke_methods import coherent_spin_state
 start_time = system_time()
 
 if len(sys.argv[1:]) not in  [ 3, 4 ]:
-    print(f"usage: {sys.argv[0]} lattice_depth lattice_size [rational]")
+    print(f"usage: {sys.argv[0]} method lattice_depth lattice_size [rational]")
     exit()
 
-lattice_depth = sys.argv[1]
-lattice_size = int(sys.argv[2])
-rational_correlators = ( len(sys.argv[1:]) == 3 )
+method = sys.argv[1]
+lattice_depth = sys.argv[2]
+lattice_size = int(sys.argv[3])
+rational_correlators = ( len(sys.argv[1:]) == 4 )
 
-if rational_correlators:
-    from correlator_methods_rat import compute_correlators, dec_mat_drive
-    from fractions import Fraction as frac
-    h_TAT = { (2,0,0) : +frac(1,3),
-              (0,0,2) : -frac(1,3) }
-else:
-    from correlator_methods import compute_correlators, dec_mat_drive
-    h_TAT = { (2,0,0) : +1/3,
-              (0,0,2) : -1/3 }
+TAT, TNT = "TAT", "TNT"
+assert(method in [ TAT, TNT ])
 
 data_dir = os.path.dirname(os.path.realpath(__file__)) + "/../data/"
-output_dir = data_dir + "TAT/"
-file_name = "_".join(["trunc"]+sys.argv[1:]) + ".txt"
+output_dir = data_dir + "trunc/"
+file_name = "_".join(sys.argv[1:]) + ".txt"
 
 lattice_dim = 2
 confining_depth = 60 # recoil energies
@@ -42,6 +36,20 @@ drive_mod_index_xy_1 = 1.6262104442160061 # for TAT protocol about (x,y)
 drive_mod_index_xy_2 = 2.2213461342426544 # for TAT protocol about (x,y)
 
 spin_num = lattice_size**lattice_dim
+
+if rational_correlators:
+    from correlator_methods_rat import compute_deriv_vals, dec_mat_drive, convert_zxy_mat
+    from fractions import Fraction as frac
+    h_TAT = { (0,2,0) : +frac(1,3),
+              (0,0,2) : -frac(1,3) }
+    h_TNT = { (0,2,0) : 1,
+              (1,0,0) : -frac(spin_num,2) }
+else:
+    from correlator_methods import compute_deriv_vals, dec_mat_drive, convert_zxy_mat
+    h_TAT = { (0,2,0) : +1/3,
+              (0,0,2) : -1/3 }
+    h_TNT = { (0,2,0) : 1,
+              (1,0,0) : -spin_num/2 }
 
 def get_val_1D(depth, file_name):
     file_path = data_dir + file_name
@@ -87,16 +95,24 @@ dec_rate_LU = 1/dec_time_SI / recoil_energy_NU
 dec_rate = dec_rate_LU / chi
 dec_rates = [ (0, dec_rate, dec_rate), (0, 0, 0) ]
 
-init_state = "+X"
-init_state_vec = coherent_spin_state([0,1,0], spin_num)
-dec_mat_TAT = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy))
+init_state = "-Z"
+basis_change_zxy = np.array([ [ 0, -1, 0 ],
+                              [ 1,  0, 0 ],
+                              [ 0,  0, 1 ]])
+basis_change = convert_zxy_mat(basis_change_zxy)
+
+if method == TNT:
+    h_vec = h_TNT
+    dec_mat = basis_change
+else: # method == TAT
+    h_vec = h_TAT
+    dec_mat = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy)) @ basis_change
 
 header = f"# lattice_dim: {lattice_dim}\n"
 header += f"# confining depth (E_R): {confining_depth}\n"
 header += f"# order_cap: {order_cap}\n"
 
-op_vals = compute_correlators(order_cap, spin_num, init_state, h_TAT,
-                              dec_rates, dec_mat_TAT)
+op_vals = compute_deriv_vals(order_cap, spin_num, init_state, h_vec, dec_rates, dec_mat)
 
 if not os.path.isdir(output_dir): os.mkdir(output_dir)
 
