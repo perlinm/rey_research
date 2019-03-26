@@ -212,34 +212,35 @@ $n\in\set{\x,\y,\z,+,-}$.  Identifying the set $\set{\S_{\v m}}$ as a
 basis for all collective spin operators, with
 $\v m\equiv\p{m_+,m_\z,m_-}\in\N_0^3$ and
 $\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$, we can expand all
-collective spin Hamiltonians in the form
+collective spin operators in the form
 \begin{align}
-  H = \sum_{\v m} h_{\v m} \S_{\v m},
-  \label{eq:H_general}
+  \O = \sum_{\v m} \O_{\v m} \S_{\v m}.
 \end{align}
-where Hermiticity requires that $h_{\v m}^*=h_{\v m^*}$ for
-$\v m^*\equiv\p{m_-,m_\z,m_+}$.  The time evolution of a particular
-Heisenberg operator $\S_{\v m}$ under a Hamiltonian of the form in
-Eq.~\eqref{eq:H_general} is then given by
+The time evolution of a Heisenberg operator $\O\p{t}$ under a
+Hamiltonian $H$ is then given by
 \begin{align}
-  \f{d}{dt}\S_{\v m}
-  &= i\sum_{\v n}h_{\v n}\sp{\S_{\v n},\S_{\v m}}_-
-  + \sum_\J \gamma_\J \D\p{\J;\S_{\v m}} \\
-  &= \sum_{\v n} T_{\v m\v n} \S_{\v n},
+  \f{d}{dt} \O\p{t}
+  = T \O\p{t}
+  = \sum_{\v m, \v n} \S_{\v m} T_{\v m\v n} \O_{\v n}\p{t}
   \label{eq:EOM}
 \end{align}
+for a time derivative (super-)operator $T$ with matrix elements
+$T_{\v m\v n}$, determined by
+\begin{align}
+  T \O \equiv i \sp{H, \O}_- + \sum_\J \gamma_\J \D\p{\J; \O},
+  \label{eq:time_deriv}
+\end{align}
 where $\sp{X,Y}_\pm\equiv XY\pm YX$; $\J$ is a set of jump operators
-with a corresponding decoherence rate $\gamma_\J$;
+with a corresponding decoherence rate $\gamma_\J$; and
 \begin{align}
   \D\p{\J;\O}
   \equiv \sum_{J\in\J} \p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+}
 \end{align}
-is the Heisenberg picture dissipator, or Lindblad superoperator, for
-all jump operators $J\in\J$; and $T_{\v m\v n}$ is a matrix element of
-the time derivative operator.  Decoherence via uncorrelated decay of
-individual spins at a rate $\gamma_-$, for example, would be described
-by the set of jump operators $\J_-=\set{s_-^{(j)}:j=1,2,\cdots,N}$
-with $\gamma_{\J_-}=\gamma_-$.  The commutator in Eq.~\eqref{eq:EOM}
+is the Heisenberg dissipator, or Lindblad superoperator, for all jump
+operators $J\in\J$.  Decoherence via uncorrelated decay of individual
+spins at a rate $\gamma_-$, for example, would be described by the set
+of jump operators $\J_-=\set{s_-^{(j)}:j=1,2,\cdots,N}$ with
+$\gamma_{\J_-}=\gamma_-$.  The commutator in Eq.~\eqref{eq:time_deriv}
 can be determined from the structure constants $f_{\v\ell\v m\v n}$ of
 the general product
 $\S_{\v\ell}\S_{\v m}=\sum_{\v n}f_{\v\ell\v m\v n}\S_{\v n}$ worked
@@ -251,27 +252,28 @@ $\Gamma=\sum_n\Gamma_nS_n$ are worked out in Appendices
 consider these calculations to be the main technical contributions of
 our work, with potential applications beyond the short-time simulation
 method presented here.  These ingredients are sufficient to compute
-matrix elements $T_{\v m\v n}$ of the time derivative operator $d/dt$
-in Eq.~\eqref{eq:EOM} in most cases of practical interest.
+matrix elements $T_{\v m\v n}$ of the time derivative operator $T$ in
+Eq.~\eqref{eq:time_deriv} in most cases of practical interest.
 
-The time derivative operator $d/dt$ will generally couple spin
-operators $\S_{\v m}$ to spin operators $\S_{\v n}$ with higher
-``weight'', i.e.~with $\abs{\v n}>\abs{\v m}$, where
-$\abs{\v\ell}\equiv\sum_\lambda\ell_\lambda$.  The growth of operator
+The time derivative operator $T$ will generally couple spin operators
+$\S_{\v n}$ (i.e.~in $\O$) to spin operators $\S_{\v m}$ with higher
+``weight'', i.e.~with $\abs{\v m}>\abs{\v n}$, where
+$\abs{\v\ell}\equiv\sum_\alpha\ell_\alpha$.  The growth of operator
 weight signifies the growth of many-body correlations.  In practice,
 keeping track of this growth will eventually require more
 computational resources than are available, meaning we must somehow
 truncate our equations of motion.  The simplest truncation strategy
 would be to take
 \begin{align}
-  \f{d}{dt} \S_{\v m}
-  \to \sum_{w\p{\v n}<W} T_{\v m\v n} \S_{\v n}
+  \f{d}{dt} \O
+  \to \sum_{w\p{\v m}<W} \S_{\v m}
+  \sum_{\v n} T_{\v m\v n} \O_{\v n}
   \label{eq:weight_truncation}
 \end{align}
-for some weight measure $w$, e.g.~$w\p{\v n}=\abs{\v n}$, and cutoff
+for some weight measure $w$, e.g.~$w\p{\v m}=\abs{\v m}$, and cutoff
 $W$.  The truncation in Eq.~\eqref{eq:weight_truncation} closes the
 system of differential equations defined by Eq.~\eqref{eq:EOM}, and
-allow us to solve it using standard numerical methods.  Initial
+allows us to solve it using standard numerical methods.  Initial
 conditions for this system of differential equations, i.e.~expectation
 values of collective spin operators with respect to states that are
 simple to prepare experimentally, are provided in Appendix
@@ -294,15 +296,14 @@ any method tracking only a subset of all relevant operators.  We
 therefore devise an alternate truncation strategy built around
 limitation \ref{pt:limitation}.
 
-We can expand Heisenberg operators in a Taylor series about time $t=0$
-to write
+We can expand Heisenberg operators $\O\p{t}$ in a Taylor series about
+the time $t=0$ to write
 \begin{align}
-  \S_{\v m}\p{t}
-  % = \left. \exp\p{t \f{d}{d\tau}} \S_{\v m}\p{\tau} \right|_{\tau=0}
-  &= \sum_{k\ge0} \f{t^k}{k!}
-  \left. \f{d^k}{d\tau^k} \S_{\v m}\p{\tau} \right|_{\tau=0} \\
-  &= \sum_{k\ge0} \f{t^k}{k!}
-  \sum_{\v n} T^k_{\v m\v n} \S_{\v n}\p{0},
+  \O\p{t}
+  = e^{t T} \O\p{0}
+  % = \sum_{k\ge0} \f{t^k}{k!} T^k \O\p{0}
+  = \sum_{k\ge0} \f{t^k}{k!}
+  \sum_{\v m, \v n} \S_{\v m} T^k_{\v m\v n} \O_{\v n}\p{0},
   \label{eq:time_series}
 \end{align}
 where the matrix elements $T^k_{\v m\v n}$ of the $k$-th time
@@ -312,26 +313,26 @@ derivative are
   T^1_{\v m\v n} &\equiv T_{\v m\v n}, \\
   T^{k>1}_{\v m\v n}
   &\equiv \sum_{\v p_1,\v p_2,\cdots,\v p_{k-1}}
-  T_{\v m\v p_1} T_{\v p_1\v p_2} T_{\v p_2\v p_3}
-  \cdots T_{\v p_{k-1}\v n},
+  T_{\v m\v p_{k-1}} \cdots T_{\v p_3\v p_2}
+  T_{\v p_2\v p_1} T_{\v p_1\v n},
 \end{align}
 with $\delta_{\v m\v n}=1$ if $\v m=\v n$ and 0 otherwise.  For
 sufficiently short times, we can truncate the series in
 Eq.~\eqref{eq:time_series} by taking
 \begin{align}
-  \S_{\v m}\p{t}
+  \O\p{t}
   \to \sum_{k=0}^M \f{t^k}{k!}
-  \sum_{\v n} T^k_{\v m\v n} \S_{\v n}\p{0}.
+  \sum_{\v m, \v n} \S_{\v m} T^k_{\v m\v n} \O_{\v n}\p{0}.
   \label{eq:order_truncation}
 \end{align}
 Unlike the truncation in Eq.~\eqref{eq:weight_truncation}, the nonzero
 matrix elements $T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ now tell us
 which operators are relevant for computing the expectation value
-$\bk{\S_{\v m}\p{t}}$ to a fixed order $M$.  Note that the relation
-$\S_{\v m^*}=\S_{\v m}^\dag$, which by Hermitian conjugation of
-Eq.~\eqref{eq:EOM} also implies that
+$\bk{\O\p{t}}$ to a fixed order $M$.  Note that the relation
+$\S_{\v m}^\dag=\S_{\v m^*}$ for $\v m^*\equiv\p{m_-,m_\z,m_+}$, which
+by Hermitian conjugation of Eq.~\eqref{eq:EOM} also implies that
 $T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can be exploited to cut both the
-number of initial-time expectation values $\bk{\S_{\v m}\p{0}}$ and
+number of initial-time expectation values $\bk{\S_{\v m}}_{t=0}$ and
 the number of matrix elements $T_{\v m\v n}$ that we may need to
 explicitly compute roughly in half.
 
@@ -342,7 +343,7 @@ truncation error in Eq.~\eqref{eq:order_truncation} is negligibly
 small.  In practice, only a maximal truncation order $M_{\t{max}}$ is
 accessible with limited computational resources, such that the
 truncated Taylor expansion in Eq.~\eqref{eq:order_truncation} only
-allows computation of the correlator $\bk{\S_{\v m}\p{t}}$ to a
+allows computation of the expectation value $\bk{\O\p{t}}$ to a
 maximal time $t_{M_{\t{max}}}$.  As we will see in the following
 section, $M_{\t{max}}=35$ will suffice for the computation of
 collective spin correlators up to times that are relevant e.g.~for
@@ -457,21 +458,19 @@ truncated Taylor expansion in Eq.~\eqref{eq:order_truncation} gives
 essentially exact results right up until a sudden and drastic
 departure that is simple to diagnose by inspection.  This drastic
 departure occurs because the truncated Taylor expansion neglects
-high-weight (i.e.~large-$\abs{\v n}$) operators $\S_{\v n}$ whose
-contributions to a correlator of interest $\bk{\S_{\v m}}$ eventually
+high-weight (i.e.~large-$\abs{\v m}$) operators $\S_{\v m}$ whose
+contributions to a correlator of interest $\bk{\O\p{t}}$ eventually
 become non-negligible.  For sufficiently large times $t$, these
 individual contributions may generally be large compared to the value
-of $\bk{\S_{\v m}}$, in which case their truncation will yield
+of $\bk{\O\p{t}}$, in which case their truncation will yield
 non-physical results.  This breakdown mechanism is also the reason for
 prolonged agreement between the truncated Taylor expansion and
 benchmarking methods when squeezing the initial state $\ket{-\Z}$
 rather than $\ket{\X}$: for initial states $\ket{-\Z}$, all
-initial-time correlators $\bk{\S_{\v n}\p{0}}$ vanish unless
-$n_+=n_-=0$ (see Appendix \ref{sec:initial_conditions}), so there is a
-substantially smaller number of terms with non-zero contribution to
-the correlator $\bk{\S_{\v m}}$, and therefore a substantially smaller
-number of non-zero terms that are neglected in the truncated Taylor
-expansion.
+initial-time correlators $\bk{\S_{\v m}}_{t=0}$ vanish unless
+$m_+=m_-=0$ (see Appendix \ref{sec:initial_conditions}), so there is a
+substantially smaller number of neglected terms with non-zero
+contribution to the correlator $\bk{\O\p{t}}$.
 
 Although the truncated Taylor expansion breaks down at short times, it
 has two key advantages over other methods to compute collective spin
