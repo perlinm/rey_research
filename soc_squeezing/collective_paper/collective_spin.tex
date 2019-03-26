@@ -184,14 +184,14 @@ the equations of motion for Heisenberg operators.  Evaluating this
 expansion requires using the structure constants of a collective spin
 operator algebra; the calculation of these structure constants (in
 Appendices \ref{sec:identities}--\ref{sec:prod_general}) is one of the
-main technical results of this work, which we hope will enable future
-studies to develop new analytical insights into the behavior of
-collective spin systems.  We benchmark our method against both exact
-and quantum trajectory Monte Carlo calculations of spin squeezing in
-accessible parameter regimes, highlighting both advantages and
-limitations of the short-time expansion.  Finally, we showcase an
-application of our method with calculations that are inaccessible to
-other methods.
+main technical results of this work, which we hope will empower both
+analytical and numerical future studies of collective spin systems.
+We benchmark our method against both exact and quantum trajectory
+Monte Carlo computations of spin squeezing in accessible parameter
+regimes, highlighting both advantages and limitations of our
+short-time expansion.  Finally, we showcase an application of our
+method with computations that are inaccessible to other numerical
+methods.
 
 [More text about the content of this paper.]
 
@@ -248,7 +248,7 @@ the effects of decoherence from jump operators (i.e.~elements of $\J$)
 of the form $\gamma^{(j)}=\sum_n\gamma_ns_n^{(j)}$ and
 $\Gamma=\sum_n\Gamma_nS_n$ are worked out in Appendices
 \ref{sec:sandwich_single}--\ref{sec:decoherence_collective}.  We
-consider these calculations one of the main technical contributions of
+consider these calculations to be the main technical contributions of
 our work, with potential applications beyond the short-time simulation
 method presented here.  These ingredients are sufficient to compute
 matrix elements $T_{\v m\v n}$ of the time derivative operator $d/dt$
@@ -294,13 +294,15 @@ any method tracking only a subset of all relevant operators.  We
 therefore devise an alternate truncation strategy built around
 limitation \ref{pt:limitation}.
 
-We can expand Heisenberg operators in a Taylor series about $t=0$ to
-write
+We can expand Heisenberg operators in a Taylor series about time $t=0$
+to write
 \begin{align}
-  \bk{\S_{\v m}}
-  = \sum_{k\ge0} \f{t^k}{k!} \bk{\f{d^k}{dt^k} \S_{\v m}}_{t=0}
-  = \sum_{k\ge0} \f{t^k}{k!}
-  \sum_{\v n} T^k_{\v m\v n} \bk{\S_{\v n}}_{t=0},
+  \S_{\v m}\p{t}
+  % = \left. \exp\p{t \f{d}{d\tau}} \S_{\v m}\p{\tau} \right|_{\tau=0}
+  &= \sum_{k\ge0} \f{t^k}{k!}
+  \left. \f{d^k}{d\tau^k} \S_{\v m}\p{\tau} \right|_{\tau=0} \\
+  &= \sum_{k\ge0} \f{t^k}{k!}
+  \sum_{\v n} T^k_{\v m\v n} \S_{\v n}\p{0},
   \label{eq:time_series}
 \end{align}
 where the matrix elements $T^k_{\v m\v n}$ of the $k$-th time
@@ -317,21 +319,21 @@ with $\delta_{\v m\v n}=1$ if $\v m=\v n$ and 0 otherwise.  For
 sufficiently short times, we can truncate the series in
 Eq.~\eqref{eq:time_series} by taking
 \begin{align}
-  \bk{\S_{\v m}}
+  \S_{\v m}\p{t}
   \to \sum_{k=0}^M \f{t^k}{k!}
-  \sum_{\v n} T^k_{\v m\v n} \bk{\S_{\v n}}_{t=0}.
+  \sum_{\v n} T^k_{\v m\v n} \S_{\v n}\p{0}.
   \label{eq:order_truncation}
 \end{align}
 Unlike the truncation in Eq.~\eqref{eq:weight_truncation}, the nonzero
 matrix elements $T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ now tell us
 which operators are relevant for computing the expectation value
-$\bk{\S_{\v m}}$ to a fixed order $M$.  Note that the relation
+$\bk{\S_{\v m}\p{t}}$ to a fixed order $M$.  Note that the relation
 $\S_{\v m^*}=\S_{\v m}^\dag$, which by Hermitian conjugation of
 Eq.~\eqref{eq:EOM} also implies that
 $T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can be exploited to cut both the
-number of expectation values $\bk{\S_{\v m}}_{t=0}$ and matrix
-elements $T_{\v m\v n}$ that we may need to explicitly compute roughly
-in half.
+number of initial-time expectation values $\bk{\S_{\v m}\p{0}}$ and
+the number of matrix elements $T_{\v m\v n}$ that we may need to
+explicitly compute roughly in half.
 
 In principle, the factorial suppression of terms at higher orders of
 the Taylor expansion in Eq.~\eqref{eq:time_series} implies for any
@@ -340,9 +342,9 @@ truncation error in Eq.~\eqref{eq:order_truncation} is negligibly
 small.  In practice, only a maximal truncation order $M_{\t{max}}$ is
 accessible with limited computational resources, such that the
 truncated Taylor expansion in Eq.~\eqref{eq:order_truncation} only
-allows computation of the correlator $\bk{\S_{\v m}}$ to a maximal
-time $t_{M_{\t{max}}}$.  As we will see in the following section,
-$M_{\t{max}}=35$ will suffice for the accurate computation of
+allows computation of the correlator $\bk{\S_{\v m}\p{t}}$ to a
+maximal time $t_{M_{\t{max}}}$.  As we will see in the following
+section, $M_{\t{max}}=35$ will suffice for the computation of
 collective spin correlators up to times that are relevant e.g.~for
 spin squeezing protocols.
 
@@ -395,7 +397,7 @@ where $\v S\equiv\p{S_\x,S_\y,S_\z}$ is a collective spin vector, and
 the minimization is performed over all unit vectors $\uv n$ in the
 plane orthogonal to the mean spin vector $\bk{\v S}$.  This squeezing
 parameter is entirely determined by one- and two-spin correlators of
-the form $\bk{S_m}$ and $\bk{S_m S_n}$.  In the case of coherent
+the form $\bk{S_m}$ and $\bk{S_m S_n}$.  In the case of the coherent
 dynamics discussed here, these correlators are obtainable via exact
 simulations of quantum dynamics in the $\p{N+1}$-dimensional Dicke
 manifold of states $\set{\ket{S,m}}$ with net spin $S$ and spin
@@ -464,27 +466,28 @@ non-physical results.  This breakdown mechanism is also the reason for
 prolonged agreement between the truncated Taylor expansion and
 benchmarking methods when squeezing the initial state $\ket{-\Z}$
 rather than $\ket{\X}$: for initial states $\ket{-\Z}$, all
-correlators $\bk{\S_{\v n}}_{t=0}$ vanish unless $n_+=n_-=0$ (see
-Appendix \ref{sec:initial_conditions}), so there is a substantially
-smaller number of terms with non-zero contribution to the correlator
-$\bk{\S_{\v m}}$, and therefore a substantially smaller number of
-non-zero terms that are neglected in the truncated Taylor expansion.
+initial-time correlators $\bk{\S_{\v n}\p{0}}$ vanish unless
+$n_+=n_-=0$ (see Appendix \ref{sec:initial_conditions}), so there is a
+substantially smaller number of terms with non-zero contribution to
+the correlator $\bk{\S_{\v m}}$, and therefore a substantially smaller
+number of non-zero terms that are neglected in the truncated Taylor
+expansion.
 
 Although the truncated Taylor expansion breaks down at short times, it
 has two key advantages over other methods to compute collective spin
 correlators.  First, computing spin correlators with the truncated
 Taylor expansion is generally much faster and requires much fewer
-computing resources than alternatives.  The quantum trajectory Monte
-Carlo simulations performed for Figure \ref{fig:squeezing_incoherent},
-for example, take $\sim10^4$ CPU hours to compute on standard modern
-computing hardware; the bulk of this time is spent performing sparse
-matrix multiplication, leaving little room to further optimize run
-time.  Parallelization can reduce the actual run time of these quantum
-trajectory simulations to $\sim10$ hours, but at the cost of greatly
-increasing computing resource requirements.  The truncated Taylor
-expansion results in Figure \ref{fig:squeezing_incoherent}, meanwhile,
-take $\sim10$ seconds to compute with a single CPU on similar
-computing hardware.
+computing resources than the alternatives.  The quantum trajectory
+Monte Carlo simulations performed for Figure
+\ref{fig:squeezing_incoherent}, for example, take $\sim10^4$ CPU hours
+to compute on standard modern computing hardware; the bulk of this
+time is spent performing sparse matrix multiplication, leaving little
+room to further optimize run time.  Parallelization can reduce the
+actual run time of these quantum trajectory simulations to $\sim10$
+hours, but at the cost of greatly increasing computing resource
+requirements.  The truncated Taylor expansion results in Figure
+\ref{fig:squeezing_incoherent}, meanwhile, take $\sim10$ seconds to
+compute with a single CPU on similar computing hardware.
 
 Second, the truncated Taylor expansion enables computing spin
 correlators in strong-decoherence regimes entirely inaccessible to
@@ -512,12 +515,11 @@ structure constants calculated in this work.
 \end{figure}
 
 
-
-
 \section{Two-time correlation functions}
 \label{sec:TTC}
 
-These are very easy to compute.
+As a final example, we consider the calculation of two-time
+correlation functions in collective spin systems.
 
 
 
@@ -622,7 +624,7 @@ then imply
   \bk{S_\z^2} &= S \sp{\f12 + \p{S-\f12} \f{\bk{S_\z}^2}{S^2}}.
   \label{eq:Sz_OAT}
 \end{align}
-The expectation values in \eqref{eq:S+_OAT}-\eqref{eq:SS+-_OAT} and
+The expectation values in \eqref{eq:S+_OAT}--\eqref{eq:SS+-_OAT} and
 \eqref{eq:Sz_OAT} are sufficient to compute the spin squeezing
 parameter $\xi^2$ in \eqref{eq:squeezing} at any time throughout
 evolution of the initial state $\ket{\X}$ under $H_{\t{OAT}}$, under
@@ -866,14 +868,14 @@ and more generally for $p>1$,
   D_{m-p,n-p;\mu}^{(k_p)} \prod_{j=1}^p \p{2k_j+j-n+2\mu S_\z}.
   \label{eq:E_mn_p}
 \end{align}
-In principle, the expressions in \eqref{eq:D_mn_k} and
-\eqref{eq:C_mn_E}-\eqref{eq:E_mn_p} can be used to evaluate the
-commutator $\sp{S_\mu^m,S_\bmu^n}_- = C_{mn;\mu}$, but these result
-are -- put lightly -- quite a mess: the expression for
-$E_{mn;\mu}^{(p)}$ in \eqref{eq:E_mn_p} involves a sum over $p$
-mutually dependent intermediate variables, each term of which
-additionally contains a product of $p$ factors.  We therefore devote
-the rest of this section to simplifying our result for the commutator
+In principle, the expressions in \eqref{eq:D_mn}, \eqref{eq:D_mn_k},
+\eqref{eq:C_mn_E}, and \eqref{eq:E_mn_p} suffice to evaluate the
+commutator $\sp{S_\mu^m,S_\bmu^n}_- = C_{mn;\mu}$, but this result is
+-- put lightly -- quite a mess: the expression for $E_{mn;\mu}^{(p)}$
+in \eqref{eq:E_mn_p} involves a sum over $p$ mutually dependent
+intermediate variables, each term of which additionally contains a
+product of $p$ factors.  We therefore devote the rest of this section
+to simplifying our result for the commutator
 $\sp{S_\mu^m,S_\bmu^n}_-$.
 
 Observing that in \eqref{eq:E_mn_p} we always have
@@ -971,7 +973,7 @@ and
   S_\mu^m S_\bmu^n
   = \sum_{p=0}^{\min\set{m,n}}
   p! { m \choose p } { n \choose p } S_\bmu^{n-p} S_\mu^{m-p}
-  \sum_{\ell=0}^p \epsilon_{mn}^{p\ell} \p{\mu S_\z}^\ell,
+  \sum_{\ell=0}^p \epsilon_{mn}^{p\ell} \p{\mu S_\z}^\ell.
   \label{eq:push_mu_bmu}
 \end{align}
 If we wish to order products of collective spin operators with $S_\z$
