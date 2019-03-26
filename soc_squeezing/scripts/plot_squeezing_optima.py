@@ -21,13 +21,14 @@ confining_depth = 60
 data_dir = "../data/"
 fig_dir = "../figures/"
 
-OAT, TAT = "OAT", "TAT"
-sqz_methods = [ OAT, TAT ]
+OAT, TAT, TNT = "OAT", "TAT", "TNT"
+NOAT = TAT # "not one-axis twisting"
+sqz_methods = [ OAT, NOAT ]
 
 depth_min, depth_max = 2, 7
 
-depths_TAT = np.arange(20,81,2)/10 # lattice depths in plots
-sizes_TAT = np.arange(10,101,5) # linear lattice sizes in plots
+depths_dec = np.arange(20,81,2)/10 # lattice depths in plots
+sizes_dec = np.arange(10,101,5) # linear lattice sizes in plots
 phi_cutoff = 10 # minimum value of (\phi/\pi)^{-1}
 
 color_map = "jet" # for the 2-D color plots
@@ -89,11 +90,11 @@ figsize = (6.5,3)
 
 # set up figure panel and linestyles
 ax = {}
-fig, ( ax_sqz, ax[OAT], ax[TAT], cax ) \
+fig, ( ax_sqz, ax[OAT], ax[NOAT], cax ) \
     = plt.subplots(figsize = figsize, ncols = 4,
                    gridspec_kw = { "width_ratios" : [1,2,2,0.1] })
 lines = { OAT : "k-",
-          TAT : "k--" }
+          NOAT : "k--" }
 
 # exctract data to plot
 sqz_vals = {}
@@ -133,7 +134,7 @@ for method in sqz_methods:
 
 add_text(ax_sqz, r"{\bf (a)}")
 add_text(ax[OAT], r"{\bf (b)} OAT")
-add_text(ax[TAT], r"{\bf (c)} TAT")
+add_text(ax[NOAT], f"{{\\bf (c)}} {NOAT}")
 
 ax_sqz.legend(loc = "best").get_frame().set_alpha(1)
 cbar = fig.colorbar(mesh, cax = cax, label = time_label + " (sec)", format = "%.1f")
@@ -160,7 +161,7 @@ plt.close()
 
 def get_sqz_floor(lattice_depth, lattice_size):
 
-    file_name = data_dir + f"trunc/TAT_{lattice_depth}_{lattice_size}.txt"
+    file_name = data_dir + f"trunc/{NOAT}_{lattice_depth}_{lattice_size}.txt"
     spin_num = int(lattice_size)**2
 
     correlators = {}
@@ -183,8 +184,7 @@ def get_sqz_floor(lattice_depth, lattice_size):
     # find squeezing floor at all (reasonable) orders
     orders = np.arange(order_cap//2,order_cap+1)
     sqz_floors = np.zeros(orders.size)
-    for order_idx in range(orders.size):
-        order = orders[order_idx]
+    for order_idx, order in enumerate(orders):
         for op_idx, sqz_op in enumerate(squeezing_ops):
             correlators[sqz_op] = derivs[op_idx,:order] @ times_k[:order,:]
 
@@ -222,12 +222,12 @@ figsize = (6,3)
 
 # get squeezing data
 sqz = {}
-sqz[TAT] = np.zeros((depths_TAT.size,sizes_TAT.size))
-for idx, _ in np.ndenumerate(sqz[TAT]):
-    sqz[TAT][idx] = get_sqz_floor(depths_TAT[idx[0]], sizes_TAT[idx[1]])
+sqz[NOAT] = np.zeros((depths_dec.size,sizes_dec.size))
+for idx, _ in np.ndenumerate(sqz[NOAT]):
+    sqz[NOAT][idx] = get_sqz_floor(depths_dec[idx[0]], sizes_dec[idx[1]])
 
-depths = { TAT : depths_TAT }
-sizes = { TAT : sizes_TAT }
+depths = { NOAT : depths_dec }
+sizes = { NOAT : sizes_dec }
 
 sqz[OAT] = -to_dB(pd_read_2D(data_dir + f"optimization/sqz_opt_OAT_dec_L_2D.txt"))
 depths[OAT], sizes[OAT], sqz[OAT] \
@@ -243,7 +243,7 @@ sqz_max = max([ sqz[method].max() for method in sqz_methods ])
 
 # set up figure panels
 ax = {}
-fig, ( ax[OAT], ax[TAT], cax ) \
+fig, ( ax[OAT], ax[NOAT], cax ) \
     = plt.subplots(figsize = figsize, ncols = 3,
                    gridspec_kw = { "width_ratios" : [1,1,0.05] })
 
@@ -259,10 +259,10 @@ for method in sqz_methods:
     ax[method].set_xlim(depth_min, depth_max)
 
 add_text(ax[OAT], r"{\bf (a)} OAT")
-add_text(ax[TAT], r"{\bf (b)} TAT")
+add_text(ax[NOAT], f"{{\\bf (b)}} {NOAT}")
 
 ax[OAT].set_ylabel(size_label)
-ax[TAT].set_yticklabels([])
+ax[NOAT].set_yticklabels([])
 fig.colorbar(mesh, cax = cax, label = sqz_label)
 
 plt.tight_layout()
