@@ -358,7 +358,7 @@ def make_plot(grid, top_index, bottom_index, atom_index, sym_index,
     plt.gca().set_xticklabels([])
 
     if ylabel: plt.ylabel(r"$\Delta_{{NX}}$ ($2\pi$ kHz)")
-    plt.legend(loc="best").get_frame().set_alpha(1)
+    plt.legend(loc="best", framealpha = 1)
     handles, labels = plt.gca().get_legend_handles_labels()
     if not legend: plt.gca().legend_.remove()
 
@@ -493,8 +493,7 @@ plt.ylabel(r"Lattice depth $\mathcal{U}$ ($E_R$)")
 plt.plot([], [], "k.", label = r"Experiment")
 plt.plot([], [], "k--", label = r"$\mathcal{O}(G)$ theory", dashes = (5,5))
 plt.plot([], [], "k-", label = r"$\mathcal{O}(G^3)$ theory")
-legend = plt.gca().legend(loc = "best", fontsize = large_fontsize)
-legend.get_frame().set_alpha(0.3)
+legend = plt.gca().legend(loc = "best", fontsize = large_fontsize, framealpha = 0.3)
 for line in legend.get_lines():
     line.set_linewidth(0.5)
 

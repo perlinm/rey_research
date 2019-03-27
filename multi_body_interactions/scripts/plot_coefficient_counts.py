@@ -58,7 +58,7 @@ def make_plot(plot, even_vals, odd_vals,
     plt.gca().yaxis.set_major_locator(MaxNLocator(integer = True, nbins = 4,
                                                   steps = [ 2, 3, 10 ]))
 
-    plt.legend(loc="best").get_frame().set_alpha(1)
+    plt.legend(loc="best", framealpha = 1)
     handles, labels = plt.gca().get_legend_handles_labels()
     if not legend: plt.gca().legend_.remove()
 

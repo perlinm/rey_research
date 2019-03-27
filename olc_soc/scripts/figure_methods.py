@@ -93,7 +93,7 @@ def qns_band_plot(momenta, energies, bands, static_detuning = 0,
              label = "${}$".format(s_label(1,True)))
     plt.plot([0], [plt.gca().get_ylim()[0]-1], "k", linestyle = s_style(-1),
              label = "${}$".format(s_label(-1,True)))
-    plt.legend(loc="upper right").get_frame().set_alpha(1)
+    plt.legend(loc="upper right", framealpha = 1)
     plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
 
     plt.tight_layout()
@@ -227,7 +227,7 @@ def population_plot(q, n, s, momenta, energies, fourier_vecs,
         plt.xlabel(time_text)
         if plot_title != None: plt.title(plot_title)
         if plot_ylabel != None: plt.ylabel(plot_ylabel)
-        plt.legend(loc="upper right").get_frame().set_alpha(1)
+        plt.legend(loc="upper right", framealpha = 1)
         plt.tight_layout()
     return figs
 

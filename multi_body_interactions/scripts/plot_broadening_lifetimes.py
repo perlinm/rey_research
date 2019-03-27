@@ -170,7 +170,7 @@ for ss in range(3):
     plt.xlabel(r"Lattice depth ($E_R$)")
     plt.ylabel(r"Broadening (\%)")
 
-    plt.legend(loc="best").get_frame().set_alpha(1)
+    plt.legend(loc="best", framealpha = 1)
     plt.gca().tick_params(bottom=True,left=True,right=True)
     plt.tight_layout()
 

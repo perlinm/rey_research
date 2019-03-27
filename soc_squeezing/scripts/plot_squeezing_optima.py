@@ -136,7 +136,7 @@ add_text(ax_sqz, r"{\bf (a)}")
 add_text(ax[OAT], r"{\bf (b)} OAT")
 add_text(ax[NOAT], f"{{\\bf (c)}} {NOAT}")
 
-ax_sqz.legend(loc = "best").get_frame().set_alpha(1)
+ax_sqz.legend(loc = "best", framealpha = 1)
 cbar = fig.colorbar(mesh, cax = cax, label = time_label + " (sec)", format = "%.1f")
 cbar_ticks = [ int(tick) for tick in cbar.get_ticks() if tick == int(tick) ]
 cbar.set_ticks(cbar_ticks)

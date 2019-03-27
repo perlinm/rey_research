@@ -115,7 +115,7 @@ def make_time_plot(plot, N, cycles, samples,
                      label = label, zorder = symmetric-1)
             sym = "X"
 
-            plt.legend(loc="best").get_frame().set_alpha(1)
+            plt.legend(loc="best", framealpha = 1)
             handles, labels = plt.gca().get_legend_handles_labels()
             if not legend: plt.gca().legend_.remove()
 
@@ -191,8 +191,7 @@ if "detuning" in sys.argv:
                                       [ False, "$-$"] ]:
                 plt.plot(detunings, populations(N, symmetric, [time], detunings),
                          label = label, zorder = symmetric-1)
-                plt.legend(loc="best").get_frame().set_alpha(1)
-
+                plt.legend(loc="best", framealpha = 1)
 
         plt.xlabel(r"$\delta/\Omega_I$", zorder = 1)
         plt.ylabel(r"Population", zorder = 1)
