@@ -584,15 +584,24 @@ def get_deriv_op_vec(order_cap, spin_num, initial_state, h_zxy,
 # deriv_vals[op][kk] = (1/kk!) < [ (d/dt)^kk op ] * append_op >_0
 def compute_deriv_vals(order_cap, spin_num, initial_state, h_zxy,
                        dec_rates = [], dec_mat = None, deriv_ops = squeezing_ops,
-                       append_op = None, mu = 1):
+                       prepend_op = None, append_op = None, mu = 1):
     init_val_sign, init_ln_val = init_ln_val_functions(spin_num, initial_state, mu)
     deriv_op_vec = get_deriv_op_vec(order_cap, spin_num, initial_state, h_zxy,
                                     dec_rates, dec_mat, deriv_ops, append_op, mu)
 
-    if append_op is not None:
+    if prepend_op is not None:
+        if type(prepend_op) is not dict:
+            prepend_op = {prepend_op:1}
         for deriv_op, order in itertools.product(deriv_ops, range(order_cap)):
             deriv_op_vec[deriv_op,order] \
-                = multiply_vecs(deriv_op_vec[deriv_op,order],{append_op:1})
+                = multiply_vecs(prepend_op,deriv_op_vec[deriv_op,order])
+
+    if append_op is not None:
+        if type(append_op) is not dict:
+            append_op = {append_op:1}
+        for deriv_op, order in itertools.product(deriv_ops, range(order_cap)):
+            deriv_op_vec[deriv_op,order] \
+                = multiply_vecs(deriv_op_vec[deriv_op,order],append_op)
 
     deriv_vals = {} # deriv_vals[op][kk] = (1/kk!) < [ (d/dt)^kk op ] * append_op >_0
     init_ln_vals = {} # initial values of relevant operators
@@ -616,9 +625,10 @@ def compute_deriv_vals(order_cap, spin_num, initial_state, h_zxy,
 # compute correlators from evolution under a general Hamiltonian with decoherence
 def compute_correlators(chi_times, order_cap, spin_num, initial_state, h_vec,
                         dec_rates = [], dec_mat = None, correlator_ops = squeezing_ops,
-                        append_op = None, mu = 1):
+                        prepend_op = None, append_op = None, mu = 1):
     deriv_vals = compute_deriv_vals(order_cap, spin_num, initial_state, h_vec,
-                            dec_rates, dec_mat, correlator_ops, append_op, mu)
+                                    dec_rates, dec_mat, correlator_ops,
+                                    prepend_op, append_op, mu)
     times_k = np.array([ chi_times**order for order in range(order_cap) ])
     correlators = { op : deriv_vals[op] @ times_k for op in correlator_ops }
 
