@@ -466,6 +466,7 @@ def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
 # convert decoherence rates and transformation matrix to decoherence vectors
 def get_dec_vecs(dec_rates, dec_mat):
     if dec_rates == []: return []
+    if dec_mat is None: dec_mat = np.eye(3)
     dec_vecs = []
     for jj in range(3):
         dec_vec_g = dec_mat[:,jj] * np.sqrt(dec_rates[0][jj])
@@ -526,7 +527,6 @@ def get_deriv_op_vec(order_cap, spin_num, initial_state, h_zxy,
                      dec_rates = [], dec_mat = None, deriv_ops = squeezing_ops,
                      append_op = None, mu = 1):
     h_vec = convert_zxy_vec(h_zxy, mu)
-    if dec_mat is None: dec_mat = np.eye(3)
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
     if initial_state == "-Z":
