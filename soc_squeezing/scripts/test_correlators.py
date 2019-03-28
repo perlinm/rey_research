@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import itertools, scipy
-from correlator_methods import compute_correlators, invert_vals
+from correlator_methods import compute_correlators, invert_vals, vec_zxy_to_pzm
 
 from random import random, seed
 seed(0)
@@ -151,7 +151,8 @@ for op in correlators_exact.keys():
 # compute correlators using taylor expansion method and compare
 correlators = {}
 for nu in [ +1, -1 ]:
-    correlators[nu] = compute_correlators(chi_times, order_cap, N, init_state, h_rand,
+    h_rand_pzm = vec_zxy_to_pzm(h_rand, nu)
+    correlators[nu] = compute_correlators(chi_times, order_cap, N, init_state, h_rand_pzm,
                                           dec_rates, dec_mat, mu = nu)
     if mu == -1: correlators[nu] = invert_vals(correlators[nu])
 

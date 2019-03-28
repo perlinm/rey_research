@@ -6,6 +6,8 @@ import numpy as np
 from time import time as system_time
 
 from dicke_methods import coherent_spin_state
+from correlator_methods import compute_deriv_vals, dec_mat_drive, \
+    mat_zxy_to_pzm, vec_zxy_to_pzm
 
 start_time = system_time()
 
@@ -37,18 +39,9 @@ drive_mod_index_xy_2 = 2.2213461342426544 # for TAT protocol about (x,y)
 
 spin_num = lattice_size**lattice_dim
 
-if rational_correlators:
-    from correlator_methods_rat import compute_deriv_vals, dec_mat_drive, convert_zxy_mat
-    from fractions import Fraction as frac
-    h_TAT = { (0,2,0) : +frac(1,3),
-              (0,0,2) : -frac(1,3) }
-    h_TNT = { (0,2,0) : 1,
-              (1,0,0) : -frac(spin_num,2) }
-else:
-    from correlator_methods import compute_deriv_vals, dec_mat_drive, convert_zxy_mat
-    h_TAT = { (0,2,0) : +1/3,
+h_TAT_zxy = { (0,2,0) : +1/3,
               (0,0,2) : -1/3 }
-    h_TNT = { (0,2,0) : 1,
+h_TNT_zxy = { (0,2,0) : 1,
               (1,0,0) : -spin_num/2 }
 
 def get_val_1D(depth, file_name):
@@ -99,14 +92,15 @@ init_state = "-Z"
 basis_change_zxy = np.array([ [ 0, -1, 0 ],
                               [ 1,  0, 0 ],
                               [ 0,  0, 1 ]])
-basis_change = convert_zxy_mat(basis_change_zxy)
+basis_change = mat_zxy_to_pzm(basis_change_zxy)
 
 if method == TNT:
-    h_vec = h_TNT
+    h_vec_zxy = h_TNT_zxy
     dec_mat = basis_change
 else: # method == TAT
-    h_vec = h_TAT
+    h_vec_zxy = h_TAT_zxy
     dec_mat = dec_mat_drive(scipy.special.jv(0,drive_mod_index_zy)) @ basis_change
+h_vec = vec_zxy_to_pzm(h_vec_zxy)
 
 header = f"# lattice_dim: {lattice_dim}\n"
 header += f"# confining depth (E_R): {confining_depth}\n"

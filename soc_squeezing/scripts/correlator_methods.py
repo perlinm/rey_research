@@ -239,26 +239,34 @@ def multiply_vecs(vec_left, vec_right, prefactor = 1):
 # decoherence transformation matrix from a periodic drive; here A = J_0(\beta), where:
 #   J_0 is the zero-order bessel function of the first kind
 #   \beta is the modulation index
-def dec_mat_drive(A):
+def dec_mat_drive(A, mu = 1): # in (mu,z,bmu) format
     const = np.array([[ 1, 0, 1 ],
                       [ 0, 0, 0 ],
                       [ 1, 0, 1 ]]) * 1/2
-    var = np.array([[  1, 0, -1 ],
-                    [  0, 2,  0 ],
-                    [ -1, 0,  1 ]]) * 1/2
+    var = np.array([[  mu, 0, -mu ],
+                    [   0, 2,   0 ],
+                    [ -mu, 0,  mu ]]) * 1/2
     return const + A * var
 
-# convert decoherence transformation matrix from (z,x,y) format to (mu,z,bmu) format
-def convert_zxy_mat(mat_zxy, mu = 1):
-    pzm_to_zxy = np.array([ [      0, 1,      0 ],
-                            [      1, 0,      1 ],
-                            [ +mu*1j, 0, -mu*1j ] ])
+# convert 3D vectors between (z,x,y) and (mu,z,bmu) formats
+def pzm_to_zxy_mat(mu = 1):
+    return np.array([ [      0, 1,      0 ],
+                      [      1, 0,      1 ],
+                      [ +mu*1j, 0, -mu*1j ] ])
+
+def mat_zxy_to_pzm(mat_zxy, mu = 1):
+    pzm_to_zxy = pzm_to_zxy_mat(mu)
     zxy_to_pzm = np.linalg.inv(pzm_to_zxy)
     return zxy_to_pzm @ mat_zxy @ pzm_to_zxy
 
-# convert vector from (z,x,y) format to (mu,z,bmu) format
-def convert_zxy_vec(vec_zxy, mu = 1):
-    vec = {}
+def mat_pzm_to_zxy(mat_pzm, mu = 1):
+    pzm_to_zxy = pzm_to_zxy_mat(mu)
+    zxy_to_pzm = np.linalg.inv(pzm_to_zxy)
+    return pzm_to_zxy @ mat_pzm @ zxy_to_pzm
+
+# convert operator vectors between (z,x,y) and (mu,z,bmu) formats
+def vec_zxy_to_pzm(vec_zxy, mu = 1):
+    vec_pzm = {}
     # define vectors for (2 * Sx) and (i * 2 * Sy)
     Sx_2 = { (1,0,0) : 1,
              (0,0,1) : 1 }
@@ -271,10 +279,15 @@ def convert_zxy_vec(vec_zxy, mu = 1):
         lmn_vec = { (0,ll,0) : 1 }
         for jj in range(mm): lmn_vec = multiply_vecs(lmn_vec, Sx_2)
         for kk in range(nn): lmn_vec = multiply_vecs(lmn_vec, Sy_i2)
-        add_left(vec, lmn_vec, lmn_fac)
-    if np.array([ np.imag(val) == 0 for val in vec.values() ]).all():
-        vec = { op : np.real(val) for op, val in vec.items() }
-    return clean(vec)
+        add_left(vec_pzm, lmn_vec, lmn_fac)
+    if np.array([ np.imag(val) == 0 for val in vec_pzm.values() ]).all():
+        vec_pzm = { op : np.real(val) for op, val in vec_pzm.items() }
+    return clean(vec_pzm)
+
+# def vec_pzm_to_zxy(vec_pzm, mu = 1):
+    # vec_zxy = {}
+
+    # return clean(vec_zxy)
 
 # given correlators of the form < S_\mu^ll (\mu S_z)^mm S_\bmu^nn >,
 #   convert them into correlators of the form < S_\bmu^ll (\bmu S_z)^mm S_\mu^nn >
@@ -516,17 +529,16 @@ def op_image(op, h_vec, spin_num, dec_vecs, mu):
 # collective-spin correlators
 ##########################################################################################
 
-# list of operators necessary for computing squeezing with (\mu,\z,\nu) exponents
+# list of operators necessary to compute squeezing, specified by (\mu,\z,\nu) exponents
 squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 
-# compute (suppresed) derivatives of operators,
+# compute (factorially suppresed) derivatives of operators,
 # returning an operator vector for each derivative order:
-# deriv_op_vec[mm,kk] = (1/kk!) (d/dt)^kk S_mm
-#                     = (1/kk!) \sum_nn T^kk_{mm,nn} S_nn
-def get_deriv_op_vec(order_cap, spin_num, initial_state, h_zxy,
+# deriv_op_vec[mm,kk] = (d/dt)^kk S_mm / kk!
+#                     = \sum_nn T^kk_{mm,nn} S_nn / kk!
+def get_deriv_op_vec(order_cap, spin_num, initial_state, h_vec,
                      dec_rates = [], dec_mat = None, deriv_ops = squeezing_ops,
                      append_op = None, mu = 1):
-    h_vec = convert_zxy_vec(h_zxy, mu)
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
     if initial_state == "-Z":
@@ -579,14 +591,14 @@ def get_deriv_op_vec(order_cap, spin_num, initial_state, h_zxy,
 
     return deriv_op_vec
 
-# compute (suppresed) derivatives of operators,
+# compute (factorially suppresed) derivatives of operators,
 # returning a value for each order:
-# deriv_vals[op][kk] = (1/kk!) < [ (d/dt)^kk op ] * append_op >_0
-def compute_deriv_vals(order_cap, spin_num, initial_state, h_zxy,
+# deriv_vals[op][kk] = < prepend_zxy * [ (d/dt)^kk op ] * append_zxy >_0 / kk!
+def compute_deriv_vals(order_cap, spin_num, initial_state, h_vec,
                        dec_rates = [], dec_mat = None, deriv_ops = squeezing_ops,
                        prepend_op = None, append_op = None, mu = 1):
     init_val_sign, init_ln_val = init_ln_val_functions(spin_num, initial_state, mu)
-    deriv_op_vec = get_deriv_op_vec(order_cap, spin_num, initial_state, h_zxy,
+    deriv_op_vec = get_deriv_op_vec(order_cap, spin_num, initial_state, h_vec,
                                     dec_rates, dec_mat, deriv_ops, append_op, mu)
 
     if prepend_op is not None:
@@ -603,7 +615,7 @@ def compute_deriv_vals(order_cap, spin_num, initial_state, h_zxy,
             deriv_op_vec[deriv_op,order] \
                 = multiply_vecs(deriv_op_vec[deriv_op,order],append_op)
 
-    deriv_vals = {} # deriv_vals[op][kk] = (1/kk!) < [ (d/dt)^kk op ] * append_op >_0
+    deriv_vals = {} # deriv_vals[op][kk]
     init_ln_vals = {} # initial values of relevant operators
     for deriv_op in deriv_ops:
         deriv_vals[deriv_op] = np.zeros(order_cap, dtype = complex)
@@ -635,8 +647,8 @@ def compute_correlators(chi_times, order_cap, spin_num, initial_state, h_vec,
     if mu == 1:
         return correlators
     else:
-        # we computed correlators < S_-^ll (-S_z)^mm S_+^nn >,
-        #   so we need to invert them into correlators < S_+^ll S_z^mm S_-^nn >
+        # we computed correlators of the form < S_-^ll (-S_z)^mm S_+^nn >,
+        #   so we need to invert them into correlators of the form < S_+^ll S_z^mm S_-^nn >
         return invert_vals(correlators)
 
 # exact correlators for OAT with decoherence; derivations in foss-feig2013nonequilibrium

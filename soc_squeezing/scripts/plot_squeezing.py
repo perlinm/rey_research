@@ -8,7 +8,7 @@ from scipy.integrate import solve_ivp
 
 from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state
 from squeezing_methods import spin_squeezing, squeezing_from_correlators, squeezing_OAT
-from correlator_methods import compute_correlators, convert_zxy_mat
+from correlator_methods import compute_correlators, mat_zxy_to_pzm, vec_zxy_to_pzm
 from jump_methods import correlators_from_trajectories
 
 np.set_printoptions(linewidth = 200)
@@ -34,7 +34,7 @@ N = int(10**log10_N) # number of spins
 order_cap = 35 # order limit for short-time correlator expansion
 trajectories = 100 # number of trajectories to use in quantum jump simulations
 recompute_exact = False
-recompute_trunc = False
+recompute_trunc = True
 
 time_steps = 100 # time steps in plot
 ivp_tolerance = 1e-10 # relative error tolerance in numerical integrator
@@ -54,12 +54,14 @@ methods = [ OAT, TAT, TNT ]
 
 # construct Hamiltonians in (z,x,y) format
 init_state = "-Z"
-h_OAT = { (0,2,0) : 1 }
-h_TAT = { (0,2,0) : +1/3,
-          (0,0,2) : -1/3 }
-h_TNT = { (0,2,0) : 1,
-          (1,0,0) : -N/2 }
-h_vec = { OAT : h_OAT, TAT : h_TAT, TNT : h_TNT }
+h_vec = {}
+h_vec[OAT] = { (0,2,0) : 1 }
+h_vec[TAT] = { (0,2,0) : +1/3,
+               (0,0,2) : -1/3 }
+h_vec[TNT] = { (0,2,0) : 1,
+               (1,0,0) : -N/2 }
+for method, vec in h_vec.items():
+    h_vec[method] = vec_zxy_to_pzm(vec)
 
 sqz_header = ""
 sqz_header += r"# first column: time in units of the OAT stregth \chi" + "\n"
@@ -148,7 +150,7 @@ if dec_rates[1] != (0,0,0):
 basis_change_zxy = np.array([ [ 0, -1, 0 ],
                               [ 1,  0, 0 ],
                               [ 0,  0, 1 ]])
-dec_mat = convert_zxy_mat(basis_change_zxy)
+dec_mat = mat_zxy_to_pzm(basis_change_zxy)
 
 init_state_vec = coherent_spin_state(init_state, N)
 def jump_args(hamiltonian):

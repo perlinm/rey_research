@@ -4,7 +4,7 @@ import sys
 import numpy as np
 
 from dicke_methods import coherent_spin_state
-from correlator_methods import compute_correlators, convert_zxy_mat, convert_zxy
+from correlator_methods import mat_zxy_to_pzm, vec_zxy_to_pzm
 from jump_methods import correlators_from_trajectories
 
 assert(len(sys.argv[1:]) in [ 2, 3 ])
@@ -58,16 +58,18 @@ if len(sys.argv[1:]) == 3:
 dec_rates = [ (1,1,1), (0,0,0) ]
 
 init_state = "-Z"
-h_TAT = { (0,2,0) : +1/3,
-          (0,0,2) : -1/3 }
-h_TNT = { (0,2,0) : 1,
-          (1,0,0) : -N/2 }
-h_vec = { TAT : h_TAT, TNT : h_TNT }
+h_vec = {}
+h_vec[TAT] = { (0,2,0) : +1/3,
+               (0,0,2) : -1/3 }
+h_vec[TNT] = { (0,2,0) : 1,
+               (1,0,0) : -N/2 }
+for method, vec in h_vec.items():
+    h_vec[method] = vec_zxy_to_pzm(vec)
 
 dec_mat_zxy = np.array([ [ 0, -1, 0 ],
                          [ 1,  0, 0 ],
                          [ 0,  0, 1 ]])
-dec_mat = convert_zxy_mat(dec_mat_zxy)
+dec_mat = mat_zxy_to_pzm(dec_mat_zxy)
 
 max_time = max_tau * N**(-2/3)
 times = np.linspace(0, max_time, time_steps)

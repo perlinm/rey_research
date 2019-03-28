@@ -10,7 +10,7 @@ import scipy.interpolate as interpolate
 from scipy.integrate import solve_ivp
 
 from dicke_methods import spin_op_z_dicke, spin_op_m_dicke
-from correlator_methods import get_dec_vecs, convert_zxy_vec, squeezing_ops
+from correlator_methods import get_dec_vecs, vec_zxy_to_pzm, squeezing_ops
 
 
 # squared norm of vector
@@ -140,7 +140,6 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
         from time import time as current_time
 
     max_time = chi_times[-1]
-    h_pzm = convert_zxy_vec(h_vec)
     if dec_mat is None: dec_mat = np.eye(3)
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
     for dec_vec in dec_vecs:
@@ -149,7 +148,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
             exit()
     dec_vecs = [ vecs[0] for vecs in dec_vecs ]
 
-    all_ops = set(squeezing_ops).union(set(h_pzm.keys())) # all operators we care about
+    all_ops = set(squeezing_ops).union(set(h_vec.keys())) # all operators we care about
 
     correlator_mat_shape = (trajectories,len(squeezing_ops),chi_times.size)
     correlator_mat = np.zeros(correlator_mat_shape, dtype = complex)
@@ -164,7 +163,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
         J = spin_num/2
         state = initial_state
         op_mats = { op : op_mat(J, op) for op in all_ops }
-        H_eff = build_H_eff(spin_num, J, op_mats, h_pzm, dec_vecs)
+        H_eff = build_H_eff(spin_num, J, op_mats, h_vec, dec_vecs)
 
         time = 0
         jumps = 0
@@ -271,7 +270,7 @@ def correlators_from_trajectories(spin_num, trajectories, chi_times, initial_sta
 
             # transform state according to jump, and rebuild Hamiltonian if necessary
             state = jump_state(state, d_J, dec_op, P_J_mat)
-            if d_J != 0: H_eff = build_H_eff(spin_num, J, op_mats, h_pzm, dec_vecs)
+            if d_J != 0: H_eff = build_H_eff(spin_num, J, op_mats, h_vec, dec_vecs)
 
     # average over all trajectories
     correlators = { sqz_op : correlator_mat[:,op_idx,:].mean(0)
