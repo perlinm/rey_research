@@ -241,12 +241,12 @@ operators $J\in\J$.  Decoherence via uncorrelated decay of individual
 spins at a rate $\gamma_-$, for example, would be described by the set
 of jump operators $\J_-=\set{s_-^{(j)}:j=1,2,\cdots,N}$ with
 $\gamma_{\J_-}=\gamma_-$.  The commutator in Eq.~\eqref{eq:time_deriv}
-can be determined from the structure constants $f_{\v\ell\v m\v n}$ of
-the general product
-$\S_{\v\ell}\S_{\v m}=\sum_{\v n}f_{\v\ell\v m\v n}\S_{\v n}$ worked
-out in Appendices \ref{sec:identities}--\ref{sec:prod_general}, while
-the effects of decoherence from jump operators (i.e.~elements of $\J$)
-of the form $\gamma^{(j)}=\sum_n\gamma_ns_n^{(j)}$ and
+can be computed by expanding the product
+$\S_{\v\ell}\S_{\v m}=\sum_{\v n}f_{\v\ell\v m\v n}\S_{\v n}$ with
+structure constants $f_{\v\ell\v m\v n}$ that are worked out in
+Appendices \ref{sec:identities}--\ref{sec:prod_general}, and the
+effects of decoherence from jump operators (i.e.~elements of $\J$) of
+the form $\gamma^{(j)}=\sum_n\gamma_ns_n^{(j)}$ and
 $\Gamma=\sum_n\Gamma_nS_n$ are worked out in Appendices
 \ref{sec:sandwich_single}--\ref{sec:decoherence_collective}.  We
 consider these calculations to be the main technical contributions of
@@ -265,9 +265,9 @@ computational resources than are available, meaning we must somehow
 truncate our equations of motion.  The simplest truncation strategy
 would be to take
 \begin{align}
-  \f{d}{dt} \O
+  \f{d}{dt} \O\p{t}
   \to \sum_{w\p{\v m}<W} \S_{\v m}
-  \sum_{\v n} T_{\v m\v n} \O_{\v n}
+  \sum_{\v n} T_{\v m\v n} \O_{\v n}\p{t}
   \label{eq:weight_truncation}
 \end{align}
 for some weight measure $w$, e.g.~$w\p{\v m}=\abs{\v m}$, and cutoff
@@ -301,13 +301,12 @@ the time $t=0$ to write
 \begin{align}
   \O\p{t}
   = e^{t T} \O\p{0}
-  % = \sum_{k\ge0} \f{t^k}{k!} T^k \O\p{0}
   = \sum_{k\ge0} \f{t^k}{k!}
   \sum_{\v m, \v n} \S_{\v m} T^k_{\v m\v n} \O_{\v n}\p{0},
   \label{eq:time_series}
 \end{align}
 where the matrix elements $T^k_{\v m\v n}$ of the $k$-th time
-derivative are
+derivative operator $T^k$ are
 \begin{align}
   T^0_{\v m\v n} &\equiv \delta_{\v m\v n}, \\
   T^1_{\v m\v n} &\equiv T_{\v m\v n}, \\
@@ -514,13 +513,57 @@ structure constants calculated in this work.
 \end{figure}
 
 
-\section{Two-time correlation functions}
+\section{Two-time correlation functions and non-equilibrium linear
+  response}
 \label{sec:TTC}
 
 As a final example, we consider the calculation of two-time
-correlation functions in collective spin systems.
+correlation functions in a collective spin system.  These correlation
+functions allow us to extract the short-time linear response of
+Heisenberg operators to small perturbations of a collective spin
+system's Hamiltonian.  Consider a target Hamiltonian $H$ perturbed by
+an operator $V$, such that the net Hamiltonian is $\widetilde H=H+V$.
+We denote the generator of Heisenberg time evolution under the
+perturbed (unperturbed) Hamiltonian by $\widetilde T$ ($T$).  These
+time evolution operators are related by
+\begin{align}
+  \widetilde T = T + \hat V
+\end{align}
+where $\hat V$ is a superoperator whose action on operators $\O$ is
+defined by
+\begin{align}
+  \hat V \O \equiv i\sp{V,\O}_-.
+\end{align}
+By Taylor expanding through quadratic order in the time $t$, we can
+find that for sufficiently small times
+\begin{align}
+  e^{t\hat V} e^{t T}
+  \approx e^{t\widetilde T} - \f12 t^2 \sp{T,\hat V}_-.
+\end{align}
+To leading order in $\hat V$ and quadratic order in $t$, we therefore
+have
+\begin{align}
+  e^{t\widetilde T} - e^{tT}
+  \approx t\hat V e^{tT} + \f12 t^2 \sp{T,\hat V}_-,
+\end{align}
+where
+\begin{align}
+  \f12 t^2 \sp{T,\hat V}_- \approx \f12 t \sp{e^{tT}, \hat V}_-,
+\end{align}
+which implies
+\begin{align}
+  e^{t\widetilde T} - e^{tT} \approx \f12 t \sp{e^{tT},\hat V}_+.
+\end{align}
+Defining the perturbed and unperturbed Heisenberg operators
+$\widetilde\O\p{t}\equiv e^{t\widetilde T}\O$ and
+$\O\p{t}\equiv e^{tT}\O$, we thus find
+\begin{align}
+  \widetilde\O\p{t} - \O\p{t}
+ \approx \f12 i t \p{\sp{V,\O\p{t}}_- + \sp{V,\O}_-\p{t}}.
+\end{align}
 
 
+\newpage
 
 % \section{Out-of-time-ordered correlators}
 % \label{sec:OTOC}
@@ -1608,235 +1651,235 @@ and compute
 \end{align}
 
 
-\section{Changing operator bases, and a general product for algebras
-  of permutationally-symmetric operators}
-\label{sec:new_basis}
+% \section{Changing operator bases, and a general product for algebras
+%   of permutationally-symmetric operators}
+% \label{sec:new_basis}
 
-For a collective spin system composed of many small spins, the
-operators $\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ contain
-$\abs{\v m}$-body operators (for $\abs{\v m}\equiv\sum_\mu m_\mu$),
-but also carry lots of ``baggage'' in the form of $k$-body operators
-with $k<\abs{\v m}$.  To cut down on this overhead, we try to change
-our basis for collective spin operators from $\S_{\v m}$ to the
-purely-$\abs{\v m}$-body operators
-\begin{align}
-  \tilde\S_{\v m} \equiv \sum_{\p{\v j;\v m}} P_{\v j},
-  &&
-  P_{\v j} \equiv \prod_{\mu,a} s_\mu^{\p{j^\mu_a}},
-  \label{eq:S_P}
-\end{align}
-where $\v m \equiv \p{m_+,m_\z,m_-}\in\mathbb{N}_0^3$ with $m_\mu$ the
-number of $s_\mu$ operators in each term of $\S_{\v m}$; $\v j$ is an
-ordered list of indices for the spins addressed by $P_{\v j}$; and the
-sum over $\p{\v j;\v m}$ denotes a sum over all possible $\v j$ for
-which all indices in $\v j$ are distinct and
-$\abs{\set{j^\mu_a}} = m_\mu$, such that $j^\mu_a$ indexes the $a$-th
-spin addressed by an $s_\mu$ operator in $P_{\v j}$.
+% For a collective spin system composed of many small spins, the
+% operators $\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ contain
+% $\abs{\v m}$-body operators (for $\abs{\v m}\equiv\sum_\mu m_\mu$),
+% but also carry lots of ``baggage'' in the form of $k$-body operators
+% with $k<\abs{\v m}$.  To cut down on this overhead, we try to change
+% our basis for collective spin operators from $\S_{\v m}$ to the
+% purely-$\abs{\v m}$-body operators
+% \begin{align}
+%   \tilde\S_{\v m} \equiv \sum_{\p{\v j;\v m}} P_{\v j},
+%   &&
+%   P_{\v j} \equiv \prod_{\mu,a} s_\mu^{\p{j^\mu_a}},
+%   \label{eq:S_P}
+% \end{align}
+% where $\v m \equiv \p{m_+,m_\z,m_-}\in\mathbb{N}_0^3$ with $m_\mu$ the
+% number of $s_\mu$ operators in each term of $\S_{\v m}$; $\v j$ is an
+% ordered list of indices for the spins addressed by $P_{\v j}$; and the
+% sum over $\p{\v j;\v m}$ denotes a sum over all possible $\v j$ for
+% which all indices in $\v j$ are distinct and
+% $\abs{\set{j^\mu_a}} = m_\mu$, such that $j^\mu_a$ indexes the $a$-th
+% spin addressed by an $s_\mu$ operator in $P_{\v j}$.
 
-In order to make use of the operators $\tilde S_{\v m}$, we will need
-to compute products of the form $\tilde S_{\v m} \tilde S_{\v n}$.  We
-therefore expand such a product into terms that have exactly $s$ spins
-addressed by both operators:
-\begin{align}
-  \tilde\S_{\v m} \tilde\S_{\v n}
-  = \sum_{s\ge0} \sum_{\p{\v j,\v k;\v m,\v n,s}} P_{\v j} P_{\v k},
-  &&
-  \sum_{\p{\v j,\v k;\v m,\v n,s}} X \equiv
-  \sum_{\substack{\p{\v j;\v m},\p{\v k;\v n} \\
-      \abs{\set{j_\alpha^\mu}\cap\set{k_\beta^\nu}}=s}} X.
-  \label{eq:SS_PP}
-\end{align}
-Collecting terms in which $r_{\mu\nu}$ of the $s_\mu$ operators in
-$P_{\v j}$ address the same spin as an $s_\nu$ operator in $P_{\v k}$,
-we have
-\begin{align}
-  \tilde\S_{\v m} \tilde\S_{\v n}
-  = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} f_{\v m\v n\v r}
-  \sum_{\p{\v J,\v K;\v m,\v n,\v r}} P_{\v J} Q_{\v K},
-  \label{eq:SS_PQ}
-\end{align}
-where the sum over $\p{\v r;\v m,\v n,s}$ denotes a sum over all
-values of $\v r$ with the restrictions
-\begin{align}
-  r_{\mu\nu} \ge 0 ~\forall~ \mu,\nu,
-  &&
-  \sum_\nu r_{\mu\nu} \le m_\mu,
-  &&
-  \sum_\mu r_{\mu\nu} \le n_\nu,
-  &&
-  \sum_{\mu,\nu} r_{\mu\nu} = s;
-  \label{eq:rest_r}
-\end{align}
-the factor $f_{\v m\v n\v r}$ counts the number of ways to pair
-operators in $P_{\v j}$ and $P_{\v k}$ according to $\v r$, or
-\begin{align}
-  f_{\v m\v n\v r}
-  &\equiv \sp{\prod_{\mu,\nu}
-    { m_\mu - \sum_{\rho<\nu} r_{\mu\rho} \choose r_{\mu\nu} }
-    { n_\mu - \sum_{\rho<\nu} r_{\rho\mu} \choose r_{\nu\mu} }}
-  \sp{\prod_{\mu,\nu} r_{\mu\nu}!} \\
-  &= \sp{\prod_\mu \f{m_\mu!}{\p{m_\mu-\sum_\rho r_{\mu\rho}}!}
-    \f{n_\mu!}{\p{n_\mu-\sum_\rho r_{\rho\mu}}!}}
-  \sp{\prod_{\mu,\nu} r_{\mu\nu}!}^{-1};
-\end{align}
-$\v J$ and $\v K$ are respectively ordered lists of indices for spins
-addressed by one and two single-spin operators in a term of the
-product $P_{\v j} P_{\v k}$ with fixed $\v r$; the sum over
-$\p{\v J,\v K;\v m,\v n,\v r}$ denotes a sum over all values of
-$\v J,\v K$ with the restrictions
-\begin{align}
-  \abs{\set{J_a^\mu}}
-  = m_\mu + n_\mu - \sum_\rho\p{r_{\mu\rho}+r_{\rho\mu}},
-  &&
-  \abs{\set{K^{\mu\nu}_a}} = r_{\mu\nu},
-  &&
-  \set{J_a^\lambda} \cap \set{K_b^{\mu\nu}} = \varnothing,
-\end{align}
-with $\varnothing$ denoting the empty set; and finally, similarly to
-$P_{\v j}$ in \eqref{eq:S_P} we define
-\begin{align}
-  Q_{\v K} \equiv \prod_{\mu,\nu,a}
-  s_\mu^{(K^{\mu\nu}_a)} s_\nu^{(K^{\mu\nu}_a)}.
-\end{align}
-As the sum in \eqref{eq:SS_PQ} is invariant under permutation of the
-indices in $\v K$, we can safely neglect keeping track of these
-indices and simply write
-\begin{align}
-  Q_{\v K}
-  = \prod_{\mu,\nu} \prod_{a=1}^{r_{\mu\nu}}
-  s_\mu^{(K^{\mu\nu}_a)} s_\nu^{(K^{\mu\nu}_a)}
-  \simeq \bigotimes_{\mu,\nu} \bigotimes_{a=1}^{r_{\mu\nu}} s_\mu s_\nu
-  = \bigotimes_{\mu,\nu} \bigotimes_{a=1}^{r_{\mu\nu}}
-  \sum_\rho \eta_{\mu\nu\rho} s_\rho,
-  \label{eq:Q_K_eta}
-\end{align}
-where $\simeq$ denotes equality up to a re-indexing of spins and
-additional tensor factors of the single-spin identity operator
-(i.e.~$\1$); we have introduced explicit dependence on
-$r_{\mu\nu}=\abs{\set{K^{\mu\nu}_a}}$ for brevity; and
-$\eta_{\mu\nu\rho}$ is a structure constant defined by
-$s_\mu s_\nu=\sum_\rho\eta_{\mu\nu\rho}s_\rho$.  Unlike the sums over
-$\mu,\nu$ in most of the work above, the sum over $\rho$ here includes
-an index for the identity operator $s_0\equiv\1$.  Distributing the
-product of sums into a sum of products gives us
-\begin{align}
-  Q_{\v K}
-  \simeq \sum_{\v\rho} \bigotimes_{\mu,\nu,a}
-  \eta_{\mu\nu\rho^{\mu\nu}_a} s_{\rho^{\mu\nu}_a}
-  = \sum_{\v\rho} \sp{\prod_{\mu,\nu,a}\eta_{\mu\nu\rho^{\mu\nu}_a}}
-  \bigotimes_{\mu,\nu,a} s_{\rho^{\mu\nu}_a},
-  \label{eq:Q_K_rho}
-\end{align}
-where implicitly $\abs{\set{\rho^{\mu\nu}_a}}=r_{\mu\nu}$, as
-$\p{\mu,\nu,a}$ essentially index a factor in \eqref{eq:Q_K_eta} and
-$\rho^{\mu\nu}_a$ indexes one of the terms in that factor.  Letting
-$\tilde\rho^{\mu\nu}_\kappa$ denote the number of elements in the
-index list
-$\p{\rho^{\mu\nu}_1,\rho^{\mu\nu}_2,\cdots,\rho^{\mu\nu}_{r_{\mu\nu}}}$
-that are equal to $\kappa$, we observe that two terms in
-\eqref{eq:Q_K_rho} with, say, $\v\rho=\v\rho_1$ and $\v\rho=\v\rho_2$
-are equal up to a permutation of indices if
-$\tilde{\v\rho}_1=\tilde{\v\rho}_2$.  The degeneracy (under
-permutation) of terms in \eqref{eq:Q_K_rho}, i.e.~the number of
-$\v\rho$ that are consistent with $\tilde{\v\rho}$, is
-\begin{align}
-  g_{\tilde{\v\rho}}
-  \equiv \prod_{\mu,\nu,\kappa}
-  { r_{\mu\nu} - \sum_{\lambda<\kappa} \tilde\rho^{\mu\nu}_\lambda
-    \choose \tilde\rho^{\mu\nu}_\kappa }
-  = \sp{\prod_{\mu,\nu} r_{\mu\nu}!}
-  \sp{\prod_{\mu,\nu,\kappa} \tilde\rho^{\mu\nu}_\kappa!}^{-1}.
-\end{align}
-Defining additionally
-\begin{align}
-  \v\eta^{\tilde{\v\rho}}
-  \equiv \prod_{\mu,\nu,\kappa}
-  \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa},
-  \label{eq:eta_rho}
-\end{align}
-we can collect like factors and group together equivalent terms in
-\eqref{eq:Q_K_rho} to write
-\begin{align}
-  Q_{\v K}
-  \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta^{\tilde{\v\rho}}
-  \bigotimes_{\kappa}
-  s_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa}
-  \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta^{\tilde{\v\rho}}
-  \1^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_0}
-  \otimes \bigotimes_{\kappa\ne0}
-  s_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa},
-  \label{eq:Q_K_rho_simp}
-\end{align}
-where again implicitly
-$\sum_\kappa\tilde\rho^{\mu\nu}_\kappa=r_{\mu\nu}$ for consistency
-with \eqref{eq:Q_K_eta} and \eqref{eq:Q_K_rho}, and we have explicitly
-factored out the identity operators in each term of $Q_{\v K}$.
+% In order to make use of the operators $\tilde S_{\v m}$, we will need
+% to compute products of the form $\tilde S_{\v m} \tilde S_{\v n}$.  We
+% therefore expand such a product into terms that have exactly $s$ spins
+% addressed by both operators:
+% \begin{align}
+%   \tilde\S_{\v m} \tilde\S_{\v n}
+%   = \sum_{s\ge0} \sum_{\p{\v j,\v k;\v m,\v n,s}} P_{\v j} P_{\v k},
+%   &&
+%   \sum_{\p{\v j,\v k;\v m,\v n,s}} X \equiv
+%   \sum_{\substack{\p{\v j;\v m},\p{\v k;\v n} \\
+%       \abs{\set{j_\alpha^\mu}\cap\set{k_\beta^\nu}}=s}} X.
+%   \label{eq:SS_PP}
+% \end{align}
+% Collecting terms in which $r_{\mu\nu}$ of the $s_\mu$ operators in
+% $P_{\v j}$ address the same spin as an $s_\nu$ operator in $P_{\v k}$,
+% we have
+% \begin{align}
+%   \tilde\S_{\v m} \tilde\S_{\v n}
+%   = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} f_{\v m\v n\v r}
+%   \sum_{\p{\v J,\v K;\v m,\v n,\v r}} P_{\v J} Q_{\v K},
+%   \label{eq:SS_PQ}
+% \end{align}
+% where the sum over $\p{\v r;\v m,\v n,s}$ denotes a sum over all
+% values of $\v r$ with the restrictions
+% \begin{align}
+%   r_{\mu\nu} \ge 0 ~\forall~ \mu,\nu,
+%   &&
+%   \sum_\nu r_{\mu\nu} \le m_\mu,
+%   &&
+%   \sum_\mu r_{\mu\nu} \le n_\nu,
+%   &&
+%   \sum_{\mu,\nu} r_{\mu\nu} = s;
+%   \label{eq:rest_r}
+% \end{align}
+% the factor $f_{\v m\v n\v r}$ counts the number of ways to pair
+% operators in $P_{\v j}$ and $P_{\v k}$ according to $\v r$, or
+% \begin{align}
+%   f_{\v m\v n\v r}
+%   &\equiv \sp{\prod_{\mu,\nu}
+%     { m_\mu - \sum_{\rho<\nu} r_{\mu\rho} \choose r_{\mu\nu} }
+%     { n_\mu - \sum_{\rho<\nu} r_{\rho\mu} \choose r_{\nu\mu} }}
+%   \sp{\prod_{\mu,\nu} r_{\mu\nu}!} \\
+%   &= \sp{\prod_\mu \f{m_\mu!}{\p{m_\mu-\sum_\rho r_{\mu\rho}}!}
+%     \f{n_\mu!}{\p{n_\mu-\sum_\rho r_{\rho\mu}}!}}
+%   \sp{\prod_{\mu,\nu} r_{\mu\nu}!}^{-1};
+% \end{align}
+% $\v J$ and $\v K$ are respectively ordered lists of indices for spins
+% addressed by one and two single-spin operators in a term of the
+% product $P_{\v j} P_{\v k}$ with fixed $\v r$; the sum over
+% $\p{\v J,\v K;\v m,\v n,\v r}$ denotes a sum over all values of
+% $\v J,\v K$ with the restrictions
+% \begin{align}
+%   \abs{\set{J_a^\mu}}
+%   = m_\mu + n_\mu - \sum_\rho\p{r_{\mu\rho}+r_{\rho\mu}},
+%   &&
+%   \abs{\set{K^{\mu\nu}_a}} = r_{\mu\nu},
+%   &&
+%   \set{J_a^\lambda} \cap \set{K_b^{\mu\nu}} = \varnothing,
+% \end{align}
+% with $\varnothing$ denoting the empty set; and finally, similarly to
+% $P_{\v j}$ in \eqref{eq:S_P} we define
+% \begin{align}
+%   Q_{\v K} \equiv \prod_{\mu,\nu,a}
+%   s_\mu^{(K^{\mu\nu}_a)} s_\nu^{(K^{\mu\nu}_a)}.
+% \end{align}
+% As the sum in \eqref{eq:SS_PQ} is invariant under permutation of the
+% indices in $\v K$, we can safely neglect keeping track of these
+% indices and simply write
+% \begin{align}
+%   Q_{\v K}
+%   = \prod_{\mu,\nu} \prod_{a=1}^{r_{\mu\nu}}
+%   s_\mu^{(K^{\mu\nu}_a)} s_\nu^{(K^{\mu\nu}_a)}
+%   \simeq \bigotimes_{\mu,\nu} \bigotimes_{a=1}^{r_{\mu\nu}} s_\mu s_\nu
+%   = \bigotimes_{\mu,\nu} \bigotimes_{a=1}^{r_{\mu\nu}}
+%   \sum_\rho \eta_{\mu\nu\rho} s_\rho,
+%   \label{eq:Q_K_eta}
+% \end{align}
+% where $\simeq$ denotes equality up to a re-indexing of spins and
+% additional tensor factors of the single-spin identity operator
+% (i.e.~$\1$); we have introduced explicit dependence on
+% $r_{\mu\nu}=\abs{\set{K^{\mu\nu}_a}}$ for brevity; and
+% $\eta_{\mu\nu\rho}$ is a structure constant defined by
+% $s_\mu s_\nu=\sum_\rho\eta_{\mu\nu\rho}s_\rho$.  Unlike the sums over
+% $\mu,\nu$ in most of the work above, the sum over $\rho$ here includes
+% an index for the identity operator $s_0\equiv\1$.  Distributing the
+% product of sums into a sum of products gives us
+% \begin{align}
+%   Q_{\v K}
+%   \simeq \sum_{\v\rho} \bigotimes_{\mu,\nu,a}
+%   \eta_{\mu\nu\rho^{\mu\nu}_a} s_{\rho^{\mu\nu}_a}
+%   = \sum_{\v\rho} \sp{\prod_{\mu,\nu,a}\eta_{\mu\nu\rho^{\mu\nu}_a}}
+%   \bigotimes_{\mu,\nu,a} s_{\rho^{\mu\nu}_a},
+%   \label{eq:Q_K_rho}
+% \end{align}
+% where implicitly $\abs{\set{\rho^{\mu\nu}_a}}=r_{\mu\nu}$, as
+% $\p{\mu,\nu,a}$ essentially index a factor in \eqref{eq:Q_K_eta} and
+% $\rho^{\mu\nu}_a$ indexes one of the terms in that factor.  Letting
+% $\tilde\rho^{\mu\nu}_\kappa$ denote the number of elements in the
+% index list
+% $\p{\rho^{\mu\nu}_1,\rho^{\mu\nu}_2,\cdots,\rho^{\mu\nu}_{r_{\mu\nu}}}$
+% that are equal to $\kappa$, we observe that two terms in
+% \eqref{eq:Q_K_rho} with, say, $\v\rho=\v\rho_1$ and $\v\rho=\v\rho_2$
+% are equal up to a permutation of indices if
+% $\tilde{\v\rho}_1=\tilde{\v\rho}_2$.  The degeneracy (under
+% permutation) of terms in \eqref{eq:Q_K_rho}, i.e.~the number of
+% $\v\rho$ that are consistent with $\tilde{\v\rho}$, is
+% \begin{align}
+%   g_{\tilde{\v\rho}}
+%   \equiv \prod_{\mu,\nu,\kappa}
+%   { r_{\mu\nu} - \sum_{\lambda<\kappa} \tilde\rho^{\mu\nu}_\lambda
+%     \choose \tilde\rho^{\mu\nu}_\kappa }
+%   = \sp{\prod_{\mu,\nu} r_{\mu\nu}!}
+%   \sp{\prod_{\mu,\nu,\kappa} \tilde\rho^{\mu\nu}_\kappa!}^{-1}.
+% \end{align}
+% Defining additionally
+% \begin{align}
+%   \v\eta^{\tilde{\v\rho}}
+%   \equiv \prod_{\mu,\nu,\kappa}
+%   \p{\eta_{\mu\nu\kappa}}^{\tilde\rho^{\mu\nu}_\kappa},
+%   \label{eq:eta_rho}
+% \end{align}
+% we can collect like factors and group together equivalent terms in
+% \eqref{eq:Q_K_rho} to write
+% \begin{align}
+%   Q_{\v K}
+%   \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta^{\tilde{\v\rho}}
+%   \bigotimes_{\kappa}
+%   s_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa}
+%   \simeq \sum_{\tilde{\v\rho}} g_{\tilde{\v\rho}} \v\eta^{\tilde{\v\rho}}
+%   \1^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_0}
+%   \otimes \bigotimes_{\kappa\ne0}
+%   s_\kappa^{\otimes\sum_{\mu,\nu}\tilde\rho^{\mu\nu}_\kappa},
+%   \label{eq:Q_K_rho_simp}
+% \end{align}
+% where again implicitly
+% $\sum_\kappa\tilde\rho^{\mu\nu}_\kappa=r_{\mu\nu}$ for consistency
+% with \eqref{eq:Q_K_eta} and \eqref{eq:Q_K_rho}, and we have explicitly
+% factored out the identity operators in each term of $Q_{\v K}$.
 
-We have now simplified $Q_{\v K}$ sufficiently to substitute it back
-into \eqref{eq:SS_PQ}, which (removing the tilde from $\tilde{\v\rho}$
-to simplify notation) gives us
-\begin{align}
-  \tilde\S_{\v m} \tilde\S_{\v n}
-  = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} f_{\v m\v n\v r}
-  \sum_{\p{\v\rho;\v r}} g_{\v\rho} \v\eta^{\v\rho}
-  c_{\v\ell_{\v m\v n\v r\v\rho}\v\rho}
-  \tilde\S_{\v\ell_{\v m\v n\v r\v\rho}},
-  \label{eq:SS_simp}
-\end{align}
-where the sum over $\p{\v\rho;\v r}$ denotes a sum over all values of
-$\v\rho$ and with the restrictions
-\begin{align}
-  \abs{\set{\rho^{\mu\nu}_\kappa}} = \abs{\set{s_\kappa}},
-  &&
-  \sum_{\kappa} \rho^{\mu\nu}_\kappa = r_{\mu\nu};
-\end{align}
-the combinatorial factor
-\begin{align}
-  c_{\v\ell\v\rho}
-  \equiv \f{\p{N - \abs{\v\ell}}!}
-  {\p{N - \abs{\v\ell} - \sum_{\mu,\nu}\rho^{\mu\nu}_0}!}
-\end{align}
-accounts for the number of terms that are equivalent up to a
-permutation of indices involving the identity operators in
-\eqref{eq:Q_K_rho_simp}; and the number of $s_\mu$ operators in each
-term of $\tilde\S_{\v\ell_{\v m\v n\v r\v\rho}}$ is
-\begin{align}
-  \ell_{\v m\v n\v r\v\rho;\mu}
-  = m_\mu + n_\mu - \sum_\kappa \p{r_{\mu\kappa}+r_{\kappa\mu}}
-  + \sum_{\alpha,\beta} \rho^{\alpha\beta}_\mu.
-\end{align}
+% We have now simplified $Q_{\v K}$ sufficiently to substitute it back
+% into \eqref{eq:SS_PQ}, which (removing the tilde from $\tilde{\v\rho}$
+% to simplify notation) gives us
+% \begin{align}
+%   \tilde\S_{\v m} \tilde\S_{\v n}
+%   = \sum_{s\ge0} \sum_{\p{\v r;\v m,\v n,s}} f_{\v m\v n\v r}
+%   \sum_{\p{\v\rho;\v r}} g_{\v\rho} \v\eta^{\v\rho}
+%   c_{\v\ell_{\v m\v n\v r\v\rho}\v\rho}
+%   \tilde\S_{\v\ell_{\v m\v n\v r\v\rho}},
+%   \label{eq:SS_simp}
+% \end{align}
+% where the sum over $\p{\v\rho;\v r}$ denotes a sum over all values of
+% $\v\rho$ and with the restrictions
+% \begin{align}
+%   \abs{\set{\rho^{\mu\nu}_\kappa}} = \abs{\set{s_\kappa}},
+%   &&
+%   \sum_{\kappa} \rho^{\mu\nu}_\kappa = r_{\mu\nu};
+% \end{align}
+% the combinatorial factor
+% \begin{align}
+%   c_{\v\ell\v\rho}
+%   \equiv \f{\p{N - \abs{\v\ell}}!}
+%   {\p{N - \abs{\v\ell} - \sum_{\mu,\nu}\rho^{\mu\nu}_0}!}
+% \end{align}
+% accounts for the number of terms that are equivalent up to a
+% permutation of indices involving the identity operators in
+% \eqref{eq:Q_K_rho_simp}; and the number of $s_\mu$ operators in each
+% term of $\tilde\S_{\v\ell_{\v m\v n\v r\v\rho}}$ is
+% \begin{align}
+%   \ell_{\v m\v n\v r\v\rho;\mu}
+%   = m_\mu + n_\mu - \sum_\kappa \p{r_{\mu\kappa}+r_{\kappa\mu}}
+%   + \sum_{\alpha,\beta} \rho^{\alpha\beta}_\mu.
+% \end{align}
 
-The sums in \eqref{eq:SS_simp} generally involve a large number of
-terms; in practice, many of these terms will be equal to zero.  We
-can, however, impose additional restrictions on these sums in such a
-way as to throw out all terms that are zero, and keep only those that
-are not.  Remembering that $s$ counts the number of spins that are
-addressed by both operators $P_{\v j}$ and $P_{\v k}$ in
-\eqref{eq:SS_PP}, the first restriction we can impose comes from
-recognizing that for given $\tilde\S_{\v m},\tilde\S_{\v n}$, the
-overlap $s$ is bounded as
-\begin{align}
-  \max\set{0,\abs{\v m}+\abs{\v n}-N}
-  \le s \le \min\set{N,\abs{\v m}+\abs{\v n}}.
-\end{align}
-In addition, the matrix of structure constants $\eta_{\mu\nu\kappa}$
-may generally contain zeros that we can preemptively avoid with
-restrictions on $\v r$ and $\v\rho$.  Recalling that $r_{\mu\nu}$
-counts the number of operators addressed by
-$s_\mu s_\nu=\sum_\kappa\eta_{\mu\nu\kappa} s_\kappa$, if
-$\eta_{\mu\nu\kappa}=0$ for all $\kappa$, i.e.~$s_\mu s_\nu=0$, then
-any term with $r_{\mu\nu}>0$ will vanish.  Our second restriction on
-the sums in \eqref{eq:SS_simp} is therefore to fix $r_{\mu\nu}=0$ for
-all $\mu,\nu$ with $s_\mu s_\nu=0$.  Finally, we can avoid the
-nullifying effect of zeros from the factor
-$\v\eta^{\v\rho}=\prod_{\mu,\nu,\kappa}
-\p{\eta_{\mu\nu\kappa}}^{\rho^{\mu\nu}_\kappa}$ by fixing
-$\rho^{\mu\nu}_\kappa=0$ for all $\mu,\nu,\kappa$ with
-$\eta_{\mu\nu\kappa}=0$.  These restrictions are sufficient to ensure
-that all individual terms in \eqref{eq:SS_simp} are nonzero, although
-they do not rule out the possibility of several terms canceling out.
+% The sums in \eqref{eq:SS_simp} generally involve a large number of
+% terms; in practice, many of these terms will be equal to zero.  We
+% can, however, impose additional restrictions on these sums in such a
+% way as to throw out all terms that are zero, and keep only those that
+% are not.  Remembering that $s$ counts the number of spins that are
+% addressed by both operators $P_{\v j}$ and $P_{\v k}$ in
+% \eqref{eq:SS_PP}, the first restriction we can impose comes from
+% recognizing that for given $\tilde\S_{\v m},\tilde\S_{\v n}$, the
+% overlap $s$ is bounded as
+% \begin{align}
+%   \max\set{0,\abs{\v m}+\abs{\v n}-N}
+%   \le s \le \min\set{N,\abs{\v m}+\abs{\v n}}.
+% \end{align}
+% In addition, the matrix of structure constants $\eta_{\mu\nu\kappa}$
+% may generally contain zeros that we can preemptively avoid with
+% restrictions on $\v r$ and $\v\rho$.  Recalling that $r_{\mu\nu}$
+% counts the number of operators addressed by
+% $s_\mu s_\nu=\sum_\kappa\eta_{\mu\nu\kappa} s_\kappa$, if
+% $\eta_{\mu\nu\kappa}=0$ for all $\kappa$, i.e.~$s_\mu s_\nu=0$, then
+% any term with $r_{\mu\nu}>0$ will vanish.  Our second restriction on
+% the sums in \eqref{eq:SS_simp} is therefore to fix $r_{\mu\nu}=0$ for
+% all $\mu,\nu$ with $s_\mu s_\nu=0$.  Finally, we can avoid the
+% nullifying effect of zeros from the factor
+% $\v\eta^{\v\rho}=\prod_{\mu,\nu,\kappa}
+% \p{\eta_{\mu\nu\kappa}}^{\rho^{\mu\nu}_\kappa}$ by fixing
+% $\rho^{\mu\nu}_\kappa=0$ for all $\mu,\nu,\kappa$ with
+% $\eta_{\mu\nu\kappa}=0$.  These restrictions are sufficient to ensure
+% that all individual terms in \eqref{eq:SS_simp} are nonzero, although
+% they do not rule out the possibility of several terms canceling out.
 
-TODO: comment on the use of this new basis vs.~the old one.
+% TODO: comment on the use of this new basis vs.~the old one.
 
 
 \bibliography{\jobname}
