@@ -513,53 +513,43 @@ structure constants calculated in this work.
 \end{figure}
 
 
-\section{Two-time correlation functions and non-equilibrium linear
-  response}
-\label{sec:TTC}
+\section{Non-equilibrium linear response and two-time correlation
+  functions}
+\label{sec:NLR}
 
 As a final example, we consider the calculation of two-time
-correlation functions in a collective spin system.  These correlation
-functions allow us to extract the short-time linear response of
-Heisenberg operators to small perturbations of a collective spin
-system's Hamiltonian.  Consider a target Hamiltonian $H$ perturbed by
-an operator $V$, such that the net Hamiltonian is $\widetilde H=H+V$.
-We denote the generator of Heisenberg time evolution under the
-perturbed (unperturbed) Hamiltonian by $\widetilde T$ ($T$).  These
-time evolution operators are related by
+correlation functions, which allow us to extract the short-time linear
+response of Heisenberg operators to perturbations of a Hamiltonian.
+Consider a target Hamiltonian $H$ perturbed by an operator $V$ with
+$\norm{V}\ll\norm{H}$, such that the net Hamiltonian is
+$\widetilde H=H+V$.  We denote the generator of Heisenberg time
+evolution under the perturbed (unperturbed) Hamiltonian by
+$\widetilde T$ ($T$).  These generators are related by
 \begin{align}
-  \widetilde T = T + \hat V
+  \widetilde T = T + i\hat V
 \end{align}
 where $\hat V$ is a superoperator whose action on operators $\O$ is
 defined by
 \begin{align}
-  \hat V \O \equiv i\sp{V,\O}_-.
+  \hat V \O \equiv \sp{V,\O}_-.
 \end{align}
-By Taylor expanding through quadratic order in the time $t$, we can
-find that for sufficiently small times
+Through quadratic order in the time $t$, we can say that
 \begin{align}
-  e^{t\hat V} e^{t T}
-  \approx e^{t\widetilde T} - \f12 t^2 \sp{T,\hat V}_-.
+  e^{t\widetilde T}
+  \approx \f12\sp{e^{tT}, e^{it\hat V}}_+,
 \end{align}
-To leading order in $\hat V$ and quadratic order in $t$, we therefore
-have
+which at first order in the perturbation $\hat V$ implies
 \begin{align}
-  e^{t\widetilde T} - e^{tT}
-  \approx t\hat V e^{tT} + \f12 t^2 \sp{T,\hat V}_-,
-\end{align}
-where
-\begin{align}
-  \f12 t^2 \sp{T,\hat V}_- \approx \f12 t \sp{e^{tT}, \hat V}_-,
-\end{align}
-which implies
-\begin{align}
-  e^{t\widetilde T} - e^{tT} \approx \f12 t \sp{e^{tT},\hat V}_+.
+  e^{t\widetilde T}
+  \approx e^{tT} + \f12 i t \sp{\hat V, e^{t T}}_+.
 \end{align}
 Defining the perturbed and unperturbed Heisenberg operators
 $\widetilde\O\p{t}\equiv e^{t\widetilde T}\O$ and
-$\O\p{t}\equiv e^{tT}\O$, we thus find
+$\O\p{t}\equiv e^{tT}\O$, we thus find that for sufficiently small
+times $t$ and weak perturbations $V$,
 \begin{align}
-  \widetilde\O\p{t} - \O\p{t}
- \approx \f12 i t \p{\sp{V,\O\p{t}}_- + \sp{V,\O}_-\p{t}}.
+  \widetilde\O\p{t}
+  \approx \O\p{t} + \f12 i t \p{\sp{V,\O\p{t}}_- + \sp{V,\O}_-\p{t}}.
 \end{align}
 
 
