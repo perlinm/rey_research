@@ -229,7 +229,7 @@ def multiply_vecs(vec_left, vec_right, prefactor = 1):
         for term_right, val_right in vec_right.items():
             fac = val_left * val_right * prefactor
             add_left(vec, multiply_terms(term_left, term_right), fac)
-    return vec
+    return clean(vec)
 
 
 ##########################################################################################
@@ -283,11 +283,6 @@ def vec_zxy_to_pzm(vec_zxy, mu = 1):
     if np.array([ np.imag(val) == 0 for val in vec_pzm.values() ]).all():
         vec_pzm = { op : np.real(val) for op, val in vec_pzm.items() }
     return clean(vec_pzm)
-
-# def vec_pzm_to_zxy(vec_pzm, mu = 1):
-    # vec_zxy = {}
-
-    # return clean(vec_zxy)
 
 # given correlators of the form < S_\mu^ll (\mu S_z)^mm S_\bmu^nn >,
 #   convert them into correlators of the form < S_\bmu^ll (\bmu S_z)^mm S_\mu^nn >
