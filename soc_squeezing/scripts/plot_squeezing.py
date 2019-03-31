@@ -34,7 +34,7 @@ N = int(10**log10_N) # number of spins
 order_cap = 35 # order limit for short-time correlator expansion
 trajectories = 100 # number of trajectories to use in quantum jump simulations
 recompute_exact = False
-recompute_trunc = True
+recompute_trunc = False
 
 time_steps = 100 # time steps in plot
 ivp_tolerance = 1e-10 # relative error tolerance in numerical integrator
@@ -86,7 +86,7 @@ def read_sqz(fname):
 
 ### exact calculations
 
-time_sqz_C_exact = { OAT : [ times, squeezing_OAT(N, times) ] }
+time_sqz_C_exact = { OAT : [ times.copy(), squeezing_OAT(N, times) ] }
 
 # compute Hamiltonian, spin vector, spin-spin matrix, and initial states for TAT and TNT,
 #   exploiting a parity symmetry in both cases to reduce the size of the Hilbert space
@@ -142,7 +142,7 @@ for method in methods:
 
 ### exact and quantum trajectory calculations
 
-time_sqz_D_exact = { OAT : [ times, squeezing_OAT(N, times, dec_rates[0]) ] }
+time_sqz_D_exact = { OAT : [ times.copy(), squeezing_OAT(N, times, dec_rates[0]) ] }
 if dec_rates[1] != (0,0,0):
     print("WARNING: 'exact' simulations do not account for collective decoherence!")
 
@@ -214,6 +214,15 @@ for method in methods:
 # make squeezing plots
 ##########################################################################################
 
+# rescale time (or, equivalently, \chi)
+max_time *= N
+times *= N
+for time_sqz in [ time_sqz_C_exact, time_sqz_C_trunc,
+                  time_sqz_D_exact, time_sqz_D_trunc,
+                  time_sqz_D_trunc_strong ]:
+    for method in methods:
+        time_sqz[method][0] *= N
+
 time_pad = 1/3 # fractional time to add past TAT squeezing minimum
 sqz_pad = 1/10
 trajectory_marker_size = 2
@@ -258,12 +267,11 @@ for method in methods:
                      [time_sqz_C_trunc[method][1][positive_vals-1]],
                      "o", color = darken_color(color[method]))
 
-plt.xlabel(r"$\chi t$")
+plt.xlabel(r"$N\chi t$")
 plt.ylabel(r"$\xi^2$")
 
 plt.xlim(0, max_plot_time)
 plt.ylim(*ylims(time_sqz_C_exact,time_sqz_C_trunc))
-plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 
 plt.legend(loc = "best")
 plt.tight_layout()
@@ -287,12 +295,11 @@ for method in methods:
                      [time_sqz_D_trunc[method][1][positive_vals-1]],
                      "o", color = darken_color(color[method]))
 
-plt.xlabel(r"$\chi t$")
+plt.xlabel(r"$N\chi t$")
 plt.ylabel(r"$\xi^2$")
 
 plt.xlim(0, max_plot_time)
 plt.ylim(*ylims(time_sqz_D_exact,time_sqz_D_trunc))
-plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 
 plt.legend(loc = "best", numpoints = 3)
 plt.tight_layout()
@@ -312,12 +319,11 @@ for method in methods:
                      [time_sqz_D_trunc_strong[method][1][positive_vals-1]],
                      "o", color = color[method])
 
-plt.xlabel(r"$\chi t$")
+plt.xlabel(r"$N\chi t$")
 plt.ylabel(r"$\xi^2$")
 
 strong_time_lim_idx = positive(time_sqz_D_trunc_strong[TAT][1])
 plt.xlim(0, time_sqz_D_trunc_strong[TAT][0][strong_time_lim_idx]*(1+time_pad))
-plt.gca().ticklabel_format(axis = "x", style = "scientific", scilimits = (0,0))
 
 plt.legend(loc = "best")
 plt.tight_layout()
