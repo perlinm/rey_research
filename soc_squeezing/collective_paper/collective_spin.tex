@@ -178,20 +178,20 @@ jumps that generate large numbers of distinct quantum trajectories
 that need to be averaged over to compute expectation values.
 
 In this work, we present a new method to simulate short-time dynamics
-of collective spin systems with permutationally-symmetric decoherence.
-This method is based on a short-time expansion of exact solutions to
-the equations of motion for Heisenberg operators.  Evaluating this
-expansion requires using the structure constants of a collective spin
-operator algebra; the calculation of these structure constants (in
-Appendices \ref{sec:identities}--\ref{sec:prod_general}) is one of the
-main technical results of this work, which we hope will empower both
-analytical and numerical future studies of collective spin systems.
-We benchmark our method against both exact and quantum trajectory
-Monte Carlo computations of spin squeezing in accessible parameter
-regimes, highlighting both advantages and limitations of our
-short-time expansion.  Finally, we showcase an application of our
-method with computations that are inaccessible to other numerical
-methods.
+of collective spin systems with permutationally-symmetric sources of
+decoherence.  This method is based on a short-time expansion of exact
+solutions to the equations of motion for Heisenberg operators.
+Evaluating this expansion requires using the structure constants of a
+collective spin operator algebra; the calculation of these structure
+constants (in Appendices \ref{sec:identities}--\ref{sec:prod_general})
+is one of the main technical results of this work, which we hope will
+empower both analytical and numerical studies of collective spin
+systems in the future.  We benchmark our method against both exact and
+quantum trajectory Monte Carlo computations of spin squeezing in
+accessible parameter regimes, highlighting both advantages and
+limitations of our short-time expansion.  Finally, we showcase an
+application of our method with computations that are inaccessible to
+other numerical methods.
 
 [More text about the content of this paper.]
 
@@ -273,7 +273,7 @@ would be to take
 for some weight measure $w$, e.g.~$w\p{\v m}=\abs{\v m}$, and cutoff
 $W$.  The truncation in Eq.~\eqref{eq:weight_truncation} closes the
 system of differential equations defined by Eq.~\eqref{eq:EOM}, and
-allows us to solve it using standard numerical methods.  Initial
+allows us to solve it using standard numerical methods.  Some initial
 conditions for this system of differential equations, i.e.~expectation
 values of collective spin operators with respect to states that are
 simple to prepare experimentally, are provided in Appendix
@@ -283,7 +283,7 @@ The truncation strategy in Eq.~\eqref{eq:weight_truncation} has a few
 limitations:
 \begin{enumerate*}[label=(\roman*)]
 \item simulating a system of differential equations for a large number
-  of operators can be quite time-consuming,
+  of operators can be time-consuming,
 \item the weight measure $w$ may need to be chosen carefully, as the
   optimal measure is generally system-dependent,
 \item simulation results can only be trusted up to the time at which
@@ -357,17 +357,14 @@ spin-squeezed states: the one-axis twisting (OAT), two-axis twisting
 (TAT), and twist-and-turn (TNT) models described by the collective
 spin Hamiltonians\cite{kitagawa1993squeezed, micheli2003manyparticle}
 \begin{align}
-  \label{eq:OAT}
-  H_{\t{OAT}} &= \chi S_\z^2, \\
-  \label{eq:TAT}
-  H_{\t{TAT}} &= \f{\chi}{3} \p{S_\z^2 - S_\y^2}, \\
-  \label{eq:TNT}
-  H_{\t{TNT}} &= \chi S_\z^2 + \Omega S_\x,
+  H_{\t{OAT}} &= \chi S_\z^2, \label{eq:OAT} \\
+  H_{\t{TAT}} &= \chi \f13 \p{S_\z^2 - S_\y^2}, \label{eq:TAT} \\
+  H_{\t{TNT}} &= \chi S_\z^2 + \Omega S_\x, \label{eq:TNT}
 \end{align}
 where we include a factor of $1/3$ in the TAT Hamiltonian because it
 naturally appears in realistic proposals to experimentally implement
 TAT\cite{liu2011spin, huang2015twoaxis}.  For simplicity, we further
-fix $\Omega=S\chi$ (with $S\equiv N/2$ throughout this work) to the
+fix $\Omega=\chi S$ (with $S\equiv N/2$ throughout this work) to the
 critical value known to maximize the entanglement generation rate of
 TNT in the large-$N$ limit\cite{micheli2003manyparticle,
   sorelli2015fast}.
@@ -492,12 +489,15 @@ correlators in strong-decoherence regimes entirely inaccessible to
 other methods.  As an example, Figure \ref{fig:decoherence_strong}
 shows squeezing of $N=10^4$ spins initially in $\ket{\X}$, undergoing
 spontaneous decay, excitation, and dephasing of individual spins at
-rates $\gamma_-=\gamma_+=\gamma_\z=100\chi$.  Computations of this
-sort were used to put lower bounds on theoretically achievable spin
-squeezing via TAT with decoherence in
-Ref.~[\citenum{he2019engineering}], exemplifying a concrete
-application of the truncated Taylor expansion and the collective-spin
-structure constants calculated in this work.
+rates $\gamma_-=\gamma_+=\gamma_\z=100\chi$.  These results show that
+TNT is much more robust to this kind of decoherence than OAT or TAT, a
+finding that could not be deduced from the weak-decoherence
+simulations presented in Figure \ref{fig:benchmarking}.
+Strong-decoherence computations of this sort were also used to put
+lower bounds on theoretically achievable spin squeezing via TAT with
+decoherence in Ref.~[\citenum{he2019engineering}], exemplifying a
+concrete application of the truncated Taylor expansion and the
+collective-spin structure constants calculated in this work.
 
 \begin{figure}
   \centering
@@ -513,15 +513,16 @@ structure constants calculated in this work.
 \end{figure}
 
 
-\section{Non-equilibrium linear response and two-time correlation
-  functions}
-\label{sec:NLR}
+\section{Short-time linear response and two-time commutators}
+\label{sec:linear_response}
 
-As a final example, we consider the calculation of two-time
-correlation functions, which allow us to extract the short-time linear
-response of Heisenberg operators to perturbations of a Hamiltonian.
-Consider a target Hamiltonian $H$ perturbed by an operator $V$ with
-$\norm{V}\ll\norm{H}$, such that the net Hamiltonian is
+As another example of physics that is numerically accessible via the
+truncated Taylor expansion of Heisenberg operators, we consider the
+calculation of two-time commutators, and their relation to the
+short-time linear response of Heisenberg operators to perturbations of
+a Hamiltonian.  Consider a target Hamiltonian $H$ perturbed by an
+operator $V$ with $\norm{V}\ll\norm{H}$, where $\norm{\O}$ denotes the
+operator norm of $\O$, such that the net Hamiltonian is
 $\widetilde H=H+V$.  We denote the generator of Heisenberg time
 evolution under the perturbed (unperturbed) Hamiltonian by
 $\widetilde T$ ($T$).  These generators are related by
@@ -536,38 +537,40 @@ defined by
 Through quadratic order in the time $t$, we can say that
 \begin{align}
   e^{t\widetilde T}
-  \approx \f12\sp{e^{tT}, e^{it\hat V}}_+,
+  \approx \f12\sp{e^{it\hat V}, e^{tT}}_+,
 \end{align}
 which at first order in the perturbation $\hat V$ implies
 \begin{align}
   e^{t\widetilde T}
-  \approx e^{tT} + \f12 i t \sp{\hat V, e^{t T}}_+.
+  \approx e^{tT} + \f12 it \sp{\hat V, e^{t T}}_+.
 \end{align}
-Defining the perturbed and unperturbed Heisenberg operators
+Defining perturbed and unperturbed Heisenberg operators
 $\widetilde\O\p{t}\equiv e^{t\widetilde T}\O$ and
 $\O\p{t}\equiv e^{tT}\O$, we thus find that for sufficiently small
 times $t$ and weak perturbations $V$,
 \begin{align}
-  \widetilde\O\p{t}
-  \approx \O\p{t} + \f12 i t \p{\sp{V,\O\p{t}}_- + \sp{V,\O}_-\p{t}}.
+  \widetilde\O\p{t} - \O\p{t}
+  \approx \f12 i t \p{\sp{V,\O\p{t}}_- + \sp{V,\O}_-\p{t}}.
+  \label{eq:response}
 \end{align}
+Short-time linear response functions of this sort,
+i.e.~$\widetilde\O\p{t}-\O\p{t}$, can thus be used to experimentally
+probe two-time commutators $\sp{V,\O\p{t}}_-$ that contain information
+about the spreading of information across many-body degrees of freedom
+in a collective spin system.  The numerical methods presented in this
+paper can in turn benchmark such experiments, albeit at short times,
+even in the presence of strong decoherence.
+
 
 
 \newpage
 
-% \section{Out-of-time-ordered correlators}
-% \label{sec:OTOC}
-
-% Compute some OTOCs?  There is a small chance that doing this will
-% take a prohibitively long amount of time...
-
-% Possibility: compare ``true'' OTOCs with decoherence
-% vs.~``practical'' OTOCs in experiments with decoherence and
-% time-reversal of coherent dynamics.
-
-
 
 \section{Conclusions}
+
+% extension to spin-boson and cavity systems / dicke model / chaos?
+% different initial conditions <--> pseudo-steady states in models with a large separation of scales
+% OTOCs; theoretical interest; comparing "true" OTOCs against "practical" ones / time reversal of coherent dynamics
 
 Mention/discuss extension of this work to spin-boson systems.
 
@@ -1086,7 +1089,7 @@ an expression in terms of only collective spin operators.
 We first compute sums of single-spin operators sandwiching
 $\p{\mu S_\z}^m$, when necessary making use of the identity in
 \eqref{eq:push_z_mu_Ss}.  Up to Hermitian conjugation, the unique
-cases are, for $\mu,\nu\in\set{+1,-1}$,
+cases are, for $S\equiv N/2$ and $\mu,\nu\in\set{+1,-1}$,
 \begin{align}
   \sum_j s_\z^{(j)} \p{\mu S_\z}^m s_\z^{(j)}
   &= \sum_j s_\z^{(j)} s_\z^{(j)} \p{\mu S_\z}^m
@@ -1573,71 +1576,96 @@ or $\Gamma_\bmu\ne0$, and does not grow otherwise.
 \section{Initial conditions}
 \label{sec:initial_conditions}
 
-Initial conditions for all collective spin operators with respect to
-(spin-polarized) Gaussian states in the Dicke manifold spanned by
-$\set{\ket{m}:S_\z\ket{m}=m\ket{m}}$ can be determined from the
-expansions
+Here compute the expectation values of all collective spin operators
+with respect to spin-polarized (Gaussian) states.  These states are
+parameterized by polar and azimuthal angles $\theta\in[0,\pi)$,
+$\phi\in[0,2\pi)$, and lie within the Dicke manifold spanned by states
+$\ket{k}\propto S_+^{S+k}\ket{\dn}^{\otimes N}$ with
+$S\equiv N/2$ and $S_\z\ket{k}=k\ket{k}$:
+\begin{align}
+  \ket{\theta,\phi}
+  \equiv \sp{\cos\p{\theta/2} e^{i\phi/2} \ket\up
+    + \sin\p{\theta/2} e^{-i\phi/2} \ket\dn}^{\otimes N}
+  = \sum_{k=-S}^S { N \choose S+k }^{1/2}
+  \cos\p{\theta/2}^{S+k} \sin\p{\theta/2}^{S-k} e^{ik\phi} \ket{k}.
+\end{align}
+In order to compute expectation values of collective spin operators we
+expand
 \begin{align}
   S_\z = \sum_{k=-S}^S k \op{k},
   &&
   S_\mu = \sum_{k=-S+\delta_{\mu,-1}}^{S-\delta_{\mu,1}}
-  g_\mu\p{S,k} \op{k+\mu}{k},
+  g_\mu\p{k} \op{k+\mu}{k}
+  = \sum_{k=-S+\delta_{\bmu,-1}}^{S-\delta_{\bmu,1}}
+  g_\bmu\p{k} \op{k}{k+\bmu},
 \end{align}
-with $\mu\in\set{+1,-1}$ and
+with $\bmu\equiv-\mu\in\set{+1,-1}$ and
 \begin{align}
-  g_\mu\p{S,k} \equiv \sqrt{\p{S-\mu k}\p{S+\mu k+1}}.
+  g_\mu\p{k} \equiv \sqrt{\p{S-\mu k}\p{S+\mu k+1}},
 \end{align}
-Given the initial states
+which implies
 \begin{align}
-  \ket{\pm\Z} \equiv \ket{\pm S},
-  &&
-  \ket{\X} \equiv 2^{-N/2} \sum_{k=-S}^S
-  { N \choose S+k }^{1/2} \ket{k},
+  S_\mu^\ell \p{\mu S_\z^m} S_\bmu^n
+  &= \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
+  ^{S-\delta_{\mu,1}\max\set{\ell,n}} \p{\mu k}^m
+  \sp{\prod_{p=0}^{\ell-1} g_\mu\p{k+\mu p}}
+  \sp{\prod_{q=0}^{n-1} g_\mu\p{k+\mu q}}
+  \op{k+\mu\ell}{k+\mu n} \\
+  &= \sum_{\mu k=-\mu S-\delta_{\mu,-1}\max\set{\ell,n}}
+  ^{\mu S-\delta_{\mu,1}\max\set{\ell,n}} \p{\mu k}^m
+  \f{\p{S-\mu k}!}{\p{S+\mu k}!}
+  \sp{\f{\p{S+\mu k+\ell}!}{\p{S-\mu k-\ell}!}
+    \f{\p{S+\mu k+n}!}{\p{S-\mu k-n}!}}^{1/2}
+  \op{k+\mu\ell}{k+\mu n} \\
+  &= \sum_{k=-S}^{S-\max\set{\ell,n}} k^m
+  \f{\p{S-k}!}{\p{S+k}!}
+  \sp{\f{\p{S+k+\ell}!}{\p{S-k-\ell}!}
+    \f{\p{S+k+n}!}{\p{S-k-n}!}}^{1/2}
+  \op{\mu\p{k+\ell}}{\mu\p{k+n}}
 \end{align}
-where $S_\x\ket{\X}=S\ket{\X}$, in terms of $\nu\in\set{+1,-1}$ and
-$\bmu\equiv-\mu$ we then have
+We therefore have that
+\begin{align}
+  \bk{\theta,\phi|S_\mu^\ell \p{\mu S_\z^m} S_\bmu^n|\theta,\phi}
+  &= e^{i\phi \mu\p{\ell-n}} N! \sum_{k=-S}^{S-\max\set{\ell,n}}
+  \f{k^m \p{S-k}! f_{\mu\ell n}\p{k,\theta}}
+  {\p{S+k}! \p{S-k-\ell}! \p{S-k-n}!} \\
+  &= e^{i\phi \mu\p{\ell-n}} \p{-1}^m N! \sum_{k=0}^{N-\max\set{\ell,n}}
+  \f{\p{S-k}^m \p{N-k}! \tilde f_{\mu\ell n}\p{k,\theta}}
+  {k! \p{N-\ell-k}! \p{N-n-k}!}
+\end{align}
+for
+\begin{align}
+  f_{\mu\ell n}\p{k,\theta}
+  \equiv \cos\p{\theta/2}^{N+\mu\p{2k+\ell+n}}
+  \sin\p{\theta/2}^{N-\mu\p{2k+\ell+n}},
+\end{align}
+\begin{align}
+  \tilde f_{\mu\ell n}\p{k,\theta}
+  \equiv f_{\mu\ell n}\p{k-S,\theta}
+  = \cos\p{\theta/2}^{2N\delta_{\mu,-1}+\mu\p{2k+\ell+n}}
+  \sin\p{\theta/2}^{2N\delta_{\mu,1}-\mu\p{2k+\ell+n}}.
+\end{align}
+Defining the states
+\begin{align}
+  \ket{+\Z} \equiv \ket{0,0} = \ket\up^{\otimes N}, &&
+  \ket{-\Z} \equiv \ket{\pi,0} = \ket\dn^{\otimes N}, &&
+  \ket{\X} \equiv \ket{\pi/2,0}
+  = \p{\f{\ket\up+\ket\dn}{\sqrt2}}^{\otimes N},
+\end{align}
+some particular expectation values of interest are
 \begin{align}
   \bk{\nu\Z|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\nu\Z}
   = \delta_{\ell n} \times
   \begin{cases}
-     \p{S-n}^m \f{N! n!}{\p{N-n}!} & \mu = \nu, \\
-     \delta_{n,0} \p{-S}^m & \mu \ne \nu,
-  \end{cases}
+    \p{S-n}^m \f{N! n!}{\p{N-n}!} & \mu = \nu, \\
+    \delta_{n,0} \p{-S}^m & \mu \ne \nu,
+  \end{cases},
 \end{align}
 and
 \begin{align}
   \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}
-  &=  \f1{2^N} \sum_{k=-S+\delta_{\mu,-1}\max\set{\ell,n}}
-  ^{S-\delta_{\mu,1}\max\set{\ell,n}} \p{\mu k}^m
-  \sp{{ N \choose S+k+\mu\ell } { N \choose S+k+\mu n }}^{1/2}
-  \notag \\
-  &\qquad\qquad\qquad\qquad
-  \times \prod_{p=0}^{\ell-1} g_\mu\p{S,k+\mu p}
-  \prod_{q=0}^{n-1} g_\bmu\p{S,k+\mu\sp{n-q}} \\
-  &= \f{N!}{2^N} \sum_{\mu k=-\mu S-\delta_{\mu,-1}\max\set{\ell,n}}
-  ^{\mu S-\delta_{\mu,1}\max\set{\ell,n}}
-  \f{\p{\mu k}^m \p{S-\mu k}!}
-  {\p{S+\mu k}!\p{S-\ell-\mu k}!\p{S-n-\mu k}!} \\
-  &= \f{N!}{2^N} \sum_{k=-S}^{S-\max\set{\ell,n}}
-  \f{k^m \p{S-k}!}{\p{S+k}!\p{S-\ell-k}!\p{S-n-k}!} \\
-  &= \p{-1}^m\f{N!}{2^N} \sum_{k=0}^{N-\max\set{\ell,n}}
+  = \p{-1}^m \f{N!}{2^N} \sum_{k=0}^{N-\max\set{\ell,n}}
   \f{\p{S-k}^m \p{N-k}!}{k!\p{N-\ell-k}!\p{N-n-k}!}.
-\end{align}
-Furthermore, using the fact that
-\begin{align}
-  e^{i\phi S_\z} S_\mu e^{-i\phi S_\z} = e^{i\mu\phi} S_\mu,
-\end{align}
-we can define the state
-\begin{align}
-  \ket{\phi_{\x\y}} \equiv e^{-i\phi S_\z}\ket{\X},
-  &&
-  \p{\cos\phi S_\x + \sin\phi S_\y} \ket{\phi_{\x\y}}
-  = S \ket{\phi_{\x\y}},
-\end{align}
-and compute
-\begin{align}
-  \bk{\phi_{\x\y}|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\phi_{\x\y}}
-  = e^{i\mu\p{\ell-n}\phi} \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}.
 \end{align}
 
 
