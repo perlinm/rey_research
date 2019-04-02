@@ -49,3 +49,14 @@ def zeta(mm, nn, pp, qq, vals = {}):
         vals[mm,nn,pp,qq] = val
         vals[nn,mm,pp,qq] = val
     return vals[mm,nn,pp,qq]
+
+# return vector in (z,x,y) format along an axis specified by text
+def axis_str(text):
+    sign, axis = text
+    assert(sign in [ "+", "-" ])
+    assert(axis in [ "Z", "X", "Y" ])
+    if axis == "Z": vec = np.array([ 1, 0, 0 ])
+    if axis == "X": vec = np.array([ 0, 1, 0 ])
+    if axis == "Y": vec = np.array([ 0, 0, 1 ])
+    if sign == "-": vec = -vec
+    return vec

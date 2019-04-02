@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
+from special_functions import axis_str
+
 # natural logarithms of factorial and binomial coefficient
 from math import lgamma
 def ln_factorial(n): return lgamma(n+1)
@@ -60,17 +62,6 @@ def spin_op_vec_mat_dicke(N):
                   [ Syz,        Sxy.getH(), Syy        ] ]
 
     return S_op_vec, SS_op_mat
-
-# return vector along an axis specified by text
-def axis_str(text):
-    sign, axis = text
-    assert(sign in [ "+", "-" ])
-    assert(axis in [ "Z", "X", "Y" ])
-    if axis == "Z": vec = np.array([ 1, 0, 0 ])
-    if axis == "X": vec = np.array([ 0, 1, 0 ])
-    if axis == "Y": vec = np.array([ 0, 0, 1 ])
-    if sign == "-": vec = -vec
-    return vec
 
 # get polar and azimulthal angles of a vector (v_z, v_x, v_y)
 def vec_theta_phi(v):
