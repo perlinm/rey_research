@@ -54,27 +54,29 @@ def ln_polar_factors(NN, mu, ll, nn, kk, theta):
 ln_factorial_factors = np.vectorize(ln_factorial_factors)
 ln_polar_factors = np.vectorize(ln_polar_factors)
 
+# phase that appears in the general expectation value
+def azimuth_phase(phi):
+    if phi == 0: return 1
+    if phi == np.pi/2: return 1j
+    if phi == np.pi: return -1
+    if phi == -np.pi/2: return -1j
+    return np.exp(1j*phi)
+
 # logarithm of the magnitude of < \theta,\phi | S_+^ll S_\z^mm S_-^nn | \theta,\phi >
 def op_ln_val_ZXY(op, NN, theta = np.pi/2, phi = 0, mu = 1, vals = {}):
     assert(theta >= 0 and theta <= np.pi)
 
     ll, mm, nn = op
-    try: return vals[ll,mm,nn,NN,theta,phi,mu]
+    try:
+        val, sign = vals[ll,mm,nn,NN,theta,mu]
+        return val, sign * azimuth_phase(phi)**(mu*(ll-nn))
     except: None
     try:
-        val, phase = vals[nn,mm,ll,NN,theta,phi,mu]
-        return val, phase.conj()
-    except: None
-    try:
-        val, phase = vals[ll,mm,nn,NN,theta,-phi,mu]
-        return val, phase.conj()
-    except: None
-    try:
-        val, phase = vals[nn,mm,ll,NN,theta,-phi,mu]
-        return val, phase
+        val, sign = vals[nn,mm,ll,NN,theta,mu]
+        return val, sign * azimuth_phase(phi)**(mu*(ll-nn))
     except: None
 
-    if (ll, mm % 2, nn) == (0,1,0): return None
+    if (ll, mm % 2, nn) == (0,1,0) and theta == np.pi/2: return None
     if max(ll,nn) > NN: return None
 
     if theta == np.pi/2:
@@ -87,15 +89,15 @@ def op_ln_val_ZXY(op, NN, theta = np.pi/2, phi = 0, mu = 1, vals = {}):
             return ( ln_factorial_factors(NN,kk,ll,nn) +
                      ln_polar_factors(NN,mu,ll,nn,kk,theta) )
 
-    k_vals = np.arange(NN-max(ll,nn)+0.5, dtype = int)
+    kk_vals = np.arange(NN-max(ll,nn)+0.5, dtype = int)
 
     # remove kk == NN/2 term if necessary
-    if mm > 0 and NN % 2 == 0 and k_vals[-1] >= NN/2:
-        k_vals = np.delete(k_vals, NN//2)
+    if mm > 0 and NN % 2 == 0 and kk_vals[-1] >= NN/2:
+        kk_vals = np.delete(kk_vals, NN//2)
 
     # compute the logarithm of the magnitude of each term
-    ln_terms = ln_factors(k_vals) + ln_prefactor
-    if mm != 0: ln_terms += mm * np.log(abs(NN/2-k_vals))
+    ln_terms = ln_factors(kk_vals) + ln_prefactor
+    if mm != 0: ln_terms += mm * np.log(abs(NN/2-kk_vals))
 
     # compute the absolute value of terms divided by the largest term
     ln_term_max = ln_terms.max()
@@ -103,61 +105,31 @@ def op_ln_val_ZXY(op, NN, theta = np.pi/2, phi = 0, mu = 1, vals = {}):
 
     # compute the logarithm of the sum of the terms
     if mm % 2 == 1:
-        term_sum = np.sum(np.sign(NN/2-k_vals)*terms)
+        term_sum = np.sum(np.sign(NN/2-kk_vals)*terms)
         val = ln_term_max + np.log(abs(term_sum))
-        phase = -np.sign(term_sum)
+        sign = -np.sign(term_sum)
     else:
         val = ln_term_max + np.log(np.sum(terms))
-        phase = 1
+        sign = 1
 
-    if phi == np.pi:
-        phase *= (-1)**(ll-nn)
-    elif phi == np.pi/2:
-        phase *= (1j)**(ll-nn)
-    elif phi in [ -np.pi/2, 3*np.pi/2 ]:
-        phase *= (-1j)**(ll-nn)
-    else:
-        phase *= np.exp(1j*phi*mu*(ll-nn))
-
-    vals[ll,mm,nn,NN,theta,phi,mu] = val, phase
-    return val, phase
+    vals[ll,mm,nn,NN,theta,mu] = val, sign
+    return val, sign * azimuth_phase(phi)**(mu*(ll-nn))
 
 # return functions to compute initial values
 def init_ln_val_function(spin_num, init_state, mu = 1):
     if type(init_state) is str: init_state = axis_str(init_state)
     z, x, y = 0, 1, 2
 
-    if init_state[x] == 0 and init_state[y] == 0: # state points along Z
+    if init_state[x] == 0 and init_state[y] == 0:
         if mu == np.sign(init_state[z]):
-            init_ln_val = lambda op : op_ln_val_Z_p(op, spin_num)
+            return lambda op : op_ln_val_Z_p(op, spin_num)
         else:
-            init_ln_val = lambda op : op_ln_val_Z_m(op, spin_num)
+            return lambda op : op_ln_val_Z_m(op, spin_num)
 
-    elif init_state[z] == 0: # state is in the X-Y plane
-        init_ln_val = lambda op : op_ln_val_ZXY(op, spin_num)
-
-        if init_state[y] == 0: # state points along X
-            if np.sign(init_state[x]) == 1:
-                init_ln_val = lambda op : op_ln_val_ZXY(op, spin_num, phi = 0)
-            else:
-                init_ln_val = lambda op : op_ln_val_ZXY(op, spin_num, phi = np.pi)
-
-        elif init_state[x] == 0: # state points along Y
-            if np.sign(init_state[y]) == 1:
-                init_ln_val = lambda op : op_ln_val_ZXY(op, spin_num, phi = +np.pi/2)
-            else:
-                init_ln_val = lambda op : op_ln_val_ZXY(op, spin_num, phi = -np.pi/2)
-
-        else: # state points neither along X nor Y
-            angle_xy = np.arctan2(init_state[y],init_state[x])
-            init_ln_val = lambda op : op_ln_val_ZXY(op, spin_num, phi = angle_xy)
-
-    else: # state does not point along cardinal directions
+    else:
         angle_zx = np.arccos(init_state[z]/np.linalg.norm(init_state))
         angle_xy = np.arctan2(init_state[y],init_state[x])
-        init_ln_val = lambda op : op_ln_val_ZXY(op, spin_num, angle_zx, angle_xy, mu)
-
-    return init_ln_val
+        return lambda op : op_ln_val_ZXY(op, spin_num, angle_zx, angle_xy, mu)
 
 
 ##########################################################################################
@@ -642,8 +614,11 @@ def compute_deriv_vals(order_cap, spin_num, init_state, h_vec,
                     if init_ln_val_op is None: continue
                     init_ln_vals[op] = init_ln_val_op
 
-                term_ln_mag = np.log(complex(val)) + init_ln_val_op[0]
-                deriv_vals[deriv_op][order] += np.exp(term_ln_mag) * init_ln_val_op[1]
+                val_mag = abs(val)
+                val_phase = val / val_mag
+                term_ln_mag = np.log(val_mag) + init_ln_val_op[0]
+                term = np.exp(term_ln_mag) * init_ln_val_op[1] * val_phase
+                deriv_vals[deriv_op][order] += term
 
     return deriv_vals
 
