@@ -179,9 +179,9 @@ def insert_z_poly(vec, coefficients, prefactor = 1):
         for op, val in vec.items():
             ll, mm, nn = op
             try:
-                output[(ll,mm+jj,nn)] += prefactor * coefficients[jj] * val
+                output[ll,mm+jj,nn] += prefactor * coefficients[jj] * val
             except:
-                output[(ll,mm+jj,nn)] = prefactor * coefficients[jj] * val
+                output[ll,mm+jj,nn] = prefactor * coefficients[jj] * val
     return output
 
 # shorthand for operator term: "extended binomial operator"
@@ -282,12 +282,12 @@ def invert_vals(vals):
     target_ops = list(vals.keys())
     for ll, mm, nn in target_ops:
         if vals.get((nn,mm,ll)) is None:
-            vals[(nn,mm,ll)] = np.conj(vals[(ll,mm,nn)])
+            vals[nn,mm,ll] = np.conj(vals[ll,mm,nn])
     for ll, mm, nn in target_ops:
         coeffs_mm_nn = multiply_terms((0,mm,0),(nn,0,0))
         coeffs_ll_mm_nn = multiply_vecs({(0,0,ll):1}, coeffs_mm_nn, (-1)**mm)
-        inverted_vals[(ll,mm,nn)] = sum([ coeff * vals[op]
-                                          for op, coeff in coeffs_ll_mm_nn.items() ])
+        inverted_vals[ll,mm,nn] \
+            = sum([ coeff * vals[op] for op, coeff in coeffs_ll_mm_nn.items() ])
     return inverted_vals
 
 
@@ -309,7 +309,7 @@ def op_image_decoherence_diag_individual(op, SS, dec_vec, mu):
         image_mu = ext_binom_op(*op, [ SS-ll-nn, -1 ], 1, D_mu)
         add_left(image_mu, insert_z_poly({op:1}, [ SS-(ll+nn)/2, -1 ]), -D_mu)
         if ll >= 1 and nn >= 1:
-            image_mu[(ll-1, mm, nn-1)] = ll*nn * (2*SS-ll-nn+2) * D_mu
+            image_mu[ll-1, mm, nn-1] = ll*nn * (2*SS-ll-nn+2) * D_mu
         if ll >= 2 and nn >= 2:
             op_2 = (ll-2, mm, nn-2)
             factor = ll*nn*(ll-1)*(nn-1)
@@ -350,7 +350,7 @@ def op_image_decoherence_Q_individual(op, SS, dec_vec, mu):
     image_K = {}
     if gg_zp + gg_mz != 0:
         image_K = binom_op(ll+1, mm, nn, 1, mu/4 * (gg_zp + gg_mz))
-        del image_K[(ll+1,mm,nn)]
+        del image_K[ll+1,mm,nn]
 
     image_L = {}
     if gg_zp != 0 and nn != 0:
@@ -398,7 +398,7 @@ def op_image_decoherence_diag_collective(op, SS, dec_vec, mu):
     image_nu = {}
     if D_nu != 0:
         image_nu = binom_op(ll+1, mm, nn+1, 1, -D_nu)
-        del image_nu[(ll+1,mm,nn+1)]
+        del image_nu[ll+1,mm,nn+1]
         coefficients = [ ll*(ll-1) + nn*(nn-1), 2*(ll+nn) ]
         image_nu.update(insert_z_poly({op:1}, coefficients, D_nu/2))
 
@@ -430,7 +430,7 @@ def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
         if nn >= 1:
             op_1 = (ll+1, mm, nn-1)
             add_left(image_P, ext_binom_op(*op_1, [ nn, 2 ], 1), nn * gg_mp)
-            del image_P[(ll+1,mm+1,nn-1)]
+            del image_P[ll+1,mm+1,nn-1]
             add_left(image_P, {op_1 : nn*(-nn+1) * gg_mp})
         if nn >= 2:
             vec = { (ll, mm, nn-2) : -nn*(nn-1) * gg_mp }
@@ -443,9 +443,9 @@ def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
         factor_ll = mu * ( (ll-nn+1/2) * gg_P + (ll+1/2) * gg_M )
         factor_nn = mu * ( (ll-nn+1/2) * gg_P + (nn+1/2) * gg_M )
         image_L = binom_op(ll+1, mm, nn, 1, factor_ll)
-        image_L[(ll+1,mm,nn)] -= factor_nn
+        image_L[ll+1,mm,nn] -= factor_nn
         add_left(image_L, ext_binom_op(ll+1, mm, nn, [ 0, 1 ], 1, mu * gg_M))
-        del image_L[(ll+1,mm+1,nn)]
+        del image_L[ll+1,mm+1,nn]
 
         if nn >= 1:
             factor_mm_0 = (ll-nn+1/2) * gg_P + (ll-1/2) * gg_M
