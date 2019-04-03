@@ -54,14 +54,6 @@ def ln_polar_factors(NN, mu, ll, nn, kk, theta):
 ln_factorial_factors = np.vectorize(ln_factorial_factors)
 ln_polar_factors = np.vectorize(ln_polar_factors)
 
-# phase that appears in the general expectation value
-def azimuth_phase(phi):
-    if phi == 0: return 1
-    if phi == np.pi/2: return 1j
-    if phi == np.pi: return -1
-    if phi == -np.pi/2: return -1j
-    return np.exp(1j*phi)
-
 # logarithm of the magnitude of < \theta,\phi | S_+^ll S_\z^mm S_-^nn | \theta,\phi >
 def op_ln_val_ZXY(op, NN, theta = np.pi/2, phi = 0, mu = 1, vals = {}):
     assert(theta >= 0 and theta <= np.pi)
@@ -69,11 +61,11 @@ def op_ln_val_ZXY(op, NN, theta = np.pi/2, phi = 0, mu = 1, vals = {}):
     ll, mm, nn = op
     try:
         val, sign = vals[ll,mm,nn,NN,theta,mu]
-        return val, sign * azimuth_phase(phi)**(mu*(ll-nn))
+        return val, sign * my_expi(phi)**(mu*(ll-nn))
     except: None
     try:
         val, sign = vals[nn,mm,ll,NN,theta,mu]
-        return val, sign * azimuth_phase(phi)**(mu*(ll-nn))
+        return val, sign * my_expi(phi)**(mu*(ll-nn))
     except: None
 
     if (ll, mm % 2, nn) == (0,1,0) and theta == np.pi/2: return None
@@ -113,7 +105,7 @@ def op_ln_val_ZXY(op, NN, theta = np.pi/2, phi = 0, mu = 1, vals = {}):
         sign = 1
 
     vals[ll,mm,nn,NN,theta,mu] = val, sign
-    return val, sign * azimuth_phase(phi)**(mu*(ll-nn))
+    return val, sign * my_expi(phi)**(mu*(ll-nn))
 
 # return functions to compute initial values
 def init_ln_val_function(spin_num, init_state, mu = 1):
@@ -160,11 +152,12 @@ def add_left(vec_left, vec_right, scalar = 1):
             vec_left[op] = scalar * val
 
 # return sum of all input vectors
-def sum_vecs(*vecs):
+def sum_vecs(vecs, factors = None):
+    if factors is None:
+        factors = [1] * len(vecs)
     vec_sum = {}
-    for vec in vecs:
-        if vec == {}: continue
-        add_left(vec_sum, vec)
+    for vec, factor in zip(vecs, factors):
+        add_left(vec_sum, vec, factor)
     return vec_sum
 
 # return vector S_\mu^ll (x + \mu S_\z)^mm * S_\nu^nn
@@ -256,21 +249,34 @@ def mat_pzm_to_zxy(mat_pzm, mu = 1):
     return pzm_to_zxy @ mat_pzm @ zxy_to_pzm
 
 # convert operator vectors between (z,x,y) and (mu,z,bmu) formats
-def vec_zxy_to_pzm(vec_zxy, mu = 1):
-    vec_pzm = {}
-    # define vectors for (2 * Sx) and (i * 2 * Sy)
-    Sx_2 = { (1,0,0) : 1,
-             (0,0,1) : 1 }
-    Sy_i2 = { (1,0,0) : +mu,
-              (0,0,1) : -mu }
+def vec_zxy_to_pzm(vec_zxy, negative_z_direction = None, mu = 1):
+    Sz = { (0,1,0) : 1 }
+    Sx = { (1,0,0) : 1/2,
+           (0,0,1) : 1/2 }
+    Sy = { (1,0,0) : -mu*1j/2,
+           (0,0,1) : +mu*1j/2 }
+    if negative_z_direction is not None:
+        if type(negative_z_direction) is str:
+            negative_z_direction = axis_str(negative_z_direction)
+        theta, phi = vec_theta_phi(-np.array(negative_z_direction))
+        Sz_new = sum_vecs([ Sz, Sx ], [ my_cos(theta), -my_sin(theta) ])
+        Sx_new = sum_vecs([ Sz, Sx, Sy ], [ my_cos(phi) * my_sin(theta),
+                                            my_cos(phi) * my_cos(theta),
+                                            -my_sin(phi) ])
+        Sy_new = sum_vecs([ Sz, Sx, Sy ], [ my_sin(phi) * my_sin(theta),
+                                            my_sin(phi) * my_cos(theta),
+                                            my_cos(phi) ])
+        Sz, Sx, Sy = Sz_new, Sx_new, Sy_new
+
+    vec_pzm = {} # operator vector in (mu,z,bmu) format
     for op_zxy, val_zxy in vec_zxy.items():
         ll, mm, nn = op_zxy
-        lmn_fac = val_zxy * mu**ll * (-1j)**nn / 2**(mm+nn)
         # starting from the left, successively multiply all factors on the right
-        lmn_vec = { (0,ll,0) : 1 }
-        for jj in range(mm): lmn_vec = multiply_vecs(lmn_vec, Sx_2)
-        for kk in range(nn): lmn_vec = multiply_vecs(lmn_vec, Sy_i2)
-        add_left(vec_pzm, lmn_vec, lmn_fac)
+        lmn_vec = { (0,0,0) : 1 }
+        for jj in range(ll): lmn_vec = multiply_vecs(lmn_vec, Sz)
+        for jj in range(mm): lmn_vec = multiply_vecs(lmn_vec, Sx)
+        for jj in range(nn): lmn_vec = multiply_vecs(lmn_vec, Sy)
+        add_left(vec_pzm, lmn_vec, val_zxy * mu**ll)
     if np.array([ np.imag(val) == 0 for val in vec_pzm.values() ]).all():
         vec_pzm = { op : np.real(val) for op, val in vec_pzm.items() }
     return clean(vec_pzm)
@@ -326,7 +332,7 @@ def op_image_decoherence_diag_individual(op, SS, dec_vec, mu):
         if ll >= 1 and nn >= 1:
             image_z.update(ext_binom_op(ll-1, mm, nn-1, [ SS, 1 ], -1, ll*nn * D_z))
 
-    return sum_vecs(image_mu, image_nu, image_z)
+    return sum_vecs([ image_mu, image_nu, image_z ])
 
 # single-spin decoherence "Q" cross term
 def op_image_decoherence_Q_individual(op, SS, dec_vec, mu):
@@ -366,7 +372,7 @@ def op_image_decoherence_Q_individual(op, SS, dec_vec, mu):
         coefficients = [ (nn-1)/2, 1 ]
         add_left(image_M, insert_z_poly({(ll,mm,nn-1):1}, coefficients, -mu*nn/2 * gg_mz))
 
-    return sum_vecs(image_P, image_K, image_L, image_M)
+    return sum_vecs([ image_P, image_K, image_L, image_M ])
 
 
 ##########################################################################################
@@ -406,7 +412,7 @@ def op_image_decoherence_diag_collective(op, SS, dec_vec, mu):
     if D_z != 0 and ll != nn:
         image_z = { (ll,mm,nn) : -D_z/2 * (ll-nn)**2 }
 
-    return sum_vecs(image_mu, image_nu, image_z)
+    return sum_vecs([ image_mu, image_nu, image_z ])
 
 # collective-spin decoherence "Q" cross term
 def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
@@ -455,7 +461,7 @@ def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
                         -2*mu*nn * gg_M ]
             image_M = { (ll,mm+jj,nn-1) : factors[jj] for jj in range(3) }
 
-    return sum_vecs(image_P, image_L, image_M)
+    return sum_vecs([ image_P, image_L, image_M ])
 
 
 ##########################################################################################
@@ -479,8 +485,8 @@ def op_image_decoherence(op, SS, dec_vec, mu):
     dec_vec_g, dec_vec_G = dec_vec
 
     image = {}
-    image = sum_vecs(op_image_decoherence_diag_individual(op, SS, dec_vec_g, mu),
-                     op_image_decoherence_diag_collective(op, SS, dec_vec_G, mu))
+    image = sum_vecs([ op_image_decoherence_diag_individual(op, SS, dec_vec_g, mu),
+                       op_image_decoherence_diag_collective(op, SS, dec_vec_G, mu) ])
 
     for image_Q, dec_vec in [ ( op_image_decoherence_Q_individual, dec_vec_g ),
                               ( op_image_decoherence_Q_collective, dec_vec_G ) ]:

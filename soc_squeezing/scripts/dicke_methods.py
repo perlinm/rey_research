@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
-from special_functions import axis_str
+from special_functions import axis_str, vec_theta_phi
 
 # natural logarithms of factorial and binomial coefficient
 from math import lgamma
@@ -62,10 +62,6 @@ def spin_op_vec_mat_dicke(N):
                   [ Syz,        Sxy.getH(), Syy        ] ]
 
     return S_op_vec, SS_op_mat
-
-# get polar and azimulthal angles of a vector (v_z, v_x, v_y)
-def vec_theta_phi(v):
-    return np.array([ np.arccos(v[0]/linalg.norm(v)), np.arctan2(v[2],v[1]) ])
 
 # coherent spin state on S = N/2 Bloch sphere
 def coherent_spin_state_angles(theta, phi, N = 10):

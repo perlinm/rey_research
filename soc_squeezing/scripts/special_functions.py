@@ -2,9 +2,9 @@
 
 # FILE CONTENTS: special functions used in other files
 
+import scipy
 import numpy as np
 
-import scipy.special
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 
 # factorial and its logarithm
@@ -53,10 +53,30 @@ def zeta(mm, nn, pp, qq, vals = {}):
 # return vector in (z,x,y) format along an axis specified by text
 def axis_str(text):
     sign, axis = text
+    axis = axis.lower()
     assert(sign in [ "+", "-" ])
-    assert(axis in [ "Z", "X", "Y" ])
-    if axis == "Z": vec = np.array([ 1, 0, 0 ])
-    if axis == "X": vec = np.array([ 0, 1, 0 ])
-    if axis == "Y": vec = np.array([ 0, 0, 1 ])
+    assert(axis in [ "z", "x", "y" ])
+    if axis == "z": vec = np.array([ 1, 0, 0 ])
+    if axis == "x": vec = np.array([ 0, 1, 0 ])
+    if axis == "y": vec = np.array([ 0, 0, 1 ])
     if sign == "-": vec = -vec
     return vec
+
+# get polar and azimulthal angles of a vector (v_z, v_x, v_y)
+def vec_theta_phi(vec):
+    return np.array([ np.arccos(vec[0]/scipy.linalg.norm(vec)),
+                      np.arctan2(vec[2],vec[1]) ])
+
+# trig functions that check for "special" values
+def my_cos(phi):
+    if phi == 0 or abs(phi) == 2*np.pi: return 1
+    if abs(phi) in [ np.pi/2, 3*np.pi/2 ]: return 0
+    if abs(phi) == np.pi: return -1
+    return np.cos(phi)
+def my_sin(phi):
+    if phi == 0 or abs(phi) in [ np.pi, 2*np.pi ]: return 0
+    if abs(phi) == np.pi/2: return np.sign(phi)
+    if abs(phi) == 3*np.pi/2: return -np.sign(phi)
+    return np.sin(phi)
+def my_expi(phi):
+    return my_cos(phi) + 1j*my_sin(phi)
