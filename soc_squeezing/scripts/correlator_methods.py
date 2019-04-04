@@ -89,7 +89,8 @@ def op_ln_val_ZXY(op, NN, theta = np.pi/2, phi = 0, mu = 1, vals = {}):
 
     # compute the logarithm of the magnitude of each term
     ln_terms = ln_factors(kk_vals) + ln_prefactor
-    if mm != 0: ln_terms += mm * np.log(abs(NN/2-kk_vals))
+    offset_kk_vals = kk_vals-NN/2
+    if mm != 0: ln_terms += mm * np.log(abs(offset_kk_vals))
 
     # compute the absolute value of terms divided by the largest term
     ln_term_max = ln_terms.max()
@@ -97,9 +98,9 @@ def op_ln_val_ZXY(op, NN, theta = np.pi/2, phi = 0, mu = 1, vals = {}):
 
     # compute the logarithm of the sum of the terms
     if mm % 2 == 1:
-        term_sum = np.sum(np.sign(NN/2-kk_vals)*terms)
+        term_sum = np.sum(np.sign(offset_kk_vals)*terms)
         val = ln_term_max + np.log(abs(term_sum))
-        sign = -np.sign(term_sum)
+        sign = np.sign(term_sum)
     else:
         val = ln_term_max + np.log(np.sum(terms))
         sign = 1
