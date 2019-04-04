@@ -274,10 +274,10 @@ for some weight measure $w$, e.g.~$w\p{\v m}=\abs{\v m}$, and cutoff
 $W$.  The truncation in Eq.~\eqref{eq:weight_truncation} closes the
 system of differential equations defined by Eq.~\eqref{eq:EOM}, and
 allows us to solve it using standard numerical methods.  Some initial
-conditions for this system of differential equations, i.e.~expectation
-values of collective spin operators with respect to states that are
-simple to prepare experimentally, are provided in Appendix
-\ref{sec:initial_conditions}.
+conditions for this system of differential equations, namely
+expectation values of collective spin operators with respect to
+spin-polarized (Gaussian) states that are generally simple to prepare
+experimentally, are provided in Appendix \ref{sec:initial_conditions}.
 
 The truncation strategy in Eq.~\eqref{eq:weight_truncation} has a few
 limitations:
@@ -1576,12 +1576,12 @@ or $\Gamma_\bmu\ne0$, and does not grow otherwise.
 \section{Initial conditions}
 \label{sec:initial_conditions}
 
-Here compute the expectation values of all collective spin operators
+Here we compute the expectation values of collective spin operators
 with respect to spin-polarized (Gaussian) states.  These states are
 parameterized by polar and azimuthal angles $\theta\in[0,\pi)$,
 $\phi\in[0,2\pi)$, and lie within the Dicke manifold spanned by states
-$\ket{k}\propto S_+^{S+k}\ket{\dn}^{\otimes N}$ with
-$S\equiv N/2$ and $S_\z\ket{k}=k\ket{k}$:
+$\ket{k}\propto S_+^{S+k}\ket{\dn}^{\otimes N}$ with $S\equiv N/2$ and
+$S_\z\ket{k}=k\ket{k}$:
 \begin{align}
   \ket{\theta,\phi}
   \equiv \sp{\cos\p{\theta/2} e^{i\phi/2} \ket\up
@@ -1589,8 +1589,7 @@ $S\equiv N/2$ and $S_\z\ket{k}=k\ket{k}$:
   = \sum_{k=-S}^S { N \choose S+k }^{1/2}
   \cos\p{\theta/2}^{S+k} \sin\p{\theta/2}^{S-k} e^{ik\phi} \ket{k}.
 \end{align}
-In order to compute expectation values of collective spin operators we
-expand
+We can likewise expand, within the Dicke manifold,
 \begin{align}
   S_\z = \sum_{k=-S}^S k \op{k},
   &&
@@ -1599,7 +1598,7 @@ expand
   = \sum_{k=-S+\delta_{\bmu,-1}}^{S-\delta_{\bmu,1}}
   g_\bmu\p{k} \op{k}{k+\bmu},
 \end{align}
-with $\bmu\equiv-\mu\in\set{+1,-1}$ and
+where $\bmu\equiv-\mu\in\set{+1,-1}$ and
 \begin{align}
   g_\mu\p{k} \equiv \sqrt{\p{S-\mu k}\p{S+\mu k+1}},
 \end{align}
@@ -1621,7 +1620,7 @@ which implies
   \f{\p{S-k}!}{\p{S+k}!}
   \sp{\f{\p{S+k+\ell}!}{\p{S-k-\ell}!}
     \f{\p{S+k+n}!}{\p{S-k-n}!}}^{1/2}
-  \op{\mu\p{k+\ell}}{\mu\p{k+n}}
+  \op{\mu\p{k+\ell}}{\mu\p{k+n}}.
 \end{align}
 We therefore have that
 \begin{align}
@@ -1631,9 +1630,9 @@ We therefore have that
   {\p{S+k}! \p{S-k-\ell}! \p{S-k-n}!} \\
   &= e^{i\phi \mu\p{\ell-n}} \p{-1}^m N! \sum_{k=0}^{N-\max\set{\ell,n}}
   \f{\p{S-k}^m \p{N-k}! \tilde f_{\mu\ell n}\p{k,\theta}}
-  {k! \p{N-\ell-k}! \p{N-n-k}!}
+  {k! \p{N-k-\ell}! \p{N-k-n}!}
 \end{align}
-for
+with
 \begin{align}
   f_{\mu\ell n}\p{k,\theta}
   \equiv \cos\p{\theta/2}^{N+\mu\p{2k+\ell+n}}
@@ -1665,7 +1664,7 @@ and
 \begin{align}
   \bk{\X|S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n|\X}
   = \p{-1}^m \f{N!}{2^N} \sum_{k=0}^{N-\max\set{\ell,n}}
-  \f{\p{S-k}^m \p{N-k}!}{k!\p{N-\ell-k}!\p{N-n-k}!}.
+  \f{\p{S-k}^m \p{N-k}!}{k!\p{N-k-\ell}!\p{N-k-n}!}.
 \end{align}
 
 
