@@ -227,19 +227,20 @@ Hamiltonian $H$ is then given by
 for a time derivative (super-)operator $T$ with matrix elements
 $T_{\v m\v n}$, determined by
 \begin{align}
-  T \O \equiv i \sp{H, \O}_- + \sum_\J \gamma_\J \D\p{\J; \O},
+  T \O \equiv i \sp{H, \O}_- + \sum_\J \gamma_\J \D\p{\J} \O,
   \label{eq:time_deriv}
 \end{align}
 where $\sp{X,Y}_\pm\equiv XY\pm YX$; $\J$ is a set of jump operators
-with a corresponding decoherence rate $\gamma_\J$; and
+with a corresponding decoherence rate $\gamma_\J$; and is $\D\p{\J}$
+is a Heisenberg-picture dissipator, or Lindblad superoperator, defined
+by
 \begin{align}
-  \D\p{\J;\O}
-  \equiv \sum_{J\in\J} \p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+}
+  \D\p{\J} \O
+  \equiv \sum_{J\in\J} \p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+}.
 \end{align}
-is the Heisenberg dissipator, or Lindblad superoperator, for all jump
-operators $J\in\J$.  Decoherence via uncorrelated decay of individual
-spins at a rate $\gamma_-$, for example, would be described by the set
-of jump operators $\J_-=\set{s_-^{(j)}:j=1,2,\cdots,N}$ with
+Decoherence via uncorrelated decay of individual spins at a rate
+$\gamma_-$, for example, would be described by the set of jump
+operators $\J_-=\set{s_-^{(j)}:j=1,2,\cdots,N}$ with
 $\gamma_{\J_-}=\gamma_-$.  The commutator in Eq.~\eqref{eq:time_deriv}
 can be computed by expanding the product
 $\S_{\v\ell}\S_{\v m}=\sum_{\v n}f_{\v\ell\v m\v n}\S_{\v n}$ with
@@ -249,11 +250,12 @@ effects of decoherence from jump operators (i.e.~elements of $\J$) of
 the form $\gamma^{(j)}=\sum_n\gamma_ns_n^{(j)}$ and
 $\Gamma=\sum_n\Gamma_nS_n$ are worked out in Appendices
 \ref{sec:sandwich_single}--\ref{sec:decoherence_collective}.  We
-consider these calculations to be the main technical contributions of
-our work, with potential applications beyond the short-time simulation
-method presented here.  These ingredients are sufficient to compute
-matrix elements $T_{\v m\v n}$ of the time derivative operator $T$ in
-Eq.~\eqref{eq:time_deriv} in most cases of practical interest.
+consider these calculations to be some of the main technical
+contributions of this work, with potential applications beyond the
+short-time simulation method presented here.  These ingredients are
+sufficient to compute matrix elements $T_{\v m\v n}$ of the time
+derivative operator $T$ in Eq.~\eqref{eq:time_deriv} in most cases of
+practical interest.
 
 The time derivative operator $T$ will generally couple spin operators
 $\S_{\v n}$ (i.e.~in $\O$) to spin operators $\S_{\v m}$ with higher
@@ -330,10 +332,10 @@ which operators are relevant for computing the expectation value
 $\bk{\O\p{t}}$ to a fixed order $M$.  Note that the relation
 $\S_{\v m}^\dag=\S_{\v m^*}$ for $\v m^*\equiv\p{m_-,m_\z,m_+}$, which
 by Hermitian conjugation of Eq.~\eqref{eq:EOM} also implies that
-$T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can be exploited to cut both the
-number of initial-time expectation values $\bk{\S_{\v m}}_{t=0}$ and
-the number of matrix elements $T_{\v m\v n}$ that we may need to
-explicitly compute roughly in half.
+$T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can cut both the number of
+initial-time expectation values $\bk{\S_{\v m}}_{t=0}$ and the number
+of matrix elements $T_{\v m\v n}$ that we may need to explicitly
+compute roughly in half.
 
 In principle, the factorial suppression of terms at higher orders of
 the Taylor expansion in Eq.~\eqref{eq:time_series} implies for any
@@ -1153,15 +1155,16 @@ finding
 
 In this section we work out the effects of permutationally-symmetric
 decoherence of individual spins on collective spin operators of the
-form $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$.  For shorthand, we define
+form $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$.  For compactness, we define
 \begin{align}
-  \D\p{\gamma;\O} \equiv \D\p{\set{\gamma^{(j)}};\O}
+  \D\p{\gamma} \O
+  \equiv \D\p{\set{\gamma^{(j)}:j=1,2,\cdots,N}} \O
   = \sum_j\p{{\gamma^{(j)}}^\dag \O \gamma^{(j)}
     - \f12\sp{{\gamma^{(j)}}^\dag \gamma^{(j)}, \O}_+},
 \end{align}
-where $\gamma$ is an operator that acts on a single spin, and
+where $\gamma$ is an operator that acts on a single spin,
 $\gamma^{(j)}$ is an operator that acts with $\gamma$ on spin $j$ and
-the identity $\1$ on all other spins.
+trivially on all other spins, and $N$ is the total number of spins.
 
 
 \subsection{Decay-type decoherence}
@@ -1170,7 +1173,7 @@ the identity $\1$ on all other spins.
 The effect of decoherence via uncorrelated decay ($\mu=-1$) or
 excitation ($\mu=1$) of individual spins is described by
 \begin{align}
-  \D\p{s_\mu; \O}
+  \D\p{s_\mu} \O
   = \sum_j\p{s_\bmu^{(j)} \O s_\mu^{(j)}
     - \f12\sp{s_\bmu^{(j)} s_\mu^{(j)},\O}_+}
   = \sum_j s_\bmu^{(j)} \O s_\mu^{(j)}
@@ -1186,7 +1189,7 @@ collective spin operators, we expand the anti-commutator
 \end{align}
 which implies, using \eqref{eq:san_mu_bmu},
 \begin{align}
-  \D\p{s_\bmu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{s_\bmu} \p{S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = S_\mu^\ell \p{S+\mu S_\z}\p{-1+\mu S_\z}^m S_\bmu^n
   - S_\mu^\ell\sp{S + \f12\p{\ell+n} + \mu S_\z}
   \p{\mu S_\z}^m S_\bmu^n,
@@ -1194,7 +1197,7 @@ which implies, using \eqref{eq:san_mu_bmu},
 \end{align}
 and, using \eqref{eq:san_bmu_mu},
 \begin{align}
-  \D\p{s_\mu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{s_\mu} \p{S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   &= S_\mu^\ell \p{S - \ell - n - \mu S_\z} \p{1+\mu S_\z}^m S_\bmu^n
   - S_\mu^\ell\sp{S - \f12\p{\ell+n} - \mu S_\z}
   \p{\mu S_\z}^m S_\bmu^n \notag \\
@@ -1218,14 +1221,14 @@ grow.
 
 The effect of decoherence via single-spin dephasing is described by
 \begin{align}
-  \D\p{s_\z; \O}
+  \D\p{s_\z} \O
   = \sum_j\p{s_\z^{(j)} \O s_\z^{(j)}
     - \f12\sp{s_\z^{(j)} s_\z^{(j)},\O}_+}
   = \sum_j s_\z^{(j)} \O s_\z^{(j)} - \f12 S \O.
 \end{align}
 From \eqref{eq:san_z_z}, we then have
 \begin{align}
-  \D\p{s_\z; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{s_\z} \p{S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = -\f12\p{\ell+n} S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n
   + \ell n S_\mu^{\ell-1} \p{S + \mu S_\z}
   \p{-1 + \mu S_\z}^m S_\bmu^{n-1}.
@@ -1240,7 +1243,7 @@ $\ell+m+n$ does not grow.
 
 The most general type of single-spin decoherence is described by
 \begin{align}
-  \D\p{\gamma;\O}
+  \D\p{\gamma} \O
   = \sum_j\p{{\gamma^{(j)}}^\dag \O \gamma^{(j)}
     - \f12\sp{{\gamma^{(j)}}^\dag \gamma^{(j)}, \O}_+},
   &&
@@ -1265,8 +1268,8 @@ and
 \end{align}
 which implies
 \begin{align}
-  \D\p{\gamma;\O}
-  &= \sum_{X\in\set{\z,+,-}} \abs{\gamma_X}^2 \D\p{s_X;\O}
+  \D\p{\gamma} \O
+  &= \sum_{X\in\set{\z,+,-}} \abs{\gamma_X}^2 \D\p{s_X} \O
   + \sum_{\mu,j}
   \p{\gamma_\bmu^* \gamma_\mu s_\mu^{(j)} \O s_\mu^{(j)}
     + \gamma_\z^* \gamma_\mu s_\z^{(j)} \O s_\mu^{(j)}
@@ -1332,9 +1335,9 @@ and
 \end{align}
 we finally have
 \begin{align}
-  \D\p{\gamma; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{\gamma} \p{S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = \sum_{X\in\set{\z,+,-}} \abs{\gamma_X}^2
-  \D\p{s_X; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{s_X} \p{S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   + Q_{\ell mn;\mu}^{(\gamma)} + \sp{Q_{nm\ell;\mu}^{(\gamma)}}^\dag.
 \end{align}
 Note that the sum $\ell+m+n$ for operators
@@ -1419,8 +1422,8 @@ so
 In this section we work out the effects of collective decoherence on
 general collective spin operators.  For shorthand, we define
 \begin{align}
-  \D\p{\Gamma;\O}
-  \equiv \D\p{\set{\Gamma};\O}
+  \D\p{\Gamma} \O
+  \equiv \D\p{\set{\Gamma}} \O
   = \Gamma^\dag \O \Gamma - \f12\sp{\Gamma^\dag \Gamma, \O}_+,
 \end{align}
 where $\Gamma$ is a collective spin jump operator.
@@ -1432,16 +1435,17 @@ Making use of the results in Appendix \ref{sec:sandwich_collective},
 we find that the effects of collective decay-type decoherence on
 general collective spin operators are given by
 \begin{align}
-  \D\p{S_\bmu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
-  = -S_\mu^{\ell+1} \sp{\p{1+\mu S_\z}^m - \p{\mu S_\z}^m} S_\bmu^{n+1}
-  + \f12 S_\mu^\ell \sp{\ell\p{\ell-1} + n\p{n-1}
+  \D\p{S_\bmu} \p{S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  &= -S_\mu^{\ell+1} \sp{\p{1+\mu S_\z}^m - \p{\mu S_\z}^m} S_\bmu^{n+1}
+  \notag \\
+  &\qquad + \f12 S_\mu^\ell \sp{\ell\p{\ell-1} + n\p{n-1}
     + 2\p{\ell+n}\mu S_\z} \p{\mu S_\z}^m S_\bmu^n,
 \end{align}
 and
 \begin{align}
-  \D\p{S_\mu; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
-  &= S_\mu^{\ell+1} \sp{\p{2+\mu S_\z}^m-\p{1+\mu S_\z}^m}
-  S_\bmu^{n+1} \notag \\
+  \D\p{S_\mu} \p{S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  &= S_\mu^{\ell+1} \sp{\p{2+\mu S_\z}^m-\p{1+\mu S_\z}^m} S_\bmu^{n+1}
+  \notag \\
   &\qquad - S_\mu^\ell
   \sp{\ell\p{\ell+1} + n\p{n+1}+2\p{\ell+n+1}\mu S_\z}
   \p{1+\mu S_\z}^m S_\bmu^n \notag \\
@@ -1454,7 +1458,7 @@ and
 \end{align}
 Similarly, the effect of collective dephasing is given by
 \begin{align}
-  \D\p{S_\z; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{S_\z} \p{S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = -\f12 \p{\ell-n}^2 S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n.
 \end{align}
 
@@ -1486,8 +1490,8 @@ and
 \end{align}
 which implies
 \begin{align}
-  \D\p{\Gamma;\O}
-  &= \sum_{X\in\set{\z,+,-}} \abs{\Gamma_X}^2 \D\p{S_X;\O}
+  \D\p{\Gamma} \O
+  &= \sum_{X\in\set{\z,+,-}} \abs{\Gamma_X}^2 \D\p{S_X} \O
   + \sum_\mu \p{\Gamma_\bmu^* \Gamma_\mu S_\mu \O S_\mu
     + \Gamma_\z^* \Gamma_\mu S_\z \O S_\mu
     + \Gamma_\bmu^* \Gamma_\z S_\mu \O S_\z}
@@ -1562,9 +1566,9 @@ Collecting terms and defining
 \end{align}
 we then have
 \begin{align}
-  \D\p{\Gamma; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{\Gamma} \p{S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   = \sum_{X\in\set{\z,+,-}} \abs{\Gamma_X}^2
-  \D\p{S_X; S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
+  \D\p{S_X} \p{S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n}
   + \tilde Q_{\ell mn;\mu}^{(\Gamma)}
   + \sp{\tilde Q_{nm\ell;\mu}^{(\Gamma)}}^\dag.
 \end{align}
@@ -1584,10 +1588,10 @@ $\ket{k}\propto S_+^{S+k}\ket{\dn}^{\otimes N}$ with $S\equiv N/2$ and
 $S_\z\ket{k}=k\ket{k}$:
 \begin{align}
   \ket{\theta,\phi}
-  \equiv \sp{\cos\p{\theta/2} e^{i\phi/2} \ket\up
-    + \sin\p{\theta/2} e^{-i\phi/2} \ket\dn}^{\otimes N}
+  \equiv \sp{\cos\p{\theta/2} e^{-i\phi/2} \ket\up
+    + \sin\p{\theta/2} e^{i\phi/2} \ket\dn}^{\otimes N}
   = \sum_{k=-S}^S { N \choose S+k }^{1/2}
-  \cos\p{\theta/2}^{S+k} \sin\p{\theta/2}^{S-k} e^{ik\phi} \ket{k}.
+  \cos\p{\theta/2}^{S+k} \sin\p{\theta/2}^{S-k} e^{-ik\phi} \ket{k}.
 \end{align}
 We can likewise expand, within the Dicke manifold,
 \begin{align}
