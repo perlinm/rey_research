@@ -5,38 +5,49 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import itertools, scipy
-from correlator_methods import compute_correlators, invert_vals, vec_zxy_to_pzm
 
-from random import random, seed
-seed(0)
+from random import random
+from correlator_methods import compute_correlators
+
+np.set_printoptions(linewidth = 200)
 
 I2 = qt.qeye(2)
 up = qt.basis(2,0)
 dn = qt.basis(2,1)
+
+def rand(magnitude = 1):
+    return magnitude * np.exp(1j*2*np.pi*random())
 
 ### basic simulation options / parameters
 
 N = 3
 order_cap = 20
 max_time = 0.03
-init_state = "+X"
 
 chi_times = np.linspace(0,max_time,100)
 ivp_tolerance = 1e-10
 mu = -1
 
+dec_mag = 5
+
 ### construct a random system
 
-def rand(magnitude = 1):
-    return ( random() + 1j*random() ) * magnitude
+init_theta = random() * np.pi
+init_phi = random() * 2*np.pi
+init_state = ( np.cos(init_theta),
+               np.sin(init_theta) * np.cos(init_phi),
+               np.sin(init_theta) * np.sin(init_phi) )
 
-mag = 5
-dec_rates = [ (rand(mag), rand(mag), rand(mag)), (rand(mag), rand(mag), rand(mag)) ]
-dec_mat = np.array([ [ random() for jj in range(3) ] for kk in range(3) ])
+dec_rates = [ (rand(dec_mag), rand(dec_mag), rand(dec_mag)),
+              (rand(dec_mag), rand(dec_mag), rand(dec_mag)) ]
+dec_mat = np.array([ [ rand() for jj in range(3) ] for kk in range(3) ])
 
-h_rand = { (ll,mm,nn) : random()
+h_rand = { (ll,mm,nn) : rand()
            for ll, mm, nn in itertools.product(range(3), repeat = 3)
            if ll + mm + nn <= 2 }
+for op, val in h_rand.items():
+    h_rand[op] = ( h_rand[op] + np.conj(h_rand[op[::-1]]) ) / 2
+    h_rand[op[::-1]] = np.conj(h_rand[op])
 
 track_ops = [ (ll,mm,nn) for ll, mm, nn in itertools.product(range(3), repeat = 3)
               if ll + mm + nn <= 2 ]
@@ -66,13 +77,7 @@ if mu == -1: S_mu, S_bmu = S_m, S_p
 # Hamiltonian
 H = ZZ
 for op, val in list(h_rand.items()):
-    op_mat = S_z**op[0] * S_x**op[1] * S_y**op[2]
-    if not op_mat.isherm:
-        ### note: this is a temporary patch
-        ###   ideally, we want to construct actual random weight-3 hamiltonians
-        del h_rand[op]
-        continue
-    H += op_mat * val
+    H += val * S_mu**op[0] * (mu*S_z)**op[1] * S_bmu**op[2]
 
 # decoherence vectors
 dec_vecs_g = []
@@ -94,16 +99,9 @@ gams = gams_g + gams_G
 ggs = [ gam.dag() * gam for gam in gams ]
 
 # initial conditions
-vec_Z = qt.tensor([ dn ] * N)
-vec_X = qt.tensor([ up + dn ] * N) / 2**(N/2)
-
-state_Z = vec_Z * vec_Z.dag()
-state_X = vec_X * vec_X.dag()
-
-if init_state == "-Z":
-    init_state_mat = state_Z
-if init_state == "+X":
-    init_state_mat = state_X
+init_vec = qt.tensor([ np.cos(init_theta/2) * np.exp(-1j*init_phi/2) * up +
+                       np.sin(init_theta/2) * np.exp(+1j*init_phi/2) * dn ] * N)
+init_state_mat = init_vec * init_vec.dag()
 
 # convert qutip objects to ndarrays
 init_state_vec = init_state_mat.data.toarray().flatten()
@@ -138,7 +136,7 @@ states = [ states[:,tt].reshape((2**N,2**N)) for tt in range(chi_times.size) ]
 
 # operators that we track
 def mat(op):
-    return S_mu**op[0] * (mu*S_z)**op[1] * S_bmu**op[2]
+    return S_p**op[0] * S_z**op[1] * S_m**op[2]
 op_mats = { op : mat(op).data.toarray() for op in track_ops }
 
 # exact correlators
@@ -149,27 +147,19 @@ for op in correlators_exact.keys():
         correlators_exact[op][tt] = (op_mats[op] @ states[tt]).trace()
 
 # compute correlators using taylor expansion method and compare
-correlators = {}
-for nu in [ +1, -1 ]:
-    h_rand_pzm = vec_zxy_to_pzm(h_rand, nu)
-    correlators[nu] = compute_correlators(chi_times, order_cap, N, init_state, h_rand_pzm,
-                                          dec_rates, dec_mat, mu = nu)
-    if mu == -1: correlators[nu] = invert_vals(correlators[nu])
+correlators = compute_correlators(chi_times, order_cap, N, init_state, h_rand,
+                                  dec_rates, dec_mat, correlator_ops = track_ops, mu = mu)
 
-squeezing_ops = list(correlators.values())[0].keys()
-for op in squeezing_ops:
+for op in track_ops:
     plt.figure()
     plt.title(op)
 
-    plt.plot(np.real(correlators_exact[op]), label = f"exact ($\mu={mu}$)")
-    plt.plot(np.real(correlators[+1][op]), "--", linewidth = 3, label = r"$\nu=+1$")
-    plt.plot(np.real(correlators[-1][op]), ":", linewidth = 4, label = r"$\nu=-1$")
+    plt.plot(np.real(correlators_exact[op]))
     plt.plot(np.imag(correlators_exact[op]))
-    plt.plot(np.imag(correlators[+1][op]), "--", linewidth = 3)
-    plt.plot(np.imag(correlators[-1][op]), ":", linewidth = 4)
+    plt.plot(np.real(correlators[op]), "--", linewidth = 3)
+    plt.plot(np.imag(correlators[op]), "--", linewidth = 3)
 
     ylim = abs(correlators_exact[op]).max() * 1.1
     plt.ylim(-ylim,ylim)
-    plt.legend()
 
 plt.show()

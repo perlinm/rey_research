@@ -294,7 +294,8 @@ def invert_vals(vals):
         coeffs_mm_nn = multiply_terms((0,mm,0),(nn,0,0))
         coeffs_ll_mm_nn = multiply_vecs({(0,0,ll):1}, coeffs_mm_nn, (-1)**mm)
         inverted_vals[ll,mm,nn] \
-            = sum([ coeff * vals[op] for op, coeff in coeffs_ll_mm_nn.items() ])
+            = sum([ coeff * vals[op] for op, coeff in coeffs_ll_mm_nn.items()
+                    if vals.get(op) is not None ])
     return inverted_vals
 
 
