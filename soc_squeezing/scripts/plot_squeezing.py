@@ -52,19 +52,24 @@ dec_rates_strong = [ (100,)*3, (0,)*3 ]
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
 methods = [ OAT, TAT, TNT ]
 
-# construct Hamiltonians in (z,x,y) format
-init_state = "-Z"
-h_vec = {}
-h_vec[OAT] = { (0,2,0) : 1 }
-h_vec[TAT] = { (0,2,0) : +1/3,
-               (0,0,2) : -1/3 }
-h_vec[TNT] = { (0,2,0) : 1,
-               (1,0,0) : -N/2 }
+# construct Hamiltonians in (z,x,y) format, assuming an initial state in +X
+h_vec = { OAT : { (2,0,0) : 1 },
+          TAT : { (2,0,0) : +1/3,
+                  (0,0,2) : -1/3 },
+          TNT : { (2,0,0) : 1,
+                  (0,1,0) : N/2 } }
 for method, vec in h_vec.items():
-    h_vec[method] = vec_zxy_to_pzm(vec)
+    h_vec[method] = vec_zxy_to_pzm(vec, "+X")
+init_state = "-Z"
+
+# construct transformation matrix to rotate jump operators: rotate +X into -Z
+basis_change_zxy = np.array([ [ 0, -1, 0 ],
+                              [ 1,  0, 0 ],
+                              [ 0,  0, 1 ]])
+dec_mat = mat_zxy_to_pzm(basis_change_zxy)
 
 sqz_header = ""
-sqz_header += r"# first column: time in units of the OAT stregth \chi" + "\n"
+sqz_header += r"# first column: time in units of the OAT strength \chi" + "\n"
 sqz_header += r"# second column: squeezing as \xi^2" + "\n"
 order_header = f"# order_cap: {order_cap}\n"
 trajectory_header = f"# trajectories: {trajectories}\n"
@@ -145,12 +150,6 @@ for method in methods:
 time_sqz_D_exact = { OAT : [ times.copy(), squeezing_OAT(N, times, dec_rates[0]) ] }
 if dec_rates[1] != (0,0,0):
     print("WARNING: 'exact' simulations do not account for collective decoherence!")
-
-# construct transformation matrix to rotate jump operators
-basis_change_zxy = np.array([ [ 0, -1, 0 ],
-                              [ 1,  0, 0 ],
-                              [ 0,  0, 1 ]])
-dec_mat = mat_zxy_to_pzm(basis_change_zxy)
 
 init_state_vec = coherent_spin_state(init_state, N)
 def jump_args(hamiltonian):
