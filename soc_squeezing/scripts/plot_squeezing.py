@@ -232,7 +232,9 @@ def positive(vals):
     if idx == 0: return vals.size
     else: return idx
 
-max_plot_time = min(max_time, times[np.argmin(time_sqz_C_exact[TAT][1])]*(1+time_pad))
+
+max_TAT_time = time_sqz_C_exact[TAT][0][np.argmin(time_sqz_C_exact[TAT][1])]
+max_plot_time = min(max_time, max_TAT_time*(1+time_pad))
 def ylims(time_sqz_exact, time_sqz_trunc):
     idx_TAT = positive(time_sqz_trunc[TAT][1])
     idx_TNT = positive(time_sqz_trunc[TNT][1])
