@@ -65,8 +65,7 @@
 
 \begin{document}
 
-\title{Structure constants and short-time simulations of open
-  collective quantum spin systems}
+\title{Short-time simulations of open collective quantum spin systems}
 
 \author{Michael A. Perlin}
 \email{mika.perlin@gmail.com}
@@ -148,14 +147,15 @@ states\cite{wineland1992spin, kitagawa1993squeezed, takano2009spin,
   bohnet2014reduced, cox2016deterministic, hosten2016measurement,
   hosten2016quantum, lewis-swan2018robust, norcia2018cavitymediated,
   ma2011quantum, he2019engineering} that allow for measurement errors
-$\Delta\phi\sim1/N^\epsilon$ with $\epsilon>1/2$.  Generating such
-states typically requires nonlinear dynamics that are realized using
-collisional, photon-mediated, or phonon-mediated interactions.
-Although a truly collective spin model requires uniform, all-to-all
-interactions, as long as measurements do not distinguish between
-constituent particles, even non-uniform systems can be effectively
-described by a uniform model with renormalized
-parameters\cite{hu2015entangled}.
+$\Delta\phi\sim1/N^\varepsilon$ with $1/2<\varepsilon\le1$, where
+$\varepsilon=1$ saturates the Heisenberg
+limit\cite{zwierz2010general}.  Generating such states typically
+requires nonlinear dynamics that are realized using collisional,
+photon-mediated, or phonon-mediated interactions.  Although a truly
+collective spin model requires uniform, all-to-all interactions, as
+long as measurements do not distinguish between constituent particles,
+even non-uniform systems can be effectively described by a uniform
+model with renormalized parameters\cite{hu2015entangled}.
 
 In the absence of decoherence, permutation symmetry and total spin
 conservation divide the total Hilbert space of a collective spin
@@ -216,8 +216,8 @@ collective spin operators in the form
 \begin{align}
   \O = \sum_{\v m} \O_{\v m} \S_{\v m}.
 \end{align}
-The time evolution of a Heisenberg operator $\O\p{t}$ under a
-Hamiltonian $H$ is then given by
+The time evolution of a Heisenberg operator $\O\p{t}$ is then
+determined by
 \begin{align}
   \f{d}{dt} \O\p{t}
   = T \O\p{t}
@@ -225,15 +225,17 @@ Hamiltonian $H$ is then given by
   \label{eq:EOM}
 \end{align}
 for a time derivative (super-)operator $T$ with matrix elements
-$T_{\v m\v n}$, determined by
+$T_{\v m\v n}$ defined by
 \begin{align}
-  T \O \equiv i \sp{H, \O}_- + \sum_\J \gamma_\J \D\p{\J} \O,
+  T \S_{\v n} \equiv i \sp{H, \S_{\v n}}_-
+  + \sum_\J \gamma_\J \D\p{\J} \S_{\v n}
+  = \sum_{\v m} \S_{\v m} T_{\v m\v n},
   \label{eq:time_deriv}
 \end{align}
-where $\sp{X,Y}_\pm\equiv XY\pm YX$; $\J$ is a set of jump operators
-with a corresponding decoherence rate $\gamma_\J$; and is $\D\p{\J}$
-is a Heisenberg-picture dissipator, or Lindblad superoperator, defined
-by
+where $\sp{X,Y}_\pm\equiv XY\pm YX$; $H$ is the collective-spin
+Hamiltonian; $\J$ is a set of jump operators with a corresponding
+decoherence rate $\gamma_\J$; and is $\D\p{\J}$ is a
+Heisenberg-picture dissipator, or Lindblad superoperator, defined by
 \begin{align}
   \D\p{\J} \O
   \equiv \sum_{J\in\J} \p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+}.
@@ -258,8 +260,8 @@ derivative operator $T$ in Eq.~\eqref{eq:time_deriv} in most cases of
 practical interest.
 
 The time derivative operator $T$ will generally couple spin operators
-$\S_{\v n}$ (i.e.~in $\O$) to spin operators $\S_{\v m}$ with higher
-``weight'', i.e.~with $\abs{\v m}>\abs{\v n}$, where
+$\S_{\v n}$ to spin operators $\S_{\v m}$ with higher ``weight'',
+i.e.~with $\abs{\v m}>\abs{\v n}$, where
 $\abs{\v\ell}\equiv\sum_\alpha\ell_\alpha$.  The growth of operator
 weight signifies the growth of many-body correlations.  In practice,
 keeping track of this growth will eventually require more
@@ -272,14 +274,15 @@ would be to take
   \sum_{\v n} T_{\v m\v n} \O_{\v n}\p{t}
   \label{eq:weight_truncation}
 \end{align}
-for some weight measure $w$, e.g.~$w\p{\v m}=\abs{\v m}$, and cutoff
-$W$.  The truncation in Eq.~\eqref{eq:weight_truncation} closes the
-system of differential equations defined by Eq.~\eqref{eq:EOM}, and
-allows us to solve it using standard numerical methods.  Some initial
-conditions for this system of differential equations, namely
-expectation values of collective spin operators with respect to
-spin-polarized (Gaussian) states that are generally simple to prepare
-experimentally, are provided in Appendix \ref{sec:initial_conditions}.
+for some weight measure $w$, e.g.~$w\p{\v m}=\abs{\v m}$, and a
+high-weight cutoff $W$.  The truncation in
+Eq.~\eqref{eq:weight_truncation} closes the system of differential
+equations defined by Eq.~\eqref{eq:EOM}, and allows us to solve it
+using standard numerical methods.  Some initial conditions for this
+system of differential equations, namely expectation values of
+collective spin operators with respect to spin-polarized (Gaussian)
+states that are generally simple to prepare experimentally, are
+provided in Appendix \ref{sec:initial_conditions}.
 
 The truncation strategy in Eq.~\eqref{eq:weight_truncation} has a few
 limitations:
@@ -287,7 +290,7 @@ limitations:
 \item simulating a system of differential equations for a large number
   of operators can be time-consuming,
 \item the weight measure $w$ may need to be chosen carefully, as the
-  optimal measure is generally system-dependent,
+  optimal measure is generally system-dependent, and
 \item simulation results can only be trusted up to the time at which
   the initial value of operators $\S_{\v m}$ with weight
   $w\p{\v m}\ge W$ have a non-negligible contribution to expectation
@@ -329,12 +332,12 @@ Eq.~\eqref{eq:time_series} by taking
 Unlike the truncation in Eq.~\eqref{eq:weight_truncation}, the nonzero
 matrix elements $T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ now tell us
 which operators are relevant for computing the expectation value
-$\bk{\O\p{t}}$ to a fixed order $M$.  Note that the relation
+$\bk{\O\p{t}}$ to a fixed order $M$.  Note that using the relation
 $\S_{\v m}^\dag=\S_{\v m^*}$ for $\v m^*\equiv\p{m_-,m_\z,m_+}$, which
 by Hermitian conjugation of Eq.~\eqref{eq:EOM} also implies that
 $T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can cut both the number of
 initial-time expectation values $\bk{\S_{\v m}}_{t=0}$ and the number
-of matrix elements $T_{\v m\v n}$ that we may need to explicitly
+qof matrix elements $T_{\v m\v n}$ that we may need to explicitly
 compute roughly in half.
 
 In principle, the factorial suppression of terms at higher orders of
@@ -352,15 +355,16 @@ spin squeezing protocols.
 
 
 \section{Spin squeezing, benchmarking, and breakdown}
+\label{sec:squeezing}
 
 To benchmark our method for computing collective spin correlators, we
-consider three collective spin models known to dynamically generate
-spin-squeezed states: the one-axis twisting (OAT), two-axis twisting
-(TAT), and twist-and-turn (TNT) models described by the collective
-spin Hamiltonians\cite{kitagawa1993squeezed, micheli2003manyparticle}
+consider three collective spin models known to generate spin-squeezed
+states: the one-axis twisting (OAT), two-axis twisting (TAT), and
+twist-and-turn (TNT) models described by the collective spin
+Hamiltonians\cite{kitagawa1993squeezed, micheli2003manyparticle}
 \begin{align}
   H_{\t{OAT}} &= \chi S_\z^2, \label{eq:OAT} \\
-  H_{\t{TAT}} &= \chi \f13 \p{S_\z^2 - S_\y^2}, \label{eq:TAT} \\
+  H_{\t{TAT}} &= \f{\chi}{3} \p{S_\z^2 - S_\y^2}, \label{eq:TAT} \\
   H_{\t{TNT}} &= \chi S_\z^2 + \Omega S_\x, \label{eq:TNT}
 \end{align}
 where we include a factor of $1/3$ in the TAT Hamiltonian because it
@@ -457,10 +461,10 @@ essentially exact results right up until a sudden and drastic
 departure that is simple to diagnose by inspection.  This drastic
 departure occurs because the truncated Taylor expansion neglects
 high-weight (i.e.~large-$\abs{\v m}$) operators $\S_{\v m}$ whose
-contributions to a correlator of interest $\bk{\O\p{t}}$ eventually
-become non-negligible.  For sufficiently large times $t$, these
-individual contributions may generally be large compared to the value
-of $\bk{\O\p{t}}$, in which case their truncation will yield
+contributions to a Heisenberg operator $\O\p{t}$ of interest
+eventually become non-negligible.  For sufficiently large times $t$,
+these individual contributions may generally be large compared to the
+value of $\bk{\O\p{t}}$, in which case their truncation will yield
 non-physical results.  This breakdown mechanism is also the reason for
 prolonged agreement between the truncated Taylor expansion and
 benchmarking methods when squeezing the initial state $\ket{-\Z}$
@@ -495,8 +499,8 @@ rates $\gamma_-=\gamma_+=\gamma_\z=100\chi$.  These results show that
 TNT is much more robust to this kind of decoherence than OAT or TAT, a
 finding that could not be deduced from the weak-decoherence
 simulations presented in Figure \ref{fig:benchmarking}.
-Strong-decoherence computations of this sort were also used to put
-lower bounds on theoretically achievable spin squeezing via TAT with
+Strong-decoherence computations of this sort were used to put lower
+bounds on theoretically achievable spin squeezing via TAT with
 decoherence in Ref.~[\citenum{he2019engineering}], exemplifying a
 concrete application of the truncated Taylor expansion and the
 collective-spin structure constants calculated in this work.
@@ -515,73 +519,85 @@ collective-spin structure constants calculated in this work.
 \end{figure}
 
 
-\section{Short-time linear response and two-time commutators}
-\label{sec:linear_response}
+\section{Two-time correlation functions}
+\label{sec:two_time}
 
-As another example of physics that is numerically accessible via the
-truncated Taylor expansion of Heisenberg operators, we consider the
-calculation of two-time commutators, and their relation to the
-short-time linear response of Heisenberg operators to perturbations of
-a Hamiltonian.  Consider a target Hamiltonian $H$ perturbed by an
-operator $V$ with $\norm{V}\ll\norm{H}$, where $\norm{\O}$ denotes the
-operator norm of $\O$, such that the net Hamiltonian is
-$\widetilde H=H+V$.  We denote the generator of Heisenberg time
-evolution under the perturbed (unperturbed) Hamiltonian by
-$\widetilde T$ ($T$).  These generators are related by
+As a final example of collective-spin physics that is numerically
+accessible via the truncated Taylor expansion of Heisenberg operators,
+we consider the calculation of collective-spin two-time correlation
+functions.  In particular, we consider the effect of decoherence on
+the short-time behavior of the two-time connected correlator
 \begin{align}
-  \widetilde T = T + i\hat V
+  C\p{t}
+  \equiv \f1S\sp{\bk{S_+\p{t}S_-\p{0}}-\bk{S_+\p{t}}\bk{S_-\p{0}}}
+  \label{eq:two_time}
 \end{align}
-where $\hat V$ is a superoperator whose action on operators $\O$ is
-defined by
-\begin{align}
-  \hat V \O \equiv \sp{V,\O}_-.
-\end{align}
-Through quadratic order in the time $t$, we can say that
-\begin{align}
-  e^{t\widetilde T}
-  \approx \f12\sp{e^{it\hat V}, e^{tT}}_+,
-\end{align}
-which at first order in the perturbation $\hat V$ implies
-\begin{align}
-  e^{t\widetilde T}
-  \approx e^{tT} + \f12 it \sp{\hat V, e^{t T}}_+.
-\end{align}
-Defining perturbed and unperturbed Heisenberg operators
-$\widetilde\O\p{t}\equiv e^{t\widetilde T}\O$ and
-$\O\p{t}\equiv e^{tT}\O$, we thus find that for sufficiently small
-times $t$ and weak perturbations $V$,
-\begin{align}
-  \widetilde\O\p{t} - \O\p{t}
-  \approx \f12 i t \p{\sp{V,\O\p{t}}_- + \sp{V,\O}_-\p{t}}.
-  \label{eq:response}
-\end{align}
-Short-time linear response functions of this sort,
-i.e.~$\widetilde\O\p{t}-\O\p{t}$, can thus be used to experimentally
-probe two-time commutators $\sp{V,\O\p{t}}_-$ that contain information
-about the spreading of information across many-body degrees of freedom
-in a collective spin system.  The numerical methods presented in this
-paper can in turn benchmark such experiments, albeit at short times,
-even in the presence of strong decoherence.
+in the context of the squeezing models in Section \ref{sec:squeezing}.
+In an equilibrium setting, correlation functions of this sort contain
+information about the linear response of Heisenberg operators to
+perturbations of a system[CITE]\cite{CITE}; in a non-equilibrium
+setting, they contribute to short-time linear response (see Appendix
+\ref{sec:linear_response}).  Similar correlators have made appearances
+as order parameters that diagnose time-crystalline phases of
+matter\cite{tucker2018shattered}.  Related multi-time correlators,
+known as out-of-time-ordered correlators, are commonly examined for
+signatures of quantum chaos and information
+scrambling[CITE]\cite{CITE}.
 
+\begin{figure*}
+  \centering
+  \includegraphics{Sp_Sm.pdf}
+  \caption{Real (solid lines) and imaginary (dashed lines) parts of
+    the two-time connected correlator $C\p{t}$ defined in
+    Eq.~\eqref{eq:two_time} for $N=10^4$ spins initially in the
+    polarized state $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$
+    evolving under the squeezing Hamiltonians in
+    Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}.  Results are shown for time
+    evolution without decoherence (leftmost panel), as well as with
+    decoherence at rates $\gamma_n$ or $\Gamma_n$, respectively
+    corresponding to single-spin or collective jump operators
+    $s_n^{(j)}$ or $S_n$.  All axes in the sub-figures are shared.  At
+    short times, the correlations captured by $C\p{t}$ are suppressed
+    by single-spin decay ($\gamma_-$), collective decay ($\Gamma_-$),
+    and single-spin dephasing ($\gamma_\z$); these correlations are
+    relatively insensitive to collective dephasing ($\Gamma_\z$), and
+    can change sign or grow under single-spin ($\gamma_+$) or
+    collective ($\Gamma_+$) excitation.}
+  \label{fig:two_time}
+\end{figure*}
 
-
-\newpage
+Figure \ref{fig:two_time} shows the behavior of $C\p{t}$ for $N=10^4$
+spins, initially in the state
+$\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$, evolving under the
+squeezing Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT} both
+with and without various sources of decoherence.  The two-time
+correlator $C\p{t}$ degrades at short times under certain types of
+decoherence, but seems relatively stable to collective dephasing (with
+jump operator $S_\z$), and can qualitatively change behavior under in
+the presence of single-spin or collective excitation (with jump
+operators $s_+^{(j)}$ or $S_+$).  While we do not have an operational
+understanding of the correlations captured by $C\p{t}$ in the context
+of spin squeezing, Figure \ref{fig:two_time} serves as an example for
+the type of quantity and behavior that is accessible at short times
+with the truncated Taylor expansion.  This example is straightforward
+to extend to multi-time and out-of-time-ordered correlators, as well
+as equilibrium settings.
 
 
 \section{Conclusions}
 
-% extension to spin-boson and cavity systems / dicke model / chaos?
-% different initial conditions <--> pseudo-steady states in models with a large separation of scales
-% OTOCs; theoretical interest; comparing "true" OTOCs against "practical" ones / time reversal of coherent dynamics
 
-Mention/discuss extension of this work to spin-boson systems.
+
+% extension to spin-boson and cavity systems / dicke model / chaos?
+% different initial conditions <--> steady states or pseudo-steady states in models with a large separation of scales
+% OTOCs; theoretical interest, scrambling; benchmarking "practical" OTOCs (with time-reversal of only coherent dynamics) against "true" OTOCs
 
 
 \newpage
 \onecolumngrid
 \appendix
 
-\section{Exact results for the one-axis twisting model}
+\section{Analytical results for the one-axis twisting model}
 \label{sec:OAT}
 
 The one-axis twisting (OAT) Hamiltonian for $N$ spin-1/2 particles
@@ -603,8 +619,8 @@ $\Gamma_{\t{ud}}$, $\Gamma_{\t{du}}$, and $\Gamma_{\t{el}}$ in
 Ref.~[\citenum{foss-feig2013nonequilibrium}]).  Letting $S\equiv N/2$
 and $\mu,\nu\in\set{+1,-1}$, we adapt expectation values computed in
 Ref.~[\citenum{foss-feig2013nonequilibrium}] for the initial state
-$\ket{\X}$ satisfying $S_\x\ket{\X}=S\ket{\X}$ evolving under
-$H_{\t{OAT}}$, finding
+$\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$ with
+$S_\x\ket\X=S\ket\X$ evolving under $H_{\t{OAT}}$, finding
 \begin{align}
   \bk{S_+}
   &= S e^{-\Gamma t} \Phi\p{\chi,t}^{N-1}, \label{eq:S+_OAT} \\
@@ -619,12 +635,12 @@ $H_{\t{OAT}}$, finding
 where
 \begin{align}
   \Phi\p{X,t}
-  &\equiv e^{-\lambda t} \sp{\cos\p{t\sqrt{s_X^2-r}}
-    + \lambda t~\t{sinc}\p{t\sqrt{s_X^2-r}}},
+  &\equiv e^{-\lambda t} \sp{\cos\p{t\sqrt{q_X^2-r}}
+    + \lambda t~\t{sinc}\p{t\sqrt{q_X^2-r}}},
   \\
   \Psi\p{X,t}
-  &\equiv e^{-\lambda t} \p{is_X-\gamma}t~
-  \t{sinc}\p{t\sqrt{s_X^2-r}},
+  &\equiv e^{-\lambda t} \p{iq_X-\gamma}t~
+  \t{sinc}\p{t\sqrt{q_X^2-r}},
 \end{align}
 for
 \begin{align}
@@ -632,18 +648,19 @@ for
   &&
   \lambda \equiv \f12 \p{\gamma_+ + \gamma_-},
   &&
+  \Gamma \equiv \lambda + \f12\gamma_\z,
+  &&
   r \equiv \gamma_+ \gamma_-,
   &&
-  \Gamma \equiv \f12\gamma_\z + \lambda,
-  &&
-  s_X \equiv X + i\gamma,
+  q_X \equiv X + i\gamma,
 \end{align}
-In order to compute spin squeezing as measured by $\xi^2$ in
-\eqref{eq:squeezing}, we additionally need analytical expressions for
-$\bk{S_\z}$ and $\bk{S_\z^2}$.  As these operators commute with both
-the OAT Hamiltonian and the single-spin operators $\sigma_\z^{(j)}$,
-their evolution is governed entirely by decay-type decoherence (see
-Appendix \ref{sec:decay_single}), which means
+In order to compute spin squeezing as measured by the Ramsey squeezing
+parameter $\xi^2$ defined in \eqref{eq:squeezing}, we additionally
+need analytical expressions for $\bk{S_\z}$ and $\bk{S_\z^2}$.  As
+these operators commute with both the OAT Hamiltonian and the
+single-spin operators $\sigma_\z^{(j)}$, their evolution is governed
+entirely by decay-type decoherence (see Appendix
+\ref{sec:decay_single}), which means
 \begin{align}
   \f{d}{dt} S_\z
   &= S\p{\gamma_+-\gamma_-} - \p{\gamma_++\gamma_-} S_\z,
@@ -664,7 +681,7 @@ then imply
 The expectation values in \eqref{eq:S+_OAT}--\eqref{eq:SS+-_OAT} and
 \eqref{eq:Sz_OAT} are sufficient to compute the spin squeezing
 parameter $\xi^2$ in \eqref{eq:squeezing} at any time throughout
-evolution of the initial state $\ket{\X}$ under $H_{\t{OAT}}$, under
+evolution of the initial state $\ket\X$ under $H_{\t{OAT}}$, under
 appropriate assumptions about the relevant sources of decoherence.
 
 
@@ -1626,7 +1643,7 @@ which implies
     \f{\p{S+k+n}!}{\p{S-k-n}!}}^{1/2}
   \op{\mu\p{k+\ell}}{\mu\p{k+n}}.
 \end{align}
-We therefore have that
+This expansion allows us to compute the expectation value
 \begin{align}
   \bk{\theta,\phi|S_\mu^\ell \p{\mu S_\z^m} S_\bmu^n|\theta,\phi}
   &= e^{i\phi \mu\p{\ell-n}} N! \sum_{k=-S}^{S-\max\set{\ell,n}}
@@ -1636,7 +1653,7 @@ We therefore have that
   \f{\p{S-k}^m \p{N-k}! \tilde f_{\mu\ell n}\p{k,\theta}}
   {k! \p{N-k-\ell}! \p{N-k-n}!}
 \end{align}
-with
+where
 \begin{align}
   f_{\mu\ell n}\p{k,\theta}
   \equiv \cos\p{\theta/2}^{N+\mu\p{2k+\ell+n}}
@@ -1652,7 +1669,7 @@ Defining the states
 \begin{align}
   \ket{+\Z} \equiv \ket{0,0} = \ket\up^{\otimes N}, &&
   \ket{-\Z} \equiv \ket{\pi,0} = \ket\dn^{\otimes N}, &&
-  \ket{\X} \equiv \ket{\pi/2,0}
+  \ket\X \equiv \ket{\pi/2,0}
   = \p{\f{\ket\up+\ket\dn}{\sqrt2}}^{\otimes N},
 \end{align}
 some particular expectation values of interest are
@@ -1670,6 +1687,48 @@ and
   = \p{-1}^m \f{N!}{2^N} \sum_{k=0}^{N-\max\set{\ell,n}}
   \f{\p{S-k}^m \p{N-k}!}{k!\p{N-k-\ell}!\p{N-k-n}!}.
 \end{align}
+
+
+\section{Short-time linear response and two-time correlators}
+\label{sec:linear_response}
+
+Here, we discuss the appearance of two-time correlation functions in
+the short-time linear response of Heisenberg operators to
+perturbations of a Hamiltonian.  Consider an initial Hamiltonian $H$
+perturbed by an operator $V$ with $\norm{V}\ll\norm{H}$, where
+$\norm{\O}$ denotes the operator norm of $\O$, such that the net
+Hamiltonian is $\widetilde H=H+V$.  We denote the generator of
+Heisenberg time evolution under the perturbed (unperturbed)
+Hamiltonian by $\widetilde T$ ($T$).  These generators are related by
+\begin{align}
+  \widetilde T = T + i\hat V
+\end{align}
+where $\hat V$ is a superoperator whose action on operators $\O$ is
+defined by
+\begin{align}
+  \hat V \O \equiv \sp{V,\O}_-.
+\end{align}
+Through quadratic order in the time $t$ and linear order in the
+perturbation $\hat V$, we can say that
+\begin{align}
+  e^{t\widetilde T}
+  \approx \f12\sp{e^{tT}, e^{it\hat V}}_+
+  \approx e^{tT} + \f12 it \sp{e^{t T}, \hat V}_+.
+\end{align}
+Defining perturbed and unperturbed Heisenberg operators
+$\widetilde\O\p{t}\equiv e^{t\widetilde T}\O$ and
+$\O\p{t}\equiv e^{tT}\O$, we thus find that for sufficiently small
+times $t$ and weak perturbations $V$,
+\begin{align}
+  \widetilde\O\p{t} - \O\p{t}
+  = \p{e^{t\widetilde T} - e^{tT}} \O
+  \approx \f12 i t \p{\sp{V,\O}_-\p{t} + \sp{V,\O\p{t}}_-}.
+  \label{eq:response}
+\end{align}
+Two-time operators $V\O\p{t}$ and $\O\p{t} V$, in addition to the
+Heisenberg operators $\p{V\O}\p{t}$ and $\p{\O V}\p{t}$, thus
+determine the short-time linear response of operators $\O\p{t}$ to
+perturbations $V$ of a Hamiltonian.
 
 
 % \section{Changing operator bases, and a general product for algebras
