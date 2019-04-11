@@ -472,7 +472,7 @@ def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
 
 # convert decoherence rates and transformation matrix to decoherence vectors
 def get_dec_vecs(dec_rates, dec_mat):
-    if dec_rates == []: return []
+    if dec_rates is None: return []
     if dec_mat is None: dec_mat = np.eye(3)
     dec_vecs = []
     for jj in range(3):
@@ -531,7 +531,7 @@ squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 # deriv_op_vec[mm,kk] = (d/dt)^kk S_mm / kk!
 #                     = \sum_nn T^kk_{mm,nn} S_nn / kk!
 def get_deriv_op_vec(order_cap, spin_num, init_state, h_vec,
-                     dec_rates = [], dec_mat = None, deriv_ops = squeezing_ops,
+                     dec_rates = None, dec_mat = None, deriv_ops = squeezing_ops,
                      prepend_op = None, append_op = None, mu = 1):
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
@@ -593,7 +593,7 @@ def get_deriv_op_vec(order_cap, spin_num, init_state, h_vec,
 # returning a value for each order:
 # deriv_vals[op][kk] = < prepend_zxy * [ (d/dt)^kk op ] * append_zxy >_0 / kk!
 def compute_deriv_vals(order_cap, spin_num, init_state, h_vec,
-                       dec_rates = [], dec_mat = None, deriv_ops = squeezing_ops,
+                       dec_rates = None, dec_mat = None, deriv_ops = squeezing_ops,
                        prepend_op = None, append_op = None, mu = 1):
     init_ln_val = init_ln_val_function(spin_num, init_state, mu)
 
@@ -632,7 +632,7 @@ def compute_deriv_vals(order_cap, spin_num, init_state, h_vec,
 
 # compute correlators from evolution under a general Hamiltonian with decoherence
 def compute_correlators(chi_times, order_cap, spin_num, init_state, h_vec,
-                        dec_rates = [], dec_mat = None, correlator_ops = squeezing_ops,
+                        dec_rates = None, dec_mat = None, correlator_ops = squeezing_ops,
                         prepend_op = None, append_op = None, mu = 1):
     deriv_vals = compute_deriv_vals(order_cap, spin_num, init_state, h_vec,
                                     dec_rates, dec_mat, correlator_ops,
