@@ -10,18 +10,25 @@ from sr87_olc_constants import k_clock_LU
 
 
 # compute a numerical integral over the entire lattice
-# integrant must obey symmetries of momentum-space wavefunctions
-def symmetric_integral(integrand, site_number, subinterval_limit = 500):
+# by default, assumes integrand obeys symmetries of momentum-space wavefunctions
+def lattice_integral(integrand, site_number, symmetric = True, subinterval_limit = 500):
     lattice_length = np.pi * site_number
 
     def real_integrand(z): return np.real(integrand(z))
     def imag_integrand(z): return np.imag(integrand(z))
 
-    real_half = quad(real_integrand, 0, lattice_length/2, limit = subinterval_limit)
-    imag_half = quad(imag_integrand, -lattice_length/4, lattice_length/4,
-                     limit = subinterval_limit)
+    if symmetric:
+        real_half = quad(real_integrand, 0, lattice_length/2, limit = subinterval_limit)
+        imag_half = quad(imag_integrand, -lattice_length/4, lattice_length/4,
+                         limit = subinterval_limit)
+        return 2 * (real_half[0] + 1j * imag_half[0])
 
-    return 2 * (real_half[0] + 1j * imag_half[0])
+    else:
+        real_half = quad(real_integrand, -lattice_length/2, lattice_length/2,
+                         limit = subinterval_limit)
+        imag_half = quad(imag_integrand, -lattice_length/2, lattice_length/2,
+                         limit = subinterval_limit)
+        return real_half[0] + 1j * imag_half[0]
 
 
 ##########################################################################################
@@ -120,7 +127,7 @@ def numerical_inner_product(q, n, g, m, momenta, fourier_vecs):
     def integrand(z):
         return ( np.conj(qn_state_z(q, n, z, momenta, fourier_vecs))
                  * qn_state_z(g, m, z, momenta, fourier_vecs) )
-    return symmetric_integral(integrand, np.shape(fourier_vecs)[0])
+    return lattice_integral(integrand, np.shape(fourier_vecs)[0])
 
 # numerical laser overlap integral: < gm\bar s | e^{-iskz} | qns >
 def numerical_laser_overlap(q, n, s, g, m, momenta, fourier_vecs):
@@ -129,7 +136,7 @@ def numerical_laser_overlap(q, n, s, g, m, momenta, fourier_vecs):
         return ( np.conj(qn_state_z(q, n, z, momenta, fourier_vecs))
                  * np.exp(-1j * sk * z)
                  * qn_state_z(g, m, z, momenta, fourier_vecs) )
-    return symmetric_integral(integrand, len(momenta))
+    return lattice_integral(integrand, len(momenta))
 
 
 ##########################################################################################
