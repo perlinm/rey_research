@@ -1,4 +1,4 @@
-\documentclass[pra,reprint,longbibliography]{revtex4-1}
+\documentclass[pra,twocolumn,longbibliography]{revtex4-2}
 
 % linking references
 \usepackage{hyperref}
@@ -6,7 +6,6 @@
   breaklinks=true,
   colorlinks=true,
   linkcolor=blue,
-  filecolor=magenta,
   urlcolor=cyan,
 }
 
@@ -55,13 +54,6 @@
 \newcommand{\sref}[1]{\protect\subref{#1}} % for referencing subfigures
 \graphicspath{{./figures/}} % set path for all figures
 
-% for strikeout text
-% normalem included to prevent underlining titles in the bibliography
-\usepackage[normalem]{ulem}
-
-% for leaving notes in the text
-\newcommand{\note}[1]{\textcolor{red}{#1}}
-
 
 \begin{document}
 
@@ -78,11 +70,26 @@
   Boulder, Colorado 80309, USA}
 
 \begin{abstract}
-  Abstract goes here.
+  We present a new method to compute short-time expectation values in
+  collective spin systems with permutationally-symmetric decoherence.
+  Our method is based on a Taylor expansion of a formal solution to
+  the equations of motion for Heisenberg operators.  This expansion
+  can be truncated at finite order to obtain nearly exact results at
+  short times that are relevant for metrological applications such as
+  spin squeezing.  In order to evaluate the expansion for Heisenberg
+  operators, we compute the structure constants of a collective SU(2)
+  operator algebra.  We demonstrate the utility of our method by
+  computing spin squeezing and two-time correlation functions in
+  strong-decoherence regimes that are inaccessible to existing
+  numerical methods.  Our method is straightforward to generalize to
+  the case of a collective spin coupled to bosonic modes, as can occur
+  in trapped ion and optical cavity experiments, and may be used to
+  compute quantities such as out-of-time-ordered correlators that
+  contain short-time signatures of quantum chaos and information
+  scrambling.
 \end{abstract}
 
 \maketitle
-
 
 \section{Introduction}
 
@@ -417,7 +424,7 @@ benchmark the TST expansion in Eq.~\eqref{eq:order_truncation}.
 
 \begin{figure}
   \centering
-  \subfloat[Squeezing under coherent dynamics
+  \subfloat[Squeezing with coherent dynamics
   \label{fig:squeezing_coherent}]
   {\includegraphics{coherent.pdf}} \\
   \subfloat[Squeezing with decoherence:
@@ -458,17 +465,17 @@ TST expansion, which we discuss further below.
 
 The main lesson from Figure \ref{fig:benchmarking} is that the TST
 expansion gives essentially exact results right up until a sudden and
-drastic departure that is simple to diagnose by inspection.  This
-drastic departure occurs because the TST expansion neglects
-high-weight (i.e.~large-$\abs{\v m}$) operators $\S_{\v m}$ whose
-contributions to a Heisenberg operator $\O\p{t}$ of interest
-eventually become non-negligible.  For sufficiently large times $t$,
-these individual contributions may generally be large compared to the
-value of $\bk{\O\p{t}}$, in which case their truncation will yield
-non-physical results.  This breakdown mechanism is also the reason for
-prolonged agreement between the TST expansion and benchmarking methods
-when squeezing the initial state $\ket{-\Z}$ rather than $\ket{\X}$:
-for initial states $\ket{-\Z}$, all initial-time correlators
+drastic departure that can be diagnosed by inspection.  This drastic
+departure occurs because the TST expansion neglects high-weight
+(i.e.~large-$\abs{\v m}$) operators $\S_{\v m}$ whose contributions to
+a Heisenberg operator $\O\p{t}$ of interest eventually become
+non-negligible.  For sufficiently large times $t$, these individual
+contributions may generally be large compared to the value of
+$\bk{\O\p{t}}$, in which case their truncation will yield non-physical
+results.  This breakdown mechanism is also the reason for prolonged
+agreement between the TST expansion and benchmarking methods when
+squeezing the initial state $\ket{-\Z}$ rather than $\ket{\X}$: for
+initial states $\ket{-\Z}$, all initial-time correlators
 $\bk{\S_{\v m}}_{t=0}$ vanish unless $m_+=m_-=0$ (see Appendix
 \ref{sec:initial_conditions}), so there is a substantially smaller
 number of neglected terms with non-zero contribution to the correlator
@@ -521,31 +528,9 @@ structure constants calculated in this work.
 \section{Two-time correlation functions}
 \label{sec:two_time}
 
-As a final example of collective-spin physics that is numerically
-accessible via the TST expansion of Heisenberg operators, we consider
-the calculation of collective-spin two-time correlation functions.  In
-particular, we consider the effect of decoherence on the short-time
-behavior of the two-time connected correlator
-\begin{align}
-  C\p{t}
-  \equiv \f1S\sp{\bk{S_+\p{t}S_-\p{0}}-\bk{S_+\p{t}}\bk{S_-\p{0}}}
-  \label{eq:two_time}
-\end{align}
-in the context of the squeezing models in Section \ref{sec:squeezing}.
-In an equilibrium setting, correlation functions of this sort contain
-information about the linear response of Heisenberg operators to
-perturbations of a system[CITE]\cite{CITE}; in a non-equilibrium
-setting, they contribute to short-time linear response (see Appendix
-\ref{sec:linear_response}).  Similar correlators have made appearances
-as order parameters that diagnose time-crystalline phases of
-matter\cite{tucker2018shattered}, and related multi-time correlators,
-known as out-of-time-ordered correlators, are commonly examined for
-signatures of quantum chaos and information
-scrambling[CITE]\cite{CITE}.
-
 \begin{figure*}
   \centering
-  \includegraphics{Sp_Sm.pdf}
+  \includegraphics{two_time.pdf}
   \caption{Real (solid lines) and imaginary (dashed lines) parts of
     the two-time connected correlator $C\p{t}$ defined in
     Eq.~\eqref{eq:two_time} for $N=10^4$ spins initially in the
@@ -565,6 +550,28 @@ scrambling[CITE]\cite{CITE}.
   \label{fig:two_time}
 \end{figure*}
 
+As a final example of collective-spin physics that is numerically
+accessible via the TST expansion of Heisenberg operators, we consider
+the calculation of collective-spin two-time correlation functions.  In
+particular, we consider the effect of decoherence on the short-time
+behavior of the two-time connected correlator
+\begin{align}
+  C\p{t}
+  \equiv \f1S\sp{\bk{S_+\p{t}S_-\p{0}}-\bk{S_+\p{t}}\bk{S_-\p{0}}}
+  \label{eq:two_time}
+\end{align}
+in the context of the squeezing models in Section \ref{sec:squeezing}.
+In an equilibrium setting, correlation functions of this sort contain
+information about the linear response of Heisenberg operators to
+perturbations of a system; in a non-equilibrium setting, they
+contribute to short-time linear response (see Appendix
+\ref{sec:linear_response}).  Similar correlators have made appearances
+as order parameters that diagnose time-crystalline phases of
+matter\cite{tucker2018shattered}, and related multi-time correlators,
+known as out-of-time-ordered correlators, are commonly examined for
+signatures of quantum chaos and information
+scrambling\cite{maldacena2016bound}.
+
 Figure \ref{fig:two_time} shows the behavior of $C\p{t}$ for $N=10^4$
 spins, initially in the state
 $\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$, evolving under the
@@ -578,7 +585,7 @@ jump operators $s_+^{(j)}$ or $S_+$).  Figure \ref{fig:two_time}
 serves as an example for the type of quantity and behavior that is
 accessible at short times with the TST expansion.  This example is
 straightforward to extend to multi-time and out-of-time-ordered
-correlators (OTOCs), as well as equilibrium settings.
+correlators, as well as equilibrium settings.
 
 
 \section{Conclusions}
@@ -597,23 +604,22 @@ be applied directly in an equilibrium setting, and is straightforward
 to generalize to systems such as trapped ions and optical cavities
 with collective spin-boson interactions.  In such contexts, our method
 may be used to benchmark the short-time effects of decoherence, or
-compute quantities such as out-of-time-ordered correlators (OTOCs)
-that diagnose the onset of quantum chaos and information scrambling.
+compute quantities such as out-of-time-ordered correlators that
+diagnose the onset of quantum chaos and information scrambling.
 
 
-\section{Acknowledgments}
+\begin{acknowledgments}
+  We acknowledge helpful discussions with Robert Lewis-Swan and Kris
+  Tucker.  This work is supported by the Air Force Office of
+  Scientific Research (AFOSR) grant FA9550-18-1-0319; the AFOSR
+  Multidisciplinary University Research Initiative (MURI) grant; the
+  Defense Advanced Research Projects Agency (DARPA) and Army Research
+  Office (ARO) grant W911NF-16-1-0576; the National Science Foundation
+  (NSF) grant PHY-1820885; JILA-NSF grant PFC-173400; and the National
+  Institute of Standards and Technology (NIST).
+\end{acknowledgments}
 
-We acknowledge helpful discussions with Robert Lewis-Swan and Kris
-Tucker.  This work is supported by the Air Force Office of Scientific
-Research (AFOSR) grant FA9550-18-1-0319; the AFOSR Multidisciplinary
-University Research Initiative (MURI) grant; the Defense Advanced
-Research Projects Agency (DARPA) and Army Research Office (ARO) grant
-W911NF-16-1-0576; the National Science Foundation (NSF) grant
-PHY-1820885; JILA-NSF grant PFC-173400; and the National Institute of
-Standards and Technology (NIST).
 
-
-\newpage
 \onecolumngrid
 \appendix
 
@@ -815,13 +821,13 @@ of operators that are linearly independent.  We choose (for now) to
 impose an ordering with all $s_\bmu^{(j)}$ operators on the left, and
 all $s_\z^{(j)}$ operators on the right, as such an ordering will
 prove convenient for the calculations in this section\footnote{In
-  retrospect, it would likely have been nicer to have all
-  $s_\mu^{(j)}$ operators on the right throughout these calculations,
-  due to the enhanced symmetry expressions would have with respect to
-  Hermitian conjugation.  In any case, we provide the final result of
-  this section in both ordering conventions, and therefore feel no
-  need to reproduce these calculations with a different ordering of
-  spin operators.}.  This choice of ordering compels us to expand
+  retrospect, it may have been nicer to push all $s_\mu^{(j)}$
+  operators to the right throughout these calculations, due to the
+  enhanced symmetry expressions would have with respect to Hermitian
+  conjugation.  In any case, we provide the final result of this
+  section in both ordering conventions, and therefore feel no need to
+  reproduce these calculations with a different ordering of spin
+  operators.}.  This choice of ordering compels us to expand
 \begin{align}
   \sum_{k=0}^{m-1} S_\mu^k 2\mu s_\z^{(j)} S_\mu^{m-k-1}
   &= \sum_{k=0}^{m-1} S_\mu^k
