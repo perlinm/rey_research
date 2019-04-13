@@ -51,6 +51,7 @@ dec_rates_strong = [ (100,)*3, (0,)*3 ]
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
 methods = [ OAT, TAT, TNT ]
+colors = { OAT: "#4E79A7", TAT: "#F28E2B", TNT : "#E15759" }
 
 # construct Hamiltonians in (z,x,y) format, assuming an initial state in +X
 h_vec = { OAT : { (2,0,0) : 1 },
@@ -257,16 +258,16 @@ plt.figure(figsize = figsize)
 color = {}
 for method in methods:
     line, = plt.semilogy(time_sqz_C_exact[method][0],
-                         time_sqz_C_exact[method][1], label = method)
-    color[method] = line.get_color()
+                         time_sqz_C_exact[method][1],
+                         color = colors[method], label = method)
     positive_vals = positive(time_sqz_C_trunc[method][1])
     plt.semilogy(time_sqz_C_trunc[method][0][:positive_vals],
                  time_sqz_C_trunc[method][1][:positive_vals],
-                 "--", linewidth = trunc_width, color = darken_color(color[method]))
+                 "--", linewidth = trunc_width, color = darken_color(colors[method]))
     if positive_vals < len(times):
         plt.semilogy([time_sqz_C_trunc[method][0][positive_vals-1]],
                      [time_sqz_C_trunc[method][1][positive_vals-1]],
-                     "o", color = darken_color(color[method]))
+                     "o", color = darken_color(colors[method]))
 
 plt.xlabel(r"$N\chi t$")
 plt.ylabel(r"$\xi^2$")
@@ -286,15 +287,15 @@ for method in methods:
     linestyle = "-" if method == OAT else "."
     plt.semilogy(time_sqz_D_exact[method][0],
                  time_sqz_D_exact[method][1], linestyle, label = method,
-                 color = color[method], markersize = trajectory_marker_size)
+                 color = colors[method], markersize = trajectory_marker_size)
     positive_vals = positive(time_sqz_D_trunc[method][1])
     plt.semilogy(time_sqz_D_trunc[method][0][:positive_vals],
                  time_sqz_D_trunc[method][1][:positive_vals],
-                 "--", linewidth = trunc_width, color = darken_color(color[method]))
+                 "--", linewidth = trunc_width, color = darken_color(colors[method]))
     if positive_vals < len(times):
         plt.semilogy([time_sqz_D_trunc[method][0][positive_vals-1]],
                      [time_sqz_D_trunc[method][1][positive_vals-1]],
-                     "o", color = darken_color(color[method]))
+                     "o", color = darken_color(colors[method]))
 
 plt.xlabel(r"$N\chi t$")
 plt.ylabel(r"$\xi^2$")
@@ -314,11 +315,11 @@ for method in methods:
     positive_vals = positive(time_sqz_D_trunc_strong[method][1])
     plt.semilogy(time_sqz_D_trunc_strong[method][0][:positive_vals],
                  time_sqz_D_trunc_strong[method][1][:positive_vals],
-                 color = color[method], label = method)
+                 color = colors[method], label = method)
     if positive_vals < len(times):
         plt.semilogy([time_sqz_D_trunc_strong[method][0][positive_vals-1]],
                      [time_sqz_D_trunc_strong[method][1][positive_vals-1]],
-                     "o", color = color[method])
+                     "o", color = colors[method])
 
 plt.xlabel(r"$N\chi t$")
 plt.ylabel(r"$\xi^2$")
