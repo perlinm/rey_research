@@ -698,10 +698,8 @@ def deriv_op_vec_to_vals(bare_deriv_op_vec, spin_num, init_state,
                 if init_ln_val is None: continue
                 init_ln_vals[op] = init_ln_val
 
-            val_mag = abs(val)
-            val_phase = val / val_mag
-            term_ln_mag = np.log(val_mag) + init_ln_val[0]
-            term = np.exp(term_ln_mag) * init_ln_val[1] * val_phase
+            term_ln_mag = np.log(abs(val)) + init_ln_val[0]
+            term = np.exp(term_ln_mag) * init_ln_val[1] * np.exp(1j*np.angle(val))
             deriv_vals[deriv_op][order] += term
 
     return deriv_vals
