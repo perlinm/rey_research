@@ -11,6 +11,55 @@ from special_functions import *
 
 
 ##########################################################################################
+# exact OAT results
+##########################################################################################
+
+# exact correlators for OAT with decoherence; derivations in foss-feig2013nonequilibrium
+def correlators_OAT(spin_num, times, dec_rates):
+    N = spin_num
+    SS = spin_num/2
+    t = times
+    D_p, D_z, D_m = dec_rates
+
+    gam = -(D_p - D_m) / 2
+    lam = (D_p + D_m) / 2
+    rr = D_p * D_m
+    Gam = D_z/2 + lam
+
+    if D_m != 0 or D_p != 0:
+        Sz_unit = (D_p-D_m)/(D_p+D_m) * (1-np.exp(-(D_p+D_m)*t))
+    else:
+        Sz_unit = np.zeros(len(times))
+    Sz = SS * Sz_unit
+    Sz_Sz = SS * (1/2 + (SS-1/2) * Sz_unit**2)
+
+    def s(X): return X + 1j*gam
+    def sup_t_sinc(t,z): # e^(-\lambda t) t \sinc(t z)
+        if z != 0: return ( np.exp(-(lam-1j*z)*t) - np.exp(-(lam+1j*z)*t) ) / 2j / z
+        else: return np.exp(-lam*t) * t
+    def Phi(X):
+        z = np.sqrt(s(X)**2-rr)
+        val_cos = ( np.exp(-(lam-1j*z)*t) + np.exp(-(lam+1j*z)*t) ) / 2
+        val_sin = lam * sup_t_sinc(t,z)
+        return val_cos + val_sin
+    def Psi(X):
+        z = np.sqrt(s(X)**2-rr)
+        return (1j*s(X)-gam) * sup_t_sinc(t,z)
+
+    Sp = SS * np.exp(-Gam*t) * Phi(1)**(N-1)
+    Sp_Sz = -1/2 * Sp + SS * (SS-1/2) * np.exp(-Gam*t) * Psi(1) * Phi(1)**(N-2)
+    Sp_Sp = SS * (SS-1/2) * np.exp(-2*Gam*t) * Phi(2)**(N-2)
+    Sp_Sm = SS + Sz + SS * (SS-1/2) * np.exp(-2*Gam*t) # note that Phi(0) == 1
+
+    return { (0,1,0) : Sz,
+             (0,2,0) : Sz_Sz,
+             (1,0,0) : Sp,
+             (2,0,0) : Sp_Sp,
+             (1,1,0) : Sp_Sz,
+             (1,0,1) : Sp_Sm }
+
+
+##########################################################################################
 # expectation values
 ##########################################################################################
 
@@ -522,7 +571,7 @@ def op_image(op, h_vec, spin_num, dec_vecs, mu):
 
 
 ##########################################################################################
-# collective-spin correlators
+# miscellaneous methods for computing single- and multi-time correlators
 ##########################################################################################
 
 # list of operators necessary to compute squeezing, specified by (\mu,\z,\nu) exponents
@@ -531,6 +580,10 @@ squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 # get transverse weight of an operator, i.e. max(l,n) for op ~ S_+^l S_z^m S_-^n
 def transverse_weight(op_vec):
     return max( max(op[0],op[2]) for op in op_vec.keys() )
+
+##########################################################################################
+# collective-spin correlators
+##########################################################################################
 
 # compute (factorially suppresed) derivatives of operators,
 # returning an operator vector for each derivative order:
@@ -590,18 +643,43 @@ def get_deriv_op_vec(order_cap, spin_num, init_state, h_vec,
 
     return deriv_op_vec
 
+# combine two deriv_op_vecs into a single deriv_op_vec that corresponds to the product
+#   of the respective operators
+def combine_deriv_op_vecs(deriv_op_vec_lft, deriv_op_vec_rht):
+    ops_lft = set( key[0] for key in deriv_op_vec_lft.keys() )
+    ops_rht = set( key[0] for key in deriv_op_vec_rht.keys() )
+    order_cap = min( max( key[1] for key in deriv_op_vec_lft.keys() ),
+                     max( key[1] for key in deriv_op_vec_rht.keys() ) ) + 1
+
+    deriv_op_vec_combined = {}
+    for op_lft, op_rht in itertools.product(ops_lft, ops_rht):
+        for order in range(order_cap):
+            for order_lft in range(order+1):
+                order_rhg = order - order_lft
+                deriv_op_vec_combined[(op_lft,op_rht),order] \
+                    = multiply_vecs(deriv_op_vec_lft[op_lft,order_lft],
+                                    deriv_op_vec_rht[op_rht,order_rht])
+
+    return deriv_op_vec_combined
+
+# sandwich a deriv_op_vec object by operators prepend_op and append_op
+def sandwich_deriv_op_vec(deriv_op_vec, prepend_op = None, append_op = None):
+    new_deriv_op_vec = deriv_op_vec.copy()
+    if prepend_op is not None:
+        for key in deriv_op_vec.keys():
+            new_deriv_op_vec[key] = multiply_vecs(prepend_op,deriv_op_vec[key])
+    if append_op is not None:
+        for key in deriv_op_vec.keys():
+            new_deriv_op_vec[key] = multiply_vecs(deriv_op_vec[key],append_op)
+    return new_deriv_op_vec
+
 # compute (factorially suppresed) derivatives of operators,
 # returning a value for each order:
 # deriv_vals[op][kk] = < prepend_zxy * [ (d/dt)^kk op ] * append_zxy >_0 / kk!
-def deriv_op_vec_to_vals(deriv_op_vec, spin_num, init_state,
+def deriv_op_vec_to_vals(bare_deriv_op_vec, spin_num, init_state,
                          prepend_op = None, append_op = None, mu = 1):
 
-    if prepend_op is not None:
-        for key in deriv_op_vec.keys():
-            deriv_op_vec[key] = multiply_vecs(prepend_op,deriv_op_vec[key])
-    if append_op is not None:
-        for key in deriv_op_vec.keys():
-            deriv_op_vec[key] = multiply_vecs(deriv_op_vec[key],append_op)
+    deriv_op_vec = sandwich_deriv_op_vec(bare_deriv_op_vec, prepend_op, append_op)
 
     deriv_vals = {} # deriv_vals[op][kk]
     deriv_ops = set( key[0] for key in deriv_op_vec.keys() )
@@ -652,47 +730,3 @@ def compute_correlators(times, order_cap, spin_num, init_state, h_vec,
     deriv_vals = deriv_op_vec_to_vals(deriv_op_vec, spin_num, init_state,
                                       prepend_op, append_op, mu)
     return deriv_vals_to_correlators(deriv_vals, times, mu)
-
-# exact correlators for OAT with decoherence; derivations in foss-feig2013nonequilibrium
-def correlators_OAT(spin_num, times, dec_rates):
-    N = spin_num
-    SS = spin_num/2
-    t = times
-    D_p, D_z, D_m = dec_rates
-
-    gam = -(D_p - D_m) / 2
-    lam = (D_p + D_m) / 2
-    rr = D_p * D_m
-    Gam = D_z/2 + lam
-
-    if D_m != 0 or D_p != 0:
-        Sz_unit = (D_p-D_m)/(D_p+D_m) * (1-np.exp(-(D_p+D_m)*t))
-    else:
-        Sz_unit = np.zeros(len(times))
-    Sz = SS * Sz_unit
-    Sz_Sz = SS * (1/2 + (SS-1/2) * Sz_unit**2)
-
-    def s(X): return X + 1j*gam
-    def sup_t_sinc(t,z): # e^(-\lambda t) t \sinc(t z)
-        if z != 0: return ( np.exp(-(lam-1j*z)*t) - np.exp(-(lam+1j*z)*t) ) / 2j / z
-        else: return np.exp(-lam*t) * t
-    def Phi(X):
-        z = np.sqrt(s(X)**2-rr)
-        val_cos = ( np.exp(-(lam-1j*z)*t) + np.exp(-(lam+1j*z)*t) ) / 2
-        val_sin = lam * sup_t_sinc(t,z)
-        return val_cos + val_sin
-    def Psi(X):
-        z = np.sqrt(s(X)**2-rr)
-        return (1j*s(X)-gam) * sup_t_sinc(t,z)
-
-    Sp = SS * np.exp(-Gam*t) * Phi(1)**(N-1)
-    Sp_Sz = -1/2 * Sp + SS * (SS-1/2) * np.exp(-Gam*t) * Psi(1) * Phi(1)**(N-2)
-    Sp_Sp = SS * (SS-1/2) * np.exp(-2*Gam*t) * Phi(2)**(N-2)
-    Sp_Sm = SS + Sz + SS * (SS-1/2) * np.exp(-2*Gam*t) # note that Phi(0) == 1
-
-    return { (0,1,0) : Sz,
-             (0,2,0) : Sz_Sz,
-             (1,0,0) : Sp,
-             (2,0,0) : Sp_Sp,
-             (1,1,0) : Sp_Sz,
-             (1,0,1) : Sp_Sm }
