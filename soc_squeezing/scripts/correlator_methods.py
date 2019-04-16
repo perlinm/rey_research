@@ -473,6 +473,8 @@ def op_image_decoherence_Q_collective(op, SS, dec_vec, mu):
 # convert decoherence rates and transformation matrix to decoherence vectors
 def get_dec_vecs(dec_rates, dec_mat):
     if dec_rates is None: return []
+    if dec_rates is not None and len(dec_rates) == 3:
+        dec_rates = ( dec_rates, (0,0,0) )
     if dec_mat is None: dec_mat = np.eye(3)
     dec_vecs = []
     for jj in range(3):
@@ -526,17 +528,21 @@ def op_image(op, h_vec, spin_num, dec_vecs, mu):
 # list of operators necessary to compute squeezing, specified by (\mu,\z,\nu) exponents
 squeezing_ops = [ (0,1,0), (0,2,0), (1,0,0), (2,0,0), (1,1,0), (1,0,1) ]
 
+# get transverse weight of an operator, i.e. max(l,n) for op ~ S_+^l S_z^m S_-^n
+def transverse_weight(op_vec):
+    return max( max(op[0],op[2]) for op in op_vec.keys() )
+
 # compute (factorially suppresed) derivatives of operators,
 # returning an operator vector for each derivative order:
 # deriv_op_vec[mm,kk] = (d/dt)^kk S_mm / kk!
 #                     = \sum_nn T^kk_{mm,nn} S_nn / kk!
 def get_deriv_op_vec(order_cap, spin_num, init_state, h_vec,
                      dec_rates = None, dec_mat = None, deriv_ops = squeezing_ops,
-                     prepend_op = None, append_op = None, mu = 1):
+                     remove_irrelevant_ops = True, max_step_offset = 0, mu = 1):
     dec_vecs = get_dec_vecs(dec_rates, dec_mat)
 
     if type(init_state) is str: init_state = axis_str(init_state)
-    if tuple(np.sign(init_state)) == (-1,0,0):
+    if remove_irrelevant_ops and tuple(np.sign(init_state)) == (-1,0,0):
         chop_operators = True
         max_transverse_step = max([ op[0] for op in h_vec.keys() ] + [ 0 ])
         pp, zz, mm = 0, 1, 2 # conventional ordering for decoherence vectors
@@ -554,11 +560,6 @@ def get_deriv_op_vec(order_cap, spin_num, init_state, h_vec,
                 else:
                     # through S_\mu jump operator
                     max_transverse_step = max(max_transverse_step,1)
-        max_step_offset = 0
-        for op_vec in [ prepend_op, append_op ]:
-            if op_vec is not None:
-                op_vec_offset = max( max(op[0],op[-1]) for op in op_vec.keys() )
-                max_step_offset = max(op_vec_offset, max_step_offset)
     else:
         chop_operators = False
 
@@ -592,54 +593,47 @@ def get_deriv_op_vec(order_cap, spin_num, init_state, h_vec,
 # compute (factorially suppresed) derivatives of operators,
 # returning a value for each order:
 # deriv_vals[op][kk] = < prepend_zxy * [ (d/dt)^kk op ] * append_zxy >_0 / kk!
-def compute_deriv_vals(order_cap, spin_num, init_state, h_vec,
-                       dec_rates = None, dec_mat = None, deriv_ops = squeezing_ops,
-                       prepend_op = None, append_op = None, mu = 1):
-    init_ln_val = init_ln_val_function(spin_num, init_state, mu)
+def deriv_op_vec_to_vals(deriv_op_vec, spin_num, init_state,
+                         prepend_op = None, append_op = None, mu = 1):
 
-    deriv_op_vec = get_deriv_op_vec(order_cap, spin_num, init_state, h_vec,
-                                    dec_rates, dec_mat, deriv_ops,
-                                    prepend_op, append_op, mu)
     if prepend_op is not None:
-        for deriv_op, order in itertools.product(deriv_ops, range(order_cap)):
-            deriv_op_vec[deriv_op,order] \
-                = multiply_vecs(prepend_op,deriv_op_vec[deriv_op,order])
+        for key in deriv_op_vec.keys():
+            deriv_op_vec[key] = multiply_vecs(prepend_op,deriv_op_vec[key])
     if append_op is not None:
-        for deriv_op, order in itertools.product(deriv_ops, range(order_cap)):
-            deriv_op_vec[deriv_op,order] \
-                = multiply_vecs(deriv_op_vec[deriv_op,order],append_op)
+        for key in deriv_op_vec.keys():
+            deriv_op_vec[key] = multiply_vecs(deriv_op_vec[key],append_op)
 
     deriv_vals = {} # deriv_vals[op][kk]
-    init_ln_vals = {} # initial values of relevant operators
+    deriv_ops = set( key[0] for key in deriv_op_vec.keys() )
+    order_cap = max( key[1] for key in deriv_op_vec.keys() ) + 1
     for deriv_op in deriv_ops:
         deriv_vals[deriv_op] = np.zeros(order_cap, dtype = complex)
-        for order in range(order_cap):
-            for op, val in deriv_op_vec[deriv_op,order].items():
 
-                init_ln_val_op = init_ln_vals.get(op)
-                if init_ln_val_op is None:
-                    init_ln_val_op = init_ln_val(op)
-                    if init_ln_val_op is None: continue
-                    init_ln_vals[op] = init_ln_val_op
+    init_ln_vals = {} # initial values of relevant operators
+    init_ln_val_func = init_ln_val_function(spin_num, init_state, mu)
+    for deriv_op, order in deriv_op_vec.keys():
+        for op, val in deriv_op_vec[deriv_op,order].items():
 
-                val_mag = abs(val)
-                val_phase = val / val_mag
-                term_ln_mag = np.log(val_mag) + init_ln_val_op[0]
-                term = np.exp(term_ln_mag) * init_ln_val_op[1] * val_phase
-                deriv_vals[deriv_op][order] += term
+            init_ln_val = init_ln_vals.get(op)
+            if init_ln_val is None:
+                init_ln_val = init_ln_val_func(op)
+                if init_ln_val is None: continue
+                init_ln_vals[op] = init_ln_val
+
+            val_mag = abs(val)
+            val_phase = val / val_mag
+            term_ln_mag = np.log(val_mag) + init_ln_val[0]
+            term = np.exp(term_ln_mag) * init_ln_val[1] * val_phase
+            deriv_vals[deriv_op][order] += term
 
     return deriv_vals
 
-# compute correlators from evolution under a general Hamiltonian with decoherence
-def compute_correlators(chi_times, order_cap, spin_num, init_state, h_vec,
-                        dec_rates = None, dec_mat = None, correlator_ops = squeezing_ops,
-                        prepend_op = None, append_op = None, mu = 1):
-    deriv_vals = compute_deriv_vals(order_cap, spin_num, init_state, h_vec,
-                                    dec_rates, dec_mat, correlator_ops,
-                                    prepend_op, append_op, mu)
-    times_k = np.array([ chi_times**order for order in range(order_cap) ])
-    correlators = { op : deriv_vals[op] @ times_k for op in correlator_ops }
-
+# convert deriv_vals to correlator values at given times
+# note: "times" is assumed to be in units of the OAT squeezing strength
+def deriv_vals_to_correlators(deriv_vals, times, mu = 1):
+    order_cap = list(deriv_vals.values())[0].size
+    times_k = np.array([ times**order for order in range(order_cap) ])
+    correlators = { op : deriv_vals[op] @ times_k for op in deriv_vals.keys() }
     if mu == 1:
         return correlators
     else:
@@ -647,11 +641,23 @@ def compute_correlators(chi_times, order_cap, spin_num, init_state, h_vec,
         #   so we need to invert them into correlators of the form < S_+^ll S_z^mm S_-^nn >
         return invert_vals(correlators)
 
+# compute correlators from evolution under a general Hamiltonian with decoherence
+def compute_correlators(times, order_cap, spin_num, init_state, h_vec,
+                        dec_rates = None, dec_mat = None, correlator_ops = squeezing_ops,
+                        prepend_op = None, append_op = None, mu = 1):
+    max_step_offset = sum([ transverse_weight(op) for op in [ prepend_op, append_op ]
+                            if op is not None ])
+    deriv_op_vec = get_deriv_op_vec(order_cap, spin_num, init_state, h_vec, dec_rates,
+                                    dec_mat, correlator_ops, max_step_offset, mu)
+    deriv_vals = deriv_op_vec_to_vals(deriv_op_vec, spin_num, init_state,
+                                      prepend_op, append_op, mu)
+    return deriv_vals_to_correlators(deriv_vals, times, mu)
+
 # exact correlators for OAT with decoherence; derivations in foss-feig2013nonequilibrium
-def correlators_OAT(spin_num, chi_times, dec_rates):
+def correlators_OAT(spin_num, times, dec_rates):
     N = spin_num
     SS = spin_num/2
-    t = chi_times
+    t = times
     D_p, D_z, D_m = dec_rates
 
     gam = -(D_p - D_m) / 2
@@ -662,7 +668,7 @@ def correlators_OAT(spin_num, chi_times, dec_rates):
     if D_m != 0 or D_p != 0:
         Sz_unit = (D_p-D_m)/(D_p+D_m) * (1-np.exp(-(D_p+D_m)*t))
     else:
-        Sz_unit = np.zeros(len(chi_times))
+        Sz_unit = np.zeros(len(times))
     Sz = SS * Sz_unit
     Sz_Sz = SS * (1/2 + (SS-1/2) * Sz_unit**2)
 
