@@ -64,9 +64,7 @@ for method, vec in h_vec.items():
 init_state = "-Z"
 
 # construct transformation matrix to rotate jump operators: rotate +X into -Z
-basis_change_zxy = np.array([ [ 0, -1, 0 ],
-                              [ 1,  0, 0 ],
-                              [ 0,  0, 1 ]])
+basis_change_zxy = -np.array([ [0,1,0], [1,0,0], [0,0,1] ])
 dec_mat = mat_zxy_to_pzm(basis_change_zxy)
 
 sqz_header = ""

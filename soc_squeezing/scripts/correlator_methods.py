@@ -309,13 +309,13 @@ def vec_zxy_to_pzm(vec_zxy, negative_z_direction = None, mu = 1):
         if type(negative_z_direction) is str:
             negative_z_direction = axis_str(negative_z_direction)
         theta, phi = vec_theta_phi(-np.array(negative_z_direction))
-        Sz_new = sum_vecs([ Sz, Sx ], [ my_cos(theta), -my_sin(theta) ])
-        Sx_new = sum_vecs([ Sz, Sx, Sy ], [ my_cos(phi) * my_sin(theta),
-                                            my_cos(phi) * my_cos(theta),
-                                            -my_sin(phi) ])
-        Sy_new = sum_vecs([ Sz, Sx, Sy ], [ my_sin(phi) * my_sin(theta),
-                                            my_sin(phi) * my_cos(theta),
-                                            my_cos(phi) ])
+        Sz_new = sum_vecs([ Sz, Sx, Sy ], [ my_cos(theta),
+                                            my_sin(theta) * my_cos(phi),
+                                            my_sin(theta) * my_sin(phi) ])
+        Sx_new = sum_vecs([ Sz, Sx, Sy ], [ -my_sin(theta),
+                                            my_cos(theta) * my_cos(phi),
+                                            my_cos(theta) * my_sin(phi) ])
+        Sy_new = sum_vecs([ Sx, Sy ], [ -my_sin(phi), my_cos(phi) ])
         Sz, Sx, Sy = Sz_new, Sx_new, Sy_new
 
     vec_pzm = {} # operator vector in (mu,z,bmu) format
