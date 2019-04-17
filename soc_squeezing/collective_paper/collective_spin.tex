@@ -344,15 +344,14 @@ Eq.~\eqref{eq:time_series} by taking
   \hat\O\p{t}
   \to \sum_{k=0}^M \f{t^k}{k!}
   \sum_{\v m, \v n} \hat\S_{\v m} T^k_{\v m\v n} \O_{\v n}\p{0}.
-  \label{eq:order_truncation}
+  \label{eq:TST}
 \end{align}
-We refer Eq.~\eqref{eq:order_truncation} as the truncated short-time
-(TST) expansion of Heisenberg operators.  Unlike the truncation in
+We refer Eq.~\eqref{eq:TST} as the truncated short-time (TST)
+expansion of Heisenberg operators.  Unlike the truncation in
 Eq.~\eqref{eq:weight_truncation}, the nonzero matrix elements
-$T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ in
-Eq.~\eqref{eq:order_truncation} tell us which operators are relevant
-for computing the expectation value $\bk{\hat\O\p{t}}$ to a fixed
-order $M$.  Note that using the relation
+$T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ in Eq.~\eqref{eq:TST} tell us
+which operators are relevant for computing the expectation value
+$\bk{\hat\O\p{t}}$ to a fixed order $M$.  Note that using the relation
 $\hat\S_{\v m}^\dag=\hat\S_{\v m^*}$, which by Hermitian conjugation
 of Eq.~\eqref{eq:EOM} also implies that
 $T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can cut both the number of
@@ -363,15 +362,14 @@ explicitly compute roughly in half.
 In principle, the factorial suppression of terms at higher orders of
 the expansion in Eq.~\eqref{eq:time_series} implies for any given time
 $t$, there exists a truncation order $M_t$ for which the truncation
-error in Eq.~\eqref{eq:order_truncation} is negligibly small.  In
-practice, only a maximal truncation order $M_{\t{max}}$ is accessible
-with limited computational resources, such that the TST expansion in
-Eq.~\eqref{eq:order_truncation} only allows for computation of the
-expectation value $\bk{\hat\O\p{t}}$ to a maximal time
-$t_{M_{\t{max}}}$.  As we will see in the following section,
-$M_{\t{max}}=35$ will suffice for the computation of collective spin
-correlators up to times that are relevant e.g.~for spin squeezing
-protocols.
+error in Eq.~\eqref{eq:TST} is negligibly small.  In practice, only a
+maximal truncation order $M_{\t{max}}$ is accessible with limited
+computational resources, such that the TST expansion in
+Eq.~\eqref{eq:TST} only allows for computation of the expectation
+value $\bk{\hat\O\p{t}}$ to a maximal time $t_{M_{\t{max}}}$.  As we
+will see in the following section, $M_{\t{max}}=35$ will suffice for
+the computation of collective spin correlators up to times that are
+relevant e.g.~for spin squeezing protocols.
 
 
 \section{Spin squeezing, benchmarking, and breakdown}
@@ -422,8 +420,8 @@ spin operator-valued vector, and the minimization is performed over
 all unit vectors $\uv n$ in the plane orthogonal to the mean spin
 vector $\bk{\uv S}$.  This squeezing parameter is entirely determined
 by one- and two-spin correlators of the form $\bk{\hat S_\a}$ and
-$\bk{\hat S_\a \hat S_\b}$.  For the unitary dynamics discussed in this
-work, these correlators are obtainable via exact simulations of
+$\bk{\hat S_\a \hat S_\b}$.  For the unitary dynamics discussed in
+this work, these correlators are obtainable via exact simulations of
 quantum dynamics in the $\p{N+1}$-dimensional Dicke manifold of states
 $\set{\ket{S,m}}$ with net spin $S$ and spin projection $m$ onto the
 $z$ axis, i.e.~with $\bk{S,m|\uv S^2|S,m}=S\p{S+1}$ and
@@ -432,7 +430,7 @@ presence of single-spin or collective decoherence, meanwhile, these
 correlators are obtainable with the collective-spin quantum trajectory
 Monte Carlo method developed in ref.~\cite{zhang2018montecarlo}.  In
 this work, these exact and quantum trajectory simulations will be used
-to benchmark the TST expansion in Eq.~\eqref{eq:order_truncation}.
+to benchmark the TST expansion in Eq.~\eqref{eq:TST}.
 
 \begin{figure}
   \centering
@@ -447,10 +445,9 @@ to benchmark the TST expansion in Eq.~\eqref{eq:order_truncation}.
     under \sref{fig:squeezing_coherent} unitary and
     \sref{fig:squeezing_incoherent} non-unitary dynamics, computed
     using exact methods (solid lines), quantum trajectory simulations
-    (dots), and the TST expansion in Eq.~\eqref{eq:order_truncation}
-    with $M=35$ (darker dashed lines).  Solid circles mark the times
-    at which the TST expansion gives an unphysical result with
-    $\xi^2<0$.}
+    (dots), and the TST expansion in Eq.~\eqref{eq:TST} with $M=35$
+    (darker dashed lines).  Solid circles mark the times at which the
+    TST expansion gives an unphysical result with $\xi^2<0$.}
   \label{fig:benchmarking}
 \end{figure}
 
@@ -458,12 +455,12 @@ Figure \ref{fig:benchmarking} compares the squeezing parameter $\xi^2$
 for $N=10^4$ spins initially in the state $\ket{\X}$ evolved under the
 Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}, as computed via
 both benchmarking simulations and the TST expansion in
-Eq.~\eqref{eq:order_truncation} with $M=35$.  Squeezing is shown for
-both unitary dynamics (Figure \ref{fig:squeezing_coherent}), as well
-as non-unitary dynamics in the presence of spontaneous decay,
-excitation, and dephasing of individual spins at rates $\chi$ (Figure
+Eq.~\eqref{eq:TST} with $M=35$.  Squeezing is shown for both unitary
+dynamics (Figure \ref{fig:squeezing_coherent}), as well as non-unitary
+dynamics in the presence of spontaneous decay, excitation, and
+dephasing of individual spins at rates $\chi$ (Figure
 \ref{fig:squeezing_incoherent}), respectively described by the sets of
-jump operators $\A_\a=\set{\hat s_\a^{(j)}}$ with corresponding
+jump operators $\A_\a\equiv\set{\hat s_\a^{(j)}}$ with corresponding
 decoherence rates $\gamma_\a=\chi$ for $\a\in\set{-,+,\z}$.  The
 results shown in Figure \ref{fig:benchmarking} were computed in a
 rotated basis with
@@ -515,8 +512,8 @@ seconds to compute with a single CPU on similar hardware.
   \caption{Spin squeezing of $N=10^4$ spins initially in $\ket\X$ with
     spontaneous decay, excitation, and dephasing of individual spins
     at rates $\gamma_-=\gamma_+=\gamma_\z=100\chi$.  Computed using
-    the TST expansion in Eq.~\eqref{eq:order_truncation} with $M=35$.
-    Solid circles mark the times at which the TST expansion gives an
+    the TST expansion in Eq.~\eqref{eq:TST} with $M=35$.  Solid
+    circles mark the times at which the TST expansion gives an
     unphysical result with $\xi^2<0$.}
   \label{fig:decoherence_strong}
 \end{figure}
@@ -549,17 +546,19 @@ structure constants calculated in this work.
     evolution without decoherence (leftmost panel), as well as with
     decoherence at rates $\Gamma_\a$ or $\gamma_\a$, respectively
     corresponding to collective or single-spin decoherence through
-    jump operators $S_\a$ or $s_\a^{(j)}$.  Collective decoherence
-    rates ($\Gamma_\a$) were chosen to be comparable to the OAT
-    squeezing strength $\chi$, while single-spin decoherence rates
-    ($\gamma_\a$) were scaled by an additional factor of $S=N/2$ in
-    order to yield comparable effects on the correlator $C\p{t}$ at
+    jump operators $\hat S_\a$ or $\hat s_\a^{(j)}$.  Collective
+    decoherence rates ($\Gamma_\a$) were chosen to be comparable to
+    the OAT squeezing strength $\chi$, while single-spin decoherence
+    rates ($\gamma_\a$) were scaled by an additional factor of $S=N/2$
+    in order to yield comparable effects on the correlator $C\p{t}$ at
     the times shown.  At short times, the correlations captured by
     $C\p{t}$ are essentially insensitive to collective dephasing
-    ($\Gamma_\z$), while the magnitude $\abs{C\p{t}}$ is suppressed by
-    other forms of decoherence.  The type of decoherence (namely spin
-    decay, excitation, or dephasing) leaves a signature on the phase
-    $\phi\p{t}$ of $C\p{t}$.}
+    ($\Gamma_\z$), while the magnitude $\abs{C\p{t}}$ is generally
+    suppressed by other forms of decoherence.  The general type of
+    decoherence (namely spin decay, excitation, or dephasing) also
+    leaves a signature on the phase $\phi\p{t}$ of $C\p{t}$.  Results
+    computed using the TST expansion in Eq.~\eqref{eq:TST} with
+    $M=20$.}
   \label{fig:two_time}
 \end{figure*}
 
