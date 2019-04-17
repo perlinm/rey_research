@@ -257,12 +257,14 @@ def multiply_terms(op_left, op_right):
     return clean(vec)
 
 # simplify product of two vectors
-def multiply_vecs(vec_left, vec_right, prefactor = 1):
+def multiply_vecs(vec_lft, vec_rht, prefactor = 1, dag_lft = False, dag_rht = False):
+    if dag_lft: vec_lft = conj_vec(vec_lft)
+    if dag_rht: vec_rht = conj_vec(vec_rht)
     vec = {}
-    for term_left, val_left in vec_left.items():
-        for term_right, val_right in vec_right.items():
-            fac = val_left * val_right * prefactor
-            add_left(vec, multiply_terms(term_left, term_right), fac)
+    for term_lft, val_lft in vec_lft.items():
+        for term_rht, val_rht in vec_rht.items():
+            fac = val_lft * val_rht * prefactor
+            add_left(vec, multiply_terms(term_lft, term_rht), fac)
     return clean(vec)
 
 
@@ -643,25 +645,6 @@ def get_deriv_op_vec(order_cap, spin_num, init_state, h_vec,
 
     return deriv_op_vec
 
-# combine two deriv_op_vecs into a single deriv_op_vec that corresponds to the product
-#   of the respective operators
-def combine_deriv_op_vecs(deriv_op_vec_lft, deriv_op_vec_rht):
-    ops_lft = set( key[0] for key in deriv_op_vec_lft.keys() )
-    ops_rht = set( key[0] for key in deriv_op_vec_rht.keys() )
-    order_cap = min( max( key[1] for key in deriv_op_vec_lft.keys() ),
-                     max( key[1] for key in deriv_op_vec_rht.keys() ) ) + 1
-
-    deriv_op_vec_combined = {}
-    for op_lft, op_rht in itertools.product(ops_lft, ops_rht):
-        for order in range(order_cap):
-            for order_lft in range(order+1):
-                order_rhg = order - order_lft
-                deriv_op_vec_combined[(op_lft,op_rht),order] \
-                    = multiply_vecs(deriv_op_vec_lft[op_lft,order_lft],
-                                    deriv_op_vec_rht[op_rht,order_rht])
-
-    return deriv_op_vec_combined
-
 # sandwich a deriv_op_vec object by operators prepend_op and append_op
 def sandwich_deriv_op_vec(deriv_op_vec, prepend_op = None, append_op = None):
     new_deriv_op_vec = deriv_op_vec.copy()
@@ -672,6 +655,52 @@ def sandwich_deriv_op_vec(deriv_op_vec, prepend_op = None, append_op = None):
         for key in deriv_op_vec.keys():
             new_deriv_op_vec[key] = multiply_vecs(deriv_op_vec[key],append_op)
     return new_deriv_op_vec
+
+# add two deriv_op_vecs
+def add_deriv_op_vecs(deriv_op_vec_lft, deriv_op_vec_rht, factor_lft = 1, factor_rht = 1):
+    ops_lft = set( key[0] for key in deriv_op_vec_lft.keys() )
+    ops_rht = set( key[0] for key in deriv_op_vec_rht.keys() )
+    order_cap = min( max( key[1] for key in deriv_op_vec_lft.keys() ),
+                     max( key[1] for key in deriv_op_vec_rht.keys() ) ) + 1
+
+    ops_both = set(ops_lft).intersection(ops_rht)
+    ops_lft_only = set(ops_lft).difference(ops_rht)
+    ops_rht_only = set(ops_rht).difference(ops_lft)
+
+    deriv_op_vec_sum = {}
+    for order in range(order_cap):
+        for op in ops_both:
+            deriv_op_vec_sum[op,order] \
+                = sum_vecs([ deriv_op_vec_lft[op,order], deriv_op_vec_rht[op,order] ],
+                           [ factor_lft, factor_rht ])
+        for op in ops_lft_only:
+            deriv_op_vec_sum[op,order] \
+                = sum_vecs([ deriv_op_vec_lft[op,order] ], [ factor_lft ])
+        for op in ops_rht_only:
+            deriv_op_vec_sum[op,order] \
+                = sum_vecs([ deriv_op_vec_rht[op,order] ], [ factor_rht ])
+
+    return deriv_op_vec_sum
+
+# multiply two deriv_op_vecs
+def multiply_deriv_op_vecs(deriv_op_vec_lft, deriv_op_vec_rht,
+                           dag_lft = False, dag_rht = False):
+    ops_lft = set( key[0] for key in deriv_op_vec_lft.keys() )
+    ops_rht = set( key[0] for key in deriv_op_vec_rht.keys() )
+    order_cap = min( max( key[1] for key in deriv_op_vec_lft.keys() ),
+                     max( key[1] for key in deriv_op_vec_rht.keys() ) ) + 1
+
+    deriv_op_vec_product = {}
+    for op_lft, op_rht in itertools.product(ops_lft, ops_rht):
+        for order in range(order_cap):
+            for order_lft in range(order+1):
+                order_rht = order - order_lft
+                deriv_op_vec_product[(op_lft,op_rht),order] \
+                    = multiply_vecs(deriv_op_vec_lft[op_lft,order_lft],
+                                    deriv_op_vec_rht[op_rht,order_rht],
+                                    dag_lft, dag_rht)
+
+    return deriv_op_vec_product
 
 # compute (factorially suppresed) derivatives of operators,
 # returning a value for each order:
