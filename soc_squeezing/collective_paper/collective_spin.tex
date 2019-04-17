@@ -540,22 +540,26 @@ structure constants calculated in this work.
 \begin{figure*}
   \centering
   \includegraphics{two_time.pdf}
-  \caption{Real (solid lines) and imaginary (dashed lines) parts of
-    the two-time connected correlator $C\p{t}$ defined in
+  \caption{Magnitude and phase of the two-time connected correlator
+    $C\p{t}\equiv\abs{C\p{t}}\exp\sp{i\phi\p{t}}$ defined in
     Eq.~\eqref{eq:two_time} for $N=10^4$ spins initially in the
     polarized state $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$
     evolving under the squeezing Hamiltonians in
     Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}.  Results are shown for time
     evolution without decoherence (leftmost panel), as well as with
-    decoherence at rates $\gamma_\a$ or $\Gamma_\a$,
-    respectively corresponding to single-spin or collective jump
-    operators $s_\a^{(j)}$ or $S_\a$.  All axes in the sub-figures are
-    shared.  At short times, the correlations captured by $C\p{t}$ are
-    suppressed by single-spin decay ($\gamma_-$), collective decay
-    ($\Gamma_-$), and single-spin dephasing ($\gamma_\z$); these
-    correlations are relatively insensitive to collective dephasing
-    ($\Gamma_\z$), and can change sign or grow from spontaneous
-    single-spin ($\gamma_+$) or collective ($\Gamma_+$) excitation.}
+    decoherence at rates $\Gamma_\a$ or $\gamma_\a$, respectively
+    corresponding to collective or single-spin decoherence through
+    jump operators $S_\a$ or $s_\a^{(j)}$.  Collective decoherence
+    rates ($\Gamma_\a$) were chosen to be comparable to the OAT
+    squeezing strength $\chi$, while single-spin decoherence rates
+    ($\gamma_\a$) were scaled by an additional factor of $S=N/2$ in
+    order to yield comparable effects on the correlator $C\p{t}$ at
+    the times shown.  At short times, the correlations captured by
+    $C\p{t}$ are essentially insensitive to collective dephasing
+    ($\Gamma_\z$), while the magnitude $\abs{C\p{t}}$ is suppressed by
+    other forms of decoherence.  The type of decoherence (namely spin
+    decay, excitation, or dephasing) leaves a signature on the phase
+    $\phi\p{t}$ of $C\p{t}$.}
   \label{fig:two_time}
 \end{figure*}
 
@@ -590,11 +594,9 @@ spins, initially in the state
 $\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$, evolving under the
 squeezing Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT} both
 with and without various sources of decoherence.  The two-time
-correlator $C\p{t}$ degrades at short times under certain types of
-decoherence, but seems relatively insensitive to collective dephasing
-(with jump operator $\hat S_\z$), and can qualitatively change
-behavior or grow in the presence of single-spin or collective
-excitation (with jump operators $\hat s_+^{(j)}$ or $\hat S_+$).
+correlations captured by $C\p{t}\equiv\abs{C\p{t}}\exp\sp{i\phi\p{t}}$
+exhibit signatures of the type of decoherence present, with e.g.~clear
+dependence of the phase $\phi\p{t}$ on spin decay or excitation.
 Figure \ref{fig:two_time} serves as an example for the type of
 behavior that is accessible at short times with the TST expansion.
 This example is straightforward to extend to multi-time and
