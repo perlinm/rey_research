@@ -680,6 +680,9 @@ def add_deriv_op_vecs(deriv_op_vec_lft, deriv_op_vec_rht, factor_lft = 1, factor
             deriv_op_vec_sum[op,order] \
                 = sum_vecs([ deriv_op_vec_rht[op,order] ], [ factor_rht ])
 
+    for key in deriv_op_vec_sum.keys():
+        clean(deriv_op_vec_sum[key])
+
     return deriv_op_vec_sum
 
 # multiply two deriv_op_vecs
@@ -693,12 +696,14 @@ def multiply_deriv_op_vecs(deriv_op_vec_lft, deriv_op_vec_rht,
     deriv_op_vec_product = {}
     for op_lft, op_rht in itertools.product(ops_lft, ops_rht):
         for order in range(order_cap):
+            deriv_op_vec_product[(op_lft,op_rht),order] = {}
             for order_lft in range(order+1):
                 order_rht = order - order_lft
-                deriv_op_vec_product[(op_lft,op_rht),order] \
-                    = multiply_vecs(deriv_op_vec_lft[op_lft,order_lft],
-                                    deriv_op_vec_rht[op_rht,order_rht],
-                                    dag_lft = dag_lft, dag_rht = dag_rht)
+                product = multiply_vecs(deriv_op_vec_lft[op_lft,order_lft],
+                                        deriv_op_vec_rht[op_rht,order_rht],
+                                        dag_lft = dag_lft, dag_rht = dag_rht)
+                add_left(deriv_op_vec_product[(op_lft,op_rht),order], product)
+            clean(deriv_op_vec_product[(op_lft,op_rht),order])
 
     return deriv_op_vec_product
 
