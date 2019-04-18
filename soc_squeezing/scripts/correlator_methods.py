@@ -698,7 +698,7 @@ def multiply_deriv_op_vecs(deriv_op_vec_lft, deriv_op_vec_rht,
                 deriv_op_vec_product[(op_lft,op_rht),order] \
                     = multiply_vecs(deriv_op_vec_lft[op_lft,order_lft],
                                     deriv_op_vec_rht[op_rht,order_rht],
-                                    dag_lft, dag_rht)
+                                    dag_lft = dag_lft, dag_rht = dag_rht)
 
     return deriv_op_vec_product
 
