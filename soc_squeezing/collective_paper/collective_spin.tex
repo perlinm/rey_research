@@ -22,13 +22,13 @@
 \newcommand{\bk}{\braket} % shorthand for braket notation
 
 \newcommand{\A}{\mathcal{A}}
-\newcommand{\C}{\mathcal{C}}
 \newcommand{\D}{\mathcal{D}}
 \newcommand{\F}{\mathcal{F}}
 \newcommand{\I}{\mathcal{I}}
 \renewcommand{\O}{\mathcal{O}}
 \renewcommand{\S}{\mathcal{S}}
 
+\newcommand{\C}{\mathbb{C}}
 \newcommand{\N}{\mathbb{N}}
 
 \newcommand{\z}{\text{z}}
@@ -196,8 +196,8 @@ method is based on a short-time expansion of exact solutions to the
 equations of motion for Heisenberg operators.  Evaluating this
 expansion requires knowing the structure constants of a collective
 spin operator algebra; the calculation of these structure constants
-(in Appendices \ref{sec:identities}--\ref{sec:prod_general}) is one of
-the main technical results of this work, which we hope will empower
+(in Appendices \ref{sec:identities}--\ref{sec:general_product}) is one
+of the main technical results of this work, which we hope will empower
 both analytical and numerical studies of collective spin systems in
 the future.  We benchmark our method against both exact and quantum
 trajectory Monte Carlo computations of spin squeezing in accessible
@@ -227,7 +227,7 @@ we can expand any collective spin operator $\hat\O$ in the form
 \begin{align}
   \hat\O = \sum_{\v m} \O_{\v m} \hat\S_{\v m}
 \end{align}
-with scalar coefficients $\O_{\v m}\in\mathbb{C}$.  If $\hat\O$ is
+with scalar coefficients $\O_{\v m}\in\C$.  If $\hat\O$ is
 self-adjoint, for example, then $\O_{\v m}^*=\O_{\v m^*}$ with
 $\v m^*\equiv\p{m_-,m_\z,m_+}$.  The corresponding Heisenberg operator
 is then $\hat\O\p{t}=\sum_{\v m}\O_{\v m}\p{t}\hat\S_{\v m}$, with
@@ -241,7 +241,7 @@ Heisenberg operators is determined by
   \label{eq:EOM}
 \end{align}
 for a time derivative (super-)operator $\check T$ with matrix elements
-$T_{\v m\v n}\in\mathbb{C}$ defined by
+$T_{\v m\v n}\in\C$ defined by
 \begin{align}
   \check T \hat\S_{\v n} \equiv i \sp{\hat H, \hat\S_{\v n}}_-
   + \sum_\A \gamma_\A \check\D\p{\A} \hat\S_{\v n}
@@ -259,12 +259,12 @@ dissipator, or Lindblad superoperator, defined by
 \end{align}
 Decoherence via uncorrelated decay of individual spins, for example,
 would be described by the set of jump operators
-$\A_-=\set{\hat s_-^{(j)}:j=1,2,\cdots,N}$.  The commutator in
+$\A_-\equiv\set{\hat s_-^{(j)}:j=1,2,\cdots,N}$.  The commutator in
 Eq.~\eqref{eq:time_deriv} can be computed by expanding the product
 $\hat\S_{\v\ell}\hat\S_{\v m} = \sum_{\v n} f_{\v\ell\v m\v
   n}\hat\S_{\v n}$ with structure constants
 $f_{\v\ell\v m\v n}\in\mathbb{R}$ that we work out in Appendices
-\ref{sec:identities}--\ref{sec:prod_general}, and the effects of
+\ref{sec:identities}--\ref{sec:general_product}, and the effects of
 decoherence from jump operators (i.e.~elements of $\A$) of the form
 $\hat g^{(j)} = \sum_\a g_\a \hat s_\a^{(j)}$ and
 $\hat G = \sum_\a G_\a \hat S_\a$ are worked out in Appendices
@@ -328,7 +328,7 @@ series about the time $t=0$ to write
   \label{eq:time_series}
 \end{align}
 where the matrix elements $T^k_{\v m\v n}$ of the $k$-th time
-derivative operator are
+derivative operator $T^k$ are
 \begin{align}
   T^0_{\v m\v n} &\equiv \delta_{\v m\v n}, \\
   T^1_{\v m\v n} &\equiv T_{\v m\v n}, \\
@@ -369,7 +369,9 @@ Eq.~\eqref{eq:TST} only allows for computation of the expectation
 value $\bk{\hat\O\p{t}}$ to a maximal time $t_{M_{\t{max}}}$.  As we
 will see in the following section, $M_{\t{max}}=35$ will suffice for
 the computation of collective spin correlators up to times that are
-relevant e.g.~for spin squeezing protocols.
+relevant e.g.~for spin squeezing protocols.  Appendix
+\ref{sec:tutorial} provides a pedagogical tutorial for computing
+correlators using the TST expansion.
 
 
 \section{Spin squeezing, benchmarking, and breakdown}
@@ -554,11 +556,10 @@ structure constants calculated in this work.
     the times shown.  At short times, the correlations captured by
     $C\p{t}$ are essentially insensitive to collective dephasing
     ($\Gamma_\z$), while the magnitude $\abs{C\p{t}}$ is generally
-    suppressed by other forms of decoherence.  The general type of
-    decoherence (namely spin decay, excitation, or dephasing) also
-    leaves a signature on the phase $\phi\p{t}$ of $C\p{t}$.  Results
-    computed using the TST expansion in Eq.~\eqref{eq:TST} with
-    $M=20$.}
+    suppressed by other forms of decoherence.  Whether decoherence
+    occurs through spin decay, excitation, or dephasing also leaves a
+    signature on the phase $\phi\p{t}$ of $C\p{t}$.  Results computed
+    using the TST expansion in Eq.~\eqref{eq:TST} with $M=20$.}
   \label{fig:two_time}
 \end{figure*}
 
@@ -1100,7 +1101,7 @@ kind.
 
 
 \section{Product of arbitrary ordered collective spin operators}
-\label{sec:prod_general}
+\label{sec:general_product}
 
 The most general product of collective spin operators that we need to
 compute is
@@ -1730,17 +1731,130 @@ and
 \end{align}
 
 
+\section{Computing correlators with the truncated short-time (TST)
+  expansion}
+\label{sec:tutorial}
+
+Here, we provide a pedagogical tutorial for computing correlators
+using the truncated short-time TST expansion.  For concreteness, we
+nominally consider $N$ spins evolving under the one-axis twisting
+(OAT) Hamiltonian
+\begin{align}
+  H_{\t{OAT}} = \chi S_\z^2,
+\end{align}
+additionally subject to spontaneous single-spin decay at rate
+$\gamma_-$, with jump operators $\A_-=\set{s_-^{(j)}:j=1,2,\cdots,N}$.
+The equation of motion for a Heisenberg operator
+$S_+^\ell S_\z^m S_-^n$ is
+\begin{align}
+  \f{d}{dt} \p{S_+^\ell S_\z^m S_-^n}
+  = i\chi\sp{S_\z^2, S_+^\ell S_\z^m S_-^n}_-
+  + \gamma_- \D\p{\A_-} \p{S_+^\ell S_\z^m S_-^n},
+  \label{eq:tutorial_EOM}
+\end{align}
+where we can use the results in appendices \ref{sec:general_product}
+and \ref{sec:decoherence_single} respectively to evaluate the
+commutator $\sp{S_\z^2, S_+^\ell S_\z^m S_-^n}_-$ and dissipator
+$\D\p{\A_-} \p{S_+^\ell S_\z^m S_-^n}$ in \eqref{eq:tutorial_EOM} (see
+\eqref{eq:general_product} and \eqref{eq:decay_diff} in particular),
+giving us
+\begin{align}
+  \f{d}{dt} \p{S_+^\ell S_\z^m S_-^n} =
+  i\chi \p{\ell-n} S_+^\ell \p{\ell+n+2S_\z} S_\z^m S_-^n
+  + \gamma_- S_+^\ell \sp{\p{S+S_\z}\p{-1+S_\z}^m
+    - \p{S+\f{\ell+n}{2}+S_\z} S_\z^m} S_-^n.
+  \label{eq:tutorial_EOM_expanded}
+\end{align}
+In practice, we do not want to keep track of such an expansion by
+hand, especially in the case of e.g.~the two-axis twisting (TAT) and
+twist-and-turn (TNT) models with more general types of decoherence,
+for which the analogue of \eqref{eq:tutorial_EOM_expanded} may take
+several lines just to write out in full.  Defining the operators
+$\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ with
+$\v m\equiv\p{m_+,m_\z,m_-}$ for shorthand, we note that the vector
+space spanned by $\set{\S_{\v m}}$ is closed under time evolution.  We
+therefore expand
+\begin{align}
+  \f{d}{dt} \S_{\v n} \equiv T \S_{\v n}
+  = \sum_{\v m} \S_{\v m} T_{\v m\v n},
+  \label{eq:tutorial_EOM_general}
+\end{align}
+where $T$ is a super-operator that generates time evolution for
+Heisenberg operators.  In the present example, the matrix elements
+$T_{\v m\v n}\in\C$ of $T$ are defined by
+\eqref{eq:tutorial_EOM_expanded} and \eqref{eq:tutorial_EOM_general}.
+For any Hamiltonian $H$ with decoherence characterized by sets of jump
+operators $\A$ and decoherence rates $\gamma_A$, the matrix elements
+$T_{\v m\v n}$ are more generally defined by
+\begin{align}
+  T \S_{\v n}
+  = i\sp{H,\S_{\v n}}_- + \sum_\A \gamma_\A \D\p{\A} \S_{\v n}
+  = \sum_{\v m} \S_{\v m} T_{\v m\v n}.
+\end{align}
+The results in Appendices \ref{sec:general_product},
+\ref{sec:decoherence_single}, and \ref{sec:decoherence_collective} can
+be used to write model-agnostic codes that compute matrix elements
+$T_{\v m\v n}$, taking a particular Hamiltonian $H$ and decoherence
+processes $\set{\p{\A,\gamma_\A}}$ as inputs.
+
+In order to compute a quantity such as spin squeezing, we need to
+compute correlators of the form $\bk{\S_{\v n}\p{t}}$, where
+$\S_{\v n}\p{t}$ is the time-evolved Heisenberg operator corresponding
+to $\S_{\v n}$, with $\S_{\v n}\p{0}\equiv\S_{\v n}$.  The order-$M$
+truncated short-time (TST) expansion takes
+\begin{align}
+  \bk{\S_{\v n}\p{t}}
+  \to \sum_{k=0}^M \f{t^k}{k!} \sum_{\v m} \bk{\S_{\v m}} T^k_{\v m\v n},
+  \label{eq:tutorial_TST}
+\end{align}
+where $T^k_{\v m\v n}$ are matrix elements of the $k$-th time
+derivative operator, given by
+\begin{align}
+  T^0_{\v m\v n} \equiv
+    \begin{cases}
+      1 & \v m = \v n, \\
+      0 & \t{otherwise}
+    \end{cases},
+  &&
+  T^1_{\v m\v n} \equiv T_{\v m\v n},
+  &&
+  T^{k>1}_{\v m\v n}
+  \equiv \sum_{\v p_1,\v p_2,\cdots,\v p_{k-1}}
+  T_{\v m\v p_{k-1}} \cdots T_{\v p_3\v p_2}
+  T_{\v p_2\v p_1} T_{\v p_1\v n}.
+\end{align}
+Matrix elements $T^k_{\v m\v n}$ and initial-time expectation values
+$\bk{\S_{\v m}}$ are thus computed on an as-needed basis for any
+particular correlator $\bk{\S_{\v n}\p{t}}$ of interest, and combined
+according to \eqref{eq:tutorial_TST}.  Note that initial-time
+expectation values $\bk{\S_{\v m}}$ are an input to the TST expansion,
+and need to be computed separately for any particular initial state of
+interest; expectation values with respect to spin-polarized (Gaussian)
+states are provided in Appendix \ref{sec:initial_conditions}.  In
+practice, we further collect terms in \eqref{eq:tutorial_TST} to write
+\begin{align}
+  \bk{\S_{\v n}\p{t}} \to \sum_{k=0}^M c_{\v n k} t^k,
+  &&
+  c_{\v n k} \equiv \f1{k!} \sum_{\v m} \bk{\S_{\v m}} T^k_{\v m\v n},
+\end{align}
+where $c_{\v n k}$ are time-independent coefficients for the
+polynomial time expansion of $\bk{\S_{\v n}\p{t}}$.  After computing
+the coefficients $c_{\v n k}$, there is only negligible computational
+overhead to compute the correlator $\bk{\S_{\v n}\p{t}}$ for any time
+$t$ up to the breakdown time $t_M$ of an order-$M$ TST expansion.
+
+
 \section{Short-time linear response and two-time correlators}
 \label{sec:linear_response}
 
 Here, we discuss the appearance of two-time correlation functions in
-the short-time linear response of Heisenberg operators to
-perturbations of a Hamiltonian.  Consider an initial Hamiltonian $H$
-perturbed by an operator $V$ with $\norm{V}\ll\norm{H}$, where
-$\norm{\O}$ denotes the operator norm of $\O$, such that the net
-Hamiltonian is $\widetilde H=H+V$.  We denote the generator of
-Heisenberg time evolution under the perturbed (unperturbed)
-Hamiltonian by $\widetilde T$ ($T$).  These generators are related by
+the short-time linear response of correlators to perturbations of a
+Hamiltonian.  Consider an initial Hamiltonian $H$ perturbed by an
+operator $V$ with $\norm{V}\ll\norm{H}$, where $\norm{\O}$ denotes the
+operator norm of $\O$, such that the net Hamiltonian is
+$\widetilde H=H+V$.  We denote the generator of Heisenberg time
+evolution under the perturbed (unperturbed) Hamiltonian by
+$\widetilde T$ ($T$).  These generators are related by
 \begin{align}
   \widetilde T = T + i\check V
 \end{align}
