@@ -74,22 +74,22 @@
 
 \begin{abstract}
   We present a new method to compute short-time expectation values in
-  large ensembles of collective spin systems with generic Markovian
-  decoherence.  Our method is based on a Taylor expansion of a formal
-  solution to the equations of motion for Heisenberg operators.  This
-  expansion can be truncated at finite order to obtain virtually exact
-  results at short times that are relevant for metrological
-  applications such as spin squeezing.  In order to evaluate the
-  expansion for Heisenberg operators, we compute the relevant
-  structure constants of a collective operator algebra.  We
-  demonstrate the utility of our method by computing spin squeezing
-  and two-time correlation functions in strong-decoherence regimes
-  that are inaccessible to existing numerical methods.  Our method can
-  be straightforwardly generalized to the case of a collective spin
-  coupled to bosonic modes, relevant for trapped ion and cavity QED
-  experiments, and may be used to compute quantities such as
-  out-of-time-ordered correlators that can feature short-time
-  signatures of quantum chaos and information scrambling.
+  large collective spin systems with generic Markovian decoherence.
+  Our method is based on a Taylor expansion of a formal solution to
+  the equations of motion for Heisenberg operators.  This expansion
+  can be truncated at finite order to obtain virtually exact results
+  at short times that are relevant for metrological applications such
+  as spin squeezing.  In order to evaluate the expansion for
+  Heisenberg operators, we compute the relevant structure constants of
+  a collective operator algebra.  We demonstrate the utility of our
+  method by computing spin squeezing, two-time correlation functions,
+  and out-of-time-ordered correlators for $10^4$ spins in
+  strong-decoherence regimes that are otherwise inaccessible via
+  existing numerical methods.  Our method can be straightforwardly
+  generalized to the case of a collective spin coupled to bosonic
+  modes, relevant for trapped ion and cavity QED experiments, and may
+  be used to investigate short-time signatures of quantum chaos and
+  information scrambling.
 \end{abstract}
 
 \maketitle
@@ -532,82 +532,100 @@ simulations presented in Figure \ref{fig:benchmarking}.
 Strong-decoherence computations of this sort were used to put lower
 bounds on theoretically achievable spin squeezing via TAT with
 decoherence in Ref.~[\citenum{he2019engineering}], exemplifying a
-concrete application of the TST expansion and the collective-spin
-structure constants calculated in this work.
+concrete and practical application of the TST expansion and the
+collective-spin structure constants calculated in this work.
 
+
+\section{Two-time correlation functions and out-of-time-ordered
+  correlators}
+\label{sec:multi_time}
 
 \begin{figure*}
   \centering
-  \includegraphics{two_time.pdf}
-  \caption{Magnitude and phase of the two-time connected correlator
-    $C\p{t}\equiv\abs{C\p{t}}\exp\sp{i\phi\p{t}}$ defined in
-    Eq.~\eqref{eq:two_time} for $N=10^4$ spins initially in the
-    polarized state $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$
-    evolving under the squeezing Hamiltonians in
-    Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}.  Results are shown for time
-    evolution without decoherence (leftmost panel), as well as with
-    decoherence at rates $\Gamma_\a$ or $\gamma_\a$, respectively
-    corresponding to collective or single-spin decoherence through
-    jump operators $\hat S_\a$ or $\hat s_\a^{(j)}$.  Collective
-    decoherence rates ($\Gamma_\a$) were chosen to be comparable to
-    the OAT squeezing strength $\chi$, while single-spin decoherence
-    rates ($\gamma_\a$) were scaled by an additional factor of $S=N/2$
-    in order to yield comparable effects on the correlator $C\p{t}$ at
-    the times shown.  At short times, the correlations captured by
-    $C\p{t}$ are essentially insensitive to collective dephasing
-    ($\Gamma_\z$), while the magnitude $\abs{C\p{t}}$ is generally
+  \subfloat[Two-time correlator
+  $C\p{t}\equiv\abs{C\p{t}}\exp\sp{i\phi\p{t}}$ defined in
+  Eq.~\eqref{eq:two_time}. \label{fig:two_time}]
+  {\includegraphics{two_time.pdf}} \\
+  \subfloat[Squared commutator $D\p{t}$ defined in
+  Eq.~\eqref{eq:OTOC}. \label{fig:OTOC}]
+  {\includegraphics{OTOC.pdf}}
+  \caption{The two-time connected correlator $C\p{t}$ and squared
+    commutator $D\p{t}$, respectively defined in
+    Eqs.~\eqref{eq:two_time} and \eqref{eq:OTOC}, for $N=10^4$ spins
+    initially in the polarized state
+    $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$ evolving under
+    the squeezing Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}.
+    Results are shown for time evolution without decoherence (leftmost
+    panels), as well as with decoherence at rates $\Gamma_\a$ or
+    $\gamma_\a$, respectively corresponding to collective or
+    single-spin decoherence through jump operators $\hat S_\a$ or
+    $\set{\hat s_\a^{(j)}}$.  Collective decoherence rates
+    ($\Gamma_\a$) were chosen to be comparable to the OAT squeezing
+    strength $\chi$, while single-spin decoherence rates ($\gamma_\a$)
+    were scaled by an additional factor of $S=N/2$ in order to yield
+    comparable effects on the correlators $C\p{t}$ and $D\p{t}$ at the
+    times shown.  At short times, the multi-time correlations captured
+    by $C\p{t}$ and $D\p{t}$ are essentially insensitive to collective
+    dephasing ($\Gamma_\z$), while their magnitudes are generally
     suppressed by other forms of decoherence.  Whether decoherence
     occurs through spin decay, excitation, or dephasing also leaves a
     signature on the phase $\phi\p{t}$ of $C\p{t}$.  Results computed
-    using the TST expansion in Eq.~\eqref{eq:TST} with $M=35$.}
-  \label{fig:two_time}
+    using the TST expansion in Eq.~\eqref{eq:TST} with $M=20$.}
+  \label{fig:multi_time}
 \end{figure*}
-
-\section{Two-time correlation functions}
-\label{sec:two_time}
 
 As a final example of collective-spin physics that is numerically
 accessible via the TST expansion of Heisenberg operators, we consider
-the calculation of collective-spin two-time correlation functions.  In
-particular, we consider the effect of decoherence on short-time
-behavior of the two-time connected correlator
+the calculation of two-time correlation functions and
+out-of-time-ordered correlators (OTOCs).  In particular, we consider
+the effect of decoherence on short-time behavior of the two-time
+connected correlator
 \begin{align}
   C\p{t}
-  \equiv \f1S\sp{\bk{\hat S_+\p{t} \hat S_-\p{0}}
-    - \bk{\hat S_+\p{t}}\bk{\hat S_-\p{0}}}
+  \equiv \f1S\p{\bk{\hat S_+\p{t} \hat S_-\p{0}}
+    - \bk{\hat S_+\p{t}}\bk{\hat S_-\p{0}}},
   \label{eq:two_time}
 \end{align}
+and the expectation value of a squared commutator,
+\begin{align}
+  D\p{t}
+  \equiv \f1{S^2}\Braket{\sp{\hat S_+\p{t},\hat S_-\p{0}}_-^\dag
+    \sp{\hat S_+\p{t},\hat S_-\p{0}}_-},
+  \label{eq:OTOC}
+\end{align}
 in the context of the squeezing models in Section \ref{sec:squeezing}.
-In an equilibrium setting, correlation functions of this sort contain
-information about the linear response of Heisenberg operators to
-perturbations of a system; in a non-equilibrium setting, they
-contribute to short-time linear response (see Appendix
-\ref{sec:linear_response}).  Similar correlators have made appearances
-as order parameters that diagnose time-crystalline phases of
-matter\cite{tucker2018shattered}, and related multi-time correlators,
-known as out-of-time-ordered correlators, are commonly examined for
-signatures of quantum chaos and information
-scrambling\cite{maldacena2016bound}.
+In an equilibrium setting, correlation functions similar to that in
+Eq.~\eqref{eq:two_time} contain information about the linear response
+of Heisenberg operators to perturbations of a system; in a
+non-equilibrium setting, they contribute to short-time linear response
+(see Appendix \ref{sec:linear_response}).  Similar correlators have
+made appearances as order parameters that diagnose time-crystalline
+phases of matter\cite{tucker2018shattered}.  OTOCs such as that in
+Eq.~\eqref{eq:OTOC}, meanwhile, are commonly examined for signatures
+of quantum chaos and information scrambling\cite{maldacena2016bound,
+  swingle2018unscrambling, garcia-mata2018chaos}.
 
-Figure \ref{fig:two_time} shows the behavior of $C\p{t}$ for $N=10^4$
-spins, initially in the state
+Figure \ref{fig:multi_time} shows the behavior of $C\p{t}$ and
+$D\p{t}$ for $N=10^4$ spins, initially in the state
 $\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$, evolving under the
 squeezing Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT} both
-with and without various sources of decoherence.  The two-time
+with and without various sources of decoherence.  At short times, both
+correlators are insensitive to collective dephasing, while their
+magnitudes are suppressed by other types of decoherence.  The
 correlations captured by $C\p{t}\equiv\abs{C\p{t}}\exp\sp{i\phi\p{t}}$
-exhibit signatures of the type of decoherence present, with e.g.~clear
-dependence of the phase $\phi\p{t}$ on spin decay or excitation.
-Figure \ref{fig:two_time} serves as an example for the type of
-behavior that is accessible at short times with the TST expansion.
-This example is straightforward to extend to multi-time and
-out-of-time-ordered correlators, as well as equilibrium settings.
+also exhibit signatures of the type of decoherence present, with
+e.g.~clear dependence of the phase $\phi\p{t}$ on spin decay or
+excitation.  Figure \ref{fig:multi_time} serves as an example for the
+type of behavior that is accessible at short times with the TST
+expansion.  These examples are straightforward extend to equilibrium
+settings and spin-boson systems.
 
 
 \section{Conclusions}
 
-We have presented a new method for computing correlators in collective
-spin systems at short times.  This method is based on truncating a
-short-time expansion of Heisenberg operators, and can access
+We have presented a new method for computing correlators at short
+times in collective spin systems.  This method is based on truncating
+a short-time expansion of Heisenberg operators, and can access
 correlators on time scales that are relevant to metrological
 applications such as spin squeezing.  In order to evaluate the
 truncated short-time (TST) expansion of Heisenberg operators, we have
@@ -619,8 +637,7 @@ be applied directly in an equilibrium setting, and is straightforward
 to generalize to systems such as trapped ions and optical cavities
 with collective spin-boson interactions.  In such contexts, our method
 may be used to benchmark the short-time effects of decoherence, or
-compute quantities such as out-of-time-ordered correlators that
-diagnose the onset of quantum chaos and information scrambling.
+study the onset of quantum chaos and information scrambling.
 
 
 \begin{acknowledgments}
