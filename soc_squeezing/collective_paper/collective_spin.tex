@@ -288,7 +288,7 @@ take
 \begin{align}
   \f{d}{dt} \hat\O\p{t}
   \to \sum_{w\p{\v m}<W} \hat\S_{\v m}
-  \sum_{\v n} T_{\v m\v n} \hat\O_{\v n}\p{t}
+  \sum_{\v n} T_{\v m\v n} \O_{\v n}\p{t}
   \label{eq:weight_truncation}
 \end{align}
 for some weight measure $w$, e.g.~$w\p{\v m}=\abs{\v m}$, and a
@@ -547,12 +547,12 @@ collective-spin structure constants calculated in this work.
   Eq.~\eqref{eq:two_time}. \label{fig:two_time}]
   {\includegraphics{two_time.pdf}} \\
   \subfloat[Squared commutator $D\p{t}$ defined in
-  Eq.~\eqref{eq:OTOC}. \label{fig:OTOC}]
+  Eq.~\eqref{eq:four_point}. \label{fig:four_point}]
   {\includegraphics{OTOC.pdf}}
   \caption{The two-time connected correlator $C\p{t}$ and squared
     commutator $D\p{t}$, respectively defined in
-    Eqs.~\eqref{eq:two_time} and \eqref{eq:OTOC}, for $N=10^4$ spins
-    initially in the polarized state
+    Eqs.~\eqref{eq:two_time} and \eqref{eq:four_point}, for $N=10^4$
+    spins initially in the polarized state
     $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$ evolving under
     the squeezing Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}.
     Results are shown for time evolution without decoherence (leftmost
@@ -574,6 +574,14 @@ collective-spin structure constants calculated in this work.
   \label{fig:multi_time}
 \end{figure*}
 
+% TODO: in contrast to typical OTOCs, here the operators "almost commute" -- up to 1/N terms
+
+% TODO: mention short-time expansion, see only polynomial growth
+
+% TODO: figures 3a, 3b: 3 panels each; no decoherence, decoherence in fig. 2, and strong decoherence
+
+% TODO: add vertical axis labels for G_- and g_- (?)
+
 As a final example of collective-spin physics that is numerically
 accessible via the TST expansion of Heisenberg operators, we consider
 the calculation of two-time correlation functions and
@@ -591,7 +599,7 @@ and the expectation value of a squared commutator,
   D\p{t}
   \equiv \f1{S^2}\Braket{\sp{\hat S_+\p{t},\hat S_-\p{0}}_-^\dag
     \sp{\hat S_+\p{t},\hat S_-\p{0}}_-},
-  \label{eq:OTOC}
+  \label{eq:four_point}
 \end{align}
 in the context of the squeezing models in Section \ref{sec:squeezing}.
 In an equilibrium setting, correlation functions similar to that in
@@ -600,10 +608,11 @@ of Heisenberg operators to perturbations of a system; in a
 non-equilibrium setting, they contribute to short-time linear response
 (see Appendix \ref{sec:linear_response}).  Similar correlators have
 made appearances as order parameters that diagnose time-crystalline
-phases of matter\cite{tucker2018shattered}.  OTOCs such as that in
-Eq.~\eqref{eq:OTOC}, meanwhile, are commonly examined for signatures
-of quantum chaos and information scrambling\cite{maldacena2016bound,
-  swingle2018unscrambling, garcia-mata2018chaos}.
+phases of matter\cite{tucker2018shattered}.  Squared commutators such
+as that in Eq.~\eqref{eq:four_point}, meanwhile, are commonly examined
+for signatures of quantum chaos and information
+scrambling\cite{maldacena2016bound, swingle2018unscrambling,
+  garcia-mata2018chaos}.
 
 Figure \ref{fig:multi_time} shows the behavior of $C\p{t}$ and
 $D\p{t}$ for $N=10^4$ spins, initially in the state
@@ -1821,7 +1830,8 @@ to $\S_{\v n}$, with $\S_{\v n}\p{0}\equiv\S_{\v n}$.  The order-$M$
 truncated short-time (TST) expansion takes
 \begin{align}
   \bk{\S_{\v n}\p{t}}
-  \to \sum_{k=0}^M \f{t^k}{k!} \sum_{\v m} \bk{\S_{\v m}} T^k_{\v m\v n},
+  \to \sum_{k=0}^M \f{t^k}{k!}
+  \sum_{\v m} \bk{\S_{\v m}\p{0}} T^k_{\v m\v n},
   \label{eq:tutorial_TST}
 \end{align}
 where $T^k_{\v m\v n}$ are matrix elements of the $k$-th time
@@ -1841,18 +1851,19 @@ derivative operator, given by
   T_{\v p_2\v p_1} T_{\v p_1\v n}.
 \end{align}
 Matrix elements $T^k_{\v m\v n}$ and initial-time expectation values
-$\bk{\S_{\v m}}$ are thus computed on an as-needed basis for any
-particular correlator $\bk{\S_{\v n}\p{t}}$ of interest, and combined
-according to \eqref{eq:tutorial_TST}.  Note that initial-time
-expectation values $\bk{\S_{\v m}}$ are an input to the TST expansion,
-and need to be computed separately for any given initial state;
-expectation values with respect to spin-polarized (Gaussian) states
-are provided in Appendix \ref{sec:initial_conditions}.  In practice,
-we further collect terms in \eqref{eq:tutorial_TST} to write
+$\bk{\S_{\v m}\p{0}}$ are thus computed as needed for any particular
+correlator $\bk{\S_{\v n}\p{t}}$ of interest, and combined according
+to \eqref{eq:tutorial_TST}.  Note that initial-time expectation values
+$\bk{\S_{\v m}\p{0}}$ are an input to the TST expansion, and need to
+be computed separately for any given initial state; expectation values
+with respect to spin-polarized (Gaussian) states are provided in
+Appendix \ref{sec:initial_conditions}.  In practice, we further
+collect terms in \eqref{eq:tutorial_TST} to write
 \begin{align}
   \bk{\S_{\v n}\p{t}} \to \sum_{k=0}^M c_{\v n k} t^k,
   &&
-  c_{\v n k} \equiv \f1{k!} \sum_{\v m} \bk{\S_{\v m}} T^k_{\v m\v n},
+  c_{\v n k}
+  \equiv \f1{k!} \sum_{\v m} \bk{\S_{\v m}\p{0}} T^k_{\v m\v n},
 \end{align}
 where $c_{\v n k}$ are time-independent coefficients for the
 polynomial time expansion of $\bk{\S_{\v n}\p{t}}$.  After computing
