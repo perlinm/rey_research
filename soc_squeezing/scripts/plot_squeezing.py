@@ -3,6 +3,7 @@
 import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
+import colorsys
 
 from scipy.integrate import solve_ivp
 
@@ -243,7 +244,6 @@ def ylims(time_sqz_exact, time_sqz_trunc):
     return ymin/yscale, ymax*yscale
 
 # darken a color provided in hexidecimal format
-import colorsys
 def darken_color(color, darken_val = 0.08):
     # convert hexidecimal to [0,1)^3 RGB format
     color = tuple([ int(color[jj:jj+2], 16)/255 - darken_val

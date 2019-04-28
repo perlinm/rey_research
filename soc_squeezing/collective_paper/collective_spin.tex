@@ -478,22 +478,26 @@ TST expansion, which we discuss further below.
 
 The main lesson from Figure \ref{fig:benchmarking} is that the TST
 expansion gives essentially exact results right up until a sudden and
-drastic departure that can be diagnosed by inspection.
-% todo: comment on diagnosing breakdown by examining individual correlators, rather than squeezing
-This drastic departure occurs because the TST expansion neglects
-high-weight (i.e.~large-$\abs{\v m}$) operators $\hat\S_{\v m}$ whose
-contributions to a Heisenberg operator $\hat\O\p{t}$ of interest
-eventually become non-negligible.  For sufficiently large times $t$,
-these individual contributions may generally be large compared to the
-value of $\bk{\hat\O\p{t}}$, in which case their truncation will yield
-non-physical results.  This breakdown mechanism is also the reason for
-prolonged agreement between the TST expansion and benchmarking methods
-when squeezing the initial state $\ket{-\Z}$ rather than $\ket{\X}$:
-for initial states $\ket{-\Z}$, all initial-time correlators
-$\bk{\hat\S_{\v m}}_{t=0}$ vanish unless $m_+=m_-=0$ (see Appendix
-\ref{sec:initial_conditions}), so there is a substantially smaller
-number of neglected terms with non-zero contribution to the correlator
-$\bk{\hat\O\p{t}}$.
+drastic departure that can be diagnosed by inspection.  The breakdown
+of the TST expansion in Figure \ref{fig:benchmarking} is marked by an
+unphysical squeezing parameter $\xi^2<0$, which occurs due to
+individual correlators taking unphysical values
+$\lvert\bk{\hat\S_{\v n}}\rvert\gtrsim S^{\abs{\v n}}$.  The sudden
+and drastic departure from virtually exact results occurs because the
+TST expansion neglects high-weight (i.e.~large-$\abs{\v m}$) operators
+$\hat\S_{\v m}$ whose contributions to a Heisenberg operator
+$\hat\O\p{t}$ of interest eventually become non-negligible.  For
+sufficiently large times $t$, these individual contributions may
+generally be large compared to the value of $\bk{\hat\O\p{t}}$, in
+which case their truncation will neglect terms that are large compared
+to the actual value of $\bk{\hat\O\p{t}}$.  This breakdown mechanism
+is also the reason for prolonged agreement between the TST expansion
+and benchmarking methods when squeezing the initial state $\ket{-\Z}$
+rather than $\ket{\X}$: for initial states $\ket{-\Z}$, all
+initial-time correlators $\bk{\hat\S_{\v m}}_{t=0}$ vanish unless
+$m_+=m_-=0$ (see Appendix \ref{sec:initial_conditions}), so there is a
+substantially smaller number of neglected terms with non-zero
+contribution to the correlator $\bk{\hat\O\p{t}}$.
 
 Although the TST expansion breaks down at short times, it has two key
 advantages over other methods to compute collective spin correlators.
@@ -600,25 +604,24 @@ $D\p{0}\sim1/N$.
   \label{fig:multi_time}
 \end{figure}
 
-% todo: add commentary/discussion about growth of C(t)
-
 Figure \ref{fig:multi_time} shows the behavior of $C\p{t}$ and
 $D\p{t}$ for $N=10^4$ spins, initially in the state $\ket\X$, evolving
 under the squeezing Hamiltonians in
 Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT} both with and without spontaneous
 decay, excitation, and dephasing of individual spins at rates
-$\gamma_-=\gamma_+=\gamma_\z=100\chi$.  In the case of TAT and TNT,
-after an initial ramp-up period these correlators grow exponentially
-as $\sim\exp\p{a\chi t}$ with $a\sim N$.  The growth of these
-correlators is definitively sub-exponential for OAT.  In the case of
-unitary time evolution under OAT in particular, to an excellent
-approximation we find that $D\p{t}=D\p{0}+\p{b\chi t}^2$ with
-$b=N+O\p{1}$.  As may be expected, the growth rates of $C\p{t}$ and
-$D\p{t}$ are generally suppressed by decoherence.  Figure
-\ref{fig:multi_time} serves as an example for the type of behavior
-that is accessible at short times with the TST expansion.  These
-examples are straightforward extend to equilibrium settings and
-spin-boson systems.
+$\gamma_-=\gamma_+=\gamma_\z=100\chi$.  In the case of unitary
+evolution under OAT, we find that to an excellent approximation
+$\abs{C\p{t}}$ takes the functional form
+$f\p{t}=f\p{0}+aN\chi t+\p{bN\chi t}^2$ with $a\sim b\sim 1$, and with
+a virtually perfect fit $D\p{t}=D\p{0}+\p{\sp{N+1}\chi t}^2$.  For
+unitary evolution under TAT and TNT, we find that to an excellent
+approximation both $\abs{C\p{t}}$ and $D\p{t}$ take the functional
+form $f\p{t}=f\p{0}+a\sp{\exp\p{bN\chi t}-1}$ with $a\sim b\sim 1$.
+As may be expected, the growth of $C\p{t}$ and $D\p{t}$ is generally
+suppressed by decoherence.  Figure \ref{fig:multi_time} serves as an
+example for the type of behavior that is accessible at short times
+with the TST expansion.  These examples are straightforward extend to
+equilibrium settings and spin-boson systems.
 
 
 \section{Conclusions}
@@ -725,16 +728,16 @@ entirely by decay-type decoherence (see Appendix
   &= S\p{\gamma_+-\gamma_-} - \p{\gamma_++\gamma_-} S_\z,
   \\
   \f{d}{dt}\p{S_\z^2}
-  &= S\p{\gamma_++\gamma_-} + 2\p{\gamma_+-\gamma_-}\p{S-\f12} S_\z
+  &= S\p{\gamma_++\gamma_-} + 2\p{S-\f12}\p{\gamma_+-\gamma_-} S_\z
   - 2 \p{\gamma_++\gamma_-} S_\z^2.
 \end{align}
 The initial conditions $\bk{S_\z}_{t=0}=0$ and $\bk{S_\z^2}_{t=0}=S/2$
 then imply
 \begin{align}
-  \bk{S_\z}
-  &= S\p{\f{\gamma_+-\gamma_-}{\gamma_++\gamma_-}}
-  \p{1-e^{-\p{\gamma_+ + \gamma_-} t}}, \\
-  \bk{S_\z^2} &= S \sp{\f12 + \p{S-\f12} \f{\bk{S_\z}^2}{S^2}}.
+  \bk{S_\z} = S\p{\f{\gamma_+-\gamma_-}{\gamma_++\gamma_-}}
+  \p{1-e^{-\p{\gamma_+ + \gamma_-} t}},
+  &&
+  \bk{S_\z^2} = S \sp{\f12 + \p{S-\f12} \f{\bk{S_\z}^2}{S^2}}.
   \label{eq:Sz_OAT}
 \end{align}
 The expectation values in \eqref{eq:S+_OAT}--\eqref{eq:SS+-_OAT} and
