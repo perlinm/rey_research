@@ -9,7 +9,6 @@
   urlcolor=cyan,
 }
 
-
 %%% symbols, notations, etc.
 \usepackage{physics,braket,bm,commath,amssymb}
 \renewcommand{\t}{\text} % text in math mode
@@ -60,7 +59,8 @@
 
 \begin{document}
 
-\title{Short-time simulations of open collective quantum spin systems}
+\title{Short-time expansion of Heisenberg operators in open collective
+  quantum spin systems}
 
 \author{Michael A. Perlin}
 \email{mika.perlin@gmail.com}
@@ -414,14 +414,15 @@ over that achieved by any spin-polarized product state
   \xi^2
   \equiv \f{\p{\Delta\phi_{\t{min}}}^2}{\p{\Delta\phi_{\t{polarized}}}^2}
   = \f{N}{\lvert\braket{\uv S}\rvert^2}
-  \min_{\uv n\perp\bk{\uv S}} \Braket{\p{\uv S\cdot\uv n}^2},
+  \min_{\substack{\v v\perp\bk{\uv S}\\\v v\cdot\v v=1}}
+    \Braket{\p{\uv S\cdot\v v}^2},
   \label{eq:squeezing}
 \end{align}
 where $\uv S\equiv\p{\hat S_\x,\hat S_\y,\hat S_\z}$ is a collective
 spin operator-valued vector, and the minimization is performed over
-all unit vectors $\uv n$ in the plane orthogonal to the mean spin
-vector $\bk{\uv S}$.  This squeezing parameter is entirely determined
-by one- and two-spin correlators of the form $\bk{\hat S_\a}$ and
+all unit vectors $\v v$ orthogonal to the mean spin vector
+$\bk{\uv S}$.  This squeezing parameter is entirely determined by one-
+and two-spin correlators of the form $\bk{\hat S_\a}$ and
 $\bk{\hat S_\a \hat S_\b}$.  For the unitary dynamics discussed in
 this work, these correlators are obtainable via exact simulations of
 quantum dynamics in the $\p{N+1}$-dimensional Dicke manifold of states
@@ -437,14 +438,14 @@ to benchmark the TST expansion in Eq.~\eqref{eq:TST}.
 \begin{figure}
   \centering
   \subfloat[Squeezing with unitary dynamics
-  \label{fig:squeezing_coherent}]
-  {\includegraphics{coherent.pdf}} \\
+  \label{fig:squeezing_unitary}]
+  {\includegraphics{unitary.pdf}} \\
   \subfloat[Squeezing with decoherence:
   $\gamma_-=\gamma_+=\gamma_\z=\chi$
   \label{fig:squeezing_incoherent}]
   {\includegraphics{decoherence_weak.pdf}}
   \caption{Spin squeezing of $N=10^4$ spins initially in $\ket\X$
-    under \sref{fig:squeezing_coherent} unitary and
+    under \sref{fig:squeezing_unitary} unitary and
     \sref{fig:squeezing_incoherent} non-unitary dynamics, computed
     using exact methods (solid lines), quantum trajectory simulations
     (dots), and the TST expansion in Eq.~\eqref{eq:TST} with $M=35$
@@ -458,7 +459,7 @@ for $N=10^4$ spins initially in the state $\ket{\X}$ evolved under the
 Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}, as computed via
 both benchmarking simulations and the TST expansion in
 Eq.~\eqref{eq:TST} with $M=35$.  Squeezing is shown for both unitary
-dynamics (Figure \ref{fig:squeezing_coherent}), as well as non-unitary
+dynamics (Figure \ref{fig:squeezing_unitary}), as well as non-unitary
 dynamics in the presence of spontaneous decay, excitation, and
 dephasing of individual spins at rates $\chi$ (Figure
 \ref{fig:squeezing_incoherent}), respectively described by the sets of
@@ -477,9 +478,10 @@ TST expansion, which we discuss further below.
 
 The main lesson from Figure \ref{fig:benchmarking} is that the TST
 expansion gives essentially exact results right up until a sudden and
-drastic departure that can be diagnosed by inspection.  This drastic
-departure occurs because the TST expansion neglects high-weight
-(i.e.~large-$\abs{\v m}$) operators $\hat\S_{\v m}$ whose
+drastic departure that can be diagnosed by inspection.
+% todo: comment on diagnosing breakdown by examining individual correlators, rather than squeezing
+This drastic departure occurs because the TST expansion neglects
+high-weight (i.e.~large-$\abs{\v m}$) operators $\hat\S_{\v m}$ whose
 contributions to a Heisenberg operator $\hat\O\p{t}$ of interest
 eventually become non-negligible.  For sufficiently large times $t$,
 these individual contributions may generally be large compared to the
@@ -500,7 +502,7 @@ much faster and requires much fewer computing resources than the
 alternatives.  The quantum trajectory Monte Carlo simulations
 performed for Figure \ref{fig:squeezing_incoherent}, for example, take
 $\sim10^4$ CPU hours to compute on standard modern computing hardware;
-the bulk of this time is spent performing sparse matrix
+the bulk of this time is spent performing sparse matrix-vector
 multiplication, leaving little room to further optimize run time.
 Parallelization can reduce the actual run time of these quantum
 trajectory simulations to $\sim10$ hours, but at the cost of greatly
@@ -540,48 +542,6 @@ collective-spin structure constants calculated in this work.
   correlators}
 \label{sec:multi_time}
 
-\begin{figure*}
-  \centering
-  \subfloat[Two-time correlator
-  $C\p{t}\equiv\abs{C\p{t}}\exp\sp{i\phi\p{t}}$ defined in
-  Eq.~\eqref{eq:two_time}. \label{fig:two_time}]
-  {\includegraphics{two_time.pdf}} \\
-  \subfloat[Squared commutator $D\p{t}$ defined in
-  Eq.~\eqref{eq:four_point}. \label{fig:four_point}]
-  {\includegraphics{OTOC.pdf}}
-  \caption{The two-time connected correlator $C\p{t}$ and squared
-    commutator $D\p{t}$, respectively defined in
-    Eqs.~\eqref{eq:two_time} and \eqref{eq:four_point}, for $N=10^4$
-    spins initially in the polarized state
-    $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$ evolving under
-    the squeezing Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}.
-    Results are shown for time evolution without decoherence (leftmost
-    panels), as well as with decoherence at rates $\Gamma_\a$ or
-    $\gamma_\a$, respectively corresponding to collective or
-    single-spin decoherence through jump operators $\hat S_\a$ or
-    $\set{\hat s_\a^{(j)}}$.  Collective decoherence rates
-    ($\Gamma_\a$) were chosen to be comparable to the OAT squeezing
-    strength $\chi$, while single-spin decoherence rates ($\gamma_\a$)
-    were scaled by an additional factor of $S=N/2$ in order to yield
-    comparable effects on the correlators $C\p{t}$ and $D\p{t}$ at the
-    times shown.  At short times, the multi-time correlations captured
-    by $C\p{t}$ and $D\p{t}$ are essentially insensitive to collective
-    dephasing ($\Gamma_\z$), while their magnitudes are generally
-    suppressed by other forms of decoherence.  Whether decoherence
-    occurs through spin decay, excitation, or dephasing also leaves a
-    signature on the phase $\phi\p{t}$ of $C\p{t}$.  Results computed
-    using the TST expansion in Eq.~\eqref{eq:TST} with $M=20$.}
-  \label{fig:multi_time}
-\end{figure*}
-
-% TODO: in contrast to typical OTOCs, here the operators "almost commute" -- up to 1/N terms
-
-% TODO: mention short-time expansion, see only polynomial growth
-
-% TODO: figures 3a, 3b: 3 panels each; no decoherence, decoherence in fig. 2, and strong decoherence
-
-% TODO: add vertical axis labels for G_- and g_- (?)
-
 As a final example of collective-spin physics that is numerically
 accessible via the TST expansion of Heisenberg operators, we consider
 the calculation of two-time correlation functions and
@@ -612,22 +572,53 @@ phases of matter\cite{tucker2018shattered}.  Squared commutators such
 as that in Eq.~\eqref{eq:four_point}, meanwhile, are commonly examined
 for signatures of quantum chaos and information
 scrambling\cite{maldacena2016bound, swingle2018unscrambling,
-  garcia-mata2018chaos}.
+  garcia-mata2018chaos}.  In typical scenarios, such squared
+commutators initially vanish by construction due to a choice of
+operators with spatially separated non-trivial support.  Collective
+spin systems, however, have no intrinsic notion of locality or spatial
+separation.  In our case, therefore, with the choice of initial state
+$\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$ we merely have
+$D\p{0}\sim1/N$.
+
+\begin{figure}
+  \centering
+  \subfloat[Two-time correlator
+  $C\p{t}\equiv\abs{C\p{t}}\exp\sp{i\phi\p{t}}$. \label{fig:two_time}]
+  {\includegraphics{two_time.pdf}} \\
+  \subfloat[Squared commutator $D\p{t}$. \label{fig:four_point}]
+  {\includegraphics{FPC.pdf}}
+  \caption{The two-time connected correlator $C\p{t}$ and squared
+    commutator $D\p{t}$, respectively defined in
+    Eqs.~\eqref{eq:two_time} and \eqref{eq:four_point}, for $N=10^4$
+    spins initially in the polarized state
+    $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$ evolving under
+    the squeezing Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}.
+    Results are shown for both unitary dynamics (solid lines) and
+    non-unitary dynamics with $\gamma_-=\gamma_+=\gamma_\z=100\chi$
+    (dashed lines), computed using the TST expansion in
+    Eq.~\eqref{eq:TST} with $M=20$.}
+  \label{fig:multi_time}
+\end{figure}
+
+% todo: add commentary/discussion about growth of C(t)
 
 Figure \ref{fig:multi_time} shows the behavior of $C\p{t}$ and
-$D\p{t}$ for $N=10^4$ spins, initially in the state
-$\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$, evolving under the
-squeezing Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT} both
-with and without various sources of decoherence.  At short times, both
-correlators are insensitive to collective dephasing, while their
-magnitudes are suppressed by other types of decoherence.  The
-correlations captured by $C\p{t}\equiv\abs{C\p{t}}\exp\sp{i\phi\p{t}}$
-also exhibit signatures of the type of decoherence present, with
-e.g.~clear dependence of the phase $\phi\p{t}$ on spin decay or
-excitation.  Figure \ref{fig:multi_time} serves as an example for the
-type of behavior that is accessible at short times with the TST
-expansion.  These examples are straightforward extend to equilibrium
-settings and spin-boson systems.
+$D\p{t}$ for $N=10^4$ spins, initially in the state $\ket\X$, evolving
+under the squeezing Hamiltonians in
+Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT} both with and without spontaneous
+decay, excitation, and dephasing of individual spins at rates
+$\gamma_-=\gamma_+=\gamma_\z=100\chi$.  In the case of TAT and TNT,
+after an initial ramp-up period these correlators grow exponentially
+as $\sim\exp\p{a\chi t}$ with $a\sim N$.  The growth of these
+correlators is definitively sub-exponential for OAT.  In the case of
+unitary time evolution under OAT in particular, to an excellent
+approximation we find that $D\p{t}=D\p{0}+\p{b\chi t}^2$ with
+$b=N+O\p{1}$.  As may be expected, the growth rates of $C\p{t}$ and
+$D\p{t}$ are generally suppressed by decoherence.  Figure
+\ref{fig:multi_time} serves as an example for the type of behavior
+that is accessible at short times with the TST expansion.  These
+examples are straightforward extend to equilibrium settings and
+spin-boson systems.
 
 
 \section{Conclusions}
@@ -1810,7 +1801,7 @@ Heisenberg operators.  In the present example, the matrix elements
 $T_{\v m\v n}\in\C$ of $T$ are defined by
 \eqref{eq:tutorial_EOM_expanded} and \eqref{eq:tutorial_EOM_general}.
 For any Hamiltonian $H$ with decoherence characterized by sets of jump
-operators $\A$ and decoherence rates $\gamma_A$, the matrix elements
+operators $\A$ and decoherence rates $\gamma_\A$, the matrix elements
 $T_{\v m\v n}$ are more generally defined by
 \begin{align}
   T \S_{\v n}

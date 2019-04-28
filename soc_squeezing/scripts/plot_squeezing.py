@@ -19,7 +19,7 @@ save = "save" in sys.argv
 data_dir = "../data/squeezing/"
 fig_dir = "../figures/squeezing/"
 
-figsize = (3,2.4)
+figsize = (3,2.2)
 params = { "text.usetex" : True,
            "font.size" : 8 }
 plt.rcParams.update(params)
@@ -250,7 +250,7 @@ def darken_color(color, darken_val = 0.08):
                            for jj in (1, 3 ,5) ])
     return tuple( min(max(cc-darken_val,0), 1) for cc in color )
 
-### coherent evolution
+### unitary evolution
 
 plt.figure(figsize = figsize)
 color = {}
@@ -267,15 +267,15 @@ for method in methods:
                      [time_sqz_C_trunc[method][1][positive_vals-1]],
                      "o", color = darken_color(colors[method]))
 
-plt.xlabel(r"$N\chi t$")
-plt.ylabel(r"$\xi^2$")
+plt.xlabel(r"Time ($N\chi t$)")
+plt.ylabel(r"Squeezing ($\xi^2$)")
 
 plt.xlim(0, max_plot_time)
 plt.ylim(*ylims(time_sqz_C_exact,time_sqz_C_trunc))
 
-plt.legend(loc = "best")
+plt.legend(loc = "best", bbox_to_anchor = (0.5, 0.5, 0.5, 0.5))
 plt.tight_layout()
-if save: plt.savefig(fig_dir + "coherent.pdf")
+if save: plt.savefig(fig_dir + "unitary.pdf")
 
 
 ### evolution with weak decoherence
@@ -295,8 +295,8 @@ for method in methods:
                      [time_sqz_D_trunc[method][1][positive_vals-1]],
                      "o", color = darken_color(colors[method]))
 
-plt.xlabel(r"$N\chi t$")
-plt.ylabel(r"$\xi^2$")
+plt.xlabel(r"Time ($N\chi t$)")
+plt.ylabel(r"Squeezing ($\xi^2$)")
 
 plt.xlim(0, max_plot_time)
 plt.ylim(*ylims(time_sqz_D_exact,time_sqz_D_trunc))
@@ -319,8 +319,8 @@ for method in methods:
                      [time_sqz_D_trunc_strong[method][1][positive_vals-1]],
                      "o", color = colors[method])
 
-plt.xlabel(r"$N\chi t$")
-plt.ylabel(r"$\xi^2$")
+plt.xlabel(r"Time ($N\chi t$)")
+plt.ylabel(r"Squeezing ($\xi^2$)")
 
 strong_time_lim_idx = positive(time_sqz_D_trunc_strong[TAT][1])
 plt.xlim(0, time_sqz_D_trunc_strong[TAT][0][strong_time_lim_idx]*(1+time_pad))
