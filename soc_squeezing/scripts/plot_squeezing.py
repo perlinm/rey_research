@@ -3,7 +3,6 @@
 import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
-import colorsys
 
 from scipy.integrate import solve_ivp
 
@@ -277,6 +276,8 @@ plt.legend(loc = "best", bbox_to_anchor = (0.5, 0.5, 0.5, 0.5))
 plt.tight_layout()
 if save: plt.savefig(fig_dir + "unitary.pdf")
 
+leg_handles, leg_labels = plt.gca().get_legend_handles_labels()
+
 
 ### evolution with weak decoherence
 
@@ -284,7 +285,7 @@ plt.figure(figsize = figsize)
 for method in methods:
     linestyle = "-" if method == OAT else "."
     plt.semilogy(time_sqz_D_exact[method][0],
-                 time_sqz_D_exact[method][1], linestyle, label = method,
+                 time_sqz_D_exact[method][1], linestyle,
                  color = colors[method], markersize = trajectory_marker_size)
     positive_vals = positive(time_sqz_D_trunc[method][1])
     plt.semilogy(time_sqz_D_trunc[method][0][:positive_vals],
@@ -301,7 +302,7 @@ plt.ylabel(r"Squeezing ($\xi^2$)")
 plt.xlim(0, max_plot_time)
 plt.ylim(*ylims(time_sqz_D_exact,time_sqz_D_trunc))
 
-plt.legend(loc = "best", numpoints = 3)
+plt.legend(leg_handles, leg_labels, loc = "best")
 plt.tight_layout()
 if save: plt.savefig(fig_dir + "decoherence_weak.pdf")
 
@@ -313,7 +314,7 @@ for method in methods:
     positive_vals = positive(time_sqz_D_trunc_strong[method][1])
     plt.semilogy(time_sqz_D_trunc_strong[method][0][:positive_vals],
                  time_sqz_D_trunc_strong[method][1][:positive_vals],
-                 color = colors[method], label = method)
+                 color = colors[method])
     if positive_vals < len(times):
         plt.semilogy([time_sqz_D_trunc_strong[method][0][positive_vals-1]],
                      [time_sqz_D_trunc_strong[method][1][positive_vals-1]],
@@ -325,7 +326,7 @@ plt.ylabel(r"Squeezing ($\xi^2$)")
 strong_time_lim_idx = positive(time_sqz_D_trunc_strong[TAT][1])
 plt.xlim(0, time_sqz_D_trunc_strong[TAT][0][strong_time_lim_idx]*(1+time_pad))
 
-plt.legend(loc = "best")
+plt.legend(leg_handles, leg_labels, loc = "best")
 plt.tight_layout()
 if save: plt.savefig(fig_dir + "decoherence_strong.pdf")
 
