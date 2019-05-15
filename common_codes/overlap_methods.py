@@ -25,7 +25,7 @@ def harmonic_wavefunction(z, n, lattice_depth):
     normalization = 1/np.sqrt(2**n * math.factorial(n)) * (mw/np.pi)**(1/4)
     return normalization * np.exp(-mw*z**2/2) * hermite.hermval(np.sqrt(mw)*z, n_vec)
 
-def lattice_wavefunction(z, n, momenta, fourier_vecs, neighbor = False):
+def lattice_wavefunction(z, n, momenta, fourier_vecs, site_shift = 0):
     site_number = len(momenta)
     fourier_terms = len(fourier_vecs[0,0,:])
     k_offset = int(fourier_terms)//2
@@ -35,21 +35,20 @@ def lattice_wavefunction(z, n, momenta, fourier_vecs, neighbor = False):
     k_phases = repmat(np.exp(1j * k_values * z), site_number, 1)
     phases = q_phases * k_phases
 
-    if neighbor:
-        site_shift = repmat(np.exp(i * momenta * np.pi), fourier_terms, 1).T
-        phases *= site_shift
+    site_phases = repmat(np.exp(-1j * momenta * np.pi * site_shift), fourier_terms, 1).T
 
     normalization = np.pi * site_number**2
-    return np.sum(fourier_vecs[:,n,:] * phases) / np.sqrt(normalization)
+    return np.sum(fourier_vecs[:,n,:] * site_phases) / np.sqrt(normalization)
 
 
 ##########################################################################################
 # single-particle overlap integrals
-# nn and mm are and indices
+# nn and mm are and band indices
+# site_shift is the number of lattice sites between the initial/final states
 ##########################################################################################
 
 # 1-D single-particle wannier orbital kinetic overlap integral
-def kinetic_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, neighbor_site = False):
+def kinetic_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, site_shift = 0):
     if mm == None: mm = nn
 
     site_number = len(fourier_vecs[:,0,0])
@@ -58,17 +57,12 @@ def kinetic_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, neighbor_site =
     k_values = 2 * (np.arange(fourier_terms) - k_offset)
 
     qk_mat = repmat(momenta, fourier_terms, 1).T + repmat(k_values, site_number, 1)
-
-    if not neighbor_site:
-        return np.sum(fourier_vecs[:,nn,:]*fourier_vecs[:,mm,:]*qk_mat**2) / site_number
-
-    else:
-        site_shift = repmat(np.exp(1j * momenta * np.pi), fourier_terms, 1).T
-        return np.sum(fourier_vecs[:,nn,:] * fourier_vecs[:,mm,:] *
-                      qk_mat**2 * site_shift) / site_number
+    site_phases = repmat(np.exp(-1j * momenta * np.pi * site_shift), fourier_terms, 1).T
+    return np.sum(fourier_vecs[:,nn,:] * fourier_vecs[:,mm,:] *
+                  qk_mat**2 * site_phases) / site_number
 
 # 1-D single-particle wannier orbital lattice overlap integral
-def lattice_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, neighbor_site = False):
+def lattice_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, site_shift = 0):
     if mm == None: mm = nn
 
     site_number = len(fourier_vecs[:,0,0])
@@ -76,23 +70,17 @@ def lattice_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, neighbor_site =
     k_offset = int(fourier_terms)//2
     k_values = 2 * (np.arange(fourier_terms) - k_offset)
 
-    if not neighbor_site:
-        direct = np.sum(fourier_vecs[:,nn,:] * fourier_vecs[:,mm,:])
-        above = np.sum(fourier_vecs[:,nn,:-1] * fourier_vecs[:,mm,1:])
-        below = np.sum(fourier_vecs[:,nn,1:] * fourier_vecs[:,mm,:-1])
-
-    else:
-        site_shift = repmat(np.exp(1j * momenta * np.pi), fourier_terms, 1).T
-        direct = np.sum(fourier_vecs[:,nn,:] * fourier_vecs[:,mm,:] * site_shift)
-        above = np.sum(fourier_vecs[:,nn,:-1] * fourier_vecs[:,mm,1:] * site_shift[:,1:])
-        below = np.sum(fourier_vecs[:,nn,1:] * fourier_vecs[:,mm,:-1] * site_shift[:,:-1])
+    site_phases = repmat(np.exp(-1j * momenta * np.pi * site_shift), fourier_terms, 1).T
+    direct = np.sum(fourier_vecs[:,nn,:] * fourier_vecs[:,mm,:] * site_phases)
+    above = np.sum(fourier_vecs[:,nn,:-1] * fourier_vecs[:,mm,1:] * site_phases[:,1:])
+    below = np.sum(fourier_vecs[:,nn,1:] * fourier_vecs[:,mm,:-1] * site_phases[:,:-1])
 
     return ( 1/2 * direct - 1/4 * (above + below) ) / site_number
 
 # 1-D nearest-neighbor tunneling rate: - J \sum_j c_j^\dag c_{j+1} + h.c.
-def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None):
-    kinetic_overlap = kinetic_overlap_1D(momenta, fourier_vecs, nn, mm, True)
-    lattice_overlap = lattice_overlap_1D(momenta, fourier_vecs, nn, mm, True)
+def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None, site_shift = 0):
+    kinetic_overlap = kinetic_overlap_1D(momenta, fourier_vecs, nn, mm, site_shift)
+    lattice_overlap = lattice_overlap_1D(momenta, fourier_vecs, nn, mm, site_shift)
     return -np.real(kinetic_overlap + lattice_depth * lattice_overlap)
 
 
@@ -128,7 +116,7 @@ def pair_overlap_1D(momenta, fourier_vecs, kk = 0, ll = 0, mm = 0, nn = 0,
         phases_nn = phases
         phases_mm = phases
         if neighbors != 0:
-            site_shift = repmat(np.exp(1j * momenta * np.pi), fourier_terms, 1).T
+            site_shift = repmat(np.exp(-1j * momenta * np.pi), fourier_terms, 1).T
             neighbor_phases = phases * site_shift
             phases_nn = neighbor_phases
             phases_mm = neighbor_phases if neighbors == 2 else phases
@@ -138,9 +126,13 @@ def pair_overlap_1D(momenta, fourier_vecs, kk = 0, ll = 0, mm = 0, nn = 0,
                        np.sum(fourier_vecs[:,nn,:] * phases_nn))
 
     interval = np.pi * padding_sites
-    shift = 0 if (neighbors == 0) else -np.pi/2
+    shift = 0 if (neighbors == 0) else np.pi/2
     normalization = np.pi * site_number**2
-    integral = 2 * quad(integrand, -shift, interval-shift,
+    if neighbors % 2 == 0: # integral is symmetric about the middle site
+        integral = 2 * quad(integrand, shift, shift + interval,
+                            limit = subinterval_limit)[0]
+    else: # integral is not symmetric about the middle site
+        integral = quad(integrand, shift-interval, shift+interval,
                         limit = subinterval_limit)[0]
     return integral / normalization**2
 
@@ -156,8 +148,8 @@ def harmonic_pair_overlap_1D(lattice_depth, kk = 0, ll = 0, mm = 0, nn = 0,
         shift_mm = site_shift if neighbors > 1 else 0
         return ( harmonic_wavefunction(z, kk, lattice_depth) *
                  harmonic_wavefunction(z, ll, lattice_depth) *
-                 harmonic_wavefunction(z + shift_mm, mm, lattice_depth) *
-                 harmonic_wavefunction(z + shift_nn, nn, lattice_depth) )
+                 harmonic_wavefunction(z - shift_mm, mm, lattice_depth) *
+                 harmonic_wavefunction(z - shift_nn, nn, lattice_depth) )
 
     # mass * trap frequency in lattice units (explained in "harmonic_wavefunction" method)
     mw = np.sqrt(lattice_depth)
@@ -169,6 +161,36 @@ def harmonic_pair_overlap_1D(lattice_depth, kk = 0, ll = 0, mm = 0, nn = 0,
     z_max = np.sqrt( (2*max(kk,ll,mm,nn) + 1) / mw ) + 2*np.pi
 
     return quad(integrand, -z_max, z_max, limit = subinterval_limit)[0]
+
+# two-body 1-D ground-state nearest-neighbor p-wave overlap integral
+#   \int \d z | \phi_0 \phi_1' - \phi_0' \phi_1 |^2
+def pair_overlap_pwave_1D(momenta, fourier_vecs, kk = 0, ll = 0, mm = 0, nn = 0,
+                          padding_sites = None, subinterval_limit = 1000):
+    if padding_sites == None: padding_sites = 2
+
+    site_number = len(momenta)
+    fourier_terms = len(fourier_vecs[0,0,:])
+    k_max = fourier_terms // 2
+    k_values = 2 * (np.arange(fourier_terms) - k_max)
+    def integrand(z):
+        q_phases = repmat(np.exp(1j * momenta * z), fourier_terms, 1).T
+        k_phases = repmat(np.exp(1j * k_values * z), site_number, 1)
+        phases = q_phases * k_phases
+        site_shift = repmat(np.exp(-1j * momenta * np.pi), fourier_terms, 1).T
+        neighbor_phases = phases * site_shift
+        qk_mat = repmat(momenta, fourier_terms, 1).T + repmat(k_values, site_number, 1)
+
+        phi_0 = np.real(np.sum(fourier_vecs[:,0,:] * phases))
+        phi_1 = np.real(np.sum(fourier_vecs[:,0,:] * neighbor_phases))
+        d_phi_0 = np.imag(np.sum(fourier_vecs[:,0,:] * phases * qk_mat))
+        d_phi_1 = np.imag(np.sum(fourier_vecs[:,0,:] * neighbor_phases * qk_mat))
+        return abs( phi_0 * d_phi_1 - d_phi_0 * phi_1 )**2
+
+    shift = np.pi/2
+    interval = np.pi * padding_sites
+    normalization = np.pi * site_number**2
+    integral = 2 * quad(integrand, shift, shift+interval, limit = subinterval_limit)[0]
+    return integral / normalization**2
 
 # ground-state momentum-dependent coupling overlap integral
 #   i.e. Eq. 28 in johnson2012effective, but without the factor of 4*pi
