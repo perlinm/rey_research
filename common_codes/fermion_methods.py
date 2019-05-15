@@ -1,11 +1,48 @@
 #!/usr/bin/env python3
 
-from functools import reduce
+import functools, scipy, itertools
 
-def sum_ops(op_list):
-    return reduce(lambda x, y : x + y, op_list)
+import scipy.sparse as sparse
+
+
+##########################################################################################
+# general methods
+##########################################################################################
+
+# determine whether an object can be indexed (i.e. is something like a list)
 def is_indexed(object):
     return hasattr(object, "__getitem__")
+
+# sum or multiply all operators in a list
+def sum_ops(op_list):
+    return functools.reduce(lambda x, y : x + y, op_list)
+def mul_ops(op_list):
+    return functools.reduce(lambda x, y : x * y, op_list)
+
+# exact binomial coefficient
+def binom(n, k):
+    return scipy.special.comb(n, k, exact = True)
+
+# find the rank of a k-combination
+# k-combination a list of k integers (chosen from, say, {0, 1, ..., N-1})
+# for Fock space, "combination" is a list of occupied single-particle states,
+# where N single-particle states are indexed 0, 1, ..., N-1
+# the "rank" of a Fock state is the index of that Fock state
+#   within the subspace of fixed particle number
+def rank(k_combination):
+    return sum([ binom(index, jj+1)
+                 for jj, index in enumerate(sorted(k_combination)) ])
+
+# determine the k-combination { c_1, c_2, ..., c_k } corresponding to a rank,
+# with c_1 < c_2 < ... < c_k
+# in other words: given the index of a Fock state,
+# determine which single-particle states are occupied
+def unrank(rank, k):
+    if k == 0: return []
+    c_k = 0
+    while binom(c_k+1,k) <= rank: c_k += 1
+    return unrank(rank - binom(c_k,k), k-1) + [ c_k ]
+
 
 ##########################################################################################
 # "derived" methods for all operator classes
@@ -71,16 +108,16 @@ class c_op(op_object):
 
     def __add__(self, other):
         if type(other) is c_op:
-            return c_seq([self]) + c_seq([other])
-        if type(other) is (c_seq, c_sum):
-            return c_seq([self]) + other
+            return c_seq(self) + c_seq(other)
+        if type(other) in (c_seq, c_sum):
+            return c_seq(self) + other
         else:
             raise TypeError(f"adding invalid type to c_op: {type(other)}")
 
     # object comparisons
 
     def __eq__(self, other):
-        assert(type(other) is c_op)
+        if type(other) is not c_op: return False
         return self.creation == other.creation and self.index == other.index
 
     def __lt__(self, other): # a < b <==> the ordered product of a and b is a * b
@@ -130,9 +167,9 @@ class c_seq(op_object):
 
     def __add__(self, other):
         if type(other) is c_op:
-            return c_sum([self]) + c_seq([other])
+            return c_sum(self) + c_seq(other)
         if type(other) in (c_seq, c_sum):
-            return c_sum([self]) + other
+            return c_sum(self) + other
         else:
             raise TypeError(f"adding invalid type to c_seq: {type(other)}")
 
@@ -140,7 +177,7 @@ class c_seq(op_object):
     # WARNING: comparisons are "literal", without sorting
 
     def __eq__(self, other):
-        assert(type(other) is c_seq)
+        if type(other) is not c_op: return False
         return self.seq == other.seq
 
     def __lt__(self, other):
@@ -152,7 +189,7 @@ class c_seq(op_object):
     # sort operators and return a c_sum object of the result
     # WARNING: current implementation is extremely inefficient
     def sorted(self):
-        if self.seq == []: return c_sum([self])
+        if self.seq == []: return c_sum(self)
         seq_list = self.seq.copy()
         for jj in range(len(self.seq)-1):
             op_fst, op_snd = seq_list[jj], seq_list[jj+1]
@@ -166,8 +203,28 @@ class c_seq(op_object):
                 else: # these operators are conjugates of each other
                     unit_list = head + tail
                     return c_seq(unit_list).sorted() - c_seq(comm_list).sorted()
-        return c_sum([c_seq(seq_list)])
 
+        return c_sum(c_seq(seq_list))
+
+    # assuming this product of operators couples a single Fock state to the vacuum
+    # return the index of that Fock state within the subspace of fixed particle number
+    # index_map associates a unique integer to the indices of an individual operator
+    def vec_index(self, index_map):
+        # make sure this product does not mix creation and annihilation operators
+        assert(all( op.creation == self.seq[0].creation for op in self.seq ))
+
+        # make sure no two operators address the same single-particle state
+        op_pairs = itertools.combinations(self.seq, 2)
+        assert(all( op_1 != op_2 for op_1, op_2 in op_pairs ))
+
+        return rank([ index_map(op.index) for op in self.seq ])
+
+    # like vec_index, but return an actual (sparse) vector corresponding to the Fock state
+    # total_dimension is the total dimension of the fixed-particle-number Fock space
+    def vector(self, index_map, total_dimension):
+        vector = sparse.dok_matrix((total_dimension,1), dtype = int)
+        vector[self.vec_index(index_map)] = 1
+        return vector
 
 
 ##########################################################################################
@@ -178,6 +235,11 @@ class c_sum(op_object):
     def __init__(self, seq_list = None, coeff_list = None):
         if seq_list is None or seq_list == []:
             self.seq_list = []
+        elif type(seq_list) is c_op:
+            self.seq_list = [ c_seq(seq_list) ]
+        elif type(seq_list) is c_seq:
+            print("ARST")
+            self.seq_list = [ seq_list ]
         else:
             # assert that either all items are operators (c_op)
             #   or all items are sequences of operators (c_seq)
@@ -189,6 +251,8 @@ class c_sum(op_object):
                 self.seq_list = seq_list
         if coeff_list is None:
             self.coeff_list = [1] * len(self.seq_list)
+        elif not is_indexed(coeff_list):
+            self.coeff_list = [ coeff_list ]
         else:
             assert(len(coeff_list) == len(self.seq_list))
             self.coeff_list = coeff_list
@@ -226,7 +290,7 @@ class c_sum(op_object):
 
     def __add__(self, other):
         if type(other) is c_op:
-            return self + c_seq([other])
+            return self + c_seq(other)
         if type(other) is c_seq:
             return c_sum(self.seq_list + [other], self.coeff_list + [1])
         if type(other) is c_sum:
@@ -238,7 +302,7 @@ class c_sum(op_object):
     # object comparisons
 
     def __eq__(self, other):
-        assert(type(other) is c_sum)
+        if type(other) is not c_op: return False
         return self.objs(True) == other.objs(True)
 
     # miscellaneous methods
@@ -277,3 +341,12 @@ class c_sum(op_object):
             include = lambda c_seq : len(c_seq.seq) <= num_ops
         return c_sum(*zip(*[ (c_seq, coeff) for c_seq, coeff in self.objs()
                              if include(c_seq) ]))
+
+    # assuming this operator couples a fixed-particle-number Fock state to the vacuum
+    # return the vector corresponding to that Fock state
+    # index_map associates a unique integer to the indices of an individual operator
+    # total_dimension is the total dimension of the fixed-particle-number Fock space
+    def vector(self, index_map, total_dimension):
+        sorted_op = self.sorted()
+        return sum( coeff * c_op.vector(index_map, total_dimension)
+                    for c_op, coeff in sorted_op.objs() )
