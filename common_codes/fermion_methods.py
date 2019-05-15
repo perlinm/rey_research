@@ -4,6 +4,8 @@ from functools import reduce
 
 def sum_ops(op_list):
     return reduce(lambda x, y : x + y, op_list)
+def is_indexed(object):
+    return hasattr(object, "__getitem__")
 
 ##########################################################################################
 # "derived" methods for all operator classes
@@ -35,7 +37,7 @@ class op_object:
 
 class c_op(op_object):
     def __init__(self, index, creation = False):
-        if hasattr(index, "__getitem__"):
+        if is_indexed(index)
             self.index = index
         else:
             self.index = [index]
@@ -243,6 +245,8 @@ class c_sum(op_object):
 
     # sort and simplify all terms
     def sorted(self):
+        if len(self.seq_list) == 0: return c_sum()
+
         # sort all products
         sorted_sum = sum_ops([ coeff * seq.sorted() for seq, coeff in self.objs() ])
         sorted_objs = [ list(obj) for obj in sorted_sum.objs(True) ]
@@ -264,6 +268,12 @@ class c_sum(op_object):
         return c_sum(*zip(*sorted_objs))
 
     # return this c_sum restricted to a num_ops-operator subpace
-    def restricted(self, num_ops):
-        return c_sum(*zip(*[ (seq, coeff) for seq, coeff in self.objs()
-                             if len(seq.seq) == num_ops ]))
+    def restricted(self, num_ops, maximum = False):
+        if is_indexed(num_ops):
+            include = lambda c_seq : len(c_seq.seq) in num_ops
+        elif not maximum:
+            include = lambda c_seq : len(c_seq.seq) == num_ops
+        else:
+            include = lambda c_seq : len(c_seq.seq) <= num_ops
+        return c_sum(*zip(*[ (c_seq, coeff) for c_seq, coeff in self.objs()
+                             if include(c_seq) ]))
