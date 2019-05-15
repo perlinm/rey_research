@@ -78,7 +78,7 @@ def lattice_overlap_1D(momenta, fourier_vecs, nn = 0, mm = None, site_shift = 0)
     return ( 1/2 * direct - 1/4 * (above + below) ) / site_number
 
 # 1-D nearest-neighbor tunneling rate: - J \sum_j c_j^\dag c_{j+1} + h.c.
-def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None, site_shift = 0):
+def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None, site_shift = 1):
     kinetic_overlap = kinetic_overlap_1D(momenta, fourier_vecs, nn, mm, site_shift)
     lattice_overlap = lattice_overlap_1D(momenta, fourier_vecs, nn, mm, site_shift)
     return -np.real(kinetic_overlap + lattice_depth * lattice_overlap)
