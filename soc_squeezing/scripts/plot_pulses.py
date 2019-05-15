@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import scipy
 
 from scipy.integrate import solve_ivp
+from matplotlib.ticker import MaxNLocator
 
 from dicke_methods import spin_op_vec_mat_dicke
 from squeezing_methods import spin_squeezing
@@ -22,12 +23,12 @@ save = "save" in sys.argv
 
 fig_dir = "../figures/squeezing/"
 
-figsize = (6.5,3)
+figsize = (5,2.5)
 font = { "family" : "serif",
          "sans-serif" : "Computer Modern Sans serif" }
 plt.rc("font",**font)
 params = { "text.usetex" : True,
-           "font.size" : 12 }
+           "font.size" : 9 }
 plt.rcParams.update(params)
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
@@ -139,10 +140,13 @@ for N in N_vals:
     ax[N].set_xlabel(r"Pulses")
 
 ax[N_vals[0]].set_ylabel(r"Squeezing (dB)")
-ax[N_vals[1]].legend(loc = "best")
+ax[N_vals[1]].legend(loc = "best", framealpha = 1)
 
 ax[N_vals[0]].set_title(r"{\bf (a)} " + f"$N={N_vals[0]}$")
 ax[N_vals[1]].set_title(r"{\bf (b)} " + f"$N={N_vals[1]}$")
+
+for val in N_vals:
+    ax[val].set_xticks(range(0,max_pulses+1,5))
 
 plt.tight_layout()
 plt.savefig(fig_dir + "pulsed_squeezing.pdf")
