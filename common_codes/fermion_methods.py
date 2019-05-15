@@ -37,7 +37,7 @@ class op_object:
 
 class c_op(op_object):
     def __init__(self, index, creation = False):
-        if is_indexed(index)
+        if is_indexed(index):
             self.index = index
         else:
             self.index = [index]
