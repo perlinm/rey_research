@@ -161,7 +161,7 @@ class c_seq(op_object):
         if type(other) is c_seq:
             return c_seq(self.seq + other.seq)
         if type(other) is c_sum:
-            return c_sum([ self * item for item in other.seq_list ], other.cof_list)
+            return c_sum([ self * item for item in other.seq_list ], other.coeff_list)
         else:
             return c_sum([self], [other])
 
@@ -206,25 +206,68 @@ class c_seq(op_object):
 
         return c_sum(c_seq(seq_list))
 
-    # assuming this product of operators couples a single Fock state to the vacuum
-    # return the index of that Fock state within the subspace of fixed particle number
+    # return matrix reresentation of this operator
+    #   when acting on a fixed-particle-number Fock state
     # index_map associates a unique integer to the indices of an individual operator
-    def vec_index(self, index_map):
-        # make sure this product does not mix creation and annihilation operators
-        assert(all( op.creation == self.seq[0].creation for op in self.seq ))
+    # single_states is the number of sinple-particle states
+    # input_number is the number of particles in the Fock state this operator will act on
+    def matrix(self, single_states, input_number, index_map = None):
+        # enforce that
+        # (i) we have some operators in this product
+        # (ii) the operators in this product are sorted
+        assert(len(self.seq) != 0)
+        if len(self.seq) > 1:
+            assert(all( self.seq[jj] < self.seq[jj+1] for jj in range(len(self.seq)-1) ))
 
-        # make sure no two operators address the same single-particle state
-        op_pairs = itertools.combinations(self.seq, 2)
-        assert(all( op_1 != op_2 for op_1, op_2 in op_pairs ))
+        # make sure that if the index_map is trivial (None),
+        #   then the individual operators in this product only have one index
+        assert(index_map is not None or len(self.seq[0].index) == 1)
+        # the default index map is just the value of *the* index on an individual operator
+        if index_map is None: index_map = lambda index : index[0]
 
-        return rank([ index_map(op.index) for op in self.seq ])
+        # identify (by index) states addressed by creation/annihilation operators
+        dest_states = [ index_map(op.index) for op in self.seq if not op.creation ]
+        crtn_states = [ index_map(op.index) for op in self.seq if op.creation ]
 
-    # like vec_index, but return an actual (sparse) vector corresponding to the Fock state
-    # total_dimension is the total dimension of the fixed-particle-number Fock space
-    def vector(self, index_map, total_dimension):
-        vector = sparse.dok_matrix((total_dimension,1), dtype = int)
-        vector[self.vec_index(index_map)] = 1
-        return vector
+        # list of single-particle states *not* addressed by creation/annihilation operators
+        remaining_states = list(range(single_states))
+        for idx in set( dest_states + crtn_states ):
+            remaining_states.remove(idx)
+
+        # number of particles in output state
+        output_number = input_number + len(crtn_states) - len(dest_states)
+
+        # build an empty matrix
+        input_dimension = binom(single_states, input_number)
+        output_dimension = binom(single_states, output_number)
+        matrix = sparse.dok_matrix((output_dimension,input_dimension), dtype = int)
+
+        # number of auxiliary particles not addressed by creation/annihilation operators
+        aux_number = output_number - len(self.seq)
+        if aux_number < 0: return matrix
+
+        # loop over all combinations of auxiliary single-particle states
+        for aux_states in itertools.combinations(remaining_states, aux_number):
+            # determine single-particle states occupied in input/output Fock state
+            input_states = aux_states + tuple(dest_states)
+            output_states = aux_states + tuple(crtn_states)
+
+            # count number of sign flips from permuting operators
+            sign_flips = sum( state < op_idx
+                              for state in aux_states
+                              for op_idx in crtn_states + dest_states )
+            sign_flips -= binom(len(dest_states),2)
+
+            matrix[rank(output_states), rank(input_states)] = (-1)**sign_flips
+
+        return matrix
+
+    # assuming this product of operators is sorted
+    # return the vector corresponding to the Fock state that this product creates
+    # within the appropriate subspace of fixed particle number
+    def vector(self, single_states, index_map = None):
+        if not all( op.creation for op in self.seq ): return 0
+        return self.matrix(single_states, 0, index_map)
 
 
 ##########################################################################################
@@ -238,7 +281,6 @@ class c_sum(op_object):
         elif type(seq_list) is c_op:
             self.seq_list = [ c_seq(seq_list) ]
         elif type(seq_list) is c_seq:
-            print("ARST")
             self.seq_list = [ seq_list ]
         else:
             # assert that either all items are operators (c_op)
@@ -342,11 +384,14 @@ class c_sum(op_object):
         return c_sum(*zip(*[ (c_seq, coeff) for c_seq, coeff in self.objs()
                              if include(c_seq) ]))
 
-    # assuming this operator couples a fixed-particle-number Fock state to the vacuum
-    # return the vector corresponding to that Fock state
+    # return matrix/vector reresentations of this operator
+    #   when acting on a fixed-particle-number Fock state
     # index_map associates a unique integer to the indices of an individual operator
-    # total_dimension is the total dimension of the fixed-particle-number Fock space
-    def vector(self, index_map, total_dimension):
+    # single_states is the number of sinple-particle states
+    # input_number is the number of particles in the Fock state this operator will act on
+    def matrix(self, single_states, input_number, index_map = None):
         sorted_op = self.sorted()
-        return sum( coeff * c_op.vector(index_map, total_dimension)
-                    for c_op, coeff in sorted_op.objs() )
+        return sum( coeff * op.matrix(single_states, input_number, index_map)
+                    for op, coeff in sorted_op.objs() )
+    def vector(self, single_states, index_map = None):
+        return self.matrix(single_states, 0, index_map)
