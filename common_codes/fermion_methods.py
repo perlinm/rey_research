@@ -189,23 +189,33 @@ class c_seq(op_object):
 
     # sort operators and return a c_sum object of the result
     # WARNING: current implementation is extremely inefficient
-    def sorted(self):
-        if self.seq == []: return c_sum(self)
+    def sorted(self, fixed_op_number = None):
+        if len(self.seq) == 0: return c_sum(self)
+        if ( fixed_op_number is not None and
+             len(self.seq) > fixed_op_number):
+            return c_sum()
+
         seq_list = self.seq.copy()
         for jj in range(len(self.seq)-1):
             op_fst, op_snd = seq_list[jj], seq_list[jj+1]
-            if op_fst < op_snd: continue
-            if op_fst == op_snd: return c_sum()
-            else: # op_fst > op_snd
-                head, tail = seq_list[:jj], seq_list[jj+2:]
-                comm_list = head + [ op_snd, op_fst ] + tail
-                if op_fst.index != op_snd.index:
-                    return -c_seq(comm_list).sorted()
-                else: # these operators are conjugates of each other
-                    unit_list = head + tail
-                    return c_seq(unit_list).sorted() - c_seq(comm_list).sorted()
+            if op_fst < op_snd: continue # this pair is already sorted
+            if op_fst == op_snd: return c_sum() # identical fermionic operators
 
-        return c_sum(c_seq(seq_list))
+            # if op_fst > op_snd
+            head, tail = seq_list[:jj], seq_list[jj+2:] # operators before/after this pair
+            comm_list = head + [ op_snd, op_fst ] + tail # commute this pair
+            if op_fst.index != op_snd.index: # operators address different states
+                return -c_seq(comm_list).sorted(fixed_op_number)
+            else: # these operators are adjoints of each other
+                unit_list = head + tail
+                return ( + c_seq(unit_list).sorted(fixed_op_number)
+                         - c_seq(comm_list).sorted(fixed_op_number) )
+
+        sorted_sum = c_sum(c_seq(seq_list))
+        if fixed_op_number is None:
+            return sorted_sum
+        else:
+            return sorted_sum.restricted(fixed_op_number)
 
     # return matrix reresentation of this operator
     #   when acting on a fixed-particle-number Fock state
@@ -217,8 +227,8 @@ class c_seq(op_object):
         # (i) we have some operators in this product
         # (ii) the operators in this product are sorted
         assert(len(self.seq) != 0)
-        if len(self.seq) > 1:
-            assert(all( self.seq[jj] < self.seq[jj+1] for jj in range(len(self.seq)-1) ))
+        assert(len(self.seq) == 1 or
+               all( self.seq[jj] < self.seq[jj+1] for jj in range(len(self.seq)-1) ))
 
         # make sure that if the index_map is trivial (None),
         #   then the individual operators in this product only have one index
@@ -353,13 +363,29 @@ class c_sum(op_object):
 
     # miscellaneous methods
 
+    # return this c_sum restricted to a num_ops-operator subpace
+    def restricted(self, num_ops, maximum = False):
+        if is_indexed(num_ops):
+            include = lambda c_seq : len(c_seq.seq) in num_ops
+        elif not maximum:
+            include = lambda c_seq : len(c_seq.seq) == num_ops
+        else:
+            include = lambda c_seq : len(c_seq.seq) <= num_ops
+        return c_sum(*zip(*[ (c_seq, coeff) for c_seq, coeff in self.objs()
+                             if include(c_seq) ]))
+
     # sort and simplify all terms
-    def sorted(self):
+    def sorted(self, fixed_op_number = None):
         if len(self.seq_list) == 0: return c_sum()
 
         # sort all products
         sorted_sum = sum_ops([ coeff * seq.sorted() for seq, coeff in self.objs() ])
         sorted_objs = [ list(obj) for obj in sorted_sum.objs(True) ]
+
+        # if we are fixing an operator number, throw out all unwanted terms
+        if fixed_op_number is not None:
+            sorted_objs = [ objs for objs in sorted_objs
+                            if len(objs[0].seq) == fixed_op_number ]
 
         # combine terms that are proportional
         for jj in range(len(sorted_objs)-1,0,-1):
@@ -376,17 +402,6 @@ class c_sum(op_object):
             if obj[1] == 0: del sorted_objs[jj]
 
         return c_sum(*zip(*sorted_objs))
-
-    # return this c_sum restricted to a num_ops-operator subpace
-    def restricted(self, num_ops, maximum = False):
-        if is_indexed(num_ops):
-            include = lambda c_seq : len(c_seq.seq) in num_ops
-        elif not maximum:
-            include = lambda c_seq : len(c_seq.seq) == num_ops
-        else:
-            include = lambda c_seq : len(c_seq.seq) <= num_ops
-        return c_sum(*zip(*[ (c_seq, coeff) for c_seq, coeff in self.objs()
-                             if include(c_seq) ]))
 
     # return matrix/vector reresentations of this operator
     #   when acting on a fixed-particle-number Fock state
