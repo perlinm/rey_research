@@ -2,6 +2,7 @@
 
 import functools, scipy, itertools
 
+import scipy.special as special
 import scipy.sparse as sparse
 
 
@@ -20,8 +21,8 @@ def mul_ops(op_list):
     return functools.reduce(lambda x, y : x * y, op_list)
 
 # exact binomial coefficient
-def binom(n, k):
-    return scipy.special.comb(n, k, exact = True)
+def binom(nn, kk, vals = {}):
+    return special.comb(nn, kk, exact = True)
 
 # find the rank of a k-combination
 # k-combination a list of k integers (chosen from, say, {0, 1, ..., N-1})
@@ -139,10 +140,10 @@ class c_seq(op_object):
     def __init__(self, sequence = None):
         if sequence is None:
             self.seq = []
-        if type(sequence) is c_op:
+        elif type(sequence) is c_op:
             self.seq = [sequence]
         else:
-            self.seq = list(sequence)
+            self.seq = sequence
 
     def dag(self):
         return c_seq([ seq.dag() for seq in self.seq[::-1] ])
@@ -177,7 +178,7 @@ class c_seq(op_object):
     # WARNING: comparisons are "literal", without sorting
 
     def __eq__(self, other):
-        if type(other) is not c_op: return False
+        if type(other) is not c_seq: return False
         return self.seq == other.seq
 
     def __lt__(self, other):
@@ -229,9 +230,11 @@ class c_seq(op_object):
         dest_states = [ index_map(op.index) for op in self.seq if not op.creation ]
         crtn_states = [ index_map(op.index) for op in self.seq if op.creation ]
 
-        # list of single-particle states *not* addressed by creation/annihilation operators
+        # identify states addressed by both creation and destruction operators,
+        # as well as states not addressed by any operator
+        comm_states = list(set( dest_states + crtn_states ))
         remaining_states = list(range(single_states))
-        for idx in set( dest_states + crtn_states ):
+        for idx in comm_states:
             remaining_states.remove(idx)
 
         # number of particles in output state
@@ -243,20 +246,21 @@ class c_seq(op_object):
         matrix = sparse.dok_matrix((output_dimension,input_dimension), dtype = int)
 
         # number of auxiliary particles not addressed by creation/annihilation operators
-        aux_number = output_number - len(self.seq)
+        aux_number = output_number - len(comm_states)
         if aux_number < 0: return matrix
 
         # loop over all combinations of auxiliary single-particle states
         for aux_states in itertools.combinations(remaining_states, aux_number):
             # determine single-particle states occupied in input/output Fock state
-            input_states = aux_states + tuple(dest_states)
-            output_states = aux_states + tuple(crtn_states)
+            input_states = sorted(aux_states + tuple(dest_states))
+            output_states = sorted(aux_states + tuple(crtn_states))
 
             # count number of sign flips from permuting operators
-            sign_flips = sum( state < op_idx
-                              for state in aux_states
-                              for op_idx in crtn_states + dest_states )
-            sign_flips -= binom(len(dest_states),2)
+            sign_flips = 0
+            for jj, op_idx in enumerate(dest_states[::-1]):
+                sign_flips += sum( state < op_idx for state in input_states ) - jj
+            for op_idx in crtn_states:
+                sign_flips += sum( state < op_idx for state in aux_states )
 
             matrix[rank(output_states), rank(input_states)] = (-1)**sign_flips
 
