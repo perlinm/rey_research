@@ -60,7 +60,9 @@ class op_object:
     def __rmul__(self, other): return self * other
 
     # assumes implementation of __add__ method
+    def __radd__(self, other): return self + other
     def __sub__(self, other): return self + (-1) * other
+    def __rsub__(self, other): return -self + other
 
     # assumes implementation of __eq__ method
     def __ne__(self, other): return not self == other
@@ -73,18 +75,15 @@ class op_object:
 # individual fermionic operator
 ##########################################################################################
 
-class c_op(op_object):
-    def __init__(self, index, creation = False):
-        if is_indexed(index):
-            self.index = index
-        else:
-            self.index = [index]
+class fermion_op_individual(op_object):
+    def __init__(self, *index, creation = False):
+        self.index = tuple(index)
         self.creation = creation
 
     def dag(self):
-        return c_op(self.index, not self.creation)
+        return fermion_op_individual(*self.index, creation = not self.creation)
 
-    # printing this object
+    # string representation of an individual fermion operator
 
     def str(self, str_funs = None):
         if str_funs is None:
@@ -95,34 +94,22 @@ class c_op(op_object):
         if self.creation: text += u'\u2020'
         return text
 
-    # object operations
+    # multiplication and addition
 
     def __mul__(self, other):
-        if type(other) is c_op:
-            return c_seq([self, other])
-        if type(other) is c_seq:
-            return c_seq([self] + other.seq)
-        if type(other) is c_sum:
-            return c_sum([ self * item for item in other.seq_list ], other.coeff_list)
-        else:
-            return c_sum([self], [other])
+        return fermion_op(self) * other
 
     def __add__(self, other):
-        if type(other) is c_op:
-            return c_seq(self) + c_seq(other)
-        if type(other) in (c_seq, c_sum):
-            return c_seq(self) + other
-        else:
-            raise TypeError(f"adding invalid type to c_op: {type(other)}")
+        return fermion_op(self) + other
 
-    # object comparisons
+    # comparisons of individual fermion operators
 
     def __eq__(self, other):
-        if type(other) is not c_op: return False
+        if type(other) is not fermion_op_individual: return False
         return self.creation == other.creation and self.index == other.index
 
     def __lt__(self, other): # a < b <==> the ordered product of a and b is a * b
-        assert(type(other) is c_op)
+        if type(other) is not fermion_op_individual: return False
         if self == other: return False
         if self.creation:
             if not other.creation: return True
@@ -133,89 +120,71 @@ class c_op(op_object):
 
 
 ##########################################################################################
-# product of fermionic operators
+# sequence (ordered product) of individual fermionic operators
 ##########################################################################################
 
-class c_seq(op_object):
-    def __init__(self, sequence = None):
-        if sequence is None:
-            self.seq = []
-        elif type(sequence) is c_op:
-            self.seq = [sequence]
-        else:
-            self.seq = sequence
+class fermion_op_seq(op_object):
+    def __init__(self, *sequence):
+        self.seq = tuple(sequence)
 
     def dag(self):
-        return c_seq([ seq.dag() for seq in self.seq[::-1] ])
+        return fermion_op_seq(*[ op.dag() for op in self.seq[::-1] ])
 
-    # printing this object
+    # string representation of a fermion operator sequence
 
     def str(self, str_funs = None):
         if self.seq == []: return "1"
-        return " ".join([ item.str(str_funs) for item in self.seq ])
+        return " ".join([ op.str(str_funs) for op in self.seq ])
 
-    # object operations
+    # multiplication and addition
 
     def __mul__(self, other):
-        if type(other) is c_op:
-            return c_seq(self.seq + [other])
-        if type(other) is c_seq:
-            return c_seq(self.seq + other.seq)
-        if type(other) is c_sum:
-            return c_sum([ self * item for item in other.seq_list ], other.coeff_list)
-        else:
-            return c_sum([self], [other])
+        if type(other) is fermion_op_seq:
+            return fermion_op_seq(*self.seq, *other.seq)
+        return fermion_op(self) * other
 
     def __add__(self, other):
-        if type(other) is c_op:
-            return c_sum(self) + c_seq(other)
-        if type(other) in (c_seq, c_sum):
-            return c_sum(self) + other
-        else:
-            raise TypeError(f"adding invalid type to c_seq: {type(other)}")
+        return fermion_op(self) + other
 
-    # object comparisons
-    # WARNING: comparisons are "literal", without sorting
+    # literal comparison of (unsorted!) fermion operator sequences
 
     def __eq__(self, other):
-        if type(other) is not c_seq: return False
+        if type(other) is not fermion_op_seq: return False
         return self.seq == other.seq
 
     def __lt__(self, other):
-        assert(type(other) is c_seq)
+        if type(other) is not fermion_op_seq: return False
         return self.seq < other.seq
 
-    # miscellaneous methods
-
-    # sort operators and return a c_sum object of the result
+    # sort operators and return a fermion_op object of the result
     # WARNING: current implementation is extremely inefficient
     def sorted(self, fixed_op_number = None):
-        if len(self.seq) == 0: return c_sum(self)
-        if ( fixed_op_number is not None and
-             len(self.seq) > fixed_op_number):
-            return c_sum()
+        if fixed_op_number is not None and len(self.seq) > fixed_op_number:
+            return 0
 
-        seq_list = self.seq.copy()
         for jj in range(len(self.seq)-1):
-            op_fst, op_snd = seq_list[jj], seq_list[jj+1]
+            op_fst, op_snd = self.seq[jj], self.seq[jj+1]
             if op_fst < op_snd: continue # this pair is already sorted
-            if op_fst == op_snd: return c_sum() # identical fermionic operators
+            if op_fst == op_snd: return 0 # identical fermionic operators
 
             # if op_fst > op_snd
-            head, tail = seq_list[:jj], seq_list[jj+2:] # operators before/after this pair
-            comm_list = head + [ op_snd, op_fst ] + tail # commute this pair
+            head, tail = self.seq[:jj], self.seq[jj+2:] # operators before/after this pair
+            comm_list = head + ( op_snd, op_fst ) + tail # commute this pair
             if op_fst.index != op_snd.index: # operators address different states
-                return -c_seq(comm_list).sorted(fixed_op_number)
+                return - fermion_op_seq(*comm_list).sorted(fixed_op_number)
             else: # these operators are adjoints of each other
                 unit_list = head + tail
-                return ( + c_seq(unit_list).sorted(fixed_op_number)
-                         - c_seq(comm_list).sorted(fixed_op_number) )
+                return ( + fermion_op_seq(*unit_list).sorted(fixed_op_number)
+                         - fermion_op_seq(*comm_list).sorted(fixed_op_number) )
 
-        sorted_sum = c_sum(c_seq(seq_list))
         if fixed_op_number is None:
-            return sorted_sum
+            return fermion_op(self)
         else:
-            return sorted_sum.restricted(fixed_op_number)
+            restricted_op = fermion_op(self).restricted(fixed_op_number)
+            if fixed_op_number == 0:
+                return restricted_op.coeffs[0]
+            else:
+                return restricted_op
 
     # return matrix reresentation of this operator
     #   when acting on a fixed-particle-number Fock state
@@ -285,101 +254,101 @@ class c_seq(op_object):
 
 
 ##########################################################################################
-# sum of products of fermionic operators
+# general fermionic operator: sum of sequences of fermionic operators
 ##########################################################################################
 
-class c_sum(op_object):
-    def __init__(self, seq_list = None, coeff_list = None):
-        if seq_list is None or seq_list == []:
-            self.seq_list = []
-        elif type(seq_list) is c_op:
-            self.seq_list = [ c_seq(seq_list) ]
-        elif type(seq_list) is c_seq:
-            self.seq_list = [ seq_list ]
+class fermion_op(op_object):
+    def __init__(self, seqs = None, coeffs = None):
+        if seqs is None or seqs == [] or seqs == ():
+            self.seqs = ()
+        elif type(seqs) is fermion_op_individual:
+            self.seqs = ( fermion_op_seq(seqs), )
+        elif type(seqs) is fermion_op_seq:
+            self.seqs = ( seqs, )
         else:
-            # assert that either all items are operators (c_op)
-            #   or all items are sequences of operators (c_seq)
-            assert(all( type(item) is c_op for item in seq_list ) or
-                   all( type(item) is c_seq for item in seq_list ))
-            if type(seq_list[0]) is c_op:
-                self.seq_list = [ c_seq(item) for item in seq_list ]
-            else: # if items are of type c_seq
-                self.seq_list = seq_list
-        if coeff_list is None:
-            self.coeff_list = [1] * len(self.seq_list)
-        elif not is_indexed(coeff_list):
-            self.coeff_list = [ coeff_list ]
+            # assert that all items in seqs are either
+            # (i) individual fermion operators, or
+            # (ii) sequences of fermion operators
+            assert(all( type(item) is fermion_op_individual for item in seqs ) or
+                   all( type(item) is fermion_op_seq for item in seqs ))
+            if type(seqs[0]) is fermion_op_individual:
+                self.seqs = ( fermion_op_seq(item) for item in seqs )
+            else:
+                self.seqs = tuple(seqs)
+
+        if coeffs is None or coeffs == [] or coeffs == ():
+            self.coeffs = (1,) * len(self.seqs)
+        elif not is_indexed(coeffs):
+            self.coeffs = ( coeffs )
         else:
-            assert(len(coeff_list) == len(self.seq_list))
-            self.coeff_list = coeff_list
+            assert(len(coeffs) == len(self.seqs))
+            self.coeffs = tuple(coeffs)
 
     def dag(self):
-        return c_sum([ seq.dag() for seq in self.seq_list ],
-                     [ coeff.conjugate() for coeff in self.coeff_list ])
+        return fermion_op([ seq.dag() for seq in self.seqs ],
+                          [ coeff.conjugate() for coeff in self.coeffs ])
 
     def objs(self, sort = False):
-        if not sort: return list(zip(self.seq_list, self.coeff_list))
+        if not sort: return list(zip(self.seqs, self.coeffs))
         else: return sorted(self.objs(), key = lambda x : x[0])
 
-    # printing this object
+    # string representation of fermion operators
 
     def str(self, str_funs = None):
-        if len(self.seq_list) == 0: return "[0]"
+        if len(self.seqs) == 0: return "[0]"
         def coeff_seq_str(coeff, seq):
             if len(seq.seq) == 0: return f"[{coeff}]"
             else: return f"[{coeff}] " + seq.str(str_funs)
         return " + ".join([ coeff_seq_str(coeff, seq)
-                            for seq, coeff in zip(self.seq_list, self.coeff_list) ])
+                            for seq, coeff in zip(self.seqs, self.coeffs) ])
 
-    # object operations
+    # multiplication and addition of fermion operators
 
     def __mul__(self, other):
-        if type(other) is c_op or type(other) is c_seq:
-            return c_sum([ item * other for item in self.seq_list ], self.coeff_list)
-        if type(other) is c_sum:
+        if type(other) is fermion_op_individual:
+            new_seqs = [ fermion_op_seq(other,*seq.seq) for seq in self.seqs ]
+            return fermion_op(new_seqs, self.coeffs)
+        if type(other) is fermion_op_seq:
+            new_seqs = [ fermion_op_seq(other.seq + seq.seq) for seq in self.seqs ]
+            return fermion_op(new_seqs, self.coeffs)
+        if type(other) is fermion_op:
             obj_list = [ ( self_seq * other_seq, self_coeff * other_coeff )
                          for self_seq, self_coeff in self.objs()
                          for other_seq, other_coeff in other.objs() ]
-            return c_sum(*zip(*obj_list))
-        else:
-            return c_sum(self.seq_list, [ other * coeff for coeff in self.coeff_list ])
+            return fermion_op(*zip(*obj_list))
+        else: # "other" is a scalar
+            return fermion_op(self.seqs, [ other * coeff for coeff in self.coeffs ])
 
     def __add__(self, other):
-        if type(other) is c_op:
-            return self + c_seq(other)
-        if type(other) is c_seq:
-            return c_sum(self.seq_list + [other], self.coeff_list + [1])
-        if type(other) is c_sum:
-            return c_sum(self.seq_list + other.seq_list,
-                         self.coeff_list + other.coeff_list)
-        else:
-            raise TypeError(f"adding invalid type to c_sum: {type(other)}")
+        if type(other) in ( fermion_op_individual, fermion_op_seq ):
+            return self + fermion_op(other)
+        if type(other) is fermion_op:
+            return fermion_op(self.seqs + other.seqs, self.coeffs + other.coeffs)
+        else: # "other" is a scalar
+            return self + other * fermion_op()
 
-    # object comparisons
-
+    # literal comparison of (unsorted!) fermion operators
     def __eq__(self, other):
-        if type(other) is not c_op: return False
+        if type(other) is not fermion_op: return False
         return self.objs(True) == other.objs(True)
 
-    # miscellaneous methods
-
-    # return this c_sum restricted to a num_ops-operator subpace
+    # return this fermion operator restricted to a num_ops-operator subpace
     def restricted(self, num_ops, maximum = False):
         if is_indexed(num_ops):
-            include = lambda c_seq : len(c_seq.seq) in num_ops
+            include = lambda seq : len(seq.seq) in num_ops
         elif not maximum:
-            include = lambda c_seq : len(c_seq.seq) == num_ops
+            include = lambda seq : len(seq.seq) == num_ops
         else:
-            include = lambda c_seq : len(c_seq.seq) <= num_ops
-        return c_sum(*zip(*[ (c_seq, coeff) for c_seq, coeff in self.objs()
-                             if include(c_seq) ]))
+            include = lambda seq : len(seq.seq) <= num_ops
+        return fermion_op(*zip(*[ (seq, coeff) for seq, coeff in self.objs()
+                                  if include(seq) ]))
 
     # sort and simplify all terms
     def sorted(self, fixed_op_number = None):
-        if len(self.seq_list) == 0: return c_sum()
+        if len(self.seqs) == 0: return 0
 
         # sort all products
-        sorted_sum = sum_ops([ coeff * seq.sorted() for seq, coeff in self.objs() ])
+        sorted_sum = sum_ops( coeff * seq.sorted() for seq, coeff in self.objs() )
         sorted_objs = [ list(obj) for obj in sorted_sum.objs(True) ]
 
         # if we are fixing an operator number, throw out all unwanted terms
@@ -401,7 +370,12 @@ class c_sum(op_object):
         for jj, obj in reversed(list(enumerate(sorted_objs))):
             if obj[1] == 0: del sorted_objs[jj]
 
-        return c_sum(*zip(*sorted_objs))
+        # if the result is a scalar, return a scalar
+        if len(sorted_objs) == 0: return 0
+        if len(sorted_objs) == 1 and sorted_objs[0][0].seq == ():
+            return sorted_objs[0][1]
+
+        return fermion_op(*zip(*sorted_objs))
 
     # return matrix/vector reresentations of this operator
     #   when acting on a fixed-particle-number Fock state
@@ -414,3 +388,8 @@ class c_sum(op_object):
                     for op, coeff in sorted_op.objs() )
     def vector(self, single_states, index_map = None):
         return self.matrix(single_states, 0, index_map)
+
+# define the method that should *actually* be used to construct fermion operators
+# f_op accepts indices for an individual fermion operator, and returns a fermion_op object
+def f_op(*indices):
+    return fermion_op(fermion_op_individual(*indices))
