@@ -23,7 +23,8 @@ save = "save" in sys.argv
 
 fig_dir = "../figures/squeezing/"
 
-figsize = (5,2.5)
+figsize = (5.5,2.5)
+wspace = 0.2
 font = { "family" : "serif",
          "sans-serif" : "Computer Modern Sans serif" }
 plt.rc("font",**font)
@@ -61,7 +62,8 @@ field_strength = { N : 40 * filling * B_fac[N] * N/2 for N in N_vals }
 init_state = { OAT : "+X", TAT : "+X", TAT_X : "+X", TAT_Z : "-Z" }
 
 ax = {}
-_, ( ax[N_vals[0]], ax[N_vals[1]] ) = plt.subplots(figsize = figsize, ncols = 2)
+_, ( ax[N_vals[0]], ax[N_vals[1]] ) \
+    = plt.subplots(figsize = figsize, ncols = 2, gridspec_kw = { "wspace" : wspace })
 
 for N in N_vals:
     max_time = max_tau * N**(-2/3)
