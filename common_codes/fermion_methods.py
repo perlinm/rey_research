@@ -36,7 +36,7 @@ def rank(k_combination):
 
 # determine the k-combination { c_1, c_2, ..., c_k } corresponding to a rank,
 # with c_1 < c_2 < ... < c_k
-# in other words: given the index of a Fock state,
+# in other words: given the index of and numper of particles in a Fock state,
 # determine which single-particle states are occupied
 def unrank(rank, k):
     if k == 0: return []
@@ -258,7 +258,8 @@ class fermion_op_seq(op_object):
 ##########################################################################################
 
 class fermion_op(op_object):
-    def __init__(self, seqs = None, coeffs = None):
+    def __init__(self, seqs = None, coeffs = None, from_index = None):
+        # set sequences of individual fermionic operators
         if seqs is None or seqs == [] or seqs == ():
             self.seqs = ()
         elif type(seqs) is fermion_op_individual:
@@ -276,6 +277,7 @@ class fermion_op(op_object):
             else:
                 self.seqs = tuple(seqs)
 
+        # set coefficients for each sequence
         if coeffs is None or coeffs == [] or coeffs == ():
             self.coeffs = (1,) * len(self.seqs)
         elif not is_indexed(coeffs):
@@ -306,10 +308,10 @@ class fermion_op(op_object):
 
     def __mul__(self, other):
         if type(other) is fermion_op_individual:
-            new_seqs = [ fermion_op_seq(other,*seq.seq) for seq in self.seqs ]
+            new_seqs = [ fermion_op_seq(*seq.seq, other) for seq in self.seqs ]
             return fermion_op(new_seqs, self.coeffs)
         if type(other) is fermion_op_seq:
-            new_seqs = [ fermion_op_seq(other.seq + seq.seq) for seq in self.seqs ]
+            new_seqs = [ fermion_op_seq(*seq.seq, *other.seq) for seq in self.seqs ]
             return fermion_op(new_seqs, self.coeffs)
         if type(other) is fermion_op:
             obj_list = [ ( self_seq * other_seq, self_coeff * other_coeff )
