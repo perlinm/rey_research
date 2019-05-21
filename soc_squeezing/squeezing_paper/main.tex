@@ -148,7 +148,7 @@ An external laser with Rabi frequency $\Omega$ and wavenumber $k_{\t{L}}$ along 
 This laser imprints a position-dependent phase that equates to a momentum kick $k_{\t{L}}$ when an atom changes internal states by absorbing or emitting a photon, thereby generating spin-orbit coupling\cite{wall2016synthetic, livi2016synthetic}.
 After absorbing the position dependence of the laser Hamiltonian into fermionic operators through the gauge transformation $\hat c_{j,\up}\to e^{ik_{\t{L}} x_j}\hat c_{j,\up}$, which makes $\hat H_{\t{laser}}$ spatially homogeneous, the atoms are well-described in the tight-binding limit by the Fermi-Hubbard Hamiltonian\cite{esslinger2010fermihubbard}
 \begin{align}
-  \hat H_{\text{FH}}/\hbar
+  \hat H_{\text{FH}}^{(\phi)}/\hbar
   &= -J \sum_j \p{e^{i\phi} \hat c_{j,\up}^\dag \hat c_{j+1,\up}
   + \hat c_{j,\dn}^\dag \hat c_{j+1,\dn} + \text{h.c.}} \notag \\
   &\qquad + U \sum_j \hat n_{j,\up} \hat n_{j,\dn},
@@ -159,7 +159,7 @@ where $J$ is the nearest-neighbor tunneling rate; the SOC angle $\phi\equiv k_{\
 The Fermi-Hubbard Hamiltonian can be re-written in the quasi-momentum basis with annihiliation operators $\hat c_{q\alpha}\equiv L^{-1/2}\sum_j e^{-iqx_j}\hat c_{j\alpha}$, where $q$ is a quasi-momentum and $L$ is the total number of lattice sites.
 In this basis, the single-particle Hamiltonian exhibits shifted dispersion relations that signify spin-orbit coupling [see Fig.~\ref{fig:protocol_schematic}(b)]:
 \begin{align}
-  \hat H_{\t{FH,single}}/\hbar
+  \hat H_{\t{FH,single}}^{(\phi)}/\hbar
   = -2J\sum_q\sp{\cos(qa + \phi) \hat n_{q,\up}
   + \cos(qa) \hat n_{q,\dn}}.
 \label{eq:FermiHubbards}
@@ -179,7 +179,6 @@ On its own, the collective Heisenberg term ($\sim\hat{\v S}\c\hat{\v S}$) in Eqn
 Here $S$ and $M_S$ respectively label the eigenvalues of the collective spin operators $\hat{\v S}\c\hat{\v S}$ and $\hat{S}_\z$, with eigenvalues $S(S+1)$ for non-negative $S\in\set{N/2,N/2-1,\cdots}$ and $M_S\in\set{-S,-S+1,\cdots,S}$.
 The axial field $B_q$ generally couples states within the Dicke manifold to states outside it.
 In the weak SOC limit (i.e.~$B_q\ll fU$), however, the interaction energy gap suppresses population transfer between states with different total spin $S$ [see Fig.~\ref{fig:protocol_schematic}(d)].
-%In this weak SOC limit (i.e.~of all $B_q/fU\ll1$), we can treat the axial field perturbatively and perform a Schrieffer-Wolff transformation to determine its effective action on states restricted to the Dicke manifold (see Appendix \ref{sec:derivation_OAT}).
 In this regime, the virtual occupation of states outside the Dicke manifold can be accounted for perturbatively.
 The symmetries of SOC as expressed in Eqn.~\eqref{eq:SpinModel} dictate that this treatment should yield powers of $\hat S_\z$ when projected onto the collective Dicke manifold at higher orders in perturbation theory.
 At second order in perturbation theory (see Appendix \ref{sec:derivation_OAT}), we thus find that SOC effectively yields a one-axis twisting (OAT) model widely known to generate squeezing dynamics\cite{kitagawa1993squeezed, ma2011quantum}:
@@ -203,7 +202,7 @@ The atoms then freely evolve for a variable time $t$ (possibly with spin-echo $\
   \times N/\abs*{\braket{\hat{\v S}}}^2,
 \end{align}
 can be determined experimentally from global spin measurements.
-Here $\braket{\hat{\v S}}$ is the mean collective-spin vector and $\braket{\t{var}(\hat S^\perp_\theta)}$ is the variance of spin measurements along an axis orthogonal to $\braket{\hat{\v S}}$, parameterized by the angle $\theta\in[0,2\pi)$.
+Here $\braket{\hat{\v S}}$ is the mean collective spin vector and $\braket{\t{var}(\hat S^\perp_\theta)}$ is the variance of spin measurements along an axis orthogonal to $\braket{\hat{\v S}}$, parameterized by the angle $\theta\in[0,2\pi)$.
 The above protocol concerns only the preparation of a spin-squeezed state, which would then be used as an input state for a follow-up clock interrogation protocol without SOC.
 We discuss subtleties of interfacing the squeezing protocol with a subsequent clock interrogation protocol in Appendix \ref{sec:clock_interrogation}.
 
@@ -608,8 +607,23 @@ If we cannot take the tunneling rate $J\to0$, our remaining control parameter fo
 The squeezing protocol needs a clock laser with a small but nonzero SOC angle $\phi\ll1$, while the clock interrogation protocol requires a clock laser with $\phi=0$.
 Simply using one clock laser with $\phi\ne0$ for the squeezing protocol and another clock laser with $\phi=0$ for the clock interrogation protocol, however, does not resolve this discrepancy, because (i) both the squeezing and clock interrogation protocols need a clock laser that is homogeneous -- i.e.~with Hamiltonian proportional to $S_\x$, (ii) lasers with different SOC angles are homogeneous in different gauges, and (iii) spin squeezing is a gauge-dependent quantity.
 More precisely, a state that is squeezed with respect to spin operators that are homogeneous (i.e.~of the form $S_\x,S_\y,S_\z$) in a particular gauge is not necessarily squeezed with respect to spin operators that are homogeneous in a different gauge.
-To address this problem, we will fix a gauge in which the Fermi-Hubbard Hamiltonian exhibits SOC, as in Eqn.~\eqref{eq:FermiHubbard}, and construct a simple pulse sequence that transforms the $\phi=0$ clock laser into homogenous form in our working gauge.
+To resolve the fact that our squeezing protocol prepares a state that is squeezed in the ``wrong gauge'', we will work explicitly in the ``lab gauge'' of the clock interrogation protocol, in which the Fermi-Hubbard Hamiltonian is SOC-free and the $\phi=0$ clock laser is homogenous.
+We will then construct a simple pulse sequence that transforms the inhomogeneous spin operators accessible by the $\phi\ne0$ laser into homogeneous form in our working gauge.
 
+Starting with a spin-down-ploarized initial state
+\begin{align}
+  \ket{-\t{Z}}\equiv\p{\prod_j c_{j,\dn}^\dag}\ket{\t{vacuum}},
+\end{align}
+our OAT protocol essentially prepares the state
+\begin{align}
+  \ket{\xi_{\t{OAT}}^{(\theta)}} = e^{-i H_{\t{FH}}^{(0)}t}
+  e^{-i\p{\pi/2}S_\x^{(\theta)}} \ket{-\t{Z}},
+\end{align}
+where $H_{\t{FH}}^{(0)}$ is the Fermi-Hubbard Hamiltonian in Eqn.~\eqref{eq:FermiHubbard} without SOC; $t$ is some free evolution time; and $S_\x^{(\theta)}$ is the ``rotated'' spin-$x$-like generator induced by a clock laser with SOC angle $\phi=\theta$, namely
+\begin{align}
+  S_\x^{(\theta)}
+  = \f12 \sum_j e^{i\theta j} c_{j,\up}^\dag c_{j,\dn} + \t{h.c.}.
+\end{align}
 Defining on-site spin operators
 \begin{align}
   s_\z^{(j)} &\equiv \f12 \p{ c_{j,\up}^\dag c_{j,\up}
@@ -619,90 +633,78 @@ Defining on-site spin operators
   s_\y^{(j)} &\equiv \f{i}{2} \p{c_{j,\dn}^\dag c_{j,\up}
     - c_{j,\up}^\dag c_{j,\dn}},
 \end{align}
-we observe that gauge transformation $\hat c_{j,\up}\to e^{i\theta j}\hat c_{j,\up}$ takes (up to an overall phase)
+we can identify the rotated collective spin operators
 \begin{align}
-  S_\x = \sum_j s_\x^{(j)}
-  \to \sum_j \p{\cos\p{\theta j}  s_\x^{(j)}
-    + \sin\p{\theta j} s_\y^{(j)}}
-  \equiv S_\x^{(\theta)},
+  S_\x^{(\theta)} &\equiv \sum_j \p{\cos\p{\theta j} s_\x^{(j)}
+  + \sin\p{\theta j} s_\y^{(j)}},
+  \label{eq:S_x_theta} \\
+  S_\y^{(\theta)} &\equiv \sum_j \p{\cos\p{\theta j} s_\y^{(j)}
+  - \sin\p{\theta j} s_\x^{(j)}}.
+  \label{eq:S_y_theta}
 \end{align}
-This transformation thus rotates local spin operators by a site-dependent angle $\theta j$, generally taking $S_{\x,\y}^{(\alpha)}\to S_{\x,\y}^{(\alpha+\theta)}$ (with $S_\y^{(\alpha)}$ defined similarly to $S_\x^{(\alpha)}$) and leaving $S_\z$ unaffected (taking $S_\z\to S_\z$).
-A clock laser with SOC angle $\phi$ induces a Hamiltonian proportional to $S_\x^{(-\phi)}$ ($S_\x^{(-\phi+\theta)}$) before (after) a gauge transformation by $\theta$, which is why transforming with $\theta=\phi$ made the SOC-inducing clock laser homogenous in the main text.
+The state $\ket{\xi_{\t{OAT}}^{(\theta)}}$ is squeezed with respect to components of the rotated collective spin vector $\v S_\theta \equiv \p{S_\x^{(\theta)},S_\y^{(\theta)},S_\z}$.
+To take advantage of the squeezing in $\ket{\xi_{\t{OAT}}^{(\theta)}}$, therefore, the clock interrogation protocol effectively needs to rotate this state by some unitary $\exp\p{-i\v\eta\c\v S_\theta}$, and then extract information about the rotation vector $\v\eta$ from collective spin observables of the form
+\begin{align}
+  \bk{\O_\theta}_{\t{OAT}}^{\v\eta}
+  \equiv \bk{\xi_{\t{OAT}}^{(\theta)}| e^{i\v\eta\c\v S_\theta}
+    \O_\theta e^{-i\v\eta\c\v S_\theta} |\xi_{\t{OAT}}^{(\theta)}},
+\end{align}
+where $\O_\theta$ is some product of the rotated collective spin operators in $\v S_\theta$, e.g.~$S_\x^{(\theta)}$ or $S_\x^{(\theta)} S_\y^{(\theta)}$.
+In order to turn off SOC in a shallow lattice, however, the clock interrogation protocol is restricted to performing rotations of the form $\exp\p{-i\v\eta\c\v S_0}$ and measuring homogeneous operators $\O_0$.
+We therefore seek a ``gauge-switching'' operation $G_\theta$ that maps homogenous operators $\O_0$ onto rotated operators $\O_\theta$ via $G_\theta^\dag \O_0 G_\theta = \O_\theta$.
+Equipped with $G_\theta$, we could decompose
+\begin{align}
+  \bk{\O_\theta}_{\t{OAT}}^{\v\eta}
+  &= \bk{\xi_{\t{OAT}}^{(\theta)}| G_\theta^\dag e^{i\v\eta\c\v S_0}
+    \O_0 e^{-i\v\eta\c\v S_0} G_\theta |\xi_{\t{OAT}}^{(\theta)}}
+  \notag \\
+  &= \bk{\tilde \xi_{\t{OAT}}^{(\theta)}| e^{i\v\eta\c\v S_0}
+    \O_0 e^{-i\v\eta\c\v S_0} |\tilde \xi_{\t{OAT}}^{(\theta)}}
+\end{align}
+for a transformed state
+\begin{align}
+  \ket{\tilde \xi_{\t{OAT}}^{(\theta)}}
+  \equiv G_\theta \ket{\xi_{\t{OAT}}^{(\theta)}}
+\end{align}
+that is now squeezed with respect to the homogeneous collective spin operators in $\v S_0$, accessible with the SOC-free ($\phi=0$) clock laser used during clock interrogation.
 
-To ``undo'' the effect of our gauge transformation on spin operators, we can construct the unitary ``gauge-switching'' operator
+Given the definitions of the rotated spin operators $S_\x^{(\theta)},S_\x^{(\theta)}$ in Eqns.~\eqref{eq:S_x_theta}, \eqref{eq:S_y_theta}, a suitable candidate for the gauge-switching operator $G_\theta$ is the site-dependent rotation
 \begin{align}
-  G_\theta = \prod_j \exp\p{-i \theta j s_\z^{(j)}}
-  \label{eq:gauge_rotation}
+  G_\theta = \prod_j \exp\p{i\theta j s_\z^{(j)}}.
 \end{align}
-for which
+To implement $G_\theta$ with ``global'' (i.e.~non-site-selective) experimental controls, we decompose any rotation into a product of two reflections:
 \begin{align}
-  G_\theta^\dag S_{\x,\y}^{(\alpha+\theta)} G_\theta = S_{\x,\y}^{(\alpha)}.
+  \exp\p{i2\alpha s_\z^{(j)}}
+  \simeq \exp\p{i\pi s_\x^{(j)}} \exp\p{i\pi s_\alpha^{(j)}}
 \end{align}
-We then decompose any rotation into a product of two reflections:
-\begin{align}
-  \exp\p{-i\alpha s_\z^{(j)}}
-  = \exp\p{-i\pi s_\x^{(j)}} \exp\p{-i\pi s_{\alpha/2}^{(j)}},
-  \label{eq:rotation_reflections}
-\end{align}
-where $s_{\alpha/2}^{(j)} \equiv \cos\p{\alpha/2}s_\x^{(j)} + \sin\p{\alpha/2}s_\y^{(j)}$.
+where $\simeq$ denotes equality up to an overall phase, and $s_\alpha^{(j)} \equiv \cos\alpha s_\x^{(j)} + \sin\alpha s_\y^{(j)}$.
 This decomposition implies
 \begin{align}
-  G_\theta = \exp\p{-i\pi S_\x^{(\theta/2)}} \exp\p{-i\pi S_\x^{(\theta)}}.
-  \label{eq:gauge_decomposition}
+  G_\theta \simeq \exp\p{i\pi S_\x^{(0)}} \exp\p{i\pi S_\x^{(\theta/2)}},
+  \label{eq:G_pi_pi}
 \end{align}
-The unitary in Eqns.~\eqref{eq:gauge_rotation} and \eqref{eq:gauge_decomposition} can therefore be implemented by a sequence of two $\pi$-pulses: one $\pi$-pulse by a clock laser with SOC angle $\phi=0$ (with Hamiltonian $\sim S_\x^{(\theta)}$ in the gauged frame), and a second $\pi$-pulse by a clock laser with SOC angle $\phi=\theta/2$ (with Hamiltonian $\sim S_\x^{(\theta/2)}$ in the gauged frame).
-This unitary can be used to reconcile the incommensurate SOC requirements of the squeezing and clock interrogation protocols.
+which can be implemented using one SOC-free ($\phi=0$) clock laser, and one clock laser with SOC angle $\phi=\theta/2$.
+Appending the two $\pi$-pulses given by Eqn.~\eqref{eq:G_pi_pi} to our squeezing protocol thus prepares a state $\ket{\tilde\xi_{\t{OAT}}^{(\theta)}}$ that is squeezed with respect to the homogenous collective spin operators $S_\x,S_\y,S_\z$ accessible to the SOC-free ($\phi=0$) clock laser used during clock interrogation.
 
-Starting with a spin-down-ploarized initial state
+As presented, the combined squeezing and clock interrogation protocols require three clock lasers in total: one without SOC ($\phi=0$), and one each for SOC angles $\phi\in\set{\theta/2,\theta}$.
+We can use $G_\theta$, however, to decompose any pulse $\exp\p{-i\v\beta\c\v S_\theta}$ into composite pulses that use only $\v S_0$ and $\v S_{\theta/2}$:
 \begin{align}
-  \ket{-\t{Z}}\equiv\p{\prod_j c_{j,\dn}^\dag}\ket{\t{vacuum}},
+  \exp\p{-i\v\beta\c\v S_\theta}
+  = G_\theta^\dag \exp\p{-i\v\beta\c\v S_0} G_\theta.
+  \label{eq:pulse_decomposition}
 \end{align}
-our OAT protocol essentially prepares the squeezed state
+The state prepared by the OAT squeezing protocol, for example, can be equivalently prepared via
 \begin{align}
-  \ket{\xi_{\t{OAT}}}
-  \equiv e^{-iH_{\t{FH}}^\theta t}
-  e^{-i\p{\pi/2} S_\x} \ket{-\t{Z}},
+  \ket{\xi_{\t{OAT}}^{(\theta)}}
+  &= e^{-i H_{\t{FH}}^{(0)}t} G_\theta^\dag
+  e^{-i\p{\pi/2}S_\x^{(0)}} G_\theta \ket{-\t{Z}} \notag \\
+  &\simeq e^{-i H_{\t{FH}}^{(0)}t} e^{-i\pi S_\x^{(\theta/2)}}
+  e^{i\p{\pi/2} S_\x^{(0)}} \ket{-\t{Z}}.
 \end{align}
-for some free evolution time $t$ and a Fermi-Hubbard Hamiltonian $H_{\t{FH}}^\theta$ exhibiting SOC with angle $\theta\ll1$, where $\theta=\phi$ in Eqn~\eqref{eq:FermiHubbard}.
-The follow-up clock interrogation protocol needs to rotate this squeezed state, most generally by some unitary $\exp\p{-i\v\alpha\c\v S}$, and then measure collective spin observables of the form (for example)
-\begin{align}
-  \bk{S_\x}_{\t{OAT}}^{\v\alpha}
-  \equiv \bk{\xi_{\t{OAT}}|e^{i\v\alpha\c\v S}
-    S_\x e^{-i\v\alpha\c\v S}|\xi_{\t{OAT}}}.
-\end{align}
-In a clock interrogation protocol with a shallow lattice, the rotation $\exp\p{-i\v\alpha\c\v S}$ and measurement of $S_\x$ must be performed with an SOC-free ($\phi=0$) clock laser, which can effectively only access the gauge-transformed operators $S_{\x,\y}^{(\theta)}$.
-We therefore expand
-\begin{align}
-  \bk{S_\x}_{\t{OAT}}^{\v\alpha}
-  &= \bk{\xi_{\t{OAT}}| G_\theta^\dag e^{i\v\alpha\c\v S^{(\theta)}}
-    S_\x^{(\theta)} e^{-i\v\alpha\c\v S^{(\theta)}}
-    G_\theta |\xi_{\t{OAT}}} \notag \\
-  &= \bk{\xi_{\t{OAT}}^\theta| e^{i\v\alpha\c\v S^{(\theta)}}
-    S_\x^{(\theta)} e^{-i\v\alpha\c\v S^{(\theta)}} |\xi_{\t{OAT}}^\theta},
-\end{align}
-where $\v S^{(\theta)}\equiv G_\theta \v S G_\theta^\dag$ and
-\begin{align}
-  \ket{\xi_{\t{OAT}}^\theta} \equiv G_\theta \ket{\xi_{\t{OAT}}}.
-\end{align}
-We are thus free to use the SOC-free clock laser during clock interrogation if we append the operation $G_\theta$ to our squeezing protocol.
-
-The last subtlety of clock interrogation and ``gauge-switching'' concerns the squeezing protocol itself.
-Experimentally implementing $G_\theta$ to enable clock interrogation requires clock lasers with SOC angles $\phi=0$ and $\phi=\theta/2$, neither of which is homogenous in our working gauge.
-Our squeezing protocols, however, need a homogenous clock laser for (i) an initial $\pi/2$ rotation of $\ket{-\t{Z}}$, (ii) spin-echo pulses throughout the squeezing protocol, and (iii) the drive used to transform OAT into TAT.
-Any clock laser pulses in the squeezing protocols can still be implemented using $G_\theta$ and the SOC-free ($\phi=0$) clock laser via the same trick used for clock interrogation, e.g.~by decomposing
-\begin{align}
-  \ket{\xi_{\t{OAT}}^\theta}
-  &= G_\theta e^{-iH_{\t{FH}}^\theta t}
-  G_\theta^\dag e^{-i\p{\pi/2} S_\x^{(\theta)}} G_\theta \ket{-\t{Z}},
-  \notag \\
-  &\simeq G_\theta e^{-iH_{\t{FH}}^\theta t}
-  G_\theta^\dag e^{-i\p{\pi/2} S_\x^{(\theta)}} \ket{-\t{Z}},
-\end{align}
-where $\simeq$ denotes equality up to a global phase, and we used the fact that the initial state $\ket{-\t{Z}}$ is an eigenstate of $G_\theta$.
-Applying a continuous drive, meanwhile, seemingly requires an extra clock laser with SOC angle $\phi=\theta$.
-In practice, it may be prohibitively difficult to properly calibrate the relative angles of three clock lasers.
+Spin-echo pulses applied throughout OAT can likewise be decomposed according to \eqref{eq:pulse_decomposition}, eliminating the need for a clock laser with SOC angle $\phi=\theta$.
+Applying a continuous drive during a squeezing protocol, however, still requires all three clock three lasers.
+If carefully tuning the relative orientations of three clock lasers proves to be too difficult in practice, converting OAT into TAT would therefore need to be done with a pulsed drive protocol, as e.g.~in Ref [\citenum{liu2011spin}].
 % note to authors: the use of a third laser is also incompatible with a 3D accordion lattice, but I (MP) decided that this point would require too much extra discussion to explain here
-In this case, converting OAT into TAT would need to be done with a pulsed drive protocol, as e.g.~in Ref.[\citenum{liu2011spin}].
 
 
 \section{Decoherence in the 3D $^{87}$Sr optical lattice clock}
@@ -728,10 +730,10 @@ In the language of the section that follows, we would say that this decoherence 
 \section{Solving Heisenberg equations of motion for collective spin systems}
 \label{sec:collective_simulation}
 
-In order to compute squeezing of a collective spin system, we need to compute expectation values of collective-spin operators.
+In order to compute squeezing of a collective spin system, we need to compute expectation values of collective spin operators.
 Choosing the basis $\set{\S_{\v m}}$ for these operators, where $\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ with
 $\v m\equiv\p{m_+,m_\z,m_-}\in\mathbb{N}_0^3$, we can expand all
-collective-spin Hamiltonians in the form
+collective spin Hamiltonians in the form
 \begin{align}
   H = \sum_{\v m} h_{\v m} \S_{\v m}.
   \label{eq:H_general}
@@ -754,7 +756,8 @@ These matrix elements can be calculated analytically using product and commutati
 We can then expand Heisenberg operators in a Taylor series about $t=0$ to write
 \begin{align}
   \bk{\S_{\v m}}
-  &= \sum_{k\ge0} \f{t^k}{k!} \bk{\f{d^k}{dt^k} \S_{\v m}}_{t=0} \notag \\
+  &= \sum_{k\ge0} \f{t^k}{k!} \bk{\f{d^k}{dt^k} \S_{\v m}}_{t=0}
+  \notag \\
   &= \sum_{k\ge0} \f{t^k}{k!}
   \sum_{\v n} T_{\v m\v n;k} \bk{\S_{\v n}}_{t=0},
   \label{eq:time_series}
