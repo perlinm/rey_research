@@ -1,0 +1,328 @@
+\documentclass[reprint,onecolumn,12pt]{revtex4-2}
+
+%%% linking references
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+}
+
+%%% physics and math packages
+\usepackage{physics} % general physics package
+\usepackage{amssymb} % math fonts and symbols
+\usepackage{bm} % for making math symbols bold
+\usepackage{braket} % for nice brackets (e.g. |X>)
+\usepackage{mathtools} % for \coloneqq
+\usepackage{graphicx} % for figures
+\graphicspath{{./figures/}} % set path for all figures
+
+%%% shorthands to use inside math environments
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % square parenthesis
+\renewcommand{\c}{\cdot} % inner product
+\renewcommand{\d}{\text{d}} % integration measure, e.g. d^3 x
+\renewcommand{\v}{\bm} % bold symbols (e.g. for vectors)
+\newcommand{\uv}[1]{\hat{\bm #1}} % unit vectors, or vector operators
+\newcommand{\bk}{\Braket}
+\renewcommand{\ket}{\Ket}
+\renewcommand{\bra}{\Bra}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\J}{\mathcal{J}}
+\renewcommand{\L}{\mathcal{L}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\S}{\mathcal{S}}
+
+\newcommand{\z}{\text{z}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
+
+\usepackage{enumitem}
+\setlist[enumerate]{leftmargin=*}
+\setlist[itemize]{leftmargin=*}
+\usepackage[dvipsnames]{xcolor}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\green}[1]{{\color{ForestGreen} #1}}
+
+
+\begin{document}
+
+\section*{Response to referee}
+
+We thank the referee for taking the time to carefully read our
+manuscript, and for providing thoughtful and constructive feedback.
+Below, we address the comments and questions brought up by the
+referee.  We hope that the referee finds our responses and revisions
+satisfactory, deeming our manuscript acceptable for publication in
+Physical Review X.
+
+Excerpts from the referee reports are written in \blue{blue}, excerpts
+from our original manuscript are written in \red{red}, and excerpts
+from the revised version of our manuscript is written in
+\green{green}.  All page, equation, and reference numbers generally
+refer to those in our original manuscript, unless explicitly stated
+otherwise.
+
+
+\begin{enumerate}
+\item Concerning:
+
+  \blue{The main result of the manuscript is the theoretical
+    development and characterization of a new protocol for the
+    generation of spin squeezing in optical atomic clocks, to be
+    employed for boosting the precision of clock experiments beyond
+    the standard quantum limit. The topic, encompassing AMO physics
+    and quantum physics, is certainly highly interesting. The
+    implementation of these ideas in an experiment would constitute a
+    very important advancement in the broad field of quantum sensing
+    and metrology, as the application of nonclassical states for
+    quantum enhancement of the measurement precision is the subject of
+    major efforts in quantum technologies nowadays.}
+
+  \blue{The proposal is new, although it is substantially based on
+    previous theoretical and experimental works by the groups led by
+    the two senior authors (J. Ye and A. M. Rey). On the theoretical
+    side, the amount of technological novelty seems limited, as the
+    authors are not developing radically new theoretical tools or
+    approaches. What is new is the idea that the ``ingredients'' which
+    have already been demonstrated can be mixed up, with the proper
+    protocol, to generate substantial, useful entanglement. On the
+    experimental side, the implementation seems feasible and the
+    consequences would be highly relevant, as the promised levels of
+    spin squeezing have been never reported yet in any experiment of
+    the atomic clock kind. Balancing these considerations, I find the
+    subject overall appropriate for PRX, mostly in view of the
+    importance of an eventual experimental demonstration of the
+    proposed protocol.}
+
+  \blue{The paper is written very well and the level of presentation
+    fits the target of PRX, with a first paragraph that serves as a
+    quite useful introduction for non-specialists. In the same spirit,
+    I have appreciated the decision of the authors to focus on the
+    one-axis twisting (OAT) protocol, as it is less effective but more
+    pedagogical than the two-axis twisting (TAT) protocol they also
+    consider, leaving the latter almost completely in the
+    appendixes. Although the interested reader will be forced to read
+    the appendixes to understand how the TAT works, I think that this
+    choice is positive overall. With the more technical parts moved to
+    the appendixes and the general physics presented in the main text,
+    the paper seems suitable for a generic audience.}
+
+  \blue{So, on the side of presentation and significance, I find the
+    manuscript adequate for PRX.}
+
+  \blue{Before giving a final assessment on the actual validity of the
+    manuscript, I invite the authors to provide clarifications on the
+    following points:}
+
+  We thank the referee for summarizing the nature and impact of our
+  work, deeming the subject of our manuscript ``appropriate for PRX'',
+  and noting that our manuscript is ``written very well'' with a
+  ``presentation [that] fits the target of PRX''.  We hope that the
+  revisions to our manuscript outlined below adequately address any
+  questions and reservations that the referee may have, deeming our
+  revised manuscript acceptable for publication in PRX.
+
+
+\item Concerning:
+
+  \blue{1) The authors always consider the case of a homogeneously
+    trapped atomic gas, whereas in current 3D optical clock
+    implementations there is a significant quasi-harmonic trapping
+    induced by the focused magic-optical-lattice beams. Could the
+    authors comment on the relevance of this effect for their spin
+    squeezing protocol? Since the squeezing arises from the dephasing
+    of spatially delocalized wavefunctions, the trap, modifying those
+    wavefunctions, might introduce unwanted effects. For instance, the
+    spectrum of the B term in the Hamiltonian would change with
+    respect to the simple Cos form of Eq. (2): with the upper bound of
+    the spectrum upshifted by the harmonic potential energy, the
+    (global) interaction gap U would be shrinked, potentially leading
+    to a mixing of different Dicke manifolds. In addition, the lattice
+    filling f will be continuously changing all over the trap,
+    diminishing in the outer regions and potentially causing problems
+    for the weak SOC limit assumption. It is not clear to me whether a
+    LDA approach would be sufficient to demonstrate the efficiency of
+    the protocol in the presence of the trap, as the wavefunctions are
+    delocalized. If yes, which assumptions have to be made on the
+    system?}
+
+
+
+\item Concerning:
+
+  \blue{2) The authors always consider the effects of purely elastic
+    interactions. However, in previous works it was shown that
+    collisions involving two-electron atoms in the 1S0 and 3P0 states
+    can have a substantial inelastic character, with sizable atom loss
+    rates. The authors should comment on the influence of such
+    processes on their protocol. Can they provide estimates on the
+    reduction of spin squeezing when these processes are considered?
+    Of course, this effect could be circumvented by considering the
+    alternative squeezing protocol relying on nuclear spin states and
+    Raman transitions, very briefly mentioned in the last paragraph
+    before the conclusions.  Regarding the latter point, it would be
+    interesting to know something more about the transfer of
+    entanglement from one degree of freedom (nuclear spin) to the
+    other (electronic state).}
+
+
+
+\item Concerning:
+
+  \blue{3) What happens after the squeezing protocol is never
+    mentioned. Even briefly (for the sake of non-experts), the authors
+    should explain how the ensuing clock interrogation protocol would
+    be implemented. I guess that it would be carried out with a simple
+    increase of the lattice depth to stop the effect of the squeezing
+    Hamiltonian, followed by a plain clock interrogation sequence in
+    the Lamb-Dicke regime. Is this enough or are there additional
+    subtleties to be discussed?}
+
+  We thank the referee for their careful consideration of how our
+  squeezing protocol would be used in practice.  Indeed, the
+  accessibility of our work would benefit greatly from a discussion of
+  how to interface our squeezing protocol with an ensuing clock
+  interrogation protocol.  To address this point, we have added a
+  written a new appendix for our manuscript (Appendix D, on page 10 of
+  the revised manuscript):
+  % todo: make sure appendix and page numbers are correct
+
+  \green{[Insert Appendix D here, once we finalize it.]}
+
+  We refer readers to the new appendix at the end of the caption to
+  Fig.~1 on page 3, adding the text ``\green{(see Appendix D)}''; as
+  well as after Eq.~(5) on page 4, replacing the text:
+
+  \red{Note that the above protocol concerns only the preparation of a
+    spin-squeezed state, which ideally would be used as an input state
+    for a follow-up clock in- terrogation protocol. SOC can be turned
+    off during the latter protocol by properly re-aligning the clock
+    laser.}
+
+  by:
+
+  \green{The above protocol concerns only the preparation of a
+    spin-squeezed state, which would then be used as an input state
+    for a follow-up clock interrogation protocol without SOC.  We
+    discuss subtleties of interfacing the squeezing protocol with a
+    subsequent clock interrogation protocol in Appendix D.}
+
+  We have also added two sentences to the main text in order to make
+  readers aware of the pulsed drive TAT protocol.  Specifically, we
+  have changed the text (immediately preceding section III on page 4):
+
+  \red{... TAT remains approximately constant until reaching
+    Heisenberg-limited amount of spin squeezing with
+    $\xi^2_{\t{opt}}\sim N^{-1}$[37].  Following the prescription in
+    Ref.~[38], ...}
+
+  which now reads:
+
+  \green{... TAT remains approximately constant until reaching
+    Heisenberg-limited amount of spin squeezing with
+    $\xi^2_{\t{opt}}\sim N^{-1}$[17, 37].}
+
+  \green{There are two general strategies for converting OAT into TAT:
+    by use of a pulsed[38] or continuous[39] drive protocol.  For
+    simplicity, we consider the latter in our work.  Following the
+    prescription in Ref.~[39], ...}
+  % TODO: make sure reference numbers are correct
+
+
+\item Concerning:
+
+  \blue{4) It is not completely clear whether the results of Fig.~4 in
+    the presence of decoherence have been obtained for a fixed
+    evolution time (the authors mention a 1s timescale in the main
+    text) or they represent the best spin squeezing values reached at
+    an optimal squeezing time? Is there still an optimal squeezing
+    time in the presence of decoherence or a different, maybe
+    asymptotic, evolution?}
+
+  We thank the referee for finding an ambiguity in our presentation of
+  the results in Fig.~4.  To clarify that optimal squeezing occurs at
+  a particular time that depends on system and decoherence parameters,
+  we have modified the caption of Fig.~4 (on page 6), such that the
+  text:
+
+  \red{{\bf Squeezing with decoherence} ... The time scales for
+    optimal squeezing with decoherence are generally no greater than
+    those in Fig.~3.}
+
+  now reads:
+
+  \green{{\bf Optimal squeezing with decoherence} ... Optimal
+    squeezing times in the presence of decoherence are generally
+    smaller than the corresponding times shown in Fig.~3, as
+    decoherence generally degrades squeezing before it reaches the
+    decoherence-free maximum.  Sample plots of squeezing over time for
+    particular choices of lattice size ($\ell$) and depth
+    ($V_0/E_{\t{R}}$) are provided in the Supplementary
+    Material[37].}
+  % TODO: make sure reference number is correct
+
+  Note that Fig.~3 shows the optimal squeezing time as a function of
+  lattice depth ($V_0/E_{\t{R}}$) and system size ($\ell$).  We hope
+  that these changes clarify the fact that optimal squeezing generally
+  occurs at a particular time that depends on system parameters.
+
+
+\item Concerning:
+
+  \blue{5) A final minor point. When the authors indicate that the
+    motional degrees of freedom are frozen (for instance, in the new
+    paragraph after Eq. 5), it would be quite helpful (for readers who
+    are not familiar with previous works) to stress again that
+    localization is in momentum space, while the wavefunctions in real
+    space are extended.}
+
+  We thank the referee for pointing out a potential source of
+  confusion from our use of language when we say ``frozen motional
+  degrees of freedom''.  Indeed, the atoms in our setup may still
+  tunnel from site to site; these atoms are only ``frozen'' in
+  momentum space.  In order to clarify this point, we revised all
+  references in our manuscript to frozen motional degrees of freedom,
+  in particular changing the following text in the caption to Fig.~1
+  (on page 3):
+
+  \red{({\bf c}) If interactions are sufficiently weak, all motional
+    degrees of freedom are frozen and atoms are effectively pinned to
+    fixed quasi-momentum modes $\v q$.}
+
+  to:
+
+  \green{({\bf c}) If interactions are sufficiently weak, all motional
+    degrees of freedom become frozen in momentum space, with atoms
+    effectively pinned to fixed quasi-momentum modes $\v q$.}
+
+  and adding a parenthetical to the following text after Eq.~(5) on
+  page 4:
+
+  \red{... one cannot assume frozen motional degrees of freedom and
+    map the Fermi-Hubbard model onto a spin model.}
+
+  which now reads:
+
+  \green{... one cannot assume frozen motional degrees of freedom
+    (i.e.~with atoms pinned to fixed quasi-momentum modes) and map the
+    Fermi-Hubbard model to a spin model.}
+
+
+\end{enumerate}
+
+\end{document}

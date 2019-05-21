@@ -1,0 +1,768 @@
+\documentclass[aps,prx,superscriptaddress,twocolumn]{revtex4-2}
+
+%%% linking references
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+}
+
+%%% physics and math packages
+\usepackage{physics} % general physics package
+\usepackage{amssymb} % math fonts and symbols
+\usepackage{bm} % for making math symbols bold
+\usepackage{braket} % for nice brackets (e.g. |X>)
+\usepackage{mathtools} % for \coloneqq
+\usepackage{graphicx} % for figures
+\graphicspath{{./figures/}} % set path for all figures
+
+%%% shorthands to use inside math environments
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % square parenthesis
+\renewcommand{\c}{\cdot} % inner product
+\renewcommand{\d}{\text{d}} % integration measure, e.g. d^3 x
+\renewcommand{\v}{\bm} % bold symbols (e.g. for vectors)
+\newcommand{\uv}[1]{\hat{\bm #1}} % unit vectors, or vector operators
+\newcommand{\bk}{\Braket}
+\renewcommand{\ket}{\Ket}
+\renewcommand{\bra}{\Bra}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\J}{\mathcal{J}}
+\renewcommand{\L}{\mathcal{L}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\S}{\mathcal{S}}
+
+\newcommand{\z}{\text{z}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
+%%% text for affiliations and contributions
+\newcommand{\JILA}{JILA, National Institute of Standards and Technology and Department of Physics, University of Colorado, Boulder, CO, 80309, USA}
+\newcommand{\CTQM}{Center for Theory of Quantum Matter, University of Colorado, Boulder, CO, 80309, USA}
+\newcommand{\contrib}{\thanks{Authors P.H.~and M.A.P.~contributed equally to this work.}}
+
+\begin{document}
+
+\title{Engineering spin squeezing in a 3D optical lattice with interacting spin-orbit-coupled fermions}
+
+\author{P.~He} \contrib
+\author{M.~A.~Perlin} \contrib
+\author{S.~R.~Muleady}
+\author{R.~J.~Lewis-Swan}
+\affiliation{\JILA}
+\affiliation{\CTQM}
+\author{R.~B.~Hutson}
+\author{J.~Ye}
+\affiliation{\JILA}
+\author{A.~M.~Rey}
+\affiliation{\JILA}
+\affiliation{\CTQM}
+
+\begin{abstract}
+One of the most important tasks in modern quantum science is to coherently control and entangle many-body systems, and to subsequently use these systems to realize powerful quantum technologies such as quantum-enhanced sensors.
+However, many-body entangled states are difficult to prepare and preserve since internal dynamics and external noise rapidly degrade any useful entanglement.
+Here, we introduce a protocol that counterintuitively exploits inhomogeneities, a typical source of dephasing in a many-body system, in combination with interactions to generate metrologically useful and robust many-body entangled states.
+Motivated by current limitations in state-of-the-art three-dimensional (3D) optical lattice clocks (OLCs) operating at quantum degeneracy, we use local interactions in a Hubbard model with spin-orbit coupling to achieve a spin-locking effect.
+In addition to prolonging inter-particle spin coherence, spin-locking transforms the dephasing effect of spin-orbit coupling into a collective spin-squeezing process that can be further enhanced by applying a modulated drive.
+Our protocol is fully compatible with state-of-the-art 3D OLC interrogation schemes and may be used to improve their sensitivity, which is currently limited by the intrinsic quantum noise of independent atoms.
+We demonstrate that even with realistic experimental imperfections, our protocol may generate $\sim10$--$14$ dB of spin squeezing in $\sim1$ second with $\sim10^2$--$10^4$ atoms.
+This capability exemplifies a new paradigm of using driven non-equilibrium systems to overcome current limitations in quantum metrology, allowing OLCs to enter a new regime of enhanced sensing with correlated quantum states.
+\end{abstract}
+
+% keywords: ultracold atoms, optical lattices, atomic clocks, metrology, spin squeezing
+
+\maketitle
+
+\section{Introduction}
+
+% The understanding and application of few-body quantum mechanics and equilibrium statistical mechanics were integral to the rapid growth in technology throughout the 20th century.
+A major frontier of contemporary physics is the understanding of non-equilibrium behaviors of many-body quantum systems, and the application of these behaviors toward the development of novel quantum technologies with untapped capabilities\cite{eisert2015quantum}.
+To this end, ultracold atomic, molecular, and optical systems are ideal platforms for studying unexplored regimes of many-body physics due to their clean preparation and readout, high controllability, and long coherence times\cite{bloch2008manybody, gross2017quantum}.
+The exquisite capabilities of these systems have pushed the frontiers of metrology, quantum simulation, and quantum information science.
+
+Optical lattice clocks in particular have seen some of the most impressive developments in recent years, reaching record levels of precision ($\sim 3\times 10^{-19}$)\cite{campbell2017fermidegenerate, marti2018imaging} and accuracy ($\sim 1\times 10^{-18}$)\cite{bloom2014optical, mcgrew2018atomic}.
+These advancements required important breakthroughs, including the capability to cool and trap fermionic alkaline-earth atoms in spin-insensitive potentials\cite{takamoto2003spectroscopy, barber2006direct, ye2008quantum}; the development of ultra-coherent lasers\cite{kessler2012sub40mhzlinewidth, cole2013tenfold, matei2017mu} to fully exploit an ultra-narrow clock transition\cite{ludlow2015optical}; and, more recently, the preparation of a quantum degenerate gas in a three-dimensional (3D) optical lattice\cite{campbell2017fermidegenerate, marti2018imaging, goban2018emergence}.
+Nonetheless, all improvements in sensing capabilities to date have been based on single-particle control of internal atomic degrees of freedom.
+Such strategies will eventually have diminishing returns due to practical difficulties in (i) suppressing decoherence from external (motional) degrees of freedom, and (ii) interrogating more particles without additional systematic errors from interactions\cite{martin2013quantum, ludlow2015optical, marti2018imaging}.
+
+Pushing beyond the current independent-particle paradigm requires leveraging many-body quantum correlations.
+Entangled states such as spin-squeezed states\cite{kitagawa1993squeezed, wineland1992spin, ma2011quantum} can enhance measurement sensitivity, i.e.~the uncertainty $\Delta\theta$ in the estimation of a parameter $\theta$, below the standard quantum limit $\Delta\theta\sim1/\sqrt{N}$ for $N$ uncorrelated particles\cite{itano1993quantum, degen2017quantum}.
+The major challenge for progress in this direction is that generating entanglement requires interactions, which are generally undesirable because they degrade atomic coherence, thereby limiting clock performance\cite{swallows2011suppression, martin2013quantum, rey2014probing, ludlow2011coldcollisionshift, lemke2011wave, ludlow2015optical}.
+In fact, the most precise and accurate optical lattice clocks were designed to operate with fermionic atoms in identical nuclear and electronic states in order to suppress collisional decoherence\cite{campbell2009probing, swallows2011suppression, campbell2017fermidegenerate}, as identical fermions cannot interact via the otherwise dominant ($s$-wave) collisions at ultracold temperatures.
+However, an initially spin-polarized Fermi gas still exhibits interactions at later times due to spin-orbit coupling (SOC) that is induced by the laser that drives the clock transition (i.e.~the ``clock laser'')\cite{wall2016synthetic, kolkowitz2016spinorbitcoupled, livi2016synthetic, bromley2018dynamics}.
+Specifically, the momentum kick imparted by this laser imprints a position-dependent phase that induces inhomogenous spin precession and generates spin dephasing, thereby making atoms distinguishable and vulnerable to collisions.
+While a deep lattice can suppress SOC, it also intensifies the light scattering which currently limits the coherence time of the clock\cite{dorscher2018latticeinduced, goban2018emergence, hutson2019engineering}.
+
+In this work, we describe a scheme that can potentially lead to metrological advances in state-of-the-art optical lattice clocks through direct use of quantum entanglement by harnessing the interplay between nominally undesirable collisions and SOC.
+This scheme is made possible in the weak SOC regime by the formation of an interaction-energy gap that suppresses the SOC-induced population transfer from the exchange-symmetric Dicke manifold (spanned by spin-polarized and thus non-interacting states) to the remainder of Hilbert space.
+In this regime, the non-equilibrium dynamical processes induced by SOC result in all-to-all collective spin interactions that naturally generate spin-squeezed states in a manner robust to realistic experimental imperfections.
+To generate spin squeezing, our protocol only requires control over (i) the orientation of the clock laser and (ii) the optical lattice depth.
+These controls are straightforward to incorporate into current 3D clock interrogation sequences without sacrificing atom numbers or coherence times.
+Additionally, we show that by applying a modulated drive from the clock laser, one can further prepare states that saturate the Heisenberg limit $\Delta\theta \sim 1/N$ for phase sensitivity\cite{kitagawa1993squeezed, ma2011quantum, degen2017quantum}.
+
+
+\section{From the Fermi-Hubbard model to one-axis and two-axis twisting}
+\label{sec:theory}
+
+We consider $N$ fermionic atoms with two spin states (labeled $\up$ and $\dn$) trapped in a 3D optical lattice.
+In this discussion, these spin states are associated with the two electronic states of a nuclear-spin-polarized gas.
+At sufficiently low temperatures, atoms  occupy the lowest Bloch band of the lattice and interact only through $s$-wave collisions.
+A schematic of this system is provided in Fig.~\ref{fig:protocol_schematic}(a), where tight confinement prevents motion along the vertical direction ($z$), effectively forming a stack of independent 2D lattices.
+For simplicity and without loss of generality, however, we first consider the case when tunneling can only occur along one direction, $x$, and thus model the system as living in  one dimension.
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.6\textwidth]{protocol_schematic.pdf}
+\caption{{\bf Schematic of the setup for spin squeezing}.
+({\bf a}) We consider $N$ fermionic atoms with two (pseudo-)spin components, represented by red and blue spheres, trapped in the ground band of an optical lattice (shown in 2D for the sake of presentation).
+Atoms tunnel to neighboring sites at a rate $J$ and experience on-site interactions with strength $U$.
+An external laser carrying a position dependent phase $e^{i\v k_{\t{L}}\cdot\v r}$ couples the spin states of the atoms.
+({\bf b}) After a gauge transformation, different spin states exhibit different dispersion relations with a relative phase $\phi=k_{\text{L}} a$, where $a$ is the lattice spacing.
+The external laser couples spin states with identical quasi-momenta $q$ in the gauge-transformed frame.
+({\bf c}) If interactions are sufficiently weak, all motional degrees of freedom become frozen in momentum space, with atoms effectively pinned to fixed quasi-momentum modes $\v q$.
+The dynamics on the frozen $\v q$-space lattice can then be mapped to a spin model in which collisional interactions correspond to a uniform, all-to-all ferromagnetic Heisenberg Hamiltonian with strength $U/L$, where $L$ is the total number of lattice sites.
+({\bf d}) The spin dependence of the dispersion relation is captured by a mode-dependent axial field $B_q$ that generates inhomogeneous spin precession.
+This axial field couples exchange-symmetric many-body Dicke states with total spin $S=N/2$ to spin-wave states with $S=N/2-1$.
+The all-to-all interaction opens an energy gap $fU$ (with $f=N/L$ the filling fraction of spatial modes) between the Dicke states and the spin-wave states, which forbids population transfer between them in the weak-field limit.
+({\bf e}) To generate spin squeezing via one-axis twisting, we initialize a product state with all spins polarized in $-z$ (i.e.~in $\ket{\dn}$), and apply a fast external laser pulse to rotate all spins into $x$.
+We then let atoms freely evolve for a variable time $t$ (with a spin-echo pulse), after which the amount of spin squeezing can be determined experimentally from global spin measurements.
+The spin-squeezed state can be used for a follow-up clock interrogation protocol (see Appendix \ref{sec:clock_interrogation}).
+}
+\label{fig:protocol_schematic}
+\end{figure*}
+
+An external laser with Rabi frequency $\Omega$ and wavenumber $k_{\t{L}}$ along the tunneling axis resonantly couples atoms' internal states through the Hamiltonian $\hat H_{\t{laser}}/\hbar = \sum_j \Omega e^{ik_{\t{L}}x_j} \hat c_{j,\up}^\dag \hat c_{j,\dn} + \t{h.c.}$, where $\hat c_{j\alpha}$ is a fermionic annihilation operator for an atom on site $j$ with internal state $\alpha\in\set{\up,\dn}$ and $x_j$ is the position of site $j$.
+This laser imprints a position-dependent phase that equates to a momentum kick $k_{\t{L}}$ when an atom changes internal states by absorbing or emitting a photon, thereby generating spin-orbit coupling\cite{wall2016synthetic, livi2016synthetic}.
+After absorbing the position dependence of the laser Hamiltonian into fermionic operators through the gauge transformation $\hat c_{j,\up}\to e^{ik_{\t{L}} x_j}\hat c_{j,\up}$, which makes $\hat H_{\t{laser}}$ spatially homogeneous, the atoms are well-described in the tight-binding limit by the Fermi-Hubbard Hamiltonian\cite{esslinger2010fermihubbard}
+\begin{align}
+  \hat H_{\text{FH}}/\hbar
+  &= -J \sum_j \p{e^{i\phi} \hat c_{j,\up}^\dag \hat c_{j+1,\up}
+  + \hat c_{j,\dn}^\dag \hat c_{j+1,\dn} + \text{h.c.}} \notag \\
+  &\qquad + U \sum_j \hat n_{j,\up} \hat n_{j,\dn},
+\label{eq:FermiHubbard}
+\end{align}
+where $J$ is the nearest-neighbor tunneling rate; the SOC angle $\phi\equiv k_{\t{L}}a$ determines the phase gained by spin-up atoms upon tunneling from site $j$ to site $j+1$ (in the gauge-transformed frame) with lattice spacing $a=x_{j+1}-x_j$; $U$ is the on-site interaction energy of two atoms; and $\hat n_{j\alpha}\equiv\hat c_{j\alpha}^\dag \hat c_{j\alpha}$ is a number operator.
+
+The Fermi-Hubbard Hamiltonian can be re-written in the quasi-momentum basis with annihiliation operators $\hat c_{q\alpha}\equiv L^{-1/2}\sum_j e^{-iqx_j}\hat c_{j\alpha}$, where $q$ is a quasi-momentum and $L$ is the total number of lattice sites.
+In this basis, the single-particle Hamiltonian exhibits shifted dispersion relations that signify spin-orbit coupling [see Fig.~\ref{fig:protocol_schematic}(b)]:
+\begin{align}
+  \hat H_{\t{FH,single}}/\hbar
+  = -2J\sum_q\sp{\cos(qa + \phi) \hat n_{q,\up}
+  + \cos(qa) \hat n_{q,\dn}}.
+\label{eq:FermiHubbards}
+\end{align}
+When $U\lesssim J$, interaction energies are too weak for collisions to change the occupancies of single-particle quasi-momentum modes.
+Atoms are then pinned to these modes, which form a lattice in quasi-momentum space [see Fig.~\ref{fig:protocol_schematic}(c)]\cite{bromley2018dynamics}.
+In this strong-tunneling limit, the Fermi-Hubbard Hamiltonian [Eqn.~\eqref{eq:FermiHubbard}] can be mapped to a spin-$1/2$ system with a collective ferromagnetic Heisenberg interaction and an inhomogeneous axial field, given by\cite{martin2013quantum,rey2014probing, bromley2018dynamics}
+\begin{align}
+  \hat H_{\t{spin}}/\hbar
+  = -\frac{U}{L} \hat{\v S} \c \hat{\v S}
+  - \sum_q B_q \hat s_q^\z,
+\label{eq:SpinModel}
+\end{align}
+where $\hat{\v S}=\sum_q\hat{\v s}_q$ is a collective spin operator; $\hat{\v s}_q$ is a spin-1/2 operator for mode $q$ with components $\hat{s}_q^{j=\x,\y,\z}\equiv\frac12\sum_{\alpha,\beta}\hat c_{q\alpha}^\dag\sigma^j_{\alpha\beta}\hat c_{q\beta}$ defined in terms of the Pauli matrices $\sigma^{j=\x,\y,\z}$; the sums over $q$ run over all occupied quasi-momentum modes; and $B_q \equiv -4J\sin(qa+\phi/2)\sin(\phi/2)$ is the SOC-induced axial field.
+
+On its own, the collective Heisenberg term ($\sim\hat{\v S}\c\hat{\v S}$) in Eqn.~\eqref{eq:SpinModel} opens an energy gap $fU$, with $f\equiv N/L$ the filling fraction of spatial modes, between the collective Dicke states $\ket{S=N/2, M_S}$ and the remainder of Hilbert space\cite{rey2008manybody, martin2013quantum, norcia2018cavitymediated} with $S<N/2$.
+Here $S$ and $M_S$ respectively label the eigenvalues of the collective spin operators $\hat{\v S}\c\hat{\v S}$ and $\hat{S}_\z$, with eigenvalues $S(S+1)$ for non-negative $S\in\set{N/2,N/2-1,\cdots}$ and $M_S\in\set{-S,-S+1,\cdots,S}$.
+The axial field $B_q$ generally couples states within the Dicke manifold to states outside it.
+In the weak SOC limit (i.e.~$B_q\ll fU$), however, the interaction energy gap suppresses population transfer between states with different total spin $S$ [see Fig.~\ref{fig:protocol_schematic}(d)].
+%In this weak SOC limit (i.e.~of all $B_q/fU\ll1$), we can treat the axial field perturbatively and perform a Schrieffer-Wolff transformation to determine its effective action on states restricted to the Dicke manifold (see Appendix \ref{sec:derivation_OAT}).
+In this regime, the virtual occupation of states outside the Dicke manifold can be accounted for perturbatively.
+The symmetries of SOC as expressed in Eqn.~\eqref{eq:SpinModel} dictate that this treatment should yield powers of $\hat S_\z$ when projected onto the collective Dicke manifold at higher orders in perturbation theory.
+At second order in perturbation theory (see Appendix \ref{sec:derivation_OAT}), we thus find that SOC effectively yields a one-axis twisting (OAT) model widely known to generate squeezing dynamics\cite{kitagawa1993squeezed, ma2011quantum}:
+\begin{align}
+  \hat H_{\t{eff}}/\hbar
+  = -\frac{U}{L} \hat{\v S} \c \hat{\v S}
+  - \overline B \hat S_\z + \chi \hat S_\z^2,
+  &&
+  \chi \equiv \f{\widetilde B^2}{(N-1)fU},
+  \label{eq:H_eff}
+\end{align}
+where $\overline B\equiv\sum_q B_q/N$ is the mean and $\widetilde B^2\equiv\sum_q\p{B_q-\overline B}^2/N$ the variance of the axial field.
+The effect of the $\sim\v S\c\v S$ term is to generate a relative phase between states with different total spin $S$ and thus has no effect on dynamics  restricted to a fixed $S$.
+Note also that  the collective spin rotation from $\overline B \hat S_\z$  can be eliminated by going into a rotating frame or by using a spin echo.
+
+The entire protocol for preparing a squeezed state via OAT, sketched out in Fig.~\ref{fig:protocol_schematic}(e), reduces to a standard Ramsey protocol with a spin echo: after initially preparing a spin-down (i.e.~$-\uv z$) polarized sample of ultracold atoms populating the lowest Bloch band of a lattice, a fast $\pi/2$ pulse is applied with the clock laser to rotate all spin vectors into $+\uv x$.
+The atoms then freely evolve for a variable time $t$ (possibly with spin-echo $\pi$-pulses), after which the amount of metrologically useful spin squeezing, measured by the Ramsey squeezing parameter
+\begin{align}
+  \xi^2 \equiv
+  \min_\theta \braket{\t{var}(\hat S^\perp_\theta)}
+  \times N/\abs*{\braket{\hat{\v S}}}^2,
+\end{align}
+can be determined experimentally from global spin measurements.
+Here $\braket{\hat{\v S}}$ is the mean collective-spin vector and $\braket{\t{var}(\hat S^\perp_\theta)}$ is the variance of spin measurements along an axis orthogonal to $\braket{\hat{\v S}}$, parameterized by the angle $\theta\in[0,2\pi)$.
+The above protocol concerns only the preparation of a spin-squeezed state, which would then be used as an input state for a follow-up clock interrogation protocol without SOC.
+We discuss subtleties of interfacing the squeezing protocol with a subsequent clock interrogation protocol in Appendix \ref{sec:clock_interrogation}.
+
+The validity of the OAT model in Eqn.~\eqref{eq:SpinModel} relies on two key conditions concerning experimental parameter regimes.
+First, the on-site interaction energy $U$ should not be much larger in magnitude than the tunneling rate $J$ (clarified below); otherwise, one cannot assume frozen motional degrees of freedom (i.e.~with atoms pinned to fixed quasi-momentum modes) and map the Fermi-Hubbard model to a spin model.
+Second, the SOC-induced fields $B_q\sim J\sin(\phi/2)$ should be considerably smaller in magnitude than the interaction energy gap $fU$, as otherwise one cannot perturbatively transform SOC into OAT.
+These two conditions can be satisfied by appropriate choices of $U/J$ and the SOC angle $\phi$, which are respectively controlled by tuning the lattice depth and changing the angle between the clock laser and shallow lattice axes [see Fig.~\ref{fig:protocol_schematic}(a)].
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.8\textwidth]{model_benchmarking.pdf}
+\caption{{\bf Benchmarking the spin and one-axis twisting models}.
+Comparisons of maximum squeezing (top panels, {\bf a.i} and {\bf b.i}) and optimal squeezing time (lower panels, {\bf a.ii} and {\bf b.ii}) between the Fermi-Hubbard (FH), spin, and one-axis twisting (OAT) models; obtained numerically via the protocol depicted in Fig.~\ref{fig:protocol_schematic}(e) in a 1D lattice with $L=12$ sites.
+Results are shown for half filling with $N=12,f\equiv N/L=1$ (left panels, {\bf a.i} and {\bf a.ii}) and filling $f=5/6$ (right panels, {\bf b.i} and {\bf b.ii}) as a function of $U/J$ and the SOC angle $\phi$.
+In both cases, the system is initialized in the corresponding ground state.
+Insets for both $f=1$ and $f=5/6$ show (in green) regions of the $U$-$\phi$ plane in which both the optimal squeezing (in dB) and the corresponding squeezing time of all three models agree to within 20\%.
+At half filling ({\bf a.i} and {\bf a.ii}), mode-changing collisions are suppressed by Pauli blocking, resulting in almost exact agreement between the FH and spin models; both of these models converge onto the OAT model in the gap-protected, weak SOC regime of large $U/J$ and small $\phi$.
+The spin and OAT models show similar behavior away from half filling ({\bf b.i} and {\bf b.ii}), but the presence of mode-changing collisions results in their disagreement with the FH model as interactions begin to dominate at larger $U/J$.
+Even below half filling, however, the FH exhibits comparable amounts of squeezing to the spin model across a broad range of $U/J$ and $\phi$, albeit at earlier times when $U/J\gtrsim2$.
+}
+\label{fig:model_benchmarking}
+\end{figure*}
+
+We demonstrate the importance of these conditions in Fig.~\ref{fig:model_benchmarking}, where we show numerical results from exact simulations of a 1D system with $L=12$ sites.
+Therein, optimal squeezing achievable under unitary dynamics is provided in dB, i.e.~$-10\log_{10}(\xi_{\t{opt}}^2)$, while the time at which this squeezing occurs is provided in units of the nearest-neighbor tunneling time $2\pi/J$.
+At $f=1$ atom per lattice site, i.e.~half filling of all atomic states in the lowest Bloch band, the spin model [Eqn.~\eqref{eq:SpinModel}] agrees almost exactly with the Fermi-Hubbard (FH) model [Eqn.~\eqref{eq:FermiHubbard}] up through $U/J=8$. The agreement at half filling ($f=1$) is assisted by Pauli blocking of mode-changing collisions.
+Below half filling ($f=5/6$), these two (FH and spin) models show good agreement at $U/J\lesssim2$, while at $U/J\gtrsim2$ mode-changing collisions start to become relevant and invalidate the frozen-mode assumption of the spin model.
+Note that we chose filling $f=5/6$ to demonstrate that our protocol should work even in this highly hole-doped case; in practice, optimized experiments are capable of achieving fillings closer to $f=1$\cite{brown2017spinimbalance}.
+Interestingly, even with mode-changing collisions the Fermi-Hubbard model exhibits comparable amounts of squeezing to the spin model, and achieves this squeezing in less time.
+The spin and OAT models agree in the regime of weak SOC with $\widetilde{B}\sim J\sin(\phi/2)\ll fU$, and exhibit different squeezing behaviors outside this regime as single-particle spin dephasing can no longer be treated as a weak perturbation to the spin-locking  interactions.
+
+The above scheme for OAT achieves optimal spin squeezing that scales as $\xi^2_{\t{opt}}\sim N^{-2/3}$ with minimal intervention, i.e.~a standard Ramsey protocol.
+Further improvements upon this scheme can be made by introducing a time-dependent driving field that transforms the OAT Hamiltonian into a two-axis twisting (TAT) one.
+While the OAT model initially generates squeezing faster than the TAT model, the squeezing generation rate of OAT (measured in dB per second) falls off with time, while the squeezing generation rate for TAT remains approximately constant until reaching Heisenberg-limited amount of spin squeezing with $\xi^2_{\t{opt}}\sim N^{-1}$\cite{kitagawa1993squeezed, supplementary_material}.
+
+There are two general strategies for converting OAT into TAT: by use of a pulsed\cite{liu2011spin} or continuous\cite{huang2015twoaxis} drive protocol.
+For simplicity, we consider the latter in our work.
+Following the prescription in Ref.~[\citenum{huang2015twoaxis}], we use the clock laser to apply an amplitude-modulated drive $\hat H_{\t{drive}}(t)/\hbar=\Omega_0\cos(\omega t)\hat{S}_\x$.
+If the modulation frequency $\omega$ satisfies $\omega\gg N\chi$ and $\J_0\p{2\Omega_0/\omega}=\pm1/3$, where $\chi$ is the OAT squeezing strength in Eqn.~\eqref{eq:H_eff} and $\J_0$ is the zero-order Bessel function of the first kind, then up to (i) an $\sim\hat{\v S}\c\hat{\v S}$ term that contributes only overall phase factors, and (ii) an $\sim\hat S_\z$ term that can be eliminated with a simple dynamical decoupling pulse sequence (see Appendix \ref{sec:dynamical_decoupling}), the effective Hamiltonian becomes $\hat H_{\t{TAT}}^{(+)}/\hbar = (\chi/3)(\hat S_\z^2-\hat S_\x^2)$ or $\hat H_{\t{TAT}}^{(-)}/\hbar = (\chi/3)(\hat S_\y^2-\hat S_\x^2)$ (see Appendix \ref{sec:derivation_TAT}), which squeezes an initial state polarized along the $y$ or $z$ axis, respectively.
+
+
+\section{Experimental preparation of a squeezed state and practical considerations}
+
+Here we discuss specific implementations of the above protocols in the state-of-the-art 3D $^{87}$Sr optical lattice clock (OLC).
+This system has demonstrated the capability to load a quantum degenerate gas into a 3D lattice at the ``magic wavelength'' ($\lambda_{\t{lattice}}=2a\approx813$ nm) for which both the ground ($^1S_0,\dn$) and first excited ($^3P_0,\up$) electronic states of the atoms experience the same optical potential\cite{campbell2017fermidegenerate}.
+Furthermore, the 3D $^{87}$Sr OLC currently operates at sufficiently low temperatures to ensure vanishing population above the lowest Bloch band, such that its dynamics are governed by the Fermi-Hubbard Hamiltonian [Eqn.~\eqref{eq:FermiHubbard}]\cite{esslinger2010fermihubbard}.
+
+An external clock laser with wavelength $\lambda_{\t{L}}\approx698$ nm resonantly interrogates the $^1S_0$ and $^3P_0$ states of the atoms and generates spin-orbit coupling (SOC)\cite{wall2016synthetic}.
+While the relative wavelengths of the lattice and clock lasers do not allow for weak SOC along all three lattice axes, weak SOC along two axes can be implemented by, for example, (i) fixing a large lattice depth along the $z$ axis, effectively freezing atomic motion along  $z$, and then (ii) making the clock laser nearly collinear with the $z$ axis, with only a small projection of its wavenumber $\v k_{\t{L}}$ onto the $x$-$y$ plane [see Figure \ref{fig:protocol_schematic}(a)].
+The entire 3D OLC then factorizes into an array of independent 2D systems with $N=f\ell^2$ atoms each, where $\ell$ is the number of lattice sites along each axis of the lattice.
+As in the 1D case, atoms within the 2D system experience all-to-all interactions, as well as spin-orbit coupling along two directions characterized by SOC angles $\phi_{\x,\y}=k_{\t{L}}^{\x,\y}a$.
+Generally speaking, higher-dimensional systems (e.g.~2D vs.~1D) are more desirable because they allow packing more interacting atoms into a fixed system volume, thereby increasing the maximally attainable amount of spin squeezing.
+
+\begin{figure*}
+\centering
+\includegraphics{optima_coherent.pdf}
+\caption{{\bf Optimal squeezing} with one- and two-axis twisting in a 2D section of the 3D $^{87}$Sr optical lattice clock.
+({\bf a}) The maximum amount of squeezing depends only on the atom number $N=\ell^2$, where $\ell$ is the number of lattice sites along each axis of the lattice.
+While the time scales for squeezing generally depend on several experimental parameters, the time at which maximal squeezing occurs can be minimized at any given lattice depth $V_0$ by choosing SOC angles $\phi$ that saturate $\widetilde{B}/U\approx0.05$, where $\widetilde{B}$ is the variance of the SOC-induced axial field and $U$ is the two-atom on-site interaction energy.
+Panels ({\bf b}, {\bf c}) show these minimal squeezing times as a function of the depth $V_0$ and linear size $\ell$ of the lattice.
+Lattice depths $V_0$ are normalized to the atomic lattice recoil energy $E_{\t{R}}$, and the upper axis on panels ({\bf b}, {\bf c}) marks values of  $U/J$ at fixed lattice depths.
+In general, TAT achieves more squeezing than OAT for any system size, and achieves this squeezing faster for $N\gtrsim500$ atoms.
+}
+\label{fig:optima_coherent}
+\end{figure*}
+
+Figure \ref{fig:optima_coherent} shows, for both OAT and TAT protocols, the maximally attainable amount of spin squeezing and the shortest time at which it occurs as a function of the lattice depth $V_0$ and linear lattice size $\ell$ in a single half-filled 2D layer (i.e.~$f=1,N=\ell^2$) of the 3D OLC.
+Atoms are confined along the direction transverse to the 2D layer by a lattice of depth 60 $E_{\t{R}}$, where $E_{\t{R}}$ is the atomic lattice recoil energy.
+The maximally attainable amount of spin squeezing by each protocol in Fig.~\ref{fig:optima_coherent} depends only on the atom number $N$, while the shortest attainable time is determined by choosing the largest SOC angles $\phi_\x=\phi_\y\equiv\phi$ which saturate $\widetilde{B}/U\approx0.05$.
+We impose this constraint on $\widetilde{B}/U$ to ensure validity of the OAT Hamiltonian perturbatively derived in Appendix \ref{sec:derivation_OAT}\cite{supplementary_material}.
+
+\begin{figure*}
+\centering
+\includegraphics{optima_decoherence.pdf}
+\caption{{\bf Optimal squeezing with decoherence} via one- and two-axis twisting in a 2D section of the 3D $^{87}$Sr optical lattice clock (OLC).
+In practice, decoherence due to light scattering  limits the amount of squeezing that is attainable in the the 3D $^{87}$Sr OLC.
+Due to growing squeezing times with increasing system size, the maximal squeezing obtainable via OAT saturates past $\ell\approx30$ sites along each axis of the lattice, with $N\approx10^3$ atoms total.
+The more favorable size-dependence of TAT time scales,  however, allow for continued squeezing gains through $\ell=100$ ($N=10^4$).
+While the OAT results in ({\bf a}) are exact, the TAT results in ({\bf b}) reflect only a lower bound on the maximum squeezing obtainable, albeit one that is likely close (within a few dB) to the actual value.
+Optimal squeezing times in the presence of decoherence are generally smaller than the corresponding times shown in Fig.~\ref{fig:optima_coherent}, as decoherence generally degrades squeezing before it reaches the decoherence-free maximum.
+Sample plots of squeezing over time for particular choices of lattice size ($\ell$) and depth ($V_0/E_{\t{R}}$) are provided in the Supplementary Material\cite{supplementary_material}.
+}
+\label{fig:optima_decoherence}
+\end{figure*}
+
+Currently, light scattering from the lattice beams induces decoherence of the clock on a time scale of $\sim10$ seconds\cite{goban2018emergence, hutson2019engineering}, which is much shorter than the natural $^3P_0$ lifetime of $\sim160$ seconds (see Appendix \ref{sec:decoherence}).
+This limitation imposes significant constraints on achievable spin squeezing, as shown in Figure \ref{fig:optima_decoherence} where the maximal squeezing with spin decay in the OAT case was determined using exact expressions for spin correlators derived in Ref.~[\citenum{foss-feig2013nonequilibrium}], while in the TAT case these correlators were determined by solving Heisenberg equations of motion for collective spin operators (see Appendix \ref{sec:collective_simulation}).
+Due to the fast growth of Heisenberg operators in systems with all-to-all interactions, the latter method is not always capable of simulating up to the optimal squeezing time, and thus only provides a lower bound on the maximal squeezing theoretically obtainable via TAT.
+The results in Fig.~\ref{fig:optima_decoherence} show that squeezing via OAT saturates with system size around $N\approx10^3$ ($\ell\approx30$), while TAT allows for continued squeezing gains through $N=10^4$ ($\ell=100$).
+Even with decoherence, our protocol may realistically generate $\sim10$--$14$ dB of spin squeezing in $\sim1$ second with $\sim10^2$--$10^4$ atoms in a 2D section of the lattice, which is compatible with the atom numbers and interrogation times of state-of-the-art optical lattice clocks\cite{campbell2017fermidegenerate, marti2018imaging}.
+
+The source of decoherence considered above is not fundamental, and can be avoided by, for example, using two nuclear spin levels as spin-1/2 degrees of freedom that are interrogated by far-detuned Raman transitions instead of a direct optical transition\cite{mancini2015observation}.
+The strength of SOC for Raman transitions is tunable and, moreover, the lifetimes of ground nuclear spin levels are longer than 100 seconds in the lattice\cite{goban2018emergence}.
+In this case, our protocol for preparing a squeezed state would additionally end with a coherent state transfer from nuclear to electronic degrees of freedom in order to retain metrological utility for the atomic clock.
+
+
+\section{Conclusions}
+
+We have proposed a new protocol to generate spin squeezing in a fermionic 3D optical lattice clock by combining nominally undesirable atomic collisions with spin-orbit coupling.
+To our knowledge, this is the first proposal to use atomic collisions for entanglement generation in state-of-the art atomic clocks, opening a path for the practical improvement of world-leading quantum sensors using correlated many-body fermionic states.
+Such capability could allow for major improvements in clock sensitivity and bandwidth, enhancing not only traditional timekeeping applications such as measurement standards, navigation (GPS), and telecommunications, but also geodesy and gravitational wave detection, precision tests of fundamental physics, and the search for new physics beyond the standard model\cite{safronova2018search}.
+
+
+\section{Acknowledgments}
+
+We acknowledge helpful discussions with M.~Norcia, C.~Sanner, and M.~Mamaev.
+This work is supported by the Air Force Office of Scientific Research (AFOSR) grant FA9550-18-1-0319; the AFOSR Multidisciplinary University Research Initiative (MURI) grant; the Defense Advanced Research Projects Agency (DARPA) and Army Research Office (ARO) grant W911NF-16-1-0576; the National Science Foundation (NSF) grant PHY-1820885; JILA-NSF grant PFC-173400; and the
+National Institute of Standards and Technology (NIST).
+
+
+\appendix
+
+% make figure numbers include the appendix letter
+\renewcommand\thefigure{\thesection\arabic{figure}}
+
+\section{Derivation of the effective one-axis-twisting model}
+\label{sec:derivation_OAT}
+
+Suppose we have a Hamiltonian of the form ($\hbar=1$)
+\begin{align}
+  H = H_0 + V,
+\end{align}
+with
+\begin{align}
+  H_0 = - \f{U}{L} \v S\c\v S,
+  &&
+  V = - \sum_n B_n s_\z^{(n)} + \Omega S_\x,
+\end{align}
+and we consider $N$-particle states initially in the ground-state manifold $\G_0$ of $H_0$, which have total spin $S=N/2$.
+If the largest eigenvalue of $V$ is smaller in magnitude than half of the collective spin gap $NU/L=fU$, i.e.~the energy gap under $H_0$ between $\G_0$ and its orthogonal complement $\E_0$, then we can formally develop a perturbative treatment for the action of $V$ on $\G_0$.
+Such a treatment yields an effective Hamiltonian on $\G_0$ of the form $H_{\t{eff}}=\sum_pH_{\t{eff}}^{(p)}$, where $H_{\t{eff}}^{(p)}$ is order $p$ in $V$.
+Letting $\P_0$ ($\Q_0$) be a projector onto $\G_0$ ($\E_0$), we define the super-operators $\O$ and $\L$ by
+\begin{align}
+  \O V &\equiv \P_0 V \Q_0 + \Q_0 V \P_0, \\
+  \L V &\equiv \sum_{\alpha,\beta}
+  \f{\op{\alpha}\O V \op{\beta}}{E_\alpha-E_\beta},
+\end{align}
+where $H_0 = \sum_\alpha E_\alpha \op\alpha$.
+The first few terms in the expansion of the effective Hamiltonian $H_{\t{eff}}$ are then, as derived in Ref.~[\citenum{bravyi2011schrieffer}],
+\begin{align}
+  H_{\t{eff}}^{(0)} = \P_0 H_0 \P_0,
+  &&
+  H_{\t{eff}}^{(1)} = \P_0 V \P_0,
+\end{align}
+and
+\begin{align}
+  H_{\t{eff}}^{(2)} = -\f12 \P_0 \sp{\O V,\L V}_- \P_0,
+\end{align}
+with $\sp{X,Y}_-\equiv XY-YX$.
+The zero-order effective Hamiltonian $H_{\t{eff}}^{(0)}=H_0$ within the ground-state manifold.
+To calculate $H_{\t{eff}}^{(1)}$, we note that the ground-state manifold $\G_0$ is spanned by the Dicke states
+\begin{align}
+  \ket{m} \propto S_+^{N/2+m} \ket{\downarrow}^{\otimes n},
+  &&
+  S_+ \equiv \sum_n s_+^{(n)},
+\end{align}
+in terms of which we can expand the collective spin-z operator as $S_\z=\sum_m m\op{m}$.
+We can likewise expand the collective spin-x operator $S_\x$ in terms of $x$-oriented Dicke states $\ket{m_\x}$ as $S_\x=\sum_m m\op{m_\x}$.
+The ground-state projector $\P_0$ onto $\G_0$ can be expanded in either basis as $\P_0=\sum_m\op{m}=\sum_m\op{m_\x}$.
+Defining the mean and residual fields
+\begin{align}
+  \overline B \equiv \f1N \sum_n B_n,
+  &&
+  b_n \equiv B_n - \overline B,
+\end{align}
+we can then write
+\begin{align}
+  V &= -\sum_n \p{b_n+\overline B} s_\z^{(n)} + \Omega S_\x \notag \\
+  &= -\sum_n b_n s_\z^{(n)} - \overline B S_\z + \Omega S_\x,
+\end{align}
+and in turn
+\begin{align}
+  H_{\t{eff}}^{(1)}
+  &= \P_0\p{-\sum_n b_n s_\z^{(n)} - \overline B S_\z + \Omega S_\x} \P_0 \notag \\
+  &= -\sum_n b_n \P_0 s_\z^{(n)} \P_0 - \overline B S_\z + \Omega S_\x,
+\end{align}
+where we used the fact that $\P_0 S_{j=\z,\x} \P_0 = S_j$ within the ground-state manifold.
+By construction, the residual fields are mean-zero, i.e.~$\sum_n b_n=0$.
+Using the particle-exchange symmetry of the Dicke states, we can therefore expand
+\begin{multline}
+  \sum_n b_n \P_0 s_\z^{(n)} \P_0
+  = \sum_{n,m,m'} b_n \op{m} s_\z^{(n)} \op{m'} \\
+  = \sum_n b_n \sum_{m,m'} \op{m} s_\z^{(1)} \op{m'}
+  = 0,
+\end{multline}
+which implies
+\begin{align}
+  H_{\t{eff}}^{(1)} = - \overline B S_\z + \Omega S_\x.
+\end{align}
+To calculate the second-order effective Hamiltonian $H_{\t{eff}}^{(2)}$, we let $\B_0\p{\E_0}$ denote an eigenbasis of $H_0$ for the excited subspace $\E_0$, and set the ground-state energy to 0.
+We then define the operator
+\begin{align}
+  \I \equiv \sum_{\ket\alpha\in\B_0\p{\E_0}} \f{\op\alpha}{E_\alpha},
+\end{align}
+which sums over projections onto excited states with corresponding energetic suppression factors, in terms of which we can write
+\begin{align}
+  H_{\t{eff}}^{(2)} = -\P_0 V \I V \P_0,
+\end{align}
+which is simply an operator-level version of the textbook expression for second-order perturbation theory.
+The only part of $V$ which is off-diagonal with respect to the ground- and excited-state manifolds $\G_0$ and $\E_0$ is $-\sum_n b_n s_\z^{(n)}$, and the individual spin operators in this remainder can only change the total spin $S$ by at most 1.
+It is therefore sufficient to expand $\I$ in a basis for states which span the image of $\G_0$ under all $s_\z^{(n)}$ within the $S=N/2-1$ manifold.
+Such a basis is provided by the spin-wave states
+\begin{align}
+  \ket{mk}
+  \propto
+  \sum_{n=1}^N e^{2\pi ikn/N} s_+^{(n)} \ket{m-1},
+\end{align}
+for $k=1,2,\cdots,N-1$\cite{swallows2011suppression}.
+Using the fact that all spin-$z$ operators preserve the projection of total spin onto the $z$ axis, we then have that
+\begin{multline}
+  H_{\t{eff}}^{(2)}
+  = -\f1{fU} \sum_{m,k,n,n'} b_n b_{n'}
+  \bk{m | s_\z^{(n)} |mk} \\
+  \times \bk{mk | s_\z^{(n')} | m},
+  \label{eq:general_H_eff_2}
+\end{multline}
+where the relevant matrix elements between the Dicke states and the spin-wave states are\cite{swallows2011suppression}
+\begin{align}
+  \bk{m|s_\z^{(n)}|mk}
+  = e^{2\pi i k n/N} \sqrt{\f{(N/2)^2-m^2}{N^2 (N-1)}},
+\end{align}
+which implies
+\begin{multline}
+  H_{\t{eff}}^{(2)}
+  = -\f1{fU} \sum_m \f{(N/2)^2-m^2}{N^2 (N-1)} \op{m} \\
+  \times \sum_{k,n,n'} b_n b_{n'} e^{2\pi ik\p{n-n'}/N}.
+\end{multline}
+Using the fact that $\sum_nb_n=0$, we can expand
+\begin{align}
+  \sum_{k,n,n'} b_n b_{n'} e^{2\pi ik\p{n-n'}/N}
+  &= \sum_{n,n'} b_n b_{n'} \sum_{k=1}^{N-1} e^{2\pi ik\p{n-n'}/N} \notag \\
+  &= \sum_{n,n'} b_n b_{n'} \sum_{k=0}^{N-1} e^{2\pi ik\p{n-n'}/N},
+\end{align}
+where the sum over $k$ vanishes for $n\ne n'$ and equals $N$ when $n=n'$, so
+\begin{align}
+  \sum_{k,n,n'} b_n b_{n'} e^{2\pi ik\p{n-n'}/N}
+  = N^2 \widetilde B^2,
+\end{align}
+where
+\begin{align}
+  \widetilde B^2
+  \equiv \f1N \sum_n b_n^2 = \f1N \sum_n \p{B_n - \overline B}^2.
+  \label{eq:sum_knn}
+\end{align}
+We therefore have that
+\begin{align}
+  H_{\t{eff}}^{(2)}
+  = -\sum_m \f{\p{N/2}^2-m^2}{\p{N-1}fU}~ \widetilde B^2 \op{m},
+\end{align}
+where the $\p{N/2}^2$ term contributes a global energy shift which we can neglect, while the $m^2$ term is proportional to $m^2\op{m}=S_\z^2$.
+In total, the effective Hamiltonian through second order in perturbation theory is thus
+\begin{align}
+  H_{\t{eff}}
+  = -\f{U}{L}\v S\c\v S - \overline B S_\z + \Omega S_\x + \chi S_\z^2,
+\label{eq:H_OAT}
+\end{align}
+with
+\begin{align}
+  \chi \equiv \f{\widetilde B^2}{\p{N-1}fU}.
+\end{align}
+We benchmark the validity of this effective Hamiltonian via exact simulations of the spin [Eqn.~\eqref{eq:SpinModel}] and OAT [Eqn.~\eqref{eq:H_eff}] Hamiltonians in a system of 20 spins, finding that the relative error in maximal squeezing (in dB) of the OAT model is less than 3\% when $\widetilde{B}/U<0.06$\cite{supplementary_material}.
+
+
+\section{Two-axis twisting, decoherence, and the residual axial field}
+\label{sec:derivation_TAT}
+
+The protocol we use to transform one-axis twisting (OAT) into two-axis twisting (TAT) is as previously proposed in Ref.~[\citenum{huang2015twoaxis}]; we provide a summary of this protocol here, in addition to some brief discussion of its implications for decoherence and the residual $\sim\v S\v\c\v S$ and $\sim S_\z$ terms of our OAT protocol.
+The TAT protocol begins with the OAT Hamiltonian with a time-dependent transverse field,
+\begin{align}
+  H = \chi S_\z^2 + \Omega\p{t} S_\x,
+  &&
+  \Omega\p{t} = \beta\omega \cos\p{\omega t},
+  \label{eq:driven_OAT}
+\end{align}
+where $\beta$ is the modulation index of the driving field and the drive frequency $\omega\gg N\chi$, with $N$ the total number of spins.
+Moving into the rotating frame of $\Omega\p{t}S_\x$ subtracts this term from the Hamiltonian, and transforms operators $\O$ as
+\begin{align}
+  \O \to U\p{t}^\dag \O U\p{t},
+\end{align}
+where
+\begin{align}
+  U\p{t} \equiv \exp\sp{-i\int_0^t\d\tau~\Omega\p{\tau}S_\x}
+  = \exp\sp{-i\beta\sin\p{\omega t}S_\x}.
+\end{align}
+In particular, the operators $\tilde S_\pm\equiv-S_\z\pm iS_\y$ (i.e.~the raising and lowering operators in the $x$ basis) transform simply as
+\begin{align}
+  \tilde S_\pm
+  \to U^\dag \tilde S_\pm U
+  = e^{\pm i\beta\sin\p{\omega t}} \tilde S_\pm.
+\end{align}
+For any operator $\O$ and drive frequency $\omega\gg\norm{\O}$, where $\norm{\O}\equiv\max_\psi\sqrt{\braket{\psi|\O^\dag\O|\psi}}$ is the operator norm of $\O$ (i.e.~the magnitude of the largest eigenvalue of $\O$), we can generally make a secular approximation to say
+\begin{align}
+  e^{\pm im\beta\sin\p{\omega t}} \O
+  &= \sum_{n=-\infty}^\infty \J_n\p{\pm m\beta} e^{in\omega t} \O \notag \\
+  &\approx \J_0\p{\pm m\beta} \O
+  = \J_0\p{m\beta} \O,
+\end{align}
+where $\J_n$ is the $n$-th order Bessel function of the first kind.
+Expanding $S_\z^2=\f14\p{\tilde S_+ + \tilde S_-}^2$, one can thus work out that the effective Hamiltonian in the rotating frame of the drive is
+\begin{align}
+  H_{\t{eff}}
+  \approx \f{\chi}{2} \p{\sp{1+\J_0\p{2\beta}} S_\z^2
+  + \sp{1-\J_0\p{2\beta}} S_\y^2}.
+\end{align}
+Driving with a modulation index $\beta$ for which $J_0\p{2\beta}=\pm1/3$ then gives us the effective two-axis twisting Hamiltonians
+\begin{align}
+  H_{\t{eff}}^{(+)}
+  &= \f{\chi}{3} \p{2 S_\z^2 + S_\y^2}
+  \simeq \f{\chi}{3} \p{S_\z^2 - S_\x^2}, \\
+  H_{\t{eff}}^{(-)}
+  &= \f{\chi}{3} \p{S_\z^2 + 2 S_\y^2}
+  \simeq \f{\chi}{3} \p{S_\y^2 - S_\x^2},
+\end{align}
+where $\simeq$ denotes equality up to the addition of a term proportional to $\v S^2=S_\z^2+S_\x^2+S_\y^2$, which is irrelevant in the absence of coherent coupling between states with different net spin.
+In a similar spirit, one can work out that single-spin operators transverse to the $x$-axis transform as
+\begin{multline}
+  \tilde s_\pm
+  \equiv \f12\p{-s_\z\pm i s_\y} \\
+  \to U^\dag \tilde s_\pm U
+  = e^{\pm i\beta\sin\p{\omega t}} \tilde s_\pm
+  \approx \J_0\p{\beta} \tilde s_\pm,
+\end{multline}
+which implies that shifting into the rotating frame of the time-dependent drive takes
+\begin{align}
+  s_\x \to s_\x,
+  &&
+  s_{\y,\z} \to \J_0\p{\beta} s_{\y,\z},
+  \label{eq:dec_transformation_xyz}
+\end{align}
+and
+\begin{align}
+  s_\pm
+  \to \f12\sp{1 \pm \J_0\p{\beta}} s_+
+  + \f12\sp{1 \mp \J_0\p{\beta}} s_-.
+  \label{eq:dec_transformation_pm}
+\end{align}
+As the TAT Hamiltonians $H_{\t{eff}}^{(\pm)}$ are realized in a rotating frame, to properly account for decoherence throughout the TAT protocol one must transform jump operators according to Eqns.~\eqref{eq:dec_transformation_xyz}-\eqref{eq:dec_transformation_pm}.
+
+In practice, our protocols realize the OAT Hamiltonian in Eqn.~\eqref{eq:driven_OAT} with additional $\sim\v S\c\v S$ and $\sim S_\z$ terms [see Eqn.~\eqref{eq:H_OAT}].
+The effect of the $\sim\v S\c\v S$ term is to generate a relative phase between states with different total spin $S$ (with e.g.~$S=N/2$ within the Dicke manifold).
+In the absence of coherent coupling between states with different total spin, therefore, the $\sim\v S\c\v S$ term has no effect on system dynamics.
+The $\sim S_z$ term, meanwhile, is important; the magnitude of this term (as measured by the operator norm) is generally comparable to that of the squeezing term $\chi S_\z^2$.
+Unlike in the case of OAT, $S_\z$ does not commute with the TAT Hamiltonians, so its effects cannot be eliminated by a single spin-echo $\pi$-pulse $\exp\p{-i\pi S_\x}$ half way through the squeezing protocol.
+Nonetheless, we find that for $N=10^2$ ($10^3$) atoms, $\sim5$ (10) $\pi$-pulses in a CPMG (Carr-Purcell-Meiboom-Gill) sequence\cite{carr1954effects, meiboom1958modified} suffice to mitigate the effects of the $S_\z$ term in the TAT protocol (see Appendix \ref{sec:dynamical_decoupling}).
+Phase control over these pulses, specifically choices of whether to apply $\exp\p{\pm i\pi S_\x}$ or $\exp\p{\pm i\pi S_\y}$ in any given $\pi$-pulse, can be used to construct XY-$n$ pulse sequences\cite{maudsley1986modified, gullion1990new} that are robust to pulse errors.
+
+
+\section{Dynamical decoupling in the TAT protocol}
+\label{sec:dynamical_decoupling}
+\setcounter{figure}{0}
+
+The effective Hamiltonian resulting from a perturbative treatment of SOC is (see Appendix \ref{sec:derivation_OAT})
+\begin{align}
+  H_{\t{eff}}
+  = -\f{U}{L}\v S\c\v S - \overline B S_\z + \Omega S_\x + \chi S_\z^2,
+  \label{eq:H_eff_DD}
+\end{align}
+where $U$ is a two-atom on-site interaction strength; $L$ is the number of lattice sites; $\overline B\equiv \sum_n B_n/N$ is a residual axial field determined by the occupied quai-momentum modes $\set{n}$ (with $\abs{\set{n}}=N$ atoms total); $\Omega$ is the magnitude of a driving field; and $\chi$ is an effective OAT squeezing strength.
+The effect of the $\sim\v S\c\v S$ term is to generate a relative phase between states with different total spin $S$ (where $S=N/2$ within the Dicke manifold).
+In the absence of coherent coupling between states with different total spin, therefore, the $\sim\v S\c\v S$ term has no effect on system dynamics, and we are safe to neglect it entirely.
+
+In the parameter regimes relevant to our discussions in the main text, the operator norms of $\overline{B}\hat S_\z$ and $\chi \hat S_\z^2$ in Eqn.~\eqref{eq:H_eff_DD} will typically be comparable in magnitude.
+The OAT protocol sets $\Omega=0$, and eliminates the effect of $\overline{B}\hat S_\z$ with a spin-echo $\pi$-pulse $\exp\p{-i\pi\hat S_\x}$ applied half way through the squeezing protocol.
+The TAT protocol, meanwhile, effectively takes $\chi\hat S_\z^2+\Omega \hat S_\x\to\hat H_{\t{TAT}}^{(\pm)}$ (as defined in Appendix \ref{sec:derivation_TAT}) and $\overline{B}\hat S_\z\to\J_0\p{\beta_\pm}\overline{B}\hat S_\z$, where $\J_0$ is the zero-order Bessel function of the first kind and $\beta_\pm$ is the modulation index of the amplitude-modulated driving field $\Omega$, satisfying $\J_0\p{2\beta_\pm}=\pm1/3$.
+Unlike in the case of OAT, $\hat S_\z$ does not commute with the TAT Hamiltonian, so its effect cannot be eliminated with a spin-echo.
+Nonetheless, this term can be eliminated with a dynamical decoupling pulse sequence that periodically inverts the sign of $\hat S_\z$ while preserving $\hat H_{\t{TAT}}^{(\pm)}$.
+
+\begin{figure*}
+\centering
+\includegraphics{pulsed_squeezing.pdf}
+\caption{{\bf Optimal squeezing as a function of $\pi$-pulses} applied prior to the optimal TAT squeezing time in a CPMG sequence with ({\bf a)} $N=100$ and ({\bf b}) $N=1000$ atoms.
+Results are shown for OAT, TAT, and TAT$_{\pm,\z}$, where TAT$_{\pm,\z}$ denotes squeezing via the Hamiltonian $\hat H_{\t{TAT}}^{(\pm,\z)}\equiv \hat H_{\t{TAT}}^{(\pm)}-\J_0\p{\beta_\pm}\bk{\overline B}^{\t{rms}}_f \hat S_\z$.
+Details about experimental parameters for these simulations are provided in the text.
+}
+\label{fig:pulsed_squeezing}
+\end{figure*}
+
+Fig.~\ref{fig:pulsed_squeezing} shows the maximal squeezing generated by $N=10^2$ and $10^3$ atoms via OAT, TAT, and TAT in the presence of the mean field $\J_0\p{\beta_\pm}\overline B\hat S_\z$ as a function of the number of $\pi$-pulses performed prior to the optimal TAT squeezing time.
+These pulses are applied in a CPMG sequence $\p{\tau_n/2-\pi_\x-\tau_n/2}^n$, where $\tau_n/2$ denotes Hamiltonian evolution for a time $\tau_n/2$, $\pi_\x$ denotes the application of an instantaneous $\pi$-pulse $\exp\p{-i\pi\hat S_\x}$, and $n$ is the number of pulses, such that the optimal TAT squeezing time is $t_{\t{opt}}^{\t{TAT}}=\p{\tau_n}^n$.
+The label TAT$_{\pm,\z}$ in Fig.~\ref{fig:pulsed_squeezing} denotes squeezing through the Hamiltonian $\hat H_{\t{TAT}}^{(\pm,\z)}\equiv \hat H_{\t{TAT}}^{(\pm)}-\J_0\p{\beta_\pm}\bk{\overline B}^{\t{rms}}_f\hat S_\z$, where $\bk{\overline B}^{\t{rms}}_f$ is the root-mean-square average of $\overline B$ over choices of occupied spacial modes $\set{n}$ at fixed filling $f$ of all spatial modes in the lowest Bloch band of a periodic 2D lattice.
+While the modulation index $\beta_+$ is uniquely defined by $\J_0\p{2\beta_+}=1/3$, there are two choices of $\beta_-$ for which $\J_0\p{2\beta_-}=-1/3$; we use that which minimizes $\abs{\J_0\p{\beta_-}}$.
+Fig.~\ref{fig:pulsed_squeezing} assumes an SOC angle $\phi=\pi/50$ (although results are independent of $\phi$ for $\phi\ll1$), a reduced field variance $\widetilde{B}/U=0.05$, and a filling $f=5/6$.
+Note that as the filling $f\to1$, the residual axial field vanishes ($\overline{B}\to0$), so TAT$_{\pm,\z}\to$ TAT.
+
+
+\section{Clock interrogation after squeezing}
+\label{sec:clock_interrogation}
+
+The protocols in our work concern the preparation of spin-squeezed states in an optical lattice clock.
+Here, we discuss the use of these states in a follow-up clock interrogation protocol.
+For simplicity, we restrict our discussion to the case of squeezing in 1D, as in Section \ref{sec:theory} of the main text, with the understanding that a generalization of this discussion to higher dimensions is straightforward.
+
+A spin-squeezed state is generated by interactions and SOC that are generally undesirable during the clock interrogation protocol.
+In the parameter regimes considered in our work, interactions alone have no effect on clock interrogation: absent of coherence between states with different net spin $S$, collective $\v S\c\v S$ interactions only generate unobservable global phases within each fixed-$S$ sector of Hilbert space.
+The remaining task to allow clock interrogation after spin squeezing is therefore to turn off SOC, which inhomogeneously detunes atomic transition frequencies by an amount $B_q$ that depends on the quasi-momentum $q$ of an atom.
+The SOC-induced axial fields $B_q\sim J\sin(\phi/2)$ depend on two tunable parameters: the tunneling rate $J$ and the SOC angle $\phi$.
+The simplest way to turn off SOC is thus to increase the lattice depth prior to clock interrogation, taking $J\sim B_q\to0$.
+Increasing the lattice depth to turn off SOC is compatible with the current clock interrogation sequence, but is incompatible with ongoing efforts to mitigate light scattering from the lattice beams (currently the primary source of decoherence in the clock; see Appendix \ref{sec:decoherence}) by use of a shallow lattice\cite{hutson2019engineering}.
+We therefore devote the rest of this section to discussing strategies for turning off SOC that are compatible with the use of shallow lattices.
+
+If we cannot take the tunneling rate $J\to0$, our remaining control parameter for turning off SOC is the SOC angle $\phi=k_{\t{L}}a$, where $k_{\t{L}}$ is the projection of the clock laser wavenumber onto the lattice axis and $a$ is the lattice spacing.
+The squeezing protocol needs a clock laser with a small but nonzero SOC angle $\phi\ll1$, while the clock interrogation protocol requires a clock laser with $\phi=0$.
+Simply using one clock laser with $\phi\ne0$ for the squeezing protocol and another clock laser with $\phi=0$ for the clock interrogation protocol, however, does not resolve this discrepancy, because (i) both the squeezing and clock interrogation protocols need a clock laser that is homogeneous -- i.e.~with Hamiltonian proportional to $S_\x$, (ii) lasers with different SOC angles are homogeneous in different gauges, and (iii) spin squeezing is a gauge-dependent quantity.
+More precisely, a state that is squeezed with respect to spin operators that are homogeneous (i.e.~of the form $S_\x,S_\y,S_\z$) in a particular gauge is not necessarily squeezed with respect to spin operators that are homogeneous in a different gauge.
+To address this problem, we will fix a gauge in which the Fermi-Hubbard Hamiltonian exhibits SOC, as in Eqn.~\eqref{eq:FermiHubbard}, and construct a simple pulse sequence that transforms the $\phi=0$ clock laser into homogenous form in our working gauge.
+
+Defining on-site spin operators
+\begin{align}
+  s_\z^{(j)} &\equiv \f12 \p{ c_{j,\up}^\dag c_{j,\up}
+    - c_{j,\dn}^\dag c_{j,\dn}} \\
+  s_\x^{(j)} &\equiv \f12 \p{c_{j,\up}^\dag c_{j,\dn}
+    + c_{j,\dn}^\dag c_{j,\up}} \\
+  s_\y^{(j)} &\equiv \f{i}{2} \p{c_{j,\dn}^\dag c_{j,\up}
+    - c_{j,\up}^\dag c_{j,\dn}},
+\end{align}
+we observe that gauge transformation $\hat c_{j,\up}\to e^{i\theta j}\hat c_{j,\up}$ takes (up to an overall phase)
+\begin{align}
+  S_\x = \sum_j s_\x^{(j)}
+  \to \sum_j \p{\cos\p{\theta j}  s_\x^{(j)}
+    + \sin\p{\theta j} s_\y^{(j)}}
+  \equiv S_\x^{(\theta)},
+\end{align}
+This transformation thus rotates local spin operators by a site-dependent angle $\theta j$, generally taking $S_{\x,\y}^{(\alpha)}\to S_{\x,\y}^{(\alpha+\theta)}$ (with $S_\y^{(\alpha)}$ defined similarly to $S_\x^{(\alpha)}$) and leaving $S_\z$ unaffected (taking $S_\z\to S_\z$).
+A clock laser with SOC angle $\phi$ induces a Hamiltonian proportional to $S_\x^{(-\phi)}$ ($S_\x^{(-\phi+\theta)}$) before (after) a gauge transformation by $\theta$, which is why transforming with $\theta=\phi$ made the SOC-inducing clock laser homogenous in the main text.
+
+To ``undo'' the effect of our gauge transformation on spin operators, we can construct the unitary ``gauge-switching'' operator
+\begin{align}
+  G_\theta = \prod_j \exp\p{-i \theta j s_\z^{(j)}}
+  \label{eq:gauge_rotation}
+\end{align}
+for which
+\begin{align}
+  G_\theta^\dag S_{\x,\y}^{(\alpha+\theta)} G_\theta = S_{\x,\y}^{(\alpha)}.
+\end{align}
+We then decompose any rotation into a product of two reflections:
+\begin{align}
+  \exp\p{-i\alpha s_\z^{(j)}}
+  = \exp\p{-i\pi s_\x^{(j)}} \exp\p{-i\pi s_{\alpha/2}^{(j)}},
+  \label{eq:rotation_reflections}
+\end{align}
+where $s_{\alpha/2}^{(j)} \equiv \cos\p{\alpha/2}s_\x^{(j)} + \sin\p{\alpha/2}s_\y^{(j)}$.
+This decomposition implies
+\begin{align}
+  G_\theta = \exp\p{-i\pi S_\x^{(\theta/2)}} \exp\p{-i\pi S_\x^{(\theta)}}.
+  \label{eq:gauge_decomposition}
+\end{align}
+The unitary in Eqns.~\eqref{eq:gauge_rotation} and \eqref{eq:gauge_decomposition} can therefore be implemented by a sequence of two $\pi$-pulses: one $\pi$-pulse by a clock laser with SOC angle $\phi=0$ (with Hamiltonian $\sim S_\x^{(\theta)}$ in the gauged frame), and a second $\pi$-pulse by a clock laser with SOC angle $\phi=\theta/2$ (with Hamiltonian $\sim S_\x^{(\theta/2)}$ in the gauged frame).
+This unitary can be used to reconcile the incommensurate SOC requirements of the squeezing and clock interrogation protocols.
+
+Starting with a spin-down-ploarized initial state
+\begin{align}
+  \ket{-\t{Z}}\equiv\p{\prod_j c_{j,\dn}^\dag}\ket{\t{vacuum}},
+\end{align}
+our OAT protocol essentially prepares the squeezed state
+\begin{align}
+  \ket{\xi_{\t{OAT}}}
+  \equiv e^{-iH_{\t{FH}}^\theta t}
+  e^{-i\p{\pi/2} S_\x} \ket{-\t{Z}},
+\end{align}
+for some free evolution time $t$ and a Fermi-Hubbard Hamiltonian $H_{\t{FH}}^\theta$ exhibiting SOC with angle $\theta\ll1$, where $\theta=\phi$ in Eqn~\eqref{eq:FermiHubbard}.
+The follow-up clock interrogation protocol needs to rotate this squeezed state, most generally by some unitary $\exp\p{-i\v\alpha\c\v S}$, and then measure collective spin observables of the form (for example)
+\begin{align}
+  \bk{S_\x}_{\t{OAT}}^{\v\alpha}
+  \equiv \bk{\xi_{\t{OAT}}|e^{i\v\alpha\c\v S}
+    S_\x e^{-i\v\alpha\c\v S}|\xi_{\t{OAT}}}.
+\end{align}
+In a clock interrogation protocol with a shallow lattice, the rotation $\exp\p{-i\v\alpha\c\v S}$ and measurement of $S_\x$ must be performed with an SOC-free ($\phi=0$) clock laser, which can effectively only access the gauge-transformed operators $S_{\x,\y}^{(\theta)}$.
+We therefore expand
+\begin{align}
+  \bk{S_\x}_{\t{OAT}}^{\v\alpha}
+  &= \bk{\xi_{\t{OAT}}| G_\theta^\dag e^{i\v\alpha\c\v S^{(\theta)}}
+    S_\x^{(\theta)} e^{-i\v\alpha\c\v S^{(\theta)}}
+    G_\theta |\xi_{\t{OAT}}} \notag \\
+  &= \bk{\xi_{\t{OAT}}^\theta| e^{i\v\alpha\c\v S^{(\theta)}}
+    S_\x^{(\theta)} e^{-i\v\alpha\c\v S^{(\theta)}} |\xi_{\t{OAT}}^\theta},
+\end{align}
+where $\v S^{(\theta)}\equiv G_\theta \v S G_\theta^\dag$ and
+\begin{align}
+  \ket{\xi_{\t{OAT}}^\theta} \equiv G_\theta \ket{\xi_{\t{OAT}}}.
+\end{align}
+We are thus free to use the SOC-free clock laser during clock interrogation if we append the operation $G_\theta$ to our squeezing protocol.
+
+The last subtlety of clock interrogation and ``gauge-switching'' concerns the squeezing protocol itself.
+Experimentally implementing $G_\theta$ to enable clock interrogation requires clock lasers with SOC angles $\phi=0$ and $\phi=\theta/2$, neither of which is homogenous in our working gauge.
+Our squeezing protocols, however, need a homogenous clock laser for (i) an initial $\pi/2$ rotation of $\ket{-\t{Z}}$, (ii) spin-echo pulses throughout the squeezing protocol, and (iii) the drive used to transform OAT into TAT.
+Any clock laser pulses in the squeezing protocols can still be implemented using $G_\theta$ and the SOC-free ($\phi=0$) clock laser via the same trick used for clock interrogation, e.g.~by decomposing
+\begin{align}
+  \ket{\xi_{\t{OAT}}^\theta}
+  &= G_\theta e^{-iH_{\t{FH}}^\theta t}
+  G_\theta^\dag e^{-i\p{\pi/2} S_\x^{(\theta)}} G_\theta \ket{-\t{Z}},
+  \notag \\
+  &\simeq G_\theta e^{-iH_{\t{FH}}^\theta t}
+  G_\theta^\dag e^{-i\p{\pi/2} S_\x^{(\theta)}} \ket{-\t{Z}},
+\end{align}
+where $\simeq$ denotes equality up to a global phase, and we used the fact that the initial state $\ket{-\t{Z}}$ is an eigenstate of $G_\theta$.
+Applying a continuous drive, meanwhile, seemingly requires an extra clock laser with SOC angle $\phi=\theta$.
+In practice, it may be prohibitively difficult to properly calibrate the relative angles of three clock lasers.
+% note to authors: the use of a third laser is also incompatible with a 3D accordion lattice, but I (MP) decided that this point would require too much extra discussion to explain here
+In this case, converting OAT into TAT would need to be done with a pulsed drive protocol, as e.g.~in Ref.[\citenum{liu2011spin}].
+
+
+\section{Decoherence in the 3D $^{87}$Sr optical lattice clock}
+\label{sec:decoherence}
+
+Currently, light scattering from lattice beams in the 3D $^{87}$Sr optical lattice clock induces decoherence on a time scale of $\sim$10 seconds\cite{goban2018emergence, hutson2019engineering}.
+This decoherence acts identically on all atoms in an uncorrelated manner, and can be understood by considering the density operator $\rho$ for a single atom, with effective spin states $\dn$ and $\up$ respectively corresponding to the ${}^1\t{S}_0$ and ${}^3\t{P}_0$ electronic states.
+Empirically, the effect of decoherence after a time $t$ within the $\set{\dn,\up}$ subspace of a single atom is to take $\rho\to\rho\p{t}$ with $\rho\p{0}\equiv\rho$ and
+\begin{align}
+  \rho\p{t} \coloneqq
+  \begin{pmatrix}
+  \rho_{\up\up} e^{-\Gamma_{\up\up}t} &&
+  \rho_{\up\dn} e^{-\Gamma_{\up\dn}t} \\
+  \rho_{\up\dn}^* e^{-\Gamma_{\up\dn}t} &&
+  \rho_{\dn\dn} + \p{1-e^{-\Gamma_{\up\up}t}} \rho_{\up\up}
+  \end{pmatrix},
+\end{align}
+where $\Gamma_{\up\up}\approx\Gamma_{\up\dn}\approx\Gamma=0.1~\t{sec}^{-1}$ are respectively decay rates for $\rho_{\up\up}$ and $\rho_{\up\dn}$.
+This form of decoherence can be effectively modeled by decay and dephasing of individual spins (respectively denoted $\Gamma_{\t{ud}}$ and $\Gamma_{\t{el}}$ in Ref.~[\citenum{foss-feig2013nonequilibrium}]) at rates $\Gamma$.
+In the language of the section that follows, we would say that this decoherence is captured by the sets of jump operators $\J_-\equiv\set{s_-^{(j)}}$ and $\J_\z\equiv\set{s_\z^{(j)}}$ with corresponding decoherence rates $\gamma_-=\gamma_\z=\Gamma$.
+
+
+\section{Solving Heisenberg equations of motion for collective spin systems}
+\label{sec:collective_simulation}
+
+In order to compute squeezing of a collective spin system, we need to compute expectation values of collective-spin operators.
+Choosing the basis $\set{\S_{\v m}}$ for these operators, where $\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ with
+$\v m\equiv\p{m_+,m_\z,m_-}\in\mathbb{N}_0^3$, we can expand all
+collective-spin Hamiltonians in the form
+\begin{align}
+  H = \sum_{\v m} h_{\v m} \S_{\v m}.
+  \label{eq:H_general}
+\end{align}
+The evolution of a general operator $\S_{\v m}$ under a Hamiltonian of the form in Eqn.~\eqref{eq:H_general} is then given by
+\begin{align}
+  \f{d}{dt} \S_{\v m}
+  &= i \sum_{\v n} h_{\v n}
+  \sp{\S_{\v n}, \S_{\v m}}_-
+  + \sum_\J \gamma_\J \mathcal D\p{\J; \S_{\v m}} \notag \\
+  &\equiv \sum_{\v n} T_{\v m\v n} \S_{\v n},
+\end{align}
+where $\sp{X,Y}_\pm\equiv XY\pm YX$; $\J$ is a set of jump operators with corresponding decoherence rate $\gamma_\J$; the decoherence operator $\mathcal D$ is defined by
+\begin{align}
+  \mathcal{D}\p{\J;\O}
+  \equiv \sum_{J\in\J}\p{J^\dag \O J - \f12\sp{J^\dag J,\O}_+};
+\end{align}
+and $T_{\v m\v n}$ is a matrix element of the time derivative operator $T\equiv d/dt$.
+These matrix elements can be calculated analytically using product and commutation rules for collective spin operators.
+We can then expand Heisenberg operators in a Taylor series about $t=0$ to write
+\begin{align}
+  \bk{\S_{\v m}}
+  &= \sum_{k\ge0} \f{t^k}{k!} \bk{\f{d^k}{dt^k} \S_{\v m}}_{t=0} \notag \\
+  &= \sum_{k\ge0} \f{t^k}{k!}
+  \sum_{\v n} T_{\v m\v n;k} \bk{\S_{\v n}}_{t=0},
+  \label{eq:time_series}
+\end{align}
+where $T_{\v m\v n;k}\equiv\sp{T^k}_{\v m\v n}$ are matrix elements of the $k$-th time derivative.
+Expectation values of collective spin operators can thus be computed via the expansion in Eqn.~\eqref{eq:time_series}, which at short times can be truncated at some finite order beyond which all terms have negligible contribution to $\bk{\S_{\v m}}$.
+
+
+\bibliography{main.bib}
+
+\end{document}

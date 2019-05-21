@@ -1,0 +1,138 @@
+\documentclass[prx,superscriptaddress,12pt]{revtex4-2}
+
+%%% linking references
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+}
+
+%%% physics and math packages
+\usepackage{physics} % general physics package
+\usepackage{amssymb} % math fonts and symbols
+\usepackage{bm} % for making math symbols bold
+\usepackage{braket} % for nice brackets (e.g. |X>)
+\usepackage{mathtools} % for \coloneqq
+\usepackage{graphicx} % for figures
+\graphicspath{{./figures/}} % set path for all figures
+
+%%% shorthands to use inside math environments
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % square parenthesis
+\renewcommand{\c}{\cdot} % inner product
+\renewcommand{\d}{\text{d}} % integration measure, e.g. d^3 x
+\renewcommand{\v}{\bm} % bold symbols (e.g. for vectors)
+\newcommand{\uv}[1]{\hat{\bm #1}} % unit vectors, or vector operators
+\newcommand{\bk}{\Braket}
+\renewcommand{\ket}{\Ket}
+\renewcommand{\bra}{\Bra}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\J}{\mathcal{J}}
+\renewcommand{\L}{\mathcal{L}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\S}{\mathcal{S}}
+
+\newcommand{\z}{\text{z}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
+%%% text for affiliations and contributions
+\newcommand{\JILA}{JILA, National Institute of Standards and Technology and Department of Physics, University of Colorado, Boulder, CO, 80309, USA}
+\newcommand{\CTQM}{Center for Theory of Quantum Matter, University of Colorado, Boulder, CO, 80309, USA}
+\newcommand{\contrib}{\thanks{Authors P.H.~and M.A.P.~contributed equally to this work.}}
+
+%%% add "S" prefix to equation and figure numbers
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\theequation}{S\arabic{equation}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+%%% for referencing files in the main text
+\usepackage{xr}
+\externaldocument[M-]{main}
+
+\begin{document}
+
+\title{Supplementary Material for ``Engineering spin squeezing in a 3D optical lattice with interacting spin-orbit-coupled fermions''}
+
+\author{P.~He} \contrib
+\author{M.A.~Perlin} \contrib
+\author{S.R.~Muleady}
+\author{R.J.~Lewis-Swan}
+\affiliation{\JILA}
+\affiliation{\CTQM}
+\author{R.B.~Hutson}
+\author{J.~Ye}
+\affiliation{\JILA}
+\author{A.M.~Rey}
+\affiliation{\JILA}
+\affiliation{\CTQM}
+
+\maketitle
+
+\section{Benchmarking}
+
+Here we provide additional information about our benchmarking of the one-axis twisting model against the spin model in the main text.
+This benchmarking was performed via exact simulations of a 20-spin system.
+Fig.~\ref{fig:relative_error} shows the relative error in maximal squeezing of the OAT model (measured against the spin model) as a function of the reduced field variance $\widetilde{B}/U$.
+Here squeezing is measured in decibels (dB) by $-10\log_{10}\xi^2$ for the squeezing parameter $\xi^2\equiv\min_\theta\braket{\t{var}(\hat S^\perp_\theta)}\times N/\abs*{\braket{\hat{\v S}}}^2$ as defined in the the main text.
+The relative error in maximal squeezing (in dB) by the OAT model is less than 3\% when $\widetilde{B}/U<0.06$.
+
+In principle, spin-changing decoherence compromises the validity of the OAT model, as its perturbative derivation in Appendix \ref{M-sec:derivation_OAT} of the main text relies on spin population remaining primarily within the Dicke manifold.
+This assumption breaks down in the presence of, for example, spontaneous emission, which transfers population outside of the Dicke manifold.
+Nonetheless, we find decent agreement between the OAT and spin models when decoherence is sufficiently weak (see Fig.~\ref{fig:benchmarking_decay}).
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.5\textwidth]{relative_error.pdf}
+\caption{{\bf Relative error} between maximal squeezing (measured in dB) obtained by the OAT [Eqn.~(3)] and spin [Eqn.~(2)] models of the main text in a system of 20 particles.
+The OAT model correctly captures the maximal squeezing (in dB) of the spin model to within 3\% (marked by the horizontal reference line) within the gap-protected regime $\widetilde{B}/U<0.06$.
+}
+\label{fig:relative_error}
+\end{figure*}
+
+\begin{figure*}
+\centering
+\includegraphics[width=1.0\textwidth]{benchmarking_decay.pdf}
+\caption{{\bf Comparison between the OAT and the spin model in the presence of decoherence.}
+({\bf a}) The difference between the maximal squeezing (measured in dB) obtained by the OAT [Eqn.~(3)] and spin [Eqn.~(2)] models increases with the particle number $N$ and the single-particle spontaneous emission rate $\gamma$.
+This disagreement is attributed in part to the fact that spontaneous emission transfers population of the collective spin state outside of the Dicke manifold, violating an assumption of the OAT model; see panel ({\bf b}).
+The rate of population transfer outside of the Dicke manifold increases with both particle number and spontaneous emission rate.
+(Parameters for simulations in this figure: $U=1000$ Hz, $J=200$ Hz, and $\phi=\pi/20$).
+}
+\label{fig:benchmarking_decay}
+\end{figure*}
+
+
+\section{Time-series of squeezing via OAT and TAT}
+
+Figure \ref{fig:squeezing_example} shows an example of squeezing over time via OAT and TAT, both with and without decoherence via decay and dephasing of individual spins.
+The OAT model initially generates squeezing faster than the TAT model, but the squeezing generation rate of OAT (measured in dB per second) falls off with time.
+The squeezing generation rate for TAT, meanwhile, remains approximately constant (in the absence of decoherence) until squeezing via TAT surpasses that of OAT.
+In the absence of decoherence, OAT achieves a maximal amount of squeezing that scales as $\xi^2\sim N^{-2/3}$, while TAT achieves Heisenberg-limited squeezing with $\xi^2\sim N^{-1}$.
+Note that our method for computing squeezing via TAT in the presence of decoherence (described in Appendix \ref{M-sec:collective_simulation} of the main text) is not capable of computing squeezing for the full range of times shown in Fig.~\ref{fig:squeezing_example}; the corresponding time-series data in this figure is therefore shown up to the point at which this method breaks down.
+
+\begin{figure*}
+\centering
+\includegraphics{squeezing_example_L40.pdf}
+\includegraphics{squeezing_example_L100.pdf}
+\caption{{\bf Squeezing via OAT and TAT} in a 2D section of the 3D $^{87}$Sr optical lattice clock, shown for ({\bf a}) $\ell=40$ and ({\bf b}) $\ell=100$ sites per axis (with $N=\ell^2$ atoms total), and a lattice depth of $V_0=4~E_{\t{R}}$, where $E_{\t{R}}$ is the atomic lattice recoil energy.
+Atoms are confined along the direction transverse to the 2D layer by a lattice of depth 60 $E_{\t{R}}$.
+Squeezing over time is shown for OAT (blue) and TAT (green), both with (solid lines) and without (dashed lines) decoherence via uncorrelated decay and dephasing of individual spins at rates of $0.1~\t{sec}^{-1}$ (see Appendix \ref{M-sec:decoherence} of the main text).
+}
+\label{fig:squeezing_example}
+\end{figure*}
+
+\end{document}

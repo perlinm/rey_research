@@ -1,0 +1,175 @@
+\documentclass[reprint,onecolumn,12pt]{revtex4-2}
+
+%%% linking references
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+}
+
+%%% physics and math packages
+\usepackage{physics} % general physics package
+\usepackage{amssymb} % math fonts and symbols
+\usepackage{bm} % for making math symbols bold
+\usepackage{braket} % for nice brackets (e.g. |X>)
+\usepackage{mathtools} % for \coloneqq
+\usepackage{graphicx} % for figures
+\graphicspath{{./figures/}} % set path for all figures
+
+%%% shorthands to use inside math environments
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % square parenthesis
+\renewcommand{\c}{\cdot} % inner product
+\renewcommand{\d}{\text{d}} % integration measure, e.g. d^3 x
+\renewcommand{\v}{\bm} % bold symbols (e.g. for vectors)
+\newcommand{\uv}[1]{\hat{\bm #1}} % unit vectors, or vector operators
+\newcommand{\bk}{\Braket}
+\renewcommand{\ket}{\Ket}
+\renewcommand{\bra}{\Bra}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\J}{\mathcal{J}}
+\renewcommand{\L}{\mathcal{L}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\S}{\mathcal{S}}
+
+\newcommand{\z}{\text{z}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
+
+\usepackage{enumitem}
+\setlist[enumerate]{leftmargin=*}
+\usepackage[dvipsnames]{xcolor}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\green}[1]{{\color{ForestGreen} #1}}
+
+% for numbering points in response to referees
+\newcounter{point}
+\newcommand{\step}{\stepcounter{point}\setcounter{enumi}{0}}
+
+
+\begin{document}
+
+Dear editors,
+
+In this document, we summarize all revisions made to our manuscript
+since its initial submission.  Revisions made in our responses to the
+referee are numbered R.$X$.$Y$, corresponding to the $Y$-th revision
+in point $X$ in our response.  In addition, we summarize additional
+revisions made to refine wording or fix errors in the original
+manuscript; these revisions are numbered M.$Z$.
+
+Excerpts from our original manuscript are written in \red{red}, and
+excerpts from the revised version of our manuscript is written in
+\green{green}.  All page, equation, and reference numbers generally
+refer to those in our original manuscript, unless explicitly stated
+otherwise.
+
+
+\section*{Revisions in response to Referee}
+
+
+\begin{enumerate}[label=(R.\arabic{point}.\arabic*)]
+  \step \step
+\item
+
+  \step
+\item
+
+
+  \step
+\item
+
+
+  \step
+\item
+
+
+  \step
+\item
+
+
+\end{enumerate}
+
+
+\section*{Miscellaneous revisions}
+
+\begin{enumerate}[label=(M.\arabic*)]
+\item To standardize our use of language, we have changed all
+  instances of the words ``\red{interrogation laser}'' and
+  ``\red{external interrogation laser}'' to ``\green{clock laser}'',
+  as well as all instances of ``\red{SOC phase}'' ($\phi$) with
+  ``\green{SOC angle}''.  For consistency, we have also prepended
+  ``\green{Eqn.}'' or ``\green{Eqns.}'' as appropriate to all equation
+  references.
+
+
+\item To clarify the assumptions of the spin model that become invalid
+  when $U/J\lesssim2$, we have changed the text (bottom of the left
+  column on page 4):
+
+  \red{... at $U/J\gtrsim2$ mode-changing collisions start to
+    become relevant and invalidate assumptions of the spin model.}
+
+  to:
+
+  \green{... at $U/J\gtrsim2$ mode-changing collisions start to become
+    relevant and invalidate the frozen-mode assumption of the spin
+    model.}
+
+
+\item We fixed a typo at the top of the right column on page 4,
+  replacing the text:
+
+  \red{... our protocol should work even in this highly dopped case;
+    ...}
+
+  by:
+
+  \green{... our protocol should work even in this highly hole-doped
+    case; ...}
+
+
+\item We found an error in our summaries of the results in Figure
+  4(b); to fix this error, we have changed the following text (both in
+  the abstract and paragraph 1 on page 7):
+
+  \red{... $\sim12-14$ dB of spin squeezing in $\sim1$ second with
+    $10^2$--$10^3$ atoms ...}
+
+  by:
+
+  \green{... $\sim10-14$ dB of spin squeezing in $\sim1$ second with
+    $10^2$--$10^4$ atoms ...}
+
+
+\item In Appendix D (page 10), we have fixed an error in identifying
+  the set jump operators corresponding to single-spin decay, replacing:
+
+  \red{... sets of jump operators $\J_-\equiv s_-^{(j)}$ and
+    $\J_\z\equiv\set{s_\z^{(j)}}$...}
+
+  by:
+
+  \green{... sets of jump operators $\J_-\equiv\set{s_-^{(j)}}$ and
+    $\J_\z\equiv\set{s_\z^{(j)}}$...}
+
+\end{enumerate}
+
+\end{document}
+
+% popular summary -- beginning of second paragraph -- added word "we"
