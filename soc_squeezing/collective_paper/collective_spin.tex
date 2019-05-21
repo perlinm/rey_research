@@ -81,9 +81,9 @@
   at short times that are relevant for metrological applications such
   as spin squeezing.  In order to evaluate the expansion for
   Heisenberg operators, we compute the relevant structure constants of
-  a collective operator algebra.  We demonstrate the utility of our
-  method by computing spin squeezing, two-time correlation functions,
-  and out-of-time-ordered correlators for $10^4$ spins in
+  a collective spin operator algebra.  We demonstrate the utility of
+  our method by computing spin squeezing, two-time correlation
+  functions, and out-of-time-ordered correlators for $10^4$ spins in
   strong-decoherence regimes that are otherwise inaccessible via
   existing numerical methods.  Our method can be straightforwardly
   generalized to the case of a collective spin coupled to bosonic
@@ -169,7 +169,7 @@ model with renormalized parameters\cite{hu2015entangled}.
 
 In the absence of decoherence, permutation symmetry and total spin
 conservation divide the total Hilbert space of a collective spin
-system into superseletion sectors that grow only linearly with system
+system into superselection sectors that grow only linearly with system
 size $N$, thereby admitting efficient classical simulation of its
 dynamics.  Decoherence generally violates total spin conservation and
 requires the use of density operators, increasing the dimension of
@@ -356,7 +356,7 @@ $\hat\S_{\v m}^\dag=\hat\S_{\v m^*}$, which by Hermitian conjugation
 of Eq.~\eqref{eq:EOM} also implies that
 $T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can cut both the number of
 initial-time expectation values $\bk{\hat\S_{\v m}}_{t=0}$ and the
-number qof matrix elements $T_{\v m\v n}$ that we may need to
+number of matrix elements $T_{\v m\v n}$ that we may need to
 explicitly compute roughly in half.
 
 In principle, the factorial suppression of terms at higher orders of
@@ -571,7 +571,7 @@ Eq.~\eqref{eq:two_time} contain information about the linear response
 of Heisenberg operators to perturbations of a system; in a
 non-equilibrium setting, they contribute to short-time linear response
 (see Appendix \ref{sec:linear_response}).  Similar correlators have
-made appearances as order parameters that diagnose time-crystalline
+made appearances as order parameters for diagnosing time-crystalline
 phases of matter\cite{tucker2018shattered}.  Squared commutators such
 as that in Eq.~\eqref{eq:four_point}, meanwhile, are commonly examined
 for signatures of quantum chaos and information
@@ -644,15 +644,15 @@ study the onset of quantum chaos and information scrambling.
 
 
 \begin{acknowledgments}
-  We acknowledge helpful discussions with Robert Lewis-Swan and Kris
-  Tucker.  This work is supported by the Air Force Office of
-  Scientific Research (AFOSR) grant FA9550-18-1-0319; the AFOSR
-  Multidisciplinary University Research Initiative (MURI) grant; the
-  Defense Advanced Research Projects Agency (DARPA) and Army Research
-  Office (ARO) grant W911NF-16-1-0576 and W911NF-19-1-0210; the
-  National Science Foundation (NSF) grant PHY-1820885; JILA-NSF grant
-  PFC-173400; and the National Institute of Standards and Technology
-  (NIST).
+  We acknowledge helpful discussions with Robert Lewis-Swan, Kris
+  Tucker, Diego Barberena, and Colin Kennedy.  This work is supported
+  by the Air Force Office of Scientific Research (AFOSR) grant
+  FA9550-18-1-0319; the AFOSR Multidisciplinary University Research
+  Initiative (MURI) grant; the Defense Advanced Research Projects
+  Agency (DARPA) and Army Research Office (ARO) grant W911NF-16-1-0576
+  and W911NF-19-1-0210; the National Science Foundation (NSF) grant
+  PHY-1820885; JILA-NSF grant PFC-173400; and the National Institute
+  of Standards and Technology (NIST).
 \end{acknowledgments}
 
 
@@ -740,11 +740,12 @@ then imply
   \bk{S_\z^2} = S \sp{\f12 + \p{S-\f12} \f{\bk{S_\z}^2}{S^2}}.
   \label{eq:Sz_OAT}
 \end{align}
-The expectation values in \eqref{eq:S+_OAT}--\eqref{eq:SS+-_OAT} and
-\eqref{eq:Sz_OAT} are sufficient to compute the spin squeezing
-parameter $\xi^2$ in \eqref{eq:squeezing} at any time throughout
-evolution of the initial state $\ket\X$ under $H_{\t{OAT}}$, under
-appropriate assumptions about the relevant sources of decoherence.
+With appropriate assumptions about the relevant sources of
+decoherence, the expectation values in
+\eqref{eq:S+_OAT}--\eqref{eq:SS+-_OAT} and \eqref{eq:Sz_OAT} are
+sufficient to compute the spin squeezing parameter $\xi^2$ in
+\eqref{eq:squeezing} at any time throughout evolution of the initial
+state $\ket\X$ under $H_{\t{OAT}}$.
 
 
 \section{Basic spin operator identities}
@@ -1799,7 +1800,7 @@ therefore expand
   = \sum_{\v m} \S_{\v m} T_{\v m\v n},
   \label{eq:tutorial_EOM_general}
 \end{align}
-where $T$ is a super-operator that generates time evolution for
+where $T$ is a superoperator that generates time evolution for
 Heisenberg operators.  In the present example, the matrix elements
 $T_{\v m\v n}\in\C$ of $T$ are defined by
 \eqref{eq:tutorial_EOM_expanded} and \eqref{eq:tutorial_EOM_general}.
