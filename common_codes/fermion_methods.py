@@ -127,6 +127,9 @@ class fermion_op_seq(op_object):
     def __init__(self, *sequence):
         self.seq = tuple(sequence)
 
+    def __iter__(self):
+        return iter(self.seq)
+
     def dag(self):
         return fermion_op_seq(*[ op.dag() for op in self.seq[::-1] ])
 
@@ -134,7 +137,7 @@ class fermion_op_seq(op_object):
 
     def str(self, str_funs = None):
         if self.seq == []: return "1"
-        return " ".join([ op.str(str_funs) for op in self.seq ])
+        return " ".join([ op.str(str_funs) for op in self ])
 
     # multiplication and addition
 
@@ -187,11 +190,11 @@ class fermion_op_seq(op_object):
                 return restricted_op
 
     # return matrix reresentation of this operator
-    #   when acting on a fixed-particle-number Fock state
     # index_map associates a unique integer to the indices of an individual operator
     # single_states is the number of single-particle states
     # input_number is the number of particles in the Fock state this operator will act on
-    def matrix(self, single_states, input_number, index_map = None):
+    # by default, we assume that we want particle number to be conserved
+    def matrix(self, single_states, input_number, index_map = None, output_number = None):
         # enforce that
         # (i) we have some operators in this product
         # (ii) the operators in this product are sorted
@@ -204,29 +207,37 @@ class fermion_op_seq(op_object):
         assert(index_map is not None or len(self.seq[0].index) == 1)
         # the default index map is just the value of *the* index on an individual operator
         if index_map is None: index_map = lambda index : index[0]
+        # by default, conserve particle number
+        if output_number is None: output_number = input_number
+
+        dest_ops = [ op for op in self if not op.creation ]
+        crtn_ops = [ op for op in self if op.creation ]
+
+        # check that we will have the right number of output particles
+        if output_number != input_number - len(dest_ops) + len(crtn_ops):
+            return 0
+
+        # number of auxiliary particles not addressed by creation/annihilation operators
+        aux_number = input_number - len(dest_ops)
+        assert(aux_number == output_number - len(crtn_ops))
+        if aux_number < 0:
+            return 0
 
         # identify (by index) states addressed by creation/annihilation operators
-        dest_states = [ index_map(op.index) for op in self.seq if not op.creation ]
-        crtn_states = [ index_map(op.index) for op in self.seq if op.creation ]
+        dest_states = [ index_map(op.index) for op in dest_ops ]
+        crtn_states = [ index_map(op.index) for op in crtn_ops ]
 
         # identify states addressed by both creation and destruction operators,
         # as well as states not addressed by any operator
-        comm_states = list(set( dest_states + crtn_states ))
+        addressed_states = list(set( dest_states + crtn_states ))
         remaining_states = list(range(single_states))
-        for idx in comm_states:
+        for idx in addressed_states:
             remaining_states.remove(idx)
-
-        # number of particles in output state
-        output_number = input_number + len(crtn_states) - len(dest_states)
 
         # build an empty matrix
         input_dimension = binom(single_states, input_number)
         output_dimension = binom(single_states, output_number)
         matrix = sparse.dok_matrix((output_dimension,input_dimension), dtype = int)
-
-        # number of auxiliary particles not addressed by creation/annihilation operators
-        aux_number = output_number - len(comm_states)
-        if aux_number < 0: return matrix
 
         # loop over all combinations of auxiliary single-particle states
         for aux_states in itertools.combinations(remaining_states, aux_number):
@@ -249,8 +260,8 @@ class fermion_op_seq(op_object):
     # return the vector corresponding to the Fock state that this product creates
     # within the appropriate subspace of fixed particle number
     def vector(self, single_states, index_map = None):
-        if not all( op.creation for op in self.seq ): return 0
-        return self.matrix(single_states, 0, index_map)
+        if not all( op.creation for op in self ): return 0
+        return self.matrix(single_states, 0, index_map, len(self.seq))
 
 
 ##########################################################################################
@@ -286,12 +297,15 @@ class fermion_op(op_object):
             assert(len(coeffs) == len(self.seqs))
             self.coeffs = tuple(coeffs)
 
+    def __iter__(self):
+        return zip(self.seqs, self.coeffs)
+
     def dag(self):
         return fermion_op([ seq.dag() for seq in self.seqs ],
                           [ coeff.conjugate() for coeff in self.coeffs ])
 
     def objs(self, sort = False):
-        if not sort: return list(zip(self.seqs, self.coeffs))
+        if not sort: return list(self.__iter__())
         else: return sorted(self.objs(), key = lambda x : x[0])
 
     # string representation of fermion operators
@@ -302,7 +316,7 @@ class fermion_op(op_object):
             if len(seq.seq) == 0: return f"[{coeff}]"
             else: return f"[{coeff}] " + seq.str(str_funs)
         return " + ".join([ coeff_seq_str(coeff, seq)
-                            for seq, coeff in zip(self.seqs, self.coeffs) ])
+                            for seq, coeff in self ])
 
     # multiplication and addition of fermion operators
 
@@ -315,8 +329,8 @@ class fermion_op(op_object):
             return fermion_op(new_seqs, self.coeffs)
         if type(other) is fermion_op:
             obj_list = [ ( self_seq * other_seq, self_coeff * other_coeff )
-                         for self_seq, self_coeff in self.objs()
-                         for other_seq, other_coeff in other.objs() ]
+                         for self_seq, self_coeff in self
+                         for other_seq, other_coeff in other ]
             return fermion_op(*zip(*obj_list))
         else: # "other" is a scalar
             return fermion_op(self.seqs, [ other * coeff for coeff in self.coeffs ])
@@ -342,7 +356,7 @@ class fermion_op(op_object):
             include = lambda seq : len(seq.seq) == num_ops
         else:
             include = lambda seq : len(seq.seq) <= num_ops
-        return fermion_op(*zip(*[ (seq, coeff) for seq, coeff in self.objs()
+        return fermion_op(*zip(*[ (seq, coeff) for seq, coeff in self
                                   if include(seq) ]))
 
     # sort and simplify all terms
@@ -350,7 +364,7 @@ class fermion_op(op_object):
         if len(self.seqs) == 0: return 0
 
         # sort all products
-        sorted_sum = sum_ops( coeff * seq.sorted() for seq, coeff in self.objs() )
+        sorted_sum = sum_ops( coeff * seq.sorted() for seq, coeff in self )
         sorted_objs = [ list(obj) for obj in sorted_sum.objs(True) ]
 
         # if we are fixing an operator number, throw out all unwanted terms
@@ -385,33 +399,38 @@ class fermion_op(op_object):
     # single_states is the number of single-particle states
     # input_number is the number of particles in the Fock state this operator will act on
     def matrix(self, single_states, input_number, index_map = None):
-        sorted_op = self.sorted()
         return sum( coeff * op.matrix(single_states, input_number, index_map)
-                    for op, coeff in sorted_op.objs() )
+                    for op, coeff in self.sorted() )
     def vector(self, single_states, index_map = None):
-        return self.matrix(single_states, 0, index_map)
+        return sum( coeff * op.vector(single_states, index_map)
+                    for op, coeff in self.sorted() )
 
 # define the method that should *actually* be used to construct fermion operators
 # f_op accepts indices for an individual fermion operator, and returns a fermion_op object
 def f_op(*indices):
     return fermion_op(fermion_op_individual(*indices))
 
-# return matrix/vector object restricted to the span of given Fock states
-# index_map is a dictionary: { < Fock state index > : < restricted subspace index > }
-def reduce_dimension(matrix, index_map):
+
+##########################################################################################
+# miscellaneous methods
+##########################################################################################
+
+# restrict matrix/vector object to subspace defined by subspace_map
+# subspace_map is a dictionary: { < current index > : < new index > }
+def restrict_matrix(matrix, subspace_map):
     matrix_is_square = matrix.shape[0] == matrix.shape[1]
     matrix_is_vector = 1 in matrix.shape
     assert(matrix_is_square or matrix_is_vector)
 
     if matrix_is_square:
-        reduced_dim = (len(index_map),len(index_map))
+        reduced_dim = (len(subspace_map),len(subspace_map))
         reduced_matrix = sparse.dok_matrix(reduced_dim, dtype = matrix.dtype)
 
         cm = matrix.tocoo()
         for state_out, state_in, value in zip(cm.row, cm.col, cm.data):
             try:
-                idx_out = index_map[state_out]
-                idx_in = index_map[state_in]
+                idx_out = subspace_map[state_out]
+                idx_in = subspace_map[state_in]
                 reduced_matrix[idx_out,idx_in] = matrix[state_out,state_in]
             except: None
         return reduced_matrix
@@ -421,11 +440,11 @@ def reduce_dimension(matrix, index_map):
 
         if matrix.shape[0] == 1:
             cm_indices = cm.col
-            reduced_dim = (1,len(index_map))
+            reduced_dim = (1,len(subspace_map))
             def mat_idx(idx): return (0,idx)
         if matrix.shape[1] == 1:
             cm_indices = cm.row
-            reduced_dim = (len(index_map),1)
+            reduced_dim = (len(subspace_map),1)
             def mat_idx(idx): return (idx,0)
 
         reduced_matrix = sparse.dok_matrix(reduced_dim, dtype = matrix.dtype)
@@ -433,7 +452,7 @@ def reduce_dimension(matrix, index_map):
         for state, value in zip(cm_indices, cm.data):
             try:
                 old_idx = mat_idx(state)
-                new_idx = mat_idx(index_map[state])
+                new_idx = mat_idx(subspace_map[state])
                 reduced_matrix[new_idx] = matrix[old_idx]
             except: None
         return reduced_matrix
