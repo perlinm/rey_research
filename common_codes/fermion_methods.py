@@ -36,7 +36,7 @@ def rank(k_combination):
 
 # determine the k-combination { c_1, c_2, ..., c_k } corresponding to a rank,
 # with c_1 < c_2 < ... < c_k
-# in other words: given the index of and numper of particles in a Fock state,
+# in other words: given the index of and number of particles in a Fock state,
 # determine which single-particle states are occupied
 def unrank(rank, k):
     if k == 0: return []
@@ -189,7 +189,7 @@ class fermion_op_seq(op_object):
     # return matrix reresentation of this operator
     #   when acting on a fixed-particle-number Fock state
     # index_map associates a unique integer to the indices of an individual operator
-    # single_states is the number of sinple-particle states
+    # single_states is the number of single-particle states
     # input_number is the number of particles in the Fock state this operator will act on
     def matrix(self, single_states, input_number, index_map = None):
         # enforce that
@@ -382,7 +382,7 @@ class fermion_op(op_object):
     # return matrix/vector reresentations of this operator
     #   when acting on a fixed-particle-number Fock state
     # index_map associates a unique integer to the indices of an individual operator
-    # single_states is the number of sinple-particle states
+    # single_states is the number of single-particle states
     # input_number is the number of particles in the Fock state this operator will act on
     def matrix(self, single_states, input_number, index_map = None):
         sorted_op = self.sorted()
@@ -395,3 +395,45 @@ class fermion_op(op_object):
 # f_op accepts indices for an individual fermion operator, and returns a fermion_op object
 def f_op(*indices):
     return fermion_op(fermion_op_individual(*indices))
+
+# return matrix/vector object restricted to the span of given Fock states
+# index_map is a dictionary: { < Fock state index > : < restricted subspace index > }
+def reduce_dimension(matrix, index_map):
+    matrix_is_square = matrix.shape[0] == matrix.shape[1]
+    matrix_is_vector = 1 in matrix.shape
+    assert(matrix_is_square or matrix_is_vector)
+
+    if matrix_is_square:
+        reduced_dim = (len(index_map),len(index_map))
+        reduced_matrix = sparse.dok_matrix(reduced_dim, dtype = matrix.dtype)
+
+        cm = matrix.tocoo()
+        for state_out, state_in, value in zip(cm.row, cm.col, cm.data):
+            try:
+                idx_out = index_map[state_out]
+                idx_in = index_map[state_in]
+                reduced_matrix[idx_out,idx_in] = matrix[state_out,state_in]
+            except: None
+        return reduced_matrix
+
+    if matrix_is_vector:
+        cm = matrix.tocoo()
+
+        if matrix.shape[0] == 1:
+            cm_indices = cm.col
+            reduced_dim = (1,len(index_map))
+            def mat_idx(idx): return (0,idx)
+        if matrix.shape[1] == 1:
+            cm_indices = cm.row
+            reduced_dim = (len(index_map),1)
+            def mat_idx(idx): return (idx,0)
+
+        reduced_matrix = sparse.dok_matrix(reduced_dim, dtype = matrix.dtype)
+
+        for state, value in zip(cm_indices, cm.data):
+            try:
+                old_idx = mat_idx(state)
+                new_idx = mat_idx(index_map[state])
+                reduced_matrix[new_idx] = matrix[old_idx]
+            except: None
+        return reduced_matrix
