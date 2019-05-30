@@ -80,6 +80,9 @@ class fermion_op_individual(op_object):
         self.index = tuple(index)
         self.creation = creation
 
+    def __hash__(self):
+        return hash(self.index + (self.creation,))
+
     def dag(self):
         return fermion_op_individual(*self.index, creation = not self.creation)
 
@@ -126,6 +129,9 @@ class fermion_op_individual(op_object):
 class fermion_op_seq(op_object):
     def __init__(self, *sequence):
         self.seq = tuple(sequence)
+
+    def __hash__(self):
+        return hash(self.seq)
 
     def __iter__(self):
         return iter(self.seq)
@@ -213,13 +219,14 @@ class fermion_op_seq(op_object):
         dest_ops = [ op for op in self if not op.creation ]
         crtn_ops = [ op for op in self if op.creation ]
 
+        # check that our input/output particle numbers are consistent
+        # with the number of creation/annihilation operators
         # check that we will have the right number of output particles
-        if output_number != input_number - len(dest_ops) + len(crtn_ops):
+        if output_number - len(crtn_ops) != input_number - len(dest_ops):
             return 0
 
         # number of auxiliary particles not addressed by creation/annihilation operators
-        aux_number = input_number - len(dest_ops)
-        assert(aux_number == output_number - len(crtn_ops))
+        aux_number = input_number - len(dest_ops) # = output_number - len(crtn_ops)
         if aux_number < 0:
             return 0
 
@@ -297,16 +304,19 @@ class fermion_op(op_object):
             assert(len(coeffs) == len(self.seqs))
             self.coeffs = tuple(coeffs)
 
+    def __hash__(self):
+        return hash(self.seqs + self.coeffs)
+
     def __iter__(self):
         return zip(self.seqs, self.coeffs)
-
-    def dag(self):
-        return fermion_op([ seq.dag() for seq in self.seqs ],
-                          [ coeff.conjugate() for coeff in self.coeffs ])
 
     def objs(self, sort = False):
         if not sort: return list(self.__iter__())
         else: return sorted(self.objs(), key = lambda x : x[0])
+
+    def dag(self):
+        return fermion_op([ seq.dag() for seq in self.seqs ],
+                          [ coeff.conjugate() for coeff in self.coeffs ])
 
     # string representation of fermion operators
 
