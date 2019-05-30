@@ -31,14 +31,13 @@ def lattice_wavefunction(z, n, momenta, fourier_vecs, site_shift = 0):
     k_offset = int(fourier_terms)//2
     k_values = 2 * (np.arange(fourier_terms) - k_offset)
 
-    q_phases = repmat(np.exp(1j * momenta * z), fourier_terms, 1).T
-    k_phases = repmat(np.exp(1j * k_values * z), site_number, 1)
+    z_j = site_shift * np.pi
+    q_phases = repmat(np.exp(1j * momenta * (z-z_j)), fourier_terms, 1).T
+    k_phases = repmat(np.exp(1j * k_values * (z-z_j)), site_number, 1)
     phases = q_phases * k_phases
 
-    site_phases = repmat(np.exp(-1j * momenta * np.pi * site_shift), fourier_terms, 1).T
-
     normalization = np.pi * site_number**2
-    return np.sum(fourier_vecs[:,n,:] * site_phases) / np.sqrt(normalization)
+    return np.sum(fourier_vecs[:,n,:] * q_phases * k_phases) / np.sqrt(normalization)
 
 
 ##########################################################################################
@@ -82,6 +81,9 @@ def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None, site_s
     kinetic_overlap = kinetic_overlap_1D(momenta, fourier_vecs, nn, mm, site_shift)
     lattice_overlap = lattice_overlap_1D(momenta, fourier_vecs, nn, mm, site_shift)
     return -np.real(kinetic_overlap + lattice_depth * lattice_overlap)
+
+
+
 
 
 ##########################################################################################
