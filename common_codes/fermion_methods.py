@@ -30,7 +30,7 @@ def binom(nn, kk, vals = {}):
 # where N single-particle states are indexed 0, 1, ..., N-1
 # the "rank" of a Fock state is the index of that Fock state
 #   within the subspace of fixed particle number
-def rank(k_combination):
+def rank_comb(k_combination):
     return sum([ binom(index, jj+1)
                  for jj, index in enumerate(sorted(k_combination)) ])
 
@@ -38,11 +38,11 @@ def rank(k_combination):
 # with c_1 < c_2 < ... < c_k
 # in other words: given the index of and number of particles in a Fock state,
 # determine which single-particle states are occupied
-def unrank(rank, k):
+def unrank_idx(rank, k):
     if k == 0: return []
     c_k = 0
     while binom(c_k+1,k) <= rank: c_k += 1
-    return unrank(rank - binom(c_k,k), k-1) + [ c_k ]
+    return unrank_idx(rank - binom(c_k,k), k-1) + [ c_k ]
 
 
 ##########################################################################################
@@ -259,7 +259,7 @@ class fermion_op_seq(op_object):
             for op_idx in crtn_states:
                 sign_flips += sum( state < op_idx for state in aux_states )
 
-            matrix[rank(output_states), rank(input_states)] = (-1)**sign_flips
+            matrix[rank_comb(output_states), rank_comb(input_states)] = (-1)**sign_flips
 
         return matrix
 

@@ -83,9 +83,6 @@ def tunneling_1D(lattice_depth, momenta, fourier_vecs, nn = 0, mm = None, site_s
     return -np.real(kinetic_overlap + lattice_depth * lattice_overlap)
 
 
-
-
-
 ##########################################################################################
 # two-particle on-site overlap integrals
 # kk, ll, mm, nn are band indices
