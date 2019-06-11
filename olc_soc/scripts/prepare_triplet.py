@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 
+from scipy import sparse
 from scipy.integrate import quad, solve_ivp
 
 from mathieu_methods import mathieu_solution
@@ -21,25 +22,29 @@ np.set_printoptions(linewidth = 200)
 # free lattice parameters
 ##########################################################################################
 
-V_P = 3 # "primary" lattice depth in units of "regular" recoil energy
-V_T = 50 # "transverse" lattice depths in units of "regular" recoil energy
-stretch_P = 1.7 # "stretch factor" for accordion lattice along primary axis
-stretch_T = 1.4 # "stretch factor" for accordion lattice along transverse axis
-tilt = 5e3 # 2\pi Hz per lattice site
-magnetic_field = 500 # Gauss; for nuclear spin splitting
-rabi_frequency = 1e3 # 2\pi Hz; clock laser
+V_P = 2 # "primary" lattice depth in units of "regular" recoil energy
+V_T = 15 # "transverse" lattice depths in units of "regular" recoil energy
+stretch_P = 2 # "stretch factor" for accordion lattice along primary axis
+stretch_T = 2 # "stretch factor" for accordion lattice along transverse axis
+tilt = 6e3 # 2\pi Hz per lattice site
+magnetic_field = 300 # Gauss; for nuclear spin splitting
+rabi_frequency = 100 # 2\pi Hz; clock laser
 
-relevance_cutoff = 1e-2 # for reducing "relevant" Hilbert space
+relevance_cutoff = 5e-3 # for reducing "relevant" Hilbert space
+dim_cutoff = 3 # cutoff for dimension of relevant Hibert space
 
 # number of lattice bands and lattice sites to use in mathieu equation solver
 bands, site_number = 5, 100
+
+ivp_tolerance = 1e-6
+sim_step = 0
 
 ##########################################################################################
 # fixed and derived lattice parameters
 ##########################################################################################
 
-nuclear_splitting_per_Gauss = 110 # 2\pi Hz / Gauss / nuclear spin
-nuclear_splitting = magnetic_field * nuclear_splitting_per_Gauss
+nuclear_splitting_per_gauss = 110 # 2\pi Hz / Gauss / nuclear spin
+nuclear_splitting = magnetic_field * nuclear_splitting_per_gauss
 
 # lattice depths in units of "stretched" recoil energies
 V_P_S = V_P * stretch_P**2
@@ -108,7 +113,7 @@ rabi_ratio = ( laser_overlap(np.pi, momenta_P_S, fourier_vecs_P_S, 1) /
 
 print("\u03A9_x:", rabi_frequency * abs(rabi_ratio))
 
-exit()
+# exit()
 
 ##########################################################################################
 # 3-tuplet preparation parameters
@@ -237,10 +242,17 @@ psi_3 = ( f_op(site_R,2,up).dag() * f_op(site_0,2,dn) * psi_2 ).sorted(atoms)
 psi_4 = ( f_op(site_R,2,dn).dag() * f_op(site_R,2,up) * psi_3 ).sorted(atoms)
 
 psi_X = [ psi_0, psi_1, psi_2, psi_3, psi_4 ]
+idx_X = [ rank_comb([ index_map(op.index) for op in psi.seqs[0]])
+          for psi in psi_X ]
 
 ##########################################################################################
 # miscellaneous operators
 ##########################################################################################
+
+def matrix_element(left, op, right):
+    return ( left.dag() * ( op * right ).sorted(atoms) ).sorted(0)
+
+def energy(state): return matrix_element(state, H_0, state)
 
 state_pop_ops = { f"$({jj},{mm},{spin_text[ss]})$" :
                   f_op(jj,mm,ss).dag() * f_op(jj,mm,ss)
@@ -250,117 +262,115 @@ spin_pop_ops = { spin : sum_ops( f_op(jj,mm,spin).dag() * f_op(jj,mm,spin)
                                  for jj in range(sites) for mm in range(atoms) )
                  for spin in spins }
 spin_Z_op = ( spin_pop_ops[up] - spin_pop_ops[dn] ) / 2
-spin_Z_vals = np.array([ ( psi.dag() * ( spin_Z_op * psi ).sorted(atoms) ).sorted(0)
-                         for psi in psi_X ])
-spin_changes = spin_Z_vals[1:] - spin_Z_vals[:-1]
-spin_change_dirs = [ +1 if spin_change > 0 else -1 for spin_change in spin_changes ]
+spin_Z_vals = np.array([ matrix_element(psi, spin_Z_op, psi) for psi in psi_X ])
+spin_change_dirs = spin_Z_vals[1:] - spin_Z_vals[:-1]
 
-def energy(state):
-    return ( state.dag() * ( H_0 * state ).sorted(atoms) ).sorted(0)
-
-energies = np.array([ ( psi.dag() * ( H_0 * psi ).sorted(atoms) ).sorted(0) for psi in psi_X ])
-detunings = [ sign * energy_diff
-              for sign, energy_diff in zip(spin_change_dirs, energies[1:] - energies[:-1]) ]
-couplings = [ ( psi_X[jj+1].dag() * ( spin_flip * psi_X[jj] ).sorted(atoms) ).sorted(0)
-              for jj in range(len(detunings)) ]
+energies = np.array([ energy(psi) for psi in psi_X ])
+energy_diffs = energies[1:] - energies[:-1]
+detunings = np.array([ sign * energy_diff
+                       for sign, energy_diff in zip(spin_change_dirs, energy_diffs) ])
+couplings = np.array([ matrix_element(psi_X[jj+1], spin_flip, psi_X[jj])
+                       for jj in range(detunings.size) ])
 
 ##########################################################################################
-# build matrix objects
+# identify relevant states
 ##########################################################################################
 
-allowed_states = [ rank_comb((index_map((site_0,0,spin_0)),
-                              index_map((site_1,1,spin_1)),
-                              index_map((site_2,2,spin_2))))
+relevant_states = [ rank_comb((index_map((site_0,0,spin_0)),
+                               index_map((site_1,1,spin_1)),
+                               index_map((site_2,2,spin_2))))
                    for site_0 in range(sites)
                    for site_1 in range(sites)
                    for site_2 in range(sites)
                    for spin_0 in spins
                    for spin_1 in spins
                    for spin_2 in spins ]
-subspace_map = { index : jj for jj, index in enumerate(allowed_states) }
+subspace_map = { index : jj for jj, index in enumerate(relevant_states) }
 
+if relevance_cutoff is not None:
 
-##########################################################################################
-##########################################################################################
-##########################################################################################
+    print()
+    print("start:")
+    print(seq_text(psi_X[sim_step].seqs[0]))
+    print("end:")
+    print(seq_text(psi_X[sim_step+1].seqs[0]))
 
-sim_step = 0
+    print("-"*80,"\n")
+    print(f"relevance cutoff: {relevance_cutoff}\n")
+    print("relevant processes:\n")
 
-print()
-print("start:")
-print(seq_text(psi_X[sim_step].seqs[0]))
-print("end:")
-print(seq_text(psi_X[sim_step+1].seqs[0]))
+    relevant_states = { seq : 1 for seq in psi_X[sim_step].seqs }
+    checked_states = set()
 
-print("-"*80,"\n")
-print("relevant processes:\n")
+    jump_ops = [ rabi_frequency/2 * spin_flip, H_0 ]
+    jump_detunings = [ spin_change_dirs[sim_step] * detunings[sim_step], 0 ]
 
-allowed_states = { seq : 1 for seq in psi_X[sim_step].seqs }
-checked_states = set()
+    jumps = 0
+    new_states = True
+    while new_states:
+        jumps += 1
+        new_states = False
+        for start in list(relevant_states.keys()):
+            if start in checked_states: continue
+            checked_states.add(start)
+            start_relevance = relevant_states[start]
 
-jump_ops = [ rabi_frequency/2 * spin_flip, H_0 ]
-jump_detunings = [ spin_change_dirs[sim_step] * detunings[sim_step], 0 ]
+            for jump_op, detuning in zip(jump_ops, jump_detunings):
+                laser_image = ( jump_op * start ).sorted(atoms)
+                for end, coupling in laser_image:
+                    if end == start: continue
+                    assert(coupling != 0)
 
-jumps = 0
-new_states = True
-while new_states:
-    jumps += 1
-    new_states = False
-    for start in list(allowed_states.keys()):
-        if start in checked_states: continue
-        checked_states.add(start)
-        start_relevance = allowed_states[start]
+                    static_field = ( energy(end) - energy(start) - detuning ) / 2
+                    if static_field == 0:
+                        relevance = 1
+                    else:
+                        weight = abs(coupling / static_field)
+                        relevance = 2/np.pi * np.arctan(weight)
 
-        for jump_op, detuning in zip(jump_ops, jump_detunings):
-            laser_image = ( jump_op * start ).sorted(atoms)
-            for end, coupling in laser_image:
-                if end == start: continue
-                assert(coupling != 0)
+                    net_relevance = relevance * start_relevance
+                    if end in relevant_states:
+                        relevant_states[end] = max(net_relevance, relevant_states[end])
+                        continue
 
-                static_field = ( energy(end) - energy(start) - detuning ) / 2
-                if static_field == 0:
-                    relevance = 1
-                else:
-                    weight = abs(coupling / static_field)
-                    relevance = 2/np.pi * np.arctan(weight)
+                    if net_relevance >= relevance_cutoff:
+                        print("relevance:",relevance)
+                        print("net_relevance:",net_relevance)
+                        print(seq_text(start,end))
+                        relevant_states[end] = net_relevance
+                        new_states = True
 
-                net_relevance = relevance * start_relevance
-                if end in allowed_states:
-                    allowed_states[end] = max(net_relevance, allowed_states[end])
-                    continue
+    if dim_cutoff is not None:
+        max_relevance = sorted(relevant_states.values())[-dim_cutoff]
+        relevant_states = { state : relevance for state, relevance in relevant_states.items()
+                            if relevance >= max_relevance }
 
-                if net_relevance > relevance_cutoff:
-                    print("relevance:",relevance)
-                    print("net_relevance:",net_relevance)
-                    print(seq_text(start,end))
-                    allowed_states[end] = net_relevance
-                    new_states = True
+    print("-"*80,"\n")
+    print()
+    for seq, relevance in sorted(relevant_states.items(), key = lambda x : x[1]):
+        print("net_relevance:",relevance)
+        print(seq_text(seq))
 
-print("-"*80,"\n")
-print("relevant states:",len(allowed_states))
-print()
-for seq, relevance in sorted(allowed_states.items(), key = lambda x : x[1]):
-    print("net_relevance:",relevance)
-    print(seq_text(seq))
+    print("jumps:",jumps)
+    assert(psi_X[sim_step+1].seqs[0] in relevant_states.keys())
 
-print("jumps:",jumps)
-assert(psi_X[sim_step+1].seqs[0] in allowed_states.keys())
+    subspace_map = { rank_comb([ index_map(op.index) for op in seq ]) : idx
+                     for idx, seq in enumerate(relevant_states.keys()) }
 
-subspace_map = { rank_comb([ index_map(op.index) for op in seq ]) : idx
-                 for idx, seq in enumerate(allowed_states.keys()) }
+idx_X = [ subspace_map.get(idx) for idx in idx_X ]
 
-##########################################################################################
-##########################################################################################
-##########################################################################################
-
-print("subspace dimension:",len(subspace_map))
+subspace_dimension = len(subspace_map)
+print("subspace dimension:",subspace_dimension)
 print(time()-start_time)
 
-exit()
+# exit()
 
 print()
 start_time = time()
 
+##########################################################################################
+# build matrix objects
+##########################################################################################
 
 def to_matrix(operator):
     mat = operator.matrix(single_states, atoms, index_map)
@@ -371,12 +381,48 @@ def to_vector(operator):
     return restrict_matrix(vec, subspace_map)
 
 H_0 = to_matrix(H_0)
-dn_to_up = to_matrix(dn_to_up)
+if sim_step is not None:
+    energy_gauge = H_0[idx_X[sim_step],idx_X[sim_step]]
+else:
+    energy_gauge = H_0[idx_X[0],idx_X[0]]
+H_0 -= energy_gauge * sparse.identity(subspace_dimension)
+energies -= energy_gauge
 
-psi_0 = to_vector(psi_0)
-psi_1 = to_vector(psi_1)
+dn_to_up = to_matrix(dn_to_up)
+spin_Z_op = to_matrix(spin_Z_op)
+
 psi_X = [ to_vector(psi) for psi in psi_X ]
 state_pop_ops = { label : to_matrix(op) for label, op in state_pop_ops.items() }
+
+# adjust detunings to account for second order energy shifts
+energy_corrections = np.zeros(detunings.size)
+for step in range(energy_corrections.size):
+    if sim_step is not None and step != sim_step: continue
+
+    subcorrections = [ 0, 0 ]
+    for substep in [ 0, 1 ]:
+        idx = idx_X[step+substep]
+        energy = np.real(H_0[idx,idx])
+
+        for jj in range(subspace_dimension):
+            if jj == idx_X[step] or jj == idx_X[step+1]: continue
+
+            coupling = rabi_frequency/2 * abs( dn_to_up[jj,idx] + dn_to_up[idx,jj] )
+            if coupling != 0:
+                spin_change_dir = spin_Z_op[jj,jj] - spin_Z_op[idx,idx]
+                energy_offset = spin_change_dir * detunings[step]
+                energy_diff = np.real(H_0[jj,jj]) - energy - energy_offset
+                subcorrections[substep] -= abs(coupling)**2 / energy_diff
+
+            coupling = H_0[jj,idx]
+            if coupling != 0:
+                energy_diff = np.real(H_0[jj,jj]) - energy
+                subcorrections[substep] -= abs(coupling)**2 / energy_diff
+
+    energy_corrections[step] = subcorrections[1] - subcorrections[0]
+
+detuning_corrections = spin_change_dirs * energy_corrections
+detunings += detuning_corrections
 
 print("built matrix objects")
 print(time()-start_time)
@@ -387,31 +433,27 @@ start_time = time()
 # simulate time evolution
 ##########################################################################################
 
-ivp_tolerance = 1e-6
-
-pi_times = [ 1/2 / abs( rabi_frequency * coupling ) for coupling in couplings ]
-
 def H_laser(phase):
     matrix = rabi_frequency/2 * np.exp(-1j*phase) * dn_to_up
     return matrix + matrix.conj().T
 
 def time_deriv(step, time, state):
-    return -1j * 2*np.pi * ( H_0 + H_laser(2*np.pi*detunings[step]*time) ).dot(state)
+    phase = 2*np.pi * detunings[step] * time
+    return -1j * 2*np.pi * ( H_0 + H_laser(phase) ).dot(state)
 
 times = np.zeros(1)
 states = np.array(psi_X[0].toarray().flatten().astype(complex), ndmin = 2)
-for step in range(len(couplings)):
+for step in range(couplings.size):
 
-    ########################################
     if sim_step is not None:
         if step != sim_step: continue
         states = np.array(psi_X[sim_step].toarray().flatten().astype(complex), ndmin = 2)
-    ########################################
 
     print("starting step:",step)
 
+    pi_time = 1/2 / abs( rabi_frequency * couplings[step] )
     solution = solve_ivp(lambda time, state : time_deriv(step, time, state),
-                         (0,pi_times[step]), states[-1,:],
+                         (0,pi_time), states[-1,:],
                          rtol = ivp_tolerance, atol = ivp_tolerance)
     times = np.append(times, times[-1] + solution.t[1:])
     states = np.vstack([ states, solution.y.T[1:,:] ])
