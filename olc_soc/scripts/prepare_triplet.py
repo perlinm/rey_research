@@ -26,18 +26,18 @@ V_P = 2 # "primary" lattice depth in units of "regular" recoil energy
 V_T = 15 # "transverse" lattice depths in units of "regular" recoil energy
 stretch_P = 2 # "stretch factor" for accordion lattice along primary axis
 stretch_T = 2 # "stretch factor" for accordion lattice along transverse axis
-tilt = 6e3 # 2\pi Hz per lattice site
+tilt = 5e3 # 2\pi Hz per lattice site
 magnetic_field = 300 # Gauss; for nuclear spin splitting
-rabi_frequency = 100 # 2\pi Hz; clock laser
+rabi_frequency = 600 # 2\pi Hz; clock laser
 
-relevance_cutoff = 5e-3 # for reducing "relevant" Hilbert space
-dim_cutoff = 3 # cutoff for dimension of relevant Hibert space
+relevance_cutoff = None # for reducing "relevant" Hilbert space
+dim_cutoff = None # cutoff for dimension of relevant Hibert space
 
 # number of lattice bands and lattice sites to use in mathieu equation solver
 bands, site_number = 5, 100
 
 ivp_tolerance = 1e-6
-sim_step = 0
+sim_step = None
 
 ##########################################################################################
 # fixed and derived lattice parameters
@@ -279,12 +279,12 @@ couplings = np.array([ matrix_element(psi_X[jj+1], spin_flip, psi_X[jj])
 relevant_states = [ rank_comb((index_map((site_0,0,spin_0)),
                                index_map((site_1,1,spin_1)),
                                index_map((site_2,2,spin_2))))
-                   for site_0 in range(sites)
-                   for site_1 in range(sites)
-                   for site_2 in range(sites)
-                   for spin_0 in spins
-                   for spin_1 in spins
-                   for spin_2 in spins ]
+                    for site_0 in range(sites)
+                    for site_1 in range(sites)
+                    for site_2 in range(sites)
+                    for spin_0 in spins
+                    for spin_1 in spins
+                    for spin_2 in spins ]
 subspace_map = { index : jj for jj, index in enumerate(relevant_states) }
 
 if relevance_cutoff is not None:
