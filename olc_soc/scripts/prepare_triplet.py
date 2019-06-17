@@ -22,9 +22,9 @@ np.set_printoptions(linewidth = 200)
 # free lattice parameters
 ##########################################################################################
 
-V_P = 2 # "primary" lattice depth in units of "regular" recoil energy
+V_P = 3 # "primary" lattice depth in units of "regular" recoil energy
 V_T = 15 # "transverse" lattice depths in units of "regular" recoil energy
-stretch_P = 2 # "stretch factor" for accordion lattice along primary axis
+stretch_P = 1.5 # "stretch factor" for accordion lattice along primary axis
 stretch_T = 2 # "stretch factor" for accordion lattice along transverse axis
 tilt = 5e3 # 2\pi Hz per lattice site
 magnetic_field = 300 # Gauss; for nuclear spin splitting
@@ -276,28 +276,19 @@ couplings = np.array([ matrix_element(psi_X[jj+1], spin_flip, psi_X[jj])
 # identify relevant states
 ##########################################################################################
 
-relevant_states = [ rank_comb((index_map((site_0,0,spin_0)),
-                               index_map((site_1,1,spin_1)),
-                               index_map((site_2,2,spin_2))))
-                    for site_0 in range(sites)
-                    for site_1 in range(sites)
-                    for site_2 in range(sites)
-                    for spin_0 in spins
-                    for spin_1 in spins
-                    for spin_2 in spins ]
-subspace_map = { index : jj for jj, index in enumerate(relevant_states) }
-
-if relevance_cutoff is not None:
-
+def get_relevant_states_at_step(sim_step, summary_info = False, connectivity_info = False,
+                                section_divider = "-"*80):
     print()
-    print("start:")
-    print(seq_text(psi_X[sim_step].seqs[0]))
-    print("end:")
-    print(seq_text(psi_X[sim_step+1].seqs[0]))
+    print("determining relevant states at step",sim_step)
+    print(seq_text(psi_X[sim_step].seqs[0], psi_X[sim_step+1].seqs[0]))
 
-    print("-"*80,"\n")
-    print(f"relevance cutoff: {relevance_cutoff}\n")
-    print("relevant processes:\n")
+    if summary_info or connectivity_info:
+        print(section_divider)
+        print()
+        print(f"relevance cutoff: {relevance_cutoff}")
+
+    if connectivity_info:
+        print("relevant processes:\n")
 
     relevant_states = { seq : 1 for seq in psi_X[sim_step].seqs }
     checked_states = set()
@@ -334,25 +325,68 @@ if relevance_cutoff is not None:
                         continue
 
                     if net_relevance >= relevance_cutoff:
-                        print("relevance:",relevance)
-                        print("net_relevance:",net_relevance)
-                        print(seq_text(start,end))
                         relevant_states[end] = net_relevance
                         new_states = True
+
+                        if connectivity_info:
+                            print("relevance:",relevance)
+                            print("net_relevance:",net_relevance)
+                            print(seq_text(start,end))
 
     if dim_cutoff is not None:
         max_relevance = sorted(relevant_states.values())[-dim_cutoff]
         relevant_states = { state : relevance for state, relevance in relevant_states.items()
                             if relevance >= max_relevance }
 
-    print("-"*80,"\n")
-    print()
-    for seq, relevance in sorted(relevant_states.items(), key = lambda x : x[1]):
-        print("net_relevance:",relevance)
-        print(seq_text(seq))
+    if connectivity_info:
+        print(section_divider)
+        if summary_info: print()
 
-    print("jumps:",jumps)
+    if summary_info:
+        print("relevance summary:")
+        print()
+        for seq, relevance in sorted(relevant_states.items(), key = lambda x : x[1]):
+            print("net_relevance:",relevance)
+            print(seq_text(seq))
+        print("jumps:",jumps)
+        print()
+        print(section_divider)
+
     assert(psi_X[sim_step+1].seqs[0] in relevant_states.keys())
+    return relevant_states
+
+if relevance_cutoff is None:
+
+    relevant_states = [ rank_comb((index_map((site_0,0,spin_0)),
+                                   index_map((site_1,1,spin_1)),
+                                   index_map((site_2,2,spin_2))))
+                        for site_0 in range(sites)
+                        for site_1 in range(sites)
+                        for site_2 in range(sites)
+                        for spin_0 in spins
+                        for spin_1 in spins
+                        for spin_2 in spins ]
+    subspace_map = { index : jj for jj, index in enumerate(relevant_states) }
+
+else: # relevance_cutoff is not None
+
+    if sim_step is not None:
+        assert(sim_step in range(len(detunings)))
+        relevant_states = get_relevant_states_at_step(sim_step)
+
+    else: # sim_step is None
+        relevant_states = {}
+        for step in range(len(detunings)):
+            for state, relevance in get_relevant_states_at_step(step).items():
+                if relevant_states.get(state) is None:
+                    relevant_states[state] = relevance
+                else:
+                    relevant_states[state] = max(relevant_states[state], relevance)
+
+    if dim_cutoff is not None:
+        max_relevance = sorted(relevant_states.values())[-dim_cutoff]
+        relevant_states = { state : relevance for state, relevance in relevant_states.items()
+                            if relevance >= max_relevance }
 
     subspace_map = { rank_comb([ index_map(op.index) for op in seq ]) : idx
                      for idx, seq in enumerate(relevant_states.keys()) }
@@ -360,6 +394,7 @@ if relevance_cutoff is not None:
 idx_X = [ subspace_map.get(idx) for idx in idx_X ]
 
 subspace_dimension = len(subspace_map)
+print()
 print("subspace dimension:",subspace_dimension)
 print(time()-start_time)
 
