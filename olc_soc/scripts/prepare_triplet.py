@@ -39,6 +39,9 @@ bands, site_number = 5, 100
 ivp_tolerance = 1e-6
 sim_step = None
 
+summary_info = False
+connectivity_info = False
+
 ##########################################################################################
 # fixed and derived lattice parameters
 ##########################################################################################
@@ -276,7 +279,8 @@ couplings = np.array([ matrix_element(psi_X[jj+1], spin_flip, psi_X[jj])
 # identify relevant states
 ##########################################################################################
 
-def get_relevant_states_at_step(sim_step, summary_info = False, connectivity_info = False,
+def get_relevant_states_at_step(sim_step, summary_info = summary_info,
+                                connectivity_info = connectivity_info,
                                 section_divider = "-"*80):
     print()
     print("determining relevant states at step",sim_step)
