@@ -60,15 +60,15 @@ def spin_vec_mat_vals(state, S_op_vec, SS_op_mat):
     return spin_vec_vals(state, S_op_vec), spin_mat_vals(state, SS_op_mat)
 
 # constrect vector of generators about z, x, and y
-g_vec = np.array([ np.array([ [  0,  0,  0 ],
-                              [  0,  0, -1 ],
-                              [  0,  1,  0 ] ]),
-                   np.array([ [  0,  0,  1 ],
-                              [  0,  0,  0 ],
-                              [ -1,  0,  0 ] ]),
-                   np.array([ [  0, -1,  0 ],
-                              [  1,  0,  0 ],
-                              [  0,  0,  0 ] ]) ])
+g_vec = np.array([ [ [  0,  0,  0 ],
+                     [  0,  0, -1 ],
+                     [  0,  1,  0 ] ],
+                   [ [  0,  0,  1 ],
+                     [  0,  0,  0 ],
+                     [ -1,  0,  0 ] ],
+                   [ [  0, -1,  0 ],
+                     [  1,  0,  0 ],
+                     [  0,  0,  0 ] ] ])
 
 # rotate a target vector by an angl about an axis
 def rotate_vector(vector, angle, axis):
