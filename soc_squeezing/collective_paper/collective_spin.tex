@@ -19,11 +19,12 @@
 \newcommand{\uv}[1]{\bm{\hat{#1}}} % unit vectors
 
 \newcommand{\bk}{\braket} % shorthand for braket notation
+\newcommand{\Bk}{\Braket}
 
 \newcommand{\A}{\mathcal{A}}
 \newcommand{\D}{\mathcal{D}}
-\newcommand{\F}{\mathcal{F}}
-\newcommand{\I}{\mathcal{I}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\J}{\mathcal{J}}
 \renewcommand{\O}{\mathcal{O}}
 \renewcommand{\S}{\mathcal{S}}
 
@@ -55,6 +56,7 @@
 \graphicspath{{./figures/}} % set path for all figures
 
 \usepackage[inline]{enumitem} % for inline enumeration
+\setenumerate{label=(\roman*)}
 
 
 \begin{document}
@@ -113,22 +115,22 @@ ensembles\cite{takano2009spin, appel2009mesoscopic, chen2010heralded,
   schleier-smith2010states, chen2011conditional}, Bose-Einstein
 condensates\cite{riedel2010atomchipbased, gross2010nonlinear,
   klinder2015dynamical}, ultracold Fermi
-gasses\cite{martin2013quantum, smale2018observation}, trapped
+gasses\cite{martin2013quantum, smale2019observation}, trapped
 ions\cite{bohnet2016quantum}, optical
 cavities\cite{leroux2010implementation, bohnet2014reduced,
   cox2016deterministic, hosten2016measurement, hosten2016quantum,
   zhiqiang2017nonequilibrium, lewis-swan2018robust,
   norcia2018cavitymediated}, and molecular
-sensors\cite{jones2009magnetic}.  These implementations have triggered
-studies of a variety of rich subjects, including quantum
-criticality\cite{latorre2005entanglement, alcalde2007functional,
-  morrison2008dissipationdriven, morrison2008collective,
-  sarandy2009classical, wang2012quantum, kessler2012dissipative,
-  majd2014lmg}, non-equilibrium
+sensors\cite{jones2009magnetic}, among others.  These implementations
+have triggered studies of a variety of rich subjects, including
+quantum criticality\cite{latorre2005entanglement,
+  alcalde2007functional, morrison2008dissipationdriven,
+  morrison2008collective, sarandy2009classical, wang2012quantum,
+  kessler2012dissipative, majd2014lmg}, non-equilibrium
 phenomena\cite{walls1978nonequilibrium, morrison2008dynamical,
   bhattacherjee2014nonequilibrium, klinder2015dynamical,
   maghrebi2016nonequilibrium, zhiqiang2017nonequilibrium,
-  lang2018concurrence, smale2018observation}, and precision
+  lang2018concurrence, smale2019observation}, and precision
 metrology\cite{wineland1992spin, itano1993quantum,
   kitagawa1993squeezed, ma2011quantum, takano2009spin,
   appel2009mesoscopic, chen2010heralded, schleier-smith2010states,
@@ -203,7 +205,8 @@ the future.  We benchmark our method against both exact and quantum
 trajectory Monte Carlo computations of spin squeezing in accessible
 parameter regimes, highlighting both advantages and limitations of our
 short-time expansion.  Finally, we showcase applications of our method
-with computations that are inaccessible to other numerical methods.
+by computing quantities that are inaccessible to other numerical
+methods.
 
 
 \section{Theory}
@@ -229,43 +232,54 @@ we can expand any collective spin operator $\hat\O$ in the form
 \end{align}
 with scalar coefficients $\O_{\v m}\in\C$.  If $\hat\O$ is
 self-adjoint, for example, then $\O_{\v m}^*=\O_{\v m^*}$ with
-$\v m^*\equiv\p{m_-,m_\z,m_+}$.  The corresponding Heisenberg operator
-is then $\hat\O\p{t}=\sum_{\v m}\O_{\v m}\p{t}\hat\S_{\v m}$, with
-time-dependent coefficients $\O_{\v n}\p{t}$ for time-independent
-(Schr\"odinger) operators $\hat\S_{\v m}$.  The time evolution of
-Heisenberg operators is determined by
+$\v m^*\equiv\p{m_-,m_\z,m_+}$.
+%
+% The corresponding Heisenberg operator is then
+% $\hat\O\p{t}=\sum_{\v m}\O_{\v m}\p{t}\hat\S_{\v m}$, with
+% time-dependent coefficients $\O_{\v n}\p{t}$ for time-independent
+% (Schr\"odinger) operators $\hat\S_{\v m}$.  The time evolution of
+% Heisenberg operators is determined by
+%
+The corresponding Heisenberg operator is then
+$\hat\O\p{t}=\sum_{\v m}\O_{\v m}\p{t}\hat\S_{\v m}+\hat\E_\O\p{t}$,
+with time-dependent coefficients $\O_{\v n}\p{t}$ for time-independent
+(Schr\"odinger) operators $\hat\S_{\v m}$, and mean-zero ``noise''
+operators $\hat\E_\O\p{t}$ that result from interactions between the
+spin system and its environment, initially $\hat\E_\O\p{0}=0$.  The
+expectation values of Heisenberg operators evolve according to
+%
 \begin{align}
-  \f{d}{dt} \hat\O\p{t}
-  = \check T \hat\O\p{t}
-  = \sum_{\v m, \v n} \hat\S_{\v m} T_{\v m\v n} \O_{\v n}\p{t}
+  \f{d}{dt} \bk{\hat\O\p{t}}
+  = \bk{\check T \hat\O\p{t}}
+  = \sum_{\v m, \v n} \bk{\hat\S_{\v m}} T_{\v m\v n} \O_{\v n}\p{t}
   \label{eq:EOM}
 \end{align}
-for a time derivative (super-)operator $\check T$ with matrix elements
-$T_{\v m\v n}\in\C$ defined by
+with a time derivative (super-)operator $\check T$ whose matrix
+elements $T_{\v m\v n}\in\C$ are defined by
 \begin{align}
   \check T \hat\S_{\v n} \equiv i \sp{\hat H, \hat\S_{\v n}}_-
-  + \sum_\A \gamma_\A \check\D\p{\A} \hat\S_{\v n}
+  + \sum_\J \gamma_\J \check\D\p{\J} \hat\S_{\v n}
   = \sum_{\v m} \hat\S_{\v m} T_{\v m\v n},
   \label{eq:time_deriv}
 \end{align}
 where $\sp{X,Y}_\pm\equiv XY\pm YX$; $\hat H$ is the collective spin
-Hamiltonian; $\A$ is a set of jump operators with a corresponding
-decoherence rate $\gamma_\A$; and $\check\D$ is a Heisenberg-picture
+Hamiltonian; $\J$ is a set of jump operators with a corresponding
+decoherence rate $\gamma_\J$; and $\check\D$ is a Heisenberg-picture
 dissipator, or Lindblad superoperator, defined by
 \begin{align}
-  \check\D\p{\A} \hat \O
-  \equiv \sum_{\hat A\in\A} \p{\hat A^\dag \hat \O \hat A
-    - \f12\sp{\hat A^\dag \hat A, \hat \O}_+}.
+  \check\D\p{\J} \hat \O
+  \equiv \sum_{\hat J\in\J} \p{\hat J^\dag \hat \O \hat J
+    - \f12\sp{\hat J^\dag \hat J, \hat \O}_+}.
 \end{align}
 Decoherence via uncorrelated decay of individual spins, for example,
 would be described by the set of jump operators
-$\A_-\equiv\set{\hat s_-^{(j)}:j=1,2,\cdots,N}$.  The commutator in
+$\J_-\equiv\set{\hat s_-^{(j)}:j=1,2,\cdots,N}$.  The commutator in
 Eq.~\eqref{eq:time_deriv} can be computed by expanding the product
 $\hat\S_{\v\ell}\hat\S_{\v m} = \sum_{\v n} f_{\v\ell\v m\v
   n}\hat\S_{\v n}$ with structure constants
 $f_{\v\ell\v m\v n}\in\mathbb{R}$ that we work out in Appendices
 \ref{sec:identities}--\ref{sec:general_product}, and the effects of
-decoherence from jump operators (i.e.~elements of $\A$) of the form
+decoherence from jump operators (i.e.~elements of $\J$) of the form
 $\hat g^{(j)} = \sum_\a g_\a \hat s_\a^{(j)}$ and
 $\hat G = \sum_\a G_\a \hat S_\a$ are worked out in Appendices
 \ref{sec:sandwich_single}--\ref{sec:decoherence_collective}.  We
@@ -286,8 +300,8 @@ resources than are available, meaning we must somehow truncate our
 equations of motion.  The simplest truncation strategy would be to
 take
 \begin{align}
-  \f{d}{dt} \hat\O\p{t}
-  \to \sum_{w\p{\v m}<W} \hat\S_{\v m}
+  \f{d}{dt} \bk{\hat\O\p{t}}
+  \to \sum_{w\p{\v m}<W} \bk{\hat\S_{\v m}}
   \sum_{\v n} T_{\v m\v n} \O_{\v n}\p{t}
   \label{eq:weight_truncation}
 \end{align}
@@ -303,7 +317,7 @@ provided in Appendix \ref{sec:initial_conditions}.
 
 The truncation strategy in Eq.~\eqref{eq:weight_truncation} has a few
 limitations:
-\begin{enumerate*}[label=(\roman*)]
+\begin{enumerate*}
 \item simulating a system of differential equations for a large number
   of operators can be time-consuming,
 \item the weight measure $w$ may need to be chosen carefully, as the
@@ -321,14 +335,14 @@ limitation \ref*{pt:limitation}.
 We can formally expand Heisenberg operators $\hat\O\p{t}$ in a Taylor
 series about the time $t=0$ to write
 \begin{align}
-  \hat\O\p{t}
-  = e^{t\check T} \hat \O\p{0}
+  \bk{\hat\O\p{t}}
+  = \bk{e^{t\check T} \hat \O\p{0}}
   = \sum_{k\ge0} \f{t^k}{k!}
-  \sum_{\v m, \v n} \hat\S_{\v m} T^k_{\v m\v n} \O_{\v n}\p{0},
+  \sum_{\v m, \v n} \bk{\hat\S_{\v m}} T^k_{\v m\v n} \O_{\v n}\p{0},
   \label{eq:time_series}
 \end{align}
 where the matrix elements $T^k_{\v m\v n}$ of the $k$-th time
-derivative operator $T^k$ are
+derivative operator $\check T^k$ are
 \begin{align}
   T^0_{\v m\v n} &\equiv \delta_{\v m\v n}, \\
   T^1_{\v m\v n} &\equiv T_{\v m\v n}, \\
@@ -341,23 +355,52 @@ with $\delta_{\v m\v n}=1$ if $\v m=\v n$ and 0 otherwise.  For
 sufficiently short times, we can truncate the series in
 Eq.~\eqref{eq:time_series} by taking
 \begin{align}
-  \hat\O\p{t}
+  \bk{\hat\O\p{t}}
   \to \sum_{k=0}^M \f{t^k}{k!}
-  \sum_{\v m, \v n} \hat\S_{\v m} T^k_{\v m\v n} \O_{\v n}\p{0}.
+  \sum_{\v m, \v n} \bk{\hat\S_{\v m}} T^k_{\v m\v n} \O_{\v n}\p{0}.
   \label{eq:TST}
 \end{align}
+%
+% We refer Eq.~\eqref{eq:TST} as the truncated short-time (TST)
+% expansion of Heisenberg operators.  Unlike the truncation in
+% Eq.~\eqref{eq:weight_truncation}, the nonzero matrix elements
+% $T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ in Eq.~\eqref{eq:TST} tell us
+% which operators are relevant for computing the expectation value
+% $\bk{\hat\O\p{t}}$ to a fixed order $M$.  Note that using the
+% relation $\hat\S_{\v m}^\dag=\hat\S_{\v m^*}$, which by Hermitian
+% conjugation of Eq.~\eqref{eq:EOM} also implies that
+% $T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can cut both the number of
+% initial-time expectation values $\bk{\hat\S_{\v m}}_{t=0}$ and the
+% number of matrix elements $T_{\v m\v n}$ that we may need to
+% explicitly compute roughly in half.
+%
 We refer Eq.~\eqref{eq:TST} as the truncated short-time (TST)
-expansion of Heisenberg operators.  Unlike the truncation in
-Eq.~\eqref{eq:weight_truncation}, the nonzero matrix elements
-$T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ in Eq.~\eqref{eq:TST} tell us
-which operators are relevant for computing the expectation value
-$\bk{\hat\O\p{t}}$ to a fixed order $M$.  Note that using the relation
+expansion of Heisenberg operators.  Note that when computing an
+expectation value $\bk{\hat\O\p{t}}$, the relation
 $\hat\S_{\v m}^\dag=\hat\S_{\v m^*}$, which by Hermitian conjugation
 of Eq.~\eqref{eq:EOM} also implies that
-$T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can cut both the number of
-initial-time expectation values $\bk{\hat\S_{\v m}}_{t=0}$ and the
-number of matrix elements $T_{\v m\v n}$ that we may need to
-explicitly compute roughly in half.
+$T_{\v m^*\v n^*}=T_{\v m\v n}^*$, cuts both the number of
+initial-time expectation values $\bk{\hat\S_{\v m}}$ and the number of
+matrix elements $T_{\v m\v n}$ that we may need to explicitly compute
+roughly in half.
+
+Unlike the weight-based truncation in
+Eq.~\eqref{eq:weight_truncation}, the nonzero matrix elements
+$T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ in Eq.~\eqref{eq:TST} tell us
+which operators $\hat\S_{\v m}$ are relevant for computing the
+expectation value $\bk{\hat\O\p{t}}$ to a fixed order $M$.  The TST
+expansion thereby avoids the introduction of a weight measure $w$ that
+chooses which operators to keep track of, and trades the cost of
+solving a system of differential equations for the cost of computing
+expectation values $\bk{\hat\S_{\v m}}$ and matrix elements
+$T_{\v m\v n}^k$.  In all cases considered in this work, we find that
+the TST expansion is both faster to evaluate and provides accurate
+correlators $\bk{\hat\O\p{t}}$ until later times $t$ than the
+weight-based expansion in \eqref{eq:weight_truncation} with weight
+measure $w\p{\v m}=\abs{\v m}$ and cutoff $W\approx M$.  We therefore
+restrict the remainder of our discussions to the TST expansion in
+Eq.~\eqref{eq:TST}.
+%
 
 In principle, the factorial suppression of terms at higher orders of
 the expansion in Eq.~\eqref{eq:time_series} implies for any given time
@@ -365,10 +408,10 @@ $t$, there exists a truncation order $M_t$ for which the truncation
 error in Eq.~\eqref{eq:TST} is negligibly small.  In practice, only a
 maximal truncation order $M_{\t{max}}$ is accessible with limited
 computational resources, such that the TST expansion in
-Eq.~\eqref{eq:TST} only allows for computation of the expectation
-value $\bk{\hat\O\p{t}}$ to a maximal time $t_{M_{\t{max}}}$.  As we
-will see in the following section, $M_{\t{max}}=35$ will suffice for
-the computation of collective spin correlators up to times that are
+Eq.~\eqref{eq:TST} only allows us to compute the expectation value
+$\bk{\hat\O\p{t}}$ to a maximal time $t_{M_{\t{max}}}$.  As we will
+see in the following section, $M_{\t{max}}=35$ will suffice for the
+computation of collective spin correlators up to times that are
 relevant e.g.~for spin squeezing protocols.  Appendix
 \ref{sec:tutorial} provides a pedagogical tutorial for computing
 correlators using the TST expansion.
@@ -394,7 +437,7 @@ TAT\cite{liu2011spin, huang2015twoaxis}.  For simplicity, we further
 fix $\Omega=\chi S$ (with $S\equiv N/2$ throughout this work) to the
 critical value known to maximize the entanglement generation rate of
 TNT in the large-$N$ limit\cite{micheli2003manyparticle,
-  sorelli2015fast}.
+  sorelli2019fast}.
 
 Note that the OAT model is a special case of the zero-field Ising
 model, whose quantum dynamics admits an exact analytic solution even
@@ -415,7 +458,7 @@ over that achieved by any spin-polarized product state
   \equiv \f{\p{\Delta\phi_{\t{min}}}^2}{\p{\Delta\phi_{\t{polarized}}}^2}
   = \f{N}{\lvert\braket{\uv S}\rvert^2}
   \min_{\substack{\v v\perp\bk{\uv S}\\\v v\cdot\v v=1}}
-    \Braket{\p{\uv S\cdot\v v}^2},
+  \Bk{\p{\uv S\cdot\v v}^2},
   \label{eq:squeezing}
 \end{align}
 where $\uv S\equiv\p{\hat S_\x,\hat S_\y,\hat S_\z}$ is a collective
@@ -463,7 +506,7 @@ dynamics (Figure \ref{fig:squeezing_unitary}), as well as non-unitary
 dynamics in the presence of spontaneous decay, excitation, and
 dephasing of individual spins at rates $\chi$ (Figure
 \ref{fig:squeezing_incoherent}), respectively described by the sets of
-jump operators $\A_\a\equiv\set{\hat s_\a^{(j)}}$ with corresponding
+jump operators $\J_\a\equiv\set{\hat s_\a^{(j)}}$ with corresponding
 decoherence rates $\gamma_\a=\chi$ for $\a\in\set{-,+,\z}$.  The
 results shown in Figure \ref{fig:benchmarking} were computed in a
 rotated basis with
@@ -482,37 +525,23 @@ drastic departure that can be diagnosed by inspection.  The breakdown
 of the TST expansion in Figure \ref{fig:benchmarking} is marked by an
 unphysical squeezing parameter $\xi^2<0$, which occurs due to
 individual correlators taking unphysical values
-$\lvert\bk{\hat\S_{\v n}}\rvert\gtrsim S^{\abs{\v n}}$.  The sudden
-and drastic departure from virtually exact results occurs because the
-TST expansion neglects high-weight (i.e.~large-$\abs{\v m}$) operators
-$\hat\S_{\v m}$ whose contributions to a Heisenberg operator
-$\hat\O\p{t}$ of interest eventually become non-negligible.  For
-sufficiently large times $t$, these individual contributions may
-generally be large compared to the value of $\bk{\hat\O\p{t}}$, in
-which case their truncation will neglect terms that are large compared
-to the actual value of $\bk{\hat\O\p{t}}$.  This breakdown mechanism
+$\lvert\bk{\hat\S_{\v n}\p{t}}\rvert\gtrsim S^{\abs{\v n}}$.  The
+sudden and drastic departure from virtually exact results occurs
+because the TST expansion neglects high-weight
+(i.e.~large-$\abs{\v m}$) operators $\hat\S_{\v m}$ whose
+contributions to a Heisenberg operator $\hat\O\p{t}$ of interest
+eventually become non-negligible.  For sufficiently large times $t$,
+these individual contributions can become comparable in magnitude to
+the expectation value $\bk{\hat\O\p{t}}$, and will grow with some
+large power of $t$, so their truncation will have a drastic effect on
+the estimated value of $\bk{\hat\O\p{t}}$.  This breakdown mechanism
 is also the reason for prolonged agreement between the TST expansion
 and benchmarking methods when squeezing the initial state $\ket{-\Z}$
 rather than $\ket{\X}$: for initial states $\ket{-\Z}$, all
-initial-time correlators $\bk{\hat\S_{\v m}}_{t=0}$ vanish unless
+initial-time correlators $\bk{\hat\S_{\v m}}$ vanish unless
 $m_+=m_-=0$ (see Appendix \ref{sec:initial_conditions}), so there is a
 substantially smaller number of neglected terms with non-zero
 contribution to the correlator $\bk{\hat\O\p{t}}$.
-
-Although the TST expansion breaks down at short times, it has two key
-advantages over other methods to compute collective spin correlators.
-First, computing spin correlators with the TST expansion is generally
-much faster and requires much fewer computing resources than the
-alternatives.  The quantum trajectory Monte Carlo simulations
-performed for Figure \ref{fig:squeezing_incoherent}, for example, take
-$\sim10^4$ CPU hours to compute on standard modern computing hardware;
-the bulk of this time is spent performing sparse matrix-vector
-multiplication, leaving little room to further optimize run time.
-Parallelization can reduce the actual run time of these quantum
-trajectory simulations to $\sim10$ hours, but at the cost of greatly
-increasing computing resource requirements.  The TST expansion results
-in Figure \ref{fig:squeezing_incoherent}, meanwhile, take $\sim10$
-seconds to compute with a single CPU on similar hardware.
 
 \begin{figure}
   \centering
@@ -526,20 +555,74 @@ seconds to compute with a single CPU on similar hardware.
   \label{fig:decoherence_strong}
 \end{figure}
 
+%
+% Although the TST expansion breaks down at short times, it has two
+% key advantages over other methods to compute collective spin
+% correlators.  First, computing spin correlators with the TST
+% expansion is generally much faster and requires much fewer computing
+% resources than the alternatives.  The quantum trajectory Monte Carlo
+% simulations performed for Figure \ref{fig:squeezing_incoherent}, for
+% example, take $\sim10^4$ CPU hours to compute on standard modern
+% computing hardware; the bulk of this time is spent performing sparse
+% matrix-vector multiplication, leaving little room to further
+% optimize serial runtime.  Parallelization can reduce the actual
+% runtime of these quantum trajectory simulations to $\sim10$ hours by
+% running all trajectories at once, but at the cost of greatly
+% increasing computing resource requirements.  The TST expansion
+% results in Figure \ref{fig:squeezing_incoherent}, meanwhile, take
+% $\sim10$ seconds to compute with a single CPU on similar hardware.
+%
+Although the TST expansion breaks down at short times, it has two key
+advantages over the quantum trajectory Monte Carlo method to compute
+correlators in the presence of decoherence.  First, computing spin
+correlators with the TST expansion is generally faster and requires
+fewer computing resources.  The TST expansion results in Figure
+\ref{fig:squeezing_incoherent}, for example, take $\sim10$ seconds to
+compute with a single CPU on modern computing hardware.  The quantum
+trajectory Monte Carlo results in the same figure, meanwhile, take
+$\sim10^4$ CPU hours to compute on similar hardware; the bulk of this
+time is spent performing sparse matrix-vector multiplication, leaving
+little room to further optimize serial runtime.  Parallelization can
+reduce actual runtime of the Monte Carlo simulations to $\sim10$ hours
+by running all trajectories at once, but at the cost of greatly
+increasing computing resource requirements.  Though it may be possible
+to further speed up quantum trajectory Monte Carlo simulations by
+introducing new truncation schemes, any modifications
+\begin{enumerate*}
+\item should be made carefully to ensure that simulations still yield
+  correct results, and
+\item are unlikely to bridge the orders of magnitude in computing
+  resource requirements.
+\end{enumerate*}
+%
+
 Second, the TST expansion enables computing spin correlators in
-strong-decoherence regimes entirely inaccessible to other methods.  As
-an example, Figure \ref{fig:decoherence_strong} shows squeezing of
-$N=10^4$ spins initially in $\ket{\X}$, undergoing spontaneous decay,
-excitation, and dephasing of individual spins at rates
-$\gamma_-=\gamma_+=\gamma_\z=100\chi$.  These results show that TNT is
-much more robust to this kind of decoherence than OAT or TAT, a
-finding that could not be deduced from the weak-decoherence
-simulations presented in Figure \ref{fig:benchmarking}.
-Strong-decoherence computations of this sort were used to put lower
-bounds on theoretically achievable spin squeezing via TAT with
-decoherence in Ref.~[\citenum{he2019engineering}], exemplifying a
-concrete and practical application of the TST expansion and the
-collective-spin structure constants calculated in this work.
+strong-decoherence regimes of large systems that are entirely
+inaccessible to other methods.  As an example, Figure
+\ref{fig:decoherence_strong} shows squeezing of $N=10^4$ spins
+initially in $\ket{\X}$, undergoing spontaneous decay, excitation, and
+dephasing of individual spins at rates
+$\gamma_-=\gamma_+=\gamma_\z=100\chi$.
+%
+% These results show that
+%
+The system size in these simulations is too large for straightforward
+application of exact methods for open quantum systems.  Quantum
+trajectory Monte Carlo simulations, meanwhile, take a prohibitively
+long time to converge with such strong decoherence due to the
+multiplicity of quantum trajectories that require averaging.
+
+The results in Figure \ref{fig:decoherence_strong} show that
+%
+TNT is much more robust to single-spin decoherence than OAT or TAT, a
+finding that could not necessarily be deduced from the
+weak-decoherence simulations presented in Figure
+\ref{fig:benchmarking}.  Strong-decoherence computations of this sort
+were used to put lower bounds on theoretically achievable spin
+squeezing via TAT with decoherence in
+Ref.~[\citenum{he2019engineering}], exemplifying a concrete and
+practical application of the TST expansion and the collective-spin
+structure constants calculated in this work.
 
 
 \section{Two-time correlation functions and out-of-time-ordered
@@ -561,11 +644,26 @@ connected correlator
 and the expectation value of a squared commutator,
 \begin{align}
   D\p{t}
-  \equiv \f1{S^2}\Braket{\sp{\hat S_+\p{t},\hat S_-\p{0}}_-^\dag
-    \sp{\hat S_+\p{t},\hat S_-\p{0}}_-},
+  \equiv \f1{S^2} \Bk{\sp{\hat S_+\p{t},\hat S_-\p{0}}_-^\dag
+    \sp{\hat S_+\p{t},\hat S_-\p{0}}_-}_{\t{nn}},
   \label{eq:four_point}
 \end{align}
 in the context of the squeezing models in Section \ref{sec:squeezing}.
+%
+The subscript on $\bk{\cdot}_{\t{nn}}$ in Eq.~\eqref{eq:four_point}
+stands for ``no noise'', and denotes a correlator computed without the
+noise contributions $\hat\E_\O\p{t}$ to Heisenberg operators
+$\hat\O\p{t}$.  While linear contributions from noise operators as
+e.g.~in Eq.~\eqref{eq:two_time} generally vanish, quadratic
+contributions that would otherwise appear in Eq.~\eqref{eq:four_point}
+generally do not.  We exclude these contributions because their
+calculation generally requires additional assumptions about the
+environment (i.e.~beyond Markovianity) that would be a digression for
+the purposes of the present work; see Ref.~\cite{blocher2019quantum}
+for a detailed discussion of noise terms and the quantum regression
+theorem underlying the calculation of multi-time correlators.
+%
+
 In an equilibrium setting, correlation functions similar to that in
 Eq.~\eqref{eq:two_time} contain information about the linear response
 of Heisenberg operators to perturbations of a system; in a
@@ -584,13 +682,19 @@ separation.  In our case, therefore, with the choice of initial state
 $\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$ we merely have
 $D\p{0}\sim1/N$.
 
-\begin{figure}
+\begin{figure*}
   \centering
-  \subfloat[Two-time correlator
-  $C\p{t}\equiv\abs{C\p{t}}\exp\sp{i\phi\p{t}}$. \label{fig:two_time}]
-  {\includegraphics{two_time.pdf}} \\
-  \subfloat[Squared commutator $D\p{t}$. \label{fig:four_point}]
-  {\includegraphics{FPC.pdf}}
+  \begin{minipage}{0.49\linewidth}
+    \subfloat[Two-time correlator
+    $C\p{t}\equiv\abs{C\p{t}}\exp\sp{i\phi\p{t}}$.
+    \label{fig:two_time}]
+    {\includegraphics{two_time.pdf}}
+  \end{minipage}
+  \begin{minipage}{0.49\linewidth}
+    \subfloat[Squared commutator $D\p{t}$.
+    \label{fig:four_point}]
+    {\includegraphics{FPC.pdf}}
+  \end{minipage}
   \caption{The two-time connected correlator $C\p{t}$ and squared
     commutator $D\p{t}$, respectively defined in
     Eqs.~\eqref{eq:two_time} and \eqref{eq:four_point}, for $N=10^4$
@@ -602,7 +706,7 @@ $D\p{0}\sim1/N$.
     (dashed lines), computed using the TST expansion in
     Eq.~\eqref{eq:TST} with $M=20$.}
   \label{fig:multi_time}
-\end{figure}
+\end{figure*}
 
 Figure \ref{fig:multi_time} shows the behavior of $C\p{t}$ and
 $D\p{t}$ for $N=10^4$ spins, initially in the state $\ket\X$, evolving
@@ -645,17 +749,18 @@ study the onset of quantum chaos and information scrambling.
 
 \begin{acknowledgments}
   We acknowledge helpful discussions with Robert Lewis-Swan, Kris
-  Tucker, Diego Barberena, and Colin Kennedy.  This work is supported
-  by the Air Force Office of Scientific Research (AFOSR) grant
-  FA9550-18-1-0319; the AFOSR Multidisciplinary University Research
-  Initiative (MURI) grant; the Defense Advanced Research Projects
-  Agency (DARPA) and Army Research Office (ARO) grant W911NF-16-1-0576
-  and W911NF-19-1-0210; the National Science Foundation (NSF) grant
-  PHY-1820885; JILA-NSF grant PFC-173400; and the National Institute
-  of Standards and Technology (NIST).
+  Tucker, and Colin Kennedy; as well as some technical contributions
+  from Diego Barberena.  This work is supported by the Air Force
+  Office of Scientific Research (AFOSR) grant FA9550-18-1-0319; the
+  AFOSR Multidisciplinary University Research Initiative (MURI) grant;
+  the Defense Advanced Research Projects Agency (DARPA) and Army
+  Research Office (ARO) grant W911NF-16-1-0576 and W911NF-19-1-0210;
+  the National Science Foundation (NSF) grant PHY-1820885; JILA-NSF
+  grant PFC-173400; and the National Institute of Standards and
+  Technology (NIST).
 \end{acknowledgments}
 
-
+\vfill
 \onecolumngrid
 \appendix
 
@@ -684,13 +789,13 @@ Ref.~[\citenum{foss-feig2013nonequilibrium}] for the initial state
 $\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$ with
 $S_\x\ket\X=S\ket\X$ evolving under $H_{\t{OAT}}$, finding
 \begin{align}
-  \bk{S_+}
+  \bk{S_+\p{t}}
   &= S e^{-\Gamma t} \Phi\p{\chi,t}^{N-1}, \label{eq:S+_OAT} \\
-  \bk{S_\mu S_\z}
-  &= -\f{\mu}{2}\bk{S_\mu} + S \p{S-\f12} e^{-\Gamma t}
+  \bk{\p{S_\mu S_\z}\p{t}}
+  &= -\f{\mu}{2}\bk{S_\mu\p{t}} + S \p{S-\f12} e^{-\Gamma t}
   \Psi\p{\mu\chi,t} \Phi\p{\chi,t}^{N-2}, \\
-  \bk{S_\mu S_\nu}
-  &= \delta_{\mu,-\nu} \p{S + \mu\bk{S_\z}}
+  \bk{\p{S_\mu S_\nu}\p{t}}
+  &= \delta_{\mu,-\nu} \p{S + \mu\bk{S_\z\p{t}}}
   + S \p{S-\f12} e^{-2\Gamma t}
   \Phi\p{\sp{\mu+\nu}\chi,t}^{N-2}, \label{eq:SS+-_OAT}
 \end{align}
@@ -718,26 +823,28 @@ for
 \end{align}
 In order to compute spin squeezing as measured by the Ramsey squeezing
 parameter $\xi^2$ defined in \eqref{eq:squeezing}, we additionally
-need analytical expressions for $\bk{S_\z}$ and $\bk{S_\z^2}$.  As
-these operators commute with both the OAT Hamiltonian and the
-single-spin operators $\sigma_\z^{(j)}$, their evolution is governed
-entirely by decay-type decoherence (see Appendix
+need analytical expressions for $\bk{S_\z\p{t}}$ and
+$\bk{S_\z^2\p{t}}$.  As these operators commute with both the OAT
+Hamiltonian and the single-spin operators $\sigma_\z^{(j)}$, their
+evolution is governed entirely by decay-type decoherence (see Appendix
 \ref{sec:decay_single}), which means
 \begin{align}
-  \f{d}{dt} S_\z
-  &= S\p{\gamma_+-\gamma_-} - \p{\gamma_++\gamma_-} S_\z,
+  \f{d}{dt} \bk{S_\z\p{t}}
+  &= S\p{\gamma_+-\gamma_-} - \p{\gamma_++\gamma_-} \bk{S_\z\p{t}},
   \\
-  \f{d}{dt}\p{S_\z^2}
-  &= S\p{\gamma_++\gamma_-} + 2\p{S-\f12}\p{\gamma_+-\gamma_-} S_\z
-  - 2 \p{\gamma_++\gamma_-} S_\z^2.
+  \f{d}{dt} \bk{S_\z^2\p{t}}
+  &= S\p{\gamma_++\gamma_-}
+  + 2\p{S-\f12}\p{\gamma_+-\gamma_-} \bk{S_\z\p{t}}
+  - 2 \p{\gamma_++\gamma_-} \bk{S_\z^2\p{t}}.
 \end{align}
-The initial conditions $\bk{S_\z}_{t=0}=0$ and $\bk{S_\z^2}_{t=0}=S/2$
+The initial conditions $\bk{S_\z\p{0}}=0$ and $\bk{S_\z^2\p{0}}=S/2$
 then imply
 \begin{align}
-  \bk{S_\z} = S\p{\f{\gamma_+-\gamma_-}{\gamma_++\gamma_-}}
+  \bk{S_\z\p{t}} = S\p{\f{\gamma_+-\gamma_-}{\gamma_++\gamma_-}}
   \p{1-e^{-\p{\gamma_+ + \gamma_-} t}},
   &&
-  \bk{S_\z^2} = S \sp{\f12 + \p{S-\f12} \f{\bk{S_\z}^2}{S^2}}.
+  \bk{S_\z^2\p{t}}
+  = S \sp{\f12 + \p{S-\f12} \p{\f{\bk{S_\z\p{t}}}{S}}^2}.
   \label{eq:Sz_OAT}
 \end{align}
 With appropriate assumptions about the relevant sources of
@@ -1661,9 +1768,10 @@ $G_\bmu\ne0$, and does not grow otherwise.
 \label{sec:initial_conditions}
 
 Here we compute the expectation values of collective spin operators
-with respect to spin-polarized (Gaussian) states.  These states are
-parameterized by polar and azimuthal angles $\theta\in[0,\pi)$,
-$\phi\in[0,2\pi)$, and lie within the Dicke manifold spanned by states
+with respect to spin-polarized (also Gaussian, or spin-coherent)
+states.  These states are parameterized by polar and azimuthal angles
+$\theta\in[0,\pi)$, $\phi\in[0,2\pi)$, and lie within the Dicke
+manifold spanned by states
 $\ket{k}\propto S_+^{S+k}\ket{\dn}^{\otimes N}$ with $S\equiv N/2$ and
 $S_\z\ket{k}=k\ket{k}$:
 \begin{align}
@@ -1764,28 +1872,28 @@ nominally consider $N$ spins evolving under the one-axis twisting
   H_{\t{OAT}} = \chi S_\z^2,
 \end{align}
 additionally subject to spontaneous single-spin decay at rate
-$\gamma_-$, with jump operators $\A_-=\set{s_-^{(j)}:j=1,2,\cdots,N}$.
+$\gamma_-$, with jump operators $\J_-=\set{s_-^{(j)}:j=1,2,\cdots,N}$.
 The equation of motion for a Heisenberg operator
 $S_+^\ell S_\z^m S_-^n$ is
 \begin{align}
-  \f{d}{dt} \p{S_+^\ell S_\z^m S_-^n}
-  = i\chi\sp{S_\z^2, S_+^\ell S_\z^m S_-^n}_-
-  + \gamma_- \D\p{\A_-} \p{S_+^\ell S_\z^m S_-^n},
+  \f{d}{dt} \bk{S_+^\ell S_\z^m S_-^n}
+  = i\chi\Bk{\sp{S_\z^2, S_+^\ell S_\z^m S_-^n}_-}
+  + \gamma_- \Bk{\D\p{\J_-} \p{S_+^\ell S_\z^m S_-^n}},
   \label{eq:tutorial_EOM}
 \end{align}
 where we can use the results in appendices \ref{sec:general_product}
 and \ref{sec:decoherence_single} respectively to evaluate the
 commutator $\sp{S_\z^2, S_+^\ell S_\z^m S_-^n}_-$ and dissipator
-$\D\p{\A_-} \p{S_+^\ell S_\z^m S_-^n}$ in \eqref{eq:tutorial_EOM} (see
+$\D\p{\J_-} \p{S_+^\ell S_\z^m S_-^n}$ in \eqref{eq:tutorial_EOM} (see
 \eqref{eq:general_product} and \eqref{eq:decay_diff} in particular),
 giving us
-\begin{align}
-  \f{d}{dt} \p{S_+^\ell S_\z^m S_-^n} =
-  i\chi \p{\ell-n} S_+^\ell \p{\ell+n+2S_\z} S_\z^m S_-^n
-  + \gamma_- S_+^\ell \sp{\p{S+S_\z}\p{-1+S_\z}^m
-    - \p{S+\f{\ell+n}{2}+S_\z} S_\z^m} S_-^n.
+\begin{multline}
+  \f{d}{dt} \bk{S_+^\ell S_\z^m S_-^n} \\
+  = i\chi \bk{\p{\ell-n} S_+^\ell \p{\ell+n+2S_\z} S_\z^m S_-^n}
+  + \gamma_- \Bk{S_+^\ell \sp{\p{S+S_\z}\p{-1+S_\z}^m
+      - \p{S+\f{\ell+n}{2}+S_\z} S_\z^m} S_-^n}.
   \label{eq:tutorial_EOM_expanded}
-\end{align}
+\end{multline}
 In practice, we do not want to keep track of such an expansion by
 hand, especially in the case of e.g.~the two-axis twisting (TAT) and
 twist-and-turn (TNT) models with more general types of decoherence,
@@ -1796,8 +1904,9 @@ $\v m\equiv\p{m_+,m_\z,m_-}$ for shorthand, we note that the vector
 space spanned by $\set{\S_{\v m}}$ is closed under time evolution.  We
 therefore expand
 \begin{align}
-  \f{d}{dt} \S_{\v n} \equiv T \S_{\v n}
-  = \sum_{\v m} \S_{\v m} T_{\v m\v n},
+  \f{d}{dt} \bk{\S_{\v n}}
+  = \bk{T \S_{\v n}}
+  = \sum_{\v m} \bk{\S_{\v m}} T_{\v m\v n},
   \label{eq:tutorial_EOM_general}
 \end{align}
 where $T$ is a superoperator that generates time evolution for
@@ -1805,18 +1914,19 @@ Heisenberg operators.  In the present example, the matrix elements
 $T_{\v m\v n}\in\C$ of $T$ are defined by
 \eqref{eq:tutorial_EOM_expanded} and \eqref{eq:tutorial_EOM_general}.
 For any Hamiltonian $H$ with decoherence characterized by sets of jump
-operators $\A$ and decoherence rates $\gamma_\A$, the matrix elements
+operators $\J$ and decoherence rates $\gamma_\J$, the matrix elements
 $T_{\v m\v n}$ are more generally defined by
 \begin{align}
-  T \S_{\v n}
-  = i\sp{H,\S_{\v n}}_- + \sum_\A \gamma_\A \D\p{\A} \S_{\v n}
-  = \sum_{\v m} \S_{\v m} T_{\v m\v n}.
+  \bk{T \S_{\v n}}
+  = i\bk{\sp{H,\S_{\v n}}_-}
+  + \sum_\J \gamma_\J \bk{\D\p{\J} \S_{\v n}}
+  = \sum_{\v m} \bk{\S_{\v m}} T_{\v m\v n}.
 \end{align}
 The results in Appendices \ref{sec:general_product},
 \ref{sec:decoherence_single}, and \ref{sec:decoherence_collective} can
 be used to write model-agnostic codes that compute matrix elements
 $T_{\v m\v n}$, taking a particular Hamiltonian $H$ and decoherence
-processes $\set{\p{\A,\gamma_\A}}$ as inputs.
+processes $\set{\p{\J,\gamma_\J}}$ as inputs.
 
 In order to compute a quantity such as spin squeezing, we need to
 compute correlators of the form $\bk{\S_{\v n}\p{t}}$, where
@@ -1825,12 +1935,15 @@ to $\S_{\v n}$, with $\S_{\v n}\p{0}\equiv\S_{\v n}$.  The order-$M$
 truncated short-time (TST) expansion takes
 \begin{align}
   \bk{\S_{\v n}\p{t}}
+  = \sum_{k\ge0} \f{t^k}{k!} \bk{T^k\S_{\v n}\p{0}}
+  = \sum_{k\ge0} \f{t^k}{k!}
+  \sum_{\v m} \bk{\S_{\v m}\p{0}} T^k_{\v m\v n}
   \to \sum_{k=0}^M \f{t^k}{k!}
   \sum_{\v m} \bk{\S_{\v m}\p{0}} T^k_{\v m\v n},
   \label{eq:tutorial_TST}
 \end{align}
 where $T^k_{\v m\v n}$ are matrix elements of the $k$-th time
-derivative operator, given by
+derivative operator $T^k$, given by
 \begin{align}
   T^0_{\v m\v n} \equiv
     \begin{cases}
@@ -1859,6 +1972,7 @@ collect terms in \eqref{eq:tutorial_TST} to write
   &&
   c_{\v n k}
   \equiv \f1{k!} \sum_{\v m} \bk{\S_{\v m}\p{0}} T^k_{\v m\v n},
+  \label{eq:tutorial_corr}
 \end{align}
 where $c_{\v n k}$ are time-independent coefficients for the
 polynomial time expansion of $\bk{\S_{\v n}\p{t}}$.  After computing
@@ -1894,19 +2008,21 @@ perturbation $\check V$, we can say that
   \approx e^{tT} + \f12 it \sp{e^{t T}, \check V}_+.
 \end{align}
 Defining perturbed and unperturbed Heisenberg operators
-$\widetilde\O\p{t}\equiv e^{t\widetilde T}\O$ and
-$\O\p{t}\equiv e^{tT}\O$, we thus find that for sufficiently small
+$\widetilde\O\p{t}$ and $\O\p{t}$ that respectively satisfy
+$\bk{\widetilde\O\p{t}}=\bk{e^{t\widetilde T}\O}$ and
+$\bk{\O\p{t}}=\bk{e^{tT}\O}$, we thus find that for sufficiently small
 times $t$ and weak perturbations $V$,
 \begin{align}
-  \widetilde\O\p{t} - \O\p{t}
-  = \p{e^{t\widetilde T} - e^{tT}} \O
-  \approx \f12 i t \p{\sp{V,\O}_-\p{t} + \sp{V,\O\p{t}}_-}.
+  \bk{\widetilde\O\p{t} - \O\p{t}}
+  = \Bk{\p{e^{t\widetilde T} - e^{tT}} \O}
+  \approx \f12 i t \p{\bk{\sp{V,\O}_-\p{t}}
+    + \bk{\sp{V,\O\p{t}}_-}}.
   \label{eq:response}
 \end{align}
-Two-time operators $V\O\p{t}$ and $\O\p{t} V$, in addition to the
-Heisenberg operators $\p{V\O}\p{t}$ and $\p{\O V}\p{t}$, thus
-determine the short-time linear response of operators $\O\p{t}$ to
-perturbations $V$ of a Hamiltonian.
+Two-time correlators $\bk{V\O\p{t}}$ and $\bk{\O\p{t}V}$, in addition
+to the expectation values $\bk{\p{V\O}\p{t}}$ and
+$\bk{\p{\O V}\p{t}}$, thus determine the short-time linear response of
+correlators $\bk{\O\p{t}}$ to perturbations $V$ of a Hamiltonian.
 
 
 % \section{Changing operator bases, and a general product for algebras
@@ -1944,7 +2060,7 @@ perturbations $V$ of a Hamiltonian.
 %   &&
 %   \sum_{\p{\v j,\v k;\v m,\v n,s}} X \equiv
 %   \sum_{\substack{\p{\v j;\v m},\p{\v k;\v n} \\
-%       \abs{\set{j_\alpha^\mu}\cap\set{k_\beta^\nu}}=s}} X.
+%       \abs{\set{j_\a^\mu}\cap\set{k_\b^\nu}}=s}} X.
 %   \label{eq:SS_PP}
 % \end{align}
 % Collecting terms in which $r_{\mu\nu}$ of the $s_\mu$ operators in
@@ -2104,7 +2220,7 @@ perturbations $V$ of a Hamiltonian.
 % \begin{align}
 %   \ell_{\v m\v n\v r\v\rho;\mu}
 %   = m_\mu + n_\mu - \sum_\kappa \p{r_{\mu\kappa}+r_{\kappa\mu}}
-%   + \sum_{\alpha,\beta} \rho^{\alpha\beta}_\mu.
+%   + \sum_{\a,\b} \rho^{\a\b}_\mu.
 % \end{align}
 
 % The sums in \eqref{eq:SS_simp} generally involve a large number of
