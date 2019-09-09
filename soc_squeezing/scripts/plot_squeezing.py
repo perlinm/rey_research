@@ -74,6 +74,7 @@ order_header = f"# order_cap: {order_cap}\n"
 trajectory_header = f"# trajectories: {trajectories}\n"
 
 def write_sqz(times, sqz, sqz_path, extra_header = ""):
+    assert(save)
     with open(sqz_path, "w") as f:
         f.write(sqz_header)
         f.write(extra_header)
@@ -115,10 +116,13 @@ for method in methods:
                            rtol = ivp_tolerance, atol = ivp_tolerance).y
         sqz = np.array([ spin_squeezing(N, states[:,tt], S_op_vec, SS_op_mat)
                          for tt in range(times.size) ])
-        write_sqz(times, sqz, sqz_path)
+        time_sqz_C_exact[method] = np.array([ times, sqz ])
+        if save:
+            write_sqz(times, sqz, sqz_path)
         del states, sqz
 
-    time_sqz_C_exact[method] = read_sqz(sqz_path)
+    else:
+        time_sqz_C_exact[method] = read_sqz(sqz_path)
 
 del S_op_vec, SS_op_mat, H, init_nZ
 
@@ -134,10 +138,13 @@ for method in methods:
     if not os.path.isfile(sqz_path) or recompute_trunc:
         correlators = compute_correlators(times, order_cap, N, init_state, h_vec[method])
         sqz = squeezing_from_correlators(N, correlators)
-        write_sqz(times, sqz, sqz_path, order_header)
+        time_sqz_C_trunc[method] = np.array([ times, sqz ])
+        if save:
+            write_sqz(times, sqz, sqz_path, order_header)
         del correlators, sqz
 
-    time_sqz_C_trunc[method] = read_sqz(sqz_path)
+    else:
+        time_sqz_C_trunc[method] = read_sqz(sqz_path)
 
 
 ##########################################################################################
@@ -163,10 +170,13 @@ for method in methods:
     if not os.path.isfile(sqz_path) or recompute_exact:
         correlators = correlators_from_trajectories(*jump_args(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
-        write_sqz(times, sqz, sqz_path, trajectory_header)
+        time_sqz_D_exact[method] = np.array([ times, sqz ])
+        if save:
+            write_sqz(times, sqz, sqz_path, trajectory_header)
         del correlators, sqz
 
-    time_sqz_D_exact[method] = read_sqz(sqz_path)
+    else:
+        time_sqz_D_exact[method] = read_sqz(sqz_path)
 
 del init_state_vec
 
@@ -182,10 +192,13 @@ for method in methods:
     if not os.path.isfile(sqz_path) or recompute_trunc:
         correlators = compute_correlators(*correlator_args(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
-        write_sqz(times, sqz, sqz_path, order_header)
+        time_sqz_D_trunc[method] = np.array([ times, sqz ])
+        if save:
+            write_sqz(times, sqz, sqz_path, order_header)
         del correlators, sqz
 
-    time_sqz_D_trunc[method] = read_sqz(sqz_path)
+    else:
+        time_sqz_D_trunc[method] = read_sqz(sqz_path)
 
 
 ##########################################################################################
@@ -202,10 +215,13 @@ for method in methods:
     if not os.path.isfile(sqz_path) or recompute_trunc:
         correlators = compute_correlators(*correlator_args_strong(h_vec[method]))
         sqz = squeezing_from_correlators(N, correlators)
-        write_sqz(times, sqz, sqz_path, order_header)
+        time_sqz_D_trunc_strong[method] = np.array([ times, sqz ])
+        if save:
+            write_sqz(times, sqz, sqz_path, order_header)
         del correlators, sqz
 
-    time_sqz_D_trunc_strong[method] = read_sqz(sqz_path)
+    else:
+        time_sqz_D_trunc_strong[method] = read_sqz(sqz_path)
 
 
 ##########################################################################################
