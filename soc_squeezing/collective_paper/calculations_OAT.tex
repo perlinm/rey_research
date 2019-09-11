@@ -24,36 +24,35 @@ $\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$ with
 $S_\x\ket\X=S\ket\X$ evolving under $H_{\t{OAT}}$, finding
 \begin{align}
   \bk{S_+\p{t}}
-  &= S e^{-\Gamma t} \Phi\p{\chi,t}^{N-1}, \label{eq:S+_OAT} \\
+  &= S e^{-\kappa t} \Phi\p{\chi,t}^{N-1},
+  \label{eq:S+_OAT} \\
   \bk{\p{S_\mu S_\z}\p{t}}
-  &= -\f{\mu}{2}\bk{S_\mu\p{t}} + S \p{S-\f12} e^{-\Gamma t}
+  &= -\f{\mu}{2}\bk{S_\mu\p{t}}
+  + S \p{S-\f12} e^{-\kappa t}
   \Psi\p{\mu\chi,t} \Phi\p{\chi,t}^{N-2}, \\
   \bk{\p{S_\mu S_\nu}\p{t}}
   &= \p{1-\delta_{\mu\nu}} \p{S + \mu\bk{S_\z\p{t}}}
-  + S \p{S-\f12} e^{-2\Gamma t}
-  \Phi\p{\sp{\mu+\nu}\chi,t}^{N-2}, \label{eq:SS+-_OAT}
+  + S \p{S-\f12} e^{-2\kappa t} \Phi\p{\sp{\mu+\nu}\chi,t}^{N-2},
+  \label{eq:SS+-_OAT}
 \end{align}
 where
 \begin{align}
   \Phi\p{X,t}
-  &\equiv e^{-\lambda t} \sp{\cos\p{t\sqrt{q_X^2-r}}
-    + \lambda t~\t{sinc}\p{t\sqrt{q_X^2-r}}},
-  \\
+  \equiv e^{-\lambda t}
+  \sp{\cos\p{\omega_X t} + \lambda t~\t{sinc}\p{\omega_X t}},
+  &&
   \Psi\p{X,t}
-  &\equiv e^{-\lambda t} \p{iq_X-\gamma}t~
-  \t{sinc}\p{t\sqrt{q_X^2-r}},
+  \equiv e^{-\lambda t}\p{\Delta+iX}t~\t{sinc}\p{\omega_X t},
 \end{align}
 for
 \begin{align}
-  \gamma \equiv -\f12 \p{\gamma_+ - \gamma_-},
-  &&
   \lambda \equiv \f12 \p{\gamma_+ + \gamma_-},
   &&
-  \Gamma \equiv \lambda + \f12\gamma_\z,
+  \Delta \equiv \gamma_+ - \gamma_-,
   &&
-  r \equiv \gamma_+ \gamma_-,
+  \kappa \equiv \f12 \p{\gamma_+ + \gamma_- + \gamma_\z},
   &&
-  q_X \equiv X + i\gamma,
+  \omega_X \equiv \sqrt{X^2-\lambda^2-iX\Delta}.
 \end{align}
 In order to compute spin squeezing as measured by the Ramsey squeezing
 parameter $\xi^2$ defined in \eqref{eq:squeezing}, we additionally
@@ -78,7 +77,7 @@ then imply
   \p{1-e^{-\p{\gamma_+ + \gamma_-} t}},
   &&
   \bk{S_\z^2\p{t}}
-  = S \sp{\f12 + \p{S-\f12} \p{\f{\bk{S_\z\p{t}}}{S}}^2}.
+  = \f12 S + S \p{S-\f12} \p{\f{\bk{S_\z\p{t}}}{S}}^2.
   \label{eq:Sz_OAT}
 \end{align}
 With appropriate assumptions about the relevant sources of

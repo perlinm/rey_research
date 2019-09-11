@@ -14,42 +14,42 @@ from special_functions import *
 # exact OAT results
 ##########################################################################################
 
-# exact correlators for OAT with decoherence; derivations in foss-feig2013nonequilibrium
+# exact correlators for OAT with decoherence
+# adapted from results in foss-feig2013nonequilibrium
 def correlators_OAT(spin_num, times, dec_rates):
     N = spin_num
-    SS = spin_num/2
+    S = N/2
     t = times
     D_p, D_z, D_m = dec_rates
 
-    gam = -(D_p - D_m) / 2
-    lam = (D_p + D_m) / 2
-    rr = D_p * D_m
-    Gam = D_z/2 + lam
+    gamma = ( D_p + D_m ) / 2
+    delta = D_p - D_m
+    kappa = sum(dec_rates)/2
 
     if D_m != 0 or D_p != 0:
         Sz_unit = (D_p-D_m)/(D_p+D_m) * (1-np.exp(-(D_p+D_m)*t))
     else:
         Sz_unit = np.zeros(len(times))
-    Sz = SS * Sz_unit
-    Sz_Sz = SS * (1/2 + (SS-1/2) * Sz_unit**2)
+    Sz = S * Sz_unit
+    Sz_Sz = S/2 + S*(S-1/2) * Sz_unit**2
 
-    def s(X): return X + 1j*gam
-    def sup_t_sinc(t,z): # e^(-\lambda t) t \sinc(t z)
-        if z != 0: return ( np.exp(-(lam-1j*z)*t) - np.exp(-(lam+1j*z)*t) ) / 2j / z
-        else: return np.exp(-lam*t) * t
-    def Phi(X):
-        z = np.sqrt(s(X)**2-rr)
-        val_cos = ( np.exp(-(lam-1j*z)*t) + np.exp(-(lam+1j*z)*t) ) / 2
-        val_sin = lam * sup_t_sinc(t,z)
-        return val_cos + val_sin
-    def Psi(X):
-        z = np.sqrt(s(X)**2-rr)
-        return (1j*s(X)-gam) * sup_t_sinc(t,z)
+    gamma_t = gamma*t
+    def sup_t_sinc(z): # e^{-gamma t} t \sinc(z t)
+        if z == 0: return np.exp(-gamma_t) * t
+        z_t = z * t
+        return ( np.exp(-gamma_t+1j*z_t) - np.exp(-gamma_t-1j*z_t) ) / 2j / z
+    def sup_cos(z): # e^{-\gamma t} \cos(z t)
+        z_t = z * t
+        return ( np.exp(-gamma_t+1j*z_t) + np.exp(-gamma_t-1j*z_t) ) / 2
 
-    Sp = SS * np.exp(-Gam*t) * Phi(1)**(N-1)
-    Sp_Sz = -1/2 * Sp + SS * (SS-1/2) * np.exp(-Gam*t) * Psi(1) * Phi(1)**(N-2)
-    Sp_Sp = SS * (SS-1/2) * np.exp(-2*Gam*t) * Phi(2)**(N-2)
-    Sp_Sm = SS + Sz + SS * (SS-1/2) * np.exp(-2*Gam*t) # note that Phi(0) == 1
+    def w(x): return np.sqrt(x**2 - gamma**2 - 1j*x*delta)
+    def Phi(x): return sup_cos(w(x)) + gamma * sup_t_sinc(w(x))
+    def Psi(x): return (delta+1j*x) * sup_t_sinc(w(x))
+
+    Sp = S * np.exp(-kappa*t) * Phi(1)**(N-1)
+    Sp_Sz = -1/2 * Sp + S * (S-1/2) * np.exp(-kappa*t) * Psi(1) * Phi(1)**(N-2)
+    Sp_Sp = S * (S-1/2) * np.exp(-2*kappa*t) * Phi(2)**(N-2)
+    Sp_Sm = S + Sz + S * (S-1/2) * np.exp(-2*kappa*t)
 
     return { (0,1,0) : Sz,
              (0,2,0) : Sz_Sz,
