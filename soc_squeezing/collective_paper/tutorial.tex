@@ -1,0 +1,119 @@
+\section{Computing correlators with the truncated short-time (TST)
+  expansion}
+\label{sec:tutorial}
+
+Here we provide a pedagogical tutorial for computing correlators using
+the truncated short-time TST expansion.  For concreteness, we
+nominally consider $N$ spins evolving under the one-axis twisting
+(OAT) Hamiltonian
+\begin{align}
+  H_{\t{OAT}} = \chi S_\z^2,
+\end{align}
+additionally subject to spontaneous single-spin decay at rate
+$\gamma_-$, with jump operators $\J_-=\set{s_-^{(j)}:j=1,2,\cdots,N}$.
+The equation of motion for a Heisenberg operator
+$S_+^\ell S_\z^m S_-^n$ is
+\begin{align}
+  \f{d}{dt} \bk{S_+^\ell S_\z^m S_-^n}
+  = i\chi\Bk{\sp{S_\z^2, S_+^\ell S_\z^m S_-^n}_-}
+  + \gamma_- \Bk{\D\p{\J_-} \p{S_+^\ell S_\z^m S_-^n}},
+  \label{eq:tutorial_EOM}
+\end{align}
+where we can use the results in appendices \ref{sec:general_product}
+and \ref{sec:decoherence_single} respectively to evaluate the
+commutator $\sp{S_\z^2, S_+^\ell S_\z^m S_-^n}_-$ and dissipator
+$\D\p{\J_-} \p{S_+^\ell S_\z^m S_-^n}$ in \eqref{eq:tutorial_EOM} (see
+\eqref{eq:general_product} and \eqref{eq:decay_diff} in particular),
+giving us
+\begin{multline}
+  \f{d}{dt} \bk{S_+^\ell S_\z^m S_-^n} \\
+  = i\chi \bk{\p{\ell-n} S_+^\ell \p{\ell+n+2S_\z} S_\z^m S_-^n}
+  + \gamma_- \Bk{S_+^\ell \sp{\p{S+S_\z}\p{-1+S_\z}^m
+      - \p{S+\f{\ell+n}{2}+S_\z} S_\z^m} S_-^n}.
+  \label{eq:tutorial_EOM_expanded}
+\end{multline}
+In practice, we do not want to keep track of such an expansion by
+hand, especially in the case of e.g.~the two-axis twisting (TAT) and
+twist-and-turn (TNT) models with more general types of decoherence,
+for which the analogue of \eqref{eq:tutorial_EOM_expanded} may take
+several lines just to write out in full.  Defining the operators
+$\S_{\v m}\equiv S_+^{m_+} S_\z^{m_\z} S_-^{m_-}$ with
+$\v m\equiv\p{m_+,m_\z,m_-}$ for shorthand, we note that the vector
+space spanned by $\set{\S_{\v m}}$ is closed under time evolution.  We
+therefore expand
+\begin{align}
+  \f{d}{dt} \bk{\S_{\v n}}
+  = \bk{T \S_{\v n}}
+  = \sum_{\v m} \bk{\S_{\v m}} T_{\v m\v n},
+  \label{eq:tutorial_EOM_general}
+\end{align}
+where $T$ is a superoperator that generates time evolution for
+Heisenberg operators.  In the present example, the matrix elements
+$T_{\v m\v n}\in\C$ of $T$ are defined by
+\eqref{eq:tutorial_EOM_expanded} and \eqref{eq:tutorial_EOM_general}.
+For any Hamiltonian $H$ with decoherence characterized by sets of jump
+operators $\J$ and decoherence rates $\gamma_\J$, the matrix elements
+$T_{\v m\v n}$ are more generally defined by
+\begin{align}
+  T \S_{\v n}
+  = i\sp{H,\S_{\v n}}_-
+  + \sum_\J \gamma_\J \D\p{\J} \S_{\v n}
+  = \sum_{\v m} \S_{\v m} T_{\v m\v n}.
+\end{align}
+The results in Appendices \ref{sec:general_product},
+\ref{sec:decoherence_single}, and \ref{sec:decoherence_collective} can
+be used to write model-agnostic codes that compute matrix elements
+$T_{\v m\v n}$, taking a particular Hamiltonian $H$ and decoherence
+processes $\set{\p{\J,\gamma_\J}}$ as inputs.
+
+In order to compute a quantity such as spin squeezing, we need to
+compute correlators of the form $\bk{\S_{\v n}\p{t}}$, where
+$\S_{\v n}\p{t}$ is the time-evolved Heisenberg operator corresponding
+to $\S_{\v n}$, with $\S_{\v n}\p{0}\equiv\S_{\v n}$.  The order-$M$
+truncated short-time (TST) expansion takes
+\begin{align}
+  \bk{\S_{\v n}\p{t}}
+  = \sum_{k\ge0} \f{t^k}{k!} \bk{T^k\S_{\v n}}
+  = \sum_{k\ge0} \f{t^k}{k!}
+  \sum_{\v m} \bk{\S_{\v m}} T^k_{\v m\v n}
+  \to \sum_{k=0}^M \f{t^k}{k!}
+  \sum_{\v m} \bk{\S_{\v m}} T^k_{\v m\v n},
+  \label{eq:tutorial_TST}
+\end{align}
+where $T^k_{\v m\v n}$ are matrix elements of the $k$-th time
+derivative operator $T^k$, given by
+\begin{align}
+  T^0_{\v m\v n} \equiv
+    \begin{cases}
+      1 & \v m = \v n, \\
+      0 & \t{otherwise}
+    \end{cases},
+  &&
+  T^1_{\v m\v n} \equiv T_{\v m\v n},
+  &&
+  T^{k>1}_{\v m\v n}
+  \equiv \sum_{\v p_1,\v p_2,\cdots,\v p_{k-1}}
+  T_{\v m\v p_{k-1}} \cdots T_{\v p_3\v p_2}
+  T_{\v p_2\v p_1} T_{\v p_1\v n}.
+\end{align}
+Matrix elements $T^k_{\v m\v n}$ and initial-time expectation values
+$\bk{\S_{\v m}}$ are thus computed as needed for any particular
+correlator $\bk{\S_{\v n}\p{t}}$ of interest, and combined according
+to \eqref{eq:tutorial_TST}.  Note that initial-time expectation values
+$\bk{\S_{\v m}}$ are an input to the TST expansion, and need to be
+computed separately for any given initial state; expectation values
+with respect to spin-polarized (Gaussian) states are provided in
+Appendix \ref{sec:initial_conditions}.  In practice, we further
+collect terms in \eqref{eq:tutorial_TST} to write
+\begin{align}
+  \bk{\S_{\v n}\p{t}} \to \sum_{k=0}^M c_{\v n k} t^k,
+  &&
+  c_{\v n k}
+  \equiv \f1{k!} \sum_{\v m} \bk{\S_{\v m}} T^k_{\v m\v n},
+  \label{eq:tutorial_corr}
+\end{align}
+where $c_{\v n k}$ are time-independent coefficients for the
+polynomial time expansion of $\bk{\S_{\v n}\p{t}}$.  After computing
+the coefficients $c_{\v n k}$, there is only negligible computational
+overhead to compute the correlator $\bk{\S_{\v n}\p{t}}$ for any time
+$t$ up to the breakdown time $t_M$ of an order-$M$ TST expansion.
