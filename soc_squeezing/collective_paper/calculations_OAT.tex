@@ -39,18 +39,18 @@ where
 \begin{align}
   \Phi\p{X,t}
   \equiv e^{-\lambda t}
-  \sp{\cos\p{\omega_X t} + \lambda t~\t{sinc}\p{\omega_X t}},
+  \sp{\cos\p{\omega_X t} + \f{\lambda}{\omega_X} \sin\p{\omega_X t}},
   &&
   \Psi\p{X,t}
-  \equiv e^{-\lambda t}\p{\Delta+iX}t~\t{sinc}\p{\omega_X t},
+  \equiv e^{-\lambda t} \p{\f{\Delta+iX}{\omega_X}} \sin\p{\omega_X t},
 \end{align}
 for
 \begin{align}
+  \kappa \equiv \f12 \p{\gamma_+ + \gamma_- + \gamma_\z},
+  &&
   \lambda \equiv \f12 \p{\gamma_+ + \gamma_-},
   &&
   \Delta \equiv \gamma_+ - \gamma_-,
-  &&
-  \kappa \equiv \f12 \p{\gamma_+ + \gamma_- + \gamma_\z},
   &&
   \omega_X \equiv \sqrt{X^2-\lambda^2-iX\Delta}.
 \end{align}

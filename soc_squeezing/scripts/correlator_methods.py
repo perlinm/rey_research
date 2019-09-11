@@ -34,17 +34,14 @@ def correlators_OAT(spin_num, times, dec_rates):
     Sz_Sz = S/2 + S*(S-1/2) * Sz_unit**2
 
     gamma_t = gamma*t
-    def sup_t_sinc(z): # e^{-gamma t} t \sinc(z t)
-        if z == 0: return np.exp(-gamma_t) * t
-        z_t = z * t
-        return ( np.exp(-gamma_t+1j*z_t) - np.exp(-gamma_t-1j*z_t) ) / 2j / z
-    def sup_cos(z): # e^{-\gamma t} \cos(z t)
-        z_t = z * t
-        return ( np.exp(-gamma_t+1j*z_t) + np.exp(-gamma_t-1j*z_t) ) / 2
+    def sup_cos(x): # e^{-\gamma t} \cos(x)
+        return ( np.exp(-gamma_t+1j*x) + np.exp(-gamma_t-1j*x) ) / 2
+    def sup_sin(x): # e^{-gamma t} \sin(x)
+        return ( np.exp(-gamma_t+1j*x) - np.exp(-gamma_t-1j*x) ) / 2j
 
     def w(x): return np.sqrt(x**2 - gamma**2 - 1j*x*delta)
-    def Phi(x): return sup_cos(w(x)) + gamma * sup_t_sinc(w(x))
-    def Psi(x): return (delta+1j*x) * sup_t_sinc(w(x))
+    def Phi(x): return sup_cos(w(x)*t) + gamma/w(x) * sup_sin(w(x)*t)
+    def Psi(x): return (delta+1j*x)/w(x) * sup_sin(w(x)*t)
 
     Sp = S * np.exp(-kappa*t) * Phi(1)**(N-1)
     Sp_Sz = -1/2 * Sp + S * (S-1/2) * np.exp(-kappa*t) * Psi(1) * Phi(1)**(N-2)
