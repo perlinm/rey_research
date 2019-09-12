@@ -23,17 +23,17 @@ Schr\"odinger operators $\O$ by
   \label{eq:heisenberg_condition}
 \end{align}
 Enforcing \eqref{eq:heisenberg_condition} for {\it arbitrary} initial
-states $\rho$ forces $\O\p{t}=U\p{t}^\dag\O U\p{t}$.  In an open
+states $\rho$ forces $\O\p{t}=U^\dag\p{t}\O U\p{t}$.  In an open
 quantum system, however, the definition of a Heisenberg operator is
 not so straightforward.  Open systems can often be understood as
 subsystems of a larger closed system.  Consider therefore an open
 system $S$ with environment $E$, a joint initial state $\rho_{SE}$,
-and propagator $U_{SE}\p{t}$.  The reduced state $\rho_S\p{t}$ on $S$
+and propagator $U_{SE}\p{t}$.  The reduced state $\rho_S\p{t}$ of $S$
 at time $t$ is
 \begin{align}
   \rho_S\p{t}
   \equiv \tr_E\sp{\rho_{SE}\p{t}}
-  = \tr_E\sp{U_{SE}\p{t} \rho_{SE} U_{SE}\p{t}^\dag}
+  = \tr_E\sp{U_{SE}\p{t} \rho_{SE} U_{SE}^\dag\p{t}}
   \equiv \U_{\ul S}\p{t} \rho_S,
   \label{eq:state_S}
 \end{align}
@@ -42,7 +42,7 @@ operators on $S$, and the quantum channel $\U_{\ul S}\p{t}$ has the
 decomposition\cite{rivas2012time}
 \begin{align}
   \U_{\ul S}\p{t} \rho_S
-  = \sum_j \U_S^{(j)}\p{t} \rho_S \U_S^{(j)}\p{t}^\dag
+  = \sum_j \U_S^{(j)}\p{t} \rho_S {\U_S^{(j)}}^\dag\p{t}
 \end{align}
 with ordinary operators $\U_S^{(j)}\p{t}$ on $S$.  We can thus expand
 \begin{align}
@@ -54,14 +54,14 @@ with ordinary operators $\U_S^{(j)}\p{t}$ on $S$.  We can thus expand
 where
 \begin{align}
   \ul{\O_S}\p{t}
-  \equiv \U_{\ul S}\p{t}^\dag \O_S
-  = \sum_j \U_S^{(j)}\p{t}^\dag \O_S \U_S^{(j)}\p{t}.
+  \equiv \U_{\ul S}^\dag\p{t} \O_S
+  = \sum_j {\U_S^{(j)}}^\dag\p{t} \O_S \U_S^{(j)}\p{t}.
   \label{eq:heisenberg_wrong}
 \end{align}
-We thus find that substituting $\O_S\p{t}\leftarrow\ul{\O_S}\p{t}$
-suffices for the calculation of correlators $\bk{\O_S\p{t}}$, thereby
-accounting for the validity of the equation of motion in
-\eqref{eq:EOM}.
+We thus find that substituting $\ul{\O_S}\p{t}$ in place of
+$\O_S\p{t}$ suffices for the calculation of correlators
+$\bk{\O_S\p{t}}$, thereby accounting for the validity of the equation
+of motion in \eqref{eq:EOM}.
 
 The problem with {\it defining} Heisenberg operators $\O_S\p{t}$ by
 $\ul{\O_S}\p{t}$ only becomes evident when considering products of
@@ -76,11 +76,11 @@ formalized by observing that
   = \bk{\p{\O_S\otimes\1_E}\p{t}},
 \end{align}
 where $\1_E$ is the identity operator on $E$, expectation values of
-operators on system $A\in\set{S,E,SE}$ are taken with respect to
-$\rho_A$, and
+Heisenberg operators on system $A\in\set{S,E,SE}$ are taken with
+respect to the state $\rho_A$, and
 \begin{align}
   \p{\O_S\otimes\1_E}\p{t}
-  \equiv U_{SE}\p{t}^\dag \p{\O_S\otimes\1_E} U_{SE}\p{t}.
+  \equiv U_{SE}^\dag\p{t} \p{\O_S\otimes\1_E} U_{SE}\p{t}.
   \label{eq:heisenberg_extension}
 \end{align}
 By expanding Heisenberg operators according to
@@ -109,15 +109,15 @@ operators to be mean-zero, as
 Furthermore, if we assume that the environment $E$ is Markovian, such
 that to a good approximation
 \begin{align}
-  \rho_{SE}\p{t} = U_{SE}\p{t} \rho_{SE} U_{SE}\p{t}^\dag
+  \rho_{SE}\p{t} = U_{SE}\p{t} \rho_{SE} U_{SE}^\dag\p{t}
   \approx \rho_S\p{t}\otimes\rho_E
   = \U_{\ul S}\p{t} \rho_S\otimes\rho_E,
   \label{eq:markov}
 \end{align}
-where $\rho_E$ is a steady state of the environment, then enforcing
-\eqref{eq:markov} for all states $\rho_S$ implies
+with $\rho_E$ a time-independent steady state of the environment, then
+enforcing \eqref{eq:markov} for all states $\rho_S$ implies
 \begin{align}
-  U_{SE}\p{t} \rho_{SE} \p{\O_S\otimes\1_E} U_{SE}\p{t}^\dag
+  U_{SE}\p{t} \rho_{SE} \p{\O_S\otimes\1_E} U_{SE}^\dag\p{t}
   \approx \U_{\ul S}\p{t}\p{\rho_S\O_S}\otimes\rho_E.
   \label{eq:makov_op}
 \end{align}
@@ -125,16 +125,16 @@ We can therefore expand
 \begin{align}
   \bk{\O_S\Q_S\p{t}}
   &= \tr\sp{\rho_{SE} \p{\O_S\otimes\1_E}
-    U_{SE}\p{t}^\dag \p{\Q_S\otimes\1_E} U_{SE}\p{t}} \\
+    U_{SE}^\dag\p{t} \p{\Q_S\otimes\1_E} U_{SE}\p{t}} \\
   &= \tr\sp{U_{SE}\p{t} \rho_{SE} \p{\O_S\otimes\1_E}
-    U_{SE}\p{t}^\dag \p{\Q_S\otimes\1_E}},
+    U_{SE}^\dag\p{t} \p{\Q_S\otimes\1_E}},
 \end{align}
 and invoke the Markov approximation in \eqref{eq:makov_op} to find
 that
 \begin{align}
   \bk{\O_S\Q_S\p{t}}
   \approx \tr\sp{\U_{\ul S}\p{t}\p{\rho_S\O_S} \Q_S}
-  = \tr\sp{\rho_S \O_S \U_{\ul S}\p{t}^\dag \Q_S}
+  = \tr\sp{\rho_S \O_S \U_{\ul S}^\dag\p{t} \Q_S}
   = \bk{\O_S\ul{\Q_S}\p{t}}.
 \end{align}
 We thus find that for Markovian environments, noise operators play no
