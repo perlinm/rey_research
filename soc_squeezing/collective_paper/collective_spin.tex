@@ -65,7 +65,7 @@
 \usepackage[inline]{enumitem} % for inline enumeration
 \setenumerate{label=(\roman*)}
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
 \title{Short-time expansion of Heisenberg operators in open collective
@@ -103,6 +103,7 @@
 
 \maketitle
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 
 Collective spin systems are a versatile resource in quantum science
@@ -213,7 +214,7 @@ short-time expansion.  Finally, we showcase applications of our method
 by computing quantities that are inaccessible to other numerical
 methods.
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Theory}
 \label{sec:theory}
 
@@ -238,18 +239,11 @@ we can expand any collective spin operator $\hat\O$ in the form
 \end{align}
 with scalar coefficients $\O_{\v m}\in\C$.  If $\hat\O$ is
 self-adjoint, for example, then $\O_{\v m}^*=\O_{\v m^*}$ with
-$\v m^*\equiv\p{m_-,m_\z,m_+}$.
-%
-% The corresponding Heisenberg operator is then
-% $\hat\O\p{t}=\sum_{\v m}\O_{\v m}\p{t}\hat\S_{\v m}$, with
-% time-dependent coefficients $\O_{\v n}\p{t}$ for time-independent
-% (Schr\"odinger) operators $\hat\S_{\v m}$.  The time evolution of
-% Heisenberg operators is determined by
-%
-The corresponding Heisenberg operator is then
+$\v m^*\equiv\p{m_-,m_\z,m_+}$.  The corresponding Heisenberg operator
+is then
 $\hat\O\p{t}=\sum_{\v m}\O_{\v m}\p{t}\hat\S_{\v m}+\hat\E_\O\p{t}$,
-with time-dependent coefficients $\O_{\v n}\p{t}$ for time-independent
-(Schr\"odinger) operators $\hat\S_{\v m}$, and mean-zero ``noise''
+with time-dependent coefficients $\O_{\v m}\p{t}$ for time-independent
+Schr\"odinger operators $\hat\S_{\v m}$, and mean-zero ``noise''
 operators $\hat\E_\O\p{t}$ that result from interactions between the
 spin system and its environment, initially $\hat\E_\O\p{0}=0$.  These
 noise operators will essentially play no role in the present work, but
@@ -257,7 +251,6 @@ are necessary to include for a consistent formalism of Heisenberg
 operators in an open quantum system; see Appendix \ref{sec:noise} for
 further discussion.  The expectation values of Heisenberg operators
 evolve according to
-%
 \begin{align}
   \f{d}{dt} \bk{\hat\O\p{t}}
   = \bk{\check T \hat\O\p{t}}
@@ -369,20 +362,6 @@ Eq.~\eqref{eq:time_series} by taking
   \sum_{\v m, \v n} \bk{\hat\S_{\v m}} T^k_{\v m\v n} \O_{\v n}\p{0}.
   \label{eq:TST}
 \end{align}
-%
-% We refer Eq.~\eqref{eq:TST} as the truncated short-time (TST)
-% expansion of Heisenberg operators.  Unlike the truncation in
-% Eq.~\eqref{eq:weight_truncation}, the nonzero matrix elements
-% $T^k_{\v m\v n}$ for $k=0,1,\cdots,M$ in Eq.~\eqref{eq:TST} tell us
-% which operators are relevant for computing the expectation value
-% $\bk{\hat\O\p{t}}$ to a fixed order $M$.  Note that using the
-% relation $\hat\S_{\v m}^\dag=\hat\S_{\v m^*}$, which by Hermitian
-% conjugation of Eq.~\eqref{eq:EOM} also implies that
-% $T_{\v m^*\v n^*}=T_{\v m\v n}^*$, can cut both the number of
-% initial-time expectation values $\bk{\hat\S_{\v m}}_{t=0}$ and the
-% number of matrix elements $T_{\v m\v n}$ that we may need to
-% explicitly compute roughly in half.
-%
 We refer Eq.~\eqref{eq:TST} as the truncated short-time (TST)
 expansion of Heisenberg operators.  Note that when computing an
 expectation value $\bk{\hat\O\p{t}}$, the relation
@@ -410,23 +389,7 @@ measure $w\p{\v m}=\abs{\v m}$ and cutoff $W\approx M$.  We therefore
 restrict the remainder of our discussions to the TST expansion in
 Eq.~\eqref{eq:TST}, and provide a pedagogical tutorial for computing
 correlators using the TST expansion in Appendix \ref{sec:tutorial}.
-%
 
-%
-% In principle, the factorial suppression of terms at higher orders of
-% the expansion in Eq.~\eqref{eq:time_series} implies for any given
-% time $t$, there exists a truncation order $M_t$ for which the
-% truncation error in Eq.~\eqref{eq:TST} is negligibly small.  In
-% practice, only a maximal truncation order $M_{\t{max}}$ is
-% accessible with limited computational resources, such that the TST
-% expansion in Eq.~\eqref{eq:TST} only allows us to compute the
-% expectation value $\bk{\hat\O\p{t}}$ to a maximal time
-% $t_{M_{\t{max}}}$.  As we will see in the following section,
-% $M_{\t{max}}=35$ will suffice for the computation of collective spin
-% correlators up to times that are relevant e.g.~for spin squeezing
-% protocols.  Appendix \ref{sec:tutorial} provides a pedagogical
-% tutorial for computing correlators using the TST expansion.
-%
 Three primary considerations limit the maximum time $t$ to which we
 can accurately compute a correlator $\bk{\hat S_{\v n}\p{t}}$ using
 the TST expansion.  First, maintaining accuracy at larger times $t$
@@ -455,9 +418,8 @@ breakdown time $t_{\t{break}}^{(M)}$ beyond which the TST expansion
 yields inaccurate results.  Empirically, we find that going beyond
 order $M\approx35$ yields no significant gains in all cases considered
 in this work.
-%
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin squeezing, benchmarking, and breakdown}
 \label{sec:squeezing}
 
@@ -555,15 +517,8 @@ results shown in Figure \ref{fig:benchmarking} were computed in a
 rotated basis with
 $\p{\hat s_\z,\hat s_\x}\to\p{\hat s_\x,-\hat s_\z}$ and
 $\ket\X\to\ket{-\Z}\equiv\ket\dn^{\otimes N}$, as well as appropriate
-transformations of the Hamiltonian and jump operators.
-%
-% The only effect of this rotation on the results presented in Figure
-% \ref{fig:benchmarking} is to prolong the time for which the TST
-% expansion agrees with the benchmarking simulations.  The reason for
-% different results in rotated basis has to do with the breakdown of
-% the TST expansion, which we discuss further below.
-%
-The only effects of this rotation on the results presented in Figure
+transformations of the Hamiltonian and jump operators.  The only
+effects of this rotation on the results presented in Figure
 \ref{fig:benchmarking} are to
 \begin{enumerate*}
 \item reduce the time it takes to compute correlators
@@ -582,7 +537,6 @@ TNT results in a rotated basis is not entirely understood, and
 provides a clue into the precise mechanism by which the TST expansion
 breaks down (discussed below).  We defer a detailed study of this
 breakdown to future work.
-%
 
 The main lesson from Figure \ref{fig:benchmarking} is that the TST
 expansion yields essentially exact results right up until a sudden and
@@ -590,32 +544,13 @@ drastic departure that can be diagnosed by inspection.  The breakdown
 of the TST expansion in Figure \ref{fig:benchmarking} is marked by an
 unphysical squeezing parameter $\xi^2<0$, which occurs due to
 individual correlators taking unphysical values with
-$\abs{\bk{\hat\S_{\v n}\p{t}}}\gtrsim S^{\abs{\v n}}$.
-%
-% The sudden and drastic departure from virtually exact results occurs
-% because the TST expansion neglects high-weight
-% (i.e.~large-$\abs{\v m}$) operators $\hat\S_{\v m}$ whose
-% contributions to a Heisenberg operator $\hat\O\p{t}$ of interest
-% eventually become non-negligible.  For sufficiently large times $t$,
-% these individual contributions can become comparable in magnitude to
-% the expectation value $\bk{\hat\O\p{t}}$, and will grow with some
-% large power of $t$, so their truncation will have a drastic effect
-% on the estimated value of $\bk{\hat\O\p{t}}$.  This breakdown
-% mechanism is also the reason for prolonged agreement between the TST
-% expansion and benchmarking methods when squeezing the initial state
-% $\ket{-\Z}$ rather than $\ket{\X}$: for initial states $\ket{-\Z}$,
-% all initial-time correlators $\bk{\hat\S_{\v m}}$ vanish unless
-% $m_+=m_-=0$ (see Appendix \ref{sec:initial_conditions}), so there is
-% a substantially smaller number of neglected terms with non-zero
-% contribution to the correlator $\bk{\hat\O\p{t}}$.
-%
-Going up through order $M=70$ in the TST expansion does not
-significantly increase the breakdown time $t_{\t{break}}^{(M)}$, and
-in some cases even shortens $t_{\t{break}}^{(M)}$.  The sudden and
-drastic departure from virtually exact results is consistent with the
-limitations of the TST expansion discussed at the end of Section
-\ref{sec:theory}.  Specifically, we identify three possible mechanisms
-for breakdown:
+$\abs{\bk{\hat\S_{\v n}\p{t}}}\gtrsim S^{\abs{\v n}}$.  Going up
+through order $M=70$ in the TST expansion does not significantly
+increase the breakdown time $t_{\t{break}}^{(M)}$, and in some cases
+even shortens $t_{\t{break}}^{(M)}$.  The sudden and drastic departure
+from virtually exact results is consistent with the limitations of the
+TST expansion discussed at the end of Section \ref{sec:theory}.
+Specifically, we identify three possible mechanisms for breakdown:
 \begin{enumerate*}
 \item a rapid growth in the order $M$ necessary for the TST expansion
   to converge,
@@ -633,25 +568,7 @@ expansion\cite{meiser2010steadystate}, the TST expansion can thus
 diagnose its own breakdown, which is an important feature when working
 in parameter regimes that are inaccessible via other means to compute
 correlators.
-%
 
-%
-% Although the TST expansion breaks down at short times, it has two
-% key advantages over other methods to compute collective spin
-% correlators.  First, computing spin correlators with the TST
-% expansion is generally much faster and requires much fewer computing
-% resources than the alternatives.  The quantum trajectory Monte Carlo
-% simulations performed for Figure \ref{fig:squeezing_incoherent}, for
-% example, take $\sim10^4$ CPU hours to compute on standard modern
-% computing hardware; the bulk of this time is spent performing sparse
-% matrix-vector multiplication, leaving little room to further
-% optimize serial runtime.  Parallelization can reduce the actual
-% runtime of these quantum trajectory simulations to $\sim10$ hours by
-% running all trajectories at once, but at the cost of greatly
-% increasing computing resource requirements.  The TST expansion
-% results in Figure \ref{fig:squeezing_incoherent}, meanwhile, take
-% $\sim10$ seconds to compute with a single CPU on similar hardware.
-%
 Although the TST expansion breaks down at short times, it has two key
 advantages over the quantum trajectory Monte Carlo method to compute
 correlators in the presence of decoherence.  First, computing spin
@@ -674,7 +591,6 @@ introducing new truncation schemes, any modifications
 \item are unlikely to bridge the orders of magnitude in computing
   resource requirements.
 \end{enumerate*}
-%
 
 \begin{figure}
   \centering
@@ -694,29 +610,24 @@ are entirely inaccessible to other methods.  As an example, Figure
 \ref{fig:decoherence_strong} shows squeezing of $N=10^4$ spins
 initially in $\ket{\X}$, undergoing spontaneous decay, excitation, and
 dephasing of individual spins at rates
-$\gamma_-=\gamma_+=\gamma_\z=100\chi$.
-%
-% These results show that
-%
-The system size in these simulations is too large for straightforward
-application of exact methods for open quantum systems.  Quantum
-trajectory Monte Carlo simulations, meanwhile, take a prohibitively
-long time to converge with such strong decoherence due to the
-multiplicity of quantum trajectories that require averaging.
+$\gamma_-=\gamma_+=\gamma_\z=100\chi$.  The system size in these
+simulations is too large for straightforward application of exact
+methods for open quantum systems.  Quantum trajectory Monte Carlo
+simulations, meanwhile, take a prohibitively long time to converge
+with such strong decoherence due to the multiplicity of quantum
+trajectories that require averaging.
 
-The results in Figure \ref{fig:decoherence_strong} show that
-%
-TNT is much more robust to single-spin decoherence than OAT or TAT, a
-finding that could not necessarily be deduced from the
-weak-decoherence simulations presented in Figure
-\ref{fig:benchmarking}.  Strong-decoherence computations of this sort
-were used to put lower bounds on theoretically achievable spin
-squeezing via TAT with decoherence in
-Ref.~[\citenum{he2019engineering}], exemplifying a concrete and
-practical application of the TST expansion and the collective-spin
-structure constants calculated in this work.
+The results in Figure \ref{fig:decoherence_strong} show that TNT is
+much more robust to single-spin decoherence than OAT or TAT, a finding
+that could not necessarily be deduced from the weak-decoherence
+simulations presented in Figure \ref{fig:benchmarking}.
+Strong-decoherence computations of this sort were used to put lower
+bounds on theoretically achievable spin squeezing via TAT with
+decoherence in Ref.~[\citenum{he2019engineering}], exemplifying a
+concrete and practical application of the TST expansion and the
+collective-spin structure constants calculated in this work.
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Two-time correlation functions and out-of-time-ordered
   correlators}
 \label{sec:multi_time}
@@ -741,7 +652,6 @@ and the expectation value of a squared commutator,
   \label{eq:four_point}
 \end{align}
 in the context of the squeezing models in Section \ref{sec:squeezing}.
-%
 The subscript on $\bk{\cdot}_{\t{nn}}$ in Eq.~\eqref{eq:four_point}
 stands for ``no noise'', and denotes a correlator computed without the
 noise contributions $\hat\E_\O\p{t}$ to Heisenberg operators
@@ -757,7 +667,6 @@ present work.  We therefore exclude these noise terms in
 general; see Ref.~[\citenum{blocher2019quantum}] for more detailed
 discussions of noise terms and the quantum regression theorem
 underlying the calculation of multi-time correlators.
-%
 
 In an equilibrium setting, correlation functions similar to that in
 Eq.~\eqref{eq:two_time} contain information about the linear response
@@ -822,7 +731,7 @@ example for the type of behavior that is accessible at short times
 with the TST expansion.  These examples are straightforward extend to
 equilibrium settings and spin-boson systems.
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
 
 We have presented a new method for computing correlators at short
@@ -840,7 +749,6 @@ to generalize to systems such as trapped ions and optical cavities
 with collective spin-boson interactions.  In such contexts, our method
 may be used to benchmark the short-time effects of decoherence, or
 study the onset of quantum chaos and information scrambling.
-
 
 \begin{acknowledgments}
   We acknowledge helpful discussions with Robert Lewis-Swan, Kris
