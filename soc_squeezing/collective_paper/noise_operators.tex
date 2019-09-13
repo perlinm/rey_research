@@ -5,12 +5,12 @@ Here we explain the origin and character of the mean-zero ``noise''
 operators $\E_\O\p{t}$ that appear in the expansion of a Heisenberg
 operator $\O\p{t}=\sum_{\v m}\O_{\v m}\p{t}\S_{\v m}+\E_\O\p{t}$ with
 time-dependent coefficients $\O_{\v m}\p{t}$ for time-independent
-(Schr\"odinger) operators $\hat\S_{\v m}$.  Our discussion clarify why
-noise operators play no role in our calculation of expectation values
-of the form $\bk{\O\p{t}}$ and $\bk{\O\Q\p{t}}$, despite the fact that
-noise operators generally {\it do} need to be considered in the
-calculation of more general multi-time correlators in open quantum
-systems\cite{blocher2019quantum}.
+Schr\"odinger operators $\hat\S_{\v m}$.  Our discussion should
+clarify why noise operators play no role in our calculation of
+expectation values of the form $\bk{\O\p{t}}$ and $\bk{\O\Q\p{t}}$,
+despite the fact that noise operators generally {\it do} need to be
+considered in the calculation of more general multi-time correlators
+in open quantum systems\cite{blocher2019quantum}.
 
 In any closed quantum system with initial state $\rho$ and propagator
 $U\p{t}$, such that the state at time $t$ is
@@ -55,7 +55,9 @@ expand
   = \bk{\ul{\O_S}\p{t}},
   \label{eq:heisenberg_correlator}
 \end{align}
-where we define the operator
+where $\U_{\ul S}^\dag\p{t}$ is the adjoint map of $\U_{\ul S}\p{t}$
+(with respect to a trace inner product between operators on $S$), and
+we define the time-dependent operator
 \begin{align}
   \ul{\O_S}\p{t}
   \equiv \U_{\ul S}^\dag\p{t} \O_S
@@ -126,10 +128,25 @@ environment is essentially defined to satisfy
   = \U_{\ul S}\p{t} \rho_S\otimes\rho_E,
   \label{eq:markov}
 \end{align}
-with $\rho_E$ a time-independent steady state of the environment.
-Enforcing \eqref{eq:markov} for all states $\rho_S$ implies that
+with $\rho_E$ a time-independent steady state of the environment.  If
+we enforce \eqref{eq:markov} for all states $\rho_S$, e.g.~the
+maximally mixed state $\rho_S^{(1)}\propto\1_S$ and
+$\rho_S^{(2)}\equiv\rho_S^{(1)}+\O_S$ with $\O_S$ any traceless
+operator on $S$ with squared norm
+$\norm{\O_S}^2\equiv\tr\p{\O_S^\dag\O_S}\le\tr\1_S$, then by linearity
+we find that
+\begin{align}
+  U_{SE}\p{t} \p{\1_S\otimes\rho_E} U_{SE}^\dag\p{t}
+  \approx \U_{\ul S}\p{t} \1_S\otimes\rho_E,
+  &&
+  U_{SE}\p{t} \p{\O_S\otimes\rho_E} U_{SE}^\dag\p{t}
+  \approx \U_{\ul S}\p{t} \O_S\otimes\rho_E,
+\end{align}
+which implies that the Markov approximation \eqref{eq:markov} holds
+even if we replace $\rho_S$ by any operator on $S$, and in particular
 \begin{align}
   U_{SE}\p{t} \rho_{SE} \p{\O_S\otimes\1_E} U_{SE}^\dag\p{t}
+  = U_{SE}\p{t} \p{\rho_S\O_S\otimes\rho_E} U_{SE}^\dag\p{t}
   \approx \U_{\ul S}\p{t}\p{\rho_S\O_S}\otimes\rho_E.
   \label{eq:makov_op}
 \end{align}
