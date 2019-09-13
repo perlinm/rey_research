@@ -17,7 +17,7 @@
 \usepackage{braket} % for nice brackets (e.g. |X>)
 \usepackage{mathtools} % for \coloneqq
 \usepackage{graphicx} % for figures
-\graphicspath{{./figures/}} % set path for all figures
+\graphicspath{{../figures/}} % set path for all figures
 
 %%% shorthands to use inside math environments
 \renewcommand{\t}{\text} % text in math mode
@@ -146,7 +146,7 @@ The rate of population transfer outside of the Dicke manifold increases with bot
 \end{figure}
 \end{spacing}
 
-Current 3D optical lattice implementations involve a harmonic confining potential, which significantly alters the underlying single-particle eigenstructure and can potentially degrade accessible squeezing within our protocol. In this appendix, we examine the effect of a harmonic trap on our protocol and discuss strategies to mitigate undesired effects. We model the trap by the addition of the term
+Current 3D optical lattice implementations involve a harmonic confining potential, which significantly alters the underlying single-particle eigenstructure and can potentially degrade accessible squeezing within our protocol. In this section of the supplement, we examine the effect of a harmonic trap on our protocol and discuss strategies to mitigate undesired effects. We model the trap by the addition of the term
 \begin{align}
   \hat{H}_{\Omega}
   = \Omega\sum_{j,\alpha}(j-j_0)^2\hat{n}_{j,\alpha}
@@ -327,7 +327,7 @@ Inelastic collisions prevent the growth of optimal  squeezing with  particle num
 \end{figure}
 \end{spacing}
 
-Inelastic $^{3}\text{P}_{0}$ (electronic state $e$ or $\up$) collisions are detrimental for optical lattice clocks. For the  nuclear-spin-polarized gas discussed in this work, $ee$ losses are only possible via the $p$-wave scattering channel since $s$-wave collisions are suppressed by Fermi statistics. The big advantage here compared to  prior experiments done in a 1D lattice at $\mu$K temperature\cite{martin2013quantum} is that in a Fermi  degenerate  gas loaded in a 3D optical lattice, $p$-wave losses are further suppressed by the centrifugal barrier and Pauli blocking, and only happen through a wave-function overlap between atoms at different lattice sites.  In this appendix, we quantify the effect of $p$-wave interactions on squeezing. To account for $p$-wave losses, we describe the dynamics  using a master equation for the system's density matrix $\hat{\rho}$:
+Inelastic $^{3}\text{P}_{0}$ (electronic state $e$ or $\up$) collisions are detrimental for optical lattice clocks. For the  nuclear-spin-polarized gas discussed in this work, $ee$ losses are only possible via the $p$-wave scattering channel since $s$-wave collisions are suppressed by Fermi statistics. The big advantage here compared to  prior experiments done in a 1D lattice at $\mu$K temperature\cite{martin2013quantum} is that in a Fermi  degenerate  gas loaded in a 3D optical lattice, $p$-wave losses are further suppressed by the centrifugal barrier and Pauli blocking, and only happen through a wave-function overlap between atoms at different lattice sites.  In this supplementary material, we quantify the effect of $p$-wave interactions on squeezing. To account for $p$-wave losses, we describe the dynamics  using a master equation for the system's density matrix $\hat{\rho}$:
 \begin{align}
   \frac{d\hat{\rho}}{dt}
   = -i [\hat{H}_{\text{eff}},\,\hat{\rho}]
