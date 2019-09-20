@@ -31,7 +31,6 @@ depths_dec = np.arange(20,81,2)/10 # lattice depths in plots
 sizes_dec = np.arange(10,101,5) # linear lattice sizes in plots
 phi_cutoff = 10 # minimum value of (\phi/\pi)^{-1}
 
-color_map = "jet" # for the 2-D color plots
 dpi = 600
 
 params = { "font.family" : "sans-serif",
@@ -103,7 +102,7 @@ for method in sqz_methods:
     sqz_opt = -to_dB(pd_read_1D(data_dir + f"sqz_{method}.txt"))
     t_opt[method] = pd_read_2D(data_dir + f"optimization/t_opt_{method}_L_2D.txt")
     t_opt[method] /= recoil_energy_NU
-    depths, sizes = t_opt[method].index, t_opt[method].columns
+    depths, sizes = t_opt[method].index, np.array(t_opt[method].columns)
 
     err = abs(depths[1] - depths[0]) / 2
     use_depths = (depths >= depth_min-err) & (depths <= depth_max+err)
@@ -116,15 +115,21 @@ sqz_max = max([ sqz_vals[method].max() for method in sqz_methods ])
 t_min = min([ t_opt[method].values.min() for method in sqz_methods ])
 t_max = max([ t_opt[method].values.max() for method in sqz_methods ])
 
+faster_NOAT = t_opt[NOAT] > t_opt[OAT]
+
 # plot data
 for method in sqz_methods:
     ax_sqz.plot(sqz_vals[method], sizes, lines[method], label = method)
 
     data = t_opt[method].values[use_depths,:].T
     mesh = ax[method].pcolormesh(depths[use_depths], sizes, data,
-                                 cmap = plt.get_cmap(color_map),
-                                 vmin = t_min, vmax = t_max,
+                                 cmap = plt.get_cmap("twilight_shifted"),
+                                 vmin = 0, vmax = t_max,
                                  zorder = 0, rasterized = True)
+
+    ax[method].contour(depths[use_depths], sizes,
+                       faster_NOAT.values[use_depths,:].T,
+                       levels = 0, colors = [ "k" ], linestyles = "dotted")
 
     ax[method].set_xlabel(depth_label, zorder = 1)
     ax[method].set_yticklabels([])
@@ -250,7 +255,7 @@ fig, ( ax[OAT], ax[NOAT], cax ) \
 # plot data
 for method in sqz_methods:
     mesh = ax[method].pcolormesh(depths[method], sizes[method], sqz[method].T,
-                                 cmap = plt.get_cmap(color_map),
+                                 cmap = plt.get_cmap("jet"),
                                  vmin = sqz_min, vmax = sqz_max,
                                  zorder = 0, rasterized = True)
     ax[method].set_xlabel(depth_label, zorder = 1)

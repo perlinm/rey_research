@@ -117,7 +117,10 @@ function [ acceptable_params ] = ...
     ylabel_obj.Units = 'normalized';
     ylabel_obj.Position = ylabel_obj.Position + [0 0.02 0];
     if strcmp(dtype, 't')
-        z_max = max(max(data_max));
+        %%% WARNING: setting axis limits manually
+        %z_max = max(max(data_max));
+        z_max = 13;
+        %%%
         set(gca, 'ZLim', [0 z_max], 'ZTick', 0:5:z_max);
         text(0.1, 1/10, z_max*1.05, '$\times10^2$', 'interpreter', 'latex');
     else % if dtype == 'sq'

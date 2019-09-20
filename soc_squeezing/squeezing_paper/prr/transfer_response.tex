@@ -1,0 +1,702 @@
+\documentclass[preprint,superscriptaddress]{revtex4-2}
+
+%%% linking references
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+}
+
+%%% physics and math packages
+\usepackage{physics} % general physics package
+\usepackage{amssymb} % math fonts and symbols
+\usepackage{bm} % for making math symbols bold
+\usepackage{braket} % for nice brackets (e.g. |X>)
+\usepackage{mathtools} % for \coloneqq
+
+%%% shorthands to use inside math environments
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % square parenthesis
+\renewcommand{\c}{\cdot} % inner product
+\renewcommand{\d}{\text{d}} % integration measure, e.g. d^3 x
+\renewcommand{\v}{\bm} % bold symbols (e.g. for vectors)
+\newcommand{\uv}[1]{\hat{\bm #1}} % unit vectors, or vector operators
+\newcommand{\bk}{\Braket}
+\renewcommand{\ket}{\Ket}
+\renewcommand{\bra}{\Bra}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\J}{\mathcal{J}}
+\renewcommand{\L}{\mathcal{L}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\S}{\mathcal{S}}
+
+\newcommand{\z}{\text{z}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
+% remove extra white space inside enumerate environments
+\usepackage{enumitem}
+\setlist[enumerate]{leftmargin=*}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex}
+
+% for colored text
+\usepackage[dvipsnames]{xcolor}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\green}[1]{{\color{ForestGreen} #1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+Dear Editors of Physical Review Research,
+
+Please find attached our revised manuscript, ``Engineering spin squeezing in a 3D optical lattice with interacting spin-orbit-coupled fermions'', for consideration for publication in Physical Review Research.
+Below, we address the recommendations and criticisms made by past referees in the peer-review process for Physical Review X, and detail the corresponding changes that we have made to our manuscript.
+
+We were pleased to find that the referee reports were in unanimous agreement about the quality and content of the manuscript, calling it ``well written'' and saying that ``it offers a pathway towards pushing the record level of precision achievable for atomic clocks''.
+
+The most important feedback from previous referees concerned the potential of our manuscript to attract broader interest outside the optical lattice clock community.
+We have addressed these concerns in our responses to the referees, as well as corresponding changes to the manuscript.
+In short, we believe that developing realistic proposal to achieve a genuine quantum advantage in a world-class sensor unavoidably requires focusing on a specific platform.
+Our work is therefore well placed in the context of a broad scientific effort to a achieve a quantum advantage in emergent technologies.
+We hope that with these clarifications, our paper can be accepted for publication in Physical Review Research.
+
+Excerpts from the referee reports are written in \blue{blue}, excerpts from the previous version of our manuscript are written in \red{red}, and excerpts from the revised version of our manuscript are written in \green{green}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{First referee}
+
+\blue{The authors replied to my previous report with exhaustive and
+  mostly convincing explanations.}
+
+\blue{In the revised version of the manuscript the novelty of their
+  results is now clearly explained, which strengthens the impact of
+  the work.}
+
+\blue{The reply to my specific questions, e.g.~on the importance of
+  the underlying trapping potential and robustness of the achievable
+  spin squeezing in a realistic setting, is quite detailed and
+  accompanied by significant extensions of the supplementary
+  materials. The new version of the manuscript now contains important
+  details on the practical implementation of the suggested protocol,
+  while keeping an appropriate format for PRX. In light of the
+  authors' reply and of the revisions made, I can now fully recommend
+  the manuscript for publication.}
+
+We thank the Referee for their positive appreciation of our work, and for the recommendation for publication in PRX.
+We appreciate their comment that the revisions we made to our manuscript throughout the review process with PRX ``clearly explained the novelty of our results'' and ``strengthen[ed] the impact of our work''.
+
+We hope that the editors of Physical Review Research agree with this Referee's assessment.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Second referee}
+\label{sec:R2}
+
+\begin{enumerate}
+\item Concerning:
+  \label{pt:R2.scope}
+
+  \blue{The proposal details a protocol to use the weakly interacting,
+    weakly spin-orbit coupled regime of fermions in an optical lattice
+    to generate spin squeezing for increased precision in the
+    state-of-the-art optical lattice clock.  The individual components
+    are achievable with current technologies and have all been
+    experimentally demonstrated, with many theoretical and
+    experimental advancements from the groups led by the senior
+    authors, A. M. Rey and J. Ye. The manuscript is in general
+    well-written and accessible to the motivated reader, with
+    comprehensive appendices.}
+
+  \blue{This work represents current efforts to enhance measurement
+    sensitivity through non-classical states and promises considerable
+    levels of spin squeezing for the system under consideration. In
+    particular, because it focuses so closely on the current
+    state-of-the-art optical lattice clock, it offers a pathway
+    towards pushing the record level of precision achievable for
+    atomic clocks.}
+
+  \blue{At the same time, because the work focuses so closely on this
+    particular lattice clock, the experimentalists most interested in
+    this work are likely two of the authors and their colleagues. This
+    is my biggest concern about the impact of this work: while it does
+    open up one new research opportunity, at the immediate level this
+    scope seems limited. I ask that the authors address this point in
+    full and the more detailed points below.}
+
+  We appreciate the recognition that our manuscript is ``well-written
+  and accessible to the motivated reader, with comprehensive
+  appendices''.
+
+  Indeed, our work focuses on current state-of-the-art optical lattice
+  clocks, since it aims to push current record levels of precision
+  achievable with classical sensors.  Without identifying a concrete
+  system with world-class sensing capabilities, our effort would
+  reduce to a mere proof-of-principle concept which, despite having
+  some merit, would lack any practical utility.  Focusing on a
+  specific platform is unavoidable for any {\it realistic} and {\it
+    practical} proposal to advance the frontier of metrology.  Our
+  work therefore fits well into the context of a worldwide scientific
+  effort to achieve a quantum advantage in emergent technologies.
+
+  To emphasize the impact of our work in this new paradigm of enhanced
+  quantum metrology with correlated quantum states, and thereby to
+  further illustrate the relevance of our proposal to a broader
+  scientific community, we have rewritten the last paragraph of our
+  introduction (left column of page 2), which previously read:
+
+  \red{The intriguing and non-trivial observation reported here is
+    that weakly interacting fermions in a lattice with dynamics
+    described by the Hubbard model --- which thus obey fermionic
+    quantum statistics and interact via purely contact collisions ---
+    can feature all-to-all collective spin interactions that naturally
+    generate spin-squeezed states in a manner robust to realistic
+    experimental imperfections. In the spirit of quantum simulation,
+    our work illustrates that short-range interacting systems can be
+    used to emulate dynamical magnetic behaviors found in arrays of
+    long-range interacting systems (such as arrays of trapped ions[36]
+    or cavity QED systems[37, 38] with interactions mediated by
+    phonons or photons, respectively), thus enhancing their potential
+    as a metrological resource. Although surprising, this result is in
+    line with the recent understandings in quantum research that
+    explore how the interplay between well understood simple phenomena
+    can give rise to emergent new behaviors. In this direction, our
+    work emphasizes that the precise control of interactions, which
+    becomes possible in 3D optical lattice systems with quantized
+    motional degrees of freedom in all three directions, is a key for
+    the implementation of the protocols studied here, which may enable
+    new quantum technologies.}
+
+  and now reads:
+
+  \green{Despite an abundance of proof-of-principle experiments with
+    entangled states[24, 39], so far only the remarkable example of
+    LIGO[40, 41] has demonstrated a quantum advantage in a
+    state-of-the-art quantum sensing or measurement system.  The new
+    generation of 3D optical lattice systems have fully quantized
+    motional degrees of freedom[4], allowing for precise control of
+    collisional interactions.  We demonstrate how these interactions
+    can naturally give rise to metrologically useful correlated
+    many-body fermionic states, opening a path to not only generate
+    entanglement, but also harness it to achieve a quantum advantage
+    in a world-class sensor.  Such an advance will ultimately deliver
+    gains to real-world applications including timekeeping,
+    navigation, communication, and our understanding of the
+    fundamental laws of nature[42].}
+
+  Similarly, we have changed the following sentence in the
+  Conclusions:
+
+  \red{To our knowledge, this is the first proposal to use atomic
+    collisions for entanglement generation in state-of-the art atomic
+    clocks, opening a path for the practical improvement of
+    world-leading quantum sensors using correlated many-body fermionic
+    states.}
+
+  to:
+
+  \green{To our knowledge, this is the first proposal to use quantum
+    correlations in a many-body fermionic system to push
+    state-of-the-art quantum sensors beyond the independent-particle
+    regime, thereby achieving a genuine quantum advantage.}
+
+  We hope that these changes highlight the broader scope and relevance
+  of our work.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{Abstract (L: line)}
+
+  \blue{1. L15: The statement ``This capability exemplifies a new
+    paradigm of using driven non-equilibrium systems to overcome
+    current limitations in quantum metrology...'' goes unaddressed in
+    the main text. The manuscript could be improved if this larger
+    impact and its context were made clear, perhaps in the last
+    paragraph of the introduction or in the conclusion.}
+
+  We thank the referee for pointing out that our manuscript could be
+  improved by following through on the subject of applying driven
+  non-equilibrium systems to quantum metrology.  Accordingly, we have
+  added the following text to the introduction, preceding the last
+  paragraph (left column of page 2):
+
+  \green{This capability mirrors efforts in other settings, such as NV
+    centers[36, 37] and trapped ions[38], to enhance quantum metrology
+    through the use of driven non-equilibrium phenomena.}
+
+  As the subject of driven non-equilibrium does not play a central
+  role in our manuscript, we have also rewritten the last sentence in
+  the abstract to de-emphasize this point somewhat, replacing the
+  text:
+
+  \red{This capability exemplifies a new paradigm of using driven
+    non-equilibrium systems to overcome current limitations in quantum
+    metrology, allowing OLCs to enter a new regime of enhanced sensing
+    with correlated quantum states.}
+
+  by:
+
+  \green{This capability allows OLCs to enter a new era of quantum
+    enhanced sensing using correlated quantum states of driven
+    non-equilibrium systems.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{Introduction (P: paragraph, L: line, skipping equations)}
+
+  \blue{1. P4L11: While the orientation of the clock laser and optical
+    lattice depth were parameters that were varied to examine the
+    resulting optimum level of squeezing, strictly speaking these do
+    not need to be actively controlled (beyond pointing/intensity
+    stabilization) to generate spin squeezing itself; they just need
+    to be set to a single value -- unless I am missing
+    something. Perhaps this could be reworded.}
+
+  Indeed, our squeezing protocol does not require {\it active} control
+  over clock laser orientation and optical lattice depth.  To clarify
+  this point, we have changed the text (page 2, top left paragraph):
+
+  \red{To generate spin squeezing, our protocol only requires control
+    over...}
+
+  to:
+
+  \green{To generate spin squeezing, our protocol only requires the
+    capability to fix...}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning comments about the last paragraph of our introduction
+  prior to revision:
+
+  \blue{2. P5L4: The formulation ``...interact via purely contact
+    collisions'' is a bit odd. Do you mean, ``solely interact via
+    contact collisions''?}
+
+  \blue{3. P5L8: The sentence ``In the spirit of quantum
+    simulation... potential as a metrological resource'' seems a bit
+    odd to me. Is the point that systems with short-range interactions
+    can simulate long-range interacting systems, or that systems with
+    short-range interactions can be used in metrology (because of
+    effective long-range interactions)? Currently it reads as though
+    the second point is being made, in which case I would remove ``In
+    the spirit of quantum simulation'' and the parenthetical remark
+    because metrology seems to be the main focus. Otherwise I would
+    remove ``thus enhancing their potential as a metrological
+    resource.''}
+
+  \blue{4. P5L20: ``...which becomes possible in 3D optical lattice
+    systems with quantized motional degrees of freedom in all three
+    directions...''  As opposed to 3D optical lattices \_without\_
+    quantized motional degrees of freedom in all three directions? The
+    authors likely mean something along the lines of ``as a result of
+    quantized motional degrees of freedom...''}
+
+  These points are no longer applicable, as we have removed the
+  relevant paragraph from our manuscript entirely, as detailed in
+  point \ref{pt:R2.scope} of our response above.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{From the Fermi-Hubbard model to one-axis and two-axis
+    twisting}
+
+  \blue{1. P9L11: In writing ``...up through U/J=8'', it sounds as if
+    there is disagreement beyond U/J=8. To prevent this confusion, I
+    would reword the statement.}
+
+  To clarify this point, we have changed the text:
+
+  \red{... up through $U/J=8$.}
+
+  to:
+
+  \green{... up through (and exceeding) $U/J=8$.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{2. P9L17: In the sentence beginning with ``Note that we choose
+    filling f=5/6...'' it may be good to explicitly state that the
+    optimum squeezing occurs at half-filling f=1.}
+
+  To clarify this point, we have changed the sentence:
+
+  \red{Note that we chose filling $f=5/6$ to demonstrate that our
+    protocol should work even in this highly hole-doped case; in
+    practice, optimized experiments are capable of achieving fillings
+    closer to $f=1$.}
+
+  to:
+
+  \green{Note that we chose filling $f=5/6$ to demonstrate that our
+    protocol should work, albeit sub-optimally, even in this highly
+    hole-doped case; in practice, optimized experiments are capable of
+    achieving fillings closer to the optimal $f=1$.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{3. FIG 2: In (b.ii), is it possible to use the same vertical
+    axis range as (a.ii)? This would facilitate comparison between the
+    two fillings.}
+
+  We have modified figure 2 of the main text accordingly.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{Experimental preparation of a squeezed state and practical
+    considerations}
+
+  \blue{1. P1: Rewording this paragraph could be a good opportunity to
+    frame the current work beyond the single scope of the
+    state-of-the-art OLC.}
+
+  We thank the referee for identifying an opportunity for us to frame
+  our work in a broader context.  Accordingly, we have replaced the
+  first two sentences of Section III:
+
+  \red{Here we discuss specific implementations of the above protocols
+    in the state-of-the-art 3D $^{87}$Sr optical lattice clock (OLC).
+    This system has demonstrated the capability to load a quantum
+    degenerate gas into a 3D lattice at the ``magic wavelength''
+    ($\lambda_{\t{lattice}}=2a\approx813$ nm) for which both the
+    ground ($^1S_0,\dn$) and first excited ($^3P_0,\up$) electronic
+    states of the atoms experience the same optical potential[4].}
+
+  by:
+
+  \green{Thus far, we have largely considered the general preparation
+    of spin-squeezed states with the Fermi-Hubbard model.  Here, we
+    discuss the specific implementation of the above protocols in the
+    state-of-the-art 3D $^{87}$Sr optical lattice clock (OLC).  If
+    successful, such an implementation would (to our knowledge) for
+    the first time break through the proof-of-principle stage of spin
+    squeezing efforts, and achieve a genuine metrological enhancement
+    of a world-class quantum sensor.}
+
+  \green{As required for our protocol, 3D $^{87}$Sr OLC has
+    demonstrated the capability to load a quantum degenerate gas into
+    a 3D lattice at the ``magic wavelength''
+    ($\lambda_{\t{lattice}}=2a\approx813$ nm) for which both the
+    ground ($^1S_0,\dn$) and first excited ($^3P_0,\up$) electronic
+    states (i.e.~the ``clock states'') of the atoms experience the
+    same optical potential[4].}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{2. FIG 3: It may be helpful to the reader to add a dotted line
+    to (b) and (c) indicating the boundary where the optical squeezing
+    times for OAT and TAT are equal, to emphasize how TAT is faster
+    for N$\sim>$500 atoms as noted in the caption.}
+
+  We have added a dotted line to figure 3 marking the boundary at
+  which optimal squeezing times for OAT and TAT are equal.
+  Accordingly, we have modified the last sentence in the caption of
+  figure 3, from:
+
+  \red{... TAT ... achieves this squeezing faster for $N\gtrsim500$
+    atoms.}
+
+  to:
+
+  \green{... TAT ... achieves optimal squeezing faster for
+    $N\gtrsim400$ atoms, as denoted by a dotted line in panels ({\bf
+      b}, {\bf c}).}
+
+  Note that the change from \red{$N\gtrsim500$} to
+  \green{$N\gtrsim400$} reflects the boundary between faster optimal
+  squeezing under OAT vs.~TAT more accurately.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{3. P4L20: When citing the level of spin squeezing attainable
+    with your protocol, including some context or comparison may be
+    helpful for the non-expert to evaluate the impact of your
+    protocol.}
+
+  We thank the referee for realizing that our manuscript would benefit
+  from putting the amount of spin squeezing we report into context
+  with other results in the literature.  We have consequently split
+  off the following text in Section III:
+
+  \red{The results in Fig.~4 show that squeezing via OAT saturates
+    with system size around $N\approx10^3$ ($\ell\approx30$), while
+    TAT allows for continued squeezing gains through $N=10^4$
+    ($\ell=100$).  Even with decoherence, our protocol may
+    realistically generate $\sim10$--$14$ dB of spin squeezing in
+    $\sim1$ second with $\sim10^2$--$10^4$ atoms in a 2D section of
+    the lattice, which is compatible with the atom numbers and
+    interrogation times of state-of-the-art optical lattice clocks[4,
+    5].}
+
+  into a separate paragraph that elaborates on levels of spin
+  squeezing attained in the literature:
+
+  \green{The results in Fig.~4 show that squeezing via OAT saturates
+    with system size around $N\approx10^3$ ($\ell\approx30$), while
+    TAT allows for continued squeezing gains through $N=10^4$
+    ($\ell=100$).  Even with decoherence, our protocol may
+    realistically generate $\sim10$--$14$ dB of spin squeezing in
+    $\sim1$ second with $\sim10^2$--$10^4$ atoms in a 2D section of
+    the lattice, which is compatible with the atom numbers and
+    interrogation times of state-of-the-art optical lattice clocks[4,
+    5].  This amount of spin squeezing exceeds those reported in the
+    ground-state nuclear spin sublevels of a state-of-the-art
+    ${}^{171}$Yb OLC ($\sim6.5$ dB)[55].  While the latter protocol
+    might be used to transfer spin squeezing to the electronic clock
+    state, to date there has been no demonstration of spin squeezing
+    in an optical clock transition.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{4. FIG 4: For this figure, as well as for figures 2 and 3, it
+    may be helpful to use different colors and colorbars, one
+    color(bar) for squeezing and one for time, kept consistent
+    throughout.}
+
+  At the request of the referee, we have made the color maps used in
+  figures 2, 3, and 4 all distinct.  We have done so by changing the
+  color map in figure 3, so as to keep a larger number of perceptually
+  distinct colors in figure 4 (which makes it easier to match a color
+  to a numerical value by eye).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{5. FIG 4 caption: It would be helpful to note that the maximum
+    value of the colorbar is about 20 dB less than the x-range maximum
+    in figure 3a.}
+
+  At the request of the referee, we have added the following sentence
+  to the caption of figure 4:
+
+  \green{The decoherence considered in this work also limits maximally
+    achievable squeezing to $\sim20$ dB less than the decoherence-free
+    maxima shown in Fig.~3.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{6. P5L3: Please quantify what you mean by ``shallow
+    lattices'', both here and at the end of Appendix H.}
+
+  This comment concerns words ``shallow lattices'' in the first
+  sentence of the text:
+
+  \red{In addition to light scattering, $p$-wave losses from inelastic
+    ${}^3 P_0$ collisions[17, 19, 50] can also degrade the maximum
+    achievable spin squeezing, particularly in shallow lattices.  More
+    details on $p$-wave losses are discussed in Appendix H, where we
+    show that operating at lattices deeper than $8 E_{\t{R}}$ may be
+    necessary to suppress the impact of inelastic collisions on spin
+    squeezing, at the cost of slightly increasing light scattering.}
+
+  The purpose of the first sentence, which contains the words
+  ``shallow lattices'', was not to quantify relevant lattice depths,
+  but rather to communicate the fact that $p$-wave losses generally
+  get worse with increasing lattice depth.  The {\it following}
+  sentence then quantifies the implications of $p$-wave losses for
+  operating lattice depths.  Our wording previously made this
+  structure unclear, so we have changed the above sentences to read:
+
+  \green{In addition to light scattering, $p$-wave losses from
+    inelastic ${}^3 P_0$ collisions[17, 19, 56], can also degrade the
+    maximum achievable spin squeezing, which becomes more pronounced
+    for shallower lattices.  More details on $p$-wave losses are
+    discussed in Appendix H, where we show that operating at lattice
+    depths $V_0\gtrsim 7 E_{\t{R}}$ may be necessary to suppress the
+    impact of inelastic collisions on spin squeezing, at the cost of
+    slightly increasing light scattering.}
+
+  Note that the change from \red{$8E_{\t{R}}$} to \green{$7E_{\t{R}}$}
+  better reflects our findings in Appendix H, which determined that
+  useful squeezing is still achievable in the presence of with
+  $p$-wave losses with $U/J\gtrsim6$, at which $V_0\gtrsim7E_{\t{R}}$.
+
+  For similar reasons, we have changed the following text in Appendix
+  H:
+
+  \red{As can be seen, the decay rate $\gamma$ is largely suppressed
+    as $V_0$ increases but is not completely negligible at shallow
+    lattices.  To quantify the effect ...}
+
+  to:
+
+  \green{The decay rate $\gamma$ is suppressed exponentially with
+    increasing lattice depth $V_0$.  To quantify the effect ...}
+
+  and we have changed the text (in the last paragraph of Appendix H):
+
+  \red{For shallow lattices, the effect of inelastic collisions can
+    limit the spin squeezing to $\sim10$ dB.}
+
+  to:
+
+  \green{For shallow lattices ($V_0\lesssim7E_{\t{R}}$), the effect of
+    inelastic collisions can limit the spin squeezing to $\sim10$ dB.}
+
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{External consultant}
+
+\begin{enumerate}
+\item Concerning:
+
+  \blue{The present manuscript is a theory proposal motivated very
+    much by the existing, and highly optimized setup of a Sr lattice
+    clock in the Ye lab at JILA. There is no question that this is a
+    world leading setup. To push the accuracy further, one question is
+    how -- in this existing setup -- one can generate spin squeezed
+    states. I note that spin squeezing is probably relevant for clocks
+    involving a relatively small number of atoms (like present trapped
+    ion experiments), but for lattice clocks with a very large number
+    the relevance is a question to ask. Let me also mention that spin
+    squeezing has been demonstrated with cavities etc. (Thompson at
+    JILA, Vuletic MIT and others), but its actual usefulness in an
+    actual leading atomic clock still awaits demonstration, as far as
+    I know.}
+
+  \blue{What this paper does is to start from Hubbard models, and
+    design One-Axis-Twist Hamiltonians (there is a huge literature on
+    this) from the Hubbard Hamiltonian naturally appearing in the
+    lattice clock in the limit of shallow lattices. This is probably a
+    limit they find it necessary to work in because of other
+    constraints. Their idea is to get an infinite-range interaction
+    required for One-Axis-Twisting by inducing an energy gap so that
+    Hubbard model reduces to the One-Axis-Twist
+    Hamiltonian. Conceptual ideas like this is what I have seen
+    before, e.g.~in
+    \url{https://journals.aps.org/pra/abstract/10.1103/PhysRevA.80.032311},
+    though in a different experimental context.}
+
+  As the consultant says, spin squeezing has indeed been demonstrated
+  in other experimental platforms, and despite numerous proposals such
+  as
+  \href{https://journals.aps.org/pra/abstract/10.1103/PhysRevA.80.032311}{PhysRevA.80.032311},
+  the ``actual usefulness'' of spin squeezing still awaits
+  demonstration.  In our view, this point highlights the relevance and
+  importance of our work, which goes beyond proof-of-principle
+  demonstrations that spin squeezing might be used to achieve some
+  technological advantage.  Specifically, our work outlines the first
+  (to our knowledge) {\it realistic} proposal to generate {\it useful}
+  spin squeezing that would push the state-of-the-art in a world-class
+  sensor.  To emphasize this point, we have rewritten the last
+  paragraph of our introduction (as detailed in point
+  \ref{pt:R2.scope} of Section \ref{sec:R2} above).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Concerning:
+
+  \blue{My conclusions are:}
+
+  \blue{Pushing atomic clocks, and lattice clocks in particular, to a
+    next level of accuracy, and exploring the use of spin squeezing,
+    and in particular its use in an actual precision experiment, is
+    highly relevant.}
+
+  \blue{The present proposal might be a good way to go in the Jun Ye
+    lab, and would thus have quite an impact if successful.}
+
+  \blue{However, this paper is quite specialized to the JILA setup,
+    and the question is if these are ideas which are conceptually new,
+    and applicable in a broader context. Here my answer would be
+    slightly mixed: using Spins Orbit Coupling to open gaps in the
+    spectrum to make infinite range interactions is an interesting
+    idea. But is it enough?}
+
+  \blue{Of course, if they can demonstrate the existence of squeezing
+    based on these ideas in a real experiment at JILA on whatever
+    level, I would be unreservedly impressed and enthusiastic. As a
+    theory paper alone, it might be a bit too specialized. It is the
+    old question and dilemma for theorists: publish a theory paper by
+    itself, or wait until experimentalists actually do it -- which
+    might take a long time.}
+
+  We appreciate the recognition that our proposal is ``highly
+  relevant'', with the potential to have ``quite an impact''.  In
+  light of this recognition, and the admission that the consultant
+  would be ``unreservedly impressed and enthusiastic'' with a
+  successful experimental implementation of our proposal, with all due
+  respect we must express firm disagreement with the consultant's
+  present takeaway from the ``old question and dilemma'' of whether
+  theorists should publish their ideas, or wait until these ideas are
+  implemented experimentally.  Due to the scarcity of realistic
+  proposals for a practical quantum advantage in world-class sensors,
+  we believe that our proposal and methods are worthwhile
+  disseminating to a broad scientific audience that can scrutinize our
+  ideas, and build on them to develop their own (possibly modified or
+  improved) implementations.  We hope that the editors agree with our
+  view on the importance to widely disseminate not only experimental
+  results, but also theoretical proposals that guide experiments in
+  ways that actually advance state-of-the-art sensors and pave the
+  ground for the practical development and application of new
+  technologies.
+
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Miscellaneous changes}
+
+\begin{enumerate}
+\item To clarify our high-level summary of the mechanism for spin
+  squeezing, we have added the following sentence to the summary of
+  our results in the introduction (second to last paragraph of Section
+  I, top left of page 2 in the revised text):
+
+  \green{Interactions thereby prolong inter-particle spin coherence
+    through a spin-locking effect, which additionally transforms the
+    dephasing effect of SOC into a collective spin squeezing process.}
+
+\item To add structure to our manuscript, we have changed the title of
+  Section II from ``\red{From the Fermi-Hubbard model to one-axis and
+    two-axis twisting}'' to ``\green{Spin squeezing with the
+    Fermi-Hubbard model}'', and we have added the sub-section headings
+  ``\green{Model validity}'' (II.A) and ``\green{Two-axis twisting}''
+  (II.B).
+
+\item We have shortened the title of Section III, from
+  ``\red{Experimental preparation of a squeezed state and practical
+    considerations}'' to ``\green{Experimental implementation and
+    practical considerations}''.
+
+\item To clarify some notation, we have changed the last sentence
+  before the conclusion, from:
+
+  \red{Such a pulse can transfer $\ket{g, I=-7/2}$ to
+    $\ket{e, I=-9/2}$ without affecting $\ket{g, I=-9/2}$.}
+
+  to:
+
+  \green{Such a pulse can transfer $\ket{g,-7/2}$ to $\ket{e,-9/2}$
+    without affecting $\ket{g,-9/2}$, where $g$ and $e$ respectively
+    denote the ground and excited (electronic) clock states.}
+
+\item We have added the following text to the beginning of the caption
+  to figure H1:
+
+  \green{{\bf $p$-wave loss rates}.}
+\end{enumerate}
+
+\end{document}
