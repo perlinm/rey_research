@@ -152,11 +152,13 @@ basis for the space of operators on the Hilbert space of an $n$-level
 system, coincide exactly with the Pauli operators in the case of
 $n=2$, and satisfy the orthonormality condition
 \begin{align}
-  \obk{\lambda_a|\lambda_b} = 2\delta_{ab}.
+  \obk{\lambda_a|\lambda_b} = 2\delta_{ab},
   \label{eq:GGM_inner}
 \end{align}
-Denoting a vector of all GGM operators by $\v\lambda$, we can
-therefore write (see Appendix \ref{sec:changing_bases})
+where $a,b$ index any GGM operator in \eqref{eq:GGM_diag} or
+\eqref{eq:GGM_off_diag}.  Denoting a vector of all GGM operators by
+$\v\lambda$, we can therefore write (see Appendix
+\ref{sec:changing_bases})
 \begin{align}
   H_{\t{int}}
   = -\f{u}{4} \sum_{p,q} \v\lambda^{(p)} \c \v\lambda^{(q)}
@@ -186,7 +188,7 @@ total spin and its projection onto a quantization axis;
 $I\equiv\p{n-1}/2$ is the maximal angular momentum of a spin-$n$
 system; $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ index projections of an
 $n$-level nuclear spin onto a quantization axis; and
-$\bk{I\mu,JM;I\nu}$ is a Clebsch-Gordan coefficient.  Similarly to the
+$\bk{I\mu;I\nu,JM}$ is a Clebsch-Gordan coefficient.  Similarly to the
 GGM operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the
 transition operators in \eqref{eq:trans_ops} provide a complete basis
 for the space of operators on the Hilbert space of an $n$-level
@@ -223,14 +225,15 @@ Hamiltonians in terms of self-adjoint operators, we define the {\it
 \end{align}
 for $\Delta\in\set{1,2,\cdots,J}$.  Similarly to the GGM operators in
 \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the drive operators
-satisfy the orthonormality condition
+are equal to the Pauli operators in the case of $n=2$, and satisfy the
+orthonormality condition
 \begin{align}
   \obk{D_a|D_b} = 2\delta_{ab},
 \end{align}
-and are similarly equal to the Pauli operators in the case of $n=2$.
-These operators have the convenient feature that $D_{1,1,\pm}$ is (up
-to a gauge transformation) proportional to the Hamiltonian induced on
-a spin-$n$ system by a classical driving laser.  In terms of the drive
+where $a,b$ index any drive operator in \eqref{eq:drive_ops}.  These
+operators have the convenient feature that $D_{1,1,\pm}$ is (up to a
+gauge transformation) proportional to the Hamiltonian induced on a
+spin-$n$ system by a classical driving laser.  In terms of the drive
 operators,
 \begin{align}
   H_{\t{int}} = -\f{u}{4} \sum_{p,q} \v D^{(p)}\c\v D^{(q)}
@@ -244,10 +247,10 @@ where $\v D$ is a vector of all drive operators in
 
 We note that Weyl operators\cite{bertlmann2008bloch} and self-adjoint
 linear combinations thereof\cite{asadian2016heisenbergweyl} also
-provide an interesting basis of operators that generalize the notion
-of position and momentum to the case of a finite-dimensional space.
-As our present work is motivated by multi-level systems that are
-realized with nuclear spin (angular momentum) states, however, the
+provide an interesting basis of operators, generalizing the notion of
+position and momentum to the case of a finite-dimensional Hilbert
+space.  As our present work is motivated by multi-level systems that
+are realized with nuclear spin (angular momentum) states, however, the
 transition and drive operators are more natural to consider than the
 Weyl operators, so we will not discuss the latter any further.
 
