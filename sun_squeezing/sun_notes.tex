@@ -40,12 +40,23 @@
 \newcommand{\y}{\text{y}}
 \newcommand{\z}{\text{z}}
 
+\newcommand{\B}{\mathcal{B}}
 \newcommand{\D}{\mathcal{D}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\N}{\mathcal{N}}
 \renewcommand{\O}{\mathcal{O}}
+\newcommand{\Q}{\mathcal{Q}}
 \newcommand{\T}{\mathcal{T}}
+\renewcommand{\S}{\mathcal{S}}
+
+\def\obra#1{\mathinner{({#1}|}}
+\def\oket#1{\mathinner{|{#1})}}
+\def\obk#1{\mathinner{({#1})}}
+\def\oop#1#2{\oket{#1}\!\obra{#2}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
+\thispagestyle{fancy}
 
 \title{Multi-level generalizations of collective spin dynamics and
   squeezing}%
@@ -53,14 +64,15 @@
 \date{\today}
 
 \maketitle
-\thispagestyle{fancy}
+
+\tableofcontents
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Uniform interactions and the Generalized Gell-Mann matrices}
+\section{Collective SU($n$)-symmetric interactions}
 
-Under the frozen-mode approximation, SU($n$)-symmetric uniform
-all-to-all two-body interactions between fermions on a lattice take
-the form\cite{perlin2019effective}
+Under the frozen-mode approximation, two-body collective
+SU($n$)-symmetric interactions between fermions on a lattice take the
+form\cite{perlin2019effective}
 \begin{align}
   H_{\t{int}} = \f{u}{2} \sum_{p,q,\mu,\nu}
   \p{c_{p\mu}^\dag c_{q\nu}^\dag c_{q\nu} c_{p\mu}
@@ -83,14 +95,44 @@ the $\sim N^2$ term and simply write
 \begin{align}
   H_{\t{int}}
   = - \f{u}{2} \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}.
-  \label{eq:H_int_start}
 \end{align}
 In the case of SU(2), at this point we would expand the spin operators
 $s_{\mu\nu}^{(p)}$ in terms of Pauli operators in order to convert
 $H_{\t{int}}$ into an SU(2) spin Hamiltonian.  To generalize this
-procedure to SU($n$), we define the {\it generalized Gell-Mann (GGM)
-  operators}\cite{hioe1981level, bertlmann2008bloch} for
-$j,k,\ell\in\set{0,1,\cdots,n-1}$ with $k<j$ and $\ell>0$:
+procedure to the case of SU($n$), we first define a vector
+$\v s^{(p)}$ of all spin operators $s_{\mu\nu}^{(p)}$, and write
+\begin{align}
+  H_{\t{int}}
+  = - \f{u}{2} \sum_{p,q} {\v s^{(p)}}^\dag \v s^{(q)}
+  = - \f{u}{2} \v\S^\dag \c \v\S,
+  &&
+  \v\S\equiv \sum_p \v s^{(p)}.
+  \label{eq:H_int_spin}
+\end{align}
+In the following sections, we identify various bases for the space of
+operators on the Hilbert space of an $n$-level system.  For brevity,
+we denote this space of operators by $\B_n$, and note that $\B_n$ is
+itself an $n^2$-dimensional Hilbert space equipped with a trace
+(Hilbert-Schmidt) inner product
+\begin{align}
+  \obk{\O|\Q} \equiv \tr\p{\O^\dag Q},
+\end{align}
+where $\oket{\Q}$ and $\obra{\O}$ respectively denote vectors in
+$\B_n$ and its dual space $\B_n^*$.  Similarly to the set of spin
+operators $\set{s_{\mu\nu}}$ on the Hilbert space at each
+quasi-momentum, all of the bases we consider will be orthonormal with
+respect to the trace inner product.  As we show in Appendix
+\ref{sec:changing_bases}, the collective SU($n$)-symmetric interaction
+Hamiltonian in \eqref{eq:H_int_spin} takes an identical form in any
+orthonormal basis for $\B_n$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Generalized Gell-Mann (GGM) operators}
+
+The most obvious generalization of Pauli operators to the case of
+SU($n$) are the {\it generalized Gell-Mann (GGM)
+  operators}\cite{hioe1981level, bertlmann2008bloch}, defined for
+$j,k,\ell\in\set{0,1,\cdots,n-1}$ with $k<j$ and $\ell>0$ by
 \begin{align}
   \lambda_0 \equiv \sqrt{\f{2}{n}}~ \1,
   &&
@@ -104,38 +146,34 @@ $j,k,\ell\in\set{0,1,\cdots,n-1}$ with $k<j$ and $\ell>0$:
   \lambda_{jk,-} \equiv i\p{\op{j}{k} - \op{k}{j}},
   \label{eq:GGM_off_diag}
 \end{align}
-where $\1$ is the identity operator.  The GGM operators in
-\eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag} coincide exactly with
-the Pauli operators in the case of $n=2$, generally provide a complete
-basis for operators on the Hilbert space of an $n$-level system, and
-satisfy the orthonormality relation
+where $\1$ is the identity operator.  The self-adjoint GGM operators
+in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag} provide a complete
+basis for the space of operators on the Hilbert space of an $n$-level
+system, coincide exactly with the Pauli operators in the case of
+$n=2$, and satisfy the orthonormality condition
 \begin{align}
-  \bk{\lambda_a,\lambda_b}
-  \equiv \tr\p{\lambda_a^\dag\lambda_b}
-  = 2\delta_{ab}.
+  \obk{\lambda_a|\lambda_b} = 2\delta_{ab}.
   \label{eq:GGM_inner}
 \end{align}
-Denoting a vector of all GGM operators by $\v\lambda$, we can make the
-remarkable simplification
+Denoting a vector of all GGM operators by $\v\lambda$, we can
+therefore write (see Appendix \ref{sec:changing_bases})
 \begin{align}
   H_{\t{int}}
   = -\f{u}{4} \sum_{p,q} \v\lambda^{(p)} \c \v\lambda^{(q)}
   = -u \v\Lambda \c \v\Lambda,
+  &&
+  \v\Lambda \equiv \f12 \sum_p \v\lambda^{(p)}.
   \label{eq:H_int_GGM}
 \end{align}
-where $\O^{(p)}$ denotes the action of $\O$ on the degrees of freedom
-at quasi-momentum mode $p$, and
-$\v\Lambda\equiv\f12\sum_p\v\lambda^{(p)}$ is a collective SU($n$)
-spin vector.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Transition operators}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Transition operators}
 
 The GGM operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}
 provide a convenient operator basis to describe dynamics obeying
 SU($n$) symmetry.  An external driving field addressing $n$-level
-nuclear spins, however, will generally violate SU($n$) symmetry.  Such
-a field obeys the symmetries of the {\it polarization} or {\it
+nuclear spins, however, will generally violate SU($n$) symmetry, and
+instead obeys the symmetries of the {\it polarization} or {\it
   transition operators} defined by\cite{kryszewski2006alternative,
   bertlmann2008bloch}
 \begin{align}
@@ -152,25 +190,23 @@ $\bk{I\mu,JM;I\nu}$ is a Clebsch-Gordan coefficient.  Similarly to the
 GGM operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the
 transition operators in \eqref{eq:trans_ops} provide a complete basis
 for the space of operators on the Hilbert space of an $n$-level
-system, and satisfy the orthonormality relation
+system, and satisfy the orthonormality condition
 \begin{align}
-  \bk{T_{JM},T_{J'M'}}
-  \equiv \tr\p{T_{JM}^\dag T_{J'M'}}
-  = \delta_{JJ'} \delta_{MM'}.
+  \obk{T_{JM}|T_{J'M'}} = \delta_{JJ'} \delta_{MM'},
 \end{align}
-Written in terms of the transition operators, the interaction
-Hamiltonian in \eqref{eq:H_int_start} takes the form
+which implies
 \begin{align}
   H_{\t{int}} = -\f{u}{2} \sum_{p,q} {\v T^{(p)}}^\dag \c \v T^{(q)}
   = -\f{u}{2} \v\T^\dag \c \v\T,
+  &&
+  \v\T \equiv \v\T\equiv\sum_p\v T^{(p)},
   \label{eq:H_int_trans}
 \end{align}
 where $\v T$ is a vector of all transition operators in
-\eqref{eq:trans_ops} and $\v\T\equiv\sum_p\v T^{(p)}$ is a collective
-transition vector.
+\eqref{eq:trans_ops}.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Drive operators}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Drive operators}
 
 Unlike the GGM operators in \eqref{eq:GGM_diag} and
 \eqref{eq:GGM_off_diag}, the transition operators in
@@ -185,21 +221,135 @@ Hamiltonians in terms of self-adjoint operators, we define the {\it
   D_{J\Delta,-} \equiv i\p{T_{J\Delta} - T_{J\Delta}^\dag},
   \label{eq:drive_ops}
 \end{align}
-for $\Delta\in\set{1,2,\cdots,J}$.  The drive operators satisfy the
-same orthonormality relations as the GGM operators, provided in
-\eqref{eq:GGM_inner}, and are similarly equal to the Pauli operators
-in the case of $n=2$.  These operators have the convenient feature
-that $D_{1,1,\pm}$ is (up to a gauge transformation) proportional to
-the Hamiltonian induced on a spin-$n$ system by a classical driving
-laser.  In terms of the drive operators,
+for $\Delta\in\set{1,2,\cdots,J}$.  Similarly to the GGM operators in
+\eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the drive operators
+satisfy the orthonormality condition
+\begin{align}
+  \obk{D_a|D_b} = 2\delta_{ab},
+\end{align}
+and are similarly equal to the Pauli operators in the case of $n=2$.
+These operators have the convenient feature that $D_{1,1,\pm}$ is (up
+to a gauge transformation) proportional to the Hamiltonian induced on
+a spin-$n$ system by a classical driving laser.  In terms of the drive
+operators,
 \begin{align}
   H_{\t{int}} = -\f{u}{4} \sum_{p,q} \v D^{(p)}\c\v D^{(q)}
   = -u \v\D \c \v\D,
+  &&
+  \v\D \equiv \f12 \sum_p \v D^{(p)},
   \label{eq:H_int_drive}
 \end{align}
 where $\v D$ is a vector of all drive operators in
-\eqref{eq:drive_ops} and $\v\D\equiv\f12\sum_p\v D^{(p)}$ is a
-collective drive vector.
+\eqref{eq:drive_ops}.
+
+We note that Weyl operators\cite{bertlmann2008bloch} and self-adjoint
+linear combinations thereof\cite{asadian2016heisenbergweyl} also
+provide an interesting basis of operators that generalize the notion
+of position and momentum to the case of a finite-dimensional space.
+As our present work is motivated by multi-level systems that are
+realized with nuclear spin (angular momentum) states, however, the
+transition and drive operators are more natural to consider than the
+Weyl operators, so we will not discuss the latter any further.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{External drive}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Spin-orbit coupling}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Classifying eigenstates}
+
+
+
+
+\appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Changing operator bases for collective SU($n$)-symmetric
+  interactions}
+\label{sec:changing_bases}
+
+Here we show that the collective interaction Hamiltonian in
+\eqref{eq:H_int_spin} takes an identical form in any orthonormal basis
+for $\B_n$, i.e.~the space of operators on the Hilbert space of an
+$n$-level system, equipped with the trace (Hilbert-Schmidt) inner
+product
+\begin{align}
+  \obk{\O|\Q} \equiv \tr\p{\O^\dag \Q}.
+\end{align}
+To maintain generality, we choose an arbitrary basis $\set{X_j}$
+satisfying the orthonormality condition
+\begin{align}
+  \obk{X_j|X_k} = \N_X \delta_{jk},
+\end{align}
+for $j\in\set{0,1,\cdots,n^2-1}$.  This orthonormality condition
+implies that we can resolve the identity (super-)operator $\I$ with
+$\I\oket{\O}=\oket{\O}$ for any $\oket\O\in\B_n$ as
+\begin{align}
+  \I = \f1{\N_X} \sum_j \oop{X_j}{X_j}
+  = \f1{\N_X} \sum_j \oop{X_j^\dag}{X_j^\dag},
+\end{align}
+where we used the fact that $\set{X_j^\dag}$ is also an orthonormal
+basis for $\B_n$, satisfying the same orthonormality condition as
+$\set{X_j}$; these two bases are transformed into each other by
+unitary $\sum_j\oop{X_j^\dag}{X_j}/\sqrt{\N_X}$.
+
+There are two types of terms in the Hamiltonian in
+\eqref{eq:H_int_spin}: two-body interactions and self-interactions,
+respectively of the form
+\begin{align}
+  \sum_j X_j^\dag \otimes X_j
+  = \sum_j \oket{X_j^\dag}\otimes\oket{X_j},
+  &&
+  \sum_j X_j^\dag X_j = \sum_j \oket{X_j^\dag X_j}.
+\end{align}
+Choosing a different basis $\set{Y_j}$ for $\B_n$ with norm $\N_Y$, by
+resolution of the identity we find that
+\begin{align}
+  \sum_j \oket{X_j^\dag}\otimes\oket{X_j}
+  = \f1{\N_Y^2} \sum_{j,k,\ell}
+  \oket{Y_k^\dag} \obk{Y_k^\dag|X_j^\dag}
+  \otimes \oket{Y_\ell} \obk{Y_\ell|X_j},
+\end{align}
+where
+\begin{align}
+  \obk{Y_k^\dag|X_j^\dag}
+  = \tr\p{Y_k X_j^\dag}
+  = \tr\p{X_j^\dag Y_k}
+  = \obk{X_j|Y_k},
+\end{align}
+which allows us to simplify
+\begin{align}
+  \sum_j \oket{X_j^\dag}\otimes\oket{X_j}
+  = \f1{\N_Y^2} \sum_{k,\ell}
+  \oket{Y_k^\dag} \otimes \oket{Y_\ell}
+  \sum_j \obk{Y_\ell|X_j} \obk{X_j|Y_k}
+  = \f{\N_X}{\N_Y} \sum_k
+  \oket{Y_k^\dag} \otimes \oket{Y_k}.
+\end{align}
+For the single-body self-interactions, we can similarly expand
+\begin{align}
+  X_j = \f1{\N_Y} \sum_k Y_k \obk{Y_k|X_j},
+  &&
+  X_j^\dag = \f1{\N_Y} \sum_k Y_k^\dag \obk{Y_k^\dag|X_j^\dag}
+  = \f1{\N_Y} \sum_k Y_k^\dag \obk{X_j|Y_k},
+\end{align}
+which implies
+\begin{align}
+  \sum_j X_j^\dag X_j
+  = \f1{\N_Y^2} \sum_{j,k,\ell} Y_k^\dag Y_\ell
+  \obk{X_j|Y_k} \obk{Y_\ell|X_j}
+  = \f{\N_X}{\N_Y} \sum_k Y_k^\dag Y_k.
+\end{align}
+The collective interaction Hamiltonian in \eqref{eq:H_int_spin} thus
+takes an identical form in any orthonormal basis for the space $\B_n$
+of operators on the Hilbert space of an $n$-level system, up to
+appropriate re-scaling factors $\N_X/\N_Y$.
 
 \bibliography{sun_notes.bib}
 
