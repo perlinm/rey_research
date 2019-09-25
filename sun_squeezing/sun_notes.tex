@@ -299,52 +299,48 @@ basis for $\B_n$, satisfying the same orthonormality condition as
 $\set{X_j}$; these two bases are transformed into each other by
 unitary $\sum_j\oop{X_j^\dag}{X_j}/\sqrt{\N_X}$.
 
-There are two types of terms in the Hamiltonian in
-\eqref{eq:H_int_spin}: two-body interactions and self-interactions,
-respectively of the form
+The collective interaction Hamiltonian in \eqref{eq:H_int_spin} takes
+the form
 \begin{align}
-  \sum_j X_j^\dag \otimes X_j
-  = \sum_j \oket{X_j^\dag}\otimes\oket{X_j},
+  H = \sum_{p,q,j} {X_j^{(p)}}^\dag X_j^{(q)},
+\end{align}
+which essentially consists of two-body interactions ($p\ne q$) and
+self-interactions ($p=q$), respectively of the form
+\begin{align}
+  \sum_j X_j \otimes X_j^\dag,
   &&
-  \sum_j X_j^\dag X_j = \sum_j \oket{X_j^\dag X_j}.
+  \sum_j X_j X_j^\dag.
 \end{align}
-Choosing a different basis $\set{Y_j}$ for $\B_n$ with norm $\N_Y$, by
-resolution of the identity we find that
-\begin{align}
-  \sum_j \oket{X_j^\dag}\otimes\oket{X_j}
-  = \f1{\N_Y^2} \sum_{j,k,\ell}
-  \oket{Y_k^\dag} \obk{Y_k^\dag|X_j^\dag}
-  \otimes \oket{Y_\ell} \obk{Y_\ell|X_j},
-\end{align}
-where
-\begin{align}
-  \obk{Y_k^\dag|X_j^\dag}
-  = \tr\p{Y_k X_j^\dag}
-  = \tr\p{X_j^\dag Y_k}
-  = \obk{X_j|Y_k},
-\end{align}
-which allows us to simplify
-\begin{align}
-  \sum_j \oket{X_j^\dag}\otimes\oket{X_j}
-  = \f1{\N_Y^2} \sum_{k,\ell}
-  \oket{Y_k^\dag} \otimes \oket{Y_\ell}
-  \sum_j \obk{Y_\ell|X_j} \obk{X_j|Y_k}
-  = \f{\N_X}{\N_Y} \sum_k
-  \oket{Y_k^\dag} \otimes \oket{Y_k}.
-\end{align}
-For the single-body self-interactions, we can similarly expand
+Choosing a different basis $\set{Y_j}$ for $\B_n$ with corresponding
+norm $\N_Y$, we can expand
 \begin{align}
   X_j = \f1{\N_Y} \sum_k Y_k \obk{Y_k|X_j},
   &&
   X_j^\dag = \f1{\N_Y} \sum_k Y_k^\dag \obk{Y_k^\dag|X_j^\dag}
   = \f1{\N_Y} \sum_k Y_k^\dag \obk{X_j|Y_k},
 \end{align}
-which implies
+where we used the fact that
 \begin{align}
-  \sum_j X_j^\dag X_j
-  = \f1{\N_Y^2} \sum_{j,k,\ell} Y_k^\dag Y_\ell
-  \obk{X_j|Y_k} \obk{Y_\ell|X_j}
-  = \f{\N_X}{\N_Y} \sum_k Y_k^\dag Y_k.
+  \obk{Y_k^\dag|X_j^\dag}
+  = \tr\p{Y_k X_j^\dag}
+  = \tr\p{X_j^\dag Y_k}
+  = \obk{X_j|Y_k}.
+\end{align}
+By resolution of the identity, we can therefore find
+\begin{align}
+  \sum_j X_j \otimes X_j^\dag
+  = \f1{\N_Y^2} \sum_{j,k,\ell} Y_k \obk{Y_k|X_j}
+  \otimes Y_\ell^\dag \obk{X_j|Y_\ell}
+  = \f{\N_X}{\N_Y^2} \sum_{k,\ell} Y_k \otimes Y_\ell^\dag
+  \obk{Y_k|\I|Y_\ell}
+  = \f{\N_X}{\N_Y} \sum_k Y_k \otimes Y_k^\dag,
+\end{align}
+and similarly
+\begin{align}
+  \sum_j X_j X_j^\dag
+  = \f1{\N_Y^2} \sum_{j,k,\ell} Y_k Y_\ell^\dag
+  \obk{Y_k|X_j} \obk{X_j|Y_\ell}
+  = \f{\N_X}{\N_Y} \sum_k Y_k Y_k^\dag.
 \end{align}
 The collective interaction Hamiltonian in \eqref{eq:H_int_spin} thus
 takes an identical form in any orthonormal basis for the space $\B_n$
