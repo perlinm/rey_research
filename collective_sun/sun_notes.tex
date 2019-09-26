@@ -189,22 +189,22 @@ instead obeys the symmetries of the {\it polarization} or {\it
   transition operators} defined by\cite{kryszewski2006alternative,
   bertlmann2008bloch}
 \begin{align}
-  T_{JM} \equiv \sqrt{\f{2J+1}{2I+1}} \sum_{\mu,\nu}
-  \bk{I\mu;I\nu,JM} \op{\mu}{\nu},
+  T_{LM} \equiv \sqrt{\f{2L+1}{2I+1}} \sum_{\mu,\nu}
+  \bk{I\mu;I\nu,LM} \op{\mu}{\nu},
   \label{eq:trans_ops}
 \end{align}
-where $J\in\set{0,1,\cdots,n-1}$ and $M\in\set{-J,-J+1,J}$ index a
+where $L\in\set{0,1,\cdots,n-1}$ and $M\in\set{-L,-L+1,L}$ index a
 total spin and its projection onto a quantization axis;
 $I\equiv\p{n-1}/2$ is the maximal angular momentum of an $n$-level
 spin; $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ index projections of an
 $n$-level nuclear spin onto a quantization axis; and
-$\bk{I\mu;I\nu,JM}$ is a Clebsch-Gordan coefficient.  Similarly to the
+$\bk{I\mu;I\nu,LM}$ is a Clebsch-Gordan coefficient.  Similarly to the
 GGM operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the
 transition operators in \eqref{eq:trans_ops} provide a complete basis
 for the space of operators on the Hilbert space of an $n$-level
 system, and satisfy the orthonormality condition
 \begin{align}
-  \obk{T_{JM}|T_{J'M'}} = \delta_{JJ'} \delta_{MM'},
+  \obk{T_{LM}|T_{L'M'}} = \delta_{LL'} \delta_{MM'},
 \end{align}
 which implies
 \begin{align}
@@ -226,23 +226,23 @@ Unlike the GGM operators in \eqref{eq:GGM_diag} and
 Hamiltonians in terms of self-adjoint operators, we define the {\it
   drive operators}
 \begin{align}
-  D_{J,0} \equiv \sqrt{2}~ T_{J,0},
+  D_{L,0} \equiv \sqrt{2}~ T_{L,0},
   &&
-  D_{J\Delta,+} \equiv -\p{T_{J\Delta} + T_{J\Delta}^\dag},
+  D_{LM} \stackrel{M>0}{\equiv} -\p{T_{L\Delta} + T_{L\Delta}^\dag},
   &&
-  D_{J\Delta,-} \equiv i\p{T_{J\Delta} - T_{J\Delta}^\dag},
+  D_{LM} \stackrel{M<0}{\equiv} i\p{T_{L\Delta} - T_{L\Delta}^\dag},
   \label{eq:drive_ops}
 \end{align}
-for $\Delta\in\set{1,2,\cdots,J}$.  Similarly to the GGM operators in
-\eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the drive operators
-are equal to the Pauli operators in the case of $n=2$, and satisfy the
-orthonormality condition
+for integer $M$ with $\abs{M}\le L$.  Similarly to the GGM operators
+in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the drive
+operators are equal to the Pauli operators in the case of $n=2$, and
+satisfy the orthonormality condition
 \begin{align}
-  \obk{D_a|D_b} = 2\delta_{ab},
+  \obk{D_{LM}|D_{L'M'}} = 2\delta_{LL'}\delta_{MM'},
 \end{align}
 where $a,b$ index any drive operator in \eqref{eq:drive_ops}.  These
-operators have the convenient feature that $D_{1,1,\pm}$ is (up to a
-gauge transformation) proportional to the Hamiltonian induced on an
+operators have the convenient feature that $D_{1,1}$ is (up to a gauge
+transformation) proportional to the Hamiltonian induced on an
 $n$-level spin by a classical driving laser.  In terms of the drive
 operators,
 \begin{align}
@@ -257,13 +257,13 @@ where $\v D$ is a vector of all drive operators in
 
 We note that Weyl operators\cite{bertlmann2008bloch} and self-adjoint
 linear combinations thereof\cite{asadian2016heisenbergweyl} also
-provide an interesting basis of operators, generalizing the notion of
-position and momentum to the case of a finite-dimensional Hilbert
-space.  As our present work is motivated by multi-level systems that
-are realized with nuclear spin (angular momentum) degrees of freedom,
-however, the transition and drive operators are more natural to
-consider than the Weyl operators, so we will not discuss the latter
-any further.
+provide an interesting basis of operators, generalizing continuous
+phase-space displacement operators to the case of a finite-dimensional
+Hilbert space.  As our present work is motivated by multi-level
+systems that are realized with nuclear spin (angular momentum) degrees
+of freedom, however, the transition and drive operators are more
+natural to consider than the Weyl operators, so we will not discuss
+the latter any further.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{External drive and spin-orbit coupling}
@@ -289,38 +289,38 @@ drive becomes
 \begin{align}
   H_{\t{drive}}
   = -\f12 \Omega \sum_j T_{1,1}^{(j)} + \t{h.c.}
-  = \f12 \Omega \sum_j D_{1,1,+}
-  = \Omega \D_{1,1,+},
+  = \f12 \Omega \sum_j D_{1,1}
+  = \Omega \D_{1,1},
 \end{align}
-where $\D_a\equiv\sum_jD_a^{(j)}/2$ is a collective drive operator,
-with e.g.~$\D_{1,1,+}=S_\x$ in the case of $n=2$.  The SU($n$)
-symmetry of collective interactions means that the interaction
-Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_drive} remains unchanged
-under this gauge transformation, but the single-particle Hamiltonian
-in \eqref{eq:H_lat} transformed as
+where $\D_{LM}\equiv\sum_jD_{LM}^{(j)}/2$ is a collective drive
+operator, with e.g.~$\D_{1,1}=S_\x$ in the case of $n=2$.  The SU($n$)
+symmetry of collective interactions implies that the interaction
+Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_drive} is invariant under
+this gauge transformation, but the single-particle Hamiltonian in
+\eqref{eq:H_lat} transforms as
 \begin{align}
   H_{\t{lat}}
   \to H_{\t{lat}}^{(\phi)}
-  = -J \sum_{q,\mu} \cos\p{qa+\mu\phi} c_{q\mu}^\dag c_{q\mu}
-  = -J \sum_{q,\mu} \cos\p{qa+\mu\phi} s_{\mu\mu}^{(q)},
+  = -J \sum_{q,\mu} \cos\p{qa+\mu\phi} c_{q\mu}^\dag c_{q\mu},
+  \label{eq:H_lat_SOC}
 \end{align}
-where $\phi$ is the relative phase between adjacent lattice sites.  In
-terms of the drive operators, we can expand
+where $\phi$ is the relative phase of the driving laser between
+adjacent lattice sites.  In the basis of drive operators, this
+Hamiltonian takes the form (see Appendix \ref{sec:lat_drive})
 \begin{align}
-  H_{\t{lat}}^{(\phi)}
-  = -\sum_{q,J}\p{-1}^J f_J\p{qa} B_J\p{\phi} D_{J,0}^{(q)},
+  H_{\t{lat}}^{(\phi)} = -J \sum_{q,L} B_L\p{q,\phi} D_{L,0}^{(q)},
+  \label{eq:H_lat_drive}
+\end{align}
+with effective driving field strengths
+\begin{align}
+  B_L\p{q,\phi} = \p{-1}^L f_L\p{qa} \sqrt{\f{L+1/2}{n}}
+  \sum_\mu \bk{I\mu;I\mu,L,0} f_L\p{\mu\phi},
   &&
-  f_J\p{\theta} \equiv
+  f_L\p{\theta} \equiv
   \begin{cases}
-    \cos\theta & J\,\t{even} \\
-    \sin\theta & J\,\t{odd}
-  \end{cases},
-\end{align}
-where the effective ``fields'' $B_J\p{\phi}$ are
-\begin{align}
-  B_J\p{\phi}
-  = \f12 \sum_\mu \obk{D_{J,0}|s_{\mu\mu}} f_J\p{\mu\phi}
-  = \sqrt{\f{J+1/2}{n}} \sum_\mu \bk{I\mu;I\mu,J,0} f_J\p{\mu\phi}.
+    \cos\theta & L~\t{even} \\
+    \sin\theta & L~\t{odd}
+  \end{cases}.
 \end{align}
 
 
@@ -409,6 +409,85 @@ The collective interaction Hamiltonian in \eqref{eq:H_int_spin} thus
 takes an identical form in any orthonormal basis for the space $\B_n$
 of operators on the Hilbert space of an $n$-level system, up to
 appropriate re-scaling factors $\N_X/\N_Y$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Spin-orbit coupling with drive operators}
+\label{sec:lat_drive}
+
+Here we take the single-particle spin-orbit coupled Hamiltonian
+$H_{\t{lat}}^{(\phi)}$ in \eqref{eq:H_lat_SOC}, and derive its
+expression in \eqref{eq:H_lat_drive} in terms of the drive operators
+$D_{LM}$.  In the basis of ordinary spin operators $s_{\mu\mu}$, this
+Hamiltonian takes the form
+\begin{align}
+  H_{\t{lat}}^{(\phi)}
+  = -J \sum_{q,\mu} \cos\p{qa+\mu\phi} s_{\mu\mu}^{(q)}
+  \label{eq:H_lat_spin}
+\end{align}
+Defining the diagonal ``spin-wave'' operators
+\begin{align}
+  \omega_{\phi,+} \equiv \sum_\mu \cos\p{\mu\phi} s_{\mu\mu},
+  &&
+  \omega_{\phi,-} \equiv \sum_\mu \sin\p{\mu\phi} s_{\mu\mu},
+\end{align}
+which are respectively even and odd under spin inversion
+($\mu\to-\mu$), we can simplify
+\begin{align}
+  \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
+  = \cos\p{qa} \omega_{\phi,+} - \sin\p{qa} \omega_{\phi,-},
+\end{align}
+and resolve the identity (super-)operator $\I$ with
+$\I \omega_{\phi,\pm} = \omega_{\phi,\pm}$ in the basis of the drive
+operators, finding
+\begin{align}
+  \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
+  = \cos\p{qa} \f12 \sum_{L,M} \obk{\omega_{\phi,+}|D_{LM}} D_{LM}
+  - \sin\p{qa} \f12 \sum_{L,M} \obk{\omega_{\phi,-}|D_{LM}} D_{LM}.
+\end{align}
+We now note that the drive operators $D_{LM}$ are strictly
+off-diagonal for $M\ne0$, and furthermore that $D_{L,0}$ with even
+(odd) $L$ is even (odd) under spin inversion, which implies
+\begin{align}
+  \sum_{L,M} \obk{\omega_{\phi,+}|D_{LM}} D_{LM}
+  = \sum_{L\,\t{even}} \obk{\omega_{\phi,+}|D_{L,0}} D_{L,0},
+\end{align}
+and likewise with $\omega_{\phi,-}$ and odd $L$.  In total, we can
+write
+\begin{align}
+  \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
+  = \cos\p{qa} \f12 \sum_{L\,\t{even}}
+  \obk{\omega_{\phi,+}|D_{L,0}} D_{L,0}
+  - \sin\p{qa} \f12 \sum_{L\,\t{odd}}
+  \obk{\omega_{\phi,-}|D_{L,0}} D_{L,0},
+\end{align}
+or, more compactly,
+\begin{align}
+  \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
+  = \sum_L B_L\p{q,\phi} D_{L,0},
+  \label{eq:compact_SOC_drive}
+\end{align}
+with effective driving field strengths
+\begin{align}
+  B_L\p{q,\phi}
+  &\equiv \p{-1}^L f_L\p{qa} \f12
+  \sum_\mu f_L\p{\mu\phi} \obk{s_{\mu\mu}|D_{L,0}} \\
+  &= \p{-1}^L f_L\p{qa} \sqrt{\f{L+1/2}{n}}
+  \sum_\mu \bk{I\mu;I\mu,L,0} f_L\p{\mu\phi},
+\end{align}
+where
+\begin{align}
+  f_L\p{\theta} \equiv
+  \begin{cases}
+    \cos\theta & L~\t{even} \\
+    \sin\theta & L~\t{odd}
+  \end{cases}.
+\end{align}
+Substituting the result in \eqref{eq:compact_SOC_drive} into the
+single-particle Hamiltonian in \eqref{eq:H_lat_spin} yields
+\begin{align}
+  H_{\t{lat}}^{(\phi)} = -J \sum_{q,L} B_L\p{q,\phi} D_{L,0}^{(q)}.
+\end{align}
+
 
 \bibliography{sun_notes.bib}
 
