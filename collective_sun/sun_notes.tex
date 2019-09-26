@@ -272,7 +272,9 @@ An external driving laser addressing a spin-$1/2$ particle on a
 lattice will induce the Hamiltonian
 \begin{align}
   \left. H_{\t{drive}}^{(\phi)} \right|_{n=2}
-  = \f12 \Omega \sum_j e^{i\phi_j} c_{j,\up}^\dag c_{j,\dn} + \t{h.c.},
+  = \f12 \Omega \sum_j
+  \p{e^{i\phi_j} c_{j,\up}^\dag c_{j,\dn}
+    + e^{-i\phi_j} c_{j,\dn}^\dag c_{j,\up}},
   \label{eq:H_drive_2}
 \end{align}
 where $\Omega$ is a drive strength, $j$ indexes a lattice site, and
@@ -280,7 +282,8 @@ $\phi_j$ is a site-dependent phase.  The multi-level analogue of
 \eqref{eq:H_drive_2} is
 \begin{align}
   H_{\t{drive}}^{(\phi)}
-  = -\f12 \Omega \sum_j e^{i\phi_j} T_{1,1}^{(j)} + \t{h.c.}.
+  = -\f12 \Omega \sum_j \p{e^{i\phi_j} T_{1,1}^{(j)}
+    + e^{-i\phi_j} {T_{1,1}^{(j)}}^\dag}.
   \label{eq:H_drive}
 \end{align}
 We can make this drive spatially homogenous via the gauge
@@ -288,7 +291,7 @@ transformation $c_{j\mu} \to e^{i\mu\phi_j} c_{j\mu}$, after which the
 drive becomes
 \begin{align}
   H_{\t{drive}}
-  = -\f12 \Omega \sum_j T_{1,1}^{(j)} + \t{h.c.}
+  = -\f12 \Omega \sum_j\p{T_{1,1}^{(j)} + {T_{1,1}^{(j)}}^\dag}
   = \f12 \Omega \sum_j D_{1,1}
   = \Omega \D_{1,1},
 \end{align}
@@ -360,12 +363,12 @@ $\I\oket{\O}=\oket{\O}$ for any $\oket\O\in\B_n$ as
 where we used the fact that $\set{X_j^\dag}$ is also an orthonormal
 basis for $\B_n$, satisfying the same orthonormality condition as
 $\set{X_j}$; these two bases are transformed into each other by
-unitary $\sum_j\oop{X_j^\dag}{X_j}/\sqrt{\N_X}$.
+unitary $\sum_j\oop{X_j^\dag}{X_j}/\N_X$.
 
 The collective interaction Hamiltonian in \eqref{eq:H_int_spin} takes
 the form
 \begin{align}
-  H = \sum_{p,q,j} {X_j^{(p)}}^\dag X_j^{(q)},
+  H = \sum_{p,q,j} X_j^{(p)} {X_j^{(q)}}^\dag,
 \end{align}
 which essentially consists of two-body interactions ($p\ne q$) and
 self-interactions ($p=q$), respectively of the form
