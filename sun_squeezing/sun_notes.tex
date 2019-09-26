@@ -36,6 +36,9 @@
 \usepackage{dsfont} % for identity operator
 \newcommand{\1}{\mathds{1}}
 
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
 \newcommand{\x}{\text{x}}
 \newcommand{\y}{\text{y}}
 \newcommand{\z}{\text{z}}
@@ -70,31 +73,38 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Collective SU($n$)-symmetric interactions}
 
-Under the frozen-mode approximation, two-body collective
-SU($n$)-symmetric interactions between fermions on a lattice take the
-form\cite{perlin2019effective}
+We consider a collection of $n$-level fermions on a 1-D lattice, with
+a single-particle Hamiltonian
 \begin{align}
-  H_{\t{int}} = \f{u}{2} \sum_{p,q,\mu,\nu}
+  H_{\t{lat}} = -J \sum_{q,\mu} \cos\p{qa} c_{q\mu}^\dag c_{q\mu},
+  \label{eq:H_lat}
+\end{align}
+where $J$ is the nearest-neighbor tunneling rate, $a$ is the spacing
+between neighboring lattice sites, and $c_{q\mu}$ is the fermionic
+annihilation operator for a particle in quasi-momentum mode $q$ with
+internal state (e.g.~nuclear spin) $\mu$.  Under the frozen-mode
+approximation, two-body collective SU($n$)-symmetric interactions
+between these fermions take form\cite{perlin2019effective}
+\begin{align}
+  H_{\t{int}} = \f12 u \sum_{p,q,\mu,\nu}
   \p{c_{p\mu}^\dag c_{q\nu}^\dag c_{q\nu} c_{p\mu}
     + c_{q\mu}^\dag c_{p\nu}^\dag c_{q\nu} c_{p\mu}},
 \end{align}
 where $u\equiv U/L$ is the two-body on-site interaction energy $U$
-divided by the number of lattice sites $L$, and $c_{p\mu}$ is the
-annihilation operator for a fermionic mode with quasi-momentum $p$ and
-internal state (e.g.~nuclear spin) $\mu$.  Defining the spin operators
-$s_{\mu\nu}^{(p)}\equiv c_{p\mu}^\dag c_{p\nu}$ for each
+divided by the number of lattice sites $L$.  Defining the spin
+operators $s_{\mu\nu}^{(p)}\equiv c_{p\mu}^\dag c_{p\nu}$ for each
 quasi-momentum $p$, we can alternately write
 \begin{align}
-  H_{\t{int}} = \f{u}{2} \sum_{p,q,\mu,\nu}
+  H_{\t{int}} = \f12 u \sum_{p,q,\mu,\nu}
   \p{s_{\mu\mu}^{(p)} s_{\nu\nu}^{(q)} - s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}}
-  = \f{u}{2}\p{N^2 - \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}},
+  = \f12 u\p{N^2 - \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}},
 \end{align}
 where $N$ is the total number of particles.  In the absence of
 coherence between sectors of different particle number, we can neglect
 the $\sim N^2$ term and simply write
 \begin{align}
   H_{\t{int}}
-  = - \f{u}{2} \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}.
+  = - \f12 u \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}.
 \end{align}
 In the case of SU(2), at this point we would expand the spin operators
 $s_{\mu\nu}^{(p)}$ in terms of Pauli operators in order to convert
@@ -103,8 +113,8 @@ procedure to the case of SU($n$), we first define a vector
 $\v s^{(p)}$ of all spin operators $s_{\mu\nu}^{(p)}$, and write
 \begin{align}
   H_{\t{int}}
-  = - \f{u}{2} \sum_{p,q} {\v s^{(p)}}^\dag \v s^{(q)}
-  = - \f{u}{2} \v\S^\dag \c \v\S,
+  = - \f12 u \sum_{p,q} {\v s^{(p)}}^\dag \v s^{(q)}
+  = - \f12 u \v\S^\dag \c \v\S,
   &&
   \v\S\equiv \sum_p \v s^{(p)}.
   \label{eq:H_int_spin}
@@ -118,13 +128,13 @@ itself an $n^2$-dimensional Hilbert space equipped with a trace
   \obk{\O|\Q} \equiv \tr\p{\O^\dag Q},
 \end{align}
 where $\oket{\Q}$ and $\obra{\O}$ respectively denote vectors in
-$\B_n$ and its dual space $\B_n^*$.  Similarly to the set of spin
-operators $\set{s_{\mu\nu}}$ on the Hilbert space at each
-quasi-momentum, all of the bases we consider will be orthonormal with
-respect to the trace inner product.  As we show in Appendix
-\ref{sec:changing_bases}, the collective SU($n$)-symmetric interaction
-Hamiltonian in \eqref{eq:H_int_spin} takes an identical form in any
-orthonormal basis for $\B_n$.
+$\B_n$ and its dual space $\B_n^*$.  Similarly to the set of all spin
+operators $s_{\mu\nu}\equiv\op{\mu}{\nu}$ on the single-particle
+Hilbert space at each quasi-momentum, all of the bases we consider
+will be orthonormal with respect to the trace inner product.  As we
+show in Appendix \ref{sec:changing_bases}, the collective
+SU($n$)-symmetric interaction Hamiltonian in \eqref{eq:H_int_spin}
+takes an identical form in any orthonormal basis for $\B_n$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Generalized Gell-Mann (GGM) operators}
@@ -161,7 +171,7 @@ $\v\lambda$, we can therefore write (see Appendix
 \ref{sec:changing_bases})
 \begin{align}
   H_{\t{int}}
-  = -\f{u}{4} \sum_{p,q} \v\lambda^{(p)} \c \v\lambda^{(q)}
+  = -\f14 u \sum_{p,q} \v\lambda^{(p)} \c \v\lambda^{(q)}
   = -u \v\Lambda \c \v\Lambda,
   &&
   \v\Lambda \equiv \f12 \sum_p \v\lambda^{(p)}.
@@ -185,8 +195,8 @@ instead obeys the symmetries of the {\it polarization} or {\it
 \end{align}
 where $J\in\set{0,1,\cdots,n-1}$ and $M\in\set{-J,-J+1,J}$ index a
 total spin and its projection onto a quantization axis;
-$I\equiv\p{n-1}/2$ is the maximal angular momentum of a spin-$n$
-system; $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ index projections of an
+$I\equiv\p{n-1}/2$ is the maximal angular momentum of an $n$-level
+spin; $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ index projections of an
 $n$-level nuclear spin onto a quantization axis; and
 $\bk{I\mu;I\nu,JM}$ is a Clebsch-Gordan coefficient.  Similarly to the
 GGM operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the
@@ -198,8 +208,8 @@ system, and satisfy the orthonormality condition
 \end{align}
 which implies
 \begin{align}
-  H_{\t{int}} = -\f{u}{2} \sum_{p,q} {\v T^{(p)}}^\dag \c \v T^{(q)}
-  = -\f{u}{2} \v\T^\dag \c \v\T,
+  H_{\t{int}} = -\f12 u \sum_{p,q} {\v T^{(p)}}^\dag \c \v T^{(q)}
+  = -\f12 u \v\T^\dag \c \v\T,
   &&
   \v\T \equiv \v\T\equiv\sum_p\v T^{(p)},
   \label{eq:H_int_trans}
@@ -232,11 +242,11 @@ orthonormality condition
 \end{align}
 where $a,b$ index any drive operator in \eqref{eq:drive_ops}.  These
 operators have the convenient feature that $D_{1,1,\pm}$ is (up to a
-gauge transformation) proportional to the Hamiltonian induced on a
-spin-$n$ system by a classical driving laser.  In terms of the drive
+gauge transformation) proportional to the Hamiltonian induced on an
+$n$-level spin by a classical driving laser.  In terms of the drive
 operators,
 \begin{align}
-  H_{\t{int}} = -\f{u}{4} \sum_{p,q} \v D^{(p)}\c\v D^{(q)}
+  H_{\t{int}} = -\f14 u \sum_{p,q} \v D^{(p)}\c\v D^{(q)}
   = -u \v\D \c \v\D,
   &&
   \v\D \equiv \f12 \sum_p \v D^{(p)},
@@ -250,24 +260,71 @@ linear combinations thereof\cite{asadian2016heisenbergweyl} also
 provide an interesting basis of operators, generalizing the notion of
 position and momentum to the case of a finite-dimensional Hilbert
 space.  As our present work is motivated by multi-level systems that
-are realized with nuclear spin (angular momentum) states, however, the
-transition and drive operators are more natural to consider than the
-Weyl operators, so we will not discuss the latter any further.
+are realized with nuclear spin (angular momentum) degrees of freedom,
+however, the transition and drive operators are more natural to
+consider than the Weyl operators, so we will not discuss the latter
+any further.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{External drive}
+\section{External drive and spin-orbit coupling}
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Spin-orbit coupling}
-
+An external driving laser addressing a spin-$1/2$ particle on a
+lattice will induce the Hamiltonian
+\begin{align}
+  \left. H_{\t{drive}}^{(\phi)} \right|_{n=2}
+  = \f12 \Omega \sum_j e^{i\phi_j} c_{j,\up}^\dag c_{j,\dn} + \t{h.c.},
+  \label{eq:H_drive_2}
+\end{align}
+where $\Omega$ is a drive strength, $j$ indexes a lattice site, and
+$\phi_j$ is a site-dependent phase.  The multi-level analogue of
+\eqref{eq:H_drive_2} is
+\begin{align}
+  H_{\t{drive}}^{(\phi)}
+  = -\f12 \Omega \sum_j e^{i\phi_j} T_{1,1}^{(j)} + \t{h.c.}.
+  \label{eq:H_drive}
+\end{align}
+We can make this drive spatially homogenous via the gauge
+transformation $c_{j\mu} \to e^{i\mu\phi_j} c_{j\mu}$, after which the
+drive becomes
+\begin{align}
+  H_{\t{drive}}
+  = -\f12 \Omega \sum_j T_{1,1}^{(j)} + \t{h.c.}
+  = \f12 \Omega \sum_j D_{1,1,+}
+  = \Omega \D_{1,1,+},
+\end{align}
+where $\D_a\equiv\sum_jD_a^{(j)}/2$ is a collective drive operator,
+with e.g.~$\D_{1,1,+}=S_\x$ in the case of $n=2$.  The SU($n$)
+symmetry of collective interactions means that the interaction
+Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_drive} remains unchanged
+under this gauge transformation, but the single-particle Hamiltonian
+in \eqref{eq:H_lat} transformed as
+\begin{align}
+  H_{\t{lat}}
+  \to H_{\t{lat}}^{(\phi)}
+  = -J \sum_{q,\mu} \cos\p{qa+\mu\phi} c_{q\mu}^\dag c_{q\mu}
+  = -J \sum_{q,\mu} \cos\p{qa+\mu\phi} s_{\mu\mu}^{(q)},
+\end{align}
+where $\phi$ is the relative phase between adjacent lattice sites.  In
+terms of the drive operators, we can expand
+\begin{align}
+  H_{\t{lat}}^{(\phi)}
+  = -\sum_q \sp{\cos\p{qa} \sum_{J\,\t{even}} B_J D_{J,0}^{(q)}
+    - \sin\p{qa} \sum_{J\,\t{odd}} B_J D_{J,0}^{(q)}},
+\end{align}
+where the effective ``fields'' $B_J$ take the form
+\begin{align}
+  \left. B_J \right|_{J\,\t{even}}
+  = \f12 \sum_\mu \obk{D_{J,0}|s_{\mu\mu}} \cos\p{\mu\phi},
+  &&
+  \left. B_J \right|_{J\,\t{odd}}
+  = \f12 \sum_\mu \obk{D_{J,0}|s_{\mu\mu}} \sin\p{\mu\phi}.
+\end{align}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Classifying eigenstates}
 
-
+[not yet written]
 
 
 \appendix
