@@ -308,16 +308,19 @@ where $\phi$ is the relative phase between adjacent lattice sites.  In
 terms of the drive operators, we can expand
 \begin{align}
   H_{\t{lat}}^{(\phi)}
-  = -\sum_q \sp{\cos\p{qa} \sum_{J\,\t{even}} B_J D_{J,0}^{(q)}
-    - \sin\p{qa} \sum_{J\,\t{odd}} B_J D_{J,0}^{(q)}},
-\end{align}
-where the effective ``fields'' $B_J$ take the form
-\begin{align}
-  \left. B_J \right|_{J\,\t{even}}
-  = \f12 \sum_\mu \obk{D_{J,0}|s_{\mu\mu}} \cos\p{\mu\phi},
+  = -\sum_{q,J}\p{-1}^J f_J\p{qa} B_J\p{\phi} D_{J,0}^{(q)},
   &&
-  \left. B_J \right|_{J\,\t{odd}}
-  = \f12 \sum_\mu \obk{D_{J,0}|s_{\mu\mu}} \sin\p{\mu\phi}.
+  f_J\p{\theta} \equiv
+  \begin{cases}
+    \cos\theta & J\,\t{even} \\
+    \sin\theta & J\,\t{odd}
+  \end{cases},
+\end{align}
+where the effective ``fields'' $B_J\p{\phi}$ are
+\begin{align}
+  B_J\p{\phi}
+  = \f12 \sum_\mu \obk{D_{J,0}|s_{\mu\mu}} f_J\p{\mu\phi}
+  = \sqrt{\f{J+1/2}{n}} \sum_\mu \bk{I\mu;I\mu,J,0} f_J\p{\mu\phi}.
 \end{align}
 
 
