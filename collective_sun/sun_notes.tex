@@ -211,7 +211,7 @@ which implies
   H_{\t{int}} = -\f12 u \sum_{p,q} {\v T^{(p)}}^\dag \c \v T^{(q)}
   = -\f12 u \v\T^\dag \c \v\T,
   &&
-  \v\T \equiv \v\T\equiv\sum_p\v T^{(p)},
+  \v\T \equiv \sum_p\v T^{(p)},
   \label{eq:H_int_trans}
 \end{align}
 where $\v T$ is a vector of all transition operators in
@@ -240,11 +240,8 @@ satisfy the orthonormality condition
 \begin{align}
   \obk{D_{LM}|D_{L'M'}} = 2\delta_{LL'}\delta_{MM'},
 \end{align}
-where $a,b$ index any drive operator in \eqref{eq:drive_ops}.  These
-operators have the convenient feature that $D_{1,1}$ is (up to a gauge
-transformation) proportional to the Hamiltonian induced on an
-$n$-level spin by a classical driving laser.  In terms of the drive
-operators,
+where $a,b$ index any drive operator in \eqref{eq:drive_ops}.  In
+terms of the drive operators,
 \begin{align}
   H_{\t{int}} = -\f14 u \sum_{p,q} \v D^{(p)}\c\v D^{(q)}
   = -u \v\D \c \v\D,
@@ -254,6 +251,30 @@ operators,
 \end{align}
 where $\v D$ is a vector of all drive operators in
 \eqref{eq:drive_ops}.
+
+The drive operators have the convenient feature that $D_{1,0}$ and
+$D_{1,1}$ are (up to a gauge transformation) respectively proportional
+to the Hamiltonians induced on an $n$-level spin by an external
+magnetic field and a classical driving laser; loosely speaking, one
+should identify $\p{D_{1,0},D_{1,1}}\sim\p{S_\z,S_\x}$, where
+$S_\alpha$ is a collective SU(2) spin-$\alpha$
+operator\cite{perlin2019shorttime}.  More concretely, we can embed the
+Hilbert space of a single $n$-level spin into the
+permutationally-symmetric (Dicke) manifold of states for $\p{n-1}$
+2-level spins via
+\begin{align}
+  \ket{\mu}_{\t{single}} \to \ket{\mu+I}_{\t{collective}}
+  \propto S_+ \ket\dn^{\otimes\p{n-1}},
+\end{align}
+where $I\equiv\p{n-1}/2$ is a total spin,
+$\mu\in\set{-I,-I+1,\cdots,I}$ indexes a state of the single $n$-level
+spin, and $S_+$ is a collective spin-raising operator for $\p{n-1}$
+2-level spins.  This embedding takes
+\begin{align}
+  \p{D_{1,0},D_{1,1},D_{1,-1}}
+  \to \p{S_\z,S_\x,S_\y}
+  \times \sqrt{\f{3}{I \p{I+1/2} \p{I+1}}}.
+\end{align}
 
 We note that Weyl operators\cite{bertlmann2008bloch} and self-adjoint
 linear combinations thereof\cite{asadian2016heisenbergweyl} also
@@ -441,7 +462,7 @@ which are respectively even and odd under spin inversion
 \end{align}
 and resolve the identity (super-)operator $\I$ with
 $\I \omega_{\phi,\pm} = \omega_{\phi,\pm}$ in the basis of the drive
-operators, finding
+operators $D_{LM}$, finding
 \begin{align}
   \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
   = \cos\p{qa} \f12 \sum_{L,M} \obk{\omega_{\phi,+}|D_{LM}} D_{LM}
