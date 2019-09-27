@@ -256,15 +256,15 @@ The drive operators have the convenient feature that $D_{1,0}$ and
 $D_{1,1}$ are (up to a gauge transformation) respectively proportional
 to the Hamiltonians induced on an $n$-level spin by an external
 magnetic field and a classical driving laser; loosely speaking, one
-should identify $\p{D_{1,0},D_{1,1}}\sim\p{S_\z,S_\x}$, where
-$S_\alpha$ is a collective SU(2) spin-$\alpha$
+can identify $\p{D_{1,0},D_{1,1}}\sim\p{S_\z,S_\x}$, where $S_\alpha$
+is a collective SU(2) spin-$\alpha$
 operator\cite{perlin2019shorttime}.  More concretely, we can embed the
 Hilbert space of a single $n$-level spin into the
 permutationally-symmetric (Dicke) manifold of states for $\p{n-1}$
 2-level spins via
 \begin{align}
-  \ket{\mu}_{\t{single}} \to \ket{\mu+I}_{\t{collective}}
-  \propto S_+ \ket\dn^{\otimes\p{n-1}},
+  \ket{\mu}_{\t{single}} \to \ket{I+\mu}_{\t{collective}}
+  \propto S_+^{I+\mu} \ket\dn^{\otimes\p{n-1}},
 \end{align}
 where $I\equiv\p{n-1}/2$ is a total spin,
 $\mu\in\set{-I,-I+1,\cdots,I}$ indexes a state of the single $n$-level
@@ -289,8 +289,8 @@ the latter any further.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{External drive and spin-orbit coupling}
 
-An external driving laser addressing a spin-$1/2$ particle on a
-lattice will induce the Hamiltonian
+An external driving laser addressing a spin-$1/2$ fermion on a lattice
+will induce the Hamiltonian
 \begin{align}
   \left. H_{\t{drive}}^{(\phi)} \right|_{n=2}
   = \f12 \Omega \sum_j
@@ -317,11 +317,10 @@ drive becomes
   = \Omega \D_{1,1},
 \end{align}
 where $\D_{LM}\equiv\sum_jD_{LM}^{(j)}/2$ is a collective drive
-operator, with e.g.~$\D_{1,1}=S_\x$ in the case of $n=2$.  The SU($n$)
-symmetry of collective interactions implies that the interaction
-Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_drive} is invariant under
-this gauge transformation, but the single-particle Hamiltonian in
-\eqref{eq:H_lat} transforms as
+operator.  The SU($n$) symmetry of collective interactions implies
+that the interaction Hamiltonian $H_{\t{int}}$ in
+\eqref{eq:H_int_drive} is invariant under this gauge transformation,
+but the single-particle Hamiltonian in \eqref{eq:H_lat} transforms as
 \begin{align}
   H_{\t{lat}}
   \to H_{\t{lat}}^{(\phi)}
