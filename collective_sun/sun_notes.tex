@@ -75,6 +75,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Collective SU($n$)-symmetric interactions}
+\label{sec:int}
 
 We consider a collection of $n$-level fermions on a 1-D lattice, with
 a single-particle Hamiltonian
@@ -89,7 +90,7 @@ internal state (e.g.~nuclear spin) $\mu$.  Under the frozen-mode
 approximation, two-body collective SU($n$)-symmetric interactions
 between these fermions take form\cite{perlin2019effective}
 \begin{align}
-  H_{\t{int}} = \f12 u \sum_{p,q,\mu,\nu}
+  H_{\t{int}} = \f{u}{2} \sum_{p,q,\mu,\nu}
   \p{c_{p\mu}^\dag c_{q\nu}^\dag c_{q\nu} c_{p\mu}
     + c_{q\mu}^\dag c_{p\nu}^\dag c_{q\nu} c_{p\mu}},
 \end{align}
@@ -98,16 +99,16 @@ divided by the number of lattice sites $L$.  Defining the spin
 operators $s_{\mu\nu}^{(p)}\equiv c_{p\mu}^\dag c_{p\nu}$ for each
 quasi-momentum $p$, we can alternately write
 \begin{align}
-  H_{\t{int}} = \f12 u \sum_{p,q,\mu,\nu}
+  H_{\t{int}} = \f{u}{2} \sum_{p,q,\mu,\nu}
   \p{s_{\mu\mu}^{(p)} s_{\nu\nu}^{(q)} - s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}}
-  = \f12 u\p{N^2 - \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}},
+  = \f{u}{2}\p{N^2 - \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}},
 \end{align}
 where $N$ is the total number of particles.  In the absence of
 coherence between sectors of different particle number, we can neglect
 the $\sim N^2$ term and simply write
 \begin{align}
   H_{\t{int}}
-  = - \f12 u \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}.
+  = - \f{u}{2} \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}.
 \end{align}
 In the case of SU(2), at this point we would expand the spin operators
 $s_{\mu\nu}^{(p)}$ in terms of Pauli operators in order to convert
@@ -116,8 +117,8 @@ procedure to the case of SU($n$), we first define a vector
 $\v s^{(p)}$ of all spin operators $s_{\mu\nu}^{(p)}$, and write
 \begin{align}
   H_{\t{int}}
-  = - \f12 u \sum_{p,q} {\v s^{(p)}}^\dag \v s^{(q)}
-  = - \f12 u \v\S^\dag \c \v\S,
+  = - \f{u}{2} \sum_{p,q} {\v s^{(p)}}^\dag \v s^{(q)}
+  = - \f{u}{2} \v\S^\dag \c \v\S,
   &&
   \v\S\equiv \sum_p \v s^{(p)}.
   \label{eq:H_int_spin}
@@ -141,6 +142,7 @@ takes an identical form in any orthonormal basis for $\B_n$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Generalized Gell-Mann (GGM) operators}
+\label{sec:ggm_ops}
 
 The most obvious generalization of Pauli operators to the case of
 SU($n$) are the {\it generalized Gell-Mann (GGM)
@@ -174,15 +176,16 @@ $\v\lambda$, we can therefore write (see Appendix
 \ref{sec:changing_bases})
 \begin{align}
   H_{\t{int}}
-  = -\f14 u \sum_{p,q} \v\lambda^{(p)} \c \v\lambda^{(q)}
-  = -u \v\Lambda \c \v\Lambda,
+  = -\f{u}{4} \sum_{p,q} \v\lambda^{(p)} \c \v\lambda^{(q)}
+  = -\f{u}{4} \v\Lambda \c \v\Lambda,
   &&
-  \v\Lambda \equiv \f12 \sum_p \v\lambda^{(p)}.
+  \v\Lambda \equiv \sum_p \v\lambda^{(p)}.
   \label{eq:H_int_GGM}
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Transition operators}
+\label{sec:trans_ops}
 
 The GGM operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}
 provide a convenient operator basis to describe dynamics obeying
@@ -192,8 +195,9 @@ instead obeys the symmetries of the {\it polarization} or {\it
   transition operators} defined by\cite{kryszewski2006alternative,
   bertlmann2008bloch}
 \begin{align}
-  T_{LM} \equiv \sqrt{\f{2L+1}{2I+1}} \sum_{\mu,\nu}
-  \bk{I\mu;I\nu,LM} \op{\mu}{\nu},
+  T_{LM}
+  \equiv \sqrt{\f{2L+1}{2I+1}} \sum_{\mu,\nu}
+  \bk{I\mu,LM;I\nu} \op{\nu}{\mu},
   \label{eq:trans_ops}
 \end{align}
 where $L\in\set{0,1,\cdots,n-1}$ and $M\in\set{-L,-L+1,L}$ index a
@@ -211,8 +215,8 @@ system, and satisfy the orthonormality condition
 \end{align}
 which implies
 \begin{align}
-  H_{\t{int}} = -\f12 u \sum_{p,q} {\v T^{(p)}}^\dag \c \v T^{(q)}
-  = -\f12 u \v\T^\dag \c \v\T,
+  H_{\t{int}} = -\f{u}{2} \sum_{p,q} {\v T^{(p)}}^\dag \c \v T^{(q)}
+  = -\f{u}{2} \v\T^\dag \c \v\T,
   &&
   \v\T \equiv \sum_p\v T^{(p)},
   \label{eq:H_int_trans}
@@ -222,6 +226,7 @@ where $\v T$ is a vector of all transition operators in
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Drive operators}
+\label{sec:drive_ops}
 
 Unlike the GGM operators in \eqref{eq:GGM_diag} and
 \eqref{eq:GGM_off_diag}, the transition operators in
@@ -246,10 +251,10 @@ satisfy the orthonormality condition
 where $a,b$ index any drive operator in \eqref{eq:drive_ops}.  In
 terms of the drive operators,
 \begin{align}
-  H_{\t{int}} = -\f14 u \sum_{p,q} \v D^{(p)}\c\v D^{(q)}
-  = -u \v\D \c \v\D,
+  H_{\t{int}} = -\f{u}{4} \sum_{p,q} \v D^{(p)}\c\v D^{(q)}
+  = -\f{u}{4} \v\D \c \v\D,
   &&
-  \v\D \equiv \f12 \sum_p \v D^{(p)},
+  \v\D \equiv \sum_p \v D^{(p)},
   \label{eq:H_int_drive}
 \end{align}
 where $\v D$ is a vector of all drive operators in
@@ -291,12 +296,13 @@ the latter any further.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{External drive and spin-orbit coupling}
+\label{sec:drive_SOC}
 
 An external driving laser addressing a spin-$1/2$ fermion on a lattice
 will induce the Hamiltonian
 \begin{align}
   \left. H_{\t{drive}}^{(\phi)} \right|_{n=2}
-  = \f12 \Omega \sum_j
+  = \Omega \sum_j
   \p{e^{i\phi_j} c_{j,\up}^\dag c_{j,\dn}
     + e^{-i\phi_j} c_{j,\dn}^\dag c_{j,\up}},
   \label{eq:H_drive_2}
@@ -306,7 +312,7 @@ $\phi_j$ is a site-dependent phase.  The multi-level analogue of
 \eqref{eq:H_drive_2} is
 \begin{align}
   H_{\t{drive}}^{(\phi)}
-  = -\f12 \Omega \sum_j \p{e^{i\phi_j} T_{1,1}^{(j)}
+  = -\Omega \sum_j \p{e^{i\phi_j} T_{1,1}^{(j)}
     + e^{-i\phi_j} {T_{1,1}^{(j)}}^\dag}.
   \label{eq:H_drive}
 \end{align}
@@ -315,11 +321,11 @@ transformation $c_{j\mu} \to e^{i\mu\phi_j} c_{j\mu}$, after which the
 drive becomes
 \begin{align}
   H_{\t{drive}}
-  = -\f12 \Omega \sum_j\p{T_{1,1}^{(j)} + {T_{1,1}^{(j)}}^\dag}
-  = \f12 \Omega \sum_j D_{1,1}
+  = -\Omega \sum_j\p{T_{1,1}^{(j)} + {T_{1,1}^{(j)}}^\dag}
+  = \Omega \sum_j D_{1,1}
   = \Omega \D_{1,1},
 \end{align}
-where $\D_{LM}\equiv\sum_jD_{LM}^{(j)}/2$ is a collective drive
+where $\D_{LM}\equiv\sum_jD_{LM}^{(j)}$ is a collective drive
 operator.  The SU($n$) symmetry of collective interactions implies
 that the interaction Hamiltonian $H_{\t{int}}$ in
 \eqref{eq:H_int_drive} is invariant under this gauge transformation,
@@ -340,7 +346,7 @@ Hamiltonian takes the form (see Appendix \ref{sec:lat_drive})
 with effective driving field strengths
 \begin{align}
   B_L\p{q,\phi} = \p{-1}^L f_L\p{qa} \sqrt{\f{L+1/2}{n}}
-  \sum_\mu \bk{I\mu;I\mu,L,0} f_L\p{\mu\phi},
+  \sum_\mu \bk{I\mu,L,0;I\mu} f_L\p{\mu\phi},
   &&
   f_L\p{\theta} \equiv
   \begin{cases}
@@ -348,6 +354,54 @@ with effective driving field strengths
     \sin\theta & L~\t{odd}
   \end{cases}.
 \end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Raman drive}
+\label{sec:raman}
+
+Rather than coupling states with a single driving laser directly, as
+in Section \ref{sec:drive_SOC}, we now consider coupling through an
+off-resonant Raman transition.  Specifically, we consider a
+three-laser drive of the form
+\begin{align}
+  H_{\t{Raman,bare}}^{(\phi)}
+  = \sum_j \sum_{m\in\set{-1,0,1}} \Omega_m T_{1,m}^{(j)}
+  \otimes \sigma_+^{(j)} e^{i\phi_{jm}-i\Delta t} + \t{h.c.},
+\end{align}
+where $j$ indexes a lattice site, $\Omega_m$ is a driving
+strength, $\sigma_+$ is a spin-raising (Pauli) operator, $\phi_{jm}$
+is a phase, and $\Delta$ is a detuning of the lasers from the energy
+of an excited state.  If $\Delta\gg\Omega_m$, then at second
+order in perturbation theory we can find that the effective action of
+$H_{\t{Raman,bare}}^{(\phi)}$ is
+\begin{align}
+  H_{\t{Raman}}^{(\phi)}
+  = \sum_{\tau\in\set{0,1,2}} H_{\t{Raman},\tau}^{(\phi)}
+\end{align}
+with
+\begin{align}
+  H_{\t{Raman},0}^{(\phi)}
+  &\equiv -\sum_j\sum_m \f{\Omega_m^2}{\Delta}
+  {T_{1,m}^{(j)}}^\dag T_{1,m}^{(j)}, & \label{eq:raman_0} \\
+  H_{\t{Raman},1}^{(\phi)}
+  &\equiv -\sum_j\sum_{s\in\set{\pm1}}
+  \f{\Omega_0\Omega_s}{\Delta}
+  e^{i\p{\phi_{js}-\phi_{j,0}}}{T_{1,0}^{(j)}}^\dag T_{1,s}^{(j)} + \t{h.c.},
+  \\
+  H_{\t{Raman},2}^{(\phi)}
+  &\equiv -\f{\Omega_1\Omega_{-1}}{\Delta}
+  \sum_j\sum_{s\in\set{\pm1}}
+  e^{i\p{\phi_{js}-\phi_{j,-s}}} {T_{1,-s}^{(j)}}^\dag T_{1,s}^{(j)}.
+  \label{eq:raman_2}
+\end{align}
+In terms of the drive operators, we can expand
+\begin{align}
+  H_{\t{Raman}}^{(\phi)}
+  = \sum_j \sum_{\substack{L\in\set{0,1,2}\\\abs{m}\le L}}
+  \Omega_{LM}^{(\phi,j)} D_{LM}^{(j)},
+\end{align}
+where the coefficients $\Omega_{LM}^{(\phi,j)}$ are provided in
+Appendix \ref{sec:raman_coeff}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -390,8 +444,8 @@ product
 \begin{align}
   \obk{\O|\Q} \equiv \tr\p{\O^\dag \Q}.
 \end{align}
-To maintain generality, we choose an arbitrary basis $\set{X_j}$
-satisfying the orthonormality condition
+To maintain generality, we choose an arbitrary basis
+$X\equiv\set{X_j}$ satisfying the orthonormality condition
 \begin{align}
   \obk{X_j|X_k} = \N_X \delta_{jk},
 \end{align}
@@ -419,8 +473,8 @@ self-interactions ($p=q$), respectively of the form
   &&
   \sum_j X_j X_j^\dag.
 \end{align}
-Choosing a different basis $\set{Y_j}$ for $\B_n$ with corresponding
-norm $\N_Y$, we can expand
+Choosing a different basis $Y\equiv\set{Y_j}$ for $\B_n$ with
+corresponding norm $\N_Y$, we can expand
 \begin{align}
   X_j = \f1{\N_Y} \sum_k Y_k \obk{Y_k|X_j},
   &&
@@ -483,7 +537,7 @@ which are respectively even and odd under spin inversion
 \end{align}
 and resolve the identity (super-)operator $\I$ with
 $\I \omega_{\phi,\pm} = \omega_{\phi,\pm}$ in the basis of the drive
-operators $D_{LM}$, finding
+operators $D_{LM}$, finding (see Appendix \ref{sec:changing_bases})
 \begin{align}
   \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
   = \cos\p{qa} \f12 \sum_{L,M} \obk{\omega_{\phi,+}|D_{LM}} D_{LM}
@@ -517,7 +571,7 @@ with effective driving field strengths
   &\equiv \p{-1}^L f_L\p{qa} \f12
   \sum_\mu f_L\p{\mu\phi} \obk{s_{\mu\mu}|D_{L,0}} \\
   &= \p{-1}^L f_L\p{qa} \sqrt{\f{L+1/2}{n}}
-  \sum_\mu \bk{I\mu;I\mu,L,0} f_L\p{\mu\phi},
+  \sum_\mu \bk{I\mu,L,0;I\mu} f_L\p{\mu\phi},
 \end{align}
 where
 \begin{align}
@@ -531,6 +585,139 @@ Substituting the result in \eqref{eq:compact_SOC_drive} into the
 single-particle Hamiltonian in \eqref{eq:H_lat_spin} yields
 \begin{align}
   H_{\t{lat}}^{(\phi)} = -J \sum_{q,L} B_L\p{q,\phi} D_{L,0}^{(q)}.
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Transition operator product expansion}
+\label{sec:trans_prod}
+
+Here we compute, for an $n$-level spin with total spin
+$I\equiv\p{n-1}/2$, the structure constants of the transition operator
+algebra, expanding
+\begin{align}
+  T_{\ell_2 m_2} T_{\ell_1 m_1}
+  = \sum_{L,M} T_{LM} \obk{T_{LM} | T_{\ell_2 m_2} T_{\ell_1 m_1}},
+\end{align}
+where the transition operators are defined by
+\begin{align}
+  T_{LM} \equiv \sqrt{\f{2L+1}{2I+1}}
+  \sum_{\mu,\nu} \bk{I\mu,LM;I\nu} \op{\nu}{\mu},
+\end{align}
+with Clebsch-Gordan coefficients $\bk{I\mu,LM;I\nu}$, and the inner
+product is
+\begin{align}
+  \obk{T_{LM} | T_{\ell_2 m_2} T_{\ell_1 m_1}}
+  = \tr\p{T_{LM}^\dag T_{\ell_2 m_2} T_{\ell_1 m_1}}
+  = \p{-1}^M \tr\p{T_{L,-M} T_{\ell_2 m_2} T_{\ell_1 m_1}}.
+\end{align}
+The Clebsch-Gordan coefficients can be written in terms of Wigner
+3-$j$ symbols as
+\begin{align}
+  \bk{\ell_1 m_1, \ell_2 m_2;\ell_3 m_3}
+  = \p{-1}^{-\ell_1+\ell_2-m_3} \sqrt{\p{2\ell_3+1}}
+  \begin{pmatrix}
+    \ell_1 & \ell_2 & \ell_3 \\
+    m_1 & m_2 & -m_3
+  \end{pmatrix}.
+\end{align}
+Substituting transition operators and replacing Clebsch-Gordan
+coefficients by Wigner 3-$j$ symbols, we find that
+\begin{multline}
+  \obk{T_{LM} | T_{\ell_2 m_2} T_{\ell_1 m_1}}
+  = \delta_{m_1+m_2,M}
+  \p{-1}^M \sqrt{\p{2\ell_1+1}\p{2\ell_2+1}\p{2L+1}} \\
+  \times \sum_{\mu,\nu,\rho} \p{-1}^{-3I+\ell_1+\ell_2+L-\mu-\nu-\rho}
+  \begin{pmatrix}
+    I & \ell_1 & I \\
+    \mu & m_1 & -\nu
+  \end{pmatrix}
+  \begin{pmatrix}
+    I & \ell_2 & I \\
+    \nu & m_2 & -\rho
+  \end{pmatrix}
+  \begin{pmatrix}
+    I & L & I \\
+    \rho & -M & -\mu
+  \end{pmatrix},
+\end{multline}
+where we can evaluate the sum and introduce Wigner 6-$j$ symbols to
+get
+\begin{multline}
+  \obk{T_{LM} | T_{\ell_2 m_2} T_{\ell_1 m_1}} \\
+  = \delta_{m_1+m_2,M} \p{-1}^{2I+M}
+  \sqrt{\p{2\ell_1+1}\p{2\ell_2+1}\p{2L+1}}
+  \begin{pmatrix}
+    \ell_1 & \ell_2 & L \\
+    m_1 & m_2 & -M
+  \end{pmatrix}
+  \begin{Bmatrix}
+    \ell_1 & \ell_2 & L \\
+    J & J & J
+  \end{Bmatrix} \\
+  = \delta_{m_1+m_2,M} \p{-1}^{2I+\ell_1-\ell_2}
+  \sqrt{\p{2\ell_1+1}\p{2\ell_2+1}}
+  \bk{\ell_1 m_2, \ell_2 m_2; LM}
+  \begin{Bmatrix}
+    \ell_1 & \ell_2 & L \\
+    J & J & J
+  \end{Bmatrix}.
+\end{multline}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Raman drive coefficients}
+\label{sec:raman_coeff}
+
+Here we provide the coefficients $\Omega_{LM}^{(\phi,j)}$ of the
+effective Raman driving Hamiltonian
+\begin{align}
+  H_{\t{Raman}}^{(\phi)}
+  = \sum_j \sum_{\substack{L\in\set{0,1,2}\\\abs{m}\le L}}
+  \Omega_{LM}^{(\phi,j)} D_{LM}^{(j)}
+\end{align}
+considered in Section \ref{sec:raman}.  These coefficients are
+computed by evaluating products of transition operators in
+\eqref{eq:raman_0}--\eqref{eq:raman_2}, using both the structure
+constants of the transition operator algebra (derived in Appendix
+\ref{sec:trans_prod}) and the fact that
+$T_{LM}^\dag = \p{-1}^M T_{L,-M}$.  For clarity, if any coefficient
+$\Omega_{LM}\p{\phi}$ is independent of $\phi$, we drop the explicit
+dependence on $\phi$, i.e.~taking
+$\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.
+\begin{align}
+  \Omega_{0,0} \equiv -\f1{\sqrt{2n}} \sum_m\f{\Omega_m^2}{\Delta},
+  &&
+  \Omega_{1,0} \equiv \sqrt{\f{3}{2n\p{n^2-1}}}
+  \sum_m m\f{\Omega_m^2}{\Delta},
+\end{align}
+\begin{align}
+  \Omega_{2,0} \equiv -\sqrt{\f{\p{n^2-4}}{10n\p{n^2-1}}}
+  \sum_m \p{-1}^m \p{1+\delta_{m,0}} \f{\Omega_m^2}{\Delta},
+\end{align}
+\begin{align}
+  \Omega_{L,1}^{(\phi,j)}
+  \equiv \sum_{s\in\set{\pm1}} \omega_{Ls} \cos\p{\phi_{js}-\phi_{j,0}},
+  &&
+  \Omega_{L,-1}^{(\phi,j)}
+  \equiv -\sum_{s\in\set{\pm1}}
+  s~ \omega_{Ls} \sin\p{\phi_{js}-\phi_{j,0}},
+\end{align}
+\begin{align}
+  \omega_{1,s} \equiv \f{\sqrt3}{\sqrt{n\p{n^2-1}}}
+  \f{\Omega_0 \Omega_s}{\Delta},
+  &&
+  \omega_{2,s} \equiv s~ \f{\sqrt{3/5}}{n\p{n^2-1}}
+  \sqrt{\f{\p{n+2}!}{\p{n-3}!}}~ \f{\Omega_0\Omega_s}{\Delta},
+\end{align}
+\begin{align}
+  \Omega_{2,2}^{(\phi,j)}
+  \equiv \omega_{2,2} \cos\p{\phi_{j,1}-\phi_{j,-1}},
+  &&
+  \Omega_{2,-2}^{(\phi,j)}
+  \equiv -\omega_{2,2} \sin\p{\phi_{j,1}-\phi_{j,-1}},
+\end{align}
+\begin{align}
+  \omega_{2,2} \equiv -\f{\sqrt{6/5}}{n\p{n^2-1}}
+  \sqrt{\f{\p{n+2}!}{\p{n-3}!}} \f{\Omega_1\Omega_{-1}}{\Delta}.
 \end{align}
 
 
