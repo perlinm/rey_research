@@ -205,8 +205,11 @@ total spin and its projection onto a quantization axis;
 $I\equiv\p{n-1}/2$ is the maximal angular momentum of an $n$-level
 spin; $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ index projections of an
 $n$-level nuclear spin onto a quantization axis; and
-$\bk{I\mu;I\nu,LM}$ is a Clebsch-Gordan coefficient.  Similarly to the
-GGM operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the
+$\bk{I\mu;I\nu,LM}$ is a Clebsch-Gordan coefficient.  The transition
+operator $T_{LM}$ is proportional to the transition induced on a
+nuclear spin by the absorption of a spin-$L$ particle with spin
+projection $M$ onto a quantization axis.  Similarly to the GGM
+operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the
 transition operators in \eqref{eq:trans_ops} provide a complete basis
 for the space of operators on the Hilbert space of an $n$-level
 system, and satisfy the orthonormality condition
@@ -241,15 +244,17 @@ Hamiltonians in terms of self-adjoint operators, we define the {\it
   D_{LM} \stackrel{M<0}{\equiv} i\p{T_{L\abs{M}} - T_{L\abs{M}}^\dag},
   \label{eq:drive_ops}
 \end{align}
-for integer $M$ with $\abs{M}\le L$.  Similarly to the GGM operators
-in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the drive
-operators are equal to the Pauli operators in the case of $n=2$, and
-satisfy the orthonormality condition
+for integer $M$ with $\abs{M}\le L$.  The drive operator $D_{LM}$ is
+proportional to the Hamiltonian induced on a nuclear spin by an
+external classical field of spin-$L$ particles with spin projection
+$M$ onto a quantization axis.  Similarly to the GGM operators in
+\eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the drive operators
+are equal to the Pauli operators in the case of $n=2$, and satisfy the
+orthonormality condition
 \begin{align}
   \obk{D_{LM}|D_{L'M'}} = 2\delta_{LL'}\delta_{MM'},
 \end{align}
-where $a,b$ index any drive operator in \eqref{eq:drive_ops}.  In
-terms of the drive operators,
+which implies
 \begin{align}
   H_{\t{int}} = -\f{u}{4} \sum_{p,q} \v D^{(p)}\c\v D^{(q)}
   = -\f{u}{4} \v\D \c \v\D,
@@ -260,12 +265,11 @@ terms of the drive operators,
 where $\v D$ is a vector of all drive operators in
 \eqref{eq:drive_ops}.
 
-The drive operators have the convenient feature that $D_{1,0}$ and
-$D_{1,1}$ are (up to a gauge transformation) respectively proportional
-to the Hamiltonians induced on an $n$-level spin by an external
-magnetic field and a classical driving laser; loosely speaking, one
-can identify $\p{D_{1,0},D_{1,1}}\sim\p{S_\z,S_\x}$, where $S_\alpha$
-is a collective SU(2) spin-$\alpha$
+The drive operators $D_{1,0}$ and $D_{1,\pm1}$ are proportional to the
+Hamiltonians induced on an $n$-level spin by an external magnetic
+field and a classical spin-polarized driving laser; loosely speaking,
+one can identify $\p{D_{1,0},D_{1,1},D_{1,-1}}\sim\p{S_\z,S_\x,S_\y}$,
+where $S_\alpha$ is a collective SU(2) spin-$\alpha$
 operator\cite{perlin2019shorttime}.  More concretely, we can embed the
 Hilbert space of a single $n$-level spin into the
 permutationally-symmetric (Dicke) manifold of states for $\p{n-1}$
@@ -298,8 +302,8 @@ the latter any further.
 \section{External drive and spin-orbit coupling}
 \label{sec:drive_SOC}
 
-An external driving laser addressing a spin-$1/2$ fermion on a lattice
-will induce the Hamiltonian
+An driving laser addressing spin-$1/2$ fermions on a 1-D lattice will
+induce the Hamiltonian
 \begin{align}
   \left. H_{\t{drive}}^{(\phi)} \right|_{n=2}
   = \Omega \sum_j
@@ -307,29 +311,34 @@ will induce the Hamiltonian
     + e^{i\phi_j} c_{j,\dn}^\dag c_{j,\up}},
   \label{eq:H_drive_2}
 \end{align}
-where $\Omega$ is a drive strength, $j$ indexes a lattice site, and
-$\phi_j$ is a site-dependent phase.  The multi-level analogue of
-\eqref{eq:H_drive_2} is
+where $\Omega$ is a (real) driving amplitude, $j$ indexes a lattice
+site, and $\phi_j$ is a site-dependent phase.  The multi-level
+analogue of \eqref{eq:H_drive_2} is
 \begin{align}
   H_{\t{drive}}^{(\phi)}
   = -\Omega \sum_j \p{e^{-i\phi_j} T_{1,1}^{(j)}
-    + e^{i\phi_j} {T_{1,1}^{(j)}}^\dag}.
+    + e^{i\phi_j} {T_{1,1}^{(j)}}^\dag}
+  = \Omega \D_{1,1}^{(\phi)},
   \label{eq:H_drive}
 \end{align}
-We can make this drive spatially homogenous via the gauge
-transformation $c_{j\mu} \to e^{-i\mu\phi_j} c_{j\mu}$, after which the
-drive becomes
+where
 \begin{align}
-  H_{\t{drive}}
-  = -\Omega \sum_j\p{T_{1,1}^{(j)} + {T_{1,1}^{(j)}}^\dag}
-  = \Omega \sum_j D_{1,1}
-  = \Omega \D_{1,1},
+  \D_{LM}^{(\phi)}
+  \equiv \sum_j \sp{\cos\p{M\phi_j} D_{LM}^{(j)}
+    + \sin\p{M\phi_j} D_{L,-M}^{(j)}},
+  \label{eq:drive_rot}
 \end{align}
-where $\D_{LM}\equiv\sum_jD_{LM}^{(j)}$ is a collective drive
-operator.  The SU($n$) symmetry of collective interactions implies
-that the interaction Hamiltonian $H_{\t{int}}$ in
-\eqref{eq:H_int_drive} is invariant under this gauge transformation,
-but the single-particle Hamiltonian in \eqref{eq:H_lat} transforms as
+is an inhomogeneously rotated collective drive operator.  We can make
+this drive spatially homogenous via the gauge transformation
+$c_{j\mu}^\dag \to e^{i\mu\phi_j} c_{j\mu}^\dag$, after which the
+drive becomes simply
+\begin{align}
+  H_{\t{drive}} = \Omega \D_{1,1}.
+\end{align}
+The SU($n$) symmetry of collective interactions implies that the
+interaction Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_drive} is
+invariant under this gauge transformation, but the single-particle
+Hamiltonian in \eqref{eq:H_lat} transforms as
 \begin{align}
   H_{\t{lat}}
   \to H_{\t{lat}}^{(\phi)}
@@ -357,25 +366,28 @@ with effective driving field strengths
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Raman drive}
-\label{sec:raman}
+\label{sec:drive_raman}
 
-Rather than coupling states with a single driving laser directly, as
-in Section \ref{sec:drive_SOC}, we now consider coupling through an
-off-resonant Raman transition to a highly excited state.
-Specifically, we consider a three-laser drive of the form
+Rather than coupling the states of a multi-level system directly with
+a single driving laser, as in Section \ref{sec:drive_SOC}, we now
+consider coupling through an off-resonant Raman transition to a highly
+excited state.  Specifically, we consider a three-laser drive of the
+form
 \begin{align}
   H_{\t{Raman,bare}}^{(\phi)}
-  = \sum_j \sum_{m\in\set{-1,0,1}} \p{\Omega_m e^{-i\phi_{jm}}
-    T_{1,m}^{(j)} \otimes \op{\up}{\dn}^{(j)} + \t{h.c.}}
-  + \f{\Delta}{2} \sum_j \1^{(j)}
-  \otimes \p{\op{\up}^{(j)} - \op{\dn}^{(j)}},
+  = \sum_j \sum_{m\in\set{1,0,-1}} \p{\Omega_m e^{-i\phi_{jm}}
+    T_{1,m}^{(j)} \otimes \op{\up}{\dn} + \t{h.c.}}
+  + \f{\Delta}{2} \1 \otimes \p{\op{\up} - \op{\dn}},
   \label{eq:raman_bare}
 \end{align}
-where $j$ indexes a lattice site, $\Omega_m$ is a driving strength;
-$\phi_{jm}$ is a site- and drive-dependent phase; $\Delta$ is a
-detuning of the lasers from the energy of an excited state; and $\1$
-is the identity operator.  If $\Delta\gg\Omega_m$, then at second
-order in perturbation theory we can find that the effective action of
+where $j$ indexes a lattice site, $\Omega_m$ is a (real) driving
+amplitude; $\phi_{jm}$ is a site- and drive-dependent phase;
+$\op{r}{s}$ for $r,s\in\set{\up,\dn}$ is a pseudo-spin operator for
+the auxiliary degree of freedom off-resonantly addressed by the
+lasers; $\Delta$ is a detuning of the lasers from the energy of an
+excited state; and $\1$ is the identity operator.  If the detuning is
+large, $\Delta\gg\Omega_m$, then at second order in perturbation
+theory we can find that the effective action of
 $H_{\t{Raman,bare}}^{(\phi)}$ within the $\ket{\dn}$-state manifold is
 \begin{align}
   H_{\t{Raman}}^{(\phi)}
@@ -392,22 +404,55 @@ with
   {T_{1,0}^{(j)}}^\dag T_{1,s}^{(j)} + \t{h.c.},
   \\
   H_{\t{Raman},2}^{(\phi)}
-  &\equiv -\f{\Omega_1\Omega_{-1}}{\Delta}
-  \sum_j\sum_{s\in\set{\pm1}} e^{-i\p{\phi_{js}-\phi_{j,-s}}}
+  &\equiv -\f{\Omega_+\Omega_-}{\Delta}
+  \sum_j\sum_{s\in\set{\pm1}} e^{-is\p{\phi_{j+}-\phi_{j-}}}
   {T_{1,-s}^{(j)}}^\dag T_{1,s}^{(j)},
   \label{eq:raman_2}
 \end{align}
-where by choice of gauge we set $\phi_{j,0}=0$, or equivalently take
-$\phi_{jm}\to\phi_{jm}-\phi_{j,0}$.  In terms of the drive operators,
+where by choice of gauge we set $\phi_{j,0}=0$, or equivalently
+re-define $\phi_{jm}-\phi_{j,0}\to\phi_{jm}$, and we identify the
+subscripts $\pm\leftrightarrow\pm1$.  In terms of the drive operators,
 we can expand
 \begin{align}
   H_{\t{Raman}}^{(\phi)}
-  = \sum_j \sum_{\substack{L\le2\\\abs{m}\le L}}
+  = \sum_j \sum_{\substack{L\le2\\\abs{M}\le L}}
   \Omega_{LM}^{(\phi,j)} D_{LM}^{(j)},
   \label{eq:raman_drive}
 \end{align}
 where the coefficients $\Omega_{LM}^{(\phi,j)}$ are provided in
-Appendix \ref{sec:raman_coeff}.
+Appendix \ref{sec:drive_raman_coeff}.  If the driving lasers are
+phase-matched with $\phi_{js}\equiv s\phi_j$, then the drive further
+simplifies to
+\begin{align}
+  H_{\t{Raman}}^{(\phi)}
+  = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}^{(\phi)}
+  \label{eq:drive_raman_matched}
+\end{align}
+with rotated collective drive operators $\D_{LM}^{(\phi)}$ defined in
+\eqref{eq:drive_rot}, and uniform coefficients $\Omega_{LM}$ that have
+the scaling
+\begin{align}
+  \Omega_{0,0} &\propto \Omega_+^2 + \Omega_-^2 + \Omega_0^2,
+  &
+  \Omega_{1,0} &\propto \Omega_+^2 - \Omega_-^2,
+  &
+  \Omega_{1,1} &\propto \Omega_0 \p{\Omega_+ + \Omega_-}, \\
+  \Omega_{2,0} &\propto \Omega_+^2 + \Omega_-^2 - 2\Omega_0^2,
+  &
+  \Omega_{2,1} &\propto \Omega_0 \p{\Omega_+ - \Omega_-},
+  &
+  \Omega_{2,2} &\propto \Omega_+ \Omega_-.
+\end{align}
+Similarly to the case of a direct drive considered in Section
+\ref{sec:drive_SOC}, the Raman drive $H_{\t{Raman}}^{(\phi)}$ in
+\eqref{eq:drive_raman_matched} can be made homogenous through the
+gauge transformation $c_{j\mu}^\dag \to e^{i\mu\phi_j} c_{j\mu}^\dag$,
+under which
+\begin{align}
+  H_{\t{Raman}}^{(\phi)} \to H_{\t{Raman}}
+  \equiv \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}.
+  \label{eq:drive_raman_homo}
+\end{align}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -531,39 +576,39 @@ Hamiltonian takes the form
 \end{align}
 Defining the diagonal ``spin-wave'' operators
 \begin{align}
-  \omega_{\phi,+} \equiv \sum_\mu \cos\p{\mu\phi} s_{\mu\mu},
+  w_{\phi,+} \equiv \sum_\mu \cos\p{\mu\phi} s_{\mu\mu},
   &&
-  \omega_{\phi,-} \equiv \sum_\mu \sin\p{\mu\phi} s_{\mu\mu},
+  w_{\phi,-} \equiv \sum_\mu \sin\p{\mu\phi} s_{\mu\mu},
 \end{align}
 which are respectively even and odd under spin inversion
 ($\mu\to-\mu$), we can simplify
 \begin{align}
   \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
-  = \cos\p{qa} \omega_{\phi,+} + \sin\p{qa} \omega_{\phi,-},
+  = \cos\p{qa} w_{\phi,+} + \sin\p{qa} w_{\phi,-},
 \end{align}
 and resolve the identity (super-)operator $\I$ with
-$\I \omega_{\phi,\pm} = \omega_{\phi,\pm}$ in the basis of the drive
+$\I w_{\phi,\pm} = w_{\phi,\pm}$ in the basis of the drive
 operators $D_{LM}$, finding (see Appendix \ref{sec:changing_bases})
 \begin{align}
   \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
-  = \cos\p{qa} \f12 \sum_{L,M} \obk{\omega_{\phi,+}|D_{LM}} D_{LM}
-  + \sin\p{qa} \f12 \sum_{L,M} \obk{\omega_{\phi,-}|D_{LM}} D_{LM}.
+  = \cos\p{qa} \f12 \sum_{L,M} \obk{w_{\phi,+}|D_{LM}} D_{LM}
+  + \sin\p{qa} \f12 \sum_{L,M} \obk{w_{\phi,-}|D_{LM}} D_{LM}.
 \end{align}
 We now note that the drive operators $D_{LM}$ are strictly
 off-diagonal for $M\ne0$, and furthermore that $D_{L,0}$ with even
 (odd) $L$ is even (odd) under spin inversion, which implies
 \begin{align}
-  \sum_{L,M} \obk{\omega_{\phi,+}|D_{LM}} D_{LM}
-  = \sum_{L\,\t{even}} \obk{\omega_{\phi,+}|D_{L,0}} D_{L,0},
+  \sum_{L,M} \obk{w_{\phi,+}|D_{LM}} D_{LM}
+  = \sum_{L\,\t{even}} \obk{w_{\phi,+}|D_{L,0}} D_{L,0},
 \end{align}
-and likewise with $\omega_{\phi,-}$ and odd $L$.  In total, we can
+and likewise with $w_{\phi,-}$ and odd $L$.  In total, we can
 write
 \begin{align}
   \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
   = \cos\p{qa} \f12 \sum_{L\,\t{even}}
-  \obk{\omega_{\phi,+}|D_{L,0}} D_{L,0}
+  \obk{w_{\phi,+}|D_{L,0}} D_{L,0}
   + \sin\p{qa} \f12 \sum_{L\,\t{odd}}
-  \obk{\omega_{\phi,-}|D_{L,0}} D_{L,0},
+  \obk{w_{\phi,-}|D_{L,0}} D_{L,0},
 \end{align}
 or, more compactly,
 \begin{align}
@@ -671,47 +716,42 @@ get
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Raman drive coefficients}
-\label{sec:raman_coeff}
+\label{sec:drive_raman_coeff}
 
 Here we provide the coefficients $\Omega_{LM}^{(\phi,j)}$ of the
 effective Raman driving Hamiltonian
 \begin{align}
   H_{\t{Raman}}^{(\phi)}
-  = \sum_j \sum_{\substack{L\in\set{0,1,2}\\\abs{m}\le L}}
+  = \sum_j \sum_{\substack{L\in\set{0,1,2}\\\abs{M}\le L}}
   \Omega_{LM}^{(\phi,j)} D_{LM}^{(j)}
 \end{align}
-considered in Section \ref{sec:raman}.  These coefficients are
+considered in Section \ref{sec:drive_raman}.  These coefficients are
 computed by evaluating products of transition operators in
 \eqref{eq:raman_0}--\eqref{eq:raman_2}, using both the structure
 constants of the transition operator algebra (derived in Appendix
 \ref{sec:trans_prod}) and the fact that
 $T_{LM}^\dag = \p{-1}^M T_{L,-M}$.  For clarity, if any coefficient
-$\Omega_{LM}\p{\phi}$ is independent of $\phi$, we drop the explicit
-dependence on $\phi$, i.e.~taking
+$\Omega_{LM}^{(\phi,j)}$ is independent of $\phi$, we drop the
+explicit dependence on $\phi$, i.e.~taking
 $\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.
 \begin{align}
   \Omega_{0,0} \equiv -\f1{\sqrt{2n}} \sum_m\f{\Omega_m^2}{\Delta},
   &&
-  \Omega_{1,0} \equiv \sqrt{\f{3}{2n\p{n^2-1}}}
-  \sum_m m\f{\Omega_m^2}{\Delta},
+  \Omega_{1,0} \equiv \sqrt{\f{3}{2n\p{n^2-1}}}~
+  \f{\Omega_+^2 - \Omega_-}{\Delta},
+  \label{eq:O_01_0}
 \end{align}
 \begin{align}
-  \Omega_{2,0} \equiv -\sqrt{\f{\p{n^2-4}}{10n\p{n^2-1}}}
-  \sum_m \p{-1}^m \p{1+\delta_{m,0}} \f{\Omega_m^2}{\Delta},
+  \Omega_{2,0} \equiv \sqrt{\f{n^2-4}{10n\p{n^2-1}}}~
+  \f{\Omega_+ + \Omega_- - 2\Omega_0}{\Delta},
+  \label{eq:O_2_0}
 \end{align}
 \begin{align}
   \Omega_{L,1}^{(\phi,j)}
   \equiv \sum_{s\in\set{\pm1}} \omega_{Ls} \cos\phi_{js},
   &&
   \Omega_{L,-1}^{(\phi,j)}
-  \equiv \sum_{s\in\set{\pm1}} s~ \omega_{Ls} \sin\phi_{js},
-\end{align}
-\begin{align}
-  \omega_{1,s} \equiv \f{\sqrt3}{\sqrt{n\p{n^2-1}}}
-  \f{\Omega_0 \Omega_s}{\Delta},
-  &&
-  \omega_{2,s} \equiv s~ \f{\sqrt{3/5}}{n\p{n^2-1}}
-  \sqrt{\f{\p{n+2}!}{\p{n-3}!}}~ \f{\Omega_0\Omega_s}{\Delta},
+  \equiv \sum_{s\in\set{\pm1}} s \omega_{Ls} \sin\phi_{js},
 \end{align}
 \begin{align}
   \Omega_{2,2}^{(\phi,j)}
@@ -721,12 +761,43 @@ $\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.
   \equiv \omega_{2,2} \sin\p{\phi_{j+}-\phi_{j-}},
 \end{align}
 \begin{align}
-  \omega_{2,2} \equiv -\f{\sqrt{6/5}}{n\p{n^2-1}}
-  \sqrt{\f{\p{n+2}!}{\p{n-3}!}} \f{\Omega_1\Omega_{-1}}{\Delta}.
+  \omega_{1\pm} \equiv \f{\sqrt3}{\sqrt{n\p{n^2-1}}}~
+  \f{\Omega_0 \Omega_\pm}{\Delta},
+  &&
+  \omega_{2\pm} \equiv \pm \f{\sqrt{3/5}}{n\p{n^2-1}}
+  \sqrt{\f{\p{n+2}!}{\p{n-3}!}}~ \f{\Omega_0\Omega_\pm}{\Delta},
 \end{align}
-Here $\Omega_m$, $\phi_{jm}$, and $\Delta$ are respectively the drive
-strengths, phases, and detuning that appear in the ``bare'' Raman
-drive in \eqref{eq:raman_bare}.
+\begin{align}
+  \omega_{2,2} \equiv -\f{\sqrt{6/5}}{n\p{n^2-1}}
+  \sqrt{\f{\p{n+2}!}{\p{n-3}!}}~ \f{\Omega_+\Omega_-}{\Delta}.
+\end{align}
+Here $\Omega_m$, $\phi_{jm}$, and $\Delta$ are respectively the (real)
+driving amplitudes, phases, and detuning that appear in the ``bare''
+Raman drive in \eqref{eq:raman_bare}, and by choice of gauge we set
+$\phi_{j,0}=0$, or equivalently re-define
+$\phi_{jm}-\phi_{j,0}\to\phi_{jm}$.  If the driving lasers are
+phase-matched with $\phi_{js}\equiv s\phi_j$, then the drive further
+simplifies to
+\begin{align}
+  H_{\t{Raman}}^{(\phi)}
+  = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}^{(\phi)},
+\end{align}
+with inhomogeneously rotated collective drive operators
+\begin{align}
+  \D_{LM}^{(\phi)}
+  \equiv \sum_j \sp{\cos\p{M\phi_j} D_{LM}^{(j)}
+    + \sin\p{M\phi_j} D_{L,-M}^{(j)}},
+\end{align}
+and uniform coefficients given by \eqref{eq:O_01_0}, \eqref{eq:O_2_0},
+and
+\begin{align}
+  \Omega_{1,-1} = \Omega_{2,-1} = \Omega_{2,-2} \equiv 0,
+  &&
+  \Omega_{L,1} \equiv \sum_{s\in\set{\pm1}} \omega_{Ls},
+  &&
+  \Omega_{2,2} \equiv \omega_{2,2}.
+\end{align}
+
 
 
 \bibliography{sun_notes.bib}
