@@ -330,10 +330,9 @@ where
 \end{align}
 is an inhomogeneously rotated collective drive operator.  We can make
 this drive spatially homogenous via the gauge transformation
-$c_{j\mu}^\dag \to e^{i\mu\phi_j} c_{j\mu}^\dag$, after which the
-drive becomes simply
+$c_{j\mu}^\dag \to e^{i\mu\phi_j} c_{j\mu}^\dag$, under which
 \begin{align}
-  H_{\t{drive}} = \Omega \D_{1,1}.
+  H_{\t{drive}}^{(\phi)} \to H_{\t{drive}} = \Omega \D_{1,1}.
 \end{align}
 The SU($n$) symmetry of collective interactions implies that the
 interaction Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_drive} is
@@ -349,12 +348,12 @@ where $\phi$ is the relative phase of the driving laser between
 adjacent lattice sites.  In the basis of drive operators, this
 Hamiltonian takes the form (see Appendix \ref{sec:lat_drive})
 \begin{align}
-  H_{\t{lat}}^{(\phi)} = -J \sum_{q,L} B_L\p{q,\phi} D_{L,0}^{(q)},
+  H_{\t{lat}}^{(\phi)} = -J \sum_{q,L} B_L^{(\phi,q)} D_{L,0}^{(q)},
   \label{eq:H_lat_drive}
 \end{align}
-with effective driving field strengths
+with effective inhomogeneous driving field strengths
 \begin{align}
-  B_L\p{q,\phi} = f_L\p{qa} \sqrt{\f{L+1/2}{n}}
+  B_L^{(\phi,q)} = f_L\p{qa} \sqrt{\f{L+1/2}{n}}
   \sum_\mu \bk{I\mu,L,0;I\mu} f_L\p{\mu\phi},
   &&
   f_L\p{\theta} \equiv
@@ -396,15 +395,15 @@ $H_{\t{Raman,bare}}^{(\phi)}$ within the $\ket{\dn}$-state manifold is
 with
 \begin{align}
   H_{\t{Raman},0}^{(\phi)}
-  &\equiv -\sum_j\sum_m \f{\Omega_m^2}{\Delta}
+  &= -\sum_j\sum_m \f{\Omega_m^2}{\Delta}
   {T_{1,m}^{(j)}}^\dag T_{1,m}^{(j)}, & \label{eq:raman_0} \\
   H_{\t{Raman},1}^{(\phi)}
-  &\equiv -\sum_j\sum_{s\in\set{\pm1}}
+  &= -\sum_j\sum_{s\in\set{\pm1}}
   \f{\Omega_0\Omega_s}{\Delta} e^{-i\phi_{js}}
   {T_{1,0}^{(j)}}^\dag T_{1,s}^{(j)} + \t{h.c.},
   \\
   H_{\t{Raman},2}^{(\phi)}
-  &\equiv -\f{\Omega_+\Omega_-}{\Delta}
+  &= -\f{\Omega_+\Omega_-}{\Delta}
   \sum_j\sum_{s\in\set{\pm1}} e^{-is\p{\phi_{j+}-\phi_{j-}}}
   {T_{1,-s}^{(j)}}^\dag T_{1,s}^{(j)},
   \label{eq:raman_2}
@@ -421,16 +420,29 @@ we can expand
 \end{align}
 where the coefficients $\Omega_{LM}^{(\phi,j)}$ are provided in
 Appendix \ref{sec:drive_raman_coeff}.  If the driving lasers are
-phase-matched with $\phi_{js}\equiv s\phi_j$, then the drive further
-simplifies to
+phase-matched with $\phi_{js}=s\phi_j$, such that a particle on site
+$j$ acquires a phase $\mp\phi_j$ for every nuclear spin transition
+$\mu\to\mu\pm1$, then the drive $H_{\t{Raman}}^{(\phi)}$ takes the
+form
 \begin{align}
-  H_{\t{Raman}}^{(\phi)}
-  = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}^{(\phi)}
+  \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_{js}=s\phi_j}
+  = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}^{(\phi)},
   \label{eq:drive_raman_matched}
 \end{align}
 with rotated collective drive operators $\D_{LM}^{(\phi)}$ defined in
-\eqref{eq:drive_rot}, and uniform coefficients $\Omega_{LM}$ that have
-the scaling
+\eqref{eq:drive_rot} and uniform driving amplitudes $\Omega_{LM}$
+provided in Appendix \ref{sec:drive_raman_coeff}.  Similarly to the
+case of a direct drive considered in Section \ref{sec:drive_SOC}, the
+Raman drive $H_{\t{Raman}}^{(\phi)}$ in \eqref{eq:drive_raman_matched}
+can be made homogenous through the gauge transformation
+$c_{j\mu}^\dag \to e^{i\mu\phi_j} c_{j\mu}^\dag$, under which
+\begin{align}
+  \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_{js}=s\phi_j}
+  \to H_{\t{Raman}}
+  = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}.
+\end{align}
+The effective driving amplitudes $\Omega_{LM}$ can be tuned through
+the bare driving amplitudes $\Omega_m$, and satisfy
 \begin{align}
   \Omega_{0,0} &\propto \Omega_+^2 + \Omega_-^2 + \Omega_0^2,
   &
@@ -443,17 +455,12 @@ the scaling
   &
   \Omega_{2,2} &\propto \Omega_+ \Omega_-.
 \end{align}
-Similarly to the case of a direct drive considered in Section
-\ref{sec:drive_SOC}, the Raman drive $H_{\t{Raman}}^{(\phi)}$ in
-\eqref{eq:drive_raman_matched} can be made homogenous through the
-gauge transformation $c_{j\mu}^\dag \to e^{i\mu\phi_j} c_{j\mu}^\dag$,
-under which
-\begin{align}
-  H_{\t{Raman}}^{(\phi)} \to H_{\t{Raman}}
-  \equiv \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}.
-  \label{eq:drive_raman_homo}
-\end{align}
-
+In particular, the amplitudes $\Omega_{1,0}$, $\Omega_{2,0}$, and
+$\Omega_{2,1}$ can be simultaneously tuned to zero by setting
+$\Omega_0=\Omega_+=\Omega_-$, at which point the only remaining
+effective drives in $H_{\t{Raman}}$ are $\sim\D_{1,1}$ and
+$\sim\D_{2,2}$ (as $\D_{0,0}\propto\1$ is just constant shift in
+energy).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Future directions}
@@ -613,12 +620,12 @@ write
 or, more compactly,
 \begin{align}
   \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
-  = \sum_L B_L\p{q,\phi} D_{L,0},
+  = \sum_L B_L^{(\phi,q)} D_{L,0},
   \label{eq:compact_SOC_drive}
 \end{align}
-with effective driving field strengths
+with effective inhomogeneous driving field strengths
 \begin{align}
-  B_L\p{q,\phi}
+  B_L^{(\phi,q)}
   \equiv f_L\p{qa} \f12
   \sum_\mu f_L\p{\mu\phi} \obk{s_{\mu\mu}|D_{L,0}}
   = f_L\p{qa} \sqrt{\f{L+1/2}{n}}
@@ -635,7 +642,7 @@ where
 Substituting the result in \eqref{eq:compact_SOC_drive} into the
 single-particle Hamiltonian in \eqref{eq:H_lat_spin} yields
 \begin{align}
-  H_{\t{lat}}^{(\phi)} = -J \sum_{q,L} B_L\p{q,\phi} D_{L,0}^{(q)}.
+  H_{\t{lat}}^{(\phi)} = -J \sum_{q,L} B_L^{(\phi,q)} D_{L,0}^{(q)}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -776,10 +783,12 @@ driving amplitudes, phases, and detuning that appear in the ``bare''
 Raman drive in \eqref{eq:raman_bare}, and by choice of gauge we set
 $\phi_{j,0}=0$, or equivalently re-define
 $\phi_{jm}-\phi_{j,0}\to\phi_{jm}$.  If the driving lasers are
-phase-matched with $\phi_{js}\equiv s\phi_j$, then the drive further
-simplifies to
+phase-matched with $\phi_{js}=s\phi_j$, such that a particle on site
+$j$ acquires a phase $\mp\phi_j$ for every nuclear spin transition
+$\mu\to\mu\pm1$, then the drive $H_{\t{Raman}}^{(\phi)}$ takes the
+form
 \begin{align}
-  H_{\t{Raman}}^{(\phi)}
+  \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_{js}=s\phi_j}
   = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}^{(\phi)},
 \end{align}
 with inhomogeneously rotated collective drive operators
