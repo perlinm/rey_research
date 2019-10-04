@@ -723,15 +723,18 @@ def deriv_op_vec_to_vals(bare_deriv_op_vec, spin_num, init_state,
     for deriv_op, order in deriv_op_vec.keys():
         for op, val in deriv_op_vec[deriv_op,order].items():
 
+            # initial magnitude / phase of this operator, assuming we have already computed it
             init_ln_val = init_ln_vals.get(op)
+
+            # if we can't acquire the initial magnitude / phase, compute it
             if init_ln_val is None:
                 init_ln_val = init_ln_val_func(op)
-                if init_ln_val is None: continue
+                if init_ln_val is None: continue # the initial magnitude is 0
                 init_ln_vals[op] = init_ln_val
 
             term_ln_mag = np.log(abs(val)) + init_ln_val[0]
-            term = np.exp(term_ln_mag) * init_ln_val[1] * np.exp(1j*np.angle(val))
-            deriv_vals[deriv_op][order] += term
+            term_phase = init_ln_val[1] * np.exp(1j*np.angle(val))
+            deriv_vals[deriv_op][order] += term_phase * np.exp(term_ln_mag)
 
     return deriv_vals
 

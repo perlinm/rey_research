@@ -411,7 +411,7 @@ thereby spoiling cancellations that are necessary to arrive at a
 physical value of a correlator, i.e.~with
 $\abs{\bk{\hat S_{\v n}\p{t}}}\lesssim S^{\abs{\v n}}$.  Finally, the
 TST expansion is essentially perturbative in the time $t$, which
-implies that the validity of this a formal expansion eventually breaks
+implies that its validity as a formal expansion eventually breaks
 down.  Precisely characterizing the implications of these last two
 considerations for the TST expansion requires additional analysis that
 we defer to future work.  As we show from benchmarks of the TST
@@ -2122,9 +2122,9 @@ with $\rho_E$ a time-independent steady state of the environment.  If
 we enforce \eqref{eq:markov} for all states $\rho_S$, e.g.~the
 maximally mixed state $\rho_S^{(1)}\propto\1_S$ and
 $\rho_S^{(2)}\equiv\rho_S^{(1)}+\O_S$ with $\O_S$ any traceless
-operator on $S$ with squared norm
-$\norm{\O_S}^2\equiv\tr\p{\O_S^\dag\O_S}\le\tr\1_S$, then by linearity
-we find that
+operator on $S$ with operator norm $\norm{\O_S}\le1/\tr\1_S$
+(i.e.~such that $\rho_S^{(2)}$ remains positive semi-definite, or a
+valid quantum state), then by linearity we find that
 \begin{align}
   U_{SE}\p{t} \p{\1_S\otimes\rho_E} U_{SE}^\dag\p{t}
   \approx \U_{\ul S}\p{t} \1_S\otimes\rho_E,
