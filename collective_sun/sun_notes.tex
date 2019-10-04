@@ -349,8 +349,12 @@ Hamiltonian in \eqref{eq:H_lat} transforms as (see Appendix
 \end{align}
 with effective inhomogeneous driving field amplitudes
 \begin{align}
-  B_L^{(\phi,q)} = -J f_L\p{qa} \sqrt{\f{L+1/2}{n}}
-  \sum_\mu \bk{I\mu,L,0;I\mu} f_L\p{\mu\phi},
+  B_L^{(\phi,q)} = -J f_L\p{qa} W_L^{(\phi)},
+\end{align}
+where
+\begin{align}
+  W_L^{(\phi)} \equiv \sqrt{\f{L+1/2}{n}}
+  \sum_\mu \bk{I\mu,L,0;I\mu} f_L\p{\mu\phi}
   &&
   f_L\p{\theta} \equiv
   \begin{cases}
@@ -363,6 +367,27 @@ simulation of synthetic gauge fields with large spin ($L>1$).  As we
 will see in the following section, multi-laser drives can also
 simulate synthetic large-spin fields with non-zero spin projection
 ($M\ne0$) onto a quantization axis.
+
+In the regime of weak SOC with $\abs{\phi}\ll1$, we find that
+\begin{align}
+  W_L^{(\phi)} = c_L \sqrt{n_L\p{L+1/2}} \phi^L + O\p{\phi^{L+2}},
+  &&
+  n_L \equiv \prod_{\ell=-L}^L\p{n-\ell},
+\end{align}
+for
+\begin{align}
+  c_0 = 1,
+  &&
+  c_1 = \f16,
+  &&
+  c_2 = \f1{30},
+  &&
+  c_3 = \f1{140},
+  &&
+  c_4 = \f1{630},
+  &&
+  c_5 = \f1{2772}.
+\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Raman drive}
@@ -598,8 +623,8 @@ which are respectively even and odd under spin inversion
   = \cos\p{qa} w_{\phi+} + \sin\p{qa} w_{\phi-},
 \end{align}
 and resolve the identity (super-)operator $\I$ with
-$\I w_{\phi,\pm} = w_{\phi,\pm}$ in the basis of the drive
-operators $D_{LM}$, finding (see Appendix \ref{sec:changing_bases})
+$\I w_{\phi\pm} = w_{\phi\pm}$ in the basis of the drive operators
+$D_{LM}$ (see Appendix \ref{sec:changing_bases}), finding
 \begin{align}
   \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
   = \cos\p{qa} \f12 \sum_{L,M} \obk{w_{\phi+}|D_{LM}} D_{LM}
@@ -619,36 +644,34 @@ write
   = \cos\p{qa} \f12 \sum_{L\,\t{even}}
   \obk{w_{\phi+}|D_{L,0}} D_{L,0}
   + \sin\p{qa} \f12 \sum_{L\,\t{odd}}
-  \obk{w_{\phi,-}|D_{L,0}} D_{L,0},
+  \obk{w_{\phi-}|D_{L,0}} D_{L,0},
 \end{align}
 or, more compactly,
 \begin{align}
   \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
-  = \sum_L A_L^{(\phi,q)} D_{L,0},
-  \label{eq:compact_SOC_drive}
-\end{align}
-with effective inhomogeneous driving field amplitudes
-\begin{align}
-  A_L^{(\phi,q)}
-  \equiv f_L\p{qa} \f12
-  \sum_\mu f_L\p{\mu\phi} \obk{s_{\mu\mu}|D_{L,0}}
-  = f_L\p{qa} \sqrt{\f{L+1/2}{n}}
-  \sum_\mu \bk{I\mu,L,0;I\mu} f_L\p{\mu\phi},
-\end{align}
-where
-\begin{align}
+  = \sum_L f_L\p{qa} W_L^{(\phi)} D_{L,0},
+  &&
   f_L\p{\theta} \equiv
   \begin{cases}
     \cos\theta & L~\t{even} \\
     \sin\theta & L~\t{odd}
-  \end{cases}.
+  \end{cases},
+  \label{eq:compact_SOC_drive}
+\end{align}
+with effective driving field amplitudes
+\begin{align}
+  W_L^{(\phi)}
+  \equiv \f12 \obk{w_{\phi,\p{-1}^L}|D_{L,0}}
+  = \f12 \sum_\mu f_L\p{\mu\phi} \obk{s_{\mu\mu}|D_{L,0}}
+  = \sqrt{\f{L+1/2}{n}}
+  \sum_\mu \bk{I\mu,L,0;I\mu} f_L\p{\mu\phi}.
 \end{align}
 Substituting the result in \eqref{eq:compact_SOC_drive} into the
 single-particle Hamiltonian in \eqref{eq:H_lat_spin} yields
 \begin{align}
   H_{\t{lat}}^{(\phi)} = \sum_{q,L} B_L^{(\phi,q)} D_{L,0}^{(q)},
   &&
-  B_L^{(\phi,q)} \equiv -J A_L^{(\phi,q)}.
+  B_L^{(\phi,q)} \equiv -J f_L\p{qa} W_L^{(\phi)}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -748,41 +771,42 @@ $\Omega_{LM}^{(\phi,j)}$ is independent of $\phi$, we drop the
 explicit dependence on $\phi$, i.e.~taking
 $\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.
 \begin{align}
-  \Omega_{0,0} \equiv -\f1{\sqrt{2n}} \sum_m\f{\Omega_m^2}{\Delta},
+  \Omega_{0,0} \equiv -\f1{\sqrt{2}}~ \f1{\sqrt{n}}~
+  \sum_m\f{\Omega_m^2}{\Delta},
   &&
-  \Omega_{1,0} \equiv \sqrt{\f{3}{2n\p{n^2-1}}}~
-  \f{\Omega_+^2 - \Omega_-}{\Delta},
+  \Omega_{1,0} \equiv \sqrt{\f32}~ \f1{\sqrt{n_1}}~
+  \f{\Omega_+^2 - \Omega_-^2}{\Delta},
   \label{eq:O_01_0}
 \end{align}
 \begin{align}
-  \Omega_{2,0} \equiv \sqrt{\f{n^2-4}{10n\p{n^2-1}}}~
+  \Omega_{2,0} \equiv \f1{\sqrt{10}}~ \f{\sqrt{n_2}}{n_1}~
   \f{\Omega_+ + \Omega_- - 2\Omega_0}{\Delta},
   \label{eq:O_2_0}
 \end{align}
 \begin{align}
   \Omega_{L,1}^{(\phi,j)}
-  \equiv \sum_{s\in\set{\pm1}} \omega_{Ls} \cos\p{\phi_s j},
-  &&
+  &\equiv \sum_{s\in\set{\pm1}} \omega_{Ls} \cos\p{\phi_s j},
+  &
   \Omega_{L,-1}^{(\phi,j)}
-  \equiv \sum_{s\in\set{\pm1}} s \omega_{Ls} \sin\p{\phi_s j},
-\end{align}
-\begin{align}
+  &\equiv \sum_{s\in\set{\pm1}} s \omega_{Ls} \sin\p{\phi_s j}, \\
   \Omega_{2,2}^{(\phi,j)}
-  \equiv \omega_{2,2} \cos\p{\sp{\phi_+-\phi_-}j},
-  &&
+  &\equiv \omega_{2,2} \cos\p{\sp{\phi_+-\phi_-}j},
+  &
   \Omega_{2,-2}^{(\phi,j)}
-  \equiv \omega_{2,2} \sin\p{\sp{\phi_+-\phi_-}j},
-\end{align}
-\begin{align}
-  \omega_{1\pm} \equiv \f{\sqrt3}{\sqrt{n\p{n^2-1}}}~
+  &\equiv \omega_{2,2} \sin\p{\sp{\phi_+-\phi_-}j}, \\
+  \omega_{1\pm}
+  &\equiv \sqrt{3} ~\f1{\sqrt{n_1}}~
   \f{\Omega_0 \Omega_\pm}{\Delta},
-  &&
-  \omega_{2\pm} \equiv \pm \f{\sqrt{3/5}}{n\p{n^2-1}}
-  \sqrt{\f{\p{n+2}!}{\p{n-3}!}}~ \f{\Omega_0\Omega_\pm}{\Delta},
-\end{align}
-\begin{align}
-  \omega_{2,2} \equiv -\f{\sqrt{6/5}}{n\p{n^2-1}}
-  \sqrt{\f{\p{n+2}!}{\p{n-3}!}}~ \f{\Omega_+\Omega_-}{\Delta}.
+  &
+  \omega_{2\pm}
+  &\equiv \pm \sqrt{\f35}~ \f{\sqrt{n_2}}{n_1}~
+  \f{\Omega_0\Omega_\pm}{\Delta}, \\
+  \omega_{2,2}
+  &\equiv -\sqrt{\f65}~ \f{\sqrt{n_2}}{n_1}~
+  \f{\Omega_+\Omega_-}{\Delta},
+  &
+  n_L
+  &\equiv \prod_{\ell=-L}^L \p{n-\ell}.
 \end{align}
 Here $\Omega_m$, $\phi_m$, and $\Delta$ are respectively the (real)
 driving amplitudes, phases, and detuning that appear in the ``bare''
