@@ -158,7 +158,6 @@ After absorbing the position dependence of the laser Hamiltonian into fermionic 
   &= -J \sum_j \p{e^{i\phi} \hat c_{j,\up}^\dag \hat c_{j+1,\up}
   + \hat c_{j,\dn}^\dag \hat c_{j+1,\dn} + \text{h.c.}} \notag \\
   &\qquad + U \sum_j \hat n_{j,\up} \hat n_{j,\dn},
-\label{eq:FermiHubbard}
 \end{align}
 where $J$ is the nearest-neighbor tunneling rate; the SOC angle $\phi\equiv k_{\t{L}}a$ determines the phase gained by spin-up atoms upon tunneling from site $j$ to site $j+1$ (in the gauge-transformed frame) with lattice spacing $a=x_{j+1}-x_j$; $U$ is the on-site interaction energy of two atoms; and $\hat n_{j\alpha}\equiv\hat c_{j\alpha}^\dag \hat c_{j\alpha}$ is a number operator.
 
@@ -168,7 +167,7 @@ In this basis, the single-particle Hamiltonian exhibits shifted dispersion relat
   \hat H_{\t{FH,single}}^{(\phi)}/\hbar
   = -2J\sum_q\sp{\cos(qa + \phi) \hat n_{q,\up}
   + \cos(qa) \hat n_{q,\dn}}.
-\label{eq:FermiHubbards}
+\label{eq:FermiHubbard}
 \end{align}
 When $U\lesssim J$, interaction energies are too weak for collisions to change the occupancies of single-particle quasi-momentum modes.
 Atoms are then pinned to these modes, which form a lattice in quasi-momentum space [see Fig.~\ref{fig:protocol_schematic}(c)]\cite{bromley2018dynamics}.
@@ -206,6 +205,7 @@ The atoms then freely evolve for a variable time $t$ (possibly with spin-echo $\
   \xi^2 \equiv
   \min_\theta \braket{\t{var}(\hat S^\perp_\theta)}
   \times N/\abs*{\braket{\hat{\v S}}}^2,
+  \label{eq:sqz}
 \end{align}
 can be determined experimentally from global spin measurements.
 Here $\braket{\hat{\v S}}$ is the mean collective spin vector and $\braket{\t{var}(\hat S^\perp_\theta)}$ is the variance of spin measurements along an axis orthogonal to $\braket{\hat{\v S}}$, parameterized by the angle $\theta\in[0,2\pi)$.
@@ -257,7 +257,7 @@ We find that the existence of single-particle localized modes in the lattice wit
 
 The above scheme for OAT achieves optimal spin squeezing that scales as $\xi^2_{\t{opt}}\sim N^{-2/3}$ with minimal intervention, i.e.~a standard Ramsey protocol.
 Further improvements upon this scheme can be made by introducing a time-dependent driving field that transforms the OAT Hamiltonian into a two-axis twisting (TAT) one.
-While the OAT model initially generates squeezing faster than the TAT model, the squeezing generation rate of OAT (measured in dB per second) falls off with time, while the squeezing generation rate for TAT remains approximately constant until reaching Heisenberg-limited amount of spin squeezing with $\xi^2_{\t{opt}}\sim N^{-1}$\cite{kitagawa1993squeezed, supplementary_material}.
+While the OAT model initially generates squeezing faster than the TAT model, the squeezing generation rate of OAT (measured in dB per second) falls off with time, while the squeezing generation rate for TAT remains approximately constant until reaching Heisenberg-limited amount of spin squeezing with $\xi^2_{\t{opt}}\sim N^{-1}$ (see Appendix \ref{sec:time_series})\cite{kitagawa1993squeezed}.
 
 There are two general strategies for converting OAT into TAT: by use of either a pulsed\cite{liu2011spin} or continuous\cite{huang2015twoaxis} drive protocol.
 For simplicity, we consider the latter in this  work, although the pulsed protocol could provide additional advantages, as explained at the end of Appendix \ref{sec:clock_interrogation}.
@@ -296,7 +296,7 @@ In general, TAT achieves more squeezing than OAT for any system size, and achiev
 Figure \ref{fig:optima_coherent} shows, for both OAT and TAT protocols, the maximally attainable amount of spin squeezing and the shortest time at which it occurs as a function of the lattice depth $V_0$ and linear lattice size $\ell$ in a single half-filled 2D layer (i.e.~$f=1,N=\ell^2$) of the 3D OLC.
 Atoms are confined along the direction transverse to the 2D layer by a lattice of depth 60 $E_{\t{R}}$, where $E_{\t{R}}$ is the atomic lattice recoil energy.
 The maximally attainable amount of spin squeezing by each protocol in Fig.~\ref{fig:optima_coherent} depends only on the atom number $N$, while the shortest attainable time is determined by choosing the largest SOC angles $\phi_\x=\phi_\y\equiv\phi$ which saturate $\widetilde{B}/U\approx0.05$.
-We impose this constraint on $\widetilde{B}/U$ to ensure validity of the OAT Hamiltonian perturbatively derived in Appendix \ref{sec:derivation_OAT}\cite{supplementary_material}.
+We impose this constraint on $\widetilde{B}/U$ to ensure validity of the OAT Hamiltonian perturbatively derived in Appendix \ref{sec:derivation_OAT} (see also Appendix \ref{sec:benchmarking}).
 
 \begin{figure*}
 \centering
@@ -308,7 +308,7 @@ The more favorable size-dependence of TAT time scales,  however, allow for conti
 While the OAT results in ({\bf a}) are exact, the TAT results in ({\bf b}) reflect only a lower bound on the maximum squeezing obtainable, albeit one that is likely close (within a few dB) to the actual value.
 Optimal squeezing times in the presence of decoherence are generally smaller than the corresponding times shown in Fig.~\ref{fig:optima_coherent}, as decoherence typically degrades squeezing before it reaches the decoherence-free maximum.
 The decoherence considered in this work also limits maximally achievable squeezing to $\sim20$ dB less than the decoherence-free maxima shown in Fig.~\ref{fig:optima_coherent}.
-Sample plots of squeezing over time for particular choices of lattice size ($\ell$) and depth ($V_0/E_{\t{R}}$) are provided in the Supplementary Material\cite{supplementary_material}.
+Sample plots of squeezing over time for particular choices of lattice size ($\ell$) and depth ($V_0/E_{\t{R}}$) are provided in Appendix \ref{sec:time_series}.
 }
 \label{fig:optima_decoherence}
 \end{figure*}
@@ -497,7 +497,44 @@ with
 \begin{align}
   \chi \equiv \f{\widetilde B^2}{\p{N-1}fU}.
 \end{align}
-We benchmark the validity of this effective Hamiltonian via exact simulations of the spin [Eqn.~\eqref{eq:SpinModel}] and OAT [Eqn.~\eqref{eq:H_eff}] Hamiltonians in a system of 20 spins, finding that the relative error in maximal squeezing (in dB) of the OAT model is less than 3\% when $\widetilde{B}/U<0.06$\cite{supplementary_material}.
+We benchmark the validity of this effective Hamiltonian via exact simulations of the spin [Eqn.~\eqref{eq:SpinModel}] and OAT [Eqn.~\eqref{eq:H_eff}] Hamiltonians in a system of 20 spins, finding that the relative error in maximal squeezing (in dB) of the OAT model is less than 3\% when $\widetilde{B}/U<0.06$ (see Appendix \ref{sec:benchmarking}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Numerical benchmarking of the OAT model}
+\label{sec:benchmarking}
+\setcounter{figure}{0}
+
+Here we provide additional information about our benchmarking of the one-axis twisting model against the spin model.
+This benchmarking was performed via exact simulations of a 20-spin system.
+Fig.~\ref{fig:relative_error} shows the relative error in maximal squeezing of the OAT model (measured against the spin model) as a function of the reduced field variance $\widetilde{B}/U$.
+Here squeezing is measured in decibels (dB) by $-10\log_{10}\xi^2$ for the squeezing parameter $\xi^2$ define in Eqn.~\eqref{eq:sqz}.
+The relative error in maximal squeezing (in dB) by the OAT model is less than 3\% when $\widetilde{B}/U<0.06$.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.35\textwidth]{relative_error.pdf}
+\caption{{\bf Relative error} between maximal squeezing (measured in dB) obtained by the OAT [Eqn.~\eqref{eq:H_eff}] and spin [Eqn.~\eqref{eq:SpinModel}] models of the main text in a system of 20 particles.
+The OAT model correctly captures the maximal squeezing (in dB) of the spin model to within 3\% (marked by the horizontal reference line) within the gap-protected regime $\widetilde{B}/U<0.06$.
+}
+\label{fig:relative_error}
+\end{figure}
+
+In principle, spin-changing decoherence compromises the validity of the OAT model, as its perturbative derivation in Appendix \ref{sec:derivation_OAT} relies on spin population remaining primarily within the Dicke manifold.
+This assumption breaks down in the presence of, for example, spontaneous emission, which transfers population outside of the Dicke manifold.
+Nonetheless, we find decent agreement between the OAT and spin models when decoherence is sufficiently weak (see Fig.~\ref{fig:benchmarking_decay}).
+
+\begin{figure*}
+\centering
+\includegraphics[width=0.75\textwidth]{benchmarking_decay.pdf}
+\caption{{\bf Comparison between the OAT and the spin model in the presence of decoherence.}
+({\bf a}) The difference between the maximal squeezing (measured in dB) obtained by the OAT [Eqn.~\eqref{eq:H_eff}] and spin [Eqn.~\eqref{eq:SpinModel}] models increases with the particle number $N$ and the single-particle spontaneous emission rate $\gamma$.
+This disagreement is attributed in part to the fact that spontaneous emission transfers population of the collective spin state outside of the Dicke manifold, violating an assumption of the OAT model; see panel ({\bf b}).
+The rate of population transfer outside of the Dicke manifold increases with both particle number and spontaneous emission rate.
+(Parameters for simulations in this figure: $U=1000$ Hz, $J=200$ Hz, and $\phi=\pi/20$).
+}
+\label{fig:benchmarking_decay}
+\end{figure*}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Two-axis twisting, decoherence, and the residual axial field}
@@ -760,6 +797,28 @@ This form of decoherence can be effectively modeled by decay and dephasing of in
 In the language of the section that follows, we would say that this decoherence is captured by the sets of jump operators $\J_-\equiv\set{s_-^{(j)}}$ and $\J_\z\equiv\set{s_\z^{(j)}}$ with corresponding decoherence rates $\gamma_-=\gamma_\z=\Gamma$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Time-series of squeezing via OAT and TAT}
+\label{sec:time_series}
+\setcounter{figure}{0}
+
+Figure \ref{fig:squeezing_example} shows an example of squeezing over time via OAT and TAT, both with and without decoherence via decay and dephasing of individual spins.
+The OAT model initially generates squeezing faster than the TAT model, but the squeezing generation rate of OAT (measured in dB per second) falls off with time.
+The squeezing generation rate for TAT, meanwhile, remains approximately constant (in the absence of decoherence) until squeezing via TAT surpasses that of OAT.
+In the absence of decoherence, OAT achieves a maximal amount of squeezing that scales as $\xi^2\sim N^{-2/3}$, while TAT achieves Heisenberg-limited squeezing with $\xi^2\sim N^{-1}$.
+Note that our method for computing squeezing via TAT in the presence of decoherence (described in Appendix \ref{sec:collective_simulation}) is not capable of computing squeezing for the full range of times shown in Fig.~\ref{fig:squeezing_example}; the corresponding time-series data in this figure is therefore shown up to the point at which this method breaks down.
+
+\begin{figure*}
+\centering
+\includegraphics{squeezing_example_L40.pdf}
+\includegraphics{squeezing_example_L100.pdf}
+\caption{{\bf Squeezing via OAT and TAT} in a 2D section of the 3D $^{87}$Sr optical lattice clock, shown for ({\bf a}) $\ell=40$ and ({\bf b}) $\ell=100$ sites per axis (with $N=\ell^2$ atoms total), and a lattice depth of $V_0=4~E_{\t{R}}$, where $E_{\t{R}}$ is the atomic lattice recoil energy.
+Atoms are confined along the direction transverse to the 2D layer by a lattice of depth 60 $E_{\t{R}}$.
+Squeezing over time is shown for OAT (blue) and TAT (green), both with (solid lines) and without (dashed lines) decoherence via uncorrelated decay and dephasing of individual spins at rates of $0.1~\t{sec}^{-1}$ (see Appendix \ref{sec:decoherence}).
+}
+\label{fig:squeezing_example}
+\end{figure*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Solving Heisenberg equations of motion for collective spin systems}
 \label{sec:collective_simulation}
 
@@ -953,7 +1012,7 @@ This method has proven to be successful in simulating quantum spin dynamics.
 Using this approach, Fig.~\ref{fig:inelastic_squeezing} shows numerical simulation results of squeezing over time in the presence of inelastic collisions.
 For shallow lattices ($V_0\lesssim7E_{\t{R}}$), the effect of inelastic collisions can limit the spin squeezing to $\sim10$ dB.
 Thus, in this regime, losses are as relevant as light scattering.
-The role of inelastic interactions could be mitigated by either operating at deeper lattices as shown in Fig. \ref{fig:inelastic_squeezing}, or by using nuclear spin states to generate the squeezing instead of the clock states directly.
+The role of inelastic interactions could be mitigated by either operating at deeper lattices as shown in Fig.~\ref{fig:inelastic_squeezing}, or by using nuclear spin states to generate the squeezing instead of the clock states directly.
 
 
 \bibliography{main.bib}
