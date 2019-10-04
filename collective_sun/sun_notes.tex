@@ -370,7 +370,7 @@ simulate synthetic large-spin fields with non-zero spin projection
 
 In the regime of weak SOC with $\abs{\phi}\ll1$, we find that
 \begin{align}
-  W_L^{(\phi)} = c_L \sqrt{n_L\p{L+1/2}} \phi^L + O\p{\phi^{L+2}},
+  W_L^{(\phi)} = c_L \sqrt{\p{L+1/2} n_L}\, \phi^L + O\p{\phi^{L+2}},
   &&
   n_L \equiv \prod_{\ell=-L}^L\p{n-\ell},
 \end{align}
@@ -739,14 +739,14 @@ get
   \end{pmatrix}
   \begin{Bmatrix}
     \ell_1 & \ell_2 & L \\
-    J & J & J
+    I & I & I
   \end{Bmatrix} \\
   = \delta_{m_1+m_2,M} \p{-1}^{2I+\ell_1-\ell_2}
   \sqrt{\p{2\ell_1+1}\p{2\ell_2+1}}
   \bk{\ell_1 m_2, \ell_2 m_2; LM}
   \begin{Bmatrix}
     \ell_1 & \ell_2 & L \\
-    J & J & J
+    I & I & I
   \end{Bmatrix}.
 \end{multline}
 
@@ -771,15 +771,15 @@ $\Omega_{LM}^{(\phi,j)}$ is independent of $\phi$, we drop the
 explicit dependence on $\phi$, i.e.~taking
 $\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.
 \begin{align}
-  \Omega_{0,0} \equiv -\f1{\sqrt{2}}~ \f1{\sqrt{n}}~
+  \Omega_{0,0} \equiv -\f1{\sqrt{2}}\, \f1{\sqrt{n}}\,
   \sum_m\f{\Omega_m^2}{\Delta},
   &&
-  \Omega_{1,0} \equiv \sqrt{\f32}~ \f1{\sqrt{n_1}}~
+  \Omega_{1,0} \equiv \sqrt{\f32}\, \f1{\sqrt{n_1}}\,
   \f{\Omega_+^2 - \Omega_-^2}{\Delta},
   \label{eq:O_01_0}
 \end{align}
 \begin{align}
-  \Omega_{2,0} \equiv \f1{\sqrt{10}}~ \f{\sqrt{n_2}}{n_1}~
+  \Omega_{2,0} \equiv \f1{\sqrt{10}}\, \f{\sqrt{n_2}}{n_1}\,
   \f{\Omega_+ + \Omega_- - 2\Omega_0}{\Delta},
   \label{eq:O_2_0}
 \end{align}
@@ -795,14 +795,14 @@ $\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.
   \Omega_{2,-2}^{(\phi,j)}
   &\equiv \omega_{2,2} \sin\p{\sp{\phi_+-\phi_-}j}, \\
   \omega_{1\pm}
-  &\equiv \sqrt{3} ~\f1{\sqrt{n_1}}~
+  &\equiv \sqrt{3} \,\f1{\sqrt{n_1}}\,
   \f{\Omega_0 \Omega_\pm}{\Delta},
   &
   \omega_{2\pm}
-  &\equiv \pm \sqrt{\f35}~ \f{\sqrt{n_2}}{n_1}~
+  &\equiv \pm \sqrt{\f35}\, \f{\sqrt{n_2}}{n_1}\,
   \f{\Omega_0\Omega_\pm}{\Delta}, \\
   \omega_{2,2}
-  &\equiv -\sqrt{\f65}~ \f{\sqrt{n_2}}{n_1}~
+  &\equiv -\sqrt{\f65}\, \f{\sqrt{n_2}}{n_1}\,
   \f{\Omega_+\Omega_-}{\Delta},
   &
   n_L
