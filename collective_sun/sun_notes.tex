@@ -353,14 +353,14 @@ with effective inhomogeneous driving field amplitudes
 \end{align}
 where
 \begin{align}
-  W_L^{(\phi)} \equiv \sqrt{\f{L+1/2}{n}}
-  \sum_\mu \bk{I\mu,L,0;I\mu} f_L\p{\mu\phi}
-  &&
   f_L\p{\theta} \equiv
   \begin{cases}
     \cos\theta & L~\t{even} \\
     \sin\theta & L~\t{odd}
-  \end{cases}.
+  \end{cases},
+  &&
+  W_L^{(\phi)} \equiv \sqrt{\f{L+1/2}{n}}
+  \sum_\mu \bk{I\mu,L,0;I\mu} f_L\p{\mu\phi}.
 \end{align}
 Spin-orbit coupling with multi-level systems thus allows for the
 simulation of synthetic gauge fields with large spin ($L>1$).  As we
@@ -368,25 +368,18 @@ will see in the following section, multi-laser drives can also
 simulate synthetic large-spin fields with non-zero spin projection
 ($M\ne0$) onto a quantization axis.
 
-In the regime of weak SOC with $\abs{\phi}\ll1$, we find that
+In the regime of weak SOC with $\abs{\phi}\ll1$, by considering all
+$L<10$ (and conjecturing the same pattern for all $L$) we find that
 \begin{align}
-  W_L^{(\phi)} = c_L \sqrt{\p{L+1/2} n_L}\, \phi^L + O\p{\phi^{L+2}},
-  &&
-  n_L \equiv \prod_{\ell=-L}^L\p{n-\ell},
+  W_L^{(\phi)} = c_L \sqrt{n_L}\, \phi^L + O\p{\phi^{L+2}},
 \end{align}
-for
+where
 \begin{align}
-  c_0 = 1,
+  c_L \equiv \f{\sqrt{L+1/2}}{4^L}\, \f{\p{1}_L}{\p{3/2}_L},
   &&
-  c_1 = \f16,
+  n_L \equiv \p{n-L}_{2L+1},
   &&
-  c_2 = \f1{30},
-  &&
-  c_3 = \f1{140},
-  &&
-  c_4 = \f1{630},
-  &&
-  c_5 = \f1{2772}.
+  \p{x}_L \equiv \prod_{\ell=0}^{L-1} \p{x+\ell}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -806,7 +799,7 @@ $\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.
   \f{\Omega_+\Omega_-}{\Delta},
   &
   n_L
-  &\equiv \prod_{\ell=-L}^L \p{n-\ell}.
+  &\equiv \prod_{\ell=-L}^L \p{n+\ell}.
 \end{align}
 Here $\Omega_m$, $\phi_m$, and $\Delta$ are respectively the (real)
 driving amplitudes, phases, and detuning that appear in the ``bare''
