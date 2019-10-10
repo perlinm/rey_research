@@ -822,7 +822,7 @@ which also implies that
   &&
   \tilde\tau_M \equiv
   \begin{cases}
-    e^{-i\pi/4} & M = 0 \\
+    \sqrt{2}/\p{1+i} & M = 0 \\
     \sign\p{M}^{M-1/2} & M \ne 0
   \end{cases}.
 \end{align}
@@ -842,15 +842,15 @@ operators.  The general product of two drive operators takes the form
 with operators
 \begin{align}
   E_{\ell_1 m_1;\ell_2 m_2}^{(L,+)}
-  &\equiv \f12 \sum_{s\in\set{\pm1}}
-  \sp{\tilde\tau_{m_1+m_2}
+  &\equiv \sum_{s\in\set{\pm1}}
+  \f12 \sp{\tilde\tau_{m_1+m_2}
     + i s \p{-1}^{L+\ell_1+\ell_2}
     \epsilon_{m_1} \epsilon_{m_2} \tilde\tau_{-\p{m_1+m_2}}}
   \sqrt{s} D_{L,s\p{m_1+m_2}},
   \\
   E_{\ell_1 m_1;\ell_2 m_2}^{(L,-)}
-  &\equiv \f12 \sum_{s\in\set{\pm1}}
-  \sp{\epsilon_{m_2} \tilde\tau_{m_1-m_2}
+  &\equiv \sum_{s\in\set{\pm1}}
+  \f12 \sp{\epsilon_{m_2} \tilde\tau_{m_1-m_2}
     + i s \p{-1}^{L+\ell_1+\ell_2}
     \epsilon_{m_1} \tilde\tau_{-\p{m_1-m_2}}}
   \sqrt{s} D_{L,s\p{m_1-m_2}}.
@@ -868,16 +868,24 @@ and are otherwise
 \begin{align}
   E_{\ell_1 m_1;\ell_2 m_2}^{(L,+)}
   &\stackrel{m_1+m_2\ne0}{=}
-  \f{\tau_{m_1+m_2}^*}{2} \sum_{s\in\set{\pm1}}
-  \sp{1 + s \p{-1}^{L+\ell_1+\ell_2}
+  \tau_{m_1+m_2}^* \sum_{s\in\set{\pm1}}
+  \f12 \sp{1 + s \p{-1}^{L+\ell_1+\ell_2}
     \epsilon_{m_1} \epsilon_{m_2} \epsilon_{m_1+m_2}}
   \sqrt{s} D_{L,s\p{m_1+m_2}}, \\
   E_{\ell_1 m_1;\ell_2 m_2}^{(L,-)}
   &\stackrel{m_1-m_2\ne0}{=}
-  \f{\tau_{m_1-m_2}^*}{2} \sum_{s\in\set{\pm1}}
-  \sp{\epsilon_{m_2} + s \p{-1}^{L+\ell_1+\ell_2}
+  \tau_{m_1-m_2}^* \sum_{s\in\set{\pm1}}
+  \f12 \sp{\epsilon_{m_2} + s \p{-1}^{L+\ell_1+\ell_2}
     \epsilon_{m_1} \epsilon_{m_1-m_2}}
   \sqrt{s} D_{L,s\p{m_1-m_2}}.
+\end{align}
+If $\p{m_1,m_2}=\p{0,m}$, then we can use the fact that
+$i\tau_m\tau_{-m}^*=\epsilon_m$ for $m\ne0$ to simplify
+\begin{align}
+  D_{\ell_1,0} D_{\ell_2 m}
+  = \sum_L f_{\ell_1,0,\ell_2,m}^{Lm}
+  \sum_{s\in\set{\pm1}} \f12 \sp{1 + s \p{-1}^{L+\ell_1+\ell_2}}
+  \sqrt{s} D_{L,sm}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
