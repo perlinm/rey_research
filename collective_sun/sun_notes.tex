@@ -843,64 +843,42 @@ operators.  The general product of two drive operators takes the form
 with operators
 \begin{align}
   E_{\ell_1 m_1;\ell_2 m_2}^{(L,+)}
-  &\equiv \f12 \sum_{s\in\set{\pm1}} \sqrt{s} D_{L,s\p{m_1+m_2}}
+  &\equiv \f12 \sum_{s\in\set{\pm1}}
   \sp{\tilde\tau_{m_1+m_2}
     + i s \p{-1}^{L+\ell_1+\ell_2}
-    \epsilon_{m_1} \epsilon_{m_2} \tilde\tau_{-\p{m_1+m_2}}},
+    \epsilon_{m_1} \epsilon_{m_2} \tilde\tau_{-\p{m_1+m_2}}}
+  \sqrt{s} D_{L,s\p{m_1+m_2}},
   \\
   E_{\ell_1 m_1;\ell_2 m_2}^{(L,-)}
-  &\equiv \f12 \sum_{s\in\set{\pm1}} \sqrt{s} D_{L,s\p{m_1-m_2}}
+  &\equiv \f12 \sum_{s\in\set{\pm1}}
   \sp{\epsilon_{m_2} \tilde\tau_{m_1-m_2}
     + i s \p{-1}^{L+\ell_1+\ell_2}
-    \epsilon_{m_1} \tilde\tau_{-\p{m_1-m_2}}}.
+    \epsilon_{m_1} \tilde\tau_{-\p{m_1-m_2}}}
+  \sqrt{s} D_{L,s\p{m_1-m_2}}.
 \end{align}
-The general product of drive operators simplifies somewhat in several
-special cases.  If one of $m_1,m_2$ is zero, for example, then
+If $m_1\pm m_2=0$, these operators simplify to
 \begin{align}
-  D_{\ell_1 m_1} D_{\ell_2 m_2}
-  \stackrel{0\in\set{m_1,m_2}}{=}
-  \sum_L f_{\ell_1 m_1;\ell_2 m_2}^{L,m_1+m_2} \times
-  \begin{cases}
-    D_{L,m_1+m_2} & L + \ell_1 + \ell_2 ~\t{even} \\
-    i D_{L,-\p{m_1+m_2}} & \t{otherwise}
-  \end{cases}.
+  E_{\ell_1 m;\ell_2,-m}^{(L,+)}
+  &= \f12 \sp{1 + \p{-1}^{L+\ell_1+\ell_2}
+    \epsilon_{m_1} \epsilon_{m_2}} D_{L,0}, \\
+  E_{\ell_1 m;\ell_2 m}^{(L,-)}
+  &= \f12 \sp{\epsilon_{m_2} + \p{-1}^{L+\ell_1+\ell_2}
+    \epsilon_{m_1}} D_{L,0},
 \end{align}
-If $\abs{m_1}=\abs{m_2}$, then
-\begin{multline}
-  D_{\ell_1 m_1} D_{\ell_2 m_2}
-  \stackrel{\abs{m_1}=\abs{m_2}}{=}
-  \sqrt{s_m} \p{-1}^m \sum_L f_{\ell_1 m;\ell_2,-m}^{L,0} D_{L,0} \times
-  \begin{cases}
-    1 & \p{-1}^L = s_m \p{-1}^{\ell_1+\ell_2} \\
-    0 & \t{otherwise}
-  \end{cases} \\
-  + \f{\sqrt{\sign\p{m}}}{\sqrt{s_m}} \f1{\sqrt{2}}
-  \sum_L f_{\ell_1 m;\ell_2 m}^{L,2m} \times
-  \begin{cases}
-    D_{L,2m} & \p{-1}^L = s_m \p{-1}^{\ell_1+\ell_2} \sign\p{m} \\
-    i D_{L,-2m} & \t{otherwise}
-  \end{cases},
-\end{multline}
-where $m \equiv m_1$ and $s_m\equiv+1$ ($-1$) if $m_1=m_2$
-($m_1\ne m_2$).  Finally, if $\abs{m_1}\ne\abs{m_2}$ with
-$m_1,m_2\ne0$, then
-\begin{multline}
-  D_{\ell_1 m_1} D_{\ell_2 m_2}
-  \stackrel{\substack{\abs{m_1}\ne\abs{m_2}\\m_1,m_2\ne0}}{=}
-  \f1{\sqrt{2}} \sum_{s\in\set{\pm1}}\f1{\sqrt{s}}
-  \tau_{m_1} \tau_{s m_2} \tau_{m_1+s m_2}
-  \sign\p{m_1+sm_2} \\
-  \times \sum_L f_{\ell_1 m_1;\ell_2 sm_2}^{L,m_1+sm_2} \times
-  \begin{cases}
-    D_{L,m_1+sm_2} & \p{-1}^L = \zeta_{\ell_1 m_1;\ell_2 m_2}^{(s)} \\
-    i D_{L,-\p{m_1+sm_2}} & \t{otherwise}
-  \end{cases},
-\end{multline}
-where
+and are otherwise
 \begin{align}
-  \zeta_{\ell_1 m_1;\ell_2 m_2}^{(s)}
-  \equiv s \p{-1}^{\ell_1+\ell_2}
-  \sign\p{m_1} \sign\p{sm_2} \sign\p{m_1+sm_2}.
+  E_{\ell_1 m_1;\ell_2 m_2}^{(L,+)}
+  &\stackrel{m_1+m_2\ne0}{=}
+  \f{\tau_{m_1+m_2}^*}{2} \sum_{s\in\set{\pm1}}
+  \sp{1 + s \p{-1}^{L+\ell_1+\ell_2}
+    \epsilon_{m_1} \epsilon_{m_2} \epsilon_{m_1+m_2}}
+  \sqrt{s} D_{L,s\p{m_1+m_2}}, \\
+  E_{\ell_1 m_1;\ell_2 m_2}^{(L,-)}
+  &\stackrel{m_1-m_2\ne0}{=}
+  \f{\tau_{m_1-m_2}^*}{2} \sum_{s\in\set{\pm1}}
+  \sp{\epsilon_{m_2} + s \p{-1}^{L+\ell_1+\ell_2}
+    \epsilon_{m_1} \epsilon_{m_1-m_2}}
+  \sqrt{s} D_{L,s\p{m_1-m_2}}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
