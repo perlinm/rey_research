@@ -200,7 +200,7 @@ instead obeys the symmetries of the {\it polarization} or {\it
   bertlmann2008bloch}
 \begin{align}
   T_{LM}
-  \equiv \p{-1}^M \sqrt{\f{2L+1}{2I+1}} \sum_{\mu,\nu}
+  \equiv \sqrt{\f{2L+1}{2I+1}} \sum_{\mu,\nu}
   \bk{I\mu;LM|I\nu} \op{\nu}{\mu},
   \label{eq:trans_ops}
 \end{align}
@@ -209,16 +209,11 @@ total spin and its projection onto a quantization axis;
 $I\equiv\p{n-1}/2$ is the maximal angular momentum of an $n$-level
 spin; $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ index projections of an
 $n$-level nuclear spin onto a quantization axis; and
-$\bk{I\mu;LM|I\nu}$ is a Clebsch-Gordan coefficient.  Note that our
-definition of a transition operators differs from that in
-Refs.~\cite{kryszewski2006alternative, bertlmann2008bloch} by the sign
-$\p{-1}^M$; this choice of sign convention will simplify much of our
-work below.
-
-The transition operator $T_{LM}$ is proportional to the transition
-induced on a nuclear spin by the absorption of a spin-$L$ particle
-with spin projection $M$ onto a quantization axis.  Similarly to the
-GGM operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the
+$\bk{I\mu;LM|I\nu}$ is a Clebsch-Gordan coefficient.  The transition
+operator $T_{LM}$ is proportional to the transition induced on a
+nuclear spin by the absorption of a spin-$L$ particle with spin
+projection $M$ onto a quantization axis.  Similarly to the GGM
+operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the
 transition operators in \eqref{eq:trans_ops} provide a complete basis
 for the space of operators on the Hilbert space of an $n$-level
 system, and satisfy the orthonormality condition
@@ -251,7 +246,7 @@ Hamiltonians in terms of self-adjoint operators, we define the {\it
   D_{LM} \stackrel{M\ne0}{\equiv} \f{\sigma_M}{\sqrt{2}}
   \sp{T_{L\abs{M}} + \sign\p{M}T_{L\abs{M}}^\dag},
   &&
-  \sigma_M \equiv \sign\p{M}^{3/2},
+  \sigma_M \equiv \p{-1}^M \sign\p{M}^{3/2},
   \label{eq:drive_ops}
 \end{align}
 for integer $M$ with $\abs{M}\le L$.  The drive operator $D_{LM}$ is
@@ -800,7 +795,7 @@ The drive operators are defined by
   D_{LM} \stackrel{M\ne0}{\equiv} \f{\sigma_M}{\sqrt{2}}
   \sp{T_{L\abs{M}} + \sign\p{M}T_{L\abs{M}}^\dag},
   &&
-  \sigma_M \equiv \sign\p{M}^{3/2},
+  \sigma_M \equiv \p{-1}^M \sign\p{M}^{3/2},
 \end{align}
 and can alternately be expressed as
 \begin{align}
@@ -811,7 +806,7 @@ where
   \tau_M \equiv
   \begin{cases}
     \sqrt{2} & M = 0, \\
-    \sign\p{M}^{M+1/2} & M \ne 0
+    \p{-1}^M \sign\p{M}^{M+1/2} & M \ne 0
   \end{cases},
   &&
   \epsilon_M \equiv \p{-1}^M \sign\p{M},
@@ -823,7 +818,7 @@ which also implies that
   \tilde\tau_M \equiv
   \begin{cases}
     \sqrt{2}/\p{1+i} & M = 0 \\
-    \sign\p{M}^{M-1/2} & M \ne 0
+    \tau_M^* & M \ne 0
   \end{cases}.
 \end{align}
 In order to evaluate the product of two drive operators, we can thus
@@ -930,10 +925,10 @@ $\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.
   \Omega_{2,-2}^{(\phi,j)}
   &\equiv \omega_{2,2} \sin\p{\sp{\phi_+-\phi_-}j}, \\
   \omega_{1\pm}
-  &\equiv -\sqrt{\f{6}{n_1}}\, \f{\Omega_0 \Omega_\pm}{\Delta},
+  &\equiv \sqrt{\f{6}{n_1}}\, \f{\Omega_0 \Omega_\pm}{\Delta},
   &
   \omega_{2\pm}
-  &\equiv \mp \sqrt{\f65}\, \f{\sqrt{n_2}}{n_1}\,
+  &\equiv \pm \sqrt{\f65}\, \f{\sqrt{n_2}}{n_1}\,
   \f{\Omega_0\Omega_\pm}{\Delta}, \\
   \omega_{2,2}
   &\equiv 2\sqrt{\f35}\, \f{\sqrt{n_2}}{n_1}\,
