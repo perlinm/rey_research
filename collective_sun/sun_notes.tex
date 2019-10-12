@@ -53,7 +53,6 @@
 \renewcommand{\S}{\mathcal{S}}
 
 \DeclareMathOperator{\sign}{sign}
-\DeclareMathOperator{\signs}{signs}
 
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
@@ -291,6 +290,21 @@ spin, and $S_+$ is a collective spin-raising operator for $\p{n-1}$
   \p{D_{1,0},D_{1,1},D_{1,-1}}
   \to \p{S_\z,S_\x,S_\y}
   \times \f{2\sqrt{3}}{\sqrt{\p{n-1}n\p{n+1}}}.
+  \label{eq:spin_ops}
+\end{align}
+Furthermore, if we {\it define} the operators $S_\alpha$ for a single
+$n$-level spin via the correspondence in \eqref{eq:spin_ops}, then the
+familiar SU(2) transformation rule
+\begin{align}
+  e^{i\phi S_\z} S_\x e^{-i\phi S_\z} = S_\x^{(\phi)},
+  &&
+  S_\x^{(\phi)} \equiv \cos\phi S_\x - \sin\phi S_\y,
+\end{align}
+generalizes to
+\begin{align}
+  e^{i\phi S_\z} D_{LM} e^{-i\phi S_\z} = D_{LM}^{(\phi)},
+  &&
+  D_{LM}^{(\phi)} \equiv \cos\p{M\phi} D_{LM} - \sin\p{M\phi} D_{L,-M}.
 \end{align}
 
 We note that Weyl operators\cite{bertlmann2008bloch} and self-adjoint
@@ -364,7 +378,7 @@ where
     \sin\theta & L~\t{odd}
   \end{cases},
   &&
-  A_L^{(\phi)} \equiv \sqrt{\f{2L+1}{n}}
+  A_L^{(\phi)} \equiv \p{-1}^L \sqrt{\f{2L+1}{n}}
   \sum_\mu \bk{I\mu;L,0|I\mu} w_L\p{\mu\phi}.
 \end{align}
 Spin-orbit coupling with multi-level systems thus allows for the
