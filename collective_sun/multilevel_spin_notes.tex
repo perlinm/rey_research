@@ -528,7 +528,7 @@ labeled by elements $\sigma\in\SS_N$ of the symmetric group $\SS_N$ of
 order $N$.  We refer to simultaneous eigenstates of all
 $\Pi_\sigma\in\Pi$ as {\it collective states}.  Collective states that
 have eigenvalue 1 with respect to all $\Pi_\sigma\in\Pi$ generalize
-the notion of Dicke states to the case of multi-level sub-systems.
+Dicke states to the case of multi-level sub-systems.
 
 
 
@@ -720,14 +720,12 @@ single-particle Hamiltonian in \eqref{eq:H_lat_spin} yields
 \section{Transition operator product expansion}
 \label{sec:trans_prod}
 
-Here we derive the structure constants
-$f_{\ell_1 m_1;\ell_2 m_2}^{LM}$ of the transition operators on an
-$n$-dimensional Hilbert space, which allows us to expand
+Here we derive multiplication rules for transition operators on an $n$-dimensional Hilbert space, which allows us to expand
 \begin{align}
   T_{\ell_1 m_1} T_{\ell_2 m_2}
   = \sum_{L,M} f_{\ell_1 m_1;\ell_2 m_2}^{LM} T_{LM},
 \end{align}
-with
+with structure constants
 \begin{align}
   f_{\ell_1 m_1;\ell_2 m_2}^{LM}
   \equiv \obk{T_{LM} | T_{\ell_1 m_1} T_{\ell_2 m_2}}
@@ -738,7 +736,7 @@ For reference, the transition operators $T_{LM}$ are defined for
 integers $L,M$ with $0\le L<n$ and $\abs{M}\le L$ in terms of
 Clebsch-Gordan coefficients $\bk{\ell_1 m_1;\ell_2 m_2|\ell_3 m_3}$ by
 \begin{align}
-  T_{LM} \equiv \p{-1}^M \sqrt{\f{2L+1}{2I+1}}
+  T_{LM} \equiv \sqrt{\f{2L+1}{2I+1}}
   \sum_{\mu,\nu} \bk{I\mu;LM|I\nu} \op{\nu}{\mu},
   &&
   I \equiv \f{n-1}{2}.
@@ -755,7 +753,7 @@ Using the symmetry properties of Clebsch-Gordan coefficients, namely
 we can find that
 \begin{align}
   T_{LM}^\dag
-  = \p{-1}^M \sqrt{\f{2L+1}{2I+1}}
+  = \sqrt{\f{2L+1}{2I+1}}
   \sum_{\mu,\nu} \p{-1}^M \bk{I\nu;L,-M|I\mu} \op{\mu}{\nu}
   = \p{-1}^M T_{L,-M}.
 \end{align}
@@ -773,7 +771,7 @@ we find that
 \begin{multline}
   f_{\ell_1 m_1;\ell_2 m_2}^{LM}
   = \delta_{M,m_1+m_2}
-  \p{-1}^{m_1+m_2} \sqrt{\p{2L+1}\p{2\ell_1+1}\p{2\ell_2+1}} \\
+  \p{-1}^M \sqrt{\p{2L+1}\p{2\ell_1+1}\p{2\ell_2+1}} \\
   \times \sum_{\mu,\nu,\rho} \p{-1}^{-3I+L+\ell_1+\ell_2-\mu-\nu-\rho}
   \begin{pmatrix}
     I & L & I \\
