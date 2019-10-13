@@ -52,6 +52,8 @@
 \newcommand{\T}{\mathcal{T}}
 \renewcommand{\S}{\mathcal{S}}
 
+\renewcommand{\SS}{\mathbb{S}}
+
 \DeclareMathOperator{\sign}{sign}
 
 \def\obra#1{\mathinner{({#1}|}}
@@ -115,9 +117,10 @@ the $\sim N^2$ term and simply write
 \end{align}
 In the case of SU(2), at this point we would expand the spin operators
 $s_{\mu\nu}^{(p)}$ in terms of Pauli operators in order to convert
-$H_{\t{int}}$ into an SU(2) spin Hamiltonian.  To generalize this
-procedure to the case of SU($n$), we first define a vector
-$\v s^{(p)}$ of all spin operators $s_{\mu\nu}^{(p)}$, and write
+$H_{\t{int}}$ into an SU(2) spin Hamiltonian\cite{he2019engineering}.
+To generalize this procedure to the case of SU($n$), we first define a
+vector $\v s^{(p)}$ of all spin operators $s_{\mu\nu}^{(p)}$, and
+write
 \begin{align}
   H_{\t{int}}
   = - \f{u}{2} \sum_{p,q} {\v s^{(p)}}^\dag \v s^{(q)}
@@ -209,13 +212,17 @@ $I\equiv\p{n-1}/2$ is the maximal angular momentum of an $n$-level
 spin; $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ index projections of an
 $n$-level nuclear spin onto a quantization axis; and
 $\bk{I\mu;LM|I\nu}$ is a Clebsch-Gordan coefficient.  The transition
-operator $T_{LM}$ is proportional to the transition induced on a
-nuclear spin by the absorption of a spin-$L$ particle with spin
-projection $M$ onto a quantization axis.  Similarly to the GGM
-operators in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag}, the
-transition operators in \eqref{eq:trans_ops} provide a complete basis
-for the space of operators on the Hilbert space of an $n$-level
-system, and satisfy the orthonormality condition
+operator $T_{LM}$ is closely related to the associated Legendre
+polynomial $P_{LM}\p{x}$ for $x\in\sp{-1,1}$.  Operationally, $T_{LM}$
+is proportional to the transition induced on a nuclear spin by the
+absorption of a spin-$L$ boson with spin projection $M$ onto a
+quantization axis.
+
+Similarly to the GGM operators in \eqref{eq:GGM_diag} and
+\eqref{eq:GGM_off_diag}, the transition operators in
+\eqref{eq:trans_ops} provide a complete basis for the space of
+operators on the Hilbert space of an $n$-level system, and satisfy the
+orthonormality condition
 \begin{align}
   \obk{T_{LM}|T_{L'M'}} = \delta_{LL'} \delta_{MM'},
 \end{align}
@@ -231,7 +238,7 @@ where $\v T$ is a vector of all transition operators in
 \eqref{eq:trans_ops}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Drive opermators}
+\subsection{Drive operators}
 \label{sec:drive_ops}
 
 Unlike the GGM operators in \eqref{eq:GGM_diag} and
@@ -240,12 +247,14 @@ Unlike the GGM operators in \eqref{eq:GGM_diag} and
 Hamiltonians in terms of self-adjoint operators, we define the {\it
   drive operators}
 \begin{align}
-  D_{L,0} \equiv T_{L,0},
-  &&
-  D_{LM} \stackrel{M\ne0}{\equiv} \f{\sigma_M}{\sqrt{2}}
+  D_{LM} \equiv \f{\tau_M}{\sqrt{2}}
   \sp{T_{L\abs{M}} + \sign\p{M}T_{L\abs{M}}^\dag},
   &&
-  \sigma_M \equiv \p{-1}^M \sign\p{M}^{3/2},
+  \tau_M \equiv
+  \begin{cases}
+    \sqrt{2} & M = 0 \\
+    \p{-1}^M \sign\p{M}^{3/2} & M \ne 0
+  \end{cases},
   \label{eq:drive_ops}
 \end{align}
 for integer $M$ with $\abs{M}\le L$.  The drive operator $D_{LM}$ is
@@ -273,9 +282,9 @@ The drive operators $D_{1,0}$ and $D_{1,\pm1}$ are proportional to the
 Hamiltonians induced on an $n$-level spin by an external magnetic
 field and a classical spin-polarized driving laser; loosely speaking,
 one can identify $\p{D_{1,0},D_{1,1},D_{1,-1}}\sim\p{S_\z,S_\x,S_\y}$,
-where $S_\alpha$ is a collective SU(2) spin-$\alpha$
-operator\cite{perlin2019shorttime}.  More concretely, we can embed the
-Hilbert space of a single $n$-level spin into the
+where $S_\alpha$ is a collective SU(2) spin-$\alpha$ operator for
+$\p{n-1}$ 2-level spins\cite{perlin2019shorttime}.  More concretely,
+we can embed the Hilbert space of a single $n$-level spin into the
 permutationally-symmetric (Dicke) manifold of states for $\p{n-1}$
 2-level spins via
 \begin{align}
@@ -307,15 +316,18 @@ generalizes to
   D_{LM}^{(\phi)} \equiv \cos\p{M\phi} D_{LM} - \sin\p{M\phi} D_{L,-M}.
 \end{align}
 
-We note that Weyl operators\cite{bertlmann2008bloch} and self-adjoint
-linear combinations thereof\cite{asadian2016heisenbergweyl} also
-provide an interesting basis of operators, generalizing continuous
-phase-space displacement operators to the case of a finite-dimensional
-Hilbert space.  As our present work is motivated by multi-level
-systems that are realized with nuclear spin (angular momentum) degrees
-of freedom, however, the transition and drive operators are more
-natural to consider than the Weyl operators, so we will not discuss
-the latter any further.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Weyl operators}
+
+Weyl operators\cite{bertlmann2008bloch} and self-adjoint linear
+combinations thereof\cite{asadian2016heisenbergweyl} also provide an
+interesting basis of operators for finite-dimensional Hilbert spaces.
+These operators are related to the notions of position, momentum, and
+phase-space displacement in a discrete space.  As our present work is
+motivated by multi-level systems that are realized with nuclear spin
+(angular momentum) degrees of freedom, however, the transition and
+drive operators are more natural to use than the Weyl operators, so we
+will not discuss Weyl operators any further.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{External drive and spin-orbit coupling}
@@ -378,7 +390,7 @@ where
     \sin\theta & L~\t{odd}
   \end{cases},
   &&
-  A_L^{(\phi)} \equiv \p{-1}^L \sqrt{\f{2L+1}{n}}
+  A_L^{(\phi)} \equiv \p{-1}^L \sqrt{\f{2L+1}{2I+1}}
   \sum_\mu \bk{I\mu;L,0|I\mu} w_L\p{\mu\phi}.
 \end{align}
 Spin-orbit coupling with multi-level systems thus allows for the
@@ -507,6 +519,23 @@ $\Omega_{1,0}$, $\Omega_{2,0}$ and $\Omega_{1,1}$ vanish, leaving only
 the drives $\D_{2,1}$ and $\D_{2,2}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Classifying collective states}
+
+Given a quantum system composed of $N$ identical (but distinguishable)
+sub-systems, e.g.~an array of $n$-level nuclear spins, we identify the
+set $\Pi\equiv\set{\Pi_\sigma}$ of operators that permute sub-systems,
+labeled by elements $\sigma\in\SS_N$ of the symmetric group $\SS_N$ of
+order $N$.  We refer to simultaneous eigenstates of all
+$\Pi_\sigma\in\Pi$ as {\it collective states}.  Collective states that
+have eigenvalue 1 with respect to all $\Pi_\sigma\in\Pi$ generalize
+the notion of Dicke states to the case of multi-level sub-systems.
+
+
+
+\vspace{3cm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Future directions}
 
 \begin{itemize}
@@ -519,8 +548,6 @@ the drives $\D_{2,1}$ and $\D_{2,2}$.
   spin-wave-like states)
 \item Implications of SOC
   \begin{itemize}
-  \item Effective collective dynamics for $\abs{\phi}\ll1$
-  \item Deriving \eqref{eq:A_L_phi_small}
   \item Special angles $\phi$
   \end{itemize}
 \item Generalizations of squeezing beyond SU(2)?
@@ -678,7 +705,7 @@ with effective driving field amplitudes
 \begin{align}
   A_L^{(\phi)}
   \equiv \p{-1}^L \f12 \obk{\tilde d_{\phi,\p{-1}^L}|D_{L,0}}
-  = \p{-1}^L \sqrt{\f{2L+1}{n}}
+  = \p{-1}^L \sqrt{\f{2L+1}{2I+1}}
   \sum_\mu \bk{I\mu;L,0|I\mu} w_L\p{\mu\phi}.
 \end{align}
 Substituting the result in \eqref{eq:compact_SOC_drive} into the
@@ -803,28 +830,16 @@ which implies that
 
 The drive operators are defined by
 \begin{align}
-  D_{L,0} \equiv T_{L,0},
-  &&
-  D_{LM} \stackrel{M\ne0}{\equiv} \f{\sigma_M}{\sqrt{2}}
+  D_{LM} \equiv \f{\tau_M}{\sqrt{2}}
   \sp{T_{L\abs{M}} + \sign\p{M}T_{L\abs{M}}^\dag},
   &&
-  \sigma_M \equiv \p{-1}^M \sign\p{M}^{3/2},
-\end{align}
-and can alternately be expressed as
-\begin{align}
-  D_{LM} = \f{\tau_M}{\sqrt{2}} \p{T_{LM} + \epsilon_M T_{L,-M}},
-\end{align}
-where
-\begin{align}
   \tau_M \equiv
   \begin{cases}
-    \sqrt{2} & M = 0, \\
-    \p{-1}^M \sign\p{M}^{M+1/2} & M \ne 0
+    \sqrt{2} & M = 0 \\
+    \p{-1}^M \sign\p{M}^{3/2} & M \ne 0
   \end{cases},
-  &&
-  \epsilon_M \equiv \p{-1}^M \sign\p{M},
 \end{align}
-which also implies that
+which implies that
 \begin{align}
   T_{LM} = \f{\tilde\tau_M}{\sqrt{2}} \p{D_{LM} + i D_{L,-M}},
   &&
@@ -834,11 +849,12 @@ which also implies that
     \tau_M^* & M \ne 0
   \end{cases}.
 \end{align}
-In order to evaluate the product of two drive operators, we can thus
-expand them in terms of transition operators, evaluate the
-corresponding products of transition operators (see Appendix
-\ref{sec:trans_prod}), and finally expand the result in terms of drive
-operators.  The general product of two drive operators takes the form
+where $\tau_M^*$ is the complex conjugate of $\tau_M$.  In order to
+evaluate the product of two drive operators, we can thus expand them
+in terms of transition operators, evaluate the corresponding products
+of transition operators (see Appendix \ref{sec:trans_prod}), and
+finally expand the result in terms of drive operators.  The general
+product of two drive operators takes the form
 \begin{align}
   D_{\ell_1 m_1} D_{\ell_2 m_2}
   = \f{\tau_{m_1}\tau_{m_2}}{\sqrt{2}}
@@ -978,6 +994,6 @@ and
 \end{align}
 
 
-\bibliography{sun_notes.bib}
+\bibliography{multilevel_spin_notes.bib}
 
 \end{document}
