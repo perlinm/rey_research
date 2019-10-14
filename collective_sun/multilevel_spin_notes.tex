@@ -45,14 +45,17 @@
 
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\D}{\mathcal{D}}
+\renewcommand{\H}{\mathcal{H}}
 \newcommand{\I}{\mathcal{I}}
 \newcommand{\N}{\mathcal{N}}
 \renewcommand{\O}{\mathcal{O}}
 \newcommand{\Q}{\mathcal{Q}}
 \newcommand{\T}{\mathcal{T}}
 \renewcommand{\S}{\mathcal{S}}
+\newcommand{\X}{\mathcal{X}}
 
 \renewcommand{\SS}{\mathbb{S}}
+\newcommand{\ZZ}{\mathbb{Z}}
 
 \DeclareMathOperator{\sign}{sign}
 
@@ -92,7 +95,7 @@ where $J$ is the nearest-neighbor tunneling rate, $a$ is the spacing
 between neighboring lattice sites, and $c_{q\mu}$ is the fermionic
 annihilation operator for a particle in quasi-momentum mode $q$ with
 internal state (e.g.~nuclear spin) $\mu$.  Under the frozen-mode
-approximation, two-body collective SU($n$)-symmetric interactions
+approximation, collective two-body SU($n$)-symmetric interactions
 between these fermions take form\cite{perlin2019effective}
 \begin{align}
   H_{\t{int}} = \f{u}{2} \sum_{p,q,\mu,\nu}
@@ -130,21 +133,23 @@ write
   \label{eq:H_int_spin}
 \end{align}
 In the remainder of this section, we identify various bases for the
-space of operators on the Hilbert space of an $n$-level system.  For
-brevity, we denote this space of operators by $\B_n$, and note that
-$\B_n$ is itself an $n^2$-dimensional Hilbert space equipped with a
-trace (Hilbert-Schmidt) inner product
+space of linear operators on the Hilbert space $\H_n$ of an $n$-level
+system.  For brevity, we denote this space of operators by
+$\B\p{\H_n}$, and note that $\B\p{\H_n}$ is itself an
+$n^2$-dimensional Hilbert space equipped with a trace
+(Hilbert-Schmidt) inner product
 \begin{align}
   \obk{\O|\Q} \equiv \tr\p{\O^\dag Q},
 \end{align}
 where $\oket{\Q}$ and $\obra{\O}$ respectively denote vectors in
-$\B_n$ and its dual space $\B_n^*$.  Similarly to the set of all spin
-operators $s_{\mu\nu}\equiv\op{\mu}{\nu}$ on the single-particle
-Hilbert space at each quasi-momentum, all of the bases we consider
-will be orthonormal with respect to the trace inner product.  As we
-show in Appendix \ref{sec:changing_bases}, the collective
-SU($n$)-symmetric interaction Hamiltonian in \eqref{eq:H_int_spin}
-takes an identical form in any orthonormal basis for $\B_n$.
+$\B\p{\H_n}$ and its dual space $\B\p{\H_n}^*$.  Similarly to the set
+of all spin operators $s_{\mu\nu}\equiv\op{\mu}{\nu}$ on the
+single-particle Hilbert space at each quasi-momentum, all of the bases
+we consider will be orthonormal with respect to the trace inner
+product.  As we show in Appendix \ref{sec:changing_bases}, the
+collective SU($n$)-symmetric interaction Hamiltonian in
+\eqref{eq:H_int_spin} takes an identical form in any orthonormal basis
+for $\B\p{\H_n}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Generalized Gell-Mann (GGM) operators}
@@ -169,9 +174,9 @@ $j,k,\ell\in\set{0,1,\cdots,n-1}$ with $k<j$ and $\ell>0$ by
 \end{align}
 where $\1$ is the identity operator.  The self-adjoint GGM operators
 in \eqref{eq:GGM_diag} and \eqref{eq:GGM_off_diag} provide a complete
-basis for the space of operators on the Hilbert space of an $n$-level
-system, coincide exactly with the Pauli operators in the case of
-$n=2$, and satisfy the orthonormality condition
+basis for the space of operators on the Hilbert space $\H_n$ of an
+$n$-level system, coincide exactly with the Pauli operators in the
+case of $n=2$, and satisfy the orthonormality condition
 \begin{align}
   \obk{\lambda_a|\lambda_b} = 2\delta_{ab},
   \label{eq:GGM_inner}
@@ -221,8 +226,8 @@ quantization axis.
 Similarly to the GGM operators in \eqref{eq:GGM_diag} and
 \eqref{eq:GGM_off_diag}, the transition operators in
 \eqref{eq:trans_ops} provide a complete basis for the space of
-operators on the Hilbert space of an $n$-level system, and satisfy the
-orthonormality condition
+operators on the Hilbert space $\H_n$ of an $n$-level system, and
+satisfy the orthonormality condition
 \begin{align}
   \obk{T_{LM}|T_{L'M'}} = \delta_{LL'} \delta_{MM'},
 \end{align}
@@ -363,8 +368,10 @@ where
 is an inhomogeneously rotated collective drive operator.  We can make
 this drive spatially homogenous via the gauge transformation
 $c_{j\mu}^\dag \to e^{-i\mu\phi j} c_{j\mu}^\dag$, which takes
-\begin{align}
-  H_{\t{drive}}^{(\phi)} \to H_{\t{drive}} = \Omega \D_{1,1}.
+ \begin{align}
+  H_{\t{drive}}^{(\phi)} \to H_{\t{drive}} = \Omega \D_{1,1},
+  &&
+  \D_{LM} \equiv \D_{LM}^{(0)} = \sum_j D_{LM}^{(j)}.
 \end{align}
 The SU($n$) symmetry of collective interactions implies that the
 interaction Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_drive} is
@@ -404,7 +411,8 @@ In the regime of weak SOC with $\abs{\phi}\ll1$, by considering
 \item all $L\le12$ for arbitrary $n$, and
 \item all $L<n$ for all $n\le25$
 \end{enumerate*}
-(and conjecturing the same pattern for all $L$ and $n$), we find that
+(and conjecturing the same functional form for all $L$ and $n$), we
+find that
 % expand Clebsch-Gordan coefficients in a power series according to
 % \url{functions.wolfram.com/07.38.06.0008.01}
 \begin{align}
@@ -520,15 +528,36 @@ the drives $\D_{2,1}$ and $\D_{2,2}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Classifying collective states}
+\label{sec:classifying}
 
 Given a quantum system composed of $N$ identical (but distinguishable)
-sub-systems, e.g.~an array of $n$-level nuclear spins, we identify the
-set $\Pi\equiv\set{\Pi_\sigma}$ of operators that permute sub-systems,
-labeled by elements $\sigma\in\SS_N$ of the symmetric group $\SS_N$ of
-order $N$.  We refer to simultaneous eigenstates of all
-$\Pi_\sigma\in\Pi$ as {\it collective states}.  Collective states that
-have eigenvalue 1 with respect to all $\Pi_\sigma\in\Pi$ generalize
-Dicke states to the case of multi-level sub-systems.
+subsystems, e.g.~an array of $n$-level nuclear spins, we identify the
+set $\Pi\equiv\set{\Pi_\sigma}$ of operators that permute subsystems.
+Permutation operators $\Pi_\sigma$ are labeled by elements
+$\sigma\in\SS_N$ of the symmetric group $\SS_N$ of order $N$.  We
+refer to simultaneous eigenstates of all $\Pi_\sigma\in\Pi$ as {\it
+  collective states}.  The subset of collective states that have
+eigenvalue 1 with respect to all permutation operators
+$\Pi_\sigma\in\Pi$ is the {\it maximally symmetric collective (MSC)}
+manifold, which is precisely the Dicke manifold in the case of
+two-level subsystems ($n=2$).  The MSC manifold is spanned by a basis
+$\set{\ket{\v m}}$ of MSC states that can be uniquely identified by a
+list of integers $\v m=\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$,
+where the integer $m_j\in\ZZ_{N+1}$ ($0\le m_j\le N$) indicates the
+total occupation number of subsystem state $j$, and $\sum_j m_j=N$.
+The Dicke manifold of $N$ qubits, for example, is spanned by the Dicke
+states $\set{\ket{m_0,m_1}}$, where $m_0+m_1=N$ and the integer $m_0$
+($m_1$) indicates the occupation number of the qubit state $\ket{0}$
+($\ket{1}$).
+
+The MSC manifold has two important properties that concern us.  First,
+the MSC manifold is closed under the action of unitaries generated by
+linear combinations collective drive operators $\D_{LM}$.  Second, the
+MSC manifold is precisely the ground-state manifold of the collective
+SU($n$)-symmetric interaction Hamiltonian $H_{\t{int}}$ in
+\eqref{eq:H_int_spin} or \eqref{eq:H_int_drive}.  We prove these
+properties of the MSC manifold in Appendix \ref{sec:MSC_proofs}.
+
 
 
 
@@ -568,27 +597,28 @@ Dicke states to the case of multi-level sub-systems.
 
 Here we show that the collective interaction Hamiltonian in
 \eqref{eq:H_int_spin} takes an identical form in any orthonormal basis
-for $\B_n$, i.e.~the space of operators on the Hilbert space of an
-$n$-level system, equipped with the trace (Hilbert-Schmidt) inner
-product
+for $\B\p{\H_n}$, i.e.~the space of linear operators on the Hilbert
+space $\H_n$ of an $n$-level system, equipped with the trace
+(Hilbert-Schmidt) inner product
 \begin{align}
   \obk{\O|\Q} \equiv \tr\p{\O^\dag \Q}.
 \end{align}
 To maintain generality, we choose an arbitrary basis
-$X\equiv\set{X_j}$ satisfying the orthonormality condition
+$X\equiv\set{X_j}$ for $\B\p{\H_n}$ that satisfies the orthonormality
+condition
 \begin{align}
   \obk{X_j|X_k} = \N_X \delta_{jk},
 \end{align}
 for $j\in\set{0,1,\cdots,n^2-1}$.  This orthonormality condition
 implies that we can resolve the identity (super-)operator $\I$ with
-$\I\oket{\O}=\oket{\O}$ for any $\oket\O\in\B_n$ as
+$\I\oket{\O}=\oket{\O}$ for any $\oket\O\in\B\p{\H_n}$ as
 \begin{align}
   \I = \f1{\N_X} \sum_j \oop{X_j}{X_j}
   = \f1{\N_X} \sum_j \oop{X_j^\dag}{X_j^\dag},
 \end{align}
-where we used the fact that $\set{X_j^\dag}$ is also an orthonormal
-basis for $\B_n$, satisfying the same orthonormality condition as
-$\set{X_j}$; these two bases are transformed into each other by
+where we used the fact that $X^\dag\equiv\set{X_j^\dag}$ is also an
+orthonormal basis for $\B\p{\H_n}$, satisfying the same orthonormality
+condition as $X$; these two bases are transformed into each other by
 unitary $\sum_j\oop{X_j^\dag}{X_j}/\N_X$.
 
 The collective interaction Hamiltonian in \eqref{eq:H_int_spin} takes
@@ -603,7 +633,7 @@ single-body terms ($p=q$), respectively of the form
   &&
   \sum_j X_j X_j^\dag.
 \end{align}
-Choosing a different basis $Y\equiv\set{Y_j}$ for $\B_n$ with
+Choosing a different basis $Y\equiv\set{Y_j}$ for $\B\p{\H_n}$ with
 corresponding norm $\N_Y$, we can expand
 \begin{align}
   X_j = \f1{\N_Y} \sum_k Y_k \obk{Y_k|X_j},
@@ -635,9 +665,9 @@ and similarly
   = \f{\N_X}{\N_Y} \sum_k Y_k Y_k^\dag.
 \end{align}
 The collective interaction Hamiltonian in \eqref{eq:H_int_spin} thus
-takes an identical form in any orthonormal basis for the space $\B_n$
-of operators on the Hilbert space of an $n$-level system, up to
-appropriate re-scaling factors $\N_X/\N_Y$.
+takes an identical form in any orthonormal basis for the space
+$\B\p{\H_n}$ of linear operators on the Hilbert space $\H_n$ of an
+$n$-level system, up to appropriate re-scaling factors $\N_X/\N_Y$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin-orbit coupling with drive operators}
@@ -990,6 +1020,83 @@ and
   &&
   \Omega_{2,2} \equiv \omega_{2,2}.
 \end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Key properties of the maximally-symmetric collective
+  manifold}
+\label{sec:MSC_proofs}
+
+Here we prove two important properties of the maximally-symmetric
+collective (MSC) manifold defined in Section \ref{sec:classifying}:
+\begin{enumerate*}
+\item \label{pt:MSC_closure} that the MSC manifold is closed under the
+  action of unitaries generated by linear combinations collective
+  drive operators $\D_{LM}$; and
+\item \label{pt:MSC_ground} that the MSC manifold is precisely the
+  ground-state manifold of the collective SU($n$)-symmetric
+  interaction Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_spin} or
+  \eqref{eq:H_int_drive}.
+\end{enumerate*}
+Our starting ingredients are an $n$-dimensional Hilbert space $\H_n$,
+its $N$-fold tensor product $\H_n^{\otimes N}$, and the set
+$\Pi\equiv\set{\Pi_\sigma}$ of operators that permute the tensor
+factors of $\H_n^{\otimes N}$.  Permutation operators $\Pi_\sigma$ are
+labeled by elements $\sigma\in\SS_N$ of the symmetric group $\SS_N$ of
+order $N$.  The MSC sub-manifold of $\H_n^{\otimes N}$ is defined by
+the set of states that have eigenvalue $1$ with respect to all
+permutation operators $\Pi_\sigma\in\Pi$.
+
+Given an orthonormal basis $X=\set{X_j}$ for the space $\B\p{\H_n}$ of
+linear operators on $\H_n$, we define the collective operator
+$\X_j\in\B\p{\H_n^{\otimes N}}$ by
+\begin{align}
+  \X_j \equiv \sum_{p\in\ZZ_N} X_j^{(p)},
+\end{align}
+where $\ZZ_N\equiv\set{0,1,\cdots,N-1}$ and $X_j^{(p)}$ acts with
+$X_j$ on tensor factor $p$ of $\H_n^{\otimes N}$ and trivially on all
+other tensor factors, i.e.
+\begin{align}
+  X_j^{(p)} \equiv
+  \1^{\otimes p} \otimes X_j \otimes \1^{\otimes\p{N-p-1}}.
+\end{align}
+We denote a vector of all collective operators in $\X\equiv\set{\X_j}$
+by $\v\X$, i.e.~$\v\X\equiv\p{\X_j:\X_j\in\X}$.
+
+Given an arbitrary MSC state
+$\ket{\psi_{\t{MSC}}}\in\H_n^{\otimes N}$, we can use the fact that
+all permutation operators $\Pi_\sigma\in\Pi$ are unitary to expand
+\begin{align}
+  \Pi_\sigma e^{i\v\theta\c\v\X} \ket{\psi_{\t{MSC}}}
+  = \Pi_\sigma e^{i\v\theta\c\v\X}
+  \Pi_\sigma^\dag \Pi_\sigma \ket{\psi_{\t{MSC}}}
+  = e^{i\v\theta\c\Pi_\sigma\v\X\Pi_\sigma^\dag}
+  \Pi_\sigma \ket{\psi_{\t{MSC}}}
+  = e^{i\v\theta\c\Pi_\sigma\v\X\Pi_\sigma^\dag} \ket{\psi_{\t{MSC}}},
+\end{align}
+where
+$\Pi_\sigma\v\X\Pi_\sigma^\dag \equiv \p{\Pi_\sigma\X_j\Pi_\sigma^\dag
+  : \X_j\in\X}$, and
+\begin{align}
+  \Pi_\sigma \X_j \Pi_\sigma^\dag
+  = \sum_{p\in\ZZ_N} \Pi_\sigma X_j^{(p)} \Pi_\sigma^\dag
+  = \sum_{p\in\ZZ_N} X_j^{(\sigma\c p)}
+  = \sum_{p\in\ZZ_N} X_j^{(p)},
+\end{align}
+which implies that $\Pi_\sigma\v\X\Pi_\sigma^\dag=\v\X$, and in turn
+\begin{align}
+  \Pi_\sigma e^{i\v\theta\c\v\X} \ket{\psi_{\t{MSC}}}
+  = e^{i\v\theta\c\v\X} \ket{\psi_{\t{MSC}}}.
+\end{align}
+We thus find that $e^{i\v\theta\c\v\X} \ket{\psi_{\t{MSC}}}$ is itself
+an MSC state, as it has eigenvalue 1 with respect to arbitrary
+permutation operators $\Pi_\sigma\in\Pi$, thereby proving claim
+\ref{pt:MSC_closure} by choice of the orthonormal basis $\set{D_{LM}}$
+for the space $\B\p{\H_n}$ of linear operators on $\H_n$.
+
+
+
+[Proof of claim \ref{pt:MSC_ground} to come]
+
 
 
 \bibliography{multilevel_spin_notes.bib}
