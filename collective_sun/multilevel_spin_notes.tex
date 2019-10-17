@@ -58,7 +58,7 @@
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\ZZ}{\mathbb{Z}}
 
-\newcommand{\MSC}{\text{MSC}}
+\newcommand{\FS}{\text{FS}}
 
 \DeclareMathOperator{\sign}{sign}
 
@@ -79,7 +79,7 @@
 \begin{document}
 \thispagestyle{fancy}
 
-\title{Multi-level generalizations of collective spin dynamics and
+\title{Multilevel generalizations of collective spin dynamics and
   squeezing}%
 \author{Michael A. Perlin}%
 \date{\today}
@@ -140,8 +140,8 @@ write
   \v\S\equiv \sum_p \v S^{(p)}.
   \label{eq:H_int_spin}
 \end{align}
-In the remainder of this section, we identify various bases for the
-space of linear operators on the Hilbert space $\H_n$ of an $n$-level
+In the bulk of this section, we identify various bases for the space
+of linear operators on the Hilbert space $\H_n$ of an $n$-level
 system.  For brevity, we denote this space of operators by
 $\B\p{\H_n}$, and note that $\B\p{\H_n}$ is itself an
 $n^2$-dimensional Hilbert space equipped with a trace
@@ -337,10 +337,88 @@ combinations thereof\cite{asadian2016heisenbergweyl} also provide an
 interesting basis of operators for finite-dimensional Hilbert spaces.
 These operators are related to the notions of position, momentum, and
 phase-space displacement in a discrete space.  As our present work is
-motivated by multi-level systems that are realized with nuclear spin
+motivated by multilevel systems that are realized with nuclear spin
 (angular momentum) degrees of freedom, however, the transition and
 drive operators are more natural to use than the Weyl operators, so we
 will not discuss Weyl operators any further.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Subsystem permutations and the fully symmetric manifold}
+\label{sec:perm_ops}
+
+For our final re-expression of collective SU($n$)-symmetric
+interactions, we abandon the use of single-spin operators entirely to
+express the interaction Hamiltonian $H_{\t{int}}$ in terms of
+operators that permute tensor factors (subsystems) of a Hilbert space
+with an $N$-fold tensor product structure (e.g.~an array of nuclear
+spins).  Specifically, we denote the Hilbert space of an $n$-level
+system by $\H_n$, denote its $N$-fold tensor product by
+$\H_n^{\otimes N}$, and identify the set $\Pi\equiv\set{\Pi_\sigma}$
+of operators that permute tensor factors of $\H_n^{\otimes N}$
+according to elements $\sigma\in\SS_N$ of the symmetric group of order
+$N$.  We then expand
+\begin{align}
+  H_{\t{int}}
+  = -\f{u}{2} \sum_{p,q,\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}
+  = -u\sum_{\substack{p<q\\\mu,\nu}} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}
+  - \f{u}{2} \sum_{p,\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(p)},
+  \label{eq:H_int_perm_start}
+\end{align}
+where the first sum,
+\begin{align}
+  \sum_{\substack{p<q\\\mu,\nu}} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}
+  = \sum_{\substack{p<q\\\mu,\nu}} \op{\mu}{\nu}^{(p)} \op{\nu}{\mu}^{(q)}
+  = \sum_{\substack{p<q\\\mu,\nu}} \op{\mu\nu}{\nu\mu}^{(p,q)}
+  = \sum_{p<q} \Pi_{pq}
+  \label{eq:spin_perm}
+\end{align}
+is simply a sum over all permutations $\Pi_{pq}$ of subsystems $p$ and
+$q$; and
+\begin{align}
+  \sum_{p,\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(p)}
+  = \sum_{p,\mu,\nu} \op{\mu}{\nu}^{(p)} \op{\nu}{\mu}^{(p)}
+  = n \sum_{p,\mu} \op{\mu}{\mu}^{(p)}
+  = n \sum_p \1^{(p)}
+  = n N
+  \label{eq:spin_const}
+\end{align}
+is merely a constant.  Substituting \eqref{eq:spin_perm} and
+\eqref{eq:spin_const} into \eqref{eq:H_int_perm_start} yields
+\begin{align}
+  H_{\t{int}} = -u \sum_{p<q} \Pi_{pq} - \f12 N n u
+  \simeq -u\sum_{p<q} \Pi_{pq},
+  \label{eq:H_int_perm}
+\end{align}
+where $\simeq$ denotes equality up to an overall constant with no
+physical consequence.  The form of the interaction Hamiltonian
+$H_{\t{int}}$ makes it evident that its ground-state manifold
+$\M_{\FS}$ is the set of {\it fully symmetric} (FS) states that have
+eigenvalue $1$ with respect to all pairwise permutation operators
+$\Pi_{pq}$, and thereby also all $\Pi_\sigma\in\Pi$.  The fully
+symmetric manifold $\M_\FS\subset\H_n^{\otimes N}$ is spanned by a
+basis $\set{\ket{\v m}}$ of fully symmetric states that can be
+uniquely identified by a list of integers
+$\v m\equiv\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$, where $m_s$
+indicates the total occupation number of subsystem state $s$, and
+$\sum_sm_s=N$.  In the case of $n=2$, the fully symmetric manifold
+$\M_\FS$ is precisely the Dicke manifold\cite{dicke1954coherence} of
+$N$ qubits, spanned by Dicke states $\set{\ket{m_0,m_1}}$ for which
+$m_0+m_1=N$ and the integer $m_0$ ($m_1$) indicates the total
+occupation number of qubit state $\ket{0}$ ($\ket{1}$).  The dimension
+of fully symmetric manifold $\M_\FS$ is determined by the number of
+ways to assign $N$ subsystems to $n$ states, which is
+${N+n-1 \choose n-1}$, and energy of $\ket{\psi_\FS}\in\M_\FS$ with
+respect to the interaction Hamiltonian $H_{\t{int}}$ in
+\eqref{eq:H_int_perm} is $-u{N \choose 2}=-\p{1/4}N\p{N-1}u$.
+
+In addition to the fact that the fully symmetric manifold $\M_\FS$ is
+ground-state manifold of the interaction Hamltonian $H_{\t{int}}$, an
+important feature of $\M_\FS$ is that it is closed under the action of
+unitaries generated by collective operators of the form
+$\Q=\sum_pQ^{(p)}$, as well as linear combinations and products
+thereof.  Closure of $\M_\FS$ under collective dynamics is a
+straightforward consequence of the permutational symmetry obeyed by
+collective operators.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{External drive and spin-orbit coupling}
@@ -357,7 +435,7 @@ induce the Hamiltonian
 \end{align}
 where $\Omega$ is a (real) driving amplitude, $j\in\mathbb{Z}$ indexes
 a lattice site, and $\phi$ is the relative phase of the drive between
-adjacent lattice sites.  The multi-level analogue of
+adjacent lattice sites.  The multilevel analogue of
 \eqref{eq:H_drive_2} is
 \begin{align}
   H_{\t{drive}}^{(\phi)}
@@ -408,7 +486,7 @@ where
   A_L^{(\phi)} \equiv \p{-1}^L \sqrt{\f{2L+1}{2I+1}}
   \sum_\mu \bk{I\mu;L,0|I\mu} w_L\p{\mu\phi}.
 \end{align}
-Spin-orbit coupling with multi-level systems thus allows for the
+Spin-orbit coupling with multilevel systems thus allows for the
 simulation of synthetic gauge fields with large spin ($L>1$).  As we
 will see in the following section, multi-laser drives can also
 simulate synthetic large-spin fields with non-zero spin projection
@@ -439,8 +517,8 @@ where
 \section{Raman drive}
 \label{sec:drive_raman}
 
-Rather than coupling the states of a multi-level system directly with
-a single driving laser, as in Section \ref{sec:drive_SOC}, we now
+Rather than coupling the states of a multilevel system directly with a
+single driving laser, as in Section \ref{sec:drive_SOC}, we now
 consider coupling through an off-resonant Raman transition to a highly
 excited state.  Specifically, we consider a three-laser drive of the
 form
@@ -533,60 +611,6 @@ $\sim\D_{2,2}$ (as $\D_{0,0}\propto\1$ is just constant shift in
 energy).  If instead $\Omega_0=\pm\Omega_\pm$, then the amplitudes
 $\Omega_{1,0}$, $\Omega_{2,0}$ and $\Omega_{1,1}$ vanish, leaving only
 the drives $\D_{2,1}$ and $\D_{2,2}$.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Collective states}
-\label{sec:collective}
-
-Given a quantum system composed of $N$ identical (but distinguishable)
-$n$-level subsystems, e.g.~an array of $n$-level nuclear spins, we
-identify the set $\Pi\equiv\set{\Pi_\sigma}$ of operators that permute
-subsystems, labeled by corresponding elements $\sigma\in\SS_N$ of the
-symmetric group $\SS_N$ of order $N$.  We refer to simultaneous
-eigenstates of all $\Pi_\sigma\in\Pi$ as {\it collective states}.  The
-subset of collective states that have eigenvalue $1$ with respect to
-all permutation operators $\Pi_\sigma\in\Pi$ is the {\it maximally
-  symmetric collective (MSC)} manifold $\M_\MSC$, which is precisely
-the Dicke manifold in the case of two-level subsystems ($n=2$).  The
-MSC manifold is spanned by a basis $\set{\ket{\v m}}$ of MSC states
-that can be uniquely identified by a list of integers
-$\v m=\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$, where $m_k$ indicates
-the total occupation number of subsystem state $k$, and
-$\sum_k m_k=N$.  The Dicke manifold of $N$ qubits, for example, is
-spanned by the Dicke states $\set{\ket{m_0,m_1}}$, where $m_0+m_1=N$
-and the integer $m_0$ ($m_1$) indicates the occupation number of the
-qubit state $\ket{0}$ ($\ket{1}$).  The dimension of the MSC manifold
-is determined by the number of ways to assign $N$ sub-systems to $n$
-states, which is ${N+n-1 \choose n-1}$.
-
-The MSC manifold has two key properties.  First, the MSC manifold is
-closed under the action of unitaries generated by collective drive
-operators $\D_{LM}$, as well as linear combinations and products
-thereof.  Closure of the MSC manifold under collective dynamics is a
-straightforward consequence of the permutational symmetry obeyed by
-collective operators.  Second, the MSC manifold is the ground-state
-manifold of the collective SU($n$)-symmetric interaction Hamiltonian
-$H_{\t{int}}$ in \eqref{eq:H_int_spin}.  To illuminate the spectral
-properties of $H_{\t{int}}$, we can expand
-\begin{align}
-  H_{\t{int}}
-  = -\f{u}{2} \sum_{p,q,\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}
-  = -u\sum_{\substack{p<q\\\mu,\nu}} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}
-  - \f{u}{2} \sum_{p,\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(p)}
-  = -u\sum_{p<q} \Pi_{pq} - \f12 N n u
-  \simeq -u\sum_{p<q} \Pi_{pq},
-  \label{eq:H_int_perm}
-\end{align}
-where $\Pi_{pq}\in\Pi$ permutes subsystems $p$ and $q$, and $\simeq$
-denotes equality up to an overall constant with no physical
-consequence.  The form of $H_{\t{int}}$ in \eqref{eq:H_int_perm}
-reveals that its eigenstates can be classified by their symmetries
-under the permutation of subsystems.  In particular, the ground-state
-manifold of $H_{\t{int}}$ consists of states that have eigenvalue 1
-with respect to all pair-wise permutation operators $\Pi_{pq}$, which
-is precisely the MSC manifold $\M_\MSC$.  The interaction energy of
-states $\ket{\psi_\MSC}\in\M_\MSC$ is (up to an overall constant)
-simply $-{ N\choose 2 } u = -\p{1/4}N\p{N-1} u$.
 
 
 \vspace{3cm}
