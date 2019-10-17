@@ -47,6 +47,7 @@
 \newcommand{\D}{\mathcal{D}}
 \renewcommand{\H}{\mathcal{H}}
 \newcommand{\I}{\mathcal{I}}
+\newcommand{\M}{\mathcal{M}}
 \newcommand{\N}{\mathcal{N}}
 \renewcommand{\O}{\mathcal{O}}
 \newcommand{\Q}{\mathcal{Q}}
@@ -56,6 +57,8 @@
 
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\ZZ}{\mathbb{Z}}
+
+\newcommand{\MSC}{\text{MSC}}
 
 \DeclareMathOperator{\sign}{sign}
 
@@ -67,6 +70,10 @@
 \usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
 \setlist{nolistsep} % more compact spacing between environments
+
+%%% text markup
+\usepackage{color} % text color
+\newcommand{\red}[1]{{\color{red} #1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
@@ -104,32 +111,33 @@ between these fermions take form\cite{perlin2019effective}
 \end{align}
 where $u\equiv U/L$ is the two-body on-site interaction energy $U$
 divided by the number of lattice sites $L$.  Defining the spin
-operators $s_{\mu\nu}^{(p)}\equiv c_{p\mu}^\dag c_{p\nu}$ for each
+operators $S_{\mu\nu}^{(p)}\equiv c_{p\mu}^\dag c_{p\nu}$ for each
 quasi-momentum $p$, we can alternately write
 \begin{align}
   H_{\t{int}} = \f{u}{2} \sum_{p,q,\mu,\nu}
-  \p{s_{\mu\mu}^{(p)} s_{\nu\nu}^{(q)} - s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}}
-  = \f{u}{2}\p{N^2 - \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}},
+  \p{S_{\mu\mu}^{(p)} S_{\nu\nu}^{(q)} - S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}}
+  = \f{u}{2}\p{N^2 - \sum_{p,q,\mu,\nu}
+    S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}},
 \end{align}
 where $N$ is the total number of particles.  In the absence of
 coherence between sectors of different particle number, we can neglect
 the $\sim N^2$ term and simply write
 \begin{align}
   H_{\t{int}}
-  = - \f{u}{2} \sum_{p,q,\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}.
+  = - \f{u}{2} \sum_{p,q,\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}.
 \end{align}
 In the case of SU(2), at this point we would expand the spin operators
-$s_{\mu\nu}^{(p)}$ in terms of Pauli operators in order to convert
+$S_{\mu\nu}^{(p)}$ in terms of Pauli operators in order to convert
 $H_{\t{int}}$ into an SU(2) spin Hamiltonian\cite{he2019engineering}.
 To generalize this procedure to the case of SU($n$), we first define a
-vector $\v s^{(p)}$ of all spin operators $s_{\mu\nu}^{(p)}$, and
+vector $\v S^{(p)}$ of all spin operators $S_{\mu\nu}^{(p)}$, and
 write
 \begin{align}
   H_{\t{int}}
-  = - \f{u}{2} \sum_{p,q} {\v s^{(p)}}^\dag \v s^{(q)}
+  = - \f{u}{2} \sum_{p,q} {\v S^{(p)}}^\dag \c \v S^{(q)}
   = - \f{u}{2} \v\S^\dag \c \v\S,
   &&
-  \v\S\equiv \sum_p \v s^{(p)}.
+  \v\S\equiv \sum_p \v S^{(p)}.
   \label{eq:H_int_spin}
 \end{align}
 In the remainder of this section, we identify various bases for the
@@ -143,7 +151,7 @@ $n^2$-dimensional Hilbert space equipped with a trace
 \end{align}
 where $\oket{\Q}$ and $\obra{\O}$ respectively denote vectors in
 $\B\p{\H_n}$ and its dual space $\B\p{\H_n}^*$.  Similarly to the set
-of all spin operators $s_{\mu\nu}\equiv\op{\mu}{\nu}$ on the
+of all spin operators $S_{\mu\nu}\equiv\op{\mu}{\nu}$ on the
 single-particle Hilbert space at each quasi-momentum, all of the bases
 we consider will be orthonormal with respect to the trace inner
 product.  As we show in Appendix \ref{sec:changing_bases}, the
@@ -158,7 +166,7 @@ for $\B\p{\H_n}$.
 The most obvious generalization of Pauli operators to the case of
 SU($n$) are the {\it generalized Gell-Mann (GGM)
   operators}\cite{hioe1981level, bertlmann2008bloch}, defined for
-$j,k,\ell\in\set{0,1,\cdots,n-1}$ with $k<j$ and $\ell>0$ by
+$j,k,\ell\in\set{0,1,\cdots,n-1}$ with $j<k$ and $\ell>0$ by
 \begin{align}
   \lambda_0 \equiv \sqrt{\f{2}{n}}~ \1,
   &&
@@ -167,9 +175,9 @@ $j,k,\ell\in\set{0,1,\cdots,n-1}$ with $k<j$ and $\ell>0$ by
   \label{eq:GGM_diag}
 \end{align}
 \begin{align}
-  \lambda_{jk,+} \equiv \op{j}{k} + \op{k}{j},
+  \lambda_{jk,\x} \equiv \op{j}{k} + \op{k}{j},
   &&
-  \lambda_{jk,-} \equiv i\p{\op{j}{k} - \op{k}{j}},
+  \lambda_{jk,\y} \equiv i\p{\op{j}{k} - \op{k}{j}},
   \label{eq:GGM_off_diag}
 \end{align}
 where $\1$ is the identity operator.  The self-adjoint GGM operators
@@ -527,38 +535,58 @@ $\Omega_{1,0}$, $\Omega_{2,0}$ and $\Omega_{1,1}$ vanish, leaving only
 the drives $\D_{2,1}$ and $\D_{2,2}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Classifying collective states}
-\label{sec:classifying}
+\section{Collective states}
+\label{sec:collective}
 
 Given a quantum system composed of $N$ identical (but distinguishable)
-subsystems, e.g.~an array of $n$-level nuclear spins, we identify the
-set $\Pi\equiv\set{\Pi_\sigma}$ of operators that permute subsystems.
-Permutation operators $\Pi_\sigma$ are labeled by elements
-$\sigma\in\SS_N$ of the symmetric group $\SS_N$ of order $N$.  We
-refer to simultaneous eigenstates of all $\Pi_\sigma\in\Pi$ as {\it
-  collective states}.  The subset of collective states that have
-eigenvalue 1 with respect to all permutation operators
-$\Pi_\sigma\in\Pi$ is the {\it maximally symmetric collective (MSC)}
-manifold, which is precisely the Dicke manifold in the case of
-two-level subsystems ($n=2$).  The MSC manifold is spanned by a basis
-$\set{\ket{\v m}}$ of MSC states that can be uniquely identified by a
-list of integers $\v m=\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$,
-where the integer $m_j\in\ZZ_{N+1}$ ($0\le m_j\le N$) indicates the
-total occupation number of subsystem state $j$, and $\sum_j m_j=N$.
-The Dicke manifold of $N$ qubits, for example, is spanned by the Dicke
-states $\set{\ket{m_0,m_1}}$, where $m_0+m_1=N$ and the integer $m_0$
-($m_1$) indicates the occupation number of the qubit state $\ket{0}$
-($\ket{1}$).
+$n$-level subsystems, e.g.~an array of $n$-level nuclear spins, we
+identify the set $\Pi\equiv\set{\Pi_\sigma}$ of operators that permute
+subsystems, labeled by corresponding elements $\sigma\in\SS_N$ of the
+symmetric group $\SS_N$ of order $N$.  We refer to simultaneous
+eigenstates of all $\Pi_\sigma\in\Pi$ as {\it collective states}.  The
+subset of collective states that have eigenvalue $1$ with respect to
+all permutation operators $\Pi_\sigma\in\Pi$ is the {\it maximally
+  symmetric collective (MSC)} manifold $\M_\MSC$, which is precisely
+the Dicke manifold in the case of two-level subsystems ($n=2$).  The
+MSC manifold is spanned by a basis $\set{\ket{\v m}}$ of MSC states
+that can be uniquely identified by a list of integers
+$\v m=\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$, where $m_k$ indicates
+the total occupation number of subsystem state $k$, and
+$\sum_k m_k=N$.  The Dicke manifold of $N$ qubits, for example, is
+spanned by the Dicke states $\set{\ket{m_0,m_1}}$, where $m_0+m_1=N$
+and the integer $m_0$ ($m_1$) indicates the occupation number of the
+qubit state $\ket{0}$ ($\ket{1}$).  The dimension of the MSC manifold
+is determined by the number of ways to assign $N$ sub-systems to $n$
+states, which is ${N+n-1 \choose n-1}$.
 
-The MSC manifold has two important properties that concern us.  First,
-the MSC manifold is closed under the action of unitaries generated by
-linear combinations collective drive operators $\D_{LM}$.  Second, the
-MSC manifold is precisely the ground-state manifold of the collective
-SU($n$)-symmetric interaction Hamiltonian $H_{\t{int}}$ in
-\eqref{eq:H_int_spin} or \eqref{eq:H_int_drive}.  We prove these
-properties of the MSC manifold in Appendix \ref{sec:MSC_proofs}.
-
-
+The MSC manifold has two key properties.  First, the MSC manifold is
+closed under the action of unitaries generated by collective drive
+operators $\D_{LM}$, as well as linear combinations and products
+thereof.  Closure of the MSC manifold under collective dynamics is a
+straightforward consequence of the permutational symmetry obeyed by
+collective operators.  Second, the MSC manifold is the ground-state
+manifold of the collective SU($n$)-symmetric interaction Hamiltonian
+$H_{\t{int}}$ in \eqref{eq:H_int_spin}.  To illuminate the spectral
+properties of $H_{\t{int}}$, we can expand
+\begin{align}
+  H_{\t{int}}
+  = -\f{u}{2} \sum_{p,q,\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}
+  = -u\sum_{\substack{p<q\\\mu,\nu}} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}
+  - \f{u}{2} \sum_{p,\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(p)}
+  = -u\sum_{p<q} \Pi_{pq} - \f12 N n u
+  \simeq -u\sum_{p<q} \Pi_{pq},
+  \label{eq:H_int_perm}
+\end{align}
+where $\Pi_{pq}\in\Pi$ permutes subsystems $p$ and $q$, and $\simeq$
+denotes equality up to an overall constant with no physical
+consequence.  The form of $H_{\t{int}}$ in \eqref{eq:H_int_perm}
+reveals that its eigenstates can be classified by their symmetries
+under the permutation of subsystems.  In particular, the ground-state
+manifold of $H_{\t{int}}$ consists of states that have eigenvalue 1
+with respect to all pair-wise permutation operators $\Pi_{pq}$, which
+is precisely the MSC manifold $\M_\MSC$.  The interaction energy of
+states $\ket{\psi_\MSC}\in\M_\MSC$ is (up to an overall constant)
+simply $-{ N\choose 2 } u = -\p{1/4}N\p{N-1} u$.
 
 
 \vspace{3cm}
@@ -626,15 +654,15 @@ the form
 \begin{align}
   H = \sum_{p,q,j} X_j^{(p)} {X_j^{(q)}}^\dag,
 \end{align}
-which essentially consists of two-body interactions ($p\ne q$) and
-single-body terms ($p=q$), respectively of the form
+which essentially consists of single-body terms ($p=q$) and two-body
+interactions ($p\ne q$) of the form
 \begin{align}
-  \sum_j X_j \otimes X_j^\dag,
+  \sum_j X_j X_j^\dag,
   &&
-  \sum_j X_j X_j^\dag.
+  \sum_j X_j \otimes X_j^\dag.
 \end{align}
-Choosing a different basis $Y\equiv\set{Y_j}$ for $\B\p{\H_n}$ with
-corresponding norm $\N_Y$, we can expand
+Choosing an arbitrary orthonormal basis $Y\equiv\set{Y_j}$ for
+$\B\p{\H_n}$ with corresponding norm $\N_Y$, we can expand
 \begin{align}
   X_j = \f1{\N_Y} \sum_k Y_k \obk{Y_k|X_j},
   &&
@@ -648,21 +676,27 @@ where we used the fact that
   = \tr\p{X_j^\dag Y_k}
   = \obk{X_j|Y_k}.
 \end{align}
-By resolution of the identity, we can therefore find
+Denoting an arbitrary bilinear operation by $\odot$, by resolution of
+the identity we therefore find
 \begin{align}
-  \sum_j X_j \otimes X_j^\dag
+  \sum_j X_j \odot X_j^\dag
   = \f1{\N_Y^2} \sum_{j,k,\ell} Y_k \obk{Y_k|X_j}
-  \otimes Y_\ell^\dag \obk{X_j|Y_\ell}
-  = \f{\N_X}{\N_Y^2} \sum_{k,\ell} Y_k \otimes Y_\ell^\dag
+  \odot Y_\ell^\dag \obk{X_j|Y_\ell}
+  = \f{\N_X}{\N_Y^2} \sum_{k,\ell} Y_k \odot Y_\ell^\dag
   \obk{Y_k|\I|Y_\ell}
-  = \f{\N_X}{\N_Y} \sum_k Y_k \otimes Y_k^\dag,
+  = \f{\N_X}{\N_Y} \sum_k Y_k \odot Y_k^\dag,
 \end{align}
-and similarly
+which in particular implies that
 \begin{align}
   \sum_j X_j X_j^\dag
-  = \f1{\N_Y^2} \sum_{j,k,\ell} Y_k Y_\ell^\dag
-  \obk{Y_k|X_j} \obk{X_j|Y_\ell}
-  = \f{\N_X}{\N_Y} \sum_k Y_k Y_k^\dag.
+  = \f{\N_X}{\N_Y} \sum_k Y_k Y_k^\dag,
+  &&
+  \sum_j X_j \otimes X_j^\dag
+  = \f{\N_X}{\N_Y} \sum_k Y_k \otimes Y_k^\dag,
+\end{align}
+and in turn
+\begin{align}
+  H = \f{\N_X}{\N_Y} \sum_{p,q,j} Y_j^{(p)} {Y_j^{(q)}}^\dag.
 \end{align}
 The collective interaction Hamiltonian in \eqref{eq:H_int_spin} thus
 takes an identical form in any orthonormal basis for the space
@@ -676,30 +710,30 @@ $n$-level system, up to appropriate re-scaling factors $\N_X/\N_Y$.
 Here we derive the drive-operator ($D_{LM}$) expansion of the
 spin-orbit coupled Hamiltonian $H_{\t{lat}}^{(\phi)}$ in
 \eqref{eq:H_lat_SOC}.  In the basis of spin operators
-$s_{\mu\mu}^{(q)} \equiv c_{q\mu}^\dag c_{q\mu}$, this Hamiltonian
+$S_{\mu\mu}^{(q)} \equiv c_{q\mu}^\dag c_{q\mu}$, this Hamiltonian
 takes the form
 \begin{align}
   H_{\t{lat}}^{(\phi)}
-  = -J \sum_{q,\mu} \cos\p{qa+\mu\phi} s_{\mu\mu}^{(q)}
+  = -J \sum_{q,\mu} \cos\p{qa+\mu\phi} S_{\mu\mu}^{(q)}
   \label{eq:H_lat_spin}
 \end{align}
 Defining the diagonal ``spin-wave'' operators
 \begin{align}
-  \tilde d_{\phi+} \equiv \sum_\mu \cos\p{\mu\phi} s_{\mu\mu},
+  \tilde d_{\phi+} \equiv \sum_\mu \cos\p{\mu\phi} S_{\mu\mu},
   &&
-  \tilde d_{\phi-} \equiv \sum_\mu \sin\p{\mu\phi} s_{\mu\mu},
+  \tilde d_{\phi-} \equiv \sum_\mu \sin\p{\mu\phi} S_{\mu\mu},
 \end{align}
 which are respectively even and odd under spin inversion
 ($\mu\to-\mu$), we can expand
 \begin{align}
-  \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
+  \sum_\mu \cos\p{qa+\mu\phi} S_{\mu\mu}
   = \cos\p{qa} \tilde d_{\phi+} - \sin\p{qa} \tilde d_{\phi-},
 \end{align}
 and resolve the identity (super-)operator $\I$ with
 $\I \tilde d_{\phi\pm} = \tilde d_{\phi\pm}$ in the basis of the drive operators
 $D_{LM}$ (see Appendix \ref{sec:changing_bases}), finding
 \begin{align}
-  \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
+  \sum_\mu \cos\p{qa+\mu\phi} S_{\mu\mu}
   = \cos\p{qa} \f12 \sum_{L,M} \obk{\tilde d_{\phi+}|D_{LM}} D_{LM}
   - \sin\p{qa} \f12 \sum_{L,M} \obk{\tilde d_{\phi-}|D_{LM}} D_{LM}.
 \end{align}
@@ -713,7 +747,7 @@ off-diagonal for $M\ne0$, and furthermore that $D_{L,0}$ with even
 and likewise with $\tilde d_{\phi-}$ and odd $L$.  In total, we can
 write
 \begin{align}
-  \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
+  \sum_\mu \cos\p{qa+\mu\phi} S_{\mu\mu}
   = \cos\p{qa} \f12 \sum_{L\,\t{even}}
   \obk{\tilde d_{\phi+}|D_{L,0}} D_{L,0}
   - \sin\p{qa} \f12 \sum_{L\,\t{odd}}
@@ -721,7 +755,7 @@ write
 \end{align}
 or, more compactly,
 \begin{align}
-  \sum_\mu \cos\p{qa+\mu\phi} s_{\mu\mu}
+  \sum_\mu \cos\p{qa+\mu\phi} S_{\mu\mu}
   = \sum_L w_L\p{qa} A_L^{(\phi)} D_{L,0},
   &&
   w_L\p{\theta} \equiv
@@ -1020,84 +1054,6 @@ and
   &&
   \Omega_{2,2} \equiv \omega_{2,2}.
 \end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Key properties of the maximally-symmetric collective
-  manifold}
-\label{sec:MSC_proofs}
-
-Here we prove two important properties of the maximally-symmetric
-collective (MSC) manifold defined in Section \ref{sec:classifying}:
-\begin{enumerate*}
-\item \label{pt:MSC_closure} that the MSC manifold is closed under the
-  action of unitaries generated by linear combinations collective
-  drive operators $\D_{LM}$; and
-\item \label{pt:MSC_ground} that the MSC manifold is precisely the
-  ground-state manifold of the collective SU($n$)-symmetric
-  interaction Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_spin} or
-  \eqref{eq:H_int_drive}.
-\end{enumerate*}
-Our starting ingredients are an $n$-dimensional Hilbert space $\H_n$,
-its $N$-fold tensor product $\H_n^{\otimes N}$, and the set
-$\Pi\equiv\set{\Pi_\sigma}$ of operators that permute the tensor
-factors of $\H_n^{\otimes N}$.  Permutation operators $\Pi_\sigma$ are
-labeled by elements $\sigma\in\SS_N$ of the symmetric group $\SS_N$ of
-order $N$.  The MSC sub-manifold of $\H_n^{\otimes N}$ is defined by
-the set of states that have eigenvalue $1$ with respect to all
-permutation operators $\Pi_\sigma\in\Pi$.
-
-Given an orthonormal basis $X=\set{X_j}$ for the space $\B\p{\H_n}$ of
-linear operators on $\H_n$, we define the collective operator
-$\X_j\in\B\p{\H_n^{\otimes N}}$ by
-\begin{align}
-  \X_j \equiv \sum_{p\in\ZZ_N} X_j^{(p)},
-\end{align}
-where $\ZZ_N\equiv\set{0,1,\cdots,N-1}$ and $X_j^{(p)}$ acts with
-$X_j$ on tensor factor $p$ of $\H_n^{\otimes N}$ and trivially on all
-other tensor factors, i.e.
-\begin{align}
-  X_j^{(p)} \equiv
-  \1^{\otimes p} \otimes X_j \otimes \1^{\otimes\p{N-p-1}}.
-\end{align}
-We denote a vector of all collective operators in $\X\equiv\set{\X_j}$
-by $\v\X$, i.e.~$\v\X\equiv\p{\X_j:\X_j\in\X}$.
-
-Given an arbitrary MSC state
-$\ket{\psi_{\t{MSC}}}\in\H_n^{\otimes N}$, we can use the fact that
-all permutation operators $\Pi_\sigma\in\Pi$ are unitary to expand
-\begin{align}
-  \Pi_\sigma e^{i\v\theta\c\v\X} \ket{\psi_{\t{MSC}}}
-  = \Pi_\sigma e^{i\v\theta\c\v\X}
-  \Pi_\sigma^\dag \Pi_\sigma \ket{\psi_{\t{MSC}}}
-  = e^{i\v\theta\c\Pi_\sigma\v\X\Pi_\sigma^\dag}
-  \Pi_\sigma \ket{\psi_{\t{MSC}}}
-  = e^{i\v\theta\c\Pi_\sigma\v\X\Pi_\sigma^\dag} \ket{\psi_{\t{MSC}}},
-\end{align}
-where
-$\Pi_\sigma\v\X\Pi_\sigma^\dag \equiv \p{\Pi_\sigma\X_j\Pi_\sigma^\dag
-  : \X_j\in\X}$, and
-\begin{align}
-  \Pi_\sigma \X_j \Pi_\sigma^\dag
-  = \sum_{p\in\ZZ_N} \Pi_\sigma X_j^{(p)} \Pi_\sigma^\dag
-  = \sum_{p\in\ZZ_N} X_j^{(\sigma\c p)}
-  = \sum_{p\in\ZZ_N} X_j^{(p)},
-\end{align}
-which implies that $\Pi_\sigma\v\X\Pi_\sigma^\dag=\v\X$, and in turn
-\begin{align}
-  \Pi_\sigma e^{i\v\theta\c\v\X} \ket{\psi_{\t{MSC}}}
-  = e^{i\v\theta\c\v\X} \ket{\psi_{\t{MSC}}}.
-\end{align}
-We thus find that $e^{i\v\theta\c\v\X} \ket{\psi_{\t{MSC}}}$ is itself
-an MSC state, as it has eigenvalue 1 with respect to arbitrary
-permutation operators $\Pi_\sigma\in\Pi$, thereby proving claim
-\ref{pt:MSC_closure} by choice of the orthonormal basis $\set{D_{LM}}$
-for the space $\B\p{\H_n}$ of linear operators on $\H_n$.
-
-
-
-[Proof of claim \ref{pt:MSC_ground} to come]
-
-
 
 \bibliography{multilevel_spin_notes.bib}
 
