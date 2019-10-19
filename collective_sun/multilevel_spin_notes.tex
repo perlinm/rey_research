@@ -260,10 +260,10 @@ Unlike the GGM operators in \eqref{eq:GGM_diag} and
 Hamiltonians in terms of self-adjoint operators, we define the {\it
   drive operators}
 \begin{align}
-  D_{LM} \equiv \f{\tau_M}{\sqrt{2}}
-  \sp{T_{L\abs{M}} + \sign\p{M}T_{L\abs{M}}^\dag},
+  D_{LM} \equiv \f{\eta_M}{\sqrt{2}}
+  \sp{T_{L\abs{M}} + \sign\p{M} T_{L\abs{M}}^\dag},
   &&
-  \tau_M \equiv
+  \eta_M \equiv
   \begin{cases}
     \sqrt{2} & M = 0 \\
     \p{-1}^M \sign\p{M}^{3/2} & M \ne 0
@@ -459,11 +459,11 @@ $c_{j\mu}^\dag \to e^{-i\mu\phi j} c_{j\mu}^\dag$, which takes
   &&
   \D_{LM} \equiv \D_{LM}^{(0)} = \sum_j D_{LM}^{(j)}.
 \end{align}
-The SU($n$) symmetry of collective interactions implies that the
-interaction Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_drive} is
-invariant under this gauge transformation, but the single-particle
-Hamiltonian in \eqref{eq:H_lat} transforms as (see Appendix
-\ref{sec:lat_drive})
+The SU($n$) symmetry of collective interactions considered in this
+work implies that the interaction Hamiltonian $H_{\t{int}}$ in
+\eqref{eq:H_int_perm} is unaffected by this gauge transformation.  The
+single-particle Hamiltonian $H_{\t{lat}}$ in \eqref{eq:H_lat},
+however, transforms as (see Appendix \ref{sec:lat_drive})
 \begin{align}
   H_{\t{lat}}
   \to H_{\t{lat}}^{(\phi)}
@@ -486,11 +486,20 @@ where
   A_L^{(\phi)} \equiv \p{-1}^L \sqrt{\f{2L+1}{2I+1}}
   \sum_\mu \bk{I\mu;L,0|I\mu} w_L\p{\mu\phi}.
 \end{align}
-Spin-orbit coupling with multilevel systems thus allows for the
+The multilevel spin-orbit coupling (SOC) exhibited by the
+singe-particle Hamiltonian $H_{\t{lat}}^{(\phi)}$ thus allows for the
 simulation of synthetic gauge fields with large spin ($L>1$).  As we
-will see in the following section, multi-laser drives can also
+will see in Section \ref{sec:drive_raman}, multi-laser drives can also
 simulate synthetic large-spin fields with non-zero spin projection
 ($M\ne0$) onto a quantization axis.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Perturbative treatment of spin-orbit coupling}
+\label{sec:pert_SOC}
+
+When SOC is weak,
+
+\vspace{3cm}
 
 In the regime of weak SOC with $\abs{\phi}\ll1$, by considering
 \begin{enumerate*}
@@ -512,6 +521,10 @@ where
   &&
   n_L \equiv \prod_{\ell=-L}^L\p{n-\ell}.
 \end{align}
+
+
+\vspace{3cm}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Raman drive}
@@ -611,10 +624,6 @@ $\sim\D_{2,2}$ (as $\D_{0,0}\propto\1$ is just constant shift in
 energy).  If instead $\Omega_0=\pm\Omega_\pm$, then the amplitudes
 $\Omega_{1,0}$, $\Omega_{2,0}$ and $\Omega_{1,1}$ vanish, leaving only
 the drives $\D_{2,1}$ and $\D_{2,2}$.
-
-
-\vspace{3cm}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Future directions}
@@ -916,13 +925,24 @@ which implies that
 
 The drive operators are defined by
 \begin{align}
+  D_{LM} \equiv \f{\eta_M}{\sqrt{2}}
+  \sp{T_{L\abs{M}} + \sign\p{M} T_{L\abs{M}}^\dag},
+  &&
+  \eta_M \equiv
+  \begin{cases}
+    \sqrt{2} & M = 0 \\
+    \p{-1}^M \sign\p{M}^{3/2} & M \ne 0
+  \end{cases},
+\end{align}
+or, equivalently,
+\begin{align}
   D_{LM} \equiv \f{\tau_M}{\sqrt{2}}
-  \sp{T_{L\abs{M}} + \sign\p{M}T_{L\abs{M}}^\dag},
+  \sp{T_{LM} + \sign\p{M} T_{LM}^\dag},
   &&
   \tau_M \equiv
   \begin{cases}
     \sqrt{2} & M = 0 \\
-    \p{-1}^M \sign\p{M}^{3/2} & M \ne 0
+    \p{-1}^M \sign\p{M}^{M+1/2} & M \ne 0
   \end{cases},
 \end{align}
 which implies that
@@ -933,7 +953,7 @@ which implies that
   \begin{cases}
     \sqrt{2}/\p{1+i} & M = 0 \\
     \tau_M^* & M \ne 0
-  \end{cases}.
+  \end{cases},
 \end{align}
 where $\tau_M^*$ is the complex conjugate of $\tau_M$.  In order to
 evaluate the product of two drive operators, we can thus expand them
@@ -949,7 +969,11 @@ product of two drive operators takes the form
     + f_{\ell_1 m_1;\ell_2,-m_2}^{L,m_1-m_2}
     E_{\ell_1 m_1;\ell_2 m_2}^{(L,-)}},
 \end{align}
-with operators
+where in terms of
+\begin{align}
+  \epsilon_M \equiv \p{-1}^M \sign\p{M},
+\end{align}
+we have
 \begin{align}
   E_{\ell_1 m_1;\ell_2 m_2}^{(L,+)}
   &\equiv \sum_{s\in\set{\pm1}}
