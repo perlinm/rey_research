@@ -45,22 +45,29 @@
 
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
 \renewcommand{\H}{\mathcal{H}}
 \newcommand{\I}{\mathcal{I}}
 \newcommand{\M}{\mathcal{M}}
 \newcommand{\N}{\mathcal{N}}
 \renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
 \newcommand{\Q}{\mathcal{Q}}
+\newcommand{\R}{\mathcal{R}}
 \newcommand{\T}{\mathcal{T}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\X}{\mathcal{X}}
+\newcommand{\Z}{\mathcal{Z}}
 
+\newcommand{\EE}{\mathbb{E}}
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\ZZ}{\mathbb{Z}}
 
 \newcommand{\FS}{\text{FS}}
 
 \DeclareMathOperator{\sign}{sign}
+\let\var\relax
+\DeclareMathOperator{\var}{var}
 
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
@@ -95,15 +102,15 @@
 We consider a collection of $n$-level fermions on a 1-D lattice, with
 a single-particle Hamiltonian
 \begin{align}
-  H_{\t{lat}} = -J \sum_{q,\mu} \cos\p{qa} c_{q\mu}^\dag c_{q\mu},
+  H_{\t{lat}} = -t \sum_{q,\mu} \cos\p{qa} c_{q\mu}^\dag c_{q\mu},
   \label{eq:H_lat}
 \end{align}
-where $J$ is the nearest-neighbor tunneling rate, $a$ is the spacing
+where $t$ is the nearest-neighbor tunneling rate, $a$ is the spacing
 between neighboring lattice sites, and $c_{q\mu}$ is the fermionic
 annihilation operator for a particle in quasi-momentum mode $q$ with
 internal state (e.g.~nuclear spin) $\mu$.  Under the frozen-mode
 approximation, collective two-body SU($n$)-symmetric interactions
-between these fermions take form\cite{perlin2019effective}
+between these fermions take form
 \begin{align}
   H_{\t{int}} = \f{u}{2} \sum_{p,q,\mu,\nu}
   \p{c_{p\mu}^\dag c_{q\nu}^\dag c_{q\nu} c_{p\mu}
@@ -395,21 +402,21 @@ $H_{\t{int}}$ makes it evident that its ground-state manifold
 $\M_{\FS}$ is the set of {\it fully symmetric} (FS) states that have
 eigenvalue $1$ with respect to all pairwise permutation operators
 $\Pi_{pq}$, and thereby also all $\Pi_\sigma\in\Pi$.  The fully
-symmetric manifold $\M_\FS\subset\H_n^{\otimes N}$ is spanned by a
-basis $\set{\ket{\v m}}$ of fully symmetric states that can be
-uniquely identified by a list of integers
-$\v m\equiv\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$, where $m_s$
-indicates the total occupation number of subsystem state $s$, and
-$\sum_sm_s=N$.  In the case of $n=2$, the fully symmetric manifold
+symmetric manifold $\M_\FS$ is spanned by a basis $\set{\ket{\v m}}$
+of fully symmetric states that can be uniquely identified by a list of
+integers $\v m\equiv\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$, where
+$m_s$ indicates the total occupation number of subsystem state $s$,
+and $\sum_sm_s=N$.  In the case of $n=2$, the fully symmetric manifold
 $\M_\FS$ is precisely the Dicke manifold\cite{dicke1954coherence} of
 $N$ qubits, spanned by Dicke states $\set{\ket{m_0,m_1}}$ for which
 $m_0+m_1=N$ and the integer $m_0$ ($m_1$) indicates the total
 occupation number of qubit state $\ket{0}$ ($\ket{1}$).  The dimension
 of fully symmetric manifold $\M_\FS$ is determined by the number of
 ways to assign $N$ subsystems to $n$ states, which is
-${N+n-1 \choose n-1}$, and energy of $\ket{\psi_\FS}\in\M_\FS$ with
-respect to the interaction Hamiltonian $H_{\t{int}}$ in
-\eqref{eq:H_int_perm} is $-u{N \choose 2}=-\p{1/4}N\p{N-1}u$.
+${N+n-1 \choose n-1}$, and the energy of a state
+$\ket{\psi_\FS}\in\M_\FS$ with respect to the interaction Hamiltonian
+$H_{\t{int}}$ in \eqref{eq:H_int_perm} is
+$-u{N \choose 2}=-\p{1/4}N\p{N-1}u$.
 
 In addition to the fact that the fully symmetric manifold $\M_\FS$ is
 ground-state manifold of the interaction Hamltonian $H_{\t{int}}$, an
@@ -467,13 +474,13 @@ however, transforms as (see Appendix \ref{sec:lat_drive})
 \begin{align}
   H_{\t{lat}}
   \to H_{\t{lat}}^{(\phi)}
-  = -J \sum_{q,\mu} \cos\p{qa+\mu\phi} c_{q\mu}^\dag c_{q\mu}
+  = -t \sum_{q,\mu} \cos\p{qa+\mu\phi} c_{q\mu}^\dag c_{q\mu}
   = \sum_{q,L} B_L^{(\phi,q)} D_{L,0}^{(q)},
-  \label{eq:H_lat_SOC}
+  \label{eq:H_lat_SOC_B}
 \end{align}
 with effective inhomogeneous driving field amplitudes
 \begin{align}
-  B_L^{(\phi,q)} = -J w_L\p{qa} A_L^{(\phi)},
+  B_L^{(\phi,q)} = -t w_L\p{qa} A_L^{(\phi)},
 \end{align}
 where
 \begin{align}
@@ -485,6 +492,7 @@ where
   &&
   A_L^{(\phi)} \equiv \p{-1}^L \sqrt{\f{2L+1}{2I+1}}
   \sum_\mu \bk{I\mu;L,0|I\mu} w_L\p{\mu\phi}.
+  \label{eq:A_L_phi}
 \end{align}
 The multilevel spin-orbit coupling (SOC) exhibited by the
 singe-particle Hamiltonian $H_{\t{lat}}^{(\phi)}$ thus allows for the
@@ -497,11 +505,13 @@ simulate synthetic large-spin fields with non-zero spin projection
 \section{Perturbative treatment of spin-orbit coupling}
 \label{sec:pert_SOC}
 
-When SOC is weak,
-
-\vspace{3cm}
-
-In the regime of weak SOC with $\abs{\phi}\ll1$, by considering
+The single-particle Hamiltonian $H_{\t{lat}}^{(\phi)}$ breaks
+permutational symmetry, thereby coupling states within the fully
+symmetric manifold $\M_\FS$ to states outsides it.  If SOC is
+sufficiently weak, however, transitions outside the fully symmetric
+manifold $\M_\FS$ are energetically suppressed by interactions, and we
+can account for the effect of SOC perturbatively.  In the regime of
+weak SOC with $\abs{\phi}\ll1$, by considering
 \begin{enumerate*}
 \item all $L\le12$ for arbitrary $n$, and
 \item all $L<n$ for all $n\le25$
@@ -519,7 +529,7 @@ where
   c_L \equiv \p{-1}^{L+\lfloor L/2\rfloor}
   \sqrt{2L+1}\, \f{L!}{\p{2L+1}!},
   &&
-  n_L \equiv \prod_{\ell=-L}^L\p{n-\ell}.
+  n_L \equiv \prod_{\ell=-L}^L\p{n+\ell}.
 \end{align}
 
 
@@ -742,15 +752,15 @@ $n$-level system, up to appropriate re-scaling factors $\N_X/\N_Y$.
 
 Here we derive the drive-operator ($D_{LM}$) expansion of the
 spin-orbit coupled Hamiltonian $H_{\t{lat}}^{(\phi)}$ in
-\eqref{eq:H_lat_SOC}.  In the basis of spin operators
+\eqref{eq:H_lat_SOC_B}.  In the basis of spin operators
 $S_{\mu\mu}^{(q)} \equiv c_{q\mu}^\dag c_{q\mu}$, this Hamiltonian
 takes the form
 \begin{align}
   H_{\t{lat}}^{(\phi)}
-  = -J \sum_{q,\mu} \cos\p{qa+\mu\phi} S_{\mu\mu}^{(q)}
+  = -t \sum_{q,\mu} \cos\p{qa+\mu\phi} S_{\mu\mu}^{(q)}
   \label{eq:H_lat_spin}
 \end{align}
-Defining the diagonal ``spin-wave'' operators
+Defining the diagonal operators
 \begin{align}
   \tilde d_{\phi+} \equiv \sum_\mu \cos\p{\mu\phi} S_{\mu\mu},
   &&
@@ -810,7 +820,8 @@ single-particle Hamiltonian in \eqref{eq:H_lat_spin} yields
 \begin{align}
   H_{\t{lat}}^{(\phi)} = \sum_{q,L} B_L^{(\phi,q)} D_{L,0}^{(q)},
   &&
-  B_L^{(\phi,q)} \equiv -J w_L\p{qa} A_L^{(\phi)}.
+  B_L^{(\phi,q)} \equiv -J
+  w_L\p{qa} A_L^{(\phi)}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1102,6 +1113,368 @@ and
   &&
   \Omega_{2,2} \equiv \omega_{2,2}.
 \end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Weak SOC in the fully symmetric manifold}
+
+Here we derive the effective Hamiltonian induced on the fully
+symmetric manifold $\M_\FS$ by the single-particle SOC Hamiltonian
+$H_{\t{lat}}^{(\phi)}$ in \eqref{eq:H_lat_SOC_B} in the weak SOC limit
+$\abs{\phi}\ll1$.  For brevity, we work in units with the lattice
+spacing $a=1$ throughout this section.  Perturbations $V$ to the
+interaction Hamiltonian $H_{\t{int}}$ induce the following effective
+Hamiltonians on the fully symmetric manifold
+$\M_\FS$\cite{bravyi2011schrieffer, perlin2019effective}:
+\begin{align}
+  H_{\t{eff}}^{(1)} = \P_0 V \P_0,
+  &&
+  H_{\t{eff}}^{(2)} = -\P_0 V \E V \P_0,
+  &&
+  \E \equiv \sum_{E_\varepsilon>0} \f{\op{E_\varepsilon}}{E_\varepsilon},
+  \label{eq:pert}
+\end{align}
+where $\P_0$ is a projector onto the fully symmetric manifold $\M_\FS$
+and $\ket{E_\varepsilon}$ is an eigenstate of the interaction
+Hamiltonian $H_{\t{int}}$ with energy $E_\varepsilon$ relative to the
+interaction energy of fully symmetric states
+$\ket{\psi_\FS}\in\M_\FS$.  The sum over all $E_\varepsilon>0$ is a
+sum over a complete basis of states $\set{\ket{E_\varepsilon}}$ for
+the orthogonal complement of $\M_\FS$.
+
+\subsection{Effective SOC at first order}
+
+The single-particle SOC Hamiltonian is
+\begin{align}
+  H_{\t{lat}}^{(\phi)}
+  = -t \sum_{q,L} w_L\p{q} A_L^{(\phi)} D_{L,0}^{(q)},
+  &&
+  w_L\p{q} \equiv
+  \begin{cases}
+    \cos q & L~\t{even} \\
+    \sin q & L~\t{odd}
+  \end{cases},
+  \label{eq:H_lat_SOC_A}
+\end{align}
+where $A_L^{(\phi)}$ is defined in \eqref{eq:A_L_phi}, and scales as
+$A_L^{(\phi)} \sim \phi^L + O\p{\phi^{L+2}}$ when $\abs{\phi}\ll1$.
+When the SOC angle $\phi$ is sufficiently small in magnitude, the
+effective Hamiltonian induced on the fully symmetric manifold $\M_\FS$
+at first order in the perturbation $H_{\t{lat}}^{(\phi)}$ is
+\begin{align}
+  H_{\t{eff}}^{(1)}
+  = \P_0 H_{\t{lat}}^{(\phi)} \P_0
+  = -t \sum_{q,L} w_L\p{q} A_L^{(\phi)} \P_0 D_{L,0}^{(q)} \P_0,
+\end{align}
+where we can freely change the index of each single-mode drive
+operator $D_{L,0}^{(q)}$ within the fully symmetric manifold to
+re-write
+\begin{align}
+  \P_0 D_{L,0}^{(q)} \P_0 = \f1N \sum_p \P_0 D_{L,0}^{(p)} \P_0
+  = \f1N \P_0 \D_{L,0} \P_0,
+\end{align}
+which implies that
+\begin{align}
+  H_{\t{eff}}^{(1)}
+  = -t \sum_L \EE_q\sp{w_L\p{q}} A_L^{(\phi)} \D_{L,0},
+  &&
+  \EE_q\sp{X\p{q}} \equiv \f1N \sum_q X\p{q}.
+  \label{eq:H_eff_1}
+\end{align}
+Here $\EE_q\sp{X\p{q}}$ is an average of $X\p{q}$ over all occupied
+quasi-momenta $q$.  Note that we have dropped the explicit projection
+operators $\P_0$ in \eqref{eq:H_eff_1} with the understanding that we
+are implicitly restricting all effective dynamics to the fully
+symmetric manifold $\M_\FS$.
+
+\subsection{Effective SOC at second order}
+
+In order to expand the second-order effective Hamiltonian
+$H_{\t{eff}}^{(2)}$ induced on the fully symmetric manifold $\M_\FS$
+by the SOC Hamiltonian $H_{\t{lat}}^{(\phi)}$ when $\abs{\phi}\ll1$,
+we expand $w_L\p{q}$ in \eqref{eq:H_lat_SOC_A} as
+\begin{align}
+  w_L\p{q} = \f12 \sum_{s\in\set{\pm1}} \chi_{Ls} e^{isq},
+  &&
+  \chi_{Ls} \equiv \p{-i}^{L\,\t{mod}\,2} s^L,
+\end{align}
+which implies that
+\begin{align}
+  H_{\t{lat}}^{(\phi)}
+  = -\f{t}{2} \sum_{\substack{L\\s\in\set{\pm1}}}
+  \chi_{Ls} A_L^{(\phi)} \Z_{Ls},
+  &&
+  \Z_{Ks} \equiv \sum_q e^{isq} D_{L,0}^{(q)},
+\end{align}
+and in turn
+\begin{align}
+  H_{\t{eff}}^{(2)}
+  = -\f{t^2}{4} \sum_{\substack{J,K\\r,s\in\set{\pm1}}}
+  \chi_{Jr} \chi_{Ks} A_J^{(\phi)} A_K^{(\phi)}
+  \P_0 \Z_{Jr} \E \Z_{Ks} \P_0,
+  \label{eq:H_eff_2_start}
+\end{align}
+where $\E$ is a sum over excited-state projectors with energetic
+suppression factors, defined in \eqref{eq:pert}.
+
+\subsubsection{Eliminating excited-state projectors in $\E$}
+
+In order to simplify \eqref{eq:H_eff_2_start}, we first note that the
+image of any fully symmetric state $\ket{\psi_{\FS}}\in\M_\FS$ under
+the action of the ``spin-wave'' operator $\Z_{Ks}$ is an eigenvector
+of the interaction Hamiltonian $H_{\t{int}}=-u\sum_{p<q}\Pi_{pq}$.  To
+substantiate this claim, we expand
+\begin{align}
+  \sum_{p<q} \Pi_{pq} \Z_{Ks} \ket{\psi_\FS}
+  = \sum_{\substack{p<q\\k\notin\set{p,q}}} e^{isk}
+  \Pi_{pq} D_{K,0}^{(k)} \ket{\psi_\FS}
+  + \sum_{\substack{p<q\\k\in\set{p,q}}} e^{isk}
+  \Pi_{pq} D_{K,0}^{(k)} \ket{\psi_\FS}.
+\end{align}
+If $k\notin\set{p,q}$, then the permutation operator $\Pi_{pq}$
+commutes with $D_{K,0}^{(k)}$, and in turn acts trivially on the
+permutationally-symmetric state $\ket{\psi_\FS}$, giving us
+\begin{align}
+  \sum_{\substack{p<q\\k\notin\set{p,q}}} e^{isk}
+  \Pi_{pq} D_{K,0}^{(k)} \ket{\psi_\FS}
+  = \sum_k \sum_{\substack{p<q\\p,q\ne k}} e^{isk}
+  D_{K,0}^{(k)} \ket{\psi_\FS}
+  = { N-1 \choose 2 } \Z_{Ks} \ket{\psi_\FS}.
+\end{align}
+If $k\in\set{p,q}$, then we can resolve the identity operator
+$\1=\Pi_{pq}^\dag \Pi_{pq}$ to expand
+\begin{align}
+  \sum_{\substack{p<q\\k\in\set{p,q}}} e^{isk}
+  \Pi_{pq} D_{K,0}^{(k)} \ket{\psi_\FS}
+  = \f12 \sum_{\substack{p\ne q\\k\in\set{p,q}}} e^{isk}
+  \Pi_{pq} D_{K,0}^{(k)} \Pi_{pq}^\dag \Pi_{pq} \ket{\psi_\FS}
+  = \sum_{q\ne k} e^{isk} D_{K,0}^{(q)} \ket{\psi_\FS},
+\end{align}
+where for $s\in\set{\pm1}$ we can simplify the sum
+$\sum_{k\ne q} e^{isk} = -e^{isq}$,\footnote{We assume for now that
+  $\sum_k e^{\pm ik}=0$, which is only valid when all quasi-momenta
+  are occupied, such that the sum $\sum_k$ runs over all angles
+  $k\in\ZZ_N\times2\pi/N$.  We will consider the slightly more
+  complicated case with $\sum_k e^{\pm ik}\ne0$ later in this
+  section.}  so
+\begin{align}
+  \sum_{\substack{p<q\\k\in\set{p,q}}} e^{isk}
+  \Pi_{pq} D_{K,0}^{(k)} \ket{\psi_\FS}
+  = - \sum_q e^{isq} D_{K,0}^{(q)} \ket{\psi_\FS}
+  = - \Z_{Ks} \ket{\psi_\FS}.
+\end{align}
+In total, we have that
+\begin{align}
+  \sum_{p<q} \Pi_{pq} \Z_{Ks} \ket{\psi_\FS}
+  = \sp{{ N-1 \choose 2 } - 1} \Z_{Ks} \ket{\psi_\FS},
+\end{align}
+which implies that $\Z_{Ks}\ket{\psi_\FS}$ is proportional to an
+eigenstate of $H_{\t{int}}$ with interaction energy
+$-u\sp{{ N-1 \choose 2 } - 1}$, which is $Nu$ above the interaction
+energy of $-u{N\choose2}$ of states in the fully symmetric manifold,
+so
+\begin{align}
+  \E \Z_{Ks} \P_0
+  =  \f1{Nu} \Z_{Ks} \P_0
+  = \f1{fU} \Z_{Ks} \P_0,
+  \label{eq:proj_elim}
+\end{align}
+where $\E$ is defined in \eqref{eq:pert} and $f\equiv N/L$ is the
+filling fraction of quasi-momentum modes.  We have thus far simplified
+the effective Hamiltonian in \eqref{eq:H_eff_2_start} to
+\begin{align}
+  H_{\t{eff}}^{(2)}
+  = -\f{t^2}{4fU} \sum_{\substack{J,K\\r,s\in\set{\pm1}}}
+  \chi_{Jr} \chi_{Ks} A_J^{(\phi)} A_K^{(\phi)}
+  \P_0 \Z_{Jr} \Z_{Ks} \P_0,
+  \label{eq:H_eff_2_mid}
+\end{align}
+leaving us the task of evaluating the product
+$\P_0 \Z_{Jr} \Z_{Ks} \P_0$, as well as the sum over $r,s$.
+
+
+\subsubsection{The case of $r=s$}
+
+To evaluate the product $\P_0 \Z_{Jr} \Z_{Ks} \P_0$ of spin-wave
+operators projected onto the fully symmetric manifold $\M_\FS$, we
+first consider the case of $r=s$, and use the permutational symmetry
+enforced by the projectors $\P_0$ to expand
+\begin{align}
+  \P_0 \Z_{J\pm} \Z_{K\pm} \P_0
+  &= \sum_{p,q} e^{\pm i\p{p+q}} \P_0 D_{J,0}^{(p)} D_{K,0}^{(q)} \P_0 \\
+  &= \sum_p e^{\pm i2p} \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0
+  + \sum_{p\ne q} e^{\pm i\p{p+q}} \P_0 D_{J,0}^{(0)} D_{K,0}^{(1)} \P_0,
+\end{align}
+where $\sum_p e^{\pm i2p}=0$, and
+\begin{align}
+  \sum_{p\ne q} e^{\pm i\p{p+q}}
+  = \sum_p e^{\pm ip} \sum_{q\ne p} e^{\pm iq}
+  = \sum_p e^{\pm ip} \p{-e^{\pm ip}}
+  = -\sum_p e^{\pm i2p}
+  = 0,
+\end{align}
+which implies that
+\begin{align}
+  \P_0 \Z_{J\pm} \Z_{K\pm} \P_0 = 0.
+  \label{eq:ZZ_eq}
+\end{align}
+
+\subsubsection{The case of $r\ne s$}
+\label{sec:H_eff_2_end}
+
+For the case of $r\ne s$, we similarly expand
+\begin{align}
+  \P_0 \Z_{J\pm} \Z_{K\mp} \P_0
+  &= \sum_{p,q} e^{\pm i\p{p-q}} \P_0 D_{J,0}^{(p)} D_{K,0}^{(q)} \P_0 \\
+  &= N \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0
+  + \sum_{p\ne q} e^{\pm i\p{p-q}} \P_0 D_{J,0}^{(0)} D_{K,0}^{(1)} \P_0,
+\end{align}
+where
+\begin{align}
+  \sum_{p\ne q} e^{\pm i\p{p-q}}
+  = \sum_p e^{\pm ip} \sum_{q\ne p} e^{\mp iq}
+  = \sum_p e^{\pm ip} \p{-e^{\mp ip}}
+  = - \sum_p e^{\pm i\p{p-p}}
+  = - N,
+\end{align}
+so
+\begin{align}
+  \P_0 \Z_{J\pm} \Z_{K\mp} \P_0
+  = N \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0
+  - N \P_0 D_{J,0}^{(0)} D_{K,0}^{(1)} \P_0.
+  \label{eq:ZZ_neq_mid}
+\end{align}
+In order to express this product in terms of collective operators, we
+expand
+\begin{align}
+  \P_0 \D_{J,0} \D_{K,0} \P_0
+  = N \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0
+  + N \p{N-1} \P_0 D_{J,0}^{(0)} D_{K,0}^{(1)} \P_0,
+\end{align}
+then solve for the last term and substitute the result into
+\eqref{eq:ZZ_neq_mid}, giving us
+\begin{align}
+  \P_0 \Z_{J\pm} \Z_{K\mp} \P_0
+  = \f{N^2}{N-1} \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0
+  - \f1{N-1} \P_0 \D_{J,0} \D_{K,0} \P_0.
+\end{align}
+Using the structure constants $f_{\ell_1m_1;\ell_2m_2}^{LM}$ of the
+transition operator algebra (see Appendix \ref{sec:trans_prod}), we
+then expand
+\begin{align}
+  N \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0
+  = N \sum_L f_{J,0;K,0}^{L,0} \P_0 D_{L,0}^{(0)} \P_0
+  = \sum_L f_{J,0;K,0}^{L,0} \P_0 \D_{L,0} \P_0,
+\end{align}
+which implies that
+\begin{align}
+  \P_0 \Z_{J\pm} \Z_{K\mp} \P_0
+  = \f{N}{N-1} \sum_L f_{J,0;K,0}^{L,0} \P_0 \D_{L,0} \P_0
+  - \f1{N-1} \P_0 \D_{J,0} \D_{K,0} \P_0.
+  \label{eq:ZZ_neq}
+\end{align}
+
+\subsubsection{Putting it all together}
+
+Having evaluated the product $\P_0 \Z_{Jr} \Z_{Ks} \P_0$ of spin-wave
+operators in \eqref{eq:ZZ_eq} and \eqref{eq:ZZ_neq}, the last
+ingredient needed to simplify the effective Hamiltonian
+$H_{\t{eff}}^{(2)}$ in \eqref{eq:H_eff_2_mid} is an evaluation of the
+sum over $r,s\in\set{\pm1}$.  The product of spin-wave operators
+enforces $r\ne s$, but is otherwise independent of $r,s$, so we need
+only evaluate
+\begin{align}
+  \sum_{s\in\set{\pm1}} \chi_{J,-s} \chi_{Ks}
+  =
+  \begin{cases}
+    2 & J = K \, \t{mod}\, 2 \\
+    0 & \t{otherwise}
+  \end{cases}.
+\end{align}
+Putting everything together, we thus find
+\begin{align}
+  H_{\t{eff}}^{(2)}
+  = \f{t^2}{2\p{N-1}fU}
+  \sum_{J=K\,\t{mod}\,2} A_J^{(\phi)} A_K^{(\phi)}
+  \sp{\D_{J,0} \D_{K,0} - N\sum_L f_{J,0;K,0}^{L,0} \D_{L,0}},
+  \label{eq:H_eff_2_unit}
+\end{align}
+where, as for $H_{\t{eff}}^{(1)}$ in \eqref{eq:H_eff_1}, we drop the
+explicit projectors $\P_0$ in \eqref{eq:H_eff_2_unit} with the
+understanding that we are implicitly restricting all effective
+dynamics to the fully symmetric manifold $\M_\FS$.
+
+Thus far, we have assumed that the sum over quasi-momenta
+$\sum_ke^{\pm ik}=0$, which is only valid when all quasi-momenta are
+occupied, such that the sum $\sum_k$ runs over all angles
+$k\in\ZZ_N\times2\pi/N$.  If not all quasi-momenta are occupied, then
+we can repeat all derivations above with mean-subtracted spin-wave
+operators
+\begin{align}
+  \Z_{Ks} \equiv \sum_q e^{isq} D_{K,0}^{(q)}
+  \to
+  \tilde\Z_{Ks}
+  \equiv \sum_q \p{e^{isq} - \EE_k\sp{e^{isk}}} D_{K,0}^{(q)},
+\end{align}
+where $\EE_k\sp{e^{isk}}$ is an average of $e^{isk}$ over all occupied
+quasi-momenta $k$.  Note that the difference
+$\tilde\Z_{Ks}-\Z_{Ks}=-\EE_k\sp{e^{isk}}\D_{K,0}$ is permutationally
+symmetric, which implies that it only couples fully symmetric states
+$\ket{\psi_\FS}\in\M_\FS$ to fully symmetric states.  In particular,
+due to the fact that $\E$ is a linear combination of projectors onto
+interaction-energy eigenstates strictly outside of $\M_\FS$,
+\begin{align}
+  \P_0 \tilde\Z_{Jr} \E \tilde\Z_{Ks} \P_0
+  = \P_0 \Z_{Jr} \E \Z_{Ks} \P_0,
+\end{align}
+which implies that we can freely take
+$\Z_{Jr},\Z_{Ks}\to\tilde\Z_{Jr},\tilde\Z_{Ks}$ with no consequence
+for the effective Hamiltonian $H_{\t{eff}}^{(2)}$ in
+\eqref{eq:H_eff_2_start}.
+
+Repeating the previous calculations in this section with the
+mean-subtracted spin-wave operators, we still find that, just as in
+\eqref{eq:proj_elim},
+\begin{align}
+  \E \tilde\Z_{Ks} \P_0 = \f1{fU} \tilde\Z_{Ks} \P_0,
+\end{align}
+whereas, in contrast to \eqref{eq:ZZ_eq} and \eqref{eq:ZZ_neq},
+\begin{align}
+  \P_0 \Z_{J\pm} \Z_{K\pm} \P_0
+  = -\f{\var_q\sp{e^{\pm iq}}}{N-1}
+  \sp{\P_0 \D_{J,0} \D_{K,0} \P_0
+    - N \sum_L f_{J,0;K,0}^{L,0} \P_0 \D_{L,0} \P_0},
+\end{align}
+where
+$\var_q\sp{X_q} \equiv \EE_q\sp{\p{X_q-\EE_p\sp{X_p}}^2} =
+\EE_q\sp{X_q^2}-\EE_q\sp{X_q}^2$ is the variance of $X_q$ over all
+occupied quasi-momenta $q$, and
+\begin{align}
+  \P_0 \Z_{J\pm} \Z_{K\pm} \P_0
+  = -\f{1-\EE_p\sp{e^{ip}}\EE_q\sp{e^{-iq}}}{N-1}
+  \sp{\P_0 \D_{J,0} \D_{K,0} \P_0
+    - N \sum_L f_{J,0;K,0}^{L,0} \P_0 \D_{L,0} \P_0}.
+\end{align}
+
+
+\vspace{3cm}
+
+
+\red{To do: Work out SU($2$) explicitly as a special case in these
+  notes.  Also, the current second-order derivation assumes unit
+  filling, and needs to be adjusted for the possibility of $f<1$.  I
+  think that in the case of $f<1$ the factor of $1/2$ in
+  \eqref{eq:H_eff_2} turns into $\bk{w_J\p{q}w_K\p{q}}_q$, e.g.~when
+  $J=K=1$, this factor becomes the variance of $\sin\p{q}$ over all
+  occupied modes, as in the known case of SU($2$).  I should also work
+  out explicitly the contributions through second order in $\phi$,
+  which will simplify things somewhat as we will only need $J,K\le2$
+  in $H_{\t{lat}}^{(1)}$, and $J=K=1$ in $H_{\t{lat}}^{(2)}$.  I can
+  also do a third-order calculation of $H_{\t{eff}}^{(3)}$ to extract
+  dependence on $\phi^3$, but that's probably unnecessary / not
+  particularly interesting.}
+
+
+\vspace{3cm}
 
 \bibliography{multilevel_spin_notes.bib}
 
