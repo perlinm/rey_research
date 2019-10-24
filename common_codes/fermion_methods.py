@@ -25,8 +25,8 @@ def binom(nn, kk, vals = {}):
     return special.comb(nn, kk, exact = True)
 
 # find the rank of a k-combination
-# k-combination a list of k integers (chosen from, say, {0, 1, ..., N-1})
-# for Fock space, "combination" is a list of occupied single-particle states,
+# a k-combination a list of k integers (chosen from, say, {0, 1, ..., N-1}).
+# for Fock space, a "combination" is a list of occupied single-particle states,
 # where N single-particle states are indexed 0, 1, ..., N-1
 # the "rank" of a Fock state is the index of that Fock state
 #   within the subspace of fixed particle number
