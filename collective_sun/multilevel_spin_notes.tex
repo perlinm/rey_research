@@ -117,9 +117,10 @@ between these fermions take form
   \p{c_{p\mu}^\dag c_{q\nu}^\dag c_{q\nu} c_{p\mu}
     + c_{q\mu}^\dag c_{p\nu}^\dag c_{q\nu} c_{p\mu}},
 \end{align}
-where $u\equiv U/L$ is the two-body on-site interaction energy $U$
-divided by the number of lattice sites $L$.  Defining the spin
-operators $S_{\mu\nu}^{(p)}\equiv c_{p\mu}^\dag c_{p\nu}$ for each
+where $u\equiv fU/N$ with $U$ the two-body on-site interaction energy,
+$f$ the filling fraction of lattice sites, and $N$ the total number of
+fermions.  Defining the spin operators
+$S_{\mu\nu}^{(p)}\equiv c_{p\mu}^\dag c_{p\nu}$ for each
 quasi-momentum $p$, we can alternately write
 \begin{align}
   H_{\t{int}} = \f{u}{2} \sum_{p,q,\mu,\nu}
@@ -302,40 +303,36 @@ where $\v D$ is a vector of all drive operators in
 The drive operators $D_{1,0}$ and $D_{1,\pm1}$ are proportional to the
 Hamiltonians induced on an $n$-level spin by an external magnetic
 field and a classical spin-polarized driving laser; loosely speaking,
-one can identify $\p{D_{1,0},D_{1,1},D_{1,-1}}\sim\p{S_\z,S_\x,S_\y}$,
-where $S_\alpha$ is a collective SU(2) spin-$\alpha$ operator for
-$\p{n-1}$ 2-level spins\cite{perlin2019shorttime}.  More concretely,
-we can embed the Hilbert space of a single $n$-level spin into the
+one can associate
+$\p{D_{1,0},D_{1,1},D_{1,-1}}\sim\p{S_\z,S_\x,S_\y}$, where $S_\alpha$
+is a collective SU(2) spin-$\alpha$ operator for $\p{n-1}$ 2-level
+spins\cite{perlin2019shorttime}.  More concretely, we can embed the
+Hilbert space of a single $n$-level spin into the
 permutationally-symmetric (Dicke) manifold of states for $\p{n-1}$
 2-level spins via
 \begin{align}
   \ket{\mu}_{\t{single}} \to \ket{I+\mu}_{\t{collective}}
   \propto S_+^{I+\mu} \ket\dn^{\otimes\p{n-1}},
+  \label{eq:collective_embedding}
 \end{align}
 where $I\equiv\p{n-1}/2$ is a total spin,
 $\mu\in\set{-I,-I+1,\cdots,I}$ indexes a state of the single $n$-level
 spin, and $S_+$ is a collective spin-raising operator for $\p{n-1}$
 2-level spins.  This embedding takes
 \begin{align}
-  \p{D_{1,0},D_{1,1},D_{1,-1}}
-  \to \p{S_\z,S_\x,S_\y}
-  \times \f{2\sqrt{3}}{\sqrt{\p{n-1}n\p{n+1}}}.
+  \xi_1 \times \p{D_{1,0}, D_{1,1}, D_{1,-1}}
+  \to \p{S_\z, S_\x, S_\y},
   \label{eq:spin_ops}
 \end{align}
-Furthermore, if we {\it define} the operators $S_\alpha$ for a single
-$n$-level spin via the correspondence in \eqref{eq:spin_ops}, then the
-familiar SU(2) transformation rule
+where
 \begin{align}
-  e^{i\phi S_\z} S_\x e^{-i\phi S_\z} = S_\x^{(\phi)},
-  &&
-  S_\x^{(\phi)} \equiv \cos\phi S_\x - \sin\phi S_\y,
+  \xi_L
+  \equiv \sqrt{2L+1}\, \f{L!}{\p{2L+1}!}
+  \sp{\prod_{\ell=-L}^L\p{n+\ell}}^{1/2},
+  \label{eq:scale_fac}
 \end{align}
-generalizes to
-\begin{align}
-  e^{i\phi S_\z} D_{LM} e^{-i\phi S_\z} = D_{LM}^{(\phi)},
-  &&
-  D_{LM}^{(\phi)} \equiv \cos\p{M\phi} D_{LM} - \sin\p{M\phi} D_{L,-M}.
-\end{align}
+is a scale factor that will appear frequently in the theory of drive
+operators.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Weyl operators}
@@ -401,7 +398,7 @@ where $\simeq$ denotes equality up to an overall constant with no
 physical consequence.  The form of the interaction Hamiltonian
 $H_{\t{int}}$ makes it evident that its ground-state manifold
 $\M_{\FS}$ is the set of {\it fully symmetric} (FS) states that have
-eigenvalue $1$ with respect to all pairwise permutation operators
+eigenvalue 1 with respect to all pairwise permutation operators
 $\Pi_{pq}$, and thereby also all $\Pi_\sigma\in\Pi$.  The fully
 symmetric manifold $\M_\FS$ is spanned by a basis $\set{\ket{\v m}}$
 of fully symmetric states that can be uniquely identified by a list of
@@ -432,11 +429,11 @@ collective operators.
 \section{External drive and spin-orbit coupling}
 \label{sec:drive_SOC}
 
-A driving laser addressing spin-$1/2$ fermions on a 1-D lattice will
+A driving laser addressing spin-1/2 fermions on a 1-D lattice will
 induce the Hamiltonian
 \begin{align}
   \left. H_{\t{drive}}^{(\phi)} \right|_{n=2}
-  = \Omega \sum_j
+  = \f12 \Omega \sum_j
   \p{e^{i\phi j} c_{j,\up}^\dag c_{j,\dn}
     + e^{-i\phi j} c_{j,\dn}^\dag c_{j,\up}},
   \label{eq:H_drive_2}
@@ -447,9 +444,11 @@ adjacent lattice sites.  The multilevel analogue of
 \eqref{eq:H_drive_2} is
 \begin{align}
   H_{\t{drive}}^{(\phi)}
-  = -\Omega \sum_j \p{e^{i\phi j} T_{1,1}^{(j)}
+  = -\f12 \Omega \sum_j \p{e^{i\phi j} T_{1,1}^{(j)}
     + e^{-i\phi j} {T_{1,1}^{(j)}}^\dag}
-  = \Omega \D_{1,1}^{(\phi)},
+  = \tilde \D_{1,1}^{(\phi)},
+  &&
+  \tilde\Omega \equiv \Omega \xi_1
   \label{eq:H_drive}
 \end{align}
 where
@@ -463,9 +462,9 @@ is an inhomogeneously rotated collective drive operator.  We can make
 this drive spatially homogenous via the gauge transformation
 $c_{j\mu}^\dag \to e^{-i\mu\phi j} c_{j\mu}^\dag$, which takes
  \begin{align}
-  H_{\t{drive}}^{(\phi)} \to H_{\t{drive}} = \Omega \D_{1,1},
-  &&
-  \D_{LM} \equiv \D_{LM}^{(0)} = \sum_j D_{LM}^{(j)}.
+   H_{\t{drive}}^{(\phi)} \to H_{\t{drive}} = \tilde\Omega \D_{1,1},
+   &&
+   \D_{LM} \equiv \D_{LM}^{(0)} = \sum_j D_{LM}^{(j)}.
 \end{align}
 The SU($n$) symmetry of collective interactions considered in this
 work implies that the interaction Hamiltonian $H_{\t{int}}$ in
@@ -522,17 +521,46 @@ find that
 % expand Clebsch-Gordan coefficients in a power series according to
 % \url{functions.wolfram.com/07.38.06.0008.01}
 \begin{align}
-  A_L^{(\phi)} = c_L \sqrt{n_L}\, \phi^L + O\p{\phi^{L+2}},
-  &&
-  c_L \equiv \p{-1}^{L+\lfloor L/2\rfloor}
-  \f{\sqrt{2L+1}\,L!}{\p{2L+1}!},
-  &&
-  n_L \equiv \prod_{\ell=-L}^L\p{n+\ell}.
+  A_L^{(\phi)}
+  = \p{-1}^{L+\lfloor L/2\rfloor} \xi_L \phi^L + O\p{\phi^{L+2}},
   \label{eq:A_L_phi_small}
 \end{align}
-
-
-\vspace{3cm}
+where $\xi_L$ is a scale factor defined in \eqref{eq:scale_fac}.  A
+perturbative treatment of SOC through second order in the SOC angle
+$\phi$ yields the following effective Hamiltonian in the fully
+symmetric manifold $\M_\FS$ (see Appendix \ref{sec:SOC_pert}):
+\begin{align}
+  H_{\t{eff}} = H_{\t{eff}}^{(1)} + H_{\t{eff}}^{(2)},
+\end{align}
+\begin{align}
+  H_{\t{eff}}^{(1)}
+  &= \phi t \, \EE_p\sp{\sin\p{pa}} \xi_1 \D_{1,0}
+  + \phi^2 t \, \EE_q\sp{\cos\p{qa}} \xi_2 \D_{2,0}
+  + O\p{\phi^3},
+  \label{eq:H_eff_1_phi} \\
+  H_{\t{eff}}^{(2)}
+  &= \f{\phi^2 t^2}{\p{N-1}fU} \var_p\sp{\sin\p{pa}}
+  \p{\xi_1^2 \D_{1,0}^2 - 2 N \xi_2 \D_{2,0}}
+  + O\p{\phi^3},
+  \label{eq:H_eff_2_phi}
+\end{align}
+where
+\begin{align}
+  \EE_p\sp{X_p} \equiv \f1N \sum_p X_p,
+  &&
+  \var_p\sp{X_p} \equiv \EE_p\sp{\p{X_p-\EE_q\sp{X_q}}}
+  = \EE_p\sp{X_p^2}-\EE_q\sp{X_q}^2,
+\end{align}
+are the mean and variance of $X_p$ over all occupied quasi-momenta
+$p$.  In the case of SU(2), the effective Hamiltonians in
+\eqref{eq:H_eff_1_phi} and \eqref{eq:H_eff_2_phi} reduce to the
+spin-squeezing Hamiltonians derived in Ref.~\cite{he2019engineering}.
+To facilitate comparison, we note that in the case of SU(2) the drive
+operator $\D_{1,0}$ is precisely the collective spin-$z$ operator
+$S_\z$ that appears in Ref.~\cite{he2019engineering}.  Furthermore,
+drive operators $D_{LM}$ vanish when $L\ge n$, so in the case of SU(2)
+the operator $\D_{2,0}$ has no contribution to the effective
+Hamiltonians in \eqref{eq:H_eff_2_phi} and \eqref{eq:H_eff_2_phi}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -553,7 +581,8 @@ form
 \end{align}
 where $j$ indexes a lattice site, $\Omega_m$ is a (real) driving
 amplitude; $\phi_m$ is the relative phase of drive $m$ between
-adjacent lattice sites; $\op{r}{s}$ for $r,s\in\set{\up,\dn}$ is a
+adjacent lattice sites; we have added an overall factor of $\xi_1$ to
+simplify later expressions; $\op{r}{s}$ for $r,s\in\set{\up,\dn}$ is a
 pseudo-spin operator for the auxiliary degree of freedom that is
 off-resonantly addressed by the lasers; $\Delta$ is a detuning of the
 lasers from the energy of an excited state; and $\1$ is the identity
@@ -570,7 +599,8 @@ transition $\mu\to\mu\pm\tau$:
 \begin{align}
   H_{\t{Raman},0}^{(\phi)}
   &= -\sum_j\sum_m \f{\Omega_m^2}{\Delta}
-  {T_{1,m}^{(j)}}^\dag T_{1,m}^{(j)}, & \label{eq:raman_0} \\
+  {T_{1,m}^{(j)}}^\dag T_{1,m}^{(j)},
+  \label{eq:raman_0} \\
   H_{\t{Raman},1}^{(\phi)}
   &= -\sum_j\sum_{s\in\set{\pm1}}
   \f{\Omega_0\Omega_s}{\Delta} e^{i\p{\phi_s-\phi_0} j}
@@ -586,7 +616,7 @@ In terms of the drive operators, we can expand
 \begin{align}
   H_{\t{Raman}}^{(\phi)}
   = \sum_j \sum_{\substack{L\le2\\\abs{M}\le L}}
-  \Omega_{LM}^{(\phi,j)} D_{LM}^{(j)},
+  \Omega_{LM}^{(\phi,j)} \xi_L D_{LM}^{(j)},
   \label{eq:raman_drive}
 \end{align}
 where the coefficients $\Omega_{LM}^{(\phi,j)}$ are provided in
@@ -596,7 +626,8 @@ $\mu\to\mu+m$ on site $j$ imprints the phase $m\phi j$, then the drive
 $H_{\t{Raman}}^{(\phi)}$ takes the form
 \begin{align}
   \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_m=m\phi}
-  = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}^{(\phi)},
+  = \sum_{\substack{L\le2\\0\le M\le L}}
+  \Omega_{LM} \xi_L \D_{LM}^{(\phi)},
   \label{eq:drive_raman_matched}
 \end{align}
 with rotated collective drive operators $\D_{LM}^{(\phi)}$ defined in
@@ -609,7 +640,7 @@ $c_{j\mu}^\dag \to e^{i\mu\phi j} c_{j\mu}^\dag$, which takes
 \begin{align}
   \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_m=m\phi}
   \to H_{\t{Raman}}
-  = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}.
+  = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \xi_L \D_{LM}.
 \end{align}
 The effective driving amplitudes $\Omega_{LM}$ can be tuned through
 the bare driving amplitudes $\Omega_m$, and satisfy
@@ -743,7 +774,7 @@ and in turn
 The collective interaction Hamiltonian in \eqref{eq:H_int_spin} thus
 takes an identical form in any orthonormal basis for the space
 $\B\p{\H_n}$ of linear operators on the Hilbert space $\H_n$ of an
-$n$-level system, up to appropriate re-scaling factors $\N_X/\N_Y$.
+$n$-level system, up to appropriate rescaling factors $\N_X/\N_Y$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin-orbit coupling with drive operators}
@@ -1033,88 +1064,8 @@ $i\tau_m\tau_{-m}^*=\epsilon_m$ for $m\ne0$ to simplify
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Raman drive coefficients}
-\label{sec:drive_raman_coeff}
-
-Here we provide the coefficients $\Omega_{LM}^{(\phi,j)}$ of the
-effective Raman driving Hamiltonian
-\begin{align}
-  H_{\t{Raman}}^{(\phi)}
-  = \sum_j \sum_{\substack{L\in\set{0,1,2}\\\abs{M}\le L}}
-  \Omega_{LM}^{(\phi,j)} D_{LM}^{(j)}
-\end{align}
-considered in Section \ref{sec:drive_raman}.  These coefficients are
-computed using symmetry properties and structure constants of the
-transition operator algebra (see Appendix \ref{sec:trans_prod}).  For
-clarity, if any coefficient $\Omega_{LM}^{(\phi,j)}$ is independent of
-$\phi$, we drop the explicit dependence on $\phi$, i.e.~taking
-$\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.
-\begin{align}
-  \Omega_{0,0} \equiv -\f1{\sqrt{n}}\,
-  \sum_m\f{\Omega_m^2}{\Delta},
-  &&
-  \Omega_{1,0} \equiv \sqrt{\f{3}{n_1}}\,
-  \f{\Omega_+^2 - \Omega_-^2}{\Delta},
-  \label{eq:O_01_0}
-\end{align}
-\begin{align}
-  \Omega_{2,0} \equiv \f1{\sqrt{5}}\, \f{\sqrt{n_2}}{n_1}\,
-  \f{\Omega_+ + \Omega_- - 2\Omega_0}{\Delta},
-  \label{eq:O_2_0}
-\end{align}
-\begin{align}
-  \Omega_{L,1}^{(\phi,j)}
-  &\equiv \sum_{s\in\set{\pm1}} \omega_{Ls} \cos\p{\phi_s j},
-  &
-  \Omega_{L,-1}^{(\phi,j)}
-  &\equiv -\sum_{s\in\set{\pm1}} s \omega_{Ls} \sin\p{\phi_s j}, \\
-  \Omega_{2,2}^{(\phi,j)}
-  &\equiv \omega_{2,2} \cos\p{\sp{\phi_+-\phi_-}j},
-  &
-  \Omega_{2,-2}^{(\phi,j)}
-  &\equiv -\omega_{2,2} \sin\p{\sp{\phi_+-\phi_-}j}, \\
-  \omega_{1\pm}
-  &\equiv \sqrt{\f{6}{n_1}}\, \f{\Omega_0 \Omega_\pm}{\Delta},
-  &
-  \omega_{2\pm}
-  &\equiv \pm \sqrt{\f65}\, \f{\sqrt{n_2}}{n_1}\,
-  \f{\Omega_0\Omega_\pm}{\Delta}, \\
-  \omega_{2,2}
-  &\equiv 2\sqrt{\f35}\, \f{\sqrt{n_2}}{n_1}\,
-  \f{\Omega_+\Omega_-}{\Delta},
-  &
-  n_L
-  &\equiv \prod_{\ell=-L}^L \p{n+\ell}.
-\end{align}
-Here $\Omega_m$, $\phi_m$, and $\Delta$ are respectively the (real)
-driving amplitudes, phases, and detuning that appear in the ``bare''
-Raman drive in \eqref{eq:raman_bare}, and by choice of gauge we set
-$\phi_-=0$, or equivalently re-define $\phi_m-\phi_0\to\phi_m$.  If
-the driving lasers are phase-matched with $\phi_m=m\phi$, such that a
-nuclear spin transition $\mu\to\mu+m$ on site $j$ imprints the phase
-$m\phi j$, then the drive $H_{\t{Raman}}^{(\phi)}$ takes the form
-\begin{align}
-  \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_m=m\phi}
-  = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}^{(\phi)},
-\end{align}
-with inhomogeneously rotated collective drive operators
-\begin{align}
-  \D_{LM}^{(\phi)}
-  \equiv \sum_j \sp{\cos\p{M\phi j} D_{LM}^{(j)}
-    - \sin\p{M\phi j} D_{L,-M}^{(j)}},
-\end{align}
-and uniform coefficients given by \eqref{eq:O_01_0}, \eqref{eq:O_2_0},
-and
-\begin{align}
-  \Omega_{1,-1} = \Omega_{2,-1} = \Omega_{2,-2} \equiv 0,
-  &&
-  \Omega_{L,1} \equiv \sum_{s\in\set{\pm1}} \omega_{Ls},
-  &&
-  \Omega_{2,2} \equiv \omega_{2,2}.
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Weak SOC in the fully symmetric manifold}
+\label{sec:SOC_pert}
 
 Here we derive the effective Hamiltonian induced on the fully
 symmetric manifold $\M_\FS$ by the single-particle SOC Hamiltonian
@@ -1329,9 +1280,8 @@ symmetric manifold, so
   = \f1{fU} \tilde\Z_{Ks} \P_0,
   \label{eq:proj_elim}
 \end{align}
-where $f\equiv N/L$ is the filling fraction of quasi-momentum modes.
-We have thus far simplified the effective Hamiltonian in
-\eqref{eq:H_eff_2_start} to
+where $f$ is the filling fraction of lattice sites.  We have thus far
+simplified the effective Hamiltonian in \eqref{eq:H_eff_2_start} to
 \begin{align}
   H_{\t{eff}}^{(2)}
   = -\f{t^2}{4fU} \sum_{\substack{J,K\\r,s\in\set{\pm1}}}
@@ -1476,8 +1426,8 @@ where we have recovered factors of the lattice spacing $a$ as
 appropriate, and we have dropped the explicit projection operators
 $\P_0$ with the understanding that we are implicitly restricting all
 effective dynamics to the fully symmetric manifold $\M_\FS$.  Note
-that as the spatial filling fraction $f\equiv N/L\to1$, such that sums
-over occupied quasi-momenta $q$ become sums over nearly all angles
+that as the spatial filling fraction $f\to1$, such that sums over
+occupied quasi-momenta $q$ become sums over nearly all angles
 $q\in\ZZ_N\times2\pi/N$, when both $J,K$ are even or odd
 (i.e.~$J=K~\t{mod}~2$) the covariance in \eqref{eq:H_eff_2} becomes
 $\cov_{p,q}\sp{\sin\p{p},\sin\p{p}}\to1/2$ or
@@ -1495,36 +1445,119 @@ The effective Hamiltonians in \eqref{eq:H_eff_1} and
 \eqref{eq:H_eff_2} are respectively first and second order in the SOC
 Hamiltonian $H_{\t{lat}}^{(\phi)}$.  Here we extract the leading and
 next-to-leading order dependence of these effective Hamiltonians on
-the SOC angle $\phi$.  Mindful of the expansion for the coefficients
-$A_L^{(\phi)} \sim \phi^L + O\p{\phi^{L+2}}$ in
-\eqref{eq:A_L_phi_small}, we define the re-scaled collective drive
-operators
-\begin{align}
-  \tilde\D_{LM} \equiv c_L \sqrt{n_L} \D_{LM},
-\end{align}
-in terms of which
+the SOC angle $\phi$ using the expansion
 \begin{align}
   H_{\t{eff}}^{(1)}
-  &= -\phi t \p{\EE_p\sp{\sin\p{pa}} \tilde\D_{1,0}
-    + \EE_q\sp{\cos\p{qa}} \tilde\D_{2,0}}
+  &= \phi t \, \EE_p\sp{\sin\p{pa}} \xi_1 \D_{1,0}
+  + \phi^2 t \, \EE_q\sp{\cos\p{qa}} \xi_2 \D_{2,0}
   + O\p{\phi^3},
-  \label{eq:H_eff_1_phi} \\
+  \label{eq:H_eff_1_phi_apndx} \\
   H_{\t{eff}}^{(2)}
-  &= \f{\p{\phi t}^2}{\p{N-1}fU} \var_q\sp{\sin\p{qa}}
-  \p{\tilde\D_{1,0}^2 + 2 N \tilde\D_{2,0}}
+  &= \f{\phi^2 t^2}{\p{N-1}fU} \var_p\sp{\sin\p{pa}}
+  \p{\xi_1^2 \D_{1,0}^2 - 2 N \xi_2 \D_{2,0}}
   + O\p{\phi^3},
-  \label{eq:H_eff_2_phi}
+  \label{eq:H_eff_2_phi_apndx}
 \end{align}
-where
+where the factors $\xi_L$ are defined in \eqref{eq:scale_fac},
 \begin{align}
   \var_q\sp{X_q} \equiv \cov_{p,q}\sp{X_p,X_q}
-  = \EE_p\sp{X_p^2} - \EE_q\sp{X_q}^2
+  = \EE_p\sp{\p{X_p-\EE_q\sp{X_q}}^2}
 \end{align}
 is the variance of $X_q$ over all occupied quasi-momenta $q$, and we
 have neglected scalar terms $\sim\D_{0,0}\propto\1$ that have no
-physical consequence.  The effective Hamiltonians in
-\eqref{eq:H_eff_1_phi} and \eqref{eq:H_eff_2_phi} reduce to those
-derived in Ref.~\cite{he2019engineering} in the case of SU(2).
+physical consequence.  Note that in the case of SU(2), the drive
+operator $\tilde\D_{1,0}$ is precisely the collective spin-$z$
+operator $S_\z$ that appears in Ref.~\cite{he2019engineering}.
+Furthermore, drive operators $D_{LM}$ vanish when $L\ge n$, so in the
+case of SU(2) the operator $\tilde\D_{2,0}$ has no contribution to the
+effective Hamiltonians in \eqref{eq:H_eff_2_phi_apndx} and
+\eqref{eq:H_eff_2_phi_apndx}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Raman drive coefficients}
+\label{sec:drive_raman_coeff}
+
+Here we provide the coefficients $\Omega_{LM}^{(\phi,j)}$ of the
+effective Raman driving Hamiltonian
+\begin{align}
+  H_{\t{Raman}}^{(\phi)}
+  = \sum_j \sum_{\substack{L\in\set{0,1,2}\\\abs{M}\le L}}
+  \Omega_{LM}^{(\phi,j)} D_{LM}^{(j)}
+  \label{eq:raman_drive_apndx}
+\end{align}
+considered in Section \ref{sec:drive_raman}.  These coefficients are
+computed using the structure constants of the transition operator
+algebra provided in Appendix \ref{sec:trans_prod}.  For clarity, if
+any coefficient $\Omega_{LM}^{(\phi,j)}$ is independent of $\phi$, we
+suppress the explicit dependence on $\phi$, i.e.~taking
+$\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.  Defining
+\begin{align}
+  \tilde\Omega_m \equiv \xi_1^{-1} \Omega_m,
+  &&
+  \tilde\Omega_{LM} \equiv \xi_L^{-1} \Omega_{LM},
+\end{align}
+where the scale factors $\xi_L$ are defined in \eqref{eq:scale_fac},
+the coefficients of the effective Raman drive in
+\eqref{eq:raman_drive_apndx} are determined by
+\begin{align}
+  \Delta \tilde\Omega_{0,0}
+  \equiv -\f{\xi_1^2}{\xi_2^2} \sum_m \tilde\Omega_m^2,
+  &&
+  \Delta \tilde\Omega_{1,0}
+  \equiv \f12 \p{\tilde\Omega_+^2 - \tilde\Omega_-^2},
+  &&
+  \Delta \tilde\Omega_{2,0}
+  \equiv \tilde\Omega_+^2 + \tilde\Omega_-^2 - 2\tilde\Omega_0^2,
+  \label{eq:O_X0}
+\end{align}
+\begin{align}
+  \tilde\Omega_{L,1}^{(\phi,j)}
+  &\equiv \sum_{s\in\set{\pm1}} \omega_{Ls} \cos\p{\phi_s j},
+  &
+  \tilde\Omega_{L,-1}^{(\phi,j)}
+  &\equiv -\sum_{s\in\set{\pm1}} s \omega_{Ls} \sin\p{\phi_s j}, \\
+  \tilde\Omega_{2,2}^{(\phi,j)}
+  &\equiv \omega_{2,2} \cos\p{\sp{\phi_+-\phi_-}j},
+  &
+  \tilde\Omega_{2,-2}^{(\phi,j)}
+  &\equiv -\omega_{2,2} \sin\p{\sp{\phi_+-\phi_-}j},
+\end{align}
+\begin{align}
+  \Delta \omega_{1\pm}
+  \equiv \f1{\sqrt{2}} \, \tilde\Omega_0 \tilde\Omega_\pm,
+  &&
+  \Delta \omega_{2\pm}
+  \equiv \pm \sqrt{6} \, \tilde\Omega_0\tilde\Omega_\pm,
+  &&
+  \Delta \omega_{2,2}
+  \equiv 2\sqrt{3} \, \tilde\Omega_+\tilde\Omega_-.
+\end{align}
+Here $\tilde\Omega_m$, $\phi_m$, and $\Delta$ are respectively the
+(real) driving amplitudes, phases, and detuning that appear in the
+``bare'' Raman drive in \eqref{eq:raman_bare}, and by choice of gauge
+we set $\phi_-=0$, or equivalently re-define $\phi_m-\phi_0\to\phi_m$.
+If the driving lasers are phase-matched with $\phi_m=m\phi$, such that
+a nuclear spin transition $\mu\to\mu+m$ on site $j$ imprints the phase
+$m\phi j$, then the drive $H_{\t{Raman}}^{(\phi)}$ takes the form
+\begin{align}
+  \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_m=m\phi}
+  = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}^{(\phi)},
+\end{align}
+with inhomogeneously rotated collective drive operators
+\begin{align}
+  \D_{LM}^{(\phi)}
+  \equiv \sum_j \sp{\cos\p{M\phi j} D_{LM}^{(j)}
+    - \sin\p{M\phi j} D_{L,-M}^{(j)}},
+\end{align}
+and uniform coefficients determined by \eqref{eq:O_X0} and
+\begin{align}
+  \tilde\Omega_{1,-1} = \tilde\Omega_{2,-1}
+  = \tilde\Omega_{2,-2} \equiv 0,
+  &&
+  \tilde\Omega_{L,1} \equiv \sum_{s\in\set{\pm1}} \omega_{Ls},
+  &&
+  \tilde\Omega_{2,2} \equiv \omega_{2,2}.
+\end{align}
 
 \bibliography{multilevel_spin_notes.bib}
 
