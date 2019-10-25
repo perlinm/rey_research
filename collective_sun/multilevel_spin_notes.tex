@@ -378,13 +378,13 @@ where the first sum,
   \label{eq:spin_perm}
 \end{align}
 is simply a sum over all permutations $\Pi_{pq}$ of subsystems $p$ and
-$q$; and
+$q$; and the second sum,
 \begin{align}
   \sum_{p,\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(p)}
   = \sum_{p,\mu,\nu} \op{\mu}{\nu}^{(p)} \op{\nu}{\mu}^{(p)}
   = n \sum_{p,\mu} \op{\mu}{\mu}^{(p)}
   = n \sum_p \1^{(p)}
-  = n N
+  = n N,
   \label{eq:spin_const}
 \end{align}
 is merely a constant.  Substituting \eqref{eq:spin_perm} and
@@ -399,19 +399,19 @@ physical consequence.  The form of the interaction Hamiltonian
 $H_{\t{int}}$ makes it evident that its ground-state manifold
 $\M_{\FS}$ is the set of {\it fully symmetric} (FS) states that have
 eigenvalue 1 with respect to all pairwise permutation operators
-$\Pi_{pq}$, and thereby also all $\Pi_\sigma\in\Pi$.  The fully
-symmetric manifold $\M_\FS$ is spanned by a basis $\set{\ket{\v m}}$
-of fully symmetric states that can be uniquely identified by a list of
-integers $\v m\equiv\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$, where
-$m_s$ indicates the total occupation number of subsystem state $s$,
-and $\sum_sm_s=N$.  In the case of $n=2$, the fully symmetric manifold
+$\Pi_{pq}$.  The fully symmetric manifold $\M_\FS$ is spanned by a
+basis $\set{\ket{\v m}}$ of fully symmetric states that can be
+uniquely identified by a list of integers
+$\v m\equiv\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$, where $m_s$
+indicates the total occupation number of subsystem state $s$, and
+$\sum_sm_s=N$.  In the case of $n=2$, the fully symmetric manifold
 $\M_\FS$ is precisely the Dicke manifold\cite{dicke1954coherence} of
 $N$ qubits, spanned by Dicke states $\set{\ket{m_0,m_1}}$ for which
 $m_0+m_1=N$ and the integer $m_0$ ($m_1$) indicates the total
 occupation number of qubit state $\ket{0}$ ($\ket{1}$).  The dimension
 of fully symmetric manifold $\M_\FS$ is determined by the number of
 ways to assign $N$ subsystems to $n$ states, which is
-${N+n-1 \choose n-1}$, and the energy of a state
+${N+n-1 \choose n-1}$, and the energy of any fully symmetric state
 $\ket{\psi_\FS}\in\M_\FS$ with respect to the interaction Hamiltonian
 $H_{\t{int}}$ in \eqref{eq:H_int_perm} is
 $-u{N \choose 2}=-\p{1/4}N\p{N-1}u$.
@@ -540,20 +540,20 @@ symmetric manifold $\M_\FS$ (see Appendix \ref{sec:SOC_pert}):
   + O\p{\phi^3},
   \label{eq:H_eff_1_phi} \\
   H_{\t{eff}}^{(2)}
-  &= \f{\phi^2 t^2}{\p{N-1}fU} \var_p\sp{\sin\p{pa}}
+  &= \f{\phi^2 t^2}{\p{N-1}fU} \var_q\sp{\sin\p{qa}}
   \p{\xi_1^2 \D_{1,0}^2 - 2 N \xi_2 \D_{2,0}}
   + O\p{\phi^3},
   \label{eq:H_eff_2_phi}
 \end{align}
 where
 \begin{align}
-  \EE_p\sp{X_p} \equiv \f1N \sum_p X_p,
+  \EE_q\sp{X_q} \equiv \f1N \sum_q X_q,
   &&
-  \var_p\sp{X_p} \equiv \EE_p\sp{\p{X_p-\EE_q\sp{X_q}}}
+  \var_q\sp{X_q} \equiv \EE_p\sp{\p{X_p-\EE_q\sp{X_q}}}
   = \EE_p\sp{X_p^2}-\EE_q\sp{X_q}^2,
 \end{align}
-are the mean and variance of $X_p$ over all occupied quasi-momenta
-$p$.  In the case of SU(2), the effective Hamiltonians in
+are the mean and variance of $X_q$ over all occupied quasi-momenta
+$q$.  In the case of SU(2), the effective Hamiltonians in
 \eqref{eq:H_eff_1_phi} and \eqref{eq:H_eff_2_phi} reduce to the
 spin-squeezing Hamiltonians derived in Ref.~\cite{he2019engineering}.
 To facilitate comparison, we note that in the case of SU(2) the drive
@@ -582,21 +582,20 @@ form
 \end{align}
 where $j$ indexes a lattice site, $\Omega_m$ is a (real) driving
 amplitude; $\phi_m$ is the relative phase of drive $m$ between
-adjacent lattice sites; we have added an overall factor of $\xi_1$ to
-simplify later expressions; $\op{r}{s}$ for $r,s\in\set{\up,\dn}$ is a
+adjacent lattice sites; $\op{r}{s}$ for $r,s\in\set{\up,\dn}$ is a
 pseudo-spin operator for the auxiliary degree of freedom that is
 off-resonantly addressed by the lasers; $\Delta$ is a detuning of the
 lasers from the energy of an excited state; and $\1$ is the identity
-operator.  If the detuning is large, $\Delta\gg\Omega_m$, then at
-second order in perturbation theory the effective action of
+operator.  If the detuning is large, $\abs{\Delta}\gg\abs{\Omega_m}$,
+then at second order in perturbation theory the effective action of
 $H_{\t{Raman,bare}}^{(\phi)}$ within the $\ket{\dn}$-state manifold
 takes the form
 \begin{align}
   H_{\t{Raman}}^{(\phi)}
   = \sum_{\tau\in\set{0,1,2}} H_{\t{Raman},\tau}^{(\phi)}
 \end{align}
-where $H_{\t{Raman},\tau}^{(\phi)}$ generates a nuclear spin
-transition $\mu\to\mu\pm\tau$:
+where $H_{\t{Raman},\tau}^{(\phi)}$ generates nuclear spin transitions
+$\mu\to\mu\pm\tau$:
 \begin{align}
   H_{\t{Raman},0}^{(\phi)}
   &= -\sum_j\sum_m \f{\Omega_m^2}{\Delta}
@@ -650,8 +649,9 @@ the bare driving amplitudes $\Omega_m$, and satisfy
   &
   \Omega_{1,0} &\propto \Omega_+^2 - \Omega_-^2,
   &
-  \Omega_{1,1} &\propto \Omega_0 \p{\Omega_+ + \Omega_-}, \\
   \Omega_{2,0} &\propto \Omega_+^2 + \Omega_-^2 - 2\Omega_0^2,
+  \\
+  \Omega_{1,1} &\propto \Omega_0 \p{\Omega_+ + \Omega_-},
   &
   \Omega_{2,1} &\propto \Omega_0 \p{\Omega_+ - \Omega_-},
   &
@@ -667,16 +667,16 @@ $\Omega_{1,0}$, $\Omega_{2,0}$ and $\Omega_{1,1}$ vanish, leaving only
 the drives $\D_{2,1}$ and $\D_{2,2}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Future directions}
+\section{Possible future directions}
 
 \begin{itemize}
-\item Visualization with generalized Bloch spheres
+\item Visualization of multilevel states
   \begin{itemize}
   \item Single-particle eigenstates of drive operators
   \item Single-particle dynamics induced by drive operators
+  \item Collective states and dynamics
   \end{itemize}
-\item Classifying collective states (e.g.~eigenstates of interactions,
-  spin-wave-like states)
+\item Classifying eigenstates of SU($n$)-symmetric interactions
 \item Implications of SOC
   \begin{itemize}
   \item Special angles $\phi$
@@ -1454,7 +1454,7 @@ the SOC angle $\phi$ using the expansion
   + O\p{\phi^3},
   \label{eq:H_eff_1_phi_apndx} \\
   H_{\t{eff}}^{(2)}
-  &= \f{\phi^2 t^2}{\p{N-1}fU} \var_p\sp{\sin\p{pa}}
+  &= \f{\phi^2 t^2}{\p{N-1}fU} \var_q\sp{\sin\p{qa}}
   \p{\xi_1^2 \D_{1,0}^2 - 2 N \xi_2 \D_{2,0}}
   + O\p{\phi^3},
   \label{eq:H_eff_2_phi_apndx}
@@ -1463,6 +1463,7 @@ where the factors $\xi_L$ are defined in \eqref{eq:scale_fac},
 \begin{align}
   \var_q\sp{X_q} \equiv \cov_{p,q}\sp{X_p,X_q}
   = \EE_p\sp{\p{X_p-\EE_q\sp{X_q}}^2}
+  = \EE_p\sp{X_p^2} - \EE_q\sp{X_q}^2
 \end{align}
 is the variance of $X_q$ over all occupied quasi-momenta $q$, and we
 have neglected scalar terms $\sim\D_{0,0}\propto\1$ that have no
