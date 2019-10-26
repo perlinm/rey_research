@@ -1081,17 +1081,13 @@ $\M_\FS$\cite{bravyi2011schrieffer, perlin2019effective}:
   &&
   H_{\t{eff}}^{(2)} = -\P_0 V \E V \P_0,
   &&
-  \P_0 = \sum_{E_{\varepsilon}=0} \op{E_{\varepsilon}},
-  &&
-  \E \equiv \sum_{E_\varepsilon>0} \f{\op{E_\varepsilon}}{E_\varepsilon},
+  \E \equiv \sum_{\Delta>0} \f{\P_\Delta}{\Delta},
   \label{eq:pert}
 \end{align}
-where $\ket{E_\varepsilon}$ is an eigenstate of the interaction
-Hamiltonian $H_{\t{int}}$ with energy $E_\varepsilon$ relative to the
-interaction energy of fully symmetric states
-$\ket{\psi_\FS}\in\M_\FS$.  The sum over all $E_\varepsilon>0$ is a
-sum over a complete basis of states $\set{\ket{E_\varepsilon}}$ for
-the orthogonal complement of $\M_\FS$.
+where $\P_\Delta$ is a projector onto the eigenspace of the
+interaction Hamiltonian $H_{\t{int}}$ corresponding to an energy
+$\Delta$ above that of fully symmetric states
+$\ket{\psi_\FS}\in\M_\FS$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Effective SOC at first order}
@@ -1172,12 +1168,13 @@ and in turn
   \label{eq:H_eff_2_start}
 \end{align}
 where $\P_0$ is a projector onto the fully symmetric manifold
-$\M_\FS$, and $\E$ is a sum over excited-state projectors with
-energetic suppression factors, defined in \eqref{eq:pert}.  The
-remainder of this section is devoted to the task of simplifying
-\eqref{eq:H_eff_2_start} to arrive at our final result in
-\eqref{eq:H_eff_2}, expressed in purely in terms of collective drive
-operators.  We will break up this task into three steps:
+$\M_\FS$, and $\E$ is a sum over projectors onto excited-state
+manifolds with corresponding energetic suppression factors, defined in
+\eqref{eq:pert}.  The remainder of this section is devoted to the task
+of simplifying \eqref{eq:H_eff_2_start} to arrive at our final result
+in \eqref{eq:H_eff_2}, expressed in purely in terms of collective
+drive operators that are implicitly restricted to the fully symmetric
+manifold $\M_\FS$.  We will break up our task into three steps:
 \begin{enumerate*}
 \item eliminating the excited-state projectors in $\E$,
 \item evaluating the product of operators in \eqref{eq:H_eff_2_start},
@@ -1194,14 +1191,14 @@ In order to simplify the product of operators in
 \eqref{eq:H_eff_2_start}, we note that sandwiching the ``spin-wave''
 operators $\Z_{Jr},\Z_{Ks}$ by the ground-state projector $\P_0$ and
 the excited-state projectors in $\E$, picks off the components of
-these spin wave operators that are off-diagonal with respect to the
+these spin-wave operators that are off-diagonal with respect to the
 symmetric manifold $\M_\FS$ and its orthogonal complement.  We
 therefore define the mean-subtracted spin-wave operators
 \begin{align}
   \tilde\Z_{Ks}
   \equiv \sum_q \p{e^{isq} - \EE_k\sp{e^{isk}}} D_{K,0}^{(q)},
   &&
-  \EE_k\sp{X\p{k}} \equiv \f1N \sum_k X\p{k},
+  \EE_k\sp{X_k} \equiv \f1N \sum_k X_k,
 \end{align}
 for which the difference $\tilde\Z_{Ks}-\Z_{Ks}\propto\D_{K,0}$ is a
 collective operator that only couples fully symmetric states
