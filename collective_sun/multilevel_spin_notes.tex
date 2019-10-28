@@ -1489,18 +1489,20 @@ effective Raman driving Hamiltonian
 considered in Section \ref{sec:drive_raman}.  These coefficients are
 computed using the structure constants of the transition operator
 algebra provided in Appendix \ref{sec:trans_prod}.  For clarity, if
-any coefficient $\Omega_{LM}^{(\phi,j)}$ is independent of $\phi$, we
-suppress the explicit dependence on $\phi$, i.e.~taking
-$\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.  Defining the re-scaled
-driving amplitudes
+any coefficient $\Omega_{LM}^{(\phi,j)}$ is independent of the SOC
+angle $\phi$ or lattice site $j$, we suppress the explicit dependence
+on $\p{\phi,j}$, i.e.~taking $\Omega_{LM}^{(\phi,j)}\to\Omega_{LM}$.
+Defining the re-scaled driving amplitudes
 \begin{align}
-  \tilde\Omega_m \equiv \xi_1^{-1} \Omega_m,
+  \tilde\Omega_{LM}^{(\phi,j)} \equiv \xi_L^{-1} \Omega_{LM}^{(\phi,j)},
   &&
-  \tilde\Omega_{LM} \equiv \xi_L^{-1} \Omega_{LM},
+  \tilde\Omega_m \equiv \xi_1^{-1} \Omega_m,
 \end{align}
-where the scale factors $\xi_L$ are defined in \eqref{eq:scale_fac},
-the coefficients of the effective Raman drive in
-\eqref{eq:raman_drive_apndx} are determined by
+where where the scale factors $\xi_L$ are defined in
+\eqref{eq:scale_fac} and $\Omega_m$ are the (real) driving amplitudes
+in the ``bare'' Raman drive in \eqref{eq:raman_bare}, the coefficients
+of the effective Raman drive in \eqref{eq:raman_drive_apndx} are
+determined by
 \begin{align}
   \Delta \tilde\Omega_{0,0}
   \equiv -\f{\xi_1^2}{\xi_0^2} \sum_m \tilde\Omega_m^2,
@@ -1536,12 +1538,11 @@ the coefficients of the effective Raman drive in
   \Delta \omega_{2,2}
   \equiv 2\sqrt{3} \, \tilde\Omega_+\tilde\Omega_-.
 \end{align}
-Here $\tilde\Omega_m$, $\phi_m$, and $\Delta$ are respectively the
-(real) driving amplitudes, phases, and detuning that appear in the
-``bare'' Raman drive in \eqref{eq:raman_bare}.  If the driving lasers
-are phase-matched with $\phi_m=m\phi$, such that a nuclear spin
-transition $\mu\to\mu+m$ on site $j$ imprints the phase $m\phi j$,
-then the drive $H_{\t{Raman}}^{(\phi)}$ takes the form
+Here $\phi_m$ and $\Delta$ are respectively the phases and detuning
+that appear in the ``bare'' Raman drive in \eqref{eq:raman_bare}.  If
+the driving lasers are phase-matched with $\phi_m=m\phi$, such that a
+nuclear spin transition $\mu\to\mu+m$ on site $j$ imprints the phase
+$m\phi j$, then the drive $H_{\t{Raman}}^{(\phi)}$ takes the form
 \begin{align}
   \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_m=m\phi}
   = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}^{(\phi)},
