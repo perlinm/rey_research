@@ -1081,12 +1081,12 @@ $\M_\FS$\cite{bravyi2011schrieffer, perlin2019effective}:
   &&
   H_{\t{eff}}^{(2)} = -\P_0 V \E V \P_0,
   &&
-  \E \equiv \sum_{\Delta>0} \f{\P_\Delta}{\Delta},
+  \E \equiv \sum_{k>0} \f{\P_k}{\Delta_k},
   \label{eq:pert}
 \end{align}
-where $\P_\Delta$ is a projector onto the eigenspace of the
-interaction Hamiltonian $H_{\t{int}}$ corresponding to an energy
-$\Delta$ above that of fully symmetric states
+where $\P_k$ is a projector onto the $k$-th excited eigenspace of the
+interaction Hamiltonian $H_{\t{int}}$, with interaction energy
+$\Delta_k$ above that of fully symmetric states
 $\ket{\psi_\FS}\in\M_\FS$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1245,18 +1245,19 @@ $\1=\Pi_{pq}^\dag \Pi_{pq}$ to expand
   = \sum_q \sum_{k\ne q} \p{e^{isk} - \EE_\ell\sp{e^{is\ell}}}
   D_{K,0}^{(q)} \ket{\psi_\FS},
 \end{multline}
-where $\sum_k \p{e^{isk} - \EE_\ell\sp{e^{is\ell}}} = 0$, so
+where the sum over $k\ne q$ is equal to a sum over all $k$ minus a
+term with $k=q$, i.e.
 \begin{align}
   \sum_{k\ne q} \p{e^{isk} - \EE_\ell\sp{e^{is\ell}}}
+  = \sum_k \p{e^{isk} - \EE_\ell\sp{e^{is\ell}}}
+  - \p{e^{isq} - \EE_\ell\sp{e^{is\ell}}}
   = - \p{e^{isq} - \EE_\ell\sp{e^{is\ell}}},
 \end{align}
-and in turn
+so
 \begin{align}
   \sum_{\substack{p<q\\k\in\set{p,q}}}
   \p{e^{isk} - \EE_\ell\sp{e^{is\ell}}}
   \Pi_{pq} D_{K,0}^{(k)} \ket{\psi_\FS}
-  = -\sum_q \p{e^{isq} - \EE_\ell\sp{e^{is\ell}}}
-  D_{K,0}^{(q)} \ket{\psi_\FS}
   = - \tilde\Z_{Ks} \ket{\psi_\FS}.
   \label{eq:Z_eig_in}
 \end{align}
@@ -1331,18 +1332,19 @@ quasi-momenta $p,q$.  Similarly, the $p\ne q$ terms in
   \sum_{q\ne p} \p{e^{isq}-\EE_\ell\sp{e^{is\ell}}}
   \P_0 D_{J,0}^{(0)} D_{K,0}^{(1)} \P_0,
 \end{multline}
-where $\sum_q \p{e^{isq}-\EE_\ell\sp{e^{is\ell}}} = 0$, so
+where the sum over $q\ne p$ is equal to a sum over all $q$ minus a
+term with $q=p$, i.e.
 \begin{align}
   \sum_{q\ne p} \p{e^{isq}-\EE_\ell\sp{e^{is\ell}}}
+  = \sum_q \p{e^{isq}-\EE_\ell\sp{e^{is\ell}}}
+  - \p{e^{isp}-\EE_\ell\sp{e^{is\ell}}}
   = - \p{e^{isp}-\EE_\ell\sp{e^{is\ell}}},
 \end{align}
-and in turn
+which implies that the overall sum over $p,q$ is
 \begin{align}
-  \sum_{p\ne q} \p{e^{irp}-\EE_k\sp{e^{irk}}}
-  \p{e^{isq}-\EE_\ell\sp{e^{is\ell}}}
-  \P_0 D_{J,0}^{(p)} D_{K,0}^{(q)} \P_0
-  = - N \cov_{p,q}\sp{e^{irp},e^{isq}}
-  \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0.
+  -\sum_p \p{e^{irp}-\EE_k\sp{e^{irk}}}
+  \p{e^{isp}-\EE_\ell\sp{e^{is\ell}}}
+  = - N \cov_{p,q}\sp{e^{irp},e^{isq}}.
 \end{align}
 Thus far, we have that
 \begin{align}
@@ -1465,11 +1467,11 @@ where the factors $\xi_L$ are defined in \eqref{eq:scale_fac},
 is the variance of $X_q$ over all occupied quasi-momenta $q$, and we
 have neglected scalar terms $\sim\D_{0,0}\propto\1$ that have no
 physical consequence.  Note that in the case of SU(2), the drive
-operator $\tilde\D_{1,0}$ is precisely the collective spin-$z$
-operator $S_\z$ that appears in Ref.~\cite{he2019engineering}.
-Furthermore, drive operators $D_{LM}$ vanish when $L\ge n$, so in the
-case of SU(2) the operator $\tilde\D_{2,0}$ has no contribution to the
-effective Hamiltonians in \eqref{eq:H_eff_2_phi_apndx} and
+operator $\D_{1,0}$ is precisely the collective spin-$z$ operator
+$S_\z$ that appears in Ref.~\cite{he2019engineering}.  Furthermore,
+drive operators $D_{LM}$ vanish when $L\ge n$, so in the case of SU(2)
+the operator $\D_{2,0}$ has no contribution to the effective
+Hamiltonians in \eqref{eq:H_eff_2_phi_apndx} and
 \eqref{eq:H_eff_2_phi_apndx}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
