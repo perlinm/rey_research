@@ -94,14 +94,14 @@ To this end, ultracold atomic, molecular, and optical systems are ideal platform
 The exquisite capabilities of these systems have pushed the frontiers of metrology, quantum simulation, and quantum information science.
 
 Optical lattice clocks in particular have seen some of the most impressive developments in recent years, reaching record levels of precision ($\sim 3\times 10^{-19}$)\cite{campbell2017fermidegenerate, marti2018imaging} and accuracy ($\sim 1\times 10^{-18}$)\cite{bloom2014optical, mcgrew2018atomic}.
-These advancements required important breakthroughs, including the capability to cool and trap fermionic alkaline-earth atoms in spin-insensitive potentials\cite{takamoto2003spectroscopy, barber2006direct, ye2008quantum}; the development of ultra-coherent lasers\cite{kessler2012sub40mhzlinewidth, cole2013tenfold, matei2017mu} to fully exploit an ultra-narrow clock transition\cite{ludlow2015optical}; the detailed characterization of inter-atomic interactions\cite{scazza2014observation, cappellini2014direct, zhang2014spectroscopic}; and, more recently, the preparation of a quantum degenerate gas in a three-dimensional (3D) optical lattice\cite{campbell2017fermidegenerate, marti2018imaging, goban2018emergence}.
+These advancements required important breakthroughs, including the capability to cool and trap fermionic alkaline-earth atoms in spin-insensitive potentials\cite{takamoto2003spectroscopy, barber2006direct, ye2008quantum}; the development of ultracoherent lasers\cite{kessler2012sub40mhzlinewidth, cole2013tenfold, matei2017mu} to fully exploit an ultranarrow clock transition\cite{ludlow2015optical}; the detailed characterization of inter-atomic interactions\cite{scazza2014observation, cappellini2014direct, zhang2014spectroscopic}; and, more recently, the preparation of a quantum degenerate gas in a three-dimensional (3D) optical lattice\cite{campbell2017fermidegenerate, marti2018imaging, goban2018emergence}.
 Nonetheless, all improvements in sensing capabilities to date have been based on single-particle control of internal atomic degrees of freedom.
 Such strategies will eventually have diminishing returns due to practical difficulties in (i) suppressing decoherence from external (motional) degrees of freedom, and (ii) interrogating more particles without additional systematic errors from interactions\cite{martin2013quantum, ludlow2015optical, marti2018imaging}.
 
 Pushing beyond the current independent-particle paradigm requires leveraging many-body quantum correlations.
 Entangled states such as spin-squeezed states\cite{kitagawa1993squeezed, wineland1992spin, ma2011quantum} can enhance measurement sensitivity, i.e.~the uncertainty $\Delta\theta$ in the estimation of a parameter $\theta$, below the standard quantum limit $\Delta\theta\sim1/\sqrt{N}$ for $N$ uncorrelated particles\cite{itano1993quantum, degen2017quantum}.
 The major challenge for progress in this direction is that generating entanglement requires interactions, which are generally undesirable because they degrade atomic coherence, thereby limiting clock performance\cite{swallows2011suppression, martin2013quantum, rey2014probing, ludlow2011coldcollisionshift, lemke2011wave, ludlow2015optical}.
-In fact, the most precise and accurate optical lattice clocks were designed to operate with fermionic atoms in identical nuclear and electronic states in order to suppress collisional decoherence\cite{campbell2009probing, swallows2011suppression, campbell2017fermidegenerate}, as identical fermions cannot interact via the otherwise dominant ($s$-wave) collisions at ultracold temperatures.
+In fact, the most precise and accurate optical lattice clocks were designed to operate with fermionic atoms in identical nuclear and electronic states to suppress collisional decoherence\cite{campbell2009probing, swallows2011suppression, campbell2017fermidegenerate}, as identical fermions cannot interact via the otherwise dominant ($s$-wave) collisions at ultracold temperatures.
 However, an initially spin-polarized Fermi gas still exhibits interactions at later times due to spin-orbit coupling (SOC) that is induced by the laser that drives the clock transition (i.e.~the ``clock laser'')\cite{wall2016synthetic, kolkowitz2016spinorbitcoupled, livi2016synthetic, bromley2018dynamics}.
 Specifically, the momentum kick imparted by this laser imprints a position-dependent phase that induces inhomogeneous spin precession and generates spin dephasing, thereby making atoms distinguishable and vulnerable to collisions.
 While a deep lattice can suppress SOC, it also intensifies the light scattering which currently limits the coherence time of the clock\cite{dorscher2018latticeinduced, goban2018emergence, hutson2019engineering}.
@@ -112,7 +112,7 @@ Interactions thereby prolong inter-particle spin coherence through a spin-lockin
 To generate spin squeezing, our protocol only requires the capability to fix (i) the orientation of the clock laser and (ii) the optical lattice depth.
 These controls are straightforward to incorporate into current 3D clock interrogation sequences without sacrificing atom numbers or coherence times.
 Additionally, we show that by applying a modulated drive from the clock laser, one can further prepare states that saturate the Heisenberg limit $\Delta\theta\sim1/N$ for phase sensitivity\cite{kitagawa1993squeezed, ma2011quantum, degen2017quantum}.
-This capability mirrors efforts in other settings, such as NV centers\cite{bauch2018ultralong, aiello2013compositepulse} and trapped ions\cite{burd2019quantum}, to enhance quantum metrology through the use of driven non-equilibrium phenomena.
+This capability mirrors efforts in other settings, such as nitrogen-vacancy centers in diamond\cite{bauch2018ultralong, aiello2013compositepulse} and trapped ions\cite{burd2019quantum}, to enhance quantum metrology through the use of driven non-equilibrium phenomena.
 
 Despite an abundance of proof-of-principle experiments with entangled states\cite{degen2017quantum, pezze2018quantum}, so far only the remarkable example of LIGO\cite{aasi2013enhanced, abbott2016gw150914} has demonstrated a quantum advantage in a state-of-the-art quantum sensing or measurement system.
 The new generation of 3D optical lattice systems have fully quantized motional degrees of freedom\cite{campbell2017fermidegenerate}, allowing for precise control of collisional interactions.
@@ -196,7 +196,7 @@ At second order in perturbation theory (see Appendix \ref{sec:derivation_OAT}), 
   \label{eq:H_eff}
 \end{align}
 where $\overline B\equiv\sum_q B_q/N$ is the mean and $\widetilde B^2\equiv\sum_q\p{B_q-\overline B}^2/N$ the variance of the axial field.
-The effect of the $\sim\v S\c\v S$ term is to generate a relative phase between states with different total spin $S$ and thus has no effect on dynamics  restricted to a fixed $S$.
+The effect of the $\sim\hat{\v S}\c\hat{\v S}$ term is to generate a relative phase between states with different total spin $S$ and thus has no effect on dynamics  restricted to a fixed $S$.
 Note also that  the collective spin rotation from $\overline B \hat S_\z$  can be eliminated by going into a rotating frame or by using a spin echo.
 
 The entire protocol for preparing a squeezed state via OAT, sketched out in Fig.~\ref{fig:protocol_schematic}(e), reduces to a standard Ramsey protocol with a spin echo: after initially preparing a spin-down (i.e.~$-\uv z$) polarized sample of ultracold atoms populating the lowest Bloch band of a lattice, a fast $\pi/2$ pulse is applied with the clock laser to rotate all spin vectors into $+\uv x$.
@@ -257,7 +257,7 @@ We find that the existence of single-particle localized modes in the lattice wit
 
 The above scheme for OAT achieves optimal spin squeezing that scales as $\xi^2_{\t{opt}}\sim N^{-2/3}$ with minimal intervention, i.e.~a standard Ramsey protocol.
 Further improvements upon this scheme can be made by introducing a time-dependent driving field that transforms the OAT Hamiltonian into a two-axis twisting (TAT) one.
-While the OAT model initially generates squeezing faster than the TAT model, the squeezing generation rate of OAT (measured in dB per second) falls off with time, while the squeezing generation rate for TAT remains approximately constant until reaching Heisenberg-limited amount of spin squeezing with $\xi^2_{\t{opt}}\sim N^{-1}$ (see Appendix \ref{sec:time_series})\cite{kitagawa1993squeezed}.
+While the OAT model initially generates squeezing faster than the TAT model, the squeezing generation rate of OAT (measured in dB per second) falls off with time, while the squeezing generation rate for TAT remains approximately constant until reaching Heisenberg-limited amount of spin squeezing with $\xi^2_{\t{opt}}\sim N^{-1}$\cite{kitagawa1993squeezed}.
 
 There are two general strategies for converting OAT into TAT: by use of either a pulsed\cite{liu2011spin} or continuous\cite{huang2015twoaxis} drive protocol.
 For simplicity, we consider the latter in this  work, although the pulsed protocol could provide additional advantages, as explained at the end of Appendix \ref{sec:clock_interrogation}.
@@ -327,7 +327,7 @@ More details on $p$-wave losses are discussed in Appendix \ref{sec:inelastic_col
 
 The sources of decoherence considered above are not fundamental, and can be avoided by, for instance, using two nuclear spin levels as spin-1/2 degrees of freedom that are interrogated by far-detuned Raman transitions instead of a direct optical transition\cite{mancini2015observation}.
 The strength of SOC for Raman transitions is tunable and, moreover, the lifetimes of ground nuclear spin levels are longer than 100 seconds in the lattice\cite{goban2018emergence}.
-In this case, our protocol for preparing a squeezed state would additionally end with a coherent state transfer from nuclear to electronic degrees of freedom in order to retain metrological utility for the atomic clock.
+In this case, our protocol for preparing a squeezed state would additionally end with a coherent state transfer from nuclear to electronic degrees of freedom to retain metrological utility for the atomic clock.
 If, for example, the $-9/2$ and $-7/2$ nuclear spin states are used for the preparation of a squeezed state, then the collective-spin entanglement of atoms can be transferred to electronic states at the end of the spin squeezing protocol with a $\sigma^-$ polarized $\pi$ pulse.
 Such a pulse can transfer $\ket{g,-7/2}$ to $\ket{e,-9/2}$ without affecting $\ket{g,-9/2}$, where $g$ and $e$ respectively denote the ground and excited (electronic) clock states.
 
@@ -342,8 +342,7 @@ Such capability could allow for major improvements in clock sensitivity and band
 \section{Acknowledgments}
 
 We acknowledge helpful discussions with M.~Norcia, C.~Sanner, and M.~Mamaev.
-This work is supported by the Air Force Office of Scientific Research (AFOSR) grant FA9550-18-1-0319; the AFOSR Multidisciplinary University Research Initiative (MURI) grant; the Defense Advanced Research Projects Agency (DARPA) and Army Research Office (ARO) grant W911NF-16-1-0576; the National Science Foundation (NSF) grant PHY-1820885; JILA-NSF grant PFC-173400; and the
-National Institute of Standards and Technology (NIST).
+This work is supported by the Air Force Office of Scientific Research (AFOSR) grant FA9550-18-1-0319; the AFOSR Multidisciplinary University Research Initiative (MURI) grant; the Defense Advanced Research Projects Agency (DARPA) and Army Research Office (ARO) grant W911NF-16-1-0576; the National Science Foundation (NSF) grant PHY-1820885; JILA-NSF grant PFC-1734006; and the National Institute of Standards and Technology (NIST).
 
 
 \appendix
@@ -449,8 +448,8 @@ Using the fact that all spin-$z$ operators preserve the projection of total spin
 \begin{multline}
   H_{\t{eff}}^{(2)}
   = -\f1{fU} \sum_{m,k,n,n'} b_n b_{n'}
-  \bk{m | s_\z^{(n)} |mk} \\
-  \times \bk{mk | s_\z^{(n')} | m},
+  \op{m} s_\z^{(n)} \ket{mk} \\
+  \times \bra{mk} s_\z^{(n')} \op{m},
   \label{eq:general_H_eff_2}
 \end{multline}
 where the relevant matrix elements between the Dicke states and the spin-wave states are\cite{swallows2011suppression}
@@ -867,7 +866,7 @@ Expectation values of collective spin operators can thus be computed via the exp
 \centering
     \includegraphics[width=0.7\linewidth]{fig_harmonic.pdf}
     \label{fig:harmonic_trap1}
-    \caption{Dynamics of non-interacting spin-orbit coupled fermions in a 1D lattice with SOC angle $\phi = \pi/50$, plus a harmonic trap with $\Omega/J = 0.01$. Starting with a spin-polarized cloud in $\downarrow$ ground state, an initial clock laser pulse is applied to rotate spins into $x$, and the atoms are allowed to evolve during the dark time. We track the dynamics of the $\uparrow$ particle density for the cases of (a) $N = 20$ and (b) $N = 60$ atoms. Panel (c) shows the time-averaged fluctuations of the $\uparrow$ particle density for each site index $j$ from its initial value following the Ramsey pulse; see Eqn.~\eqref{eq:time_avg_fluc}. For $N = 60$, we have filled all delocalized modes as well as several localized modes, resulting in a large region of no density fluctuations at the trap center. Panel (d) contains the eigenspectrum for a single internal state in the presence of the trap (with the index $n$ labelling the eigenvalues in order of increasing energy), where the critical mode $n_c$ dividing the spatially delocalized and localized modes is indicated  by a black dash-dotted line. The highest occupied mode in the $\downarrow$ ground state for $N = 20$ and $N = 60$ is indicated by the green and red solid lines, respectively.} 
+    \caption{Dynamics of non-interacting spin-orbit coupled fermions in a 1D lattice with SOC angle $\phi = \pi/50$, plus a harmonic trap with $\Omega/J = 0.01$. Starting with a spin-polarized cloud in $\downarrow$ ground state, an initial clock laser pulse is applied to rotate spins into $x$, and the atoms are allowed to evolve during the dark time. We track the dynamics of the $\uparrow$ particle density for the cases of (a) $N = 20$ and (b) $N = 60$ atoms. Panel (c) shows the time-averaged fluctuations of the $\uparrow$ particle density for each site index $j$ from its initial value following the Ramsey pulse; see Eqn.~\eqref{eq:time_avg_fluc}. For $N = 60$, we have filled all delocalized modes as well as several localized modes, resulting in a large region of no density fluctuations at the trap center. Panel (d) contains the eigenspectrum for a single internal state in the presence of the trap (with the index $n$ labeling the eigenvalues in order of increasing energy), where the critical mode $n_c$ dividing the spatially delocalized and localized modes is indicated  by a black dash-dotted line. The highest occupied mode in the $\downarrow$ ground state for $N = 20$ and $N = 60$ is indicated by the green and red solid lines, respectively.}
     \label{fig:harmonic_trap}
 \end{figure*}
 
