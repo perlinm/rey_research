@@ -91,13 +91,16 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-\thispagestyle{fancy}
 
 \title{Perturbing SU($n$)-symmetric interactions}%
 \author{Michael A. Perlin}%
 \date{\today}
 
 \maketitle
+
+\tableofcontents
+
+\section{Introduction}
 
 We consider an array of $N$ multilevel spins with non-uniform
 SU($n$)-symmetric interactions that can be written in the form
@@ -108,7 +111,7 @@ SU($n$)-symmetric interactions that can be written in the form
 \end{align}
 where $S_{\mu\nu}^{(p)}\equiv\op{\mu}{\nu}_p$ flips the state of spin
 $p$ to $\ket\mu$ from $\ket\nu$; the operator $\Pi_{pq}$ permutes
-spins $p$ and $q$, and the coefficients $h_{pq}$ satisfy
+spins $p$ and $q$; and the coefficients $h_{pq}$ satisfy
 \begin{align}
   h_{pp} = 0
   &&
@@ -457,7 +460,7 @@ where $v\equiv\sum_{p<q}v_{pq}/N$ is the mean value of the
 coefficients in $\V_2\p{\m v}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Finding eigenstates of the interaction Hamiltonian}
+\section{Constructing eigenstates of SU($n$)-symmetric interactions}
 
 Here we discuss the construction of eigenstates of the interaction
 Hamiltonian $H_0$.  If a vector $\v v$ and matrix $\m v$ satisfy the
@@ -481,8 +484,8 @@ The two-body case requires a bit of work to re-cast as an
 eigenvector/eigenvalue problem.  We first write the matrix $\m v$ as a
 vector,
 \begin{align}
-  \m v = \sum_{p,q} v_{pq} \op{k}{q}
-  \to \v{\m v} \equiv \sum_{p,q} v_{pq} \ket{pq},
+  \m v = \sum_{k,\ell} v_{k\ell} \op{k}{\ell}
+  \to \v{\m v} \equiv \sum_{k,\ell} v_{k\ell} \ket{k\ell},
 \end{align}
 and define the matrix
 \begin{align}
@@ -505,16 +508,18 @@ written in the block-diagonal form
 \end{align}
 where each block $\m h_\ell$ is an $N\times N$ matrix.  We can
 diagonalize these blocks independently, and classify their
-eigenvectors by corresponding eigenvalues.  ``Total'' eigenvectors
-$\v{\m v}$ of $\check{\m h}$ are then essentially concatenations of
-eigenvectors from within each block $\m h_\ell$ that all share the
-same eigenvalue.  The task of constructing eigenvectors
+eigenvectors by the corresponding eigenvalues.  ``Total'' eigenvectors
+$\v{\m v}$ of $\check{\m h}$ are then essentially built from
+eigenvectors within each block $\m h_\ell$ that share the same
+eigenvalue.  The task of constructing eigenvectors
 $\V_2\p{\m v}\ket\psi$ of $H_0$ and determining their energy thus
 reduces to finding the eigenvectors and eigenvalues of $N$ matrices
-$\m h_\ell$ of size $N\times N$.  If the interaction Hamiltonian $H_0$
-is translationally invariant, then $\bar h_{k\ell}=h_{k\ell}-h$, and
-$h_{k\ell}$ depends only on the displacement between the spins indexed
-by $k$ and $\ell$.  The blocks $\m h_\ell$ then take the form
+$\m h_\ell$ of size $N\times N$.
+
+If the interaction Hamiltonian $H_0$ is translationally invariant,
+then $\bar h_{k\ell}=h_{k\ell}-h$, and $h_{k\ell}$ depends only on the
+displacement between the spins indexed by $k$ and $\ell$.  The blocks
+$\m h_\ell$ then take the form
 \begin{align}
   \m h_{\ell} = \m\omega_\ell \c \m h_0 \c \m\omega_\ell^\dag,
   &&
