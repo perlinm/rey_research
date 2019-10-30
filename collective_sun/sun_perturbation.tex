@@ -40,10 +40,12 @@
 \newcommand{\up}{\uparrow}
 \newcommand{\dn}{\downarrow}
 
-\renewcommand{\d}{\text{d}} % for infinitesimals
+\renewcommand{\d}{\text{d}}
 \newcommand{\x}{\text{x}}
 \newcommand{\y}{\text{y}}
 \newcommand{\z}{\text{z}}
+
+\newcommand{\e}{\varepsilon}
 
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\D}{\mathcal{D}}
@@ -250,14 +252,10 @@ where $\m h\c\v v$ is an ordinary matrix-vector product of $\m h$ and
 $\v v$, with components $\sum_q h_{kq} v_q$; $\v h_\d\oc\v v$ is an
 element-wise (Hadamard) product of $\v h_\d$ and $\v v$, with
 components $h_k v_k$; and $\Delta\p{\v v}$ is some constant that may
-depend on $\v v$.  Finding vectors $\v v$ that satisfy
-\eqref{eq:v_cond_1} is equivalent to finding eigenvectors of the
-matrix $\m h-\m h_\d$, where $\m h_\d\equiv\diag\v h_\d$ is a diagonal
-matrix; the constant $\Delta\p{\v v}$ is then the eigenvalue of
-$\m h-\m h_\d$ corresponding to the eigenvector $\v v$.  If the
-interaction Hamiltonian $H_0$ is translationally invariant, then all
-$h_q=h$ and $\v h_\d\oc\v v=h\v v$, so the condition in
-\eqref{eq:v_cond_1} simplifies to
+depend on $\v v$.  If the interaction Hamiltonian $H_0$ is
+translationally invariant, then all $h_q=h$ and
+$\v h_\d\oc\v v=h\v v$, so the condition in \eqref{eq:v_cond_1}
+simplifies to
 \begin{align}
   \m h \c\v v = \sp{\Delta\p{\v v}+h} \v v.
 \end{align}
@@ -418,41 +416,34 @@ In total,
 \end{align}
 We thus find that the vector $\V_2\ket\psi$ is an eigenvector of the
 interaction Hamiltonian $H_0$ if the matrix $\m v$ of all $v_{k\ell}$
-satisfies, for some constant $\varepsilon\p{\m v}$ that may depend on
-$\m v$,
+satisfies, for some constant $\e\p{\m v}$ that may depend on $\m v$,
 \begin{align}
-  \tilde{\m h}\oc\m v + \m h\c\m v
-  = \varepsilon\p{\m v} \m v,
+  \bar{\m h}\oc\m v + \m h\c\m v = \e\p{\m v} \m v,
   &&
-  \tilde{\m h}
+  \bar{\m h}
   \equiv \m h - \f12\p{\v h_\d\otimes\v\1 + \v\1\otimes\v h_\d},
   \label{eq:v_cond_2}
 \end{align}
-where $\tilde{\m h}\oc\m v$ denotes an element-wise (Hadamard) product
-of $\tilde{\m h}$ and $\m v$, with components
+where $\bar{\m h}\oc\m v$ denotes an element-wise (Hadamard) product
+of $\bar{\m h}$ and $\m v$, with components
 $\tilde h_{k\ell} v_{k\ell}$; $\m h\c\m v$ denotes an ordinary matrix
 product of $\m h$ and $\m v$, with components
 $\sum_q h_{kq} v_{q\ell}$; $\v\1$ is a constant vector of ones; and
 $\v h_\d\otimes\v\1$ is a tensor product of $\v h_\d$ and $\v\1$.
 Note that the diagonal components of the condition in
 \eqref{eq:v_cond_2} automatically enforce that the last sum in
-\eqref{eq:H_V2_psi_mid} vanishes.  The condition in
-\eqref{eq:v_cond_2} can be recast as an eigenvalue equation by
-treating the $N\times N$ matrix $\m v$ as a vector with $N^2$
-components, which can be further reduced to ${N\choose2}=N\p{N-1}/2$
-components by the fact that the matrix $\m v$ is symmetric with zeros
-on the diagonal.  If the interaction Hamiltonian $H_0$ is
-translationally invariant, then all $h_q=h$ and
+\eqref{eq:H_V2_psi_mid} vanishes.  If the interaction Hamiltonian
+$H_0$ is translationally invariant, then all $h_q=h$ and
 $\v h_\d\otimes\v\1\oc\m v=\v\1\otimes\v h_\d\oc\m v=h\m v$, so the
 condition in \eqref{eq:v_cond_2} becomes
 \begin{align}
-  \m h\oc\m v + \m h\c\m v = \sp{\varepsilon\p{\m v}+h} \m v,
+  \m h\oc\m v + \m h\c\m v = \sp{\e\p{\m v}+h} \m v,
 \end{align}
 If we construct a perturbation $\V_2\p{\m v}$ with coefficients $\m v$
 that satisfy \eqref{eq:v_cond_2}, then
 \begin{align}
   H_0 \V_2\p{\m v} \ket\psi
-  = \sp{E_0 + 2\varepsilon\p{\m v}} \V_2\p{\m v} \ket\psi.
+  = \sp{E_0 + 2\e\p{\m v}} \V_2\p{\m v} \ket\psi.
 \end{align}
 As a curiosity, we note that if $\V_1\p{\v v}\ket\psi$ is an
 eigenvector of $H_0$, then the coefficient vector $\v v$ must satisfy
@@ -460,10 +451,54 @@ eigenvector of $H_0$, then the coefficient vector $\v v$ must satisfy
 if $\Delta\p{\v v}\ne0$; the analogous condition on matrices $\m v$ in
 the two-body case is
 \begin{align}
-  N \varepsilon\p{\m v} v = \f12 \sum_{k,\ell} h_{k\ell} v_{k\ell},
+  N \e\p{\m v} v = \f12 \sum_{k,\ell} h_{k\ell} v_{k\ell},
 \end{align}
 where $v\equiv\sum_{p<q}v_{pq}/N$ is the mean value of the
 coefficients in $\V_2\p{\m v}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Finding eigenstates of the interaction Hamiltonian}
+
+Here we discuss the construction of eigenstates of the interaction
+Hamiltonian $H_0$.  If a vector $\v v$ and matrix $\m v$ satisfy the
+conditions in \eqref{eq:v_cond_1} and \eqref{eq:v_cond_2}, then the
+single- and two-body operators $\V_1\p{\v v}$ and $\V_2\p{\m v}$
+generate eigenvectors of the interaction Hamiltonian $H_0$ when they
+act on any fully symmetric state $\ket\psi\in\M_0$.  We can use this
+fact to construct eigenstates of $H_0$ by finding solutions to
+\eqref{eq:v_cond_1} and \eqref{eq:v_cond_2}.
+
+The single-body case is straightforward: finding vectors $\v v$ that
+satisfy \eqref{eq:v_cond_1} is equivalent to finding eigenvectors of
+the matrix $\m h-\m h_\d$, where $\m h_\d\equiv\diag\v h_\d$ is a
+diagonal matrix.  The constant $\Delta\p{\v v}$ is then the eigenvalue
+of $\m h-\m h_\d$ that corresponds to the eigenvector $\v v$.  The
+task of constructing eigenvectors $\V_1\p{\v v}\ket\psi$ of $H_0$ and
+determining their energy thus reduces to finding the eigenvectors and
+eigenvalues of the $N\times N$ matrix $\m h-\m h_\d$.
+
+The two-body case requires a bit of work to re-cast as an
+eigenvector/eigenvalue problem.  We begin by writing the matrix $\m v$ as a vector,
+\begin{align}
+  \m v = \sum_{p,q} v_{pq} \op{k}{q}
+  \to \check{\m v} \equiv \sum_{p,q} v_{pq} \ket{pq},
+\end{align}
+and then defining the matrix
+\begin{align}
+  \check{\m h}
+  \equiv \sum_{k,\ell} \bar h_{k\ell} \op{k\ell}
+  + \sum_{k,q,\ell} h_{kq} \op{k}{q} \otimes \op{\ell},
+  \label{eq:h_super_mat}
+\end{align}
+in terms of which the condition in \eqref{eq:v_cond_2} becomes
+\begin{align}
+  \check{\m h} \c \check{\m v} = \e\p{\m v} \check{\m v}.
+\end{align}
+Note that the matrix $\check{\m h}$ in \eqref{eq:h_super_mat} is
+block-diagonal, with $N$ blocks of size $N\times N$.  The task of
+constructing eigenvectors $\V_2\p{\m v}\ket\psi$ of $H_0$ and
+determining their energy thus reduces to finding the eigenvectors and
+eigenvalues of $N$ matrices of size $N\times N$.
 
 \bibliography{multilevel_spin_notes.bib}
 
