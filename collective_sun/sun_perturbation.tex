@@ -140,20 +140,20 @@ $\M_0$ of fully symmetric states by weak perturbations of the form
 \begin{align}
   \V_1 \equiv \sum_p v_p V_p,
   &&
-  \V_2 \equiv \sum_{p<q} v_{pq} V_p V_q,
+  \V_2 \equiv \f12 \sum_{p,q} v_{pq} V_p \tilde V_q,
   \label{eq:perturbations}
 \end{align}
-where $V_p$ is a single-body operator on spin $p$, and
-$v_{pq}=v_{qp}$.  The effective Hamiltonian $H_W$ induced on the
-ground-state manifold $\M_0$ by a perturbation $\V_W$ through second
-order in perturbation theory is given by\cite{bravyi2011schrieffer,
-  perlin2019effective}
+where $V_p$ is a single-body operator on spin $p$, and we enforce
+$v_{pq}=v_{qp}$ with $v_{pp}=0$.  The effective Hamiltonian $H_B$
+induced on the ground-state manifold $\M_0$ by a perturbation $\V_B$
+through second order in perturbation theory is given
+by\cite{bravyi2011schrieffer, perlin2019effective}
 \begin{align}
-  H_W = H_W^{(1)} + H_W^{(2)},
+  H_B = H_B^{(1)} + H_B^{(2)},
   &&
-  H_W^{(1)} = \P_0 \V_W \P_0,
+  H_B^{(1)} = \P_0 \V_B \P_0,
   &&
-  H_W^{(2)} = - \P_0 \V_W \E \V_W \P_0,
+  H_B^{(2)} = - \P_0 \V_B \E \V_B \P_0,
   &&
   \E \equiv \sum_{k>0} \f{\P_k}{\Delta_k},
 \end{align}
@@ -362,25 +362,28 @@ that satisfy the eigenvalue equation in \eqref{eq:v_cond_1}.
 
 The first-order effective Hamiltonian $H_2^{(1)}$ induced on the fully
 symmetric manifold $\M_0$ by the two-body perturbation in $\V_2$ in
-\eqref{eq:perturbations} is
+\eqref{eq:perturbations} can be computed using the same tricks as for
+$H_1^{(2)}$:
 \begin{align}
   H_2^{(1)}
   = \P_0 \V_2 \P_0
-  = \sum_{p<q} v_{pq} \P_0 V_p V_q \P_0
-  \simeq \f{v}{N-1} \p{V^2 - W},
-  &&
-  v \equiv \f1N \sum_{p<q} v_{pq},
+  = \f12 \sum_{p,q} v_{pq} \P_0 V_p \tilde V_q \P_0
+  \simeq \f{v}{N-1} \p{\f12 \sp{V,\tilde V}_+ - Z},
 \end{align}
-where we made use of the previous result in \eqref{eq:PVVP_neq_ops}.
-In order to compute the second-order effective Hamiltonian
-$H_2^{(2)}$, as before we pick an arbitrary fully symmetric state
-$\ket\psi\in\M_0$ and expand
+where $V,\tilde V,Z$ are respectively collective operators that sum
+over the index of $V_p,\tilde V_p,Z_p$, and
+\begin{align}
+  v \equiv \f1N \sum_{p<q} v_{pq},
+  &&
+  Z_p \equiv \f12 \sp{V_p, \tilde V_p}_+,
+\end{align}
+with $\sp{X,Y}_+\equiv XY+YX$ an anti-commutator.  In order to compute
+the second-order effective Hamiltonian $H_2^{(2)}$, as before we pick
+an arbitrary fully symmetric state $\ket\psi\in\M_0$ and expand
 \begin{align}
   H \V_2 \ket\psi
-  = \sum_{\substack{k<\ell\\p<q}} v_{k\ell} h_{pq}
-  \Pi_{pq} V_k V_\ell \ket\psi
   = \f12 \sum_{\substack{k,\ell\\p<q}} v_{k\ell} h_{pq}
-  \Pi_{pq} V_k V_\ell \ket\psi.
+  \Pi_{pq} V_k \tilde V_\ell \ket\psi.
   \label{eq:H_V2_psi_start}
 \end{align}
 The permutation operator $\Pi_{pq}$ acts trivially on
@@ -398,23 +401,24 @@ The corresponding terms in \eqref{eq:H_V2_psi_start} with
 $p,q\notin\set{k,\ell}$ and $\set{p,q}=\set{k,\ell}$ are then
 \begin{align}
   E_0 \V_2 \ket\psi + \f12 \sum_{k,\ell}
-  \p{2 h_{k\ell} - h_k - h_\ell} v_{k\ell} V_k V_\ell \ket\psi,
+  \p{2 h_{k\ell} - h_k - h_\ell}
+  v_{k\ell} V_k \tilde V_\ell \ket\psi,
 \end{align}
 while the terms in \eqref{eq:H_V2_psi_start} with only one of
 $p,q\in\set{k,\ell}$ simplify to
 \begin{align}
-  \f12 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}}
-  v_{k\ell} \p{h_{kq} V_q V_\ell + h_{\ell q} V_k V_q} \ket\psi
-  = \sum_{k,\ell,q} v_{k\ell} h_{kq} V_q V_\ell \ket\psi
-  - \sum_{k,\ell} v_{k\ell} h_{k\ell} V_k^2 \ket\psi.
+  \f12 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}} v_{k\ell}
+  \p{h_{kq} V_q \tilde V_\ell + h_{\ell q} V_k \tilde V_q} \ket\psi
+  = \sum_{k,\ell,q} v_{k\ell} h_{kq} V_q \tilde V_\ell \ket\psi
+  - \sum_{k,\ell} v_{k\ell} h_{k\ell} Z_k \ket\psi.
 \end{align}
 In total,
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
   + \sum_{k,\ell} \p{\sp{h_{k\ell}-\p{\f{h_k+h_\ell}{2}}} v_{k\ell}
-    + \sum_q h_{kq} v_{q\ell}} V_k V_\ell \ket\psi
-  - \sum_{k,\ell} h_{k\ell} v_{k\ell} V_k^2 \ket\psi.
+    + \sum_q h_{kq} v_{q\ell}} V_k \tilde V_\ell \ket\psi
+  - \sum_{k,\ell} h_{k\ell} v_{k\ell} V_k \tilde V_k \ket\psi.
   \label{eq:H_V2_psi_mid}
 \end{align}
 We thus find that the vector $\V_2\ket\psi$ is an eigenvector of the
