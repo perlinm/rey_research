@@ -433,7 +433,7 @@ satisfies, for some constant $\e\p{\m v}$ that may depend on $\m v$,
 \end{align}
 where $\bar{\m h}\oc\m v$ denotes an element-wise (Hadamard) product
 of $\bar{\m h}$ and $\m v$, with components
-$\tilde h_{k\ell} v_{k\ell}$; $\m h\c\m v$ denotes an ordinary matrix
+$\bar h_{k\ell} v_{k\ell}$; $\m h\c\m v$ denotes an ordinary matrix
 product of $\m h$ and $\m v$, with components
 $\sum_q h_{kq} v_{q\ell}$; $\v\1$ is a constant vector of ones; and
 $\v h_\d\otimes\v\1$ is a tensor product of $\v h_\d$ and $\v\1$.
@@ -460,7 +460,7 @@ the two-body case is
 \begin{align}
   N \e\p{\m v} v = \f12 \sum_{k,\ell} h_{k\ell} v_{k\ell},
 \end{align}
-where $v\equiv\sum_{p<q}v_{pq}/N$ is the mean value of the
+where $v\equiv\sum_{p<q}v_{pq}/N$ is the mean value of the pair-wise
 coefficients in $\V_2\p{\m v}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -484,8 +484,8 @@ task of constructing eigenvectors $\V_1\p{\v v}\ket\psi$ of $H_0$ and
 determining their energy thus reduces to finding the eigenvectors and
 eigenvalues of the $N\times N$ matrix $\m h-\m h_\d$.
 
-The two-body case requires a bit of work to re-cast as an
-eigenvector/eigenvalue problem.  We first write the matrix $\m v$ as a
+In order to re-cast the two-body condition in \eqref{eq:v_cond_1} as
+an eigenvector/eigenvalue problem, we write the matrix $\m v$ as a
 vector,
 \begin{align}
   \m v = \sum_{k,\ell} v_{k\ell} \op{k}{\ell}
