@@ -478,27 +478,50 @@ determining their energy thus reduces to finding the eigenvectors and
 eigenvalues of the $N\times N$ matrix $\m h-\m h_\d$.
 
 The two-body case requires a bit of work to re-cast as an
-eigenvector/eigenvalue problem.  We begin by writing the matrix $\m v$ as a vector,
+eigenvector/eigenvalue problem.  We first write the matrix $\m v$ as a
+vector,
 \begin{align}
   \m v = \sum_{p,q} v_{pq} \op{k}{q}
-  \to \check{\m v} \equiv \sum_{p,q} v_{pq} \ket{pq},
+  \to \v{\m v} \equiv \sum_{p,q} v_{pq} \ket{pq},
 \end{align}
-and then defining the matrix
+and define the matrix
 \begin{align}
   \check{\m h}
   \equiv \sum_{k,\ell} \bar h_{k\ell} \op{k\ell}
-  + \sum_{k,q,\ell} h_{kq} \op{k}{q} \otimes \op{\ell},
+  + \sum_{k,q,\ell} h_{kq} \op{k\ell}{q\ell},
   \label{eq:h_super_mat}
 \end{align}
 in terms of which the condition in \eqref{eq:v_cond_2} becomes
 \begin{align}
-  \check{\m h} \c \check{\m v} = \e\p{\m v} \check{\m v}.
+  \check{\m h} \c \v{\m v} = \e\p{\m v} \v{\m v}.
 \end{align}
-Note that the matrix $\check{\m h}$ in \eqref{eq:h_super_mat} is
-block-diagonal, with $N$ blocks of size $N\times N$.  The task of
-constructing eigenvectors $\V_2\p{\m v}\ket\psi$ of $H_0$ and
-determining their energy thus reduces to finding the eigenvectors and
-eigenvalues of $N$ matrices of size $N\times N$.
+Note that the matrix $\check{\m h}$ in \eqref{eq:h_super_mat} can be
+written in the block-diagonal form
+\begin{align}
+  \check{\m h} = \sum_\ell \m h_\ell \otimes \op{\ell},
+  &&
+  \m h_\ell
+  \equiv \sum_{k,q}\p{\delta_{kq} \bar h_{k\ell} + h_{kq}} \op{k}{q},
+\end{align}
+where each block $\m h_\ell$ is an $N\times N$ matrix.  We can
+diagonalize these blocks independently, and classify their
+eigenvectors by corresponding eigenvalues.  ``Total'' eigenvectors
+$\v{\m v}$ of $\check{\m h}$ are then essentially concatenations of
+eigenvectors from within each block $\m h_\ell$ that all share the
+same eigenvalue.  The task of constructing eigenvectors
+$\V_2\p{\m v}\ket\psi$ of $H_0$ and determining their energy thus
+reduces to finding the eigenvectors and eigenvalues of $N$ matrices
+$\m h_\ell$ of size $N\times N$.  If the interaction Hamiltonian $H_0$
+is translationally invariant, then
+\begin{align}
+  \m h_{\ell} = \m\omega_\ell \c \m h_0 \c \m\omega_\ell^\dag,
+  &&
+  \m\omega_\ell \equiv \sum_k \op{k+\ell}{k},
+\end{align}
+which implies that we need only find the eigenvectors and eigenvalues
+of a single block $\m h_0$, after which we can determine the
+eigenvectors of any block simply by appropriate applications of the
+shift matrix $\m\omega_\ell$.
 
 \bibliography{multilevel_spin_notes.bib}
 
