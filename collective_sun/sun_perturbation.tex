@@ -45,8 +45,6 @@
 \newcommand{\y}{\text{y}}
 \newcommand{\z}{\text{z}}
 
-\newcommand{\e}{\varepsilon}
-
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\D}{\mathcal{D}}
 \newcommand{\E}{\mathcal{E}}
@@ -340,8 +338,8 @@ components of the condition in \eqref{eq:cond_2} automatically enforce
 that the last term ($\sim\v Z$) in \eqref{eq:H_V2_psi} vanishes.
 
 We can recast the condition in \eqref{eq:cond_2} as an eigenvalue
-problem by writing the coefficient matrix $\m w$ as a vector in
-$\RR^{N^2}$,
+problem by writing the coefficient matrix $\m w$ as a vector
+$\v{\m w}$ in $\RR^N\times\RR^N$,
 \begin{align}
   \m w = \sum_{p,q} w_{pq} \op{p}{q}
   \to \v{\m w} \equiv \sum_{p,q} w_{pq} \ket{pq},
@@ -375,15 +373,15 @@ $N$ smaller, independent eigenvalue equations
   \v w_\ell \equiv \sum_p w_{p\ell} \ket{p}.
   \label{eq:cond_2_eig_block}
 \end{align}
-We can thus (numerically) diagonalize each of the blocks $\m h_\ell$,
-and classify their eigenvectors $\v w_\ell$ by the corresponding
+We can (numerically) diagonalize each of the blocks $\m h_\ell$, and
+classify their eigenvectors $\v w_\ell$ by the corresponding
 eigenvalues $\Delta\p{\m w}/2$.  ``Total'' eigenvectors $\v{\m w}$ of
 $\check{\m h}$ are then built from eigenvectors $\v w_\ell$ within
 each block $\m h_\ell$ that share the same eigenvalue
 $\Delta\p{\m w}/2$.  The task of constructing eigenvectors
-$\V_2\p{\m w}\ket\psi$ of $H_0$ and determining their energy thus
-reduces to finding the eigenvectors and eigenvalues of $N$ matrices
-$\m h_\ell$ of size $N\times N$.
+$\V_2\p{\m w_\Delta}\ket\psi$ of $H_0$ and determining their energy
+thus reduces to finding the eigenvectors and eigenvalues of $N$
+matrices $\m h_\ell$ of size $N\times N$.
 
 If the interaction Hamiltonian $H_0$ is translationally invariant,
 then $\bar h_{k\ell}=h_{k\ell}-h$, and $h_{k\ell}$ depends only on the
