@@ -112,19 +112,17 @@ SU($n$)-symmetric interactions that can be written in the form
   \Pi_{pq} \equiv \sum_{\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)},
   \label{eq:ints}
 \end{align}
-where the coefficients $h_{pq}$ in the Hamiltonian are all negative,
-with $h_{pq}=h_{qp}$ and $h_{pp}=0$;
+where the coefficients $h_{pq}$ in the Hamiltonian satisfy
+$h_{pq}=h_{qp}$ and $h_{pp}=0$;
 $S_{\mu\nu}^{(p)}\equiv\op{\mu}{\nu}_p$ flips the state of spin $p$ to
 $\ket\mu$ from $\ket\nu$; and the operator $\Pi_{pq}$ permutes spins
 $p$ and $q$.  The permutation operator $\Pi_{pq}$ is a multilevel
 generalization of the SU(2)-symmetric spin interaction
 $\m S_p\c\m S_q$.
 
-The ground-state manifold $\M_0$ of the interaction Hamiltonian $H_0$
-consists of fully symmetric states that are simultaneous $+1$
-eigenstates of all permutation operators $\Pi_{pq}$.  We wish to
-determine the effective dynamics induced on the fully symmetric
-manifold $\M_0$ by weak single- and two-body perturbations of the form
+We wish to determine the effective dynamics induced on the
+ground-state manifold $\M_0$ of $H_0$ by weak single- and two-body
+perturbations of the form
 \begin{align}
   \V_1 \equiv \sum_p v_p V_p = \v v\c\v V,
   &&
@@ -140,14 +138,18 @@ and $\m w$ are respectively a vector and matrix of all $v_p,w_{pq}$;
 we enforce $w_{pq}=w_{qp}$ and $w_{pp}=0$; and we use a dot ($\c$) to
 denote an inner product between vectors and matrices as appropriate.
 
-We will assume throughout these notes that the interaction Hamiltonian
-$H_0$ is gapped, and that the interaction energy difference between
-$\M_0$ and its orthogonal complement is much larger than than any
-additional couplings that we introduce.  The energy of fully symmetric
-states $\ket\psi\in\M_0$ is
-\begin{align}
-  E_0 = \sum_{p<q} h_{pq}.
-\end{align}
+If the coefficients $h_{pq}$ of the interaction Hamiltonian $H_0$ are
+all negative, then the ground-state manifold $\M_0$ of the interaction
+Hamiltonian $H_0$ consists of fully symmetric states that are
+simultaneous $+1$ eigenstates of all permutation operators $\Pi_{pq}$.
+We will adopt the restriction that all $h_{pq}<0$ throughout these
+notes, but note that this restriction can be relaxed to the assumption
+that the initial state of the spins is fully symmetric (e.g.~a
+spin-polarized state).  We will also assume throughout these notes
+that the fully symmetric manifold $\M_0$ is gapped away from all other
+states by an interaction energy difference that is large compared to
+any coupling between $\M_0$ and its orthogonal complement.
+
 The effective Hamiltonian $H_M$ induced on the ground-state manifold
 $\M_0$ by an $M$-body perturbation $\V_M$ through second order in
 perturbation theory is given by\cite{bravyi2011schrieffer,
@@ -163,8 +165,12 @@ perturbation theory is given by\cite{bravyi2011schrieffer,
 \end{align}
 where $\P_\Delta$ is a projector onto the eigenspace of the
 interaction Hamiltonian $H_0$, with interaction energy $\Delta$ above
-that of fully symmetric manifold $\M_0$; that is, the energy of states
-in the image of $\P_\Delta$ is $E_0+\Delta$.
+that of fully symmetric manifold $\M_0$; that is, the interaction
+energy of states in the image of $\P_\Delta$ is $E_0+\Delta$, where
+\begin{align}
+  E_0 = \sum_{p<q} h_{pq}
+\end{align}
+is the interaction energy of fully symmetric states $\ket\psi\in\M_0$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Single-body perturbations}
@@ -235,14 +241,15 @@ that generate eigenvectors of the interaction Hamiltonian $H_0$ when
 they act on fully symmetric states $\ket\psi$ thus reduces to finding
 eigenvectors $\v v_\Delta$ of the interaction matrix $\m h-\diag\v h$.
 
-If the interaction Hamiltonian $H_0$ is gapped, then a vector
-$\V_1\p{\v v_\Delta}\ket\psi$ with $\Delta=0$ must lie within the
-fully symmetric manifold $\M_0$, which implies that the operator
-$\V_1\p{\v v_\Delta}$ preserves the permutational symmetry of $\M_0$.
-Indeed, a constant vector $\v\1\equiv\p{1,1,1,\cdots}$ of ones
-satisfies the condition in \eqref{eq:cond_1} with eigenvalue $0$.  All
-other vectors $\v v_\Delta$ satisfying \eqref{eq:cond_1} with
-$\Delta\ne0$ must be orthogonal to $\v\1$, and therefore mean-zero.
+If the fully symmetric manifold $\M_0$ is gapped away from all other
+states, then then a vector $\V_1\p{\v v_\Delta}\ket\psi$ with
+$\Delta=0$ must lie within the fully symmetric manifold $\M_0$, which
+implies that the operator $\V_1\p{\v v_\Delta}$ preserves the
+permutational symmetry of $\M_0$.  Indeed, a constant vector
+$\v\1\equiv\p{1,1,1,\cdots}$ of ones satisfies the condition in
+\eqref{eq:cond_1} with eigenvalue $0$.  All other vectors
+$\v v_\Delta$ satisfying \eqref{eq:cond_1} with $\Delta\ne0$ must be
+orthogonal to $\v\1$, and therefore mean-zero.
 
 We now return to the task of computing the second-order effective
 Hamiltonian $H_1^{(2)}$.  Any coefficient vector $\v v$ can be
