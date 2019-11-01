@@ -109,51 +109,55 @@ SU($n$)-symmetric interactions that can be written in the form
   H_0 = \sum_{p<q} h_{pq} \Pi_{pq},
   &&
   \Pi_{pq} \equiv \sum_{\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)},
+  \label{eq:ints}
 \end{align}
 where $S_{\mu\nu}^{(p)}\equiv\op{\mu}{\nu}_p$ flips the state of spin
 $p$ to $\ket\mu$ from $\ket\nu$; the operator $\Pi_{pq}$ permutes
-spins $p$ and $q$; and the coefficients $h_{pq}$ satisfy
-\begin{align}
-  h_{pp} = 0
-  &&
-  h_{pq} \le 0,
-  &&
-  h_{pq} = h_{qp}.
-\end{align}
+spins $p$ and $q$; and the $h_{pq}$ in the Hamiltonian are all
+negative: $h_{pq}<0$.
+
 The ground-state manifold $\M_0$ of the interaction Hamiltonian $H_0$
 consists of fully symmetric states that are simultaneous $+1$
 eigenstates of all permutation operators $\Pi_{pq}$.  We will assume
 throughout these notes that the interaction Hamiltonian $H_0$ is
-gapped, such that there is a finite energy difference between $\M_0$
+gapped, i.e.~that there is a finite energy difference between $\M_0$
 and its orthogonal complement.  The energy of fully symmetric states
 $\ket\psi\in\M_0$ is
 \begin{align}
-  E_0 \equiv \sum_{p<q} h_{pq} = \f12 \sum_{p,q} h_{pq}
-  = \f12 \sum_p h_p = \f12 N h,
+  E_0 \equiv \sum_{p<q} h_{pq}
+  = \f12 \sum_{p,q} h_{pq}
+  = \f12 \sum_p h_p
+  = \f12 N h,
 \end{align}
-where we define
+where for convenience define coefficients $h_{pq}$ for all $p,q$ (as
+opposed to only $p<q$) by enforcing $h_{pq}=h_{qp}$ and $h_{pp}=0$;
+and
 \begin{align}
   h_p \equiv \sum_q h_{pq},
   &&
-  h \equiv \EE_p\sp{h_p} = \f1N \sum_{p,q} h_{pq},
-  &&
-  \EE_p\sp{X_p} \equiv \f1N \sum_p X_p.
+  h \equiv \EE_p\sp{h_p} = \f1N \sum_p h_p.
 \end{align}
 We wish to determine the effective dynamics induced on the fully
 symmetric manifold $\M_0$ by weak single- and two-body perturbations
 of the form
 \begin{align}
-  \V_1 \equiv \sum_p v_p V_p,
+  \V_1 \equiv \sum_p v_p V_p = \v v\c\v V,
   &&
   \V_2 \equiv \sum_{p<q} w_{pq} X_p Y_q
-  = \f12 \sum_{p,q} w_{pq} X_p Y_q,
+  = \f12 \sum_{p,q} w_{pq} X_p Y_q
+  = \f12 \v X \c\m w \c\v Y,
   \label{eq:perturbations}
 \end{align}
-where $V_p,X_p,Y_p$ are trace-zero operators on spin $p$, and we
-enforce $w_{pq}=w_{qp}$ with $w_{pp}=0$.  The effective Hamiltonian
-$H_M$ induced on the ground-state manifold $\M_0$ by an $M$-body
-perturbation $\V_M$ through second order in perturbation theory is
-given by\cite{bravyi2011schrieffer, perlin2019effective}
+where $V_p,X_p,Y_p$ are trace-zero operators on spin $p$;
+$\v V,\v X,\v Y$ are respectively vectors of all $V_p,X_p,Y_p$; $\v v$
+and $\m w$ are respectively a vector and matrix of all $v_p,w_{pq}$;
+we enforce $w_{pq}=w_{qp}$ and $w_{pp}=0$; and we use a dot ($\c$) to
+denote an inner product between matrices or vectors as appropriate.
+
+The effective Hamiltonian $H_M$ induced on the ground-state manifold
+$\M_0$ by an $M$-body perturbation $\V_M$ through second order in
+perturbation theory is given by\cite{bravyi2011schrieffer,
+  perlin2019effective}
 \begin{align}
   H_M = H_M^{(1)} + H_M^{(2)},
   &&
@@ -173,7 +177,7 @@ above that of fully symmetric manifold $\M_0$.
 To compute the effective Hamiltonian induced by the single-body
 perturbation $\V_1$, we expand
 \begin{align}
-  H_1^{(1)} = \sum_p v_p \P_0 V_p \P_0,
+  H_1^{(1)} = \v v \c \P_0 \v V \P_0,
 \end{align}
 and use the permutational symmetry of the ground-state manifold to
 simplify
@@ -182,7 +186,7 @@ simplify
   &&
   v \equiv \EE_p\sp{v_p},
   &&
-  V = \sum_p V_p,
+  V \equiv \sum_p V_p,
   \label{eq:H_1_1}
 \end{align}
 where $\simeq$ denotes equality up to a restriction to the
@@ -193,28 +197,26 @@ symmetric state $\ket\psi\in\M_0$ and expand (see Appendix
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi
-  + \sum_{k,q} \p{h_{kq} v_q - h_k v_k} V_k \ket\psi.
-  \label{eq:H_V1_psi}
+  + \p{\v v\c\m h - \v v\oc\v h}\c \v V \ket\psi,
+  \label{eq:H_V1_psi_start}
 \end{align}
-Denoting a vector of the coefficients $v_q$ by $\v v$, a matrix of all
-coupling constants $h_{pq}$ by $\m h$, and a vector of all
-$h_q\equiv\sum_k h_{kq}$ by $\v h$, we thus find that the vector
+where $\m h$ is a matrix of all coefficients $h_{pq}$ in the
+interaction Hamiltonian $H_0$ in \eqref{eq:ints}, and $\v v\oc\v h$ is
+the element-wise (Hadamard) product of $\v v$ and $\v h$, i.e.~a
+vector with components $v_kh_k$.  We thus find that the vector
 $\V_1\ket\psi$ is an eigenvector of the interaction Hamiltonian $H_0$
 if the coefficients $\v v$ satisfy
 \begin{align}
   \m h \c \v v - \v h\oc\v v
-  = \p{\m h-\diag\v h}\c\v v
+  = \p{\m h - \diag\v h}\c\v v
   = \Delta\p{\v v} \v v,
   \label{eq:cond_1}
 \end{align}
-where $\m h\c\v v$ is an ordinary matrix-vector product of $\m h$ and
-$\v v$, with components $\sum_q h_{kq} v_q$; $\v h\oc\v v$ is an
-element-wise (Hadamard) product of $\v h$ and $\v v$, with components
-$h_k v_k$; $\diag\v h$ is a matrix with $\v h$ on the diagonal and
-zeroes everywhere else; and $\Delta\p{\v v}$ is some constant that may
-depend on $\v v$.  If the interaction Hamiltonian $H_0$ is
-translationally invariant, then all $h_q=h$ and $\v h\oc\v v=h\v v$,
-so the condition in \eqref{eq:cond_1} simplifies to
+where $\diag\v h$ is a matrix with $\v h$ on the diagonal and zeroes
+everywhere else; and $\Delta\p{\v v}$ is some constant that may depend
+on $\v v$.  If the interaction Hamiltonian $H_0$ is translationally
+invariant, then all $h_q=h$ and $\v h\oc\v v=h\v v$, so the condition
+in \eqref{eq:cond_1} simplifies to
 \begin{align}
   \m h \c\v v = \sp{\Delta\p{\v v}+h} \v v.
 \end{align}
@@ -224,22 +226,23 @@ eigenvalue $\Delta$, then
 \begin{align}
   H_0 \V_1\p{\v v_\Delta} \ket\psi
   = \sp{E_0 + \Delta} \V_1\p{\v v_\Delta} \ket\psi.
+  \label{eq:H_V1_psi}
 \end{align}
+Interestingly, the energy of the (unnormalized) state
+$\V_1\p{\v v}\ket\psi$ depends only on the coefficients $\v v$, and is
+entirely independent of the state $\ket\psi$ or choice of single-spin
+trace-zero operator used to build $\V_1$ in \eqref{eq:perturbations}.
 Finding operators $\V_1\p{\v v}$ that generate eigenvectors of the
 interaction Hamiltonian $H_0$ when they act on fully symmetric states
-$\ket\psi$ thus reduces to finding eigenvectors $\v v$ of
-$\m h-\diag\v h$.  Interestingly, the energy of the (unnormalized)
-state $\V_1\p{\v v}\ket\psi$ depends only on the coefficients $\v v$,
-and is entirely independent of the state $\ket\psi$ or choice of
-single-spin trace-zero operator used to build $\V_1$ in
-\eqref{eq:perturbations}.
+$\ket\psi$ thus reduces to finding eigenvectors $\v v$ of the
+interaction matrix $\m h-\diag\v h$.
 
 If the interaction Hamiltonian $H_0$ is gapped, then a vector
-$\V_1\p{\v v_\Delta}\ket\psi$ with $\Delta=0$ must lie with in the
+$\V_1\p{\v v_\Delta}\ket\psi$ with $\Delta=0$ must lie within the
 fully symmetric manifold $\M_0$, which implies that the operator
-$\V_1\p{\v v_\Delta}$ preserves the permutational symmetry of
-$\ket\psi$.  The only way for $\V_1\p{\v v_\Delta}$ to obey
-permutational symmetry is for $\v v_\Delta$ to be a constant vector,
+$\V_1\p{\v v_\Delta}$ preserves the permutational symmetry of $\M_0$.
+The only way for $\V_1\p{\v v_\Delta}$ to obey permutational symmetry
+is for $\v v_\Delta$ to be a constant vector,
 i.e.~$\v v_\Delta=v_\Delta\v\1$ with $\1$ a constant vector of ones.
 Indeed, a constant vector $\v\1$ satisfies the condition in
 \eqref{eq:cond_1} with eigenvalue $0$.  All other vectors
@@ -268,16 +271,18 @@ where the the product $\P_0 \V_1\p{\v v_\Delta}^2 \P_0$ is worked out
 in Appendix \ref{sec:PVVP}, giving us
 \begin{align}
   H_1^{(2)} \simeq \f1{N-1} \sum_{\Delta>0}
-  \f{\var\p{\v v_\Delta}}{\Delta} \p{V^2 - N W},
+  \f{\var\p{\v v_\Delta}}{\Delta} \p{V^2 - N W}.
   \label{eq:H_1_2}
 \end{align}
-where $\simeq$ denotes equality up to a restriction to the fully
+Here $\simeq$ denotes equality up to a restriction to the fully
 symmetric manifold $\M_0$, and
 \begin{align}
-  \var\p{\v x} \equiv \EE_p\sp{\p{x_p-\EE_q\sp{x_q}}^2},
+  \var\p{\v x} \equiv \EE_p\sp{\p{x_p-\EE_q\sp{x_q}}^2}
+  = \EE_p\sp{x_p^2} - \EE_q\sp{x_q}^2,
   &&
-  W \equiv \sum_p V_p^2.
+  W \equiv \sum_p V_p^2,
 \end{align}
+with $\EE_p\sp{x_p}\equiv\sum_px_p/N$ the mean of $\v x$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Two-body perturbations}
@@ -288,71 +293,68 @@ symmetric manifold $\M_0$ by the two-body perturbation $\V_2$ in
 symmetry of $\M_0$ (see Appendix \ref{sec:PXYP}):
 \begin{align}
   H_2^{(1)}
-  = \P_0 \V_2 \P_0
-  = \sum_{p<q} w_{pq} \P_0 X_p Y_q \P_0
-  \simeq \f{w}{N-1} \p{\f12 \sp{X,Y}_+ - Z},
+  = \f12 \P_0 \v X\c\m w\c\v Y\P_0
+  \simeq \f12 w \p{\tilde Z - Z},
 \end{align}
-where
+where in terms of the anti-commutator $\sp{A,B}_+\equiv AB+BA$ and
+collective operators $X\equiv\sum_p X_p$ and $Y\equiv\sum_p Y_p$, we
+define
 \begin{align}
-  w \equiv \f1N \sum_{p<q} w_{pq},
+  w \equiv {N\choose 2}^{-1} \sum_{p<q} w_{pq},
   &&
-  X \equiv \sum_p X_p,
+  \tilde Z \equiv \f12 \sp{X,Y}_+
   &&
-  Y \equiv \sum_p Y_p,
-  &&
-  Z \equiv \f12 \sum_p \sp{X_p, Y_p}_+,
+  Z \equiv \sum_p \f12 \sp{X_p, Y_p}_+.
 \end{align}
-and $\sp{X,Y}_+\equiv XY+YX$ is an anti-commutator.  In order to
-compute the second-order effective Hamiltonian $H_2^{(2)}$, as before
-we pick an arbitrary fully symmetric state $\ket\psi\in\M_0$ and
-expand (see Appendix \ref{sec:H_V2_psi})
+In order to compute the second-order effective Hamiltonian
+$H_2^{(2)}$, as before we pick an arbitrary fully symmetric state
+$\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V2_psi})
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
-  + \sum_{k,\ell} \p{\sp{h_{k\ell}-\p{\f{h_k+h_\ell}{2}}} w_{k\ell}
-    + \sum_q h_{kq} w_{q\ell}} X_k Y_\ell \ket\psi
-  - \sum_{k,\ell} h_{k\ell} w_{k\ell} Z_k \ket\psi,
+  + \v X \c \p{\bar{\m h}\oc\m w + \m h\c\m w} \c \v Y \ket\psi
+  - \v\1 \c \p{\m h\oc\m w} \c \v Z \ket\psi,
   \label{eq:H_V2_psi}
 \end{align}
-where $Z_k\equiv\p{1/2}\sp{X_k,Y_k}_+$.  We thus find that the vector
-$\V_2\ket\psi$ is an eigenvector of the interaction Hamiltonian $H_0$
-if the matrix $\m w$ of all $w_{k\ell}$ satisfies
+where $\v\1$ is an $N$-component vector of ones,
 \begin{align}
-  \bar{\m h}\oc\m w + \m h\c\m w = \e\p{\m w} \m w,
-  &&
   \bar{\m h}
   \equiv \m h - \f12\p{\v h\otimes\v\1 + \v\1\otimes\v h},
+\end{align}
+is a modified interaction matrix with entries $h_{pq}-\p{h_p+h_q}/2$;
+and $\m x\oc\m y$ is an element-wise (Hadamard) product of $\m x$ and
+$\m y$, with entries $x_{pq}y_{pq}$.  We thus find that the vector
+$\V_2\ket\psi$ is an eigenvector of the interaction Hamiltonian $H_0$
+if the matrix $\m w$ of all $w_{pq}$ satisfies
+\begin{align}
+  \bar{\m h}\oc\m w + \m h\c\m w = \f12 \Delta\p{\m w} \m w,
   \label{eq:cond_2}
 \end{align}
-where $\bar{\m h}\oc\m w$ denotes an element-wise (Hadamard) product
-of $\bar{\m h}$ and $\m w$, with components
-$\bar h_{k\ell} w_{k\ell}$; $\m h\c\m w$ denotes an ordinary matrix
-product of $\m h$ and $\m w$, with components
-$\sum_q h_{kq} w_{q\ell}$; $\e\p{\m w}$ is some constant that may
-depend on $\m w$; $\v\1$ is a constant vector of ones; and
-$\v h\otimes\v\1$ is a tensor product of $\v h$ and $\v\1$.  Note that
+for some constant $\Delta\p{\m w}$ that may depend on $\m w$; $\v\1$
+is a constant vector of ones.  Remembering that both $\m h$ and $\m w$
+are both symmetric (under transposition) with zeros on the diagonal,
 the diagonal components of the condition in \eqref{eq:cond_2}
-automatically enforce that the last sum in \eqref{eq:H_V2_psi}
+automatically enforce that the last term in \eqref{eq:H_V2_psi}
 vanishes.
 
 We can re-cast the condition in \eqref{eq:cond_2} as an eigenvalue
 problem by writing the coefficient matrix $\m w$ as a vector in
 $\RR^{N^2}$,
 \begin{align}
-  \m w = \sum_{k,\ell} w_{k\ell} \op{k}{\ell}
-  \to \v{\m w} \equiv \sum_{k,\ell} w_{k\ell} \ket{k\ell},
+  \m w = \sum_{p,q} w_{pq} \op{p}{q}
+  \to \v{\m w} \equiv \sum_{p,q} w_{pq} \ket{pq},
 \end{align}
 and defining the matrix
 \begin{align}
   \check{\m h}
-  \equiv \sum_{k,\ell} \bar h_{k\ell} \op{k\ell}
-  + \sum_{k,q,\ell} h_{kq} \op{k\ell}{q\ell},
+  \equiv \sum_{p,q} \bar h_{pq} \op{pq}
+  + \sum_{p,q,\ell} h_{pq} \op{p\ell}{q\ell},
   \label{eq:h_super_mat}
 \end{align}
 in terms of which the condition in \eqref{eq:cond_2} becomes the
 eigenvalue equation
 \begin{align}
-  \check{\m h} \c \v{\m w} = \e\p{\m w} \v{\m w}.
+  \check{\m h} \c \v{\m w} = \f12 \Delta\p{\m w} \v{\m w}.
   \label{eq:cond_2_eig}
 \end{align}
 The matrix $\check{\m h}$ in \eqref{eq:h_super_mat} can be written in
@@ -361,22 +363,22 @@ the block-diagonal form
   \check{\m h} = \sum_\ell \m h_\ell \otimes \op{\ell},
   &&
   \m h_\ell
-  \equiv \sum_{k,q}\p{\delta_{kq} \bar h_{k\ell} + h_{kq}} \op{k}{q},
+  \equiv \sum_{p,q}\p{\delta_{pq} \bar h_{p\ell} + h_{pq}} \op{p}{q},
 \end{align}
 which reduces the eigenvalue equation in \eqref{eq:cond_2_eig} to the
 $N$ smaller, uncoupled eigenvalue equations
 \begin{align}
-  \m h_\ell \c \v{\m w}_\ell = \e\p{\m w} \v{\m w}_\ell,
+  \m h_\ell \c \v{\m w}_\ell = \f12 \Delta\p{\m w} \v w_\ell,
   &&
-  \v{\m w}_\ell \equiv \sum_k w_{k\ell} \ket{k}.
+  \v w_\ell \equiv \sum_p w_{p\ell} \ket{p}.
   \label{eq:cond_2_eig_block}
 \end{align}
 We can thus (numerically) diagonalize the blocks $\m h_\ell$
-independently, and classify their eigenvectors $\v{\m w}_\ell$ by the
-corresponding eigenvalues $\e\p{\m w}$.  ``Total'' eigenvectors
+independently, and classify their eigenvectors $\v w_\ell$ by the
+corresponding eigenvalues $\Delta\p{\m w}/2$.  ``Total'' eigenvectors
 $\v{\m w}$ of $\check{\m h}$ are then built from eigenvectors
 $\v{\m w}_\ell$ within each block $\m h_\ell$ that share the same
-eigenvalue $\e\p{\m w}$.  The task of constructing eigenvectors
+eigenvalue $\Delta\p{\m w}/2$.  The task of constructing eigenvectors
 $\V_2\p{\m w}\ket\psi$ of $H_0$ and determining their energy thus
 reduces to finding the eigenvectors and eigenvalues of $N$ matrices
 $\m h_\ell$ of size $N\times N$.
@@ -388,37 +390,40 @@ $\m h_\ell$ then take the form
 \begin{align}
   \m h_{\ell} = \m\Sigma_\ell \c \m h_0 \c \m\Sigma_\ell^\dag,
   &&
-  \m\Sigma_\ell \equiv \sum_k \op{k+\ell}{k},
+  \m\Sigma_\ell \equiv \sum_p \op{p+\ell}{p},
   \label{eq:block_shift}
 \end{align}
 which implies that we need only find the eigenvectors and eigenvalues
 of a single block $\m h_0$, after which we can determine the
 eigenvectors of any block simply by appropriate applications of the
 shift matrix $\m\Sigma_\ell$.  Note that in dimensions $D>1$, the
-relation in \eqref{eq:block_shift} holds for vectors $k,\ell$ that
-index lattice sites, i.e.~$k=\p{k_1,k_2,\cdots,k_D}$ and likewise with
+relation in \eqref{eq:block_shift} holds for vectors $p,\ell$ that
+index lattice sites, i.e.~$p=\p{p_1,p_2,\cdots,p_D}$ and likewise with
 $\ell$.
 
-As with the case of single-body perturbations, we can decompose any
-matrix $\m w$ into its projections $\m w_\e$ onto the eigenspace of
-matrices satisfying \eqref{eq:cond_2} with eigenvalue $\e$,
-i.e.~$\m w=\sum_\e\m w_\e$, which allows us to expand
+If we {\it construct} a perturbation $\V_2\p{\m w_\Delta}$ with
+coefficients $\m w_\Delta$ that satisfy \eqref{eq:cond_1} with
+eigenvalue $\Delta/2$, then
 \begin{align}
-  \V_2\p{\m w} = \sum_\e \V_2\p{\m w_\e}.
+  H_0 \V_2\p{\m w_\Delta} \ket\psi
+  = \sp{E_0 + \Delta} \V_2\p{\m w_\Delta} \ket\psi.
+  \label{eq:H_V1_psi}
+\end{align}
+As with the case of single-body perturbations, we can decompose any
+matrix $\m w$ into its projections $\m w_\Delta$ onto the eigenspace
+of matrices satisfying \eqref{eq:cond_2} with eigenvalue $\Delta/2$,
+i.e.~$\m w=\sum_\Delta\m w_\Delta$, which allows us to expand
+\begin{align}
+  \V_2\p{\m w} = \sum_\Delta \V_2\p{\m w_\Delta}.
 \end{align}
 We can then simplify
 \begin{align}
   H_2^{(2)} = - \P_0 \V_2\p{\m w} \E \V_2\p{\m w} \P_0
-  = -\sum_{\e>0} \f1\e \P_0 \V_2\p{\m w_\e} \P_\e \V_2\p{\m w_\e} \P_0
-  = -\sum_{\e>0} \f1\e \P_0 \V_2\p{\m w_\e}^2 \P_0,
+  = -\sum_{\Delta>0} \f1\Delta \P_0 \V_2\p{\m w_\Delta}^2 \P_0,
 \end{align}
-where the product $\P_0 \V_2\p{\m w_\e}^2 \P_0$ is worked out in
-Appendix \ref{sec:PVVP_2}, giving us \red{[to do: finish calculation]}
-\begin{align}
-  H_2^{(2)} =
-\end{align}
-
-\vspace{3cm}
+where the product $\P_0 \V_2\p{\m w_\Delta}^2 \P_0$ can be written in
+terms collective operators using techniques similar to those in
+Appendix \ref{sec:sym_prod}.
 
 \appendix
 
@@ -426,7 +431,7 @@ Appendix \ref{sec:PVVP_2}, giving us \red{[to do: finish calculation]}
 \section{Diagnosing perturbed states with the interaction Hamiltonian}
 
 Here we simplify vectors of the form $H_0\V_M\ket\psi$ to arrive at
-the expansions in \eqref{eq:H_V1_psi} and \eqref{eq:H_V2_psi}.
+the expansions in \eqref{eq:H_V1_psi_start} and \eqref{eq:H_V2_psi}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body perturbation}
@@ -447,30 +452,31 @@ $\ket\psi$, leaving us the sum
   = \f12 \sum_{\substack{p,q\\k\notin\set{p,q}}} h_{pq}
   = \f12 \sum_{p,q} h_{pq}
   - \f12 \sum_{\substack{p,q\\k\in\set{p,q}}} h_{pq}
-  = \f12 N h - \sum_q h_{kq}
   = E_0 - h_k,
 \end{align}
-where we have used the facts that $h_{pp}=0$ and $h_{pq}=h_{qp}$.  The
+where we have used the facts that $h_{pq}=h_{qp}$ and $h_{pp}=0$.  The
 terms with $k\notin\set{p,q}$ in \eqref{eq:H_V1_psi_start} are then
 \begin{align}
   \sum_{\substack{p<q\\k\notin\set{p,q}}}
   h_{pq} v_k \Pi_{pq} V_k \ket\psi
   = \sum_k \p{E_0 - h_k} v_k V_k \ket\psi
-  = E_0 \V_1 \ket\psi - \sum_k h_k v_k V_k \ket\psi.
+  = E_0 \V_1 \ket\psi - \v h\oc\v v \c\v V \ket\psi,
 \end{align}
-In the case of $k\in\set{p,q}$, we have
+where $\v h\oc\v v$ is an element-wise (Hadamard) product of $\v h$
+and $\v v$.  In the case of $k\in\set{p,q}$, we have
 \begin{align}
   \sum_{\substack{p<q\\k\in\set{p,q}}}
   h_{pq} v_k \Pi_{pq} V_k \ket\psi
   = \sum_{k<q} h_{kq} v_k V_q \ket\psi
   + \sum_{p<k} h_{pk} v_k V_p \ket\psi
-  = \sum_{k,q} h_{kq} v_k V_q \ket\psi,
+  = \sum_{k,q} h_{kq} v_k V_q \ket\psi
+  = \v v\c\m h\c\v V \ket\psi,
 \end{align}
-which with some re-indexing gives us
+which implies
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi
-  + \sum_{k,q} \p{h_{kq} v_q - h_k v_k} V_k \ket\psi.
+  + \p{\v v\c\m h - \v v\oc\v h}\c \v V \ket\psi.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -498,41 +504,48 @@ $\set{p,q}=\set{k,\ell}$, leaving a sum over $p,q$ of the form
 The corresponding terms in \eqref{eq:H_V2_psi_start} with
 $p,q\notin\set{k,\ell}$ and $\set{p,q}=\set{k,\ell}$ are then
 \begin{align}
-  E_0 \V_2 \ket\psi + \f12 \sum_{k,\ell}
-  \p{2 h_{k\ell} - h_k - h_\ell}
-  w_{k\ell} X_k Y_\ell \ket\psi,
+  E_0 \V_2 \ket\psi + \sum_{k,\ell}
+  \sp{h_{k\ell} - \f12\p{h_k+h_\ell}} w_{k\ell} X_k Y_\ell \ket\psi
+  = E_0 \V_2 \ket\psi + \v X \c \p{\bar{\m h}\oc\m w} \c \v Y \ket\psi,
 \end{align}
-while the terms in \eqref{eq:H_V2_psi_start} with only one of
-$p,q\in\set{k,\ell}$ simplify to
+where $\bar{\m h}\oc\m w$ is an element-wise (Hadamard) product
+between $\bar{\m h}$ and $\m w$,
+\begin{align}
+  \bar{\m h} \equiv \m h - \f12\p{\v h\otimes\v\1 + \v\1\otimes\v h},
+\end{align}
+and $\v\1$ is a vector of ones.  The terms in
+\eqref{eq:H_V2_psi_start} with only one of $p,q\in\set{k,\ell}$
+simplify to
 \begin{align}
   \f12 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}} w_{k\ell}
   \p{h_{kq} X_q Y_\ell + h_{\ell q} X_k Y_q} \ket\psi
-  = \sum_{k,\ell,q} w_{k\ell} h_{kq} X_q Y_\ell \ket\psi
-  - \sum_{k,\ell} w_{k\ell} h_{k\ell} Z_k \ket\psi,
+  &= \sum_{k,\ell,q} w_{k\ell} h_{kq} X_q Y_\ell \ket\psi
+  - \sum_{k,\ell} w_{k\ell} h_{k\ell} Z_k \ket\psi \\
+  &= \v X \c\m h \c\m w\c\v Y \ket\psi
+  - \v\1 \c \p{\m h\oc\m w}\c \v Z \ket\psi,
 \end{align}
 where
 \begin{align}
-  Z_k \equiv \f12 \sp{X_k, Y_k}_+.
+  Z_k \equiv \f12 \sp{X_k, Y_k}_+,
 \end{align}
-In total,
+and $\v Z$ is a vector of all $Z_p$.  In total,
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
-  + \sum_{k,\ell} \p{\sp{h_{k\ell}-\p{\f{h_k+h_\ell}{2}}} w_{k\ell}
-    + \sum_q h_{kq} w_{q\ell}} X_k Y_\ell \ket\psi
-  - \sum_{k,\ell} h_{k\ell} w_{k\ell} Z_k \ket\psi.
+  + \v X \c \p{\bar{\m h}\oc\m w + \m h\c\m w} \c \v Y \ket\psi
+  - \v\1 \c \p{\m h\oc\m w}\c \v Z \ket\psi.
 \end{align}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Simplifying operator products restricted to the
-  fully-symmetric manifold}
+\section{Simplifying operator products restricted to the fully
+  symmetric manifold}
+\label{sec:sym_prod}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body product}
 \label{sec:PVVP}
 
-Computing the second-order effective Hamiltonian $H_1^{(2)}$ induced
+Calculating the second-order effective Hamiltonian $H_1^{(2)}$ induced
 on the fully symmetric manifold $\M_0$ by the perturbation $\V_1$ in
 \eqref{eq:perturbations} requires us to simplify the product
 \begin{align}
@@ -597,54 +610,39 @@ Altogether, we have that
 \subsection{Two-body product at first order}
 \label{sec:PXYP}
 
-Computing the first-order effective Hamiltonian $H_2^{(1)}$ induced on
-the fully symmetric manifold $\M_0$ by the perturbation $\V_2$ in
-\eqref{eq:perturbations} requires us to simplify the product
-\begin{align}
-  \P_0 \V_2 \P_0
-  = \sum_{p<q} w_{pq} \P_0 X_p Y_q \P_0
-  = w \times N \P_0 X_0 Y_1 \P_0,
-  \label{eq:PXYP}
-\end{align}
-where
-\begin{align}
-  w \equiv \f1N \sum_{p<q}
-\end{align}
-is the mean value of the pair-wise coefficients in $\V_2$.  To
-simplify the operator content of \eqref{eq:PXYP}, we expand
-\begin{align}
-  \f12 \P_0 \sp{X, Y}_+ \P_0
-  = \P_0 Z \P_0 + N\p{N-1} \P_0 X_0 Y_1 \P_0,
-\end{align}
-where $\sp{A,B}_+\equiv AB+BA$ is an anti-commutator and
-\begin{align}
-  Z \equiv \f12 \sum_p \sp{X_p,Y_p}_+.
-\end{align}
-We thus find that
-\begin{align}
-  \P_0 \V_2 \P_0
-  = \f{w}{N-1} \P_0 \p{\f12 \sp{X,Y}_+ -  Z } \P_0.
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Two-body product at second order}
-\label{sec:PVVP_2}
-
-Computing the second-order effective Hamiltonian $H_2^{(2)}$ induced
+Calculating the first-order effective Hamiltonian $H_2^{(1)}$ induced
 on the fully symmetric manifold $\M_0$ by the perturbation $\V_2$ in
 \eqref{eq:perturbations} requires us to simplify the product
 \begin{align}
-  \P_0 \V_2\p{\m w}^2 \P_0
-  = \f14 \sum_{k,\ell,p,q} w_{k\ell} w_{pq} \P_0 X_k Y_\ell X_p Y_q \P_0.
+  \P_0 \V_2 \P_0
+  = \f12 \P_0 \v X\c\m w\c\v Y\P_0
+  = \f12 \sum_{p\ne q} w_{pq} \P_0 X_p Y_q \P_0
+  = {N\choose 2} w \P_0 X_0 Y_1 \P_0,
+  \label{eq:PXYP_start}
 \end{align}
-The terms with $p,q\notin\set{k,\ell}$ are
+where ${N\choose2}=N\p{N-1}/2$ and
 \begin{align}
-  \f14 \sum_{\substack{k,\ell\\p,q\notin\set{k,\ell}}} w_{k\ell} w_{pq}
-  \P_0 X_0 Y_1 X_2 Y_3 \P_0.
+  w \equiv {N\choose 2}^{-1} \sum_{p<q} w_{pq}
 \end{align}
-
-
-\red{[to do: finish calculation]}
+is the mean value of the pair-wise coefficients in $\V_2$.  To
+simplify the operator content of \eqref{eq:PXYP_start}, we define
+\begin{align}
+  Z_p \equiv \f12\sp{X_p, Y_p}_+,
+  &&
+  Z \equiv \sum_p Z_p,
+  &&
+  \tilde Z \equiv \f12 \sp{X, Y}_+,
+\end{align}
+and expand
+\begin{align}
+  \P_0 \tilde Z \P_0 = \P_0 Z \P_0 + N\p{N-1} \P_0 X_0 Y_1 \P_0.
+\end{align}
+Substituting the product $\P_0 X_0 Y_1 \P_0$ back into
+\eqref{eq:PXYP_start}, we thus find that
+\begin{align}
+  \P_0 \V_2 \P_0
+  = \f12 w \P_0 \p{\tilde Z -  Z } \P_0.
+\end{align}
 
 \bibliography{multilevel_spin_notes.bib}
 
