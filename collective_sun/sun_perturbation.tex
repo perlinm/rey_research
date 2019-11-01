@@ -106,45 +106,30 @@
 We consider an array of $N$ multilevel spins with non-uniform
 SU($n$)-symmetric interactions that can be written in the form
 \begin{align}
-  H_0 = \sum_{p<q} h_{pq} \Pi_{pq},
+  H_0 = \sum_{p<q} h_{pq} \Pi_{pq}
+  = \f12 \sum_{p,q} \Pi_{pq},
   &&
   \Pi_{pq} \equiv \sum_{\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)},
   \label{eq:ints}
 \end{align}
-where $S_{\mu\nu}^{(p)}\equiv\op{\mu}{\nu}_p$ flips the state of spin
-$p$ to $\ket\mu$ from $\ket\nu$; the operator $\Pi_{pq}$ permutes
-spins $p$ and $q$; and the $h_{pq}$ in the Hamiltonian are all
-negative: $h_{pq}<0$.
+where the coefficients $h_{pq}$ in the Hamiltonian are all negative,
+with $h_{pq}=h_{qp}$ and $h_{pp}=0$;
+$S_{\mu\nu}^{(p)}\equiv\op{\mu}{\nu}_p$ flips the state of spin $p$ to
+$\ket\mu$ from $\ket\nu$; and the operator $\Pi_{pq}$ permutes spins
+$p$ and $q$.  The permutation operator $\Pi_{pq}$ is a multilevel
+generalization of the SU(2)-symmetric spin interaction
+$\m S_p\c\m S_q$.
 
 The ground-state manifold $\M_0$ of the interaction Hamiltonian $H_0$
 consists of fully symmetric states that are simultaneous $+1$
-eigenstates of all permutation operators $\Pi_{pq}$.  We will assume
-throughout these notes that the interaction Hamiltonian $H_0$ is
-gapped, i.e.~that there is a finite energy difference between $\M_0$
-and its orthogonal complement.  The energy of fully symmetric states
-$\ket\psi\in\M_0$ is
-\begin{align}
-  E_0 \equiv \sum_{p<q} h_{pq}
-  = \f12 \sum_{p,q} h_{pq}
-  = \f12 \sum_p h_p
-  = \f12 N h,
-\end{align}
-where for convenience define coefficients $h_{pq}$ for all $p,q$ (as
-opposed to only $p<q$) by enforcing $h_{pq}=h_{qp}$ and $h_{pp}=0$;
-and
-\begin{align}
-  h_p \equiv \sum_q h_{pq},
-  &&
-  h \equiv \EE_p\sp{h_p} = \f1N \sum_p h_p.
-\end{align}
-We wish to determine the effective dynamics induced on the fully
-symmetric manifold $\M_0$ by weak single- and two-body perturbations
-of the form
+eigenstates of all permutation operators $\Pi_{pq}$.  We wish to
+determine the effective dynamics induced on the fully symmetric
+manifold $\M_0$ by weak single- and two-body perturbations of the form
 \begin{align}
   \V_1 \equiv \sum_p v_p V_p = \v v\c\v V,
   &&
   \V_2 \equiv \sum_{p<q} w_{pq} X_p Y_q
-  = \f12 \sum_{p,q} w_{pq} X_p Y_q
+  = \f12 \sum_{p,q} X_p w_{pq} Y_q
   = \f12 \v X \c\m w \c\v Y,
   \label{eq:perturbations}
 \end{align}
@@ -152,8 +137,25 @@ where $V_p,X_p,Y_p$ are trace-zero operators on spin $p$;
 $\v V,\v X,\v Y$ are respectively vectors of all $V_p,X_p,Y_p$; $\v v$
 and $\m w$ are respectively a vector and matrix of all $v_p,w_{pq}$;
 we enforce $w_{pq}=w_{qp}$ and $w_{pp}=0$; and we use a dot ($\c$) to
-denote an inner product between matrices or vectors as appropriate.
+denote an inner product between vectors and matrices as appropriate.
 
+We will assume throughout these notes that the interaction Hamiltonian
+$H_0$ is gapped, and that the interaction energy difference between
+$\M_0$ and its orthogonal complement is much larger than than any
+additional couplings that we introduce.  The energy of fully symmetric
+states $\ket\psi\in\M_0$ is
+\begin{align}
+  E_0 = \f12 \sum_{p,q} h_{pq}
+  = \f12 \sum_p h_p
+  = \f12 N h,
+\end{align}
+where for later convenience we define the net interaction energy $h_p$
+associated with spin $p$, the mean $h$ of all such energies:
+\begin{align}
+  h_p \equiv \sum_q h_{pq},
+  &&
+  h \equiv \EE_p\sp{h_p} = \f1N \sum_p h_p.
+\end{align}
 The effective Hamiltonian $H_M$ induced on the ground-state manifold
 $\M_0$ by an $M$-body perturbation $\V_M$ through second order in
 perturbation theory is given by\cite{bravyi2011schrieffer,
@@ -168,8 +170,9 @@ perturbation theory is given by\cite{bravyi2011schrieffer,
   \E \equiv \sum_{\Delta>0} \f{\P_\Delta}{\Delta},
 \end{align}
 where $\P_\Delta$ is a projector onto the eigenspace of the
-interaction Hamiltonian $H_0$, with interaction energy $\Delta$
-above that of fully symmetric manifold $\M_0$.
+interaction Hamiltonian $H_0$, with interaction energy $\Delta$ above
+that of fully symmetric manifold $\M_0$; that is, the energy of states
+in the image of $\P_\Delta$ is $E_0+\Delta$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Single-body perturbations}
@@ -200,7 +203,7 @@ symmetric state $\ket\psi\in\M_0$ and expand (see Appendix
   + \p{\v v\c\m h - \v v\oc\v h}\c \v V \ket\psi,
   \label{eq:H_V1_psi_start}
 \end{align}
-where $\m h$ is a matrix of all coefficients $h_{pq}$ in the
+where $\m h$ is a matrix of all coefficients $h_{pq}$ of the
 interaction Hamiltonian $H_0$ in \eqref{eq:ints}, and $\v v\oc\v h$ is
 the element-wise (Hadamard) product of $\v v$ and $\v h$, i.e.~a
 vector with components $v_kh_k$.  We thus find that the vector
@@ -607,7 +610,7 @@ Altogether, we have that
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Two-body product at first order}
+\subsection{Two-body product}
 \label{sec:PXYP}
 
 Calculating the first-order effective Hamiltonian $H_2^{(1)}$ induced
