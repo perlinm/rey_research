@@ -180,9 +180,9 @@ perturbation $\V_1$, we expand
 and use the permutational symmetry of the ground-state manifold to
 simplify
 \begin{align}
-  H_1^{(1)} =  \sum_p v_p \P_0 V_0 \P_0 \simeq v V,
+  H_1^{(1)} =  \sum_p v_p \P_0 V_0 \P_0 \simeq \bar v V,
   &&
-  v \equiv \EE_p\sp{v_p} = \f1N \sum_p v_p,
+  \bar v \equiv \EE_p\sp{v_p} = \f1N \sum_p v_p,
   &&
   V \equiv \sum_p V_p,
   \label{eq:H_1_1}
@@ -294,13 +294,13 @@ symmetry of $\M_0$ (see Appendix \ref{sec:PXYP}):
 \begin{align}
   H_2^{(1)}
   = \f12 \P_0 \v X\c\m w\c\v Y\P_0
-  \simeq \f12 w \p{\tilde Z - Z},
+  \simeq \f12 \bar w \p{\tilde Z - Z},
 \end{align}
 where in terms of the anti-commutator $\sp{A,B}_+\equiv AB+BA$ and
 collective operators $X\equiv\sum_p X_p$ and $Y\equiv\sum_p Y_p$, we
 define
 \begin{align}
-  w \equiv {N\choose 2}^{-1} \sum_{p<q} w_{pq},
+  \bar w \equiv {N\choose 2}^{-1} \sum_{p<q} w_{pq},
   &&
   \tilde Z \equiv \f12 \sp{X,Y}_+,
   &&
@@ -420,17 +420,21 @@ i.e.~$\m w=\sum_\Delta\m w_\Delta$, which allows us to expand
 and in turn simplify
 \begin{align}
   H_2^{(2)} = - \P_0 \V_2\p{\m w} \E \V_2\p{\m w} \P_0
-  = -\sum_{\Delta>0} \f1\Delta \P_0 \V_2\p{\m w_\Delta}^2 \P_0.
+  = -\sum_{\Delta>0} \f1\Delta \P_0 \V_2\p{\m w_\Delta}^2 \P_0,
 \end{align}
-The product $\P_0 \V_2\p{\m w_\Delta}^2 \P_0$ can be written in terms
-collective operators using techniques similar to those in Appendix
-\ref{sec:sym_prod}, which should yield a effective Hamiltonian of the
-form
-\begin{align}
-  H_2^{(2)} \simeq f\p{\m w_\Delta} \O\p{\v X,\v Y},
-\end{align}
-where $f\p{\m w_\Delta}$ is a scalar and $\O\p{\v X,\v Y}$ is a
-collective operator that is independent of $\m w_\Delta$.
+where the product $\P_0 \V_2\p{\m w_\Delta}^2 \P_0$ can be written in
+terms collective operators using techniques similar to those in
+Appendix \ref{sec:sym_prod}.
+
+% The product $\P_0 \V_2\p{\m w_\Delta}^2 \P_0$ can be written in
+% terms collective operators using techniques similar to those in
+% Appendix \ref{sec:sym_prod}, which should yield a effective
+% Hamiltonian of the form
+% \begin{align}
+%   H_2^{(2)} \simeq f\p{\m w_\Delta} \O\p{\v X,\v Y},
+% \end{align}
+% where $f\p{\m w_\Delta}$ is a scalar and $\O\p{\v X,\v Y}$ is a
+% collective operator that is independent of $\m w_\Delta$.
 
 \appendix
 
@@ -448,7 +452,7 @@ We wish to simplify
 \begin{align}
   H_0 \V_1 \ket\psi
   = \sum_{\substack{k\\p<q}} h_{pq} v_k \Pi_{pq} V_k \ket\psi,
-  \label{eq:H_V1_psi_start}
+  \label{eq:H_V1_psi_start_apndx}
 \end{align}
 which has terms with $k\in\set{p,q}$, and terms with
 $k\notin\set{p,q}$.  In the case of $k\notin\set{p,q}$, the
@@ -462,7 +466,8 @@ $\ket\psi$, leaving us the sum
   = E_0 - h_k,
 \end{align}
 where we have used the facts that $h_{pq}=h_{qp}$ and $h_{pp}=0$.  The
-terms with $k\notin\set{p,q}$ in \eqref{eq:H_V1_psi_start} are then
+terms in \eqref{eq:H_V1_psi_start_apndx} with $k\notin\set{p,q}$ are
+then
 \begin{align}
   \sum_{\substack{p<q\\k\notin\set{p,q}}}
   h_{pq} v_k \Pi_{pq} V_k \ket\psi
@@ -470,7 +475,7 @@ terms with $k\notin\set{p,q}$ in \eqref{eq:H_V1_psi_start} are then
   = E_0 \V_1 \ket\psi - \v h\oc\v v \c\v V \ket\psi,
 \end{align}
 where $\v h\oc\v v$ is an element-wise (Hadamard) product of $\v h$
-and $\v v$.  In the case of $k\in\set{p,q}$, we have
+and $\v v$.  The terms with $k\in\set{p,q}$, meanwhile, are
 \begin{align}
   \sum_{\substack{p<q\\k\in\set{p,q}}}
   h_{pq} v_k \Pi_{pq} V_k \ket\psi
@@ -623,12 +628,12 @@ on the fully symmetric manifold $\M_0$ by the perturbation $\V_2$ in
 \begin{align}
   \P_0 \V_2 \P_0
   = \f12 \sum_{p\ne q} w_{pq} \P_0 X_p Y_q \P_0
-  = {N\choose 2} w \P_0 X_0 Y_1 \P_0,
+  = {N\choose 2} \bar w \P_0 X_0 Y_1 \P_0,
   \label{eq:PXYP_start}
 \end{align}
 where ${N\choose2}=N\p{N-1}/2$ and
 \begin{align}
-  w \equiv {N\choose 2}^{-1} \sum_{p<q} w_{pq}
+  \bar w \equiv {N\choose 2}^{-1} \sum_{p<q} w_{pq}
 \end{align}
 is the mean value of the pair-wise couplings in $\V_2$.  To simplify
 the operator content of \eqref{eq:PXYP_start}, we define
@@ -650,7 +655,7 @@ and expand
 Substituting the product $\P_0 X_0 Y_1 \P_0$ back into
 \eqref{eq:PXYP_start}, we thus find that
 \begin{align}
-  \P_0 \V_2 \P_0 = \f12 w \P_0 \p{\tilde Z -  Z } \P_0.
+  \P_0 \V_2 \P_0 = \f12 \bar w \P_0 \p{\tilde Z -  Z } \P_0.
 \end{align}
 
 \bibliography{multilevel_spin_notes.bib}
