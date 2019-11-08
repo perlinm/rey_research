@@ -68,6 +68,7 @@
 \newcommand{\ZZ}{\mathbb{Z}}
 
 \newcommand{\FS}{\text{FS}}
+\newcommand{\FSEQ}{=_{\text{FS}}}
 
 \DeclareMathOperator{\sign}{sign}
 \DeclareMathOperator{\cov}{cov}
@@ -173,25 +174,23 @@ is the interaction energy of fully symmetric states $\ket\psi\in\M_0$.
 \section{Single-body perturbations}
 
 To compute the effective Hamiltonian induced by the single-body
-perturbation $\V_1$, we expand
+perturbation $\V_1$, we use the permutational symmetry of the
+ground-state manifold to simplify
 \begin{align}
-  H_1^{(1)} = \v v \c \P_0 \v V \P_0,
-\end{align}
-and use the permutational symmetry of the ground-state manifold to
-simplify
-\begin{align}
-  H_1^{(1)} =  \sum_p v_p \P_0 V_0 \P_0 \simeq \bar v V,
-  &&
-  \bar v \equiv \EE_p\sp{v_p} = \f1N \sum_p v_p,
-  &&
-  V \equiv \sum_p V_p,
+  H_1^{(1)} = \sum_p v_p \P_0 V_p \P_0
+  = \sum_p v_p \P_0 V_0 \P_0 \FSEQ \bar v V,
   \label{eq:H_1_1}
 \end{align}
-where $\simeq$ denotes equality up to a restriction to the
-ground-state manifold $\M_0$, and $\EE_p\sp{x_p}$ denotes the mean
-value of $x_p$.  In order to compute the second order effective
-Hamiltonian $H_1^{(2)}$, we first choose an arbitrary fully symmetric
-state $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V1_psi}):
+where $\FSEQ$ denotes equality under a restriction to the fully
+symmetric manifold $\M_0$, and
+\begin{align}
+  \bar v \equiv \f1N \sum_p v_p,
+  &&
+  V \equiv \sum_p V_p.
+\end{align}
+In order to compute the second order effective Hamiltonian
+$H_1^{(2)}$, we first choose an arbitrary fully symmetric state
+$\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V1_psi}):
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi
@@ -258,23 +257,23 @@ i.e.~$\v v = \sum_\Delta \v v_\Delta$, which also allows us to expand
 \end{align}
 where each operator $\V_1\p{\v v_\Delta}$ generates a state with
 definite interaction energy $\Delta$ above that of the fully symmetric
-manifold.  We can therefore simplify
+manifold $\M_0$.  We can therefore simplify
 \begin{align}
   H_1^{(2)}
-  = -\P_0 \V_1\p{\v v} \E \V_1\p{\v v} \P_0
+  = - \P_0 \V_1\p{\v v} \E \V_1\p{\v v} \P_0
   = - \sum_{\Delta>0} \f1{\Delta}
   \P_0 \V_1\p{\v v} \P_\Delta \V_1\p{\v v} \P_0
   = - \sum_{\Delta>0} \f1{\Delta} \P_0 \V_1\p{\v v_\Delta}^2 \P_0,
 \end{align}
 where the product $\P_0 \V_1\p{\v v_\Delta}^2 \P_0$ is worked out in
-Appendix \ref{sec:PVVP}, giving us
+Appendix \ref{sec:PVVP}.  In total, we find
 \begin{align}
-  H_1^{(2)} \simeq \f{\tilde v}{N-1} \p{V^2 - N W},
+  H_1^{(2)} \FSEQ \f{\tilde v}{N-1} \p{V^2 - N W},
   &&
-  \tilde v \equiv \sum_{\Delta>0} \f{\var\p{\v v_\Delta}}{\Delta}.
+  \tilde v \equiv \sum_{\Delta>0} \f{\var\p{\v v_\Delta}}{\Delta},
   \label{eq:H_1_2}
 \end{align}
-Here $\simeq$ denotes equality up to a restriction to the fully
+where $\FSEQ$ denotes equality under a restriction to the fully
 symmetric manifold $\M_0$, and
 \begin{align}
   \var\p{\v x} \equiv \EE_p\sp{\p{x_p-\EE_q\sp{x_q}}^2}
@@ -282,19 +281,19 @@ symmetric manifold $\M_0$, and
   &&
   W \equiv \sum_p V_p^2,
 \end{align}
-with $\EE_p\sp{x_p}\equiv\sum_px_p/N$ the mean of $\v x$.
+with $\EE_p\sp{x_p}\equiv\sum_px_p/N$ the mean value in $\v x$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Two-body perturbations}
 
 The first-order effective Hamiltonian $H_2^{(1)}$ induced on the fully
 symmetric manifold $\M_0$ by the two-body perturbation $\V_2$ in
-\eqref{eq:perturbations} can be computed using the permutational
-symmetry of $\M_0$ (see Appendix \ref{sec:PXYP}):
+\eqref{eq:perturbations} is simply the restriction of $\V_2$ onto
+$\M_0$ (see Appendix \ref{sec:PXYP}):
 \begin{align}
   H_2^{(1)}
-  = \f12 \P_0 \v X\c\m w\c\v Y\P_0
-  \simeq \f12 \bar w \p{\tilde Z - Z},
+  = \P_0 \V_2 \P_0
+  \FSEQ \f12 \bar w \p{\tilde Z - Z},
 \end{align}
 where in terms of the anti-commutator $\sp{A,B}_+\equiv AB+BA$ and
 collective operators $X\equiv\sum_p X_p$ and $Y\equiv\sum_p Y_p$, we
@@ -426,16 +425,6 @@ where the product $\P_0 \V_2\p{\m w_\Delta}^2 \P_0$ can be written in
 terms collective operators using techniques similar to those in
 Appendix \ref{sec:sym_prod}.
 
-% The product $\P_0 \V_2\p{\m w_\Delta}^2 \P_0$ can be written in
-% terms collective operators using techniques similar to those in
-% Appendix \ref{sec:sym_prod}, which should yield a effective
-% Hamiltonian of the form
-% \begin{align}
-%   H_2^{(2)} \simeq f\p{\m w_\Delta} \O\p{\v X,\v Y},
-% \end{align}
-% where $f\p{\m w_\Delta}$ is a scalar and $\O\p{\v X,\v Y}$ is a
-% collective operator that is independent of $\m w_\Delta$.
-
 \appendix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -559,21 +548,23 @@ and $\v Z$ is a vector of all $Z_p$.  In total,
 
 Calculating the second-order effective Hamiltonian $H_1^{(2)}$ induced
 on the fully symmetric manifold $\M_0$ by the perturbation $\V_1$ in
-\eqref{eq:perturbations} requires us to simplify the product
+\eqref{eq:perturbations} requires us to simplify
 \begin{align}
   \P_0 \V_1\p{\v v}^2 \P_0
-  = \sum_{p,q} v_p v_q \P_0 V_p V_q \P_0
-  = \sum_p v_p^2 \P_0 V_p^2 \P_0
-  + \sum_{p\ne q} v_p v_q \P_0 V_p V_q \P_0,
+  \FSEQ \sum_{p,q} v_p v_q V_p V_q
+  = \sum_p v_p^2 V_p^2
+  + \sum_{p\ne q} v_p v_q V_p V_q,
   \label{eq:PVVP_start}
 \end{align}
-where the coefficients $\v v$ satisfy \eqref{eq:cond_1} with
-eigenvalue $\Delta\ne0$, which implies that $\v v$ is mean-zero.  The
-first sum on the right of \eqref{eq:PVVP_start} is then
+where $\FSEQ$ denotes equality under a restriction to the fully
+symmetric manifold $\M_0$; and the coefficients $\v v$ satisfy
+\eqref{eq:cond_1} with eigenvalue $\Delta\ne0$, which implies that
+$\v v$ is mean-zero.  The first sum on the right of
+\eqref{eq:PVVP_start} is then
 \begin{align}
-  \sum_p v_p^2 \P_0 V_p^2 \P_0
-  = \sum_p v_p^2 \P_0 V_0^2 \P_0
-  = \var\p{\v v} \P_0 W \P_0,
+  \sum_p v_p^2 V_p^2
+  \FSEQ \sum_p v_p^2 V_0^2
+  \FSEQ \var\p{\v v} W,
   \label{eq:PVVP_eq}
 \end{align}
 where
@@ -583,10 +574,10 @@ where
   &&
   W \equiv \sum_p V_p^2.
 \end{align}
-The second sum in \eqref{eq:PVVP_start} is
+The second sum on the right of \eqref{eq:PVVP_start} is
 \begin{align}
-  \sum_{p\ne q} v_p v_q \P_0 V_p V_q \P_0
-  = \sum_{p\ne q} v_p v_q \P_0 V_0 V_1 \P_0,
+  \sum_{p\ne q} v_p v_q V_p V_q
+  \FSEQ \sum_{p\ne q} v_p v_q V_0 V_1,
   \label{eq:PVVP_neq_start}
 \end{align}
 where the sum over coefficients in \eqref{eq:PVVP_neq_start} can be
@@ -599,23 +590,23 @@ simplified to
 In order to simplify the product of operators in
 \eqref{eq:PVVP_neq_start}, we expand
 \begin{align}
-  \P_0 V^2 \P_0
-  = \sum_p \P_0 V_p^2 \P_0
-  + \sum_{p\ne q} \P_0 V_p V_q \P_0
-  = \P_0 W \P_0 + N \p{N-1} \P_0 V_0 V_1 \P_0,
+  V^2
+  = \sum_p V_p^2
+  + \sum_{p\ne q} V_p V_q
+  \FSEQ W + N \p{N-1} V_0 V_1,
   \label{eq:PVVP_neq_ops}
 \end{align}
 which implies that
 \begin{align}
-  \sum_{p\ne q} v_p v_q \P_0 V_p V_q \P_0
-  = - \var\p{\v v} N \P_0 V_0 V_1 \P_0
-  = -\f{\var\p{\v v}}{N-1} \P_0 \p{V^2 - W} \P_0
+  \sum_{p\ne q} v_p v_q V_p V_q
+  \FSEQ - \var\p{\v v} N V_0 V_1
+  \FSEQ -\f{\var\p{\v v}}{N-1} \p{V^2 - W}
   \label{eq:PVVP_neq}
 \end{align}
 Altogether, we have that
 \begin{align}
-  \P_0 \V_1\p{\v v}^2 \P_0
-  = -\f{\var\p{\v v}}{N-1} \P_0 \p{V^2 - N W} \P_0,
+  \V_1\p{\v v}^2
+  \FSEQ -\f{\var\p{\v v}}{N-1} \p{V^2 - N W}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -624,14 +615,16 @@ Altogether, we have that
 
 Calculating the first-order effective Hamiltonian $H_2^{(1)}$ induced
 on the fully symmetric manifold $\M_0$ by the perturbation $\V_2$ in
-\eqref{eq:perturbations} requires us to simplify the product
+\eqref{eq:perturbations} requires us to simplify
 \begin{align}
   \P_0 \V_2 \P_0
-  = \f12 \sum_{p\ne q} w_{pq} \P_0 X_p Y_q \P_0
-  = {N\choose 2} \bar w \P_0 X_0 Y_1 \P_0,
+  \FSEQ \f12 \sum_{p\ne q} w_{pq} X_p Y_q
+  = {N\choose 2} \bar w X_0 Y_1,
   \label{eq:PXYP_start}
 \end{align}
-where ${N\choose2}=N\p{N-1}/2$ and
+where $\FSEQ$ denotes equality under a restriction to the fully
+symmetric manifold $\M_0$, ${N\choose2}=N\p{N-1}/2$ is a binomial
+coefficient, and
 \begin{align}
   \bar w \equiv {N\choose 2}^{-1} \sum_{p<q} w_{pq}
 \end{align}
@@ -650,12 +643,12 @@ the operator content of \eqref{eq:PXYP_start}, we define
 \end{align}
 and expand
 \begin{align}
-  \P_0 \tilde Z \P_0 = \P_0 Z \P_0 + N\p{N-1} \P_0 X_0 Y_1 \P_0.
+  \tilde Z \FSEQ Z + N\p{N-1} X_0 Y_1.
 \end{align}
-Substituting the product $\P_0 X_0 Y_1 \P_0$ back into
-\eqref{eq:PXYP_start}, we thus find that
+Substituting the product $X_0 Y_1$ back into \eqref{eq:PXYP_start}
+gives us
 \begin{align}
-  \P_0 \V_2 \P_0 = \f12 \bar w \P_0 \p{\tilde Z -  Z } \P_0.
+  \V_2 \FSEQ \f12 \bar w \p{\tilde Z -  Z }.
 \end{align}
 
 \bibliography{multilevel_spin_notes.bib}
