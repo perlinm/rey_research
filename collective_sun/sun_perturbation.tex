@@ -60,6 +60,7 @@
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\V}{\mathcal{V}}
 \newcommand{\X}{\mathcal{X}}
+\newcommand{\Y}{\mathcal{Y}}
 \newcommand{\Z}{\mathcal{Z}}
 
 \newcommand{\EE}{\mathbb{E}}
@@ -123,18 +124,18 @@ We wish to determine the effective dynamics induced on the
 ground-state manifold $\M_0$ of $H_0$ by weak single- and two-body
 perturbations of the form
 \begin{align}
-  \V_1 \equiv \sum_p v_p V_p = \v v\c\v V,
+  \V_1 \equiv \sum_p v_p X_p = \v v\c\v X,
   &&
   \V_2 \equiv \f12 \sum_{p,q} w_{pq} X_p Y_q
   = \f12 \v X \c\m w \c\v Y,
   \label{eq:perturbations}
 \end{align}
-where $V_p,X_p,Y_p$ are trace-zero operators on spin $p$, with
-e.g.~$V_p$ related to $V_q$ by a permutation of spins $p$ and $q$;
-$\v V,\v X,\v Y$ are respectively vectors of all $V_p,X_p,Y_p$; $\v v$
-and $\m w$ are respectively a vector and matrix of all $v_p,w_{pq}$;
-we enforce $w_{pq}=w_{qp}$ and $w_{pp}=0$; and we use a dot ($\c$) to
-denote an inner product between vectors and matrices as appropriate.
+where $X_p,Y_p$ are trace-zero operators on spin $p$, with e.g.~$X_p$
+related to $X_q$ by a permutation of spins $p$ and $q$; $\v X,\v Y$
+are respectively vectors of all $X_p,Y_p$; $\v v$ and $\m w$ are
+respectively a vector and matrix of all $v_p,w_{pq}$; we enforce
+$w_{pq}=w_{qp}$ and $w_{pp}=0$; and we use a dot ($\c$) to denote an
+inner product between vectors and matrices as appropriate.
 
 If the coefficients $h_{pq}$ of the interaction Hamiltonian $H_0$ are
 all negative, then the ground-state manifold $\M_0$ of the interaction
@@ -177,8 +178,8 @@ To compute the effective Hamiltonian induced by the single-body
 perturbation $\V_1$, we use the permutational symmetry of the
 ground-state manifold to simplify
 \begin{align}
-  H_1^{(1)} = \sum_p v_p \P_0 V_p \P_0
-  = \sum_p v_p \P_0 V_0 \P_0 \FSEQ \bar v V,
+  H_1^{(1)} = \sum_p v_p \P_0 X_p \P_0
+  = \sum_p v_p \P_0 X_0 \P_0 \FSEQ \bar v \X,
   \label{eq:H_1_1}
 \end{align}
 where $\FSEQ$ denotes equality under a restriction to the fully
@@ -186,39 +187,29 @@ symmetric manifold $\M_0$, and
 \begin{align}
   \bar v \equiv \f1N \sum_p v_p,
   &&
-  V \equiv \sum_p V_p.
+  \X \equiv \sum_p X_p.
 \end{align}
 In order to compute the second order effective Hamiltonian
 $H_1^{(2)}$, we first choose an arbitrary fully symmetric state
 $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V1_psi}):
 \begin{align}
   H_0 \V_1 \ket\psi
-  = E_0 \V_1 \ket\psi
-  + \p{\v v\c\m h - \v v\oc\v h}\c \v V \ket\psi,
+  &= E_0 \V_1 \ket\psi
+  + \p{\sum_{p,q} h_{pq} v_p X_q - \sum_q v_q h_q X_q} \ket\psi \\
+  &= E_0 \V_1 \ket\psi
+  + \v v\c \p{\m h - \diag\v h}\c \v X \ket\psi,
   \label{eq:H_V1_psi_start}
 \end{align}
 where $\m h$ is a matrix of all coefficients $h_{pq}$ of the
 interaction Hamiltonian $H_0$ in \eqref{eq:ints}; $\v h$ is a vector
-of the net interaction energies $h_p\equiv\sum_qh_{pq}$ associated
-with individual spins $p$; and $\v v\oc\v h$ is the element-wise
-(Hadamard) product of $\v v$ and $\v h$, i.e.~a vector with components
-$v_kh_k$.  We thus find that the vector $\V_1\ket\psi$ is an
-eigenvector of the interaction Hamiltonian $H_0$ if the coefficients
-$\v v$ satisfy
+of the net interaction energies $h_q\equiv\sum_ph_{pq}$ associated
+with individual spins $p$; and $\diag\v h$ is a matrix with $\v h$ on
+the diagonal and zeros everywhere else.  We thus find that the vector
+$\V_1\ket\psi$ is an eigenvector of the interaction Hamiltonian $H_0$
+if the coefficients $\v v$ satisfy
 \begin{align}
-  \m h \c \v v - \v h\oc\v v
-  = \p{\m h - \diag\v h}\c\v v
-  = \Delta\p{\v v} \v v,
+  \p{\m h - \diag\v h}\c\v v = \Delta\p{\v v} \v v.
   \label{eq:cond_1}
-\end{align}
-where $\diag\v h$ is a matrix with $\v h$ on the diagonal and zeroes
-everywhere else; and $\Delta\p{\v v}$ is some constant that may depend
-on $\v v$.  If the interaction Hamiltonian $H_0$ is translationally
-invariant, then all $h_p=h\equiv\EE_q\sp{h_q}$ and
-$\v h\oc\v v=h\v v$, so the condition in \eqref{eq:cond_1} simplifies
-to
-\begin{align}
-  \m h \c\v v = \sp{\Delta\p{\v v}+h} \v v.
 \end{align}
 If we {\it construct} a perturbation $\V_1\p{\v v_\Delta}$ with
 coefficients $\v v_\Delta$ that satisfy \eqref{eq:cond_1} with
@@ -231,7 +222,7 @@ eigenvalue $\Delta$, then
 Interestingly, the energy of the (unnormalized) state
 $\V_1\p{\v v_\Delta}\ket\psi$ depends only on the coefficients
 $\v v_\Delta$, and is entirely independent of the state $\ket\psi$ or
-choice of single-spin trace-zero operator $V_p$ used to build $\V_1$
+choice of single-spin trace-zero operator $X_p$ used to build $\V_1$
 in \eqref{eq:perturbations}.  Finding operators $\V_1\p{\v v_\Delta}$
 that generate eigenvectors of the interaction Hamiltonian $H_0$ when
 they act on fully symmetric states $\ket\psi$ thus reduces to finding
@@ -266,9 +257,9 @@ manifold $\M_0$.  We can therefore simplify
   = - \sum_{\Delta>0} \f1{\Delta} \P_0 \V_1\p{\v v_\Delta}^2 \P_0,
 \end{align}
 where the product $\P_0 \V_1\p{\v v_\Delta}^2 \P_0$ is worked out in
-Appendix \ref{sec:PVVP}.  In total, we find
+Appendix \ref{sec:PXXP}.  In total, we find
 \begin{align}
-  H_1^{(2)} \FSEQ \f{\tilde v}{N-1} \p{V^2 - N W},
+  H_1^{(2)} \FSEQ \f{\tilde v}{N-1} \p{\X^2 - N \X^{(2)}},
   &&
   \tilde v \equiv \sum_{\Delta>0} \f{\var\p{\v v_\Delta}}{\Delta},
   \label{eq:H_1_2}
@@ -276,10 +267,10 @@ Appendix \ref{sec:PVVP}.  In total, we find
 where $\FSEQ$ denotes equality under a restriction to the fully
 symmetric manifold $\M_0$, and
 \begin{align}
+  \X^{(2)} \equiv \sum_p X_p^2,
+  &&
   \var\p{\v x} \equiv \EE_p\sp{\p{x_p-\EE_q\sp{x_q}}^2}
   = \EE_p\sp{x_p^2} - \EE_q\sp{x_q}^2,
-  &&
-  W \equiv \sum_p V_p^2,
 \end{align}
 with $\EE_p\sp{x_p}\equiv\sum_px_p/N$ the mean value in $\v x$.
 
@@ -293,38 +284,46 @@ $\M_0$ (see Appendix \ref{sec:PXYP}):
 \begin{align}
   H_2^{(1)}
   = \P_0 \V_2 \P_0
-  \FSEQ \f12 \bar w \p{\tilde Z - Z},
+  \FSEQ \f12 \bar w \p{\X\odot\Y - \O_{X,Y}},
 \end{align}
-where in terms of the anti-commutator $\sp{A,B}_+\equiv AB+BA$ and
-collective operators $X\equiv\sum_p X_p$ and $Y\equiv\sum_p Y_p$, we
-define
+where $A\odot B\equiv\p{AB+BA}/2$ is a symmetrized product of $A$ and
+$B$; and
 \begin{align}
   \bar w \equiv {N\choose 2}^{-1} \sum_{p<q} w_{pq},
   &&
-  \tilde Z \equiv \f12 \sp{X,Y}_+,
-  &&
-  Z \equiv \sum_p \f12 \sp{X_p, Y_p}_+.
+  \O_{X,Y} \equiv \sum_p X_p \odot Y_p.
 \end{align}
 In order to compute the second-order effective Hamiltonian
 $H_2^{(2)}$, as before we pick an arbitrary fully symmetric state
 $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V2_psi})
 \begin{align}
   H_0 \V_2 \ket\psi
-  = E_0 \V_2 \ket\psi
+  &= E_0 \V_2 \ket\psi
+  + \sum_{k,\ell} \bar h_{k\ell} w_{k\ell} X_k Y_\ell \ket\psi
+  + \sum_{k,\ell,q} h_{kq} w_{q\ell} X_k Y_\ell \ket\psi
+  - \sum_{k,\ell} w_{k\ell} h_{k\ell} X_k \odot Y_k \ket\psi \\
+  &= E_0 \V_2 \ket\psi
   + \v X \c \p{\bar{\m h}\oc\m w + \m h\c\m w} \c \v Y \ket\psi
-  - \v\1 \c \p{\m h\oc\m w} \c \v Z \ket\psi,
+  - \v\1 \c \p{\m h\oc\m w} \c \v O_{X,Y} \ket\psi,
   \label{eq:H_V2_psi}
 \end{align}
-where $\v\1$ is an $N$-component vector of ones;
+where $\m w,\m h,\bar{\m h}$ are matrices of all
+$w_{k\ell},h_{k\ell},\bar h_{k\ell}$, with
 \begin{align}
-  \bar{\m h}
-  \equiv \m h - \f12\p{\v h\otimes\v\1 + \v\1\otimes\v h}
+  \bar h_{k\ell} \equiv h_{k\ell} - \f12\p{h_k + h_\ell},
+  &&
+  h_k \equiv \sum_\ell h_{k\ell};
 \end{align}
-is a modified interaction matrix with entries $h_{pq}-\p{h_p+h_q}/2$;
-and $\m x\oc\m y$ is an element-wise (Hadamard) product of $\m x$ and
-$\m y$, with entries $x_{pq}y_{pq}$.  We thus find that the vector
-$\V_2\ket\psi$ is an eigenvector of the interaction Hamiltonian $H_0$
-if the matrix $\m w$ of all $w_{pq}$ satisfies
+$\m x\oc\m y$ is an element-wise (Hadamard) product of $\m x$ and
+$\m y$, i.e.~with matrix elements $x_{k\ell} y_{k\ell}$;
+$\v\1\equiv\p{1,1,1,\cdots}$ is an $N$-component vector of ones; and
+$\v O_{X,Y}$ is a vector with components $\p{X_kY_k+Y_kX_k}/2$, i.e.
+\begin{align}
+  \v O_{X,Y} \equiv \f12\p{\v X\oc\v Y + \v Y\oc\v X}.
+\end{align}
+We thus find that the vector $\V_2\ket\psi$ is an eigenvector of the
+interaction Hamiltonian $H_0$ if the coefficient matrix $\m w$ of all
+$w_{pq}$ satisfies
 \begin{align}
   \bar{\m h}\oc\m w + \m h\c\m w = \f12 \Delta\p{\m w} \m w,
   \label{eq:cond_2}
@@ -333,7 +332,7 @@ for some constant $\Delta\p{\m w}$ that may depend on $\m w$.
 Remembering that the matrices $\m h$ and $\m w$ are both symmetric
 (under transposition) with zeros on the diagonal, the diagonal
 components of the condition in \eqref{eq:cond_2} automatically enforce
-that the last term ($\sim\v Z$) in \eqref{eq:H_V2_psi} vanishes.
+that the last term ($\sim\v O_{X,Y}$) in \eqref{eq:H_V2_psi} vanishes.
 
 We can recast the condition in \eqref{eq:cond_2} as an eigenvalue
 problem by writing the coefficient matrix $\m w$ as a vector
@@ -344,7 +343,7 @@ $\v{\m w}$ in $\RR^N\times\RR^N$,
 \end{align}
 and defining the matrix
 \begin{align}
-  \check{\m h}
+  \tilde{\m h}
   \equiv \sum_{p,q} \bar h_{pq} \op{pq}
   + \sum_{p,q,\ell} h_{pq} \op{p\ell}{q\ell},
   \label{eq:h_super_mat}
@@ -352,13 +351,13 @@ and defining the matrix
 in terms of which the condition in \eqref{eq:cond_2} becomes the
 eigenvalue equation
 \begin{align}
-  \check{\m h} \c \v{\m w} = \f12 \Delta\p{\m w} \v{\m w}.
+  \tilde{\m h} \c \v{\m w} = \f12 \Delta\p{\m w} \v{\m w}.
   \label{eq:cond_2_eig}
 \end{align}
-The matrix $\check{\m h}$ in \eqref{eq:h_super_mat} can be written in
+The matrix $\tilde{\m h}$ in \eqref{eq:h_super_mat} can be written in
 the block-diagonal form
 \begin{align}
-  \check{\m h} = \sum_\ell \m h_\ell \otimes \op{\ell},
+  \tilde{\m h} = \sum_\ell \m h_\ell \otimes \op{\ell},
   &&
   \m h_\ell
   \equiv \sum_{p,q}\p{\delta_{pq} \bar h_{p\ell} + h_{pq}} \op{p}{q},
@@ -374,7 +373,7 @@ $N$ smaller, independent eigenvalue equations
 We can (numerically) diagonalize each of the blocks $\m h_\ell$, and
 classify their eigenvectors $\v w_\ell$ by the corresponding
 eigenvalues $\Delta\p{\m w}/2$.  ``Total'' eigenvectors $\v{\m w}$ of
-$\check{\m h}$ are then built from eigenvectors $\v w_\ell$ within
+$\tilde{\m h}$ are then built from eigenvectors $\v w_\ell$ within
 each block $\m h_\ell$ that share the same eigenvalue
 $\Delta\p{\m w}/2$.  The task of constructing eigenvectors
 $\V_2\p{\m w_\Delta}\ket\psi$ of $H_0$ and determining their energy
@@ -440,12 +439,12 @@ the expansions in \eqref{eq:H_V1_psi_start} and \eqref{eq:H_V2_psi}.
 We wish to simplify
 \begin{align}
   H_0 \V_1 \ket\psi
-  = \sum_{\substack{k\\p<q}} h_{pq} v_k \Pi_{pq} V_k \ket\psi,
+  = \sum_{\substack{k\\p<q}} h_{pq} v_k \Pi_{pq} X_k \ket\psi,
   \label{eq:H_V1_psi_start_apndx}
 \end{align}
 which has terms with $k\in\set{p,q}$, and terms with
 $k\notin\set{p,q}$.  In the case of $k\notin\set{p,q}$, the
-permutation operator $\Pi_{pq}$ commutes with $V_k$ and annihilates on
+permutation operator $\Pi_{pq}$ commutes with $X_k$ and annihilates on
 $\ket\psi$, leaving us the sum
 \begin{align}
   \sum_{\substack{p<q\\k\notin\set{p,q}}} h_{pq}
@@ -459,25 +458,23 @@ terms in \eqref{eq:H_V1_psi_start_apndx} with $k\notin\set{p,q}$ are
 then
 \begin{align}
   \sum_{\substack{p<q\\k\notin\set{p,q}}}
-  h_{pq} v_k \Pi_{pq} V_k \ket\psi
-  = \sum_k \p{E_0 - h_k} v_k V_k \ket\psi
-  = E_0 \V_1 \ket\psi - \v h\oc\v v \c\v V \ket\psi,
+  h_{pq} v_k \Pi_{pq} X_k \ket\psi
+  = \sum_k \p{E_0 - h_k} v_k X_k \ket\psi
+  = E_0 \V_1 \ket\psi - \sum_k h_k v_k X_k \ket\psi
 \end{align}
-where $\v h\oc\v v$ is an element-wise (Hadamard) product of $\v h$
-and $\v v$.  The terms with $k\in\set{p,q}$, meanwhile, are
+while the terms with $k\in\set{p,q}$ are
 \begin{align}
   \sum_{\substack{p<q\\k\in\set{p,q}}}
-  h_{pq} v_k \Pi_{pq} V_k \ket\psi
-  = \sum_{k<q} h_{kq} v_k V_q \ket\psi
-  + \sum_{p<k} h_{pk} v_k V_p \ket\psi
-  = \sum_{k,q} h_{kq} v_k V_q \ket\psi
-  = \v v\c\m h\c\v V \ket\psi,
+  h_{pq} v_k \Pi_{pq} X_k \ket\psi
+  = \sum_{k<q} h_{kq} v_k X_q \ket\psi
+  + \sum_{p<k} h_{pk} v_k X_p \ket\psi
+  = \sum_{k,q} h_{kq} v_k X_q \ket\psi
 \end{align}
 which implies
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi
-  + \p{\v v\c\m h - \v v\oc\v h}\c \v V \ket\psi.
+  + \p{\sum_{p,q} h_{pq} v_p X_q - \sum_q h_q v_q X_q} \ket\psi.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -500,41 +497,35 @@ $p,q\notin\set{k,\ell}$, leaving a sum over $p,q$ of the form
   h_{k\ell} + \sum_{\substack{p<q\\p,q\notin\set{k,\ell}}} h_{pq}
   = \sum_{p<q} h_{pq}
   - \sum_{\substack{p\in\set{k,\ell}\\q\notin\set{k,\ell}}} h_{pq}
-  = E_0 + 2 h_{k\ell} - h_k - h_\ell.
+  = E_0 + 2 h_{k\ell} - h_k - h_\ell
+  = E_0 + 2 \bar h_{k\ell},
+\end{align}
+where
+\begin{align}
+  \bar h_{k\ell} \equiv h_{k\ell} - \f12\p{h_k + h_\ell}.
 \end{align}
 The corresponding terms in \eqref{eq:H_V2_psi_start} with
 $p,q\notin\set{k,\ell}$ and $\set{p,q}=\set{k,\ell}$ are then
 \begin{align}
-  E_0 \V_2 \ket\psi + \sum_{k,\ell}
-  \sp{h_{k\ell} - \f12\p{h_k+h_\ell}} w_{k\ell} X_k Y_\ell \ket\psi
-  = E_0 \V_2 \ket\psi + \v X \c \p{\bar{\m h}\oc\m w} \c \v Y \ket\psi,
+  E_0 \V_2 \ket\psi
+  + \sum_{k,\ell} \bar h_{k\ell} w_{k\ell} X_k Y_\ell \ket\psi.
 \end{align}
-where $\bar{\m h}\oc\m w$ is an element-wise (Hadamard) product
-between $\bar{\m h}$ and $\m w$,
-\begin{align}
-  \bar{\m h} \equiv \m h - \f12\p{\v h\otimes\v\1 + \v\1\otimes\v h},
-\end{align}
-and $\v\1$ is a vector of ones.  The terms in
-\eqref{eq:H_V2_psi_start} with only one of $p,q\in\set{k,\ell}$
-simplify to
+The terms in \eqref{eq:H_V2_psi_start} with only one of
+$p,q\in\set{k,\ell}$ simplify to
 \begin{align}
   \f12 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}} w_{k\ell}
   \p{h_{kq} X_q Y_\ell + h_{\ell q} X_k Y_q} \ket\psi
-  &= \sum_{k,\ell,q} w_{k\ell} h_{kq} X_q Y_\ell \ket\psi
-  - \sum_{k,\ell} w_{k\ell} h_{k\ell} Z_k \ket\psi \\
-  &= \v X \c\m h \c\m w\c\v Y \ket\psi
-  - \v\1 \c \p{\m h\oc\m w}\c \v Z \ket\psi,
+  = \sum_{k,\ell,q} w_{k\ell} h_{kq} X_q Y_\ell \ket\psi
+  - \sum_{k,\ell} w_{k\ell} h_{k\ell} X_k \odot Y_k \ket\psi
 \end{align}
-where
-\begin{align}
-  Z_k \equiv \f12 \sp{X_k, Y_k}_+,
-\end{align}
-and $\v Z$ is a vector of all $Z_p$.  In total,
+where $A\odot B \equiv \p{AB+BA}/2$ is a symmetrized product.  In
+total,
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
-  + \v X \c \p{\bar{\m h}\oc\m w + \m h\c\m w} \c \v Y \ket\psi
-  - \v\1 \c \p{\m h\oc\m w}\c \v Z \ket\psi.
+  + \sum_{k,\ell} \bar h_{k\ell} w_{k\ell} X_k Y_\ell \ket\psi
+  + \sum_{k,\ell,q} h_{kq} w_{q\ell} X_k Y_\ell \ket\psi
+  - \sum_{k,\ell} w_{k\ell} h_{k\ell} X_k \odot Y_k \ket\psi.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -544,43 +535,43 @@ and $\v Z$ is a vector of all $Z_p$.  In total,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body product}
-\label{sec:PVVP}
+\label{sec:PXXP}
 
 Calculating the second-order effective Hamiltonian $H_1^{(2)}$ induced
 on the fully symmetric manifold $\M_0$ by the perturbation $\V_1$ in
 \eqref{eq:perturbations} requires us to simplify
 \begin{align}
   \P_0 \V_1\p{\v v}^2 \P_0
-  \FSEQ \sum_{p,q} v_p v_q V_p V_q
-  = \sum_p v_p^2 V_p^2
-  + \sum_{p\ne q} v_p v_q V_p V_q,
-  \label{eq:PVVP_start}
+  \FSEQ \sum_{p,q} v_p v_q X_p X_q
+  = \sum_p v_p^2 X_p^2
+  + \sum_{p\ne q} v_p v_q X_p X_q,
+  \label{eq:PXXP_start}
 \end{align}
 where $\FSEQ$ denotes equality under a restriction to the fully
 symmetric manifold $\M_0$; and the coefficients $\v v$ satisfy
 \eqref{eq:cond_1} with eigenvalue $\Delta\ne0$, which implies that
 $\v v$ is mean-zero.  The first sum on the right of
-\eqref{eq:PVVP_start} is then
+\eqref{eq:PXXP_start} is then
 \begin{align}
-  \sum_p v_p^2 V_p^2
-  \FSEQ \sum_p v_p^2 V_0^2
-  \FSEQ \var\p{\v v} W,
-  \label{eq:PVVP_eq}
+  \sum_p v_p^2 X_p^2
+  \FSEQ \sum_p v_p^2 X_0^2
+  \FSEQ \var\p{\v v} \X^{(2)},
+  \label{eq:PXXP_eq}
 \end{align}
 where
 \begin{align}
   \var\p{\v v} \equiv \EE_p\sp{\p{v_p-\EE_q\sp{v_q}}^2}
   = \EE_p\sp{v_p^2} - \EE_q\sp{v_q}^2,
   &&
-  W \equiv \sum_p V_p^2.
+  \X^{(2)} \equiv \sum_p X_p^2.
 \end{align}
-The second sum on the right of \eqref{eq:PVVP_start} is
+The second sum on the right of \eqref{eq:PXXP_start} is
 \begin{align}
-  \sum_{p\ne q} v_p v_q V_p V_q
-  \FSEQ \sum_{p\ne q} v_p v_q V_0 V_1,
-  \label{eq:PVVP_neq_start}
+  \sum_{p\ne q} v_p v_q X_p X_q
+  \FSEQ \sum_{p\ne q} v_p v_q X_0 X_1,
+  \label{eq:PXXP_neq_start}
 \end{align}
-where the sum over coefficients in \eqref{eq:PVVP_neq_start} can be
+where the sum over coefficients in \eqref{eq:PXXP_neq_start} can be
 simplified to
 \begin{align}
   \sum_{p\ne q} v_p v_q
@@ -588,25 +579,25 @@ simplified to
   = - \sum_p v_p^2 = - N \var\p{\v v}.
 \end{align}
 In order to simplify the product of operators in
-\eqref{eq:PVVP_neq_start}, we expand
+\eqref{eq:PXXP_neq_start}, we expand
 \begin{align}
-  V^2
-  = \sum_p V_p^2
-  + \sum_{p\ne q} V_p V_q
-  \FSEQ W + N \p{N-1} V_0 V_1,
-  \label{eq:PVVP_neq_ops}
+  \X^2
+  = \sum_p X_p^2
+  + \sum_{p\ne q} X_p X_q
+  \FSEQ \X^{(2)} + N \p{N-1} X_0 X_1,
+  \label{eq:PXXP_neq_ops}
 \end{align}
 which implies that
 \begin{align}
-  \sum_{p\ne q} v_p v_q V_p V_q
-  \FSEQ - \var\p{\v v} N V_0 V_1
-  \FSEQ -\f{\var\p{\v v}}{N-1} \p{V^2 - W}
-  \label{eq:PVVP_neq}
+  \sum_{p\ne q} v_p v_q X_p X_q
+  \FSEQ - N \var\p{\v v} X_0 X_1
+  \FSEQ -\f{\var\p{\v v}}{N-1} \p{\X^2 - \X^{(2)}}
+  \label{eq:PXXP_neq}
 \end{align}
 Altogether, we have that
 \begin{align}
   \V_1\p{\v v}^2
-  \FSEQ -\f{\var\p{\v v}}{N-1} \p{V^2 - N W}.
+  \FSEQ -\f{\var\p{\v v}}{N-1} \p{\X^2 - N \X^{(2)}}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -631,24 +622,22 @@ coefficient, and
 is the mean value of the pair-wise couplings in $\V_2$.  To simplify
 the operator content of \eqref{eq:PXYP_start}, we define
 \begin{align}
-  X \equiv \sum_p X_p,
+  \X \equiv \sum_p X_p,
   &&
-  Y \equiv \sum_p Y_p,
+  \Y \equiv \sum_p Y_p,
   &&
-  Z_p \equiv \f12\sp{X_p, Y_p}_+,
+  A \odot B \equiv \f12\p{AB+BA},
   &&
-  Z \equiv \sum_p Z_p,
-  &&
-  \tilde Z \equiv \f12 \sp{X, Y}_+,
+  \O_{X,Y} \equiv \sum_p X_p \odot Y_p,
 \end{align}
 and expand
 \begin{align}
-  \tilde Z \FSEQ Z + N\p{N-1} X_0 Y_1.
+  \X\odot\Y \FSEQ \O_{X,Y} + N\p{N-1} X_0 Y_1.
 \end{align}
 Substituting the product $X_0 Y_1$ back into \eqref{eq:PXYP_start}
 gives us
 \begin{align}
-  \V_2 \FSEQ \f12 \bar w \p{\tilde Z -  Z }.
+  \V_2 \FSEQ \f12 \bar w \p{\X\odot\Y -  \O_{X,Y}}.
 \end{align}
 
 \bibliography{multilevel_spin_notes.bib}
