@@ -1,0 +1,939 @@
+\documentclass[aspectratio=43,usenames,dvipsnames]{beamer}
+
+
+%%% beamer theme
+\usepackage{beamerthemelined}
+\usetheme{default} % theme with outline sidebar on the right
+\setbeamertemplate{headline}{} % clear header
+\setbeamertemplate{navigation symbols}{} % clear navigation symbols
+\setbeamertemplate{footline} % place frame number in footer
+{
+  \hbox{\begin{beamercolorbox}
+      [wd=1\paperwidth,ht=2.25ex,dp=1ex,right]{framenumber}
+      \usebeamercolor[fg]{subtitle}
+      \insertframenumber{} / \inserttotalframenumber
+      \hspace*{2ex}
+    \end{beamercolorbox}}
+}
+
+% remove the "Figure:" prefix from figure captions
+\usepackage{caption}
+\captionsetup[figure]{labelformat=empty}
+
+\usepackage{graphicx} % for figures
+\graphicspath{{./figures/}} % set path for all figures
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,bm,amssymb} % physics and math
+\usefonttheme[onlymath]{serif} % "regular" math font
+
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\newcommand{\bk}{\braket} % shorthand for braket notation
+
+\renewcommand{\c}{\cdot}
+
+\newcommand{\m}{\bm} % bold symbol
+\renewcommand{\v}{\vec} % arrow vector
+
+\usepackage{dsfont}
+\newcommand{\1}{\mathds{1}}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
+\renewcommand{\d}{\text{d}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\z}{\text{z}}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\N}{\mathcal{N}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\newcommand{\R}{\mathcal{R}}
+\newcommand{\T}{\mathcal{T}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\V}{\mathcal{V}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\Z}{\mathcal{Z}}
+
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\RR}{\mathbb{R}}
+\renewcommand{\SS}{\mathbb{S}}
+\newcommand{\ZZ}{\mathbb{Z}}
+
+\newcommand{\FS}{\text{FS}}
+
+\DeclareMathOperator{\sign}{sign}
+\let\var\relax
+\DeclareMathOperator{\var}{var}
+
+\renewcommand*{\thefootnote}{\alph{footnote}}
+
+
+% custom colors
+\usepackage{xcolor}
+\definecolor{orange}{RGB}{255,127,14}
+\definecolor{green}{RGB}{44,160,44}
+\newcommand{\mblue}[1]{\textcolor{blue}{#1}}
+\newcommand{\morange}[1]{\textcolor{orange}{#1}}
+\newcommand{\mgreen}[1]{\textcolor{green}{#1}}
+\newcommand{\mred}[1]{\textcolor{red}{#1}}
+
+% for drawing arrows
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes}
+\tikzstyle{every picture}+=[remember picture]
+\newcommand{\tikzmark}[1]{
+  \tikz[remember picture] \node[coordinate] (#1) {#1};
+}
+
+% for uncovering under/over braces
+\newcommand<>{\uubrace}[2]{%
+  \onslide#3 \underbrace{ \onslide<1->%
+  #1%
+  \onslide#3 }_{#2} \onslide<1->%
+}
+\newcommand<>{\uobrace}[2]{%
+  \onslide#3 \overbrace{ \onslide<1->%
+  #1%
+  \onslide#3 }^{#2} \onslide<1->%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Multilevel spin models and SU($n$)-symmetric interactions}%
+\author{Michael A. Perlin}%
+\date{7 November 2019}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+\begin{frame}
+  \frametitle{Overview}
+  \begin{itemize} \setlength{\itemsep}{1.5em}
+  \item<+-> SU($n$)-symmetric interactions ($\sim\v S\c\v S$)
+    \vspace{.5em}
+    \begin{itemize} \setlength{\itemsep}{.5em}
+    \item Cold atomic systems; SYK-like models, chaos/scrambling
+    \item Simple form independent of $n$
+    \end{itemize}
+  \item<+-> Strong interactions
+    \vspace{.5em}
+    \begin{itemize} \setlength{\itemsep}{.5em}
+    \item Gap protection, perturbations, and eigenstates
+    \item Spin squeezing
+    \end{itemize}
+  \item<+-> Nuclear spins
+    \vspace{.5em}
+    \begin{itemize} \setlength{\itemsep}{.5em}
+    \item Multilevel spin operators
+    \item Application (Raman drive)
+    \item Spin-orbit coupling, periodic drive (not covered)
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{SU($n$)-symmetric interactions}
+  \pause
+  \begin{itemize} \setlength{\itemsep}{1em}
+  \item<+-> Familiar case of SU(2):
+    \begin{align*}
+      H_{\t{int}}
+      = \sum_{p<q} \underbrace{h_{pq}}
+      _{\substack{\t{coupling}\\\t{strengths}}} ~
+      \underbrace{\v S_p \c\v S_q}_{\substack{\t{spin}\\\t{operators}}}
+      \uncover<+->{
+        \propto \sum_{p<q} h_{pq}
+        \underbrace{\p{X_pX_q + Y_pY_q + Z_pZ_q}}
+        _{\t{Pauli operators}}
+      }
+    \end{align*}
+  \item<+-> Generalization to SU($n$)?
+  \item<+-> Basis of operators on an $n$-level system:
+    $\B_n\equiv\set{\O}$
+    \vspace{.5em}
+    \begin{itemize} \setlength{\itemsep}{.5em}
+    \item SU(2): $\set{X, Y, Z, \1}$
+    \item<+-> Linearly independent, normalized:
+      $\tr\p{\O^\dag\Q}=\delta_{\O\Q}\times\t{const.}$
+    \end{itemize}
+    \uncover<+->{
+      \begin{align*}
+        H_{\t{int}} \sim \sum_{p,q} h_{pq} \sum_{\O\in\B_n} \O_p^\dag \O_q
+      \end{align*}
+    }
+    \vspace{-2em}
+  \item<+-> $H_{\t{int}}$ independent of basis choice (exercise for
+    the reader)
+    \vspace{.5em}
+    \begin{itemize}
+    \item<+-> Basis elements: $\op{\nu}{\mu}$ \hfill spin transition
+      $\mu\to\nu$ \hfill ~
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{SU($n$)-symmetric interactions (cont.)}
+  \uncover<+->{
+    \begin{align*}
+      H_{\t{int}} = \sum_{p<q} h_{pq}
+      \sum_{\mu,\nu} \underbrace{\op{\mu}{\nu}^{(p)}}_{\O_p^\dag}
+      \underbrace{\op{\nu}{\mu}^{(q)}}_{\O_q}
+    \end{align*}
+  }
+  \uncover<+->{
+    \begin{align*}
+      \sum_{\mu,\nu} \op{\mu}{\nu}^{(p)} \op{\nu}{\mu}^{(q)}
+      = \sum_{\mu,\nu} \op{\mu\nu}{\nu\mu}^{(p,q)}
+      \uncover<+->{
+        = \t{SWAP}_{pq} \equiv \Pi_{pq}
+      }
+    \end{align*}
+  }
+  \uncover<+->{
+    \begin{align*}
+      H_{\t{int}} = \sum_{p<q} h_{pq} \Pi_{pq}
+    \end{align*}
+  }
+  \setlength{\leftmargini}{0em}
+  \begin{itemize} \setlength{\itemsep}{1em}
+  \item[]<+-> Independent of $n$!
+  \item[]<+-> Special case: ferromagnetic interactions, $h_{pq}<0$
+    \vspace{.5em}
+    \begin{itemize} \setlength{\itemsep}{.5em}
+    \item<+-> Ground states:
+      $\Pi_{pq}\ket{\psi_{\t{ground}}}=\ket{\psi_{\t{ground}}}$
+    \item<+-> ``Fully symmetric'' manifold $\leftrightarrow$ Dicke
+      manifold in SU(2)
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  ~ \vfill
+  \begin{center}
+    \large \bf Assumption: fully symmetric manifold is gap-protected
+  \end{center}
+  \vspace{3em}
+  Energy spectrum:
+  \begin{center}
+    \begin{tikzpicture}
+      \draw[ultra thick] (0,0) -- (10em,0) node[right]
+      {\bf fully symmetric states};
+      \draw (0,3.0em) -- (10em,3.0em);
+      \draw (0,3.1em) -- (10em,3.1em);
+      \draw (0,3.2em) -- (10em,3.2em);
+      \draw (0,3.3em) -- (10em,3.3em) node[right] {other states};
+      \draw (0,3.4em) -- (10em,3.4em);
+      \draw[<->] (5em,0.2em) -- (5em,2.8em)
+      node[midway,right] {gap};
+      \pause
+      \uncover<+->{
+        \draw (0,-3.0em) -- (10em,-3.0em);
+        \draw (0,-3.1em) -- (10em,-3.1em) node[right]
+        {other states};
+        \draw (0,-3.2em) -- (10em,-3.2em);
+        \draw (0,-3.3em) -- (10em,-3.3em);
+        \draw (0,-3.4em) -- (10em,-3.4em);
+        \draw[<->] (5em,-0.2em) -- (5em,-2.8em)
+        node[midway,right] {gap};
+      }
+    \end{tikzpicture}
+  \end{center}
+  \vspace{1em}
+  \uncover<.->{
+    \begin{center}
+      $\ket{\psi_{\t{initial}}}\in~\t{fully symmetric manifold}$
+    \end{center}
+  }
+  \vfill ~
+\end{frame}
+
+\begin{frame}
+  \frametitle{Perturbations and low-lying excitations}
+  \begin{minipage}[t][0.2\textheight][t]{1.0\linewidth}
+    \begin{align*}
+      H_{\t{tot}} = H_{\t{int}} + \V\p{\vec v}
+      &&
+      H_{\t{int}} = \sum_{p<q} h_{pq} \Pi_{pq}
+      &&
+      \V\p{\vec v} = \sum_p v_p V_p
+    \end{align*}
+  \end{minipage}
+  \pause
+  \begin{minipage}[t][0.6\textheight][t]{1.0\linewidth}
+    \vspace{1em}
+    \begin{itemize} \setlength{\itemsep}{1.5em}
+    \item<+-> $v_p$: scalar coefficient
+    \item<.-> $V_p$: single-body operator on spin $p$ \vspace{.5em}
+      \begin{itemize} \setlength{\itemsep}{.5em}
+      \item Same operator for all spins
+      \item Traceless (orthogonal to identity $\1_p$)
+      \end{itemize}
+    \item<+-> Example: inhomogenous magnetic field
+      $\sum_p B_p s_\z^{(p)}$
+    \end{itemize}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Perturbations and low-lying excitations
+    (1\textsuperscript{st} order)}
+  \begin{minipage}[t][0.2\textheight][t]{1.0\linewidth}
+    \begin{align*}
+      H_{\t{tot}} = H_{\t{int}} + \V\p{\vec v}
+      &&
+      H_{\t{int}} = \sum_{p<q} h_{pq} \Pi_{pq}
+      &&
+      \V\p{\vec v} = \sum_p v_p V_p
+    \end{align*}
+  \end{minipage}
+  \begin{minipage}[t][0.6\textheight][t]{1.0\linewidth}
+    Projection onto fully symmetric manifold (FSM)
+    \begin{align*}
+      H_{\t{eff}}^{(1)}
+      &= \P_0 \V \P_0
+      = \sum_p v_p \P_0 V_p \P_0
+      \pause
+      \uncover<+->{
+        = \sum_p v_p \P_0 V_1 \P_0
+      } \\
+      \uncover<+->{
+        &= \sum_p v_p \P_0 \p{\f1N \sum_q V_q} \P_0
+      } \\
+      \uncover<+->{
+        &\simeq \bar v V
+        \hspace{6em} \t{(``$\simeq$'' = restriction to FSM)}
+      }
+    \end{align*}
+    \vspace{-1em}
+    \uncover<.->{
+      \begin{align*}
+        \bar v \equiv \f1N \sum_p v_p
+        &&
+        V \equiv \sum_q V_q
+      \end{align*}
+    }
+  \end{minipage}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Perturbations and low-lying excitations
+    (2\textsuperscript{nd} order)}
+  \begin{minipage}[t][0.2\textheight][t]{1.0\linewidth}
+    \begin{align*}
+      H_{\t{tot}} = H_{\t{int}} + \V\p{\vec v}
+      &&
+      H_{\t{int}} = \sum_{p<q} h_{pq} \Pi_{pq}
+      &&
+      \V\p{\vec v} = \sum_p v_p V_p
+    \end{align*}
+  \end{minipage}
+  \begin{minipage}[t][0.6\textheight][t]{1.0\linewidth}
+    Coupling to excited states
+    \vspace{.5em}
+    \pause
+    \uncover<+->{
+      \begin{itemize}
+      \item Projector $\P_\Delta$ onto eigenspace of $H_{\t{int}}$ w/
+        excitation energy $\Delta$
+      \end{itemize}
+    }
+    \uncover<+->{
+      \begin{align*}
+        H_{\t{eff}}^{(2)}
+        = -\sum_{\Delta>0} \f1{\Delta} \P_0 \V \P_\Delta \V \P_0
+      \end{align*}
+    }
+    \vspace{-1em}
+    \uncover<+->{
+      \vspace{-.5em}
+      \begin{center}
+        \begin{tikzpicture}
+          \draw[ultra thick] (0,0) -- (10em,0);
+          \only<1-7>{
+            \draw (0,3.4em) -- (10em,3.4em);
+            \draw (0,4.0em) -- (10em,4.0em);
+            \draw (0,4.3em) -- (10em,4.3em);
+            \draw (0,5.0em) -- (10em,5.0em);
+          }
+          \node (FS) at (5em,-1em) {fully symmetric manifold};
+          \node (ES) at (5em,6em) {excited manifolds};
+          \uncover<+->{
+            \draw[->] (-.2em,0em) to [bend left] (-.2em,3.4em);
+            \draw[->] (-.2em,0em) to [bend left] (-.2em,4.0em);
+            \draw[->] (-.2em,0em) to [bend left] (-.2em,4.3em);
+            \draw[->] (-.2em,0em) to [bend left] (-.2em,5.0em);
+            \node (VL) at (-1.5em,2.5em) {$\V$};
+          }
+          \uncover<+->{
+            \only<1-7>{
+              \draw[<->] (1.5em,.2em) -- (1.5em,3.2em);
+              \draw[<->] (3.5em,.2em) -- (3.5em,3.8em);
+              \draw[<->] (5.5em,.2em) -- (5.5em,4.1em);
+              \draw[<->] (7.5em,.2em) -- (7.5em,4.8em);
+              \node (D1) at (2.5em,1.6em) {$\Delta_1$};
+              \node (D1) at (4.5em,1.6em) {$\Delta_2$};
+              \node (D1) at (6.5em,1.6em) {$\Delta_3$};
+              \node (D1) at (8.5em,1.6em) {$\Delta_4$};
+            }
+          }
+          \uncover<+->{
+            \draw[<-] (10.2em,0em) to [bend right] (10.2em,3.4em);
+            \draw[<-] (10.2em,0em) to [bend right] (10.2em,4.0em);
+            \draw[<-] (10.2em,0em) to [bend right] (10.2em,4.3em);
+            \draw[<-] (10.2em,0em) to [bend right] (10.2em,5.0em);
+            \node (VR) at (11.5em,2.5em) {$\V$};
+          }
+          \uncover<+->{
+            \draw[dashed] (0,3.2em) -- (10em,3.2em)
+            -- (10em,5.2em) -- (0,5.2em) -- (0,3.2em);
+            \node (VR) at (5em,4.2em) {???};
+          }
+        \end{tikzpicture}
+      \end{center}
+    }
+  \end{minipage}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Perturbations and low-lying excitations
+    (2\textsuperscript{nd} order, cont.)}
+  \begin{minipage}[t][0.2\textheight][t]{1.0\linewidth}
+    \begin{align*}
+      H_{\t{tot}} = H_{\t{int}} + \V\p{\vec v}
+      &&
+      H_{\t{int}} = \sum_{p<q} h_{pq} \Pi_{pq}
+      &&
+      \V\p{\vec v} = \sum_p v_p V_p
+    \end{align*}
+  \end{minipage}
+  \begin{minipage}[t][0.6\textheight][t]{1.0\linewidth}
+    Diagnosing coupling to excited states
+    \vspace{.5em}
+    \begin{itemize} \setlength{\itemsep}{.5em}
+    \item Fully symmetric (FS) state $\ket{\psi_\FS}$
+      \begin{align*}
+        \pause
+        \uncover<+->{H_{\t{int}}} \V\p{\v v} \ket{\psi_\FS}
+        \uncover<+->{
+          = \p{E_0 + \Delta} \V\p{\v v} \ket{\psi_\FS}
+          \hspace{.5em} \iff \hspace{.5em}
+          \m f\p{\m h}\c\v v = \Delta \v v
+        }
+      \end{align*}
+    \item<3-> FS interaction energy $E_0$, matrix $\m f\p{\m h}$
+      determined by all $h_{pq}$
+    \end{itemize}
+    \vspace{.5em}~
+
+    \begin{minipage}{0.3\linewidth}
+      \begin{center}
+        \begin{tikzpicture}
+          \draw[ultra thick] (0,0) -- (4em,0);
+          \only<1-4>{
+            \draw[dashed] (0,1em) -- (4em,1em)
+            -- (4em,1.4em) -- (0,1.4em) -- (0,1em);
+            \draw[->] (-.2em,0em) to [out=135, in=-130]
+            (-.2em,1.05em);
+            \draw[->] (-.2em,0em) to [out=135, in=-150]
+            (-.2em,1.35em);
+            \node (V) at (-1.3em,.6em) {$\V$};
+            \vphantom{
+              \hphantom{
+                \node (V) at (-2em,.6em) {$\V\p{\v v_\Delta}$};
+                \node (EV) at (2em,-1.3em)
+                {eigenvector $\v v_\Delta$};}
+              }
+            }
+          \only<5->{
+            \draw (0em,1.2em) -- (4em,1.2em);
+            \draw[->] (-.2em,0em) to [out=135, in=-135]
+            (-.2em,1.2em);
+            \node (V) at (-2em,.6em) {$\V\p{\v v_\Delta}$};
+            \draw[<->] (2em,.2em) -- (2em,1em);
+            \node (D) at (2.75em,.6em) {$\Delta$};
+            \node (EV) at (2em,-1.3em)
+            {eigenvector $\v v_\Delta$ of $\m f\p{\m h}$};
+            \vphantom{
+              \draw[dashed] (0,1em) -- (4em,1em)
+              -- (4em,1.4em) -- (0,1.4em) -- (0,1em);
+            }
+          }
+        \end{tikzpicture}
+      \end{center}
+      \vspace{1em}
+    \end{minipage}
+    \begin{minipage}{0.7\linewidth}
+      \uncover<+->{
+        \begin{center}
+          eigenvalue equation for $\v v$\,!
+        \end{center}
+      }
+      \pause
+      \vspace{-1em}
+      \uncover<+->{
+        \begin{align*}
+          \v v &= \textstyle\sum_\Delta \v v_\Delta \\[.5em]
+          \uncover<+->{
+             \V\p{\v v} &= \textstyle\sum_\Delta \V\p{\v v_\Delta}
+          }
+        \end{align*}
+      }
+    \end{minipage}
+  \end{minipage}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Perturbations and low-lying excitations
+    (2\textsuperscript{nd} order, final)}
+  \begin{minipage}[t][0.2\textheight][t]{1.0\linewidth}
+    \begin{align*}
+      H_{\t{tot}} = H_{\t{int}} + \V\p{\vec v}
+      &&
+      H_{\t{int}} = \sum_{p<q} h_{pq} \Pi_{pq}
+      &&
+      \V\p{\vec v} = \sum_p v_p V_p
+    \end{align*}
+  \end{minipage}
+  \begin{minipage}[t][0.6\textheight][t]{1.0\linewidth}
+    Coupling to excited states
+    \begin{align*}
+      H_{\t{eff}}^{(2)}
+      &= -\sum_{\Delta>0} \f1{\Delta}
+      \P_0 \V\p{\v v} \P_\Delta \V\p{\v v} \P_0 \\
+      \pause
+      \uncover<+->{
+        &= -\sum_{\Delta>0} \f1{\Delta}
+        \P_0 \V\p{\v v_\Delta} \V\p{\v v_\Delta} \P_0 \\
+      }
+      \uncover<+->{
+        &\simeq \sp{\sum_{\Delta>0}
+          \f{\var\p{\v v_\Delta}}{\Delta\p{N-1}}}
+        \times \p{V^2 - N W}
+      }
+    \end{align*}
+    \vspace{-1em}
+    \uncover<.->{
+      \begin{align*}
+        V \equiv \sum_p V_p && W \equiv \sum_p V_p^2
+      \end{align*}
+    }
+  \end{minipage}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Perturbations and low-lying excitations (summary)}
+  \begin{minipage}[t][0.2\textheight][t]{1.0\linewidth}
+    \begin{align*}
+      H_{\t{tot}} = H_{\t{int}} + \V\p{\vec v}
+      &&
+      H_{\t{int}} = \sum_{p<q} h_{pq} \Pi_{pq}
+      &&
+      \V\p{\vec v} = \sum_p v_p V_p
+    \end{align*}
+  \end{minipage}
+  \begin{minipage}[t][0.6\textheight][t]{1.0\linewidth}
+    First order:
+    \begin{align*}
+      H_{\t{eff}}^{(1)} = \bar v V
+    \end{align*}
+    Second order:
+    \begin{align*}
+      H_{\t{eff}}^{(2)}
+      = \sum_{\Delta>0} \f{\var\p{\v v_\Delta}}{\Delta\p{N-1}}
+      \p{V^2 - N W}
+    \end{align*}
+    \pause
+
+    \uncover<+->{
+      SU(2): gap protection + inhomogeneous field = squeezing!
+    }
+
+    \vspace{1em}
+    \uncover<+->{
+      Eigenstates $\V\p{\v v_\Delta}\ket{\psi_\FS}$ of $H_{\t{int}}$
+      depend {\it only} on choice of $\v v_\Delta$
+    }
+  \end{minipage}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Perturbations and low-lying excitations (two-body)}
+  \begin{minipage}[t][0.2\textheight][t]{1.0\linewidth}
+    \begin{align*}
+      H_{\t{tot}} = H_{\t{int}} + \tilde\V\p{\m w}
+      &&
+      H_{\t{int}} = \sum_{p<q} h_{pq} \Pi_{pq}
+    \end{align*}
+  \end{minipage}
+  \begin{minipage}[t][0.6\textheight][t]{1.0\linewidth}
+    \begin{align*}
+      \tilde\V\p{\m w} = \sum_{p<q} w_{pq} \times \f12\sp{X_p, Y_q}_+
+    \end{align*}
+    \vspace{-1em}
+    \pause
+    \uncover<+->{
+      \begin{align*}
+        \tilde H_{\t{eff}}^{(1)} = \f12 \bar w \times
+        \p{\f12\sp{X,Y}_+ - \sum_p \f12\sp{X_p,Y_p}_+}
+      \end{align*}
+      \begin{align*}
+        \bar w \equiv {N\choose2}^{-1} \sum_{p<q} w_{pq}
+      \end{align*}
+    }
+    \uncover<+->{
+      SU(2): squeezing at first order for $ZZ$-type interactions
+    }
+  \end{minipage}
+\end{frame}
+
+\begin{frame}
+  ~ \vfill
+  \begin{center}
+    \large \bf Nuclear spins dynamics
+  \end{center}
+  \vfill ~
+\end{frame}
+
+\begin{frame}
+  \frametitle{Nuclear spins and external fields}
+  \vspace{1em}
+  \begin{itemize} \setlength{\itemsep}{1.5em}
+  \item<+-> Ultracold atoms with $n$ nuclear spins states
+    \vspace{.5em}
+    \begin{itemize}
+    \item Yb ($n=6$), Cr ($n=7$), Sr ($n=10$), Er ($n=20$)
+    \end{itemize}
+  \item<+-> Collisional interactions independent of nuclear spin
+    \vspace{.5em}
+    \begin{itemize}
+    \item SU($n$)-symmetric interactions
+    \end{itemize}
+  \item<+-> External controls: magnetic fields, polarized lasers,
+    cavities
+  \end{itemize}
+  \vspace{.5em}
+  \uncover<+->{
+    \begin{align*}
+      H_{\t{magnetic}} \propto \sum_\mu \mu \op{\mu}
+    \end{align*}
+  }
+  \vspace{-1.5em}
+  \uncover<+->{
+    \begin{align*}
+      H_{\t{laser}}
+      \propto \sum_\mu \bk{I\mu;1,0|I,\mu+1} \sigma_+ + \t{h.c.}
+    \end{align*}
+    \vspace{-1.5em}
+    \begin{align*}
+      H_{\t{cavity}}
+      \propto \sum_\mu \bk{I\mu;1,0|I,\mu+1} \sigma_+ a + \t{h.c.}
+    \end{align*}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Transition operators}
+  \begin{itemize} \setlength{\itemsep}{1.5em}
+  \item<+-> Nuclear spin $I$ with $n=2I+1$
+    \begin{align*}
+      T_{LM}
+      \equiv \underbrace{\sqrt{\f{2L+1}{2I+1}}}
+      _{\substack{\t{normalization}\\\t{factor}}}
+      ~\sum_\mu~ \underbrace{\bk{I\mu;LM|I,\mu+M}}_{\t{CG coefficient}}
+      \underbrace{\op{\mu+M}{\mu}}_{\t{spin change}}
+    \end{align*}
+  \item<+-> Absorption of a spin-$L$ particle with spin projection $M$
+    \begin{align*}
+      \uncover<+->{
+        &H_{\t{magnetic}} \propto T_{1,0} \\
+        &H_{\t{laser}} \propto T_{1,1} + \t{h.c.} \\
+        &H_{\t{cavity}} \propto T_{1,1} a + \t{h.c.}
+      }
+    \end{align*}
+  \item<+-> Orthonormal basis:
+    \begin{align*}
+      \tr\p{T_{LM}^\dag T_{L'M'}}=\delta_{LL'} \delta_{MM'}
+    \end{align*}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Drive operators}
+  \vspace{1em}
+  \begin{itemize} \setlength{\itemsep}{1.5em}
+  \item<+-> Self-adjoint combinations of transition operators
+    \begin{align*}
+      \uncover<+->{
+        D_{L,0} \equiv T_{L,0}
+        &&
+        D_{LM} \stackrel{M\ne0}{\equiv}
+        \f{\eta_M}{\sqrt{2}} \p{T_{L\abs{M}}
+          + \sign\p{M} T_{L\abs{M}}^\dag}
+      }
+    \end{align*}
+    \begin{itemize}
+    \item<.-> $\eta_M\in\set{\pm1}$ (choice of conventions)
+    \end{itemize}
+    \item<+-> Spin-operator-like
+    \begin{align*}
+      \p{D_{1,0}, D_{1,1}, D_{1,-1}} \sim \p{S_\z,S_\x,S_\y}
+    \end{align*}
+    \vspace{-2em}
+    \begin{align*}
+      \uncover<+->{
+        H_{\t{magnetic}} \propto D_{1,0}
+        &&
+        H_{\t{laser}} \propto D_{1,1}
+      }
+    \end{align*}
+  \item<+-> Coupling to a {\it classical} field of spin-$\p{L,M}$
+    particles
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Application: Raman drive}
+  Three lasers off-resonantly addressing an electronic excitation
+  \vspace{.5em}
+  \begin{itemize}
+  \item<2-> Polarizations $m$, amplitudes $\Omega_m$, phases $\phi_m$,
+    detuning $\Delta$
+  \end{itemize}
+  \vspace{1em}
+  \uncover<2->{
+    \begin{align*}
+      H_{\t{Raman}}
+      = \sum_{m\in\set{
+          \only<1-3,5-6>{0}\only<4,7->{\mblue{0}},
+          \only<1-4,6>{1}\only<5,7->{\morange{1}},
+          \only<1-5>{-1}\only<6->{\mgreen{-1}}}}
+      \Omega_m \p{e^{i\phi_m} T_{1,m} \otimes \sigma_+ + \t{h.c.}}
+      + \only<1-2,4-6>{\Delta}\only<3,7->{\mred{\Delta}}
+      \1 \otimes s_\z
+    \end{align*}
+  }
+  \vspace{1em}
+  \begin{center}
+    \begin{tikzpicture}
+      \draw (-5em,0em) -- (-7em,0em);
+      \draw (-2em,0em) -- (-4em,0em);
+      \draw (-1em,0em) -- (1em,0em);
+      \draw (2em,0em) -- (4em,0em);
+      \draw (5em,0em) -- (7em,0em);
+      %
+      \draw (-5em,3em) -- (-7em,3em);
+      \draw (-2em,3em) -- (-4em,3em);
+      \draw (-1em,3em) -- (1em,3em);
+      \draw (2em,3em) -- (4em,3em);
+      \draw (5em,3em) -- (7em,3em);
+      %
+      \only<1-2,4-6>{
+        \draw[<->,thick] (8em,.2em) -- (8em,2.8em)
+        node[midway, right] {$\Delta$};
+      }
+      \only<3,7->{
+        \draw[<->,thick,red] (8em,.2em) -- (8em,2.8em)
+        node[midway, right] {$\Delta$};
+      }
+      %
+      \only<4,7->{
+        \draw[<->,thick,blue] (-6em,.2em) -- (-6em,2.8em);
+        \draw[<->,thick,blue] (-3em,.2em) -- (-3em,2.8em);
+        \draw[<->,thick,blue] (0em,.2em) -- (0em,2.8em);
+        \draw[<->,thick,blue] (3em,.2em) -- (3em,2.8em);
+        \draw[<->,thick,blue] (6em,.2em) -- (6em,2.8em);
+      }
+      %
+      \only<5,7->{
+        \draw[<->,thick,orange] (-5.5em,.2em) -- (-3.5em,2.8em);
+        \draw[<->,thick,orange] (-2.5em,.2em) -- (-.5em,2.8em);
+        \draw[<->,thick,orange] (.5em,.2em) -- (2.5em,2.8em);
+        \draw[<->,thick,orange] (3.5em,.2em) -- (5.5em,2.8em);
+      }
+      %
+      \only<6->{
+        \draw[<->,thick,green] (-5.5em,2.8em) -- (-3.5em,.2em);
+        \draw[<->,thick,green] (-2.5em,2.8em) -- (-.5em,.2em);
+        \draw[<->,thick,green] (.5em,2.8em) -- (2.5em,.2em);
+        \draw[<->,thick,green] (3.5em,2.8em) -- (5.5em,.2em);
+      }
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Application: Raman drive (cont.)}
+  Effective Hamiltonian (2\textsuperscript{nd} order):
+
+  \vspace{1em}
+  \begin{align*}
+    H_{\t{Raman,eff}} ~&\sim~
+    \begin{tikzpicture}
+      \draw (0em,0em) -- (1em,0em);
+      \draw (0em,1em) -- (1em,1em);
+      \draw (1.5em,0em) -- (2.5em,0em);
+      \draw (1.5em,1em) -- (2.5em,1em);
+      \draw[<->] (.5em,.1em) -- (.5em,.9em);
+      \draw[<->] (2em,.1em) -- (2em,.9em);
+    \end{tikzpicture}
+    ~+~
+    \begin{tikzpicture}
+      \draw (0em,0em) -- (1em,0em);
+      \draw (0em,1em) -- (1em,1em);
+      \draw (1.5em,0em) -- (2.5em,0em);
+      \draw (1.5em,1em) -- (2.5em,1em);
+      \draw[<->] (.8em,.2em) -- (1.7em,.8em);
+    \end{tikzpicture}
+    ~+~
+    \begin{tikzpicture}
+      \draw (0em,0em) -- (1em,0em);
+      \draw (0em,1em) -- (1em,1em);
+      \draw (1.5em,0em) -- (2.5em,0em);
+      \draw (1.5em,1em) -- (2.5em,1em);
+      \draw[<->] (.8em,.8em) -- (1.7em,.2em);
+    \end{tikzpicture}
+    \\[1em]
+     ~&\quad+~
+    \begin{tikzpicture}
+      \draw (0em,0em) -- (1em,0em);
+      \draw (0em,1em) -- (1em,1em);
+      \draw (1.5em,0em) -- (2.5em,0em);
+      \draw (1.5em,1em) -- (2.5em,1em);
+      \draw[->] (.5em,.1em) -- (.5em,.8em);
+      \draw[->] (.8em,.8em) -- (1.7em,.2em);
+    \end{tikzpicture}
+    ~+~
+    \begin{tikzpicture}
+      \draw (0em,0em) -- (1em,0em);
+      \draw (0em,1em) -- (1em,1em);
+      \draw (1.5em,0em) -- (2.5em,0em);
+      \draw (1.5em,1em) -- (2.5em,1em);
+      \draw[->] (.8em,.2em) -- (1.7em,.8em);
+      \draw[->] (2em,.8em) -- (2em,.1em);
+    \end{tikzpicture}
+    ~+~
+    \begin{tikzpicture}
+      \draw (0em,0em) -- (1em,0em);
+      \draw (0em,1em) -- (1em,1em);
+      \draw (1.5em,0em) -- (2.5em,0em);
+      \draw (1.5em,1em) -- (2.5em,1em);
+      \draw[<-] (.5em,.1em) -- (.5em,.8em);
+      \draw[<-] (.8em,.8em) -- (1.7em,.2em);
+    \end{tikzpicture}
+    ~+~
+    \begin{tikzpicture}
+      \draw (0em,0em) -- (1em,0em);
+      \draw (0em,1em) -- (1em,1em);
+      \draw (1.5em,0em) -- (2.5em,0em);
+      \draw (1.5em,1em) -- (2.5em,1em);
+      \draw[<-] (.8em,.2em) -- (1.7em,.8em);
+      \draw[<-] (2em,.8em) -- (2em,.1em);
+    \end{tikzpicture}
+    \\[1em]
+    ~&\quad+~
+    \begin{tikzpicture}
+      \draw (0em,0em) -- (1em,0em);
+      \draw (0em,1em) -- (1em,1em);
+      \draw (1.5em,0em) -- (2.5em,0em);
+      \draw (1.5em,1em) -- (2.5em,1em);
+      \draw (3em,0em) -- (4em,0em);
+      \draw (3em,1em) -- (4em,1em);
+      \draw[->] (.8em,.2em) -- (1.7em,.8em);
+      \draw[->] (2.2em,.8em) -- (3.3em,.2em);
+    \end{tikzpicture}
+    ~+~
+    \begin{tikzpicture}
+      \draw (0em,0em) -- (1em,0em);
+      \draw (0em,1em) -- (1em,1em);
+      \draw (1.5em,0em) -- (2.5em,0em);
+      \draw (1.5em,1em) -- (2.5em,1em);
+      \draw (3em,0em) -- (4em,0em);
+      \draw (3em,1em) -- (4em,1em);
+      \draw[<-] (.8em,.2em) -- (1.7em,.8em);
+      \draw[<-] (2.2em,.8em) -- (3.3em,.2em);
+    \end{tikzpicture}
+  \end{align*}
+  \pause
+  \uncover<+->{
+    \begin{align*}
+      H_{\t{Raman,eff}}
+      = \sum_{\substack{L\le 2\\\abs{M}\le L}}
+      \Omega_{LM}^{(\phi)} D_{LM}
+    \end{align*}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Application: Raman drive (final)}
+  \vspace{.5em}
+  Phase-matched lasers: $\phi_m=m\phi$
+  \vspace{.5em}
+  \begin{itemize}
+  \item<+-> Spin transition $\mu\to\mu+m$ imprints phase $m\phi$
+    \begin{align*}
+      H_{\t{Raman}}
+      \simeq \sum_{\substack{L\le 2\\0\le M\le L}} \Omega_{LM} D_{LM}
+    \end{align*}
+  \item<+-> Amplitude matching:
+    $\Omega_0 = \Omega_1 = \Omega_{-1}$
+    \begin{align*}
+      H_{\t{Raman}}
+      \simeq \Omega_{1,1} D_{1,1} + \Omega_{2,2} D_{2,2}
+    \end{align*}
+  \item<+-> Amplitude matching:
+    $\Omega_0 = \Omega_1 = -\Omega_{-1}$
+    \begin{align*}
+      H_{\t{Raman}}
+      \simeq \Omega_{2,1} D_{2,1} + \Omega_{2,2} D_{2,2}
+    \end{align*}
+    \item<+-> Amplitude matching:
+    $\Omega_0 = 0$ and $\abs{\Omega_1} = \abs{\Omega_{-1}}$
+    \begin{align*}
+      H_{\t{Raman}}
+      \simeq \Omega_{2,0} D_{2,0} + \Omega_{2,2} D_{2,2}
+    \end{align*}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Addendum}
+  \begin{itemize} \setlength{\itemsep}{1em}
+  \item Synthetic spin-2 gauge fields
+  \item Multilevel spin-orbit coupling
+    \vspace{.5em}
+    \begin{itemize}
+    \item Weak-SOC limit
+    \end{itemize}
+  \item Periodic drives and effective interactions
+  \item Collective dynamics
+    \vspace{.5em}
+    \begin{itemize}
+    \item Collective driving fields (drive operators)
+    \item Cavity QED (transition operators)
+    \item Visualizing collective states?
+    \end{itemize}
+  \item Metrological applications?  Multilevel spin squeezing?
+  \item SYK-like models, chaos, and scrambling?
+  \end{itemize}
+\end{frame}
+
+\end{document}
