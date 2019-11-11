@@ -578,7 +578,7 @@ excited state.  Specifically, we consider a three-laser drive of the
 form
 \begin{align}
   H_{\t{Raman,bare}}^{(\phi)}
-  = \sum_j \sum_{m\in\set{1,0,-1}} \p{\Omega_m e^{i\phi_m j}
+  = \sum_j \sum_{m\in\set{1,0,-1}} \Omega_m \p{e^{i\phi_m j}
     T_{1,m}^{(j)} \otimes \op{\up}{\dn} + \t{h.c.}}
   + \f{\Delta}{2} \1 \otimes \p{\op{\up} - \op{\dn}},
   \label{eq:raman_bare}
@@ -1317,7 +1317,7 @@ can simplify the $p=q$ terms above to
 \begin{align}
   \sum_q z_J^{(q)} z_K^{(q)}
   \P_0 D_{J,0}^{(q)} D_{K,0}^{(q)} \P_0
-  = N \cov_q\sp{v_J^{(q)},v_K^{(q)}}
+  = N \cov_q\sp{z_J^{(q)},z_K^{(q)}}
   \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0,
   \label{eq:PZZP_eq}
 \end{align}
@@ -1341,20 +1341,20 @@ where the remaining sum over coefficients is
 \begin{align}
   \sum_{p\ne q} z_J^{(p)} z_K^{(q)}
   = \sum_{p,q} z_J^{(p)} z_K^{(q)} - \sum_q z_J^{(q)} z_K^{(q)}
-  = - N \cov_q\sp{v_J^{(q)},v_K^{(q)}},
+  = - N \cov_q\sp{z_J^{(q)},z_K^{(q)}},
 \end{align}
 so
 \begin{align}
   \sum_{p\ne q} z_J^{(p)} z_K^{(q)}
   \P_0 D_{J,0}^{(p)} D_{K,0}^{(q)} \P_0
-  = - N \cov_q\sp{v_J^{(q)},v_K^{(q)}}
+  = - N \cov_q\sp{z_J^{(q)},z_K^{(q)}}
   \P_0 D_{J,0}^{(0)} D_{K,0}^{(1)} \P_0.
   \label{eq:PZZP_neq}
 \end{align}
 Combining \eqref{eq:PZZP_eq} and \eqref{eq:PZZP_neq} gives us
 \begin{align}
   \P_0 \Z_J \Z_K \P_0
-  = N \cov_q\sp{v_J^{(q)},v_K^{(q)}}
+  = N \cov_q\sp{z_J^{(q)},z_K^{(q)}}
   \P_0\p{D_{J,0}^{(0)} D_{K,0}^{(0)}
     - D_{J,0}^{(0)} D_{K,0}^{(1)}} \P_0.
 \end{align}
@@ -1374,7 +1374,7 @@ which implies that
 and in turn
 \begin{align}
   \P_0 \Z_J \Z_K \P_0
-  = \f1{N-1} \cov_q\sp{v_J^{(q)},v_K^{(q)}}
+  = \f1{N-1} \cov_q\sp{z_J^{(q)},z_K^{(q)}}
   \P_0 \p{N^2 D_{J,0}^{(0)} D_{K,0}^{(0)} - \D_{J,0} \D_{K,0}} \P_0.
 \end{align}
 Finally, we can simplify
@@ -1390,7 +1390,7 @@ transition operator algebra, defined in \eqref{eq:trans_prod}.  In
 total,
 \begin{align}
   \P_0 \Z_J \Z_K \P_0
-  = \f1{N-1} \cov_q\sp{v_J^{(q)},v_K^{(q)}}
+  = \f1{N-1} \cov_q\sp{z_J^{(q)},z_K^{(q)}}
   \P_0 \p{N \sum_L f_{JKL} \D_{L,0} - \D_{J,0} \D_{K,0}} \P_0,
 \end{align}
 which implies that the effective Hamiltonian $H_{\t{eff}}^{(2)}$ in
