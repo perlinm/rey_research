@@ -259,24 +259,20 @@ manifold $\M_0$.  We can therefore simplify
 where the product $\P_0 \V_1\p{\v v_\Delta}^2 \P_0$ is worked out in
 Appendix \ref{sec:PXXP}.  In total, we find
 \begin{align}
-  H_1^{(2)} \EQFS \tilde v \sp{\p{\col{X}}^2 - N \p{\col{X^2}}},
+  H_1^{(2)}
+  \EQFS \f1{N\p{N-1}}
+  \sum_{\Delta>0} \f{\v v_\Delta\c\v v_\Delta}{\Delta}
+  \sp{\p{\col{X}}^2 - N \p{\col{X^2}}},
   \label{eq:H_1_2}
 \end{align}
 where $\EQFS$ denotes equality under a restriction to the fully
-symmetric manifold $\M_0$, and
+symmetric manifold $\M_0$, $\v v_\Delta$ is the projection of $\v v$
+onto the $\Delta$-eigenspace of the matrix $\m h-\diag\v h$, and
 \begin{align}
-  \tilde v \equiv \f1{N\p{N-1}}
-  \sum_{\Delta>0} \f{\v v_\Delta\c\v v_\Delta}{\Delta},
+  \col{X} \equiv \sum_p X_p,
   &&
   \col{X^2} \equiv \sum_p X_p^2.
 \end{align}
-As the vectors $\v v_\Delta$ with $\Delta>0$ are mean-zero, we can
-equivalently write
-\begin{align}
-  \tilde v = \f1{N-1}
-  \sum_{\Delta>0} \f{\var\p{\v v_\Delta}}{\Delta},
-\end{align}
-where $\var\p{\v x}$ is the variance of the entries in $\v x$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Two-body perturbations}
@@ -406,8 +402,8 @@ index lattice sites, i.e.~$p=\p{p_1,p_2,\cdots,p_D}$ and likewise with
 $\ell$.
 
 If we {\it construct} a perturbation $\V_2\p{\m w_\Delta}$ with
-coefficients $\m w_\Delta$ that satisfy \eqref{eq:cond_2} or
-\eqref{eq:cond_2_eig} with eigenvalue $\Delta/2$, then
+coefficients $\m w_\Delta$ that satisfy \eqref{eq:cond_2_eig} with
+eigenvalue $\Delta/2$, then
 \begin{align}
   H_0 \V_2\p{\m w_\Delta} \ket\psi
   = \p{E_0 + \Delta} \V_2\p{\m w_\Delta} \ket\psi,
@@ -416,20 +412,56 @@ which implies that $\V_2\p{\m w_\Delta}\ket\psi$ is a state of
 definite energy that depends only on the coefficients $\m w_\Delta$.
 As with the case of single-body perturbations, we can decompose any
 matrix $\m w$ into its projections $\m w_\Delta$ onto the eigenspace
-of matrices satisfying \eqref{eq:cond_2} with eigenvalue $\Delta/2$,
-i.e.~$\m w=\sum_\Delta\m w_\Delta$, which allows us to expand
+of matrices satisfying \eqref{eq:cond_2_eig} with eigenvalue
+$\Delta/2$, i.e.~$\m w=\sum_\Delta\m w_\Delta$, which allows us to
+expand
 \begin{align}
   \V_2\p{\m w} = \sum_\Delta \V_2\p{\m w_\Delta},
 \end{align}
-and in turn simplify
+and in turn write
 \begin{align}
   H_2^{(2)} = - \P_0 \V_2\p{\m w} \E \V_2\p{\m w} \P_0
   = -\sum_{\Delta>0} \f1\Delta \P_0 \V_2\p{\m w_\Delta}^2 \P_0,
 \end{align}
-where the product $\P_0 \V_2\p{\m w_\Delta}^2 \P_0$ can be written in
-terms collective operators using techniques similar to those in
-Appendix \ref{sec:sym_prod}.  This calculation is partially completed
-in Appendix \ref{sec:PXYXYP}.
+where the product $\P_0 \V_2\p{\m w_\Delta}^2 \P_0$ is simplified in
+Appendix \ref{sec:PXYXYP}.  If $X=Y=s_\z$, where
+$s_\z\equiv\p{\op\up-\op\dn}/2$ is an SU(2) spin operator, then we can expand
+\begin{align}
+  H_2^{(2)} \EQFS W_4\p{\m h,\m w} S_\z^4 - W_2\p{\m h,\m w} S_\z^2,
+\end{align}
+where $S_\z\equiv\sum_p s_\z^{(p)}$ is a collective SU(2) spin
+operator, $W_k\p{\m h,\m w}$ are scalar coefficients, and we have
+neglected constant terms in $H_2^{(2)}$ without physical consequence.
+In order to expand the coefficients $W_k\p{\m h,\m w}$, for any matrix
+$\m m$ we define the vectors
+\begin{align}
+  \v{\m m} \equiv \sum_{p,q} m_{pq} \ket{pq},
+  &&
+  \v m \equiv \sum_{p,q} m_{pq} \ket{p},
+\end{align}
+using which we have
+\begin{align}
+  W_4\p{\m h,\m w}
+  \equiv \sum_\Delta \f1\Delta \f{\v w_\Delta\c\v w_\Delta
+    - \v{\m w}_\Delta\c\v{\m w}_\Delta/2}{N!_4},
+\end{align}
+\begin{align}
+  W_2\p{\m h,\m w}
+  \equiv \sum_\Delta \f1{\Delta} \sp{\f{\v w_\Delta\c\v w_\Delta
+      - \v{\m w}_\Delta\c\v{\m w}_\Delta}{4N!_2}
+    + \f{\p{3N-4}\p{\v w_\Delta\c\v w_\Delta
+        - \v{\m w}_\Delta\c\v{\m w}_\Delta/2}}{2N!_4}},
+\end{align}
+where
+\begin{align}
+  N!_k \equiv \prod_{j=0}^{k-1} \p{N-j} = \f{N!}{\p{N-k}!}.
+\end{align}
+Note that the dependence of the coefficients of $W_k\p{\m h,\m w}$ on
+the interaction matrix $\m h$ is implicit in the decomposition of the
+coefficient matrix $\m w$ into components $\m w_\Delta$ as
+$\m w=\sum_\Delta\m w_\Delta$, where $\m w_\Delta$ is the projection
+of $\m w$ onto the $\p{\Delta/2}$-eigenspace of the operator
+$\tilde{\m h}$ defined in \eqref{eq:h_super_mat}.
 
 \appendix
 
@@ -596,8 +628,9 @@ which implies that
 \end{align}
 Altogether, we have that
 \begin{align}
-  \V_1\p{\v v}^2
-  \EQFS -\f{\v v\c\v v}{N\p{N-1}} \sp{\p{\col{X}}^2 - N \p{\col{X^2}}}.
+  \P_0 \V_1\p{\v v}^2 \P_0
+  \EQFS -\f{\v v\c\v v}{N\p{N-1}}
+  \sp{\p{\col{X}}^2 - N \p{\col{X^2}}}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -637,7 +670,8 @@ and expand
 Substituting the product $X_0 Y_1$ back into \eqref{eq:PXYP_start}
 gives us
 \begin{align}
-  \V_2 \EQFS \f12 \bar w \p{\col{X}\odot\col{Y} - \col{X\odot Y}}.
+  \P_0 \V_2 \P_0
+  \EQFS \f12 \bar w \p{\col{X}\odot\col{Y} - \col{X\odot Y}}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -704,28 +738,50 @@ where, using the fact that $\m w$ is mean-zero,
   w_{k\ell} w_{pq}
   = 2 \v{\m w}\c\v{\m w} - 4 \v w\c\v w.
 \end{align}
-Altogether, we thus far have that
+Altogether, we thus have that
 \begin{multline}
   \P_0 \V_2^2 \P_0
   \EQFS -\p{\v w\c\v w - \f12 \v{\m w}\c\v{\m w}} X_0 X_1 Y_2 Y_3
   + \f14 \v{\m w}\c\v{\m w} \p{X_0^2 Y_1^2 + X_0 Y_0 Y_1 X_1} \\
   + \f14 \p{\v w\c\v w - \v{\m w}\c\v{\m w}}
-  \p{X_0^2 Y_1 Y_2 + X_0 Y_0 X_1 Y_2 + Y_0 X_0 X_1 Y_2 + Y_0^2 X_1 X_2}.
+  \p{X_0^2 Y_1 Y_2 + X_0 Y_0 X_1 Y_2
+    + Y_0 X_0 X_1 Y_2 + Y_0^2 X_1 X_2}.
+  \label{eq:PXYXYP_multi_body}
 \end{multline}
-If $X=Y=s_\z$, where $s_\z\equiv\p{\op\up-\op\dn}/2$ is an SU(2) spin
-operator, then
+Denoting the collective version of any single-spin operator $Z$ by
+$\col{Z}\equiv\sum_pZ_p$, defining the falling factorial
 \begin{align}
-  \P_0 \V_2^2 \P_0
-  \EQFS - \sp{\f{\v w\c\v w-\v{\m w}\c\v{\m w}/2}{N_4}} S_\z^4
-  + \sp{\f{\v w\c\v w-\v{\m w}\c\v{\m w}}{4N_2}
-    + \f{\p{3N-4}\p{\v w\c\v w - \v{\m w}\c\v{\m w}/2}}{2N_4}} S_\z^2,
+  N!_k \equiv \prod_{j=0}^{k-1} \p{N-j} = \f{N!}{\p{N-k}!},
 \end{align}
-where $S_\z\equiv\sum_p s_\z^{(p)}$ is a collective SU(2) spin
-operator,
+denoting symmetrized products by $A\odot B\equiv\p{AB+BA}/2$, and
+adopting the convention that exponents are evaluated before
+symmetrized products,
+i.e.~$A^k\odot B\equiv\p{A^k}\odot B\ne A^{k-1}\p{A\odot B}$, the
+operators in \eqref{eq:PXYXYP_multi_body} can be written in terms of
+collective operators within the fully symmetric manifold through the
+identities
 \begin{align}
-  N_k \equiv \prod_{j=0}^{k-1} \p{N-j} = \f{N!}{\p{N-k}!},
+  N!_2 \p{X_0^2 Y_1^2 + X_0 Y_0 Y_1 X_1}
+  \EQFS \col{X^2}\odot\col{Y^2} + \col{XY} \odot \col{YX}
+  - \col{X^2\odot Y^2} - \col{\p{XY}\odot\p{YX}}
 \end{align}
-and we have neglected scalar terms with no physical consequence.
+\begin{align}
+  N!_3 &\p{X_0^2 Y_1 Y_2 + X_0 Y_0 X_1 Y_2
+    + Y_0 X_0 X_1 Y_2 + Y_0^2 X_1 X_2}
+  \notag \\
+  &\EQFS 4\col{\p{X\odot Y}^2} + 5 \col{X^2\odot Y^2} - \f12\col{\p{XY}\odot\p{YX}}
+  \notag \\
+  &\quad- \f32 \col{X}\odot\col{Y^2X} - \f32 \col{XY^2}\odot\col{X}
+  - \f32 \col{Y}\odot\col{X^2Y} - \f32 \col{YX^2}\odot\col{X}
+  \notag \\
+  &\quad- \col{X}\odot\col{YXY} - \col{Y}\odot\col{XYX}
+  - 2 \col{XY}\odot\col{YX} - 2\col{X^2}\odot\col{Y^2}
+  \notag \\
+  &\quad+ \col{X}\,\col{Y^2}\,\col{X} + \col{Y}\,\col{X^2}\,\col{Y}
+  +\col{XY}\odot\p{\col{Y}\,\col{X}} + \col{YX}\odot\p{\col{X}\,\col{Y}}.
+\end{align}
+
+[UNFINISHED]
 
 \bibliography{multilevel_spin_notes.bib}
 
