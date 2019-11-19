@@ -50,6 +50,7 @@
 \newcommand{\E}{\mathcal{E}}
 \renewcommand{\H}{\mathcal{H}}
 \newcommand{\I}{\mathcal{I}}
+\renewcommand{\L}{\mathcal{L}}
 \newcommand{\M}{\mathcal{M}}
 \newcommand{\N}{\mathcal{N}}
 \renewcommand{\O}{\mathcal{O}}
@@ -68,6 +69,8 @@
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\ZZ}{\mathbb{Z}}
 
+\newcommand{\PP}{\mathbb{Z}}
+
 \newcommand{\FS}{\text{FS}}
 \newcommand{\EQFS}{=_{\text{FS}}}
 \newcommand{\col}{\underline}
@@ -77,6 +80,7 @@
 \let\var\relax
 \DeclareMathOperator{\var}{var}
 \DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\counts}{counts}
 
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
@@ -424,14 +428,15 @@ and in turn write
   = -\sum_{\Delta>0} \f1\Delta \P_0 \V_2\p{\m w_\Delta}^2 \P_0,
 \end{align}
 where the product $\P_0 \V_2\p{\m w_\Delta}^2 \P_0$ is simplified in
-Appendix \ref{sec:PXYXYP}.  If $X=Y=s_\z$, where
-$s_\z\equiv\p{\op\up-\op\dn}/2$ is an SU(2) spin operator, then we can expand
+Appendices \ref{sec:PXYXYP} and \ref{sec:multi_to_collective}.  If
+$X=Y=s_\z$, where $s_\z\equiv\p{\op\up-\op\dn}/2$ is an SU(2) spin
+operator, then we can expand
 \begin{align}
   H_2^{(2)} \EQFS W_4\p{\m h,\m w} S_\z^4 - W_2\p{\m h,\m w} S_\z^2,
 \end{align}
 where $S_\z\equiv\sum_p s_\z^{(p)}$ is a collective SU(2) spin
 operator, $W_k\p{\m h,\m w}$ are scalar coefficients, and we have
-neglected constant terms in $H_2^{(2)}$ without physical consequence.
+neglected scalar terms in $H_2^{(2)}$ without physical consequence.
 In order to expand the coefficients $W_k\p{\m h,\m w}$, for any matrix
 $\m m$ we define the vectors
 \begin{align}
@@ -746,42 +751,201 @@ Altogether, we thus have that
   + \f14 \p{\v w\c\v w - \v{\m w}\c\v{\m w}}
   \p{X_0^2 Y_1 Y_2 + X_0 Y_0 X_1 Y_2
     + Y_0 X_0 X_1 Y_2 + Y_0^2 X_1 X_2}.
-  \label{eq:PXYXYP_multi_body}
+  \label{eq:PXYXYP}
 \end{multline}
-Denoting the collective version of any single-spin operator $Z$ by
-$\col{Z}\equiv\sum_pZ_p$, defining the falling factorial
-\begin{align}
-  N!_k \equiv \prod_{j=0}^{k-1} \p{N-j} = \f{N!}{\p{N-k}!},
-\end{align}
-denoting symmetrized products by $A\odot B\equiv\p{AB+BA}/2$, and
-adopting the convention that exponents are evaluated before
-symmetrized products,
-i.e.~$A^k\odot B\equiv\p{A^k}\odot B\ne A^{k-1}\p{A\odot B}$, the
-operators in \eqref{eq:PXYXYP_multi_body} can be written in terms of
-collective operators within the fully symmetric manifold through the
-identities
-\begin{align}
-  N!_2 \p{X_0^2 Y_1^2 + X_0 Y_0 Y_1 X_1}
-  \EQFS \col{X^2}\odot\col{Y^2} + \col{XY} \odot \col{YX}
-  - \col{X^2\odot Y^2} - \col{\p{XY}\odot\p{YX}}
-\end{align}
-\begin{align}
-  N!_3 &\p{X_0^2 Y_1 Y_2 + X_0 Y_0 X_1 Y_2
-    + Y_0 X_0 X_1 Y_2 + Y_0^2 X_1 X_2}
-  \notag \\
-  &\EQFS 4\col{\p{X\odot Y}^2} + 5 \col{X^2\odot Y^2} - \f12\col{\p{XY}\odot\p{YX}}
-  \notag \\
-  &\quad- \f32 \col{X}\odot\col{Y^2X} - \f32 \col{XY^2}\odot\col{X}
-  - \f32 \col{Y}\odot\col{X^2Y} - \f32 \col{YX^2}\odot\col{X}
-  \notag \\
-  &\quad- \col{X}\odot\col{YXY} - \col{Y}\odot\col{XYX}
-  - 2 \col{XY}\odot\col{YX} - 2\col{X^2}\odot\col{Y^2}
-  \notag \\
-  &\quad+ \col{X}\,\col{Y^2}\,\col{X} + \col{Y}\,\col{X^2}\,\col{Y}
-  +\col{XY}\odot\p{\col{Y}\,\col{X}} + \col{YX}\odot\p{\col{X}\,\col{Y}}.
-\end{align}
+In principle, our next task is to write this result in terms of
+collective operators within the fully symmetric manifold; this task
+turns out to be rather non-trivial in general.  We therefore discuss
+the decomposition of multi-local operators (e.g.~$X_0Y_0X_1Y_2$, a
+3-local operator) into a sum of collective operators within the fully
+symmetric manifold in Appendix \ref{sec:multi_to_collective}.  At the
+end of Appendix \ref{sec:multi_to_collective}, we provide analytical
+expressions for the special cases of
+\begin{enumerate*}
+\item multi-local operators that are tensor powers of a single
+  operator, i.e.~of the form $X^{\otimes k}$; and
+\item multi-local operators of the form $X^{\otimes k}$ with $X^2=1$.
+\end{enumerate*}
+These cases are relevant for e.g.~the SU(2) case with Ising-type
+interactions of the form $Z\otimes Z$, with $Z$ a single-spin Pauli
+operator.
 
-[UNFINISHED]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Collective and multi-local operators in the fully symmetric
+  manifold}
+\label{sec:multi_to_collective}
+
+Here we provide a decomposition multi-local operators into sums of
+collective operators (and vice versa) within the fully symmetric
+manifold of $N$ spins.  Multi-local operators are operators of the
+form
+\begin{align}
+  O_S \equiv \bigotimes_{O\in S} O,
+  \label{eq:multi_op_set}
+\end{align}
+where $S\equiv\set{O}$ is a set of single-spin operators $O$.  The
+order of tensor factors in \eqref{eq:multi_op_set} does not matter
+after projecting operators onto the fully symmetric manifold, as we
+always will in this section.  While the decomposition of a collective
+operator into a sum of multi-local operators is unique, the opposite
+is not true: there is generally no unique decomposition of a
+multi-local operator into a sum of collective operators.  We can,
+however, enforce a canonical decomposition by choosing a set of
+collective operators that obey the same symmetries as $O_S$, namely
+invariance under arbitrary permutations of the single-spin operators
+$O\in S$.  To this end, for any partition\footnote{A partition
+  $P\equiv\set{p}$ of $S$ consists of mutually disjoint, non-empty
+  subsets $p\subset S$ with $\bigcup_{p\in P}p=S$.} $P\equiv\set{p}$
+of $S$ we define the $\abs{P}$-local operator
+\begin{align}
+  O_P \equiv \bigotimes_{p\in P} \bigodot_{O\in p} O,
+\end{align}
+where $\bigodot_{x\in\X} x$ denotes a symmetrized product of all
+elements in $\X$, i.e.
+\begin{align}
+  \bigodot_{x\in\X} x
+  \equiv \f1{\abs{\X}!}
+  \sum_{\substack{\t{permutations}\\\sigma~\t{of}~\X}}
+  ~ \prod_{k=1}^{\abs{\X}} x_{\sigma_k},
+\end{align}
+with $\sigma_k$ the $k$-th element of the permutation $\sigma$ when
+expressed in one-line notation; for example,
+\begin{align}
+  \bigodot_{j=1}^2 x_j &= x_1 \odot x_2 = \f12 \p{x_1x_2 + x_2x_1}, \\
+  \bigodot_{j=1}^3 x_j
+  &= \f1{3!} \p{x_1x_2x_3 + x_1x_3x_2 + x_2x_1x_3
+    + x_2x_3x_1 + x_3x_1x_2 + x_3x_2x_1}.
+\end{align}
+The set of multi-local operators $\set{O_P:\t{partitions}~P~\t{of}~S}$
+consists of all operators that
+\begin{enumerate*}
+\item can be built from ordinary and tensor products of all
+  single-spin operators $O\in S$, and
+\item are invariant under arbitrary permutations of $S$ (after
+  projection onto the fully symmetric manifold).
+\end{enumerate*}
+For any set $S$ of single-spin operators or partition $P$ of $S$, we
+can similarly define the collective operators
+\begin{align}
+  \O_S \equiv \bigodot_{O\in S} \col{O},
+  &&
+  \O_P \equiv \bigodot_{p\in P} \col{\textstyle\bigodot_{O\in p} O},
+\end{align}
+where we underline a single-spin operator to denote its collective
+version, i.e.~$\col{Q}\equiv\sum_j Q^{(j)}$, where $Q^{(j)}$ is an
+operator that acts with the single-spin operator $Q$ on spin $j$ and
+trivially on all other spins.  By construction, the set of collective
+operators $\set{\O_P:\t{partitions}~P~\t{of}~S}$ is one-to-one to the
+set of multi-local operators $\set{O_P:\t{partitions}~P~\t{of}~S}$,
+and it is straightforward to work out that for any set $S$ of
+single-spin operators,
+\begin{align}
+  \O_S
+  \EQFS \sum_{\substack{\t{partitions}\\P~\t{of}~S}}
+  N!_{\abs{P}}\, O_P,
+  &&
+  N!_k \equiv \prod_{j=0}^{k-1}\p{N-j}! = \f{N!}{\p{N-k}!},
+  \label{eq:collective_to_multi_full}
+\end{align}
+where $\EQFS$ denotes equality under a restriction to the fully
+symmetric manifold.  For any multi-local operator $O_S$ indexed by a
+set $S$ of single-spin operators, we can collect expansions of the
+form \eqref{eq:collective_to_multi_full} for all collective operators
+built from non-empty subsets of $S$ into a system of linear equations
+$\L$, and in turn solve $\L$ for $O_S$.  When
+$\abs{S}\in\set{1,2,3,4}$ (and, by conjecture, all $S$), by use of a
+computer algebra system (namely, Mathematica) we find that
+\begin{align}
+  N!_{\abs{S}}\, O_S
+  &\EQFS \sum_{\substack{\t{partitions}\\P~\t{of}~S}}
+  \p{-1}^{\abs{S}-\abs{P}} \O_P \times \prod_{p\in P}\p{\abs{p}-1}!
+  \label{eq:multi_to_collective_full} \\
+  &\EQFS \f1{\abs{S}!} \sum_{\substack{\t{permutations}\\\Pi~\t{of}~S}}
+  \sum_{\substack{\t{ordered}\\\t{partitions}\\\tilde P~\t{of}~\Pi}}
+  \p{-1}^{\abs{S}-\abs{\tilde P}} \O_{\tilde P}
+  \times \prod_{p\in\tilde P} \p{\abs{p}-1}!
+  \label{eq:multi_to_collective_full_simp}
+\end{align}
+where we identify permutations $\Pi$ of $S$ with an ordered list
+(tuple) $\p{O_1,O_2,\cdots,O_{\abs{S}}}$ of all single-spin operators
+in $S$, and we enforce that partitions $\tilde P$ of an ordered list
+$\Pi$, as well as parts $p\in\tilde P$, are lexicographically ordered
+in accordance with the ordering of operators in $\Pi$.  If
+$S=\set{X,Y,Z}$, for example, then the ordered partitions of the
+trivial permutation $\Pi=\p{X,Y,Z}$ are
+\begin{align}
+  \p{\p{X,Y,Z}}, &&
+  \p{\p{X,Y},\p{Z}}, &&
+  \p{\p{X,Z},\p{Y}}, &&
+  \p{\p{X},\p{Y,Z}}, &&
+  \p{\p{X},\p{Y},\p{Z}}.
+\end{align}
+For ordered lists $\tilde S$ and ordered partitions $\tilde P$, we
+define
+\begin{align}
+  O_{\tilde S} \equiv \bigotimes_{O\in\tilde S} O,
+  &&
+  O_{\tilde P} \equiv \bigotimes_{p\in\tilde P} \prod_{O\in p} O,
+  &&
+  \O_{\tilde S} \equiv \prod_{O\in\tilde S} \col{O},
+  &&
+  \O_{\tilde P}
+  \equiv \prod_{p\in\tilde P} \col{\textstyle\prod_{O\in p} O},
+\end{align}
+in which case we can also expand
+\begin{align}
+  \O_{\tilde S} \EQFS
+  \sum_{\substack{\t{ordered}\\\t{partitions}\\\tilde P~\t{of}~\tilde S}}
+  N!_{\abs{\tilde P}} O_{\tilde P},
+\end{align}
+in analogy to \eqref{eq:collective_to_multi_full}.
+
+While the expansions in \eqref{eq:multi_to_collective_full} and
+\eqref{eq:multi_to_collective_full_simp} closely resemble each other,
+in practice the latter involves less computational overhead due to the
+lack of symmetrization in the construction of $\O_{\tilde P}$.  There
+are, in principle, even more economical decompositions of a
+multi-local operators into collective opreators, for example
+\begin{align}
+  N!_2\, X\otimes Y
+  &\EQFS \col{X}\,\col{Y} - \col{XY}, \\
+  N!_3\, X\otimes Y \otimes Z
+  &\EQFS \col{X}\,\col{Y}\,\col{Z}
+  - \col{X}\,\col{YZ} - \col{Y}\,\col{XZ} - \col{Z}\,\col{XY}
+  + \col{ZXY} + \col{YXZ},
+\end{align}
+but these decompositions generally do not preserve the manifest
+symmetry of a multi-local operator $O_S$ under arbitrary permutations
+of $S$, and we do not know of any general prescription to arrive at
+such decompositions aside from solving systems of equations relating
+collective operators to multi-local operators.
+
+On a final note, we consider the special case that all operators
+$O\in S$ are identical, for which we provide the expansions
+\begin{align}
+  N!_2\, X\otimes X \EQFS \p{\col{X}}^2 - \p{\col{X^2}},
+  &&
+  N!_3\, X^{\otimes 3} \EQFS \p{\col{X}}^3
+  - 3 \col{X} \odot \col{X^2} + 2\p{\col{X^3}},
+\end{align}
+\begin{align}
+  N!_4\, X^{\otimes 4}
+  \EQFS \p{\col{X}}^4 - 4 \p{\col{X}}^2\odot\p{\col{X^2}}
+  - 2 \col{X} \p{\col{X}}^2 \col{X}
+  + 3 \p{\col{X^2}}^2 + 8 \col{X} \odot \p{\col{X^3}}
+  - 6 \p{\col{X^4}}.
+\end{align}
+If furthermore $X^2=1$, as with e.g.~the Pauli operators of SU(2),
+then
+\begin{align}
+  N!_2\, X\otimes X \EQFS \p{\col{X}}^2 - N,
+  &&
+  N!_3\, X^{\otimes 3} \EQFS \p{\col{X}}^3 - \p{3N-2} \col{X},
+\end{align}
+\begin{align}
+  N!_4\, X^{\otimes 4} \EQFS \p{\col{X}}^4
+  - 2\p{3N-4} \p{\col{X}}^2 + 3 N \p{N-2}.
+\end{align}
 
 \bibliography{multilevel_spin_notes.bib}
 
