@@ -80,6 +80,8 @@
 \let\var\relax
 \DeclareMathOperator{\var}{var}
 \DeclareMathOperator{\diag}{diag}
+\let\flat\relax
+\DeclareMathOperator{\flat}{flat}
 \DeclareMathOperator{\counts}{counts}
 
 \def\obra#1{\mathinner{({#1}|}}
@@ -131,16 +133,18 @@ perturbations of the form
 \begin{align}
   \V_1 \equiv \sum_p v_p X_p = \v v\c\v X,
   &&
-  \V_2 \equiv \f12 \sum_{p,q} w_{pq} X_p Y_q
+  \V_2 \equiv \sum_{p<q} w_{pq} \times \f12 \p{X_p Y_q + X_q Y_p}
   = \f12 \v X \c\m w \c\v Y,
   \label{eq:perturbations}
 \end{align}
-where $X,Y$ are trace-zero operators on an $n$-dimensional Hilbert
-space; $X_p,Y_p$ denote the action of $X,Y$ on spin $p$; $\v X,\v Y$
-are respectively vectors of all $X_p,Y_p$; $\v v$ and $\m w$ are
-respectively a vector and matrix of all $v_p,w_{pq}$; we enforce
-$w_{pq}=w_{qp}$ and $w_{pp}=0$; and we use a dot ($\c$) to denote an
-inner product between vectors and matrices as appropriate.
+where $X,Y$ are self-adjoint\footnote{In future versions of these
+  notes, we should relax the restriction that $X,Y$ are self-adjoint.}
+trace-zero operators on an $n$-dimensional Hilbert space; $X_p,Y_p$
+denote the action of $X,Y$ on spin $p$; $\v X,$ $\v Y$, $\v v$, and
+$\m w$ are respectively vectors and a matrix of all
+$X_p,Y_p,v_p,w_{pq}$; we use a dot ($\c$) to denote an inner product
+between vectors and matrices as appropriate; and we enforce
+$w_{pq}=w_{qp}$ and $w_{pp}=0$.
 
 If the coefficients $h_{pq}$ of the interaction Hamiltonian $H_0$ are
 all negative, then the ground-state manifold $\M_0$ of the interaction
@@ -199,26 +203,24 @@ $H_1^{(2)}$, we first choose an arbitrary fully symmetric state
 $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V1_psi}):
 \begin{align}
   H_0 \V_1 \ket\psi
-  &= E_0 \V_1 \ket\psi
-  + \p{\sum_{p,q} h_{pq} v_p X_q - \sum_q v_q h_q X_q} \ket\psi \\
-  &= E_0 \V_1 \ket\psi
-  + \v v\c \p{\m h - \diag\v h}\c \v X \ket\psi,
+  = E_0 \V_1 \ket\psi
+  + \p{\sum_{p,q} h_{pq} v_p X_q - \sum_q h_q v_q X_q} \ket\psi,
   \label{eq:H_V1_psi}
 \end{align}
-where $\m h$ is a matrix of all coefficients $h_{pq}$ of the
-interaction Hamiltonian $H_0$ in \eqref{eq:ints}; $\v h$ is a vector
-of the net interaction energies $h_q\equiv\sum_ph_{pq}$ associated
-with individual spins $p$; and $\diag\v h$ is a matrix with $\v h$ on
-the diagonal and zeros everywhere else.  We thus find that the vector
-$\V_1\ket\psi$ is an eigenvector of the interaction Hamiltonian $H_0$
-if the coefficients $\v v$ satisfy
+where $h_q\equiv\sum_p h_{pq}$ is the net interaction energy
+associated with spin $p$.  We thus find that the vector $\V_1\ket\psi$
+is an eigenvector of the interaction Hamiltonian $H_0$ if the
+coefficients $\v v$ satisfy
 \begin{align}
-  \p{\m h - \diag\v h}\c\v v = \Delta\p{\v v} \v v.
+  \p{\m h - \diag\v h}\c\v v = \Delta\p{\v v} \v v,
   \label{eq:cond_1}
 \end{align}
-If we {\it construct} a perturbation $\V_1\p{\v v_\Delta}$ with
-coefficients $\v v_\Delta$ that satisfy \eqref{eq:cond_1} with
-eigenvalue $\Delta$, then
+where $\v h,\m h$ are respectively a vector and matrix of all
+$h_p,h_{pq}$; $\diag\v h$ is a matrix with $\v h$ on the diagonal and
+zeros everywhere else; and $\Delta\p{\v v}$ is some constant that may
+depend on $\v v$.  If we {\it construct} a perturbation
+$\V_1\p{\v v_\Delta}$ with coefficients $\v v_\Delta$ that satisfy
+\eqref{eq:cond_1} with eigenvalue $\Delta$, then
 \begin{align}
   H_0 \V_1\p{\v v_\Delta} \ket\psi
   = \p{E_0 + \Delta} \V_1\p{\v v_\Delta} \ket\psi.
@@ -306,108 +308,73 @@ $H_2^{(2)}$, as before we pick an arbitrary fully symmetric state
 $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V2_psi})
 \begin{align}
   H_0 \V_2 \ket\psi
-  &= E_0 \V_2 \ket\psi
+  = E_0 \V_2 \ket\psi
   + \sum_{k,\ell} \bar h_{k\ell} w_{k\ell} X_k Y_\ell \ket\psi
-  + \sum_{k,\ell,q} h_{kq} w_{q\ell} X_k Y_\ell \ket\psi
-  - \sum_{k,\ell} w_{k\ell} h_{k\ell} X_k \odot Y_k \ket\psi \\
-  &= E_0 \V_2 \ket\psi
-  + \v X \c \p{\bar{\m h}\oc\m w + \m h\c\m w} \c \v Y \ket\psi
-  - \v\1 \c \p{\m h\oc\m w} \c \v{X\odot Y} \ket\psi,
+  + \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{q\ell} + w_{kq} h_{q\ell}}
+  X_k Y_\ell \ket\psi,
   \label{eq:H_V2_psi}
 \end{align}
 where to keep notation compact, we define
 \begin{align}
   \bar h_{k\ell} \equiv h_{k\ell} - \f12\p{h_k + h_\ell},
   &&
-  h_k \equiv \sum_\ell h_{k\ell};
+  h_k \equiv \sum_\ell h_{k\ell}.
 \end{align}
-$\m w,\m h,\bar{\m h}$ are matrices of all
-$w_{k\ell},h_{k\ell},\bar h_{k\ell}$; $\m x\oc\m y$ is an element-wise
-(Hadamard) product of $\m x$ and $\m y$, i.e.~with matrix elements
-$x_{k\ell} y_{k\ell}$; $\v\1\equiv\p{1,1,1,\cdots}$ is an
-$N$-component vector of ones; and $\v{X\odot Y}$ is a vector of all
-$X_k\odot Y_k$.  We thus find that the vector $\V_2\ket\psi$ is an
-eigenvector of the interaction Hamiltonian $H_0$ if the coefficient
-matrix $\m w$ of all $w_{pq}$ satisfies
+We thus find that the vector $\V_2\ket\psi$ is an eigenvector of the
+interaction Hamiltonian $H_0$ if the coefficients $\m w$ satisfy
 \begin{align}
-  \bar{\m h}\oc\m w + \m h\c\m w = \f12 \Delta\p{\m w} \m w,
+  2\bar{\m h} \circ \m w + \m h\c\m w + \m w\c\m h
+  = \Delta\p{\m w} \m w,
   \label{eq:cond_2}
 \end{align}
-for some constant $\Delta\p{\m w}$ that may depend on $\m w$.
-Remembering that the matrices $\m h$ and $\m w$ are both symmetric
-(under transposition) with zeros on the diagonal, the diagonal
-components of the condition in \eqref{eq:cond_2} automatically enforce
-that the last term ($\sim\v{X\odot Y}$) in \eqref{eq:H_V2_psi}
-vanishes.
+where $\m w,\m h,\bar{\m h}$ are matrices of all
+$w_{k\ell},h_{k\ell},\bar h_{k\ell}$; $\bar{\m h} \circ \m w$ is an
+element-wise (Hadamard) product of $\bar{\m h}$ and $\m w$, i.e.~with
+matrix elements $\bar h_{k\ell} w_{k\ell}$; and $\Delta\p{\m w}$ is
+some constant that may depend on $\m w$.
 
 We can recast the condition in \eqref{eq:cond_2} as an eigenvalue
 problem by writing the coefficient matrix $\m w$ as a vector
 $\v{\m w}$ in $\RR^N\times\RR^N$,
 \begin{align}
   \m w = \sum_{p,q} w_{pq} \op{p}{q}
-  \to \v{\m w} \equiv \sum_{p,q} w_{pq} \ket{pq},
+  \to \v{\m w} \equiv \flat\m w \equiv \sum_{p,q} w_{pq} \ket{pq},
 \end{align}
-and defining the matrix
+where $\flat\m m$ is a flattening of the matrix $\m m$ into a vector
+$\vec{\m m}$, and defining the matrix
 \begin{align}
-  \tilde{\m h}
-  \equiv \sum_{p,q} \bar h_{pq} \op{pq}
-  + \sum_{p,q,\ell} h_{pq} \op{p\ell}{q\ell},
+  \check{\m h}
+  \equiv 2\diag\p{\flat\bar{\m h}}
+  + \m h\otimes\1_N + \1_N\otimes\m h
+  = 2 \sum_{p,q} \bar h_{pq} \op{pq}
+  + \sum_{p,q,\ell} h_{pq} \p{\op{p\ell}{q\ell} + \op{\ell p}{\ell q}},
   \label{eq:h_super_mat}
 \end{align}
-in terms of which the condition in \eqref{eq:cond_2} becomes the
-eigenvalue equation
+where $\1_D$ is a $D\times D$ identity matrix.  The condition in
+\eqref{eq:cond_2} is then equivalently the eigenvalue equation
 \begin{align}
-  \tilde{\m h} \c \v{\m w} = \f12 \Delta\p{\m w} \v{\m w}.
+  \p{\check{\m d} \c \check{\m h} \c \check{\m d}} \c \v{\m w}
+  = \Delta\p{\m w} \v{\m w},
+  &&
+  \check{\m d} \equiv \1_{N^2} - \sum_\ell \op{\ell\ell},
   \label{eq:cond_2_eig}
 \end{align}
-The matrix $\tilde{\m h}$ in \eqref{eq:h_super_mat} can be written in
-the block-diagonal form
-\begin{align}
-  \tilde{\m h} = \sum_\ell \m h_\ell \otimes \op{\ell},
-  &&
-  \m h_\ell
-  \equiv \sum_{p,q}\p{\delta_{pq} \bar h_{p\ell} + h_{pq}} \op{p}{q},
-\end{align}
-which reduces the eigenvalue equation in \eqref{eq:cond_2_eig} to the
-$N$ smaller, independent eigenvalue equations
-\begin{align}
-  \m h_\ell \c \v w_\ell = \f12 \Delta\p{\m w} \v w_\ell,
-  &&
-  \v w_\ell \equiv \sum_p w_{p\ell} \ket{p},
-  \label{eq:cond_2_eig_block}
-\end{align}
-where $\v w_\ell$ is essentially the $\ell$-th row or column of
-$\m w$.  We can (numerically) diagonalize each of the blocks
-$\m h_\ell$, and classify their eigenvectors $\v w_\ell$ by the
-corresponding eigenvalues $\Delta\p{\m w}/2$.  ``Total'' eigenvectors
-$\v{\m w}$ of $\tilde{\m h}$ are then built from eigenvectors
-$\v w_\ell$ within each block $\m h_\ell$ that share the same
-eigenvalue $\Delta\p{\m w}/2$.  The task of constructing eigenvectors
-$\V_2\p{\m w_\Delta}\ket\psi$ of $H_0$ and determining their energy
-thus reduces to finding the eigenvectors and eigenvalues of $N$
-matrices $\m h_\ell$ of size $N\times N$.
+where $\check{\m d}$ annihilates the diagonal part of a (flattened)
+matrix it acts on, while keeping the off-diagonal components the same.
+We conjugate $\check{\m h}$ by $\check{\m d}$ to enforce that its
+eigenvectors $\v{\m w}$ correspond to matrices $\m w$ with zeros on
+the diagonal, i.e.~$w_{pp}=0$.
 
-If the interaction Hamiltonian $H_0$ is translationally invariant,
-then $\bar h_{k\ell}=h_{k\ell}-h$, and $h_{k\ell}$ depends only on the
-displacement between the spins indexed by $k$ and $\ell$.  The blocks
-$\m h_\ell$ then take the form
-\begin{align}
-  \m h_{\ell} = \m\Sigma_\ell \c \m h_0 \c \m\Sigma_\ell^\dag,
-  &&
-  \m\Sigma_\ell \equiv \sum_p \op{p+\ell}{p},
-  \label{eq:block_shift}
-\end{align}
-which implies that we need only find the eigenvectors and eigenvalues
-of a single block $\m h_0$, after which we can determine the
-eigenvectors of any block simply by appropriate applications of the
-shift matrix $\m\Sigma_\ell$.  Note that in dimensions $D>1$, the
-relation in \eqref{eq:block_shift} holds for vectors $p,\ell$ that
-index lattice sites, i.e.~$p=\p{p_1,p_2,\cdots,p_D}$ and likewise with
-$\ell$.
+Both numerical experiments and physical arguments suggest that the
+$N^2\times N^2$ matrix $\check{\m d} \c \check{\m h} \c \check{\m d}$
+is highly degenerate, which means that we might be able to simplify
+\eqref{eq:cond_2_eig} even further.  We defer this simplification to
+future work, and for now bear the (large) computational cost of
+diagonalizing a $N^2\times N^2$ matrix.
 
 If we {\it construct} a perturbation $\V_2\p{\m w_\Delta}$ with
 coefficients $\m w_\Delta$ that satisfy \eqref{eq:cond_2_eig} with
-eigenvalue $\Delta/2$, then
+eigenvalue $\Delta$, then
 \begin{align}
   H_0 \V_2\p{\m w_\Delta} \ket\psi
   = \p{E_0 + \Delta} \V_2\p{\m w_\Delta} \ket\psi,
@@ -416,9 +383,8 @@ which implies that $\V_2\p{\m w_\Delta}\ket\psi$ is a state of
 definite energy that depends only on the coefficients $\m w_\Delta$.
 As with the case of single-body perturbations, we can decompose any
 matrix $\m w$ into its projections $\m w_\Delta$ onto the eigenspace
-of matrices satisfying \eqref{eq:cond_2_eig} with eigenvalue
-$\Delta/2$, i.e.~$\m w=\sum_\Delta\m w_\Delta$, which allows us to
-expand
+of matrices satisfying \eqref{eq:cond_2_eig} with eigenvalue $\Delta$,
+i.e.~$\m w=\sum_\Delta\m w_\Delta$, which allows us to expand
 \begin{align}
   \V_2\p{\m w} = \sum_\Delta \V_2\p{\m w_\Delta},
 \end{align}
@@ -465,8 +431,9 @@ Note that the dependence of the coefficients of $W_k\p{\m h,\m w}$ on
 the interaction matrix $\m h$ is implicit in the decomposition of the
 coefficient matrix $\m w$ into components $\m w_\Delta$ as
 $\m w=\sum_\Delta\m w_\Delta$, where $\m w_\Delta$ is the projection
-of $\m w$ onto the $\p{\Delta/2}$-eigenspace of the operator
-$\tilde{\m h}$ defined in \eqref{eq:h_super_mat}.
+of $\m w$ onto the $\Delta$-eigenspace of the operator
+$\check{\m d}\c\check{\m h}\c\check{\m d}$ defined by
+\eqref{eq:h_super_mat} and \eqref{eq:cond_2_eig}.
 
 \appendix
 
@@ -532,9 +499,9 @@ We wish to simplify
   \label{eq:H_V2_psi_start}
 \end{align}
 which has one term with $\set{p,q}=\set{k,\ell}$, terms with
-$p,q\notin\set{k,\ell}$, and terms with $p,q\in\set{k,\ell}$.  The
-permutation operator $\Pi_{pq}$ acts trivially on
-$X_k Y_\ell \ket\psi$ when $\set{p,q}=\set{k,\ell}$ or
+$p,q\notin\set{k,\ell}$, and terms with only one of
+$p,q\in\set{k,\ell}$.  The permutation operator $\Pi_{pq}$ acts
+trivially on $X_k Y_\ell \ket\psi$ when $\set{p,q}=\set{k,\ell}$ or
 $p,q\notin\set{k,\ell}$, leaving a sum over $p,q$ of the form
 \begin{align}
   h_{k\ell} + \sum_{\substack{p<q\\p,q\notin\set{k,\ell}}} h_{pq}
@@ -553,21 +520,19 @@ $p,q\notin\set{k,\ell}$ and $\set{p,q}=\set{k,\ell}$ are then
   E_0 \V_2 \ket\psi
   + \sum_{k,\ell} \bar h_{k\ell} w_{k\ell} X_k Y_\ell \ket\psi.
 \end{align}
-The terms in \eqref{eq:H_V2_psi_start} with only one of
-$p,q\in\set{k,\ell}$ simplify to
+Using similar techniques, we can simplify the terms in
+\eqref{eq:H_V2_psi_start} with only one of $p,q\in\set{k,\ell}$ to
 \begin{align}
-  \f12 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}} w_{k\ell}
-  \p{h_{kq} X_q Y_\ell + h_{\ell q} X_k Y_q} \ket\psi
-  = \sum_{k,\ell,q} w_{k\ell} h_{kq} X_q Y_\ell \ket\psi
-  - \sum_{k,\ell} w_{k\ell} h_{k\ell} X_k\odot Y_k \ket\psi
+  \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{q\ell} + w_{kq} h_{q\ell}}
+  X_k Y_\ell \ket\psi.
 \end{align}
-where $Z_k\equiv\p{X_kY_k+Y_kX_k}/2$.  In total,
+In total,
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
   + \sum_{k,\ell} \bar h_{k\ell} w_{k\ell} X_k Y_\ell \ket\psi
-  + \sum_{k,\ell,q} h_{kq} w_{q\ell} X_k Y_\ell \ket\psi
-  - \sum_{k,\ell} w_{k\ell} h_{k\ell} X_k\odot Y_k \ket\psi.
+  + \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{q\ell} + w_{kq} h_{q\ell}}
+  X_k Y_\ell \ket\psi.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -794,8 +759,8 @@ however, enforce a canonical decomposition by choosing a set of
 collective operators that obey the same symmetries as $O_S$, namely
 invariance under arbitrary permutations of the single-spin operators
 $O\in S$.  To this end, for any partition\footnote{A partition
-  $P\equiv\set{p}$ of $S$ consists of mutually disjoint, non-empty
-  subsets $p\subset S$ with $\bigcup_{p\in P}p=S$.} $P\equiv\set{p}$
+  $P\equiv\set{p}$ of $S$ is a set of mutually disjoint, non-empty
+  subsets $p\subset S$ with $\bigcup_{p\in P}p=S$.}  $P\equiv\set{p}$
 of $S$ we define the $\abs{P}$-local operator
 \begin{align}
   O_P \equiv \bigotimes_{p\in P} \bigodot_{O\in p} O,
@@ -816,16 +781,19 @@ expressed in one-line notation; for example,
   &= \f1{3!} \p{x_1x_2x_3 + x_1x_3x_2 + x_2x_1x_3
     + x_2x_3x_1 + x_3x_1x_2 + x_3x_2x_1}.
 \end{align}
-The set of multi-local operators $\set{O_P:\t{partitions}~P~\t{of}~S}$
-consists of all operators that
+In words, a partition $P$ of $S$ consists of an assignment of
+operators $O\in S$ to individual parts $p\subset S$; each part $p$ is
+associated with a tensor factor of $O_P$, and the operators $O\in p$
+act on that tensor factor.  The set of multi-local operators
+$\set{O_P:\t{partitions}~P~\t{of}~S}$ consists of all operators that
 \begin{enumerate*}
 \item can be built from ordinary and tensor products of all
   single-spin operators $O\in S$, and
 \item are invariant under arbitrary permutations of $S$ (after
   projection onto the fully symmetric manifold).
 \end{enumerate*}
-For any set $S$ of single-spin operators or partition $P$ of $S$, we
-can similarly define the collective operators
+For any set $S$ of single-spin operators and any partition $P$ of $S$,
+we can similarly define the collective operators
 \begin{align}
   \O_S \equiv \bigodot_{O\in S} \col{O},
   &&
@@ -853,8 +821,8 @@ set $S$ of single-spin operators, we can collect expansions of the
 form \eqref{eq:collective_to_multi_full} for all collective operators
 built from non-empty subsets of $S$ into a system of linear equations
 $\L$, and in turn solve $\L$ for $O_S$.  When
-$\abs{S}\in\set{1,2,3,4}$ (and, by conjecture, all $S$), by use of a
-computer algebra system (namely, Mathematica) we find that
+$\abs{S}\in\set{1,2,3,4}$ (and, by conjecture, for all $S$), by use of
+a computer algebra system (namely, Mathematica) we find that
 \begin{align}
   N!_{\abs{S}}\, O_S
   &\EQFS \sum_{\substack{\t{partitions}\\P~\t{of}~S}}
@@ -863,14 +831,14 @@ computer algebra system (namely, Mathematica) we find that
   &\EQFS \f1{\abs{S}!} \sum_{\substack{\t{permutations}\\\Pi~\t{of}~S}}
   \sum_{\substack{\t{ordered}\\\t{partitions}\\\tilde P~\t{of}~\Pi}}
   \p{-1}^{\abs{S}-\abs{\tilde P}} \O_{\tilde P}
-  \times \prod_{p\in\tilde P} \p{\abs{p}-1}!
+  \times \prod_{\tilde p\in\tilde P} \p{\abs{\tilde p}-1}!
   \label{eq:multi_to_collective_full_simp}
 \end{align}
 where we identify permutations $\Pi$ of $S$ with an ordered list
 (tuple) $\p{O_1,O_2,\cdots,O_{\abs{S}}}$ of all single-spin operators
-in $S$, and we enforce that partitions $\tilde P$ of an ordered list
-$\Pi$, as well as parts $p\in\tilde P$, are lexicographically ordered
-in accordance with the ordering of operators in $\Pi$.  If
+in $S$; and we enforce that partitions $\tilde P$ of an ordered list
+$\Pi$, as well as parts $\tilde p\in\tilde P$, are lexicographically
+ordered in accordance with the ordering of operators in $\Pi$.  If
 $S=\set{X,Y,Z}$, for example, then the ordered partitions of the
 trivial permutation $\Pi=\p{X,Y,Z}$ are
 \begin{align}
@@ -885,14 +853,20 @@ define
 \begin{align}
   O_{\tilde S} \equiv \bigotimes_{O\in\tilde S} O,
   &&
-  O_{\tilde P} \equiv \bigotimes_{p\in\tilde P} \prod_{O\in p} O,
+  O_{\tilde P}
+  \equiv \bigotimes_{\tilde p\in\tilde P} \prod_{O\in\tilde p} O,
   &&
   \O_{\tilde S} \equiv \prod_{O\in\tilde S} \col{O},
   &&
   \O_{\tilde P}
-  \equiv \prod_{p\in\tilde P} \col{\textstyle\prod_{O\in p} O},
+  \equiv \prod_{\tilde p\in\tilde P}
+  \col{\textstyle\prod_{O\in\tilde p} O},
 \end{align}
-in which case we can also expand
+where products over elements of $\tilde S,\tilde P,\tilde p$ are taken
+in order according to the elements of these ordered lists, e.g.~if
+$\tilde S=\p{O_1,O_2,\cdots,O_{\abs{S}}}$, then
+$\prod_{O\in\tilde S}\equiv O_1O_2\cdots O_{\abs{S}}$.  These
+definitions allow us to expand
 \begin{align}
   \O_{\tilde S} \EQFS
   \sum_{\substack{\t{ordered}\\\t{partitions}\\\tilde P~\t{of}~\tilde S}}
