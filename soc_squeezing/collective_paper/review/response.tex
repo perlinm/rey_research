@@ -1,0 +1,541 @@
+\documentclass[preprint,superscriptaddress]{revtex4-2}
+
+% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=cyan,
+}
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,bm,commath,amssymb}
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left( #1 \right)} % parenthesis
+\renewcommand{\sp}[1]{\left[ #1 \right]} % square parenthesis
+\renewcommand{\v}{\bm} % bold vectors
+\newcommand{\uv}[1]{\bm{\hat{#1}}} % unit vectors
+
+\renewcommand{\abs}[1]{\lvert #1 \rvert}
+
+\newcommand{\bk}{\braket} % shorthand for braket notation
+\newcommand{\Bk}{\Braket}
+
+\newcommand{\ul}{\underline} % shorthand for underline
+
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\J}{\mathcal{J}}
+\renewcommand{\O}{\mathcal{O}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\U}{\mathcal{U}}
+
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+
+\newcommand{\z}{\text{z}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\Z}{\text{Z}}
+\newcommand{\X}{\text{X}}
+\newcommand{\Y}{\text{Y}}
+\newcommand{\bmu}{{\bar\mu}}
+\newcommand{\bnu}{{\bar\nu}}
+
+\usepackage{dsfont} % for identity operator
+\newcommand{\1}{\mathds{1}}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
+\renewcommand{\a}{\alpha} % free index
+\renewcommand{\b}{\beta} % free index
+
+%%% figures
+\usepackage{graphicx} % for figures
+\usepackage[caption=false]{subfig} % subfigures (via \subfloat[]{})
+\newcommand{\sref}[1]{\protect\subref{#1}} % for referencing subfigures
+\graphicspath{{./figures/}} % set path for all figures
+
+% remove extra white space inside enumerate environments
+\usepackage[inline]{enumitem}
+\setenumerate{label=(\roman*)}
+\setlist[enumerate]{leftmargin=*}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex}
+
+% for colored text
+\usepackage[dvipsnames]{xcolor}
+\newcommand{\blue}[1]{{\color{blue} #1}}
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\green}[1]{{\color{ForestGreen} #1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+Dear Editors,
+
+Please find attached our revised manuscript AJ11834, titled
+``Short-time expansion of Heisenberg operators in open collective
+quantum spin systems'', for consideration for publication in Physical
+Review A.  Below, we address the questions and comments made by our
+referees, and detail the corresponding changes that we have made to
+our manuscript.  We hope that our responses and changes address the
+referees' questions to a satisfactory degree, leaving no more
+outstanding questions or concerns about our work.
+
+Excerpts from the referee reports are written in \blue{blue}, excerpts
+from the previous version of our manuscript are written in \red{red},
+and excerpts from the revised version of our manuscript are written in
+\green{green}.  Unless explicitly stated otherwise, all equation
+numbers, page numbers, etc.~refer to those in the revised manuscript.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{First referee}
+
+\begin{enumerate}
+\item Concerning the first referee's summary and comments:
+
+  \blue{The authors have studied open collective spin systems with
+    generic Markovian decoherence and presented a new method to
+    calculate short-time correlators. The method is based on an
+    expansion of Heisenberg operators and truncation of it for short
+    times (TST). The number of particles that the presented method can
+    deal with are shown to be rather high. The method is meant to work
+    well with highly-correlated systems. Spin squeezing, two-time
+    correlation functions, and out-of-time-ordered correlators are
+    calculated as an application of the new method. As technical parts
+    of the paper, authors calculate all the ingredients, e.g., the
+    structure constants of a collective spin operator algebra, which
+    are necessary to apply the method.}
+
+  \blue{Although the developed method works only at short times, it
+    can be fruitful for applications in the field of quantum
+    metrology. One of the key points that makes the paper interesting
+    is the capability of the TST expansion to compute the spin
+    correlators in a regime (strong correlations) that other methods
+    cannot practically access. In the regime that it works, the method
+    is efficient and very promising for future applications.}
+
+  \blue{Overall, the paper is well written and the presented method
+    and following results deserve publication in Phys.~Rev.~A. In
+    particular, I expect it to be utilized in the spin squeezed
+    systems. I just have the following question:}
+
+  We thank the referee for their summary of our work, and for the
+  conclusion that our results deserve publication in Phys.~Rev.~A.  We
+  similarly hope that our method finds useful applications in spin
+  squeezed systems, as well as others.  We address the referee's
+  question below.
+
+
+\item Concerning the first referee's question:
+
+  \blue{In the last paragraph of page 4, which continues to page 5,
+    authors explain how unphysical result can be marked by and
+    unphysical squeezing parameter. In the same paragraph authors list
+    three possible mechanisms for breakdown. Is there a fundamental
+    relationship between all of the three breakdown mechanisms and the
+    value of the squeezing parameter? Asked differently, could it be
+    possible that one of the three breakdown mechanisms happens
+    without the squeezing parameter going unphysical?}
+
+  The referee brings up a good question about diagnosing the breakdown
+  of our method (TST).  In fact, there is {\it no} fundamental
+  relationship between the breakdown of TST and an unphysical
+  squeezing parameter ($\xi^2<0$), and it {\it is} possible for
+  breakdown to occur without the squeezing parameter going unphysical.
+  Instead, there is a direct relationship between the breakdown of TST
+  and the value of individual correlators $\bk{\hat S_{\v n}}$ that
+  are used to compute the squeezing parameter $\xi^2$.  The breakdown
+  of TST affects (non-negligible) contributions to correlators
+  $\bk{\hat\S_{\v n}}$ that grow with the time $t$ raised to some
+  large power, so after breakdown these correlators rapidly take on
+  unphysical values.  It is often the case that unphysical correlators
+  will lead to an unphysical squeezing parameter, but not always.  The
+  breakdown of TST should therefore be diagnosed by inspecting the
+  correlators used to compute the squeezing parameter, rather than by
+  inspecting the squeezing parameter itself.
+
+  In order to clarify the diagnosis of breakdown for the TST
+  expansion, we have rearranged and added text to the paragraph in
+  question, replacing (end of page 4 through some of page 5 in the old
+  text):
+
+  \red{The main lesson from Figure 1 is that the TST expansion yields
+    essentially exact results right up until a sudden and drastic
+    departure that can be diagnosed by inspection.  {\bf The breakdown
+      of the TST expansion in Figure 1 is marked by an unphysical
+      squeezing parameter $\xi^2<0$, which occurs due to individual
+      correlators taking unphysical values with
+      $\abs{\bk{\hat\S_{\v n}\p{t}}}\gtrsim S^{\abs{\v n}}$.  Going up
+      through order $M=70$ in the TST expansion does not significantly
+      increase the breakdown time $t_{\t{break}}^{(M)}$, and in some
+      cases even shortens $t_{\t{break}}^{(M)}$.}  The sudden and
+    drastic departure from virtually exact results is consistent with
+    the limitations of the TST expansion discussed at the end of
+    Section II.  Specifically, we identify three possible mechanisms
+    for breakdown:
+    \begin{enumerate*}
+    \item a rapid growth in the order $M$ necessary for the TST
+      expansion to converge,
+    \item the growth of numerical errors in excessively large terms of
+      the TST expansion, and
+    \item the formal breakdown of the perturbative expansion in the
+      time $t$.
+    \end{enumerate*}
+    In all of these cases, a detailed cancellation eventually ceases
+    to occur between large terms at high orders in the TST expansion.
+    These large terms grow with the time $t$ raised to some large
+    power (as high as $M$), and therefore rapidly yield wildly
+    unphysical results.  In contrast to other approximate methods such
+    as the cumulant expansion[58], the TST expansion can thus diagnose
+    its own breakdown, which is an important feature when working in
+    parameter regimes that are inaccessible via other means to compute
+    correlators.}
+
+  by (top of page 5 in the new text):
+
+  \green{The main lesson from Figure 1 is that the TST expansion
+    yields essentially exact results right up until a sudden and
+    drastic departure that can be diagnosed by inspection.  {\bf The
+      breakdown of the TST expansion in Figure 1 induces an unphysical
+      squeezing parameter $\xi^2<0$.  In general, however, there is no
+      fundamental relationship between the breakdown of the TST
+      expansion and the conditions for a physical squeezing parameter
+      $\xi^2$.  A proper diagnosis of breakdown therefore requires
+      inspection of the correlators $\bk{\hat\S_{\v n}\p{t}}$ used to
+      compute the squeezing parameter $\xi^2$, which upon breakdown
+      will rapidly take unphysical values with
+      $\abs{\bk{\hat\S_{\v n}\p{t}}}\gtrsim S^{\abs{\v n}}$.}  The
+    sudden and drastic departure from virtually exact results is
+    consistent with the limitations of the TST expansion discussed at
+    the end of Section II.  Specifically, we identify three possible
+    mechanisms for breakdown:
+    \begin{enumerate*}
+    \item a rapid growth in the order $M$ necessary for the TST
+      expansion to converge,
+    \item the growth of numerical errors in excessively large terms of
+      the TST expansion, and
+    \item the formal breakdown of the perturbative expansion in the
+      time $t$.
+    \end{enumerate*}
+    In all of these cases, a detailed cancellation eventually ceases
+    to occur between large terms at high orders in the TST expansion.
+    These large terms grow with the time $t$ raised to some large
+    power (as high as $M$), and therefore rapidly yield wildly
+    unphysical results.  In contrast to other approximate methods such
+    as the cumulant expansion[58], the TST expansion can thus diagnose
+    its own breakdown, which is an important feature when working in
+    parameter regimes that are inaccessible via other means to compute
+    correlators.  {\bf Note that, due to the breakdown mechanisms of
+      the TST expansion, going up through order $M=70$ does not
+      significantly increase the breakdown time $t_{\t{break}}^{(M)}$
+      in Figure 1, and in some cases even shortens
+      $t_{\t{break}}^{(M)}$.}}
+
+  Note that we used of bold text to help identify the changes above;
+  the manuscript itself does not make these changes bold.  We hope
+  that these changes clarify the relationship between breakdown of the
+  TST expansion and an unphysical squeezing parameter.
+
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Second referee}
+
+\begin{enumerate}
+\item Concerning the second referee's summary and comments:
+
+  \blue{In this work, the authors compute the dynamics of collective
+    spin systems with decoherence via uncorrelated decay of individual
+    spins by solving the operators’ Heisenberg’s equation of motion
+    approximately.  It is carried out in the following way: Heisenberg
+    operators are formally expanded into a Taylor series, which is
+    then truncated to a finite order for short evolution times. The
+    authors benchmark the method by computing spin squeezing, two-time
+    correlation functions, and out-of-time-ordered correlators.
+
+    The paper is clearly written, and the derivations appear to be
+    sound.  However, there are some points need to be clarified before
+    this paper can be accepted for publication.}
+
+  We thank the referee for their succinct summary of our method, and
+  for the the recognition that our manuscript is well written, and our
+  derivations sound.  We address the refere's points below, and hope
+  that the corresponding changes to our manuscript deem our work
+  acceptable for publication in Physical Review A.
+
+
+\item Concerning the first point, about novelty:
+
+  \blue{1. The authors declare that they present a ‘new’
+    method. However, it seems that the method as described resembles
+    (if not the same as) the well-known Mori formalism, or memory
+    function method, developed by Mori, Berne, Lee, Grigolini and
+    others [see for example H.~Mori, Prog.~Theor.~Phys.~34 399
+    (1965); James F Annett, et al.~Condens.~Matter 6, 645(1994)],
+    where the Liouvillian superoperator is used to provide a compact
+    representation of the time evolution of operators under
+    Heisenberg’s equation of motion, and followed up with a continued
+    fraction expansion. I hope the authors could acknowledge these
+    previous studies and be careful with the claiming of ‘new’
+    method.}
+
+  We thank the referee for drawing our attention to the Mori formalism
+  (\url{https://doi.org/10/cgtkbb}) and the related work by Annett et
+  al.~(\url{https://doi.org/10/d79ngr}).  Indeed, there are some
+  interesting connections between these works and ours, as pointed out
+  by the referee.  For example, all of these methods rely on some sort
+  of formal solution to the equations of motion for Heisenberg
+  operators.  Nonetheless, we strongly believe that our methods are
+  substantively distinct from those of these past works, and expand on
+  some differences below.  In acknowledgment of the resemblance and
+  connections to past works, however, we have also followed the
+  referee's suggestion and changed all instances of ``\red{a new
+    method}'' in our manuscript to ``\green{an efficient method}''.
+  We have also added references to the Mori formalism and follow-up
+  works (outlined below).
+
+  At a high level, the truncated short-time (TST) expansion for a
+  Heisenberg operator, Eq.~(10) in our manuscript, essentially
+  involves only products of (i) initial-time expectation values of
+  operators chosen from a fixed basis, and (ii) matrix elements of the
+  time derivative operator $T$ (essentially the Liouvillian), as well
+  as powers of $T$.  In order to evaluate the TST expansion, our
+  method makes use of the structure constants of a collective spin
+  operator algebra.  The Mori formalism, meanwhile, arrives at an
+  expansion of Heisenberg operators (see Eq.~2.29 of
+  \url{https://doi.org/10/cgtkbb}) that involves (i) Laplace
+  transforms, (ii) operators, $f_j$, that are constructed recursively
+  from the initial Heisenberg operator of interest, and (iii)
+  coefficients, $C_j$, that are defined using the operators $f_j$ and
+  additional Laplace transforms.  In order to evaluate this expansion,
+  the Mori formalism provides a continued-fraction representation of
+  the coefficients $C_j$.  Perhaps additional work might illuminate
+  the connections between these two methods, but at face value they
+  are quite different.
+
+  Some of the work by Annett et al.~in \url{https://doi.org/10/d79ngr}
+  has a closer resemblance to ours, in that Eq.~(25) therein is,
+  similar to the TST expansion, a series expansion organized in powers
+  of the time $t$.  Even here, however, Eq.~(25) concerns only one
+  component of an (initially localized) Heisenberg operator $Q(t)$,
+  namely the projection of $Q(t)$ onto $Q(0)$.  Furthermore, the
+  solution of Eq.~(25) involves resolving $Q(t)$ into frequency
+  components $R(\omega)$, representing the resolvents $R(\omega)$ by a
+  continued fraction with some free parameters $\set{a_n,b_n}$, and
+  then solving for the parameters $\set{a_n,b_n}$.  Our TST expansion
+  considers explicitly non-local operators, solves for the entirety of
+  these operators (as opposed to only one component), and involves
+  neither frequency components nor continued fractions.  We hope that
+  these considerations clarify how the TST expansion is distinct from
+  past works.
+
+  Despite these differences, we acknowledge that there may be some
+  interesting connections between the above works and ours, and that
+  investigating these connections may lead to a refinement of our
+  work.  We have therefore changed the following sentence in the
+  introduction (top left of page 2):
+
+  \red{Our method is based on a short-time expansion of exact
+    solutions to the equations of motion for Heisenberg operators.
+    Evaluating this expansion requires ...}
+
+  to:
+
+  \green{Our method is based on a formal solution to the equations of
+    motion for Heisenberg operators, thereby bearing some resemblance
+    to the Mori formalism[59] and related work[60].  Specifically, we
+    expand a formal solution for a Heisenberg operator into a Taylor
+    series whose truncation can yield negligible error at sufficiently
+    short times.  Evaluating the resulting expansion requires ...}
+
+  We have also added a reference to these works to the discussion of
+  the limitations of the TST expansion at the end of the theory
+  section of our manuscript (right column of page 3), changing the
+  sentence:
+
+  \red{Precisely characterizing the implications of these last two
+    considerations for the TST expansion requires additional analysis
+    that we defer to future work.}
+
+  to:
+
+  \green{Precisely characterizing the implications of these last two
+    considerations for the TST expansion requires additional analysis
+    that we defer to future work, which may benefit from an
+    investigation of the connections between the TST expansion and
+    past works related to the Mori formalism[59, 60].}
+
+  We hope that the referee considers these additions a sufficient
+  acknowledgment of the Mori formalism and related work.
+
+
+\item Concerning the second question, about decoherence:
+
+  \blue{2. I am not sure if the paper properly takes into account
+    previous results about the influence of decoherence on spin
+    squeezing. First, there exists many mechanisms for decoherence,
+    while decoherence considered in this paper is due to uncorrelated
+    decay of individual spins. This is not clarified in the
+    introduction. In fact, atom loss represents an important mechanism
+    of decoherence in spin squeezing experiments, but is not
+    considered in this paper. Could the method studied here also be
+    applied to atom loss? It would be helpful if this point is
+    mentioned. Second, for the specific decoherence model considered,
+    the authors only cite a few studies about the influence of such
+    decoherence on spin squeezing from one-axis twisting (OAT). There
+    are many studies about the effect of decoherence on spin
+    squeezing.}
+
+  The referee makes a fair point that we claim to present a method for
+  simulating ``generic'' Markovian decoherence, when in fact we only
+  address certain (typical) forms of Markovian decoherence.  To avoid
+  misleading readers about the contents of our paper, we have
+  therefore replaced the words ``\red{generic Markovian decoherence}''
+  by ``\green{typical forms of Markovian decoherence}'' in the
+  abstract, as well as the last paragraph of the introduction.
+
+  We would like to point out that our work {\it does} address more
+  than just uncorrelated decay of individual spins: we also address
+  uncorrelated excitation and dephasing of individual spins, as well
+  as arbitrary coherent or incoherent combinations of these processes.
+  Similarly, we provide all ingredients necessary to account for
+  arbitrary combinations of {\it collective} decay, excitation, and
+  dephasing in Appendices D-G, as mentioned in the paragraph below
+  Eq.~(4) of our manuscript.
+
+  The referee is correct, though, that our original manuscript does
+  not discuss atom loss, which is an important decoherence mechanism
+  in some experimental realizations of collective spin models.  We
+  have therefore added the following discussion about atom loss to the
+  theory section our manuscript (bottom right of page 2):
+
+  \green{We note that particle loss is an important decoherence
+    mechanism in many experimental realizations of collective spin
+    models[41].  In principle, a spin model has no notion of the
+    particle annihilation operators that generate particle loss, and
+    therefore cannot capture this effect directly.  Nonetheless, for a
+    system initially composed of $N$ particles, the effect of particle
+    loss can be emulated with $O(1/N)$ error by the dissipator
+    $\check\D_{\t{loss}}$ defined by
+    $\check\D_{\t{loss}}\hat\S_{\v m}=-\abs{\v m}\hat\S_{\v m}$, where
+    $\abs{\v m}\equiv\sum_\alpha m_\alpha$ (see Appendix H).
+    Furthermore, the effect particle loss can be accounted for exactly
+    by (i) introducing an additional index on spin operators,
+    $\hat\S_{\v m}\to\hat\S_{N\v m}$, to keep track of different
+    sectors of fixed particle number within a multi-particle Fock
+    space, and (ii) constructing jump operators that appropriately
+    couple spin operators within different particle-number sectors.
+    We defer a detailed exact accounting of particle loss to future
+    work.}
+
+  The new appendix provides mathematical justification for our claim
+  that the dissipator $\check\D_{\t{loss}}$ emulates particle loss
+  with $O(1/N)$ error.  We hope that these additions do a satisfactory
+  job of addressing particle loss.
+
+  As a last point, concerning the number of references in our work to
+  past studies about the influence of decoherence on spin squeezing in
+  the one-axis twisting (OAT) model: the small number of such
+  references is due to the fact that we do not have any particular
+  discussions of the influence of decoherence on spin squeezing with
+  OAT, and do not consider such discussions relevant to our current
+  work.  Even with decoherence (of the types considered in our work),
+  the OAT model is an exactly analytically solvable (see
+  \url{https://doi.org/gcsjdp}).  Approximate numerical methods such
+  as that presented in our manuscript are therefore inappropriate
+  tools for the study of OAT.  The primary role of OAT in our work is
+  to serve as a simple and exactly solvable benchmark of our numerical
+  methods, rather than an object of study in and of itself.  To
+  clarify this point, we have changed the second paragraph of section
+  III on spin squeezing, benchmarking, and breakdown (top of page 4),
+  from:
+
+  \red{Note that the OAT model is a special case of the zero-field
+    Ising model, whose quantum dynamics admits an exact analytic
+    solution even in the presence of decoherence[62].  We will
+    benchmark our calculations using these analytical OAT results
+    wherever applicable (see Appendix J, as well as the Supplementary
+    Material of Ref.~[14]).}
+
+  to:
+
+  \green{Note that the OAT model is a special case of the zero-field
+    Ising model, whose quantum dynamics admits an exact analytic
+    solution even in the presence of decoherence[64].  The approximate
+    and numerics-oriented TST expansion is therefore ill-suited for
+    studying the OAT model, which will merely serve as an exactly
+    solvable benchmark of our methods.  Wherever applicable, we will
+    provide exact results for the OAT model (see Appendix K, as well
+    as the Supplementary Material of Ref.~[14]).}
+
+  We hope that the referee and editors understand our position on this
+  matter -- namely, that we would rather avoid adding spurious
+  references to past works on a subject (the influence of decoherence
+  on spin squeezing in the exactly solvable OAT model) that is of
+  little relevance to our work on a numerical method to compute spin
+  correlators.
+
+
+\item Concerning the final question, about the robustness of the TNT
+  model:
+
+  \blue{3. I am surprised by the results from the strong decoherence
+    regimes in Fig.~2, which shows that twist and-turn (TNT) model is
+    much more robust than OAT and TAT. Is this physical or just an
+    artifact from numerical errors. To rule out the latter, I suggest
+    the authors check the results in the strong decoherence regime by
+    studying a smaller system, where Monte Carlo simulation is
+    accessible and can be used as a comparison. If this result is
+    indeed physical, if would be very helpful if the authors could
+    comment on the reason?}
+
+
+
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Miscellaneous changes}
+
+\begin{enumerate}
+\item In our discussions about the breakdown of the TST expansion in
+  Sections II and III, we use the word ``unphysical'' to essentially
+  mean ``not physically possible''.  In Section I, meanwhile, we
+  comment about a method of simulation called the cumulant expansion,
+  which breaks down in the presence of genuinely multi-body
+  correlations.  In such a case, the cumulant expansion yields results
+  that are {\it physically possible}, but {\it incorrect}.  For
+  consistent use of language, we have therefore changed the following
+  sentence in section I (bottom right of page 1):
+
+  \red{The growth of genuinely multi-body correlations, however,
+    eventually causes the cumulant expansion to yield unphysical
+    results with no clear signature of failure.}
+
+  to:
+
+  \green{The growth of genuinely multi-body correlations, however,
+    eventually causes the cumulant expansion to yield incorrect
+    results with no clear signature of failure.}
+
+
+\item One of our previous changes to the manuscript defined
+  ``\green{$\abs{\v m}\equiv\sum_\alpha m_\alpha$}'' (bottom of page 2
+  in the new text).  We have therefore removed a subsequent definition
+  of this notation, which previously appeared in the following
+  paragraph, ``\red{where
+    $\abs{\v\ell}\equiv\sum_\alpha\ell_\alpha$}'' (middle right column
+  of page 2 in the old text).
+
+\end{enumerate}
+
+\end{document}
