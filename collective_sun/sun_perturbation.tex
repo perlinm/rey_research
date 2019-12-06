@@ -73,16 +73,18 @@
 
 \newcommand{\FS}{\text{FS}}
 \newcommand{\EQFS}{=_{\text{FS}}}
-\newcommand{\col}{\underline}
+\newcommand{\col}{\overline}
 
 \DeclareMathOperator{\sign}{sign}
 \DeclareMathOperator{\cov}{cov}
-\let\var\relax
+\let\var\oldvar
 \DeclareMathOperator{\var}{var}
 \DeclareMathOperator{\diag}{diag}
-\let\flat\relax
+\let\flat\oldflat
 \DeclareMathOperator{\flat}{flat}
 \DeclareMathOperator{\counts}{counts}
+\newcommand{\flatvec}{\underline\flat\,}
+\newcommand{\ul}{\underline}
 
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
@@ -182,6 +184,7 @@ is the interaction energy of fully symmetric states $\ket\psi\in\M_0$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Single-body perturbations}
+\label{sec:single_body}
 
 To compute the effective Hamiltonian induced by the single-body
 perturbation $\V_1$, we use the permutational symmetry of the
@@ -218,9 +221,15 @@ coefficients $\v v$ satisfy
 where $\v h,\m h$ are respectively a vector and matrix of all
 $h_p,h_{pq}$; $\diag\v h$ is a matrix with $\v h$ on the diagonal and
 zeros everywhere else; and $\Delta\p{\v v}$ is some constant that may
-depend on $\v v$.  If we {\it construct} a perturbation
-$\V_1\p{\v v_\Delta}$ with coefficients $\v v_\Delta$ that satisfy
-\eqref{eq:cond_1} with eigenvalue $\Delta$, then
+depend on $\v v$.  Solving the eigenvalue problem in \eqref{eq:cond_1}
+requires diagonalizing an $N\times N$ matrix.  When the interaction
+Hamiltonian $H_0$ is translationally invariant, this eigenvalue
+problem can be solved analytically, which we discuss further in
+Appendix \ref{sec:trans_inv}.
+
+If we {\it construct} a perturbation $\V_1\p{\v v_\Delta}$ with
+coefficients $\v v_\Delta$ that satisfy \eqref{eq:cond_1} with
+eigenvalue $\Delta$, then
 \begin{align}
   H_0 \V_1\p{\v v_\Delta} \ket\psi
   = \p{E_0 + \Delta} \V_1\p{\v v_\Delta} \ket\psi.
@@ -282,6 +291,7 @@ onto the $\Delta$-eigenspace of the matrix $\m h-\diag\v h$, and
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Two-body perturbations}
+\label{sec:two_body}
 
 The first-order effective Hamiltonian $H_2^{(1)}$ induced on the fully
 symmetric manifold $\M_0$ by the two-body perturbation $\V_2$ in
@@ -340,8 +350,9 @@ $\v{\m w}$ in $\RR^N\times\RR^N$,
   \m w = \sum_{p,q} w_{pq} \op{p}{q}
   \to \v{\m w} \equiv \flat\m w \equiv \sum_{p,q} w_{pq} \ket{pq},
 \end{align}
-where $\flat\m m$ is a flattening of the matrix $\m m$ into a vector
-$\vec{\m m}$, and defining the matrix
+where $\flat\m m$ is a flattening of the $N\times N$ matrix $\m m$
+into an $N^2$-component vector $\v{\m m}$, and defining the
+$N^2\times N^2$ matrix
 \begin{align}
   \check{\m h}
   \equiv 2\diag\p{\flat\bar{\m h}}
@@ -363,14 +374,14 @@ where $\check{\m d}$ annihilates the diagonal part of a (flattened)
 matrix it acts on, while keeping the off-diagonal components the same.
 We conjugate $\check{\m h}$ by $\check{\m d}$ to enforce that its
 eigenvectors $\v{\m w}$ correspond to matrices $\m w$ with zeros on
-the diagonal, i.e.~$w_{pp}=0$.
-
-Both numerical experiments and physical arguments suggest that the
-$N^2\times N^2$ matrix $\check{\m d} \c \check{\m h} \c \check{\m d}$
-is highly degenerate, which means that we might be able to simplify
-\eqref{eq:cond_2_eig} even further.  We defer this simplification to
-future work, and for now bear the (large) computational cost of
-diagonalizing a $N^2\times N^2$ matrix.
+the diagonal, i.e.~$w_{pp}=0$.  Solving the eigenvalue equation in
+\eqref{eq:cond_2_eig} nominally requires diagonalizing an
+$N^2\times N^2$ matrix; we provide a reduction of this problem to that
+of diagonalizing an ${N\choose2}\times{N\choose2}$
+($\approx N^2/2\times N^2/2$ when $N\gg1$) matrix in Appendix
+\ref{sec:reduction}.  We also discuss how to reduce this problem even
+further in the case of a translationally invariant interaction
+Hamiltonian $H_0$ in Appendix \ref{sec:trans_inv}.
 
 If we {\it construct} a perturbation $\V_2\p{\m w_\Delta}$ with
 coefficients $\m w_\Delta$ that satisfy \eqref{eq:cond_2_eig} with
@@ -435,6 +446,7 @@ of $\m w$ onto the $\Delta$-eigenspace of the operator
 $\check{\m d}\c\check{\m h}\c\check{\m d}$ defined by
 \eqref{eq:h_super_mat} and \eqref{eq:cond_2_eig}.
 
+\newpage
 \appendix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -734,6 +746,52 @@ expressions for the special cases of
 These cases are relevant for e.g.~the SU(2) case with Ising-type
 interactions of the form $Z\otimes Z$, with $Z$ a single-spin Pauli
 operator.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Reducing the two-body eigenvalue problem}
+\label{sec:reduction}
+
+At second order, the two-body perturbation theory developed in Section
+\ref{sec:two_body} nominally requires diagonalizing an $N^2\times N^2$
+matrix.  Here we discuss the reduction of this problem to that of
+diagonalizing an ${N \choose 2} \times {N \choose 2}$
+($\approx N^2/2\times N^2/2$ when $N\gg1$) matrix.  The basic idea is
+to remove redundancies and trivial values from the coefficient matrix
+$\m w$ that is used to construct a two-body perturbation
+$\V_2\p{\m w}$.  To this end, we flatten $\m w$ into a vector
+$\ul{\v{\m w}}$ in $\RR^{N\choose2}$,
+\begin{align}
+  \m w = \sum_{p,q} w_{pq} \op{p}{q}
+  \to \ul{\v{\m w}} \equiv \flatvec\m w
+  \equiv \sum_{p<q} w_{pq} \ket{\set{p,q}},
+\end{align}
+where we label basis vectors $\ket{\set{p,q}}$ by a choice of two
+distinct integers from $\set{1,2,\cdots,N}$.  We then define the
+matrix
+\begin{align}
+  \ul{\check{\m h}} = 2\diag\p{\flatvec\bar{\m h}}
+  + \sum_{p<q}
+  \sp{\sum_k \p{h_{pk} \ket{\set{q,k}} + h_{qk} \ket{\set{p,k}}}}
+  \bra{\set{p,q}}.
+\end{align}
+The condition in \eqref{eq:cond_2} is then equivalently the eigenvalue
+problem
+\begin{align}
+  \ul{\check{\m h}} \c \ul{\v{\m w}}
+  = \Delta\p{\m w} \ul{\v{\m w}}.
+\end{align}
+Unlike the eigenvalue problem in \eqref{eq:cond_2_eig}, there is now
+no need to conjugate $\ul{\check{\m h}}$ by an operator that
+annihilates the diagonal components of $\m w$, because the
+${N\choose2}$-component vector $\ul{\v{\m w}}$ already contains only
+the non-trivial parts of $\m w$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Making use of translational invariance}
+\label{sec:trans_inv}
+
+[Discuss simplifications that occur to the single- and two-body theory
+if $H_0$ is translationally invariant.]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Collective and multi-local operators in the fully symmetric
