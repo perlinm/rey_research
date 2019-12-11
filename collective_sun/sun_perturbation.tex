@@ -67,9 +67,8 @@
 \newcommand{\EE}{\mathbb{E}}
 \newcommand{\RR}{\mathbb{R}}
 \renewcommand{\SS}{\mathbb{S}}
+\newcommand{\VV}{\mathbb{V}}
 \newcommand{\ZZ}{\mathbb{Z}}
-
-\newcommand{\PP}{\mathbb{Z}}
 
 \newcommand{\FS}{\text{FS}}
 \newcommand{\EQFS}{=_{\text{FS}}}
@@ -85,6 +84,12 @@
 \DeclareMathOperator{\counts}{counts}
 \newcommand{\flatvec}{\underline\flat\,}
 \newcommand{\ul}{\underline}
+
+\usepackage{accents}
+\newcommand{\ut}{\undertilde}
+
+\newcommand{\floor}[1]{\lfloor{#1}\rfloor}
+\newcommand{\ceil}[1]{\lceil{#1}\rceil}
 
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
@@ -221,11 +226,11 @@ coefficients $\v v$ satisfy
 where $\v h,\m h$ are respectively a vector and matrix of all
 $h_p,h_{pq}$; $\diag\v h$ is a matrix with $\v h$ on the diagonal and
 zeros everywhere else; and $\Delta\p{\v v}$ is some constant that may
-depend on $\v v$.  Solving the eigenvalue problem in \eqref{eq:cond_1}
-requires diagonalizing an $N\times N$ matrix.  When the interaction
-Hamiltonian $H_0$ is translationally invariant, this eigenvalue
-problem can be solved analytically, which we discuss further in
-Appendix \ref{sec:trans_inv}.
+depend on $\v v$.  Solving the general eigenvalue problem in
+\eqref{eq:cond_1} requires diagonalizing an $N\times N$ matrix.  When
+the interaction Hamiltonian $H_0$ is translationally invariant,
+however, this eigenvalue problem can be solved analytically; we
+provide the corresponding solution in Appendix \ref{sec:trans_inv}.
 
 If we {\it construct} a perturbation $\V_1\p{\v v_\Delta}$ with
 coefficients $\v v_\Delta$ that satisfy \eqref{eq:cond_1} with
@@ -319,69 +324,56 @@ $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V2_psi})
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
-  + \sum_{k,\ell} \bar h_{k\ell} w_{k\ell} X_k Y_\ell \ket\psi
-  + \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{q\ell} + w_{kq} h_{q\ell}}
-  X_k Y_\ell \ket\psi,
+  + \f12 \sum_{p\ne q} \sp{2\bar h_{pq} w_{pq}
+    + \sum_k \p{h_{pk} w_{kq} + w_{pk} h_{kq}}}
+  X_p Y_q \ket\psi,
   \label{eq:H_V2_psi}
 \end{align}
 where to keep notation compact, we define
 \begin{align}
-  \bar h_{k\ell} \equiv h_{k\ell} - \f12\p{h_k + h_\ell},
+  \bar h_{pq} \equiv h_{pq} - \f12\p{h_p + h_q},
   &&
-  h_k \equiv \sum_\ell h_{k\ell}.
+  h_p \equiv \sum_q h_{pq}.
 \end{align}
 We thus find that the vector $\V_2\ket\psi$ is an eigenvector of the
 interaction Hamiltonian $H_0$ if the coefficients $\m w$ satisfy
 \begin{align}
-  2\bar{\m h} \circ \m w + \m h\c\m w + \m w\c\m h
-  = \Delta\p{\m w} \m w,
+  2 \bar h_{pq} w_{pq}
+  + \sum_{k\notin\set{p,q}} \p{h_{pk} w_{kq} + w_{pk} h_{kq}}
+  = \Delta\p{\m w} w_{pq},
   \label{eq:cond_2}
 \end{align}
-where $\m w,\m h,\bar{\m h}$ are matrices of all
-$w_{k\ell},h_{k\ell},\bar h_{k\ell}$; $\bar{\m h} \circ \m w$ is an
-element-wise (Hadamard) product of $\bar{\m h}$ and $\m w$, i.e.~with
-matrix elements $\bar h_{k\ell} w_{k\ell}$; and $\Delta\p{\m w}$ is
-some constant that may depend on $\m w$.
-
-We can recast the condition in \eqref{eq:cond_2} as an eigenvalue
-problem by writing the coefficient matrix $\m w$ as a vector
-$\v{\m w}$ in $\RR^N\times\RR^N$,
+where $\Delta\p{\m w}$ is some constant that may depend on $\m w$, and
+for clarity we explicitly exclude terms with $k\in\set{p,q}$ that
+vanish due to the fact that $\m h$ and $\m w$ are zero on the
+diagonal.  We can recast the condition in \eqref{eq:cond_2} as an
+eigenvalue problem by writing the coefficient matrix $\m w$ as a
+vector $\v{\m w}\in\RR^{N\choose 2}$,
 \begin{align}
   \m w = \sum_{p,q} w_{pq} \op{p}{q}
-  \to \v{\m w} \equiv \flat\m w \equiv \sum_{p,q} w_{pq} \ket{pq},
+  \to \v{\m w} \equiv \flat\m w
+  \equiv \sum_{p<q} w_{pq} \ket{\set{p,q}},
 \end{align}
-where $\flat\m m$ is a flattening of the $N\times N$ matrix $\m m$
-into an $N^2$-component vector $\v{\m m}$, and defining the
-$N^2\times N^2$ matrix
+where we label basis of vectors $\ket{\set{p,q}}\in\RR^{N\choose 2}$
+by a choice of two distinct integers $p,q\in\ZZ_N$.  We similarly
+define the ${N \choose 2}\times{N \choose 2}$ matrix
 \begin{align}
-  \check{\m h}
-  \equiv 2\diag\p{\flat\bar{\m h}}
-  + \m h\otimes\1_N + \1_N\otimes\m h
-  = 2 \sum_{p,q} \bar h_{pq} \op{pq}
-  + \sum_{p,q,\ell} h_{pq} \p{\op{p\ell}{q\ell} + \op{\ell p}{\ell q}},
+  \check{\m h} = 2\sum_{p<q} \bar h_{pq} \op{\set{p,q}}
+  + \sum_{p<q} \ket{\set{p,q}} \sum_{k\notin\set{p,q}}
+  \p{h_{pk} \bra{\set{k,q}} + h_{kq} \bra{\set{p,k}}}.
   \label{eq:h_super_mat}
 \end{align}
-where $\1_D$ is a $D\times D$ identity matrix.  The condition in
-\eqref{eq:cond_2} is then equivalently the eigenvalue equation
+The condition in \eqref{eq:cond_2} is then equivalently the eigenvalue
+equation
 \begin{align}
-  \p{\check{\m d} \c \check{\m h} \c \check{\m d}} \c \v{\m w}
-  = \Delta\p{\m w} \v{\m w},
-  &&
-  \check{\m d} \equiv \1_{N^2} - \sum_\ell \op{\ell\ell},
+  \check{\m h} \c \v{\m w} = \Delta\p{\m w} \v{\m w}.
   \label{eq:cond_2_eig}
 \end{align}
-where $\check{\m d}$ annihilates the diagonal part of a (flattened)
-matrix it acts on, while keeping the off-diagonal components the same.
-We conjugate $\check{\m h}$ by $\check{\m d}$ to enforce that its
-eigenvectors $\v{\m w}$ correspond to matrices $\m w$ with zeros on
-the diagonal, i.e.~$w_{pp}=0$.  Solving the eigenvalue equation in
-\eqref{eq:cond_2_eig} nominally requires diagonalizing an
-$N^2\times N^2$ matrix; we provide a reduction of this problem to that
-of diagonalizing an ${N\choose2}\times{N\choose2}$
-($\approx N^2/2\times N^2/2$ when $N\gg1$) matrix in Appendix
-\ref{sec:reduction}.  We also discuss how to reduce this problem even
-further in the case of a translationally invariant interaction
-Hamiltonian $H_0$ in Appendix \ref{sec:trans_inv}.
+When the interaction Hamiltonian $H_0$ and perturbation $\V_2\p{\m w}$
+are translationally invariant, this eigenvalue problem can be reduced
+to that of diagonalizing a matrix of dimensions
+$\floor{N/2}\times\floor{N/2}$, as we show in Appendix
+\ref{sec:trans_inv}.
 
 If we {\it construct} a perturbation $\V_2\p{\m w_\Delta}$ with
 coefficients $\m w_\Delta$ that satisfy \eqref{eq:cond_2_eig} with
@@ -414,25 +406,26 @@ operator, then we can expand
 where $S_\z\equiv\sum_p s_\z^{(p)}$ is a collective SU(2) spin
 operator, $W_k\p{\m h,\m w}$ are scalar coefficients, and we have
 neglected scalar terms in $H_2^{(2)}$ without physical consequence.
-In order to expand the coefficients $W_k\p{\m h,\m w}$, for any matrix
-$\m m$ we define the vectors
+In order to expand the coefficients $W_k\p{\m h,\m w}$, for any
+symmetric matrix $\m m$ with zeroes on the diagonal we define the
+vectors
 \begin{align}
-  \v{\m m} \equiv \sum_{p,q} m_{pq} \ket{pq},
+  \v{\m m} \equiv \flat\m m \equiv \sum_{p<q} m_{pq} \ket{\set{p,q}},
   &&
   \v m \equiv \sum_{p,q} m_{pq} \ket{p},
 \end{align}
-using which we have
+in terms of which
 \begin{align}
   W_4\p{\m h,\m w}
   \equiv \sum_\Delta \f1\Delta \f{\v w_\Delta\c\v w_\Delta
-    - \v{\m w}_\Delta\c\v{\m w}_\Delta/2}{N!_4},
+    - \v{\m w}_\Delta\c\v{\m w}_\Delta}{N!_4},
 \end{align}
 \begin{align}
   W_2\p{\m h,\m w}
   \equiv \sum_\Delta \f1{\Delta} \sp{\f{\v w_\Delta\c\v w_\Delta
-      - \v{\m w}_\Delta\c\v{\m w}_\Delta}{4N!_2}
+      - 2\v{\m w}_\Delta\c\v{\m w}_\Delta}{4N!_2}
     + \f{\p{3N-4}\p{\v w_\Delta\c\v w_\Delta
-        - \v{\m w}_\Delta\c\v{\m w}_\Delta/2}}{2N!_4}},
+        - \v{\m w}_\Delta\c\v{\m w}_\Delta}}{2N!_4}},
 \end{align}
 where
 \begin{align}
@@ -442,9 +435,8 @@ Note that the dependence of the coefficients of $W_k\p{\m h,\m w}$ on
 the interaction matrix $\m h$ is implicit in the decomposition of the
 coefficient matrix $\m w$ into components $\m w_\Delta$ as
 $\m w=\sum_\Delta\m w_\Delta$, where $\m w_\Delta$ is the projection
-of $\m w$ onto the $\Delta$-eigenspace of the operator
-$\check{\m d}\c\check{\m h}\c\check{\m d}$ defined by
-\eqref{eq:h_super_mat} and \eqref{eq:cond_2_eig}.
+of $\m w$ onto the $\Delta$-eigenspace of the operator $\check{\m h}$
+defined in \eqref{eq:h_super_mat}.
 
 \newpage
 \appendix
@@ -541,10 +533,14 @@ Using similar techniques, we can simplify the terms in
 In total,
 \begin{align}
   H_0 \V_2 \ket\psi
-  = E_0 \V_2 \ket\psi
+  &= E_0 \V_2 \ket\psi
   + \sum_{k,\ell} \bar h_{k\ell} w_{k\ell} X_k Y_\ell \ket\psi
   + \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{q\ell} + w_{kq} h_{q\ell}}
-  X_k Y_\ell \ket\psi.
+  X_k Y_\ell \ket\psi \\
+  &= E_0 \V_2 \ket\psi
+  + \f12 \sum_{k\ne\ell} \sp{2\bar h_{k\ell} w_{k\ell}
+    + \sum_q \p{h_{kq} w_{q\ell} + w_{kq} h_{q\ell}}}
+  X_k Y_\ell \ket\psi
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -678,9 +674,9 @@ $p,q\in\set{k,\ell}$:
 \begin{align}
   \sum_{\substack{k,\ell\\p,q\in\set{k,\ell}}}
   w_{k\ell} w_{pq} X_k Y_\ell X_p Y_q
-  \EQFS \v{\m w}\c\v{\m w} \p{X_0^2 Y_1^2 + X_0 Y_0 Y_1 X_1},
+  \EQFS 2 \v{\m w}\c\v{\m w} \p{X_0^2 Y_1^2 + X_0 Y_0 Y_1 X_1},
   &&
-  \v{\m w} \equiv \sum_{k,\ell} w_{k\ell} \ket{k\ell}.
+  \v{\m w} \equiv \sum_{k<\ell} w_{k\ell} \ket{\set{k,\ell}}.
 \end{align}
 The terms of the sum in \eqref{eq:PXYXYP_start} with
 $p\in\set{k,\ell}$ and $q\notin\set{k,\ell}$ or vice versa are
@@ -698,7 +694,7 @@ where
 \begin{align}
   \sum_{\substack{k,\ell\\p\notin\set{k,\ell}}} w_{k\ell} w_{pk}
   = \sum_{k,\ell,p} w_{k\ell} w_{kp} - \sum_{k,\ell} w_{k\ell}^2
-  = \v w\c\v w - \v{\m w}\c\v{\m w},
+  = \v w\c\v w - 2 \v{\m w}\c\v{\m w},
   &&
   \v w \equiv \sum_{k,\ell} w_{k\ell} \ket{k}.
 \end{align}
@@ -718,14 +714,14 @@ where, using the fact that $\m w$ is mean-zero,
   w_{k\ell} w_{pq}
   - \sum_{\substack{k,\ell\\p\notin\set{k,\ell}\\q\in\set{k,\ell}}}
   w_{k\ell} w_{pq}
-  = 2 \v{\m w}\c\v{\m w} - 4 \v w\c\v w.
+  = -4 \v w\c\v w + 4 \v{\m w}\c\v{\m w}.
 \end{align}
 Altogether, we thus have that
 \begin{multline}
   \P_0 \V_2^2 \P_0
-  \EQFS -\p{\v w\c\v w - \f12 \v{\m w}\c\v{\m w}} X_0 X_1 Y_2 Y_3
-  + \f14 \v{\m w}\c\v{\m w} \p{X_0^2 Y_1^2 + X_0 Y_0 Y_1 X_1} \\
-  + \f14 \p{\v w\c\v w - \v{\m w}\c\v{\m w}}
+  \EQFS -\p{\v w\c\v w - \v{\m w}\c\v{\m w}} X_0 X_1 Y_2 Y_3
+  + \f12 \v{\m w}\c\v{\m w} \p{X_0^2 Y_1^2 + X_0 Y_0 Y_1 X_1} \\
+  + \f14 \p{\v w\c\v w - 2\v{\m w}\c\v{\m w}}
   \p{X_0^2 Y_1 Y_2 + X_0 Y_0 X_1 Y_2
     + Y_0 X_0 X_1 Y_2 + Y_0^2 X_1 X_2}.
   \label{eq:PXYXYP}
@@ -748,50 +744,175 @@ interactions of the form $Z\otimes Z$, with $Z$ a single-spin Pauli
 operator.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Reducing the two-body eigenvalue problem}
-\label{sec:reduction}
-
-At second order, the two-body perturbation theory developed in Section
-\ref{sec:two_body} nominally requires diagonalizing an $N^2\times N^2$
-matrix.  Here we discuss the reduction of this problem to that of
-diagonalizing an ${N \choose 2} \times {N \choose 2}$
-($\approx N^2/2\times N^2/2$ when $N\gg1$) matrix.  The basic idea is
-to remove redundancies and trivial values from the coefficient matrix
-$\m w$ that is used to construct a two-body perturbation
-$\V_2\p{\m w}$.  To this end, we flatten $\m w$ into a vector
-$\ul{\v{\m w}}$ in $\RR^{N\choose2}$,
-\begin{align}
-  \m w = \sum_{p,q} w_{pq} \op{p}{q}
-  \to \ul{\v{\m w}} \equiv \flatvec\m w
-  \equiv \sum_{p<q} w_{pq} \ket{\set{p,q}},
-\end{align}
-where we label basis vectors $\ket{\set{p,q}}$ by a choice of two
-distinct integers from $\set{1,2,\cdots,N}$.  We then define the
-matrix
-\begin{align}
-  \ul{\check{\m h}} = 2\diag\p{\flatvec\bar{\m h}}
-  + \sum_{p<q}
-  \sp{\sum_k \p{h_{pk} \ket{\set{q,k}} + h_{qk} \ket{\set{p,k}}}}
-  \bra{\set{p,q}}.
-\end{align}
-The condition in \eqref{eq:cond_2} is then equivalently the eigenvalue
-problem
-\begin{align}
-  \ul{\check{\m h}} \c \ul{\v{\m w}}
-  = \Delta\p{\m w} \ul{\v{\m w}}.
-\end{align}
-Unlike the eigenvalue problem in \eqref{eq:cond_2_eig}, there is now
-no need to conjugate $\ul{\check{\m h}}$ by an operator that
-annihilates the diagonal components of $\m w$, because the
-${N\choose2}$-component vector $\ul{\v{\m w}}$ already contains only
-the non-trivial parts of $\m w$.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Making use of translational invariance}
+\section{Analytical results in translationally invariant systems}
 \label{sec:trans_inv}
 
-[Discuss simplifications that occur to the single- and two-body theory
-if $H_0$ is translationally invariant.]
+Here we simplify the eigenvalue problems that appear at second order
+in the single- and two-body theory in Sections \ref{sec:single_body}
+and \ref{sec:two_body} in the case of a translationally invariant
+system with periodic boundary conditions.  We solve the single-body
+eigenvalue problem analytically, and reduce the two-body eigenvalue
+problem to that of diagonalizing a single $\p{N-1}\times\p{N-1}$
+matrix.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Single-body eigenvalue problem}
+\label{sec:trans_inv_single}
+
+For reference, the single-body eigenvalue problem is
+\begin{align}
+  \p{\m h - \diag\v h}\c\v v = \Delta\p{\v v} \v v,
+  \label{eq:cond_1_ref}
+\end{align}
+where $\m h$ is a matrix of all couplings $h_{pq}$ that appear in the
+interaction Hamiltonian $H_0$ in \eqref{eq:ints}; $\v h$ is a vector
+of all $h_p\equiv\sum_q h_{pq}$; $\diag\v h$ is a matrix with $\v h$
+on the diagonal and zeroes everywhere else; and $\v v$ is a vector of
+coefficients used to construct the single-body perturbation
+$\V_1\p{\v v}$ defined in \eqref{eq:perturbations}.  When the
+interaction Hamiltonian $H_0$ is translationally invariant, the
+couplings $h_{pq}$ depend only on the separation $\abs{p-q}$, so the
+eigenvectors of $\m h$ are plane waves of the form
+\begin{align}
+  \v v_k \equiv \sum_p e^{ipk} \ket{p},
+\end{align}
+where $k\in\ZZ_N\times2\pi/N$.  The corresponding eigenvalues can be
+determined by expanding
+\begin{align}
+  \m h\c\v v_k = \sum_{p,q} h_{pq} e^{iqk} \ket{p}
+  = \sum_{p,d} h_{p,d+p} e^{i\p{d+p}k} \ket{p}
+  = \sum_d h_{0,d} e^{idk} \sum_p e^{ipk}\ket{p}
+  = \sum_d h_{0,d} \cos\p{dk} \v v_k.
+\end{align}
+The remainder of \eqref{eq:cond_1_ref} that we need to sort out is
+$\diag\v h$, where all $h_p=\sum_qh_{pq}=\sum_dh_{0,d}$ are equal,
+which implies that $\diag\v h=\sum_dh_{0,d}$ is a scalar.  We thus
+find that
+\begin{align}
+  \p{\m h - \diag\v h}\c\v v_k = \Delta_k \v v_k,
+  &&
+  \Delta_k \equiv \sum_d h_{0,d} \sp{\cos\p{dk}-1}.
+\end{align}
+Note that $\Delta_k=\Delta_{-k}$, which implies that there are at most
+$\lceil N/2\rceil$ distinct eigenvalues of $\m h - \diag\v h$ (one of
+which is $\Delta_0=0$).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Two-body eigenvalue problem}
+\label{sec:trans_inv_two}
+
+The two-body eigenvalue equation in \eqref{eq:cond_2_eig} is designed
+to find solutions $\m w$ to the equation
+\begin{align}
+  \p{2h_{pq}-h_p-h_q} w_{pq}
+  + \sum_{k\notin\set{p,q}} \p{h_{pk} w_{kq} + w_{pk} h_{kq}}
+  = \Delta w_{pq},
+  \label{eq:cond_2_ref_start}
+\end{align}
+where $h_p\equiv\sum_q h_{pq}$.  If the interaction Hamiltonian $H_0$
+and perturbation $\V_2\p{\m w}$ are translationally invariant, then
+the couplings $h_{pq}$ and coefficients $w_{pq}$ depend only on the
+separation $\abs{p-q}$.  In this case, all $h_p=h_0$ are equal, and
+\eqref{eq:cond_2_ref_start} can be written in the form
+\begin{align}
+  2 \m h\circ \m w + \m h\c\m w + \m w\c\m h
+  = \sp{\Delta + 2h_0} \m w,
+  \label{eq:cond_2_ref}
+\end{align}
+where $\m h\circ\m w$ denotes an element-wise (Kronecker) product of
+$\m h$ and $\m w$, i.e.~with matrix elements $h_{pq}w_{pq}$.  In order
+to find solutions to \eqref{eq:cond_2_ref}, we we expand the matrices
+$\m h,\m w$ in a basis that respects translational symmetry.  To this
+end, for all $d\in\ZZ_N$ we define the {\it shift matrices}
+\begin{align}
+  \m s_d \equiv \sum_p \op{p+d}{p},
+\end{align}
+where the sum $p+d$ is implicitly taken modulo $N$.  The shift
+matrices allow us to expand
+\begin{align}
+  \m h = \sum_{p,q} h_{pq} \op{p}{q}
+  = \sum_{d,q} h_{q+d,q} \op{q+d}{q}
+  = \sum_d h_{d,0} \m s_d,
+  &&
+  \m w = \sum_d w_{d,0} \m s_d,
+\end{align}
+and write the condition in \eqref{eq:cond_2_ref} as
+\begin{align}
+  \sum_{d\ne 0} h_{d,0} w_{d,0} \m s_d
+  + \sum_{\substack{c,d\ne0\\c+d\ne0}} h_{c,0} w_{d,0} \m s_{c+d}
+  = \p{\f12\Delta + h_0} \sum_{d\ne 0} w_{d,0} \m s_d,
+\end{align}
+where we explicitly exclude terms that always vanish due to the fact
+that $\m h,\m w$ are zero on the diagonal.  With some re-indexing, we
+can write
+\begin{align}
+  \sum_{d\ne 0} h_{d,0} w_{d,0} \m s_d
+  + \sum_{\substack{c,d\ne0}} h_{d-c,0} w_{c,0} \m s_d
+  = \p{\f12\Delta + h_0} \sum_{d\ne 0} w_{d,0} \m s_d,
+  \label{eq:cond_2_shift}
+\end{align}
+and define
+\begin{align}
+  \ul{\check{\m h}}
+  \equiv \sum_{d\ne0} h_{d,0} \op{d}
+  + \sum_{c,d\ne0} h_{d-c,0} \op{d}{c},
+  &&
+  \ul{\v{\m w}} \equiv \sum_{d\ne0} w_{d,0} \ket{d},
+\end{align}
+in order to express \eqref{eq:cond_2_shift} as the eigenvalue
+equation
+\begin{align}
+  \ul{\check{\m h}} \c \ul{\v{\m w}}
+  = \p{\f12\Delta + h_0} \ul{\v{\m w}}.
+  \label{eq:cond_2_square}
+\end{align}
+We can reduce this eigenvalue problem even further by making use of a
+reflection symmetry that comes from the fact that $h_{pq}=h_{qp}$ and
+$w_{pq}=w_{qp}$, which implies $h_{d,0}=h_{-d,0}$ and
+$w_{d,0}=w_{-d,0}$ (where all indices are taken modulo $N$, taking
+$-d\to N-d$).  To this end, we define a complete basis of orthogonal
+vectors that are symmetric under reflection, namely for all
+$d\in\VV_N\equiv\set{1,2,\cdots,\floor{N/2}}$,
+\begin{align}
+  \ket{d_+} \equiv \f{\eta_d}{\sqrt{2}}\p{\ket{d} + \ket{-d}},
+  && \eta_d \equiv
+  \begin{cases}
+    1 & d \ne N/2, \\
+    1/\sqrt{2} & d = N/2
+  \end{cases},
+\end{align}
+where the special case of $d=N/2$ affects only even $N$, for which
+$\ket{N/2}=\ket{-N/2}$.  We can use these vectors to define a
+projector onto the reflection-symmetric subspace and expand
+$\ul{\v{\m w}}$ as
+\begin{align}
+  \P_+ \equiv \sum_{d\in\VV_N} \op{d_+},
+  &&
+  \ul{\v{\m w}} = \sum_{d\in\VV_N} w_{d,0} \,
+  \eta_d \sqrt{2} \ket{d_+}.
+\end{align}
+Finally, we project $\ul{\check{\m h}}$ onto the reflection-symmetric
+subspace,
+\begin{align}
+  \P_+ \ul{\check{\m h}} \P_+
+  &= \sum_{a,b\in\VV_N} \sum_{c,d\ne0}
+  \p{h_{d,0} \delta_{cd} + h_{c-d,0}} \op{a_+} \op{d} \op{b_+} \\
+  &= \sum_{a,b\in\VV_N} \op{a_+}{b_+} \f12 \eta_a\eta_b
+  \sum_{c,d\ne0} \p{h_{d,0} \delta_{cd} + h_{c-d,0}}
+  \p{\delta_{ac} + \delta_{-a,c}} \p{\delta_{bd} + \delta_{-b,d}} \\
+  &= \sum_{a\in\VV_N} h_{a,0} \op{a_+}
+  + \sum_{a,b\in\VV_N} \eta_a\eta_b
+  \p{h_{a-b,0} + h_{a+b,0}} \op{a_+}{b_+},
+\end{align}
+which allows us to write down the reduced eigenvalue problem
+\begin{align}
+  \P_+ \ul{\check{\m h}} \P_+ \c \ul{\v{\m w}}
+  = \p{\f12\Delta + h_0} \ul{\v{\m w}}.
+\end{align}
+Note that the factors of $\eta_a,\eta_b$ in
+$\P_+ \ul{\check{\m h}} \P_+$ only matter when $N$ is even, in which
+case these factors merely multiply the last row and last column of
+$\P_+ \ul{\check{\m h}} \P_+$ by a factor of $1/\sqrt{2}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Collective and multi-local operators in the fully symmetric
