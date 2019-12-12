@@ -165,7 +165,7 @@ for method in methods:
     if method == OAT: continue
     sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
     if method == TNT:
-        sqz_path = data_dir + f"test_sqz_D_exact_logN{log10_N}_{method}.txt"
+        sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path) or recompute_exact:
         correlators = correlators_from_trajectories(*jump_args(h_vec[method]))
