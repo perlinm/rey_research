@@ -82,23 +82,23 @@
   Boulder, Colorado 80309, USA}
 
 \begin{abstract}
-  We present a new method to compute short-time expectation values in
-  large collective spin systems with generic Markovian decoherence.
-  Our method is based on a Taylor expansion of a formal solution to
-  the equations of motion for Heisenberg operators.  This expansion
-  can be truncated at finite order to obtain virtually exact results
-  at short times that are relevant for metrological applications such
-  as spin squeezing.  In order to evaluate the expansion for
-  Heisenberg operators, we compute the relevant structure constants of
-  a collective spin operator algebra.  We demonstrate the utility of
-  our method by computing spin squeezing, two-time correlation
-  functions, and out-of-time-ordered correlators for $10^4$ spins in
-  strong-decoherence regimes that are otherwise inaccessible via
-  existing numerical methods.  Our method can be straightforwardly
-  generalized to the case of a collective spin coupled to bosonic
-  modes, relevant for trapped ion and cavity QED experiments, and may
-  be used to investigate short-time signatures of quantum chaos and
-  information scrambling.
+  We present an efficient method to compute short-time expectation
+  values in large collective spin systems with typical forms of
+  Markovian decoherence.  Our method is based on a Taylor expansion of
+  a formal solution to the equations of motion for Heisenberg
+  operators.  This expansion can be truncated at finite order to
+  obtain virtually exact results at short times that are relevant for
+  metrological applications such as spin squeezing.  In order to
+  evaluate the expansion for Heisenberg operators, we compute the
+  relevant structure constants of a collective spin operator algebra.
+  We demonstrate the utility of our method by computing spin
+  squeezing, two-time correlation functions, and out-of-time-ordered
+  correlators for $10^4$ spins in strong-decoherence regimes that are
+  otherwise inaccessible via existing numerical methods.  Our method
+  can be straightforwardly generalized to the case of a collective
+  spin coupled to bosonic modes, relevant for trapped ion and cavity
+  QED experiments, and may be used to investigate short-time
+  signatures of quantum chaos and information scrambling.
 \end{abstract}
 
 \maketitle
@@ -193,18 +193,23 @@ values.  Even with strong decoherence, dynamics are sometimes solvable
 through the cumulant expansion\cite{meiser2010steadystate} that
 neglects all $n$-body connected correlators for $n>2$.  The growth of
 genuinely multi-body correlations, however, eventually causes the
-cumulant expansion to yield unphysical results with no clear signature
+cumulant expansion to yield incorrect results with no clear signature
 of failure.  In the absence of other means to compute correlators, it
 can therefore be difficult to identify the point at which correlators
 computed via the cumulant expansion can no longer be trusted.
 
-In this work, we present a new method to compute short-time dynamics
-of collective spin systems with generic Markovian decoherence.  The
-only restriction on decoherence (beyond Markovianity) is that, like
-the coherent collective dynamics, it must act identically on all
-constituent particles.  Our method is based on a short-time expansion
-of exact solutions to the equations of motion for Heisenberg
-operators.  Evaluating this expansion requires knowing the structure
+In this work, we present an efficient method to compute short-time
+dynamics of collective spin systems with typical forms of Markovian
+decoherence.  The only restriction on decoherence (beyond
+Markovianity) is that, like the coherent collective dynamics, it must
+act identically on all constituent particles.  Our method is based on
+a formal solution to the equations of motion for Heisenberg operators,
+thereby bearing some resemblance to the Mori
+formalism\cite{mori1965continuedfraction} and related
+work\cite{annett1994recursive}.  Specifically, we expand a formal
+solution for a Heisenberg operator into a Taylor series whose
+truncation can yield negligible error at sufficiently short times.
+Evaluating the resulting expansion requires knowing the structure
 constants of a collective spin operator algebra; the calculation of
 these structure constants (in Appendices
 \ref{sec:identities}--\ref{sec:general_product}) is one of the main
@@ -296,14 +301,34 @@ sufficient to compute matrix elements $T_{\v m\v n}$ of the time
 derivative operator $\check T$ in Eq.~\eqref{eq:time_deriv} in most
 cases of practical interest.
 
+We note that particle loss is an important decoherence mechanism in
+many experimental realizations of collective spin
+models\cite{ma2011quantum}.  In principle, a spin model has no notion
+of the particle annihilation operators that generate particle loss,
+and therefore cannot capture this effect directly.  Nonetheless, for a
+system initially composed of $N$ particles, the effect of particle
+loss can be emulated with $O(1/N)$ error by the dissipator
+$\check\D_{\t{loss}}$ defined by
+$\check\D_{\t{loss}}\hat\S_{\v m}=-\abs{\v m}\hat\S_{\v m}$, where
+$\abs{\v m}\equiv\sum_\alpha m_\alpha$ (see Appendix
+\ref{sec:particle_loss}).  Furthermore, the effect particle loss can
+be accounted for exactly by
+\begin{enumerate*}
+\item introducing an additional index on spin operators,
+  $\hat\S_{\v m}\to\hat\S_{N\v m}$, to keep track of different sectors
+  of fixed particle number within a multi-particle Fock space, and
+\item constructing jump operators that appropriately couple spin
+  operators within different particle-number sectors.
+\end{enumerate*}
+We defer a detailed exact accounting of particle loss to future work.
+
 The time derivative operator $\check T$ will generally couple spin
 operators $\hat\S_{\v n}$ to spin operators $\hat\S_{\v m}$ with
-higher ``weight'', i.e.~with $\abs{\v m}>\abs{\v n}$, where
-$\abs{\v\ell}\equiv\sum_\a\ell_\a$.  The growth of operator weight
-signifies the growth of many-body correlations.  Keeping track of this
-growth eventually becomes intractable, requiring us to truncate our
-equations of motion somehow.  The simplest truncation strategy would
-be to take
+higher ``weight'', i.e.~with $\abs{\v m}>\abs{\v n}$.  The growth of
+operator weight signifies the growth of many-body correlations.
+Keeping track of this growth eventually becomes intractable, requiring
+us to truncate our equations of motion somehow.  The simplest
+truncation strategy would be to take
 \begin{align}
   \f{d}{dt} \bk{\hat\O\p{t}}
   \to \sum_{w\p{\v m}<W} \bk{\hat\S_{\v m}}
@@ -414,13 +439,16 @@ TST expansion is essentially perturbative in the time $t$, which
 implies that its validity as a formal expansion eventually breaks
 down.  Precisely characterizing the implications of these last two
 considerations for the TST expansion requires additional analysis that
-we defer to future work.  As we show from benchmarks of the TST
-expansion in Section \ref{sec:squeezing}, however, a detailed
-understanding of these limitations is not necessary to diagnose the
-breakdown time $t_{\t{break}}^{(M)}$ beyond which the TST expansion
-yields inaccurate results.  Empirically, we find that going beyond
-order $M\approx35$ yields no significant gains in all cases considered
-in this work.
+we defer to future work.  An investigation of connections between the
+TST expansion and past work related to the Mori
+formalism\cite{mori1965continuedfraction, annett1994recursive}, for
+example, might answer questions about the breakdown and convergence of
+the TST expansion.  As we show from benchmarks of the TST expansion in
+Section \ref{sec:squeezing}, however, a detailed understanding of
+breakdown is not necessary to diagnose the breakdown time
+$t_{\t{break}}^{(M)}$ beyond which the TST expansion yields inaccurate
+results.  Empirically, we find that going beyond order $M\approx35$
+yields no significant gains in all cases considered in this work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin squeezing, benchmarking, and breakdown}
@@ -447,10 +475,13 @@ TNT in the large-$N$ limit\cite{micheli2003manyparticle,
 
 Note that the OAT model is a special case of the zero-field Ising
 model, whose quantum dynamics admits an exact analytic solution even
-in the presence of decoherence\cite{foss-feig2013nonequilibrium}.  We
-will benchmark our calculations using these analytical OAT results
-wherever applicable (see Appendix \ref{sec:OAT}, as well as the
-Supplementary Material of Ref.~[\citenum{bohnet2016quantum}]).
+in the presence of decoherence\cite{foss-feig2013nonequilibrium}.  The
+approximate and numerics-oriented TST expansion is therefore an
+inappropriate tool for studying the OAT model, which will merely serve
+as an exactly solvable benchmark of our methods.  Wherever applicable,
+we will provide exact results for the OAT model (see Appendix
+\ref{sec:OAT}, as well as the Supplementary Material of
+Ref.~[\citenum{bohnet2016quantum}]).
 
 The Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT} squeeze the
 initial product state $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$
@@ -544,16 +575,19 @@ breakdown to future work.
 The main lesson from Figure \ref{fig:benchmarking} is that the TST
 expansion yields essentially exact results right up until a sudden and
 drastic departure that can be diagnosed by inspection.  The breakdown
-of the TST expansion in Figure \ref{fig:benchmarking} is marked by an
-unphysical squeezing parameter $\xi^2<0$, which occurs due to
-individual correlators taking unphysical values with
-$\abs{\bk{\hat\S_{\v n}\p{t}}}\gtrsim S^{\abs{\v n}}$.  Going up
-through order $M=70$ in the TST expansion does not significantly
-increase the breakdown time $t_{\t{break}}^{(M)}$, and in some cases
-even shortens $t_{\t{break}}^{(M)}$.  The sudden and drastic departure
-from virtually exact results is consistent with the limitations of the
-TST expansion discussed at the end of Section \ref{sec:theory}.
-Specifically, we identify three possible mechanisms for breakdown:
+of the TST expansion in Figure \ref{fig:benchmarking} induces an
+unphysical squeezing parameter $\xi^2<0$.  In general, however, there
+is no fundamental relationship between the breakdown of the TST
+expansion and the conditions for a physical squeezing parameter
+$\xi^2$.  A proper diagnosis of breakdown therefore requires
+inspection of the correlators $\bk{\hat\S_{\v n}\p{t}}$ used to
+compute the squeezing parameter $\xi^2$, which upon breakdown will
+rapidly take unphysical values with
+$\abs{\bk{\hat\S_{\v n}\p{t}}}\gtrsim S^{\abs{\v n}}$.  The sudden and
+drastic departure from virtually exact results is consistent with the
+limitations of the TST expansion discussed at the end of Section
+\ref{sec:theory}.  Specifically, we identify three possible mechanisms
+for breakdown:
 \begin{enumerate*}
 \item a rapid growth in the order $M$ necessary for the TST expansion
   to converge,
@@ -570,7 +604,11 @@ contrast to other approximate methods such as the cumulant
 expansion\cite{meiser2010steadystate}, the TST expansion can thus
 diagnose its own breakdown, which is an important feature when working
 in parameter regimes that are inaccessible via other means to compute
-correlators.
+correlators.  Note that, due to the breakdown mechanisms of the TST
+expansion, going up through order $M=70$ does not significantly
+increase the breakdown time $t_{\t{break}}^{(M)}$ in Figure
+\ref{fig:benchmarking}, and in some cases even shortens
+$t_{\t{break}}^{(M)}$.
 
 Although the TST expansion breaks down at short times, it has two key
 advantages over the quantum trajectory Monte Carlo method to compute
@@ -620,15 +658,20 @@ simulations, meanwhile, take a prohibitively long time to converge
 with such strong decoherence due to the multiplicity of quantum
 trajectories that require averaging.
 
-The results in Figure \ref{fig:decoherence_strong} show that TNT is
-much more robust to single-spin decoherence than OAT or TAT, a finding
-that could not necessarily be deduced from the weak-decoherence
-simulations presented in Figure \ref{fig:benchmarking}.
-Strong-decoherence computations of this sort were used to put lower
-bounds on theoretically achievable spin squeezing via TAT with
-decoherence in Ref.~[\citenum{he2019engineering}], exemplifying a
-concrete and practical application of the TST expansion and the
-collective-spin structure constants calculated in this work.
+The results in Figure \ref{fig:decoherence_strong} show that the TNT
+model can generate more squeezing than the OAT or TAT models in the
+presence of strong decoherence.  The better performance of TNT is a
+consequence of the fact that TNT initially generates squeezing at a
+faster rate than OAT or TAT, thereby allowing it to produce more
+squeezing before the degrading effects of decoherence kick in.  We
+corroborate this finding with quantum trajectory simulations of a
+small system in Appendix \ref{sec:small_system}.  Strong-decoherence
+computations of the sort used for Figure \ref{fig:decoherence_strong}
+were used to put lower bounds on theoretically achievable spin
+squeezing via TAT with decoherence in
+Ref.~[\citenum{he2019engineering}], exemplifying a concrete and
+practical application of the TST expansion and the collective-spin
+structure constants calculated in this work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Two-time correlation functions and out-of-time-ordered
@@ -737,10 +780,10 @@ equilibrium settings and spin-boson systems.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
 
-We have presented a new method for computing correlators at short
-times in collective spin systems.  This method is based on truncating
-a short-time expansion of Heisenberg operators, and can access
-correlators on time scales that are relevant to metrological
+We have presented an efficient method for computing correlators at
+short times in collective spin systems.  This method is based on
+truncating a short-time expansion of Heisenberg operators, and can
+access correlators on time scales that are relevant to metrological
 applications such as spin squeezing.  In order to evaluate the
 truncated short-time (TST) expansion of Heisenberg operators, we have
 computed the structure constants of a collective spin operator
@@ -1681,6 +1724,90 @@ $S_\mu^\ell \p{\mu S_\z}^m S_\bmu^n$ grows by one if $G_\mu\ne0$ or
 $G_\bmu\ne0$, and does not grow otherwise.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Emulating particle loss in a spin model}
+\label{sec:particle_loss}
+
+Here we discuss the details of emulating particle loss with $O(1/N)$
+error, where $N$ is the initial number of particles in a system that
+we wish to describe with a spin model.  Starting with the full algebra
+of creation and annihilation operators (whether bosonic or fermionic)
+in a system, spin models are typically implemented by identifying a
+subalgebra of relevant ``spin'' operators that satisfy appropriate
+commutation relations.  Two-state particles on a lattice, for example,
+are described by annihilation operators $c_{js}$ indexed by a lattice
+site $j\in\mathbb{Z}$ and an internal state index $s\in\set{\up,\dn}$,
+enabling the straightforward construction of spin operators
+\begin{align}
+  \sigma_\x^{(j)} \equiv c_{j,\up}^\dag c_{j,\dn} + \t{h.c.},
+  &&
+  \sigma_\y^{(j)} \equiv - i c_{j,\up}^\dag c_{j,\dn} + \t{h.c.},
+  &&
+  \sigma_\z^{(j)}
+  \equiv c_{j,\up}^\dag c_{j,\up} - c_{j,\dn}^\dag c_{j,\dn},
+  &&
+  \1^{(j)} \equiv c_{j,\up}^\dag c_{j,\up} + c_{j,\dn}^\dag c_{j,\dn},
+\end{align}
+which satisfy same commutation relations as the standard Pauli
+operators.  These spin operators can be more compactly defined in the
+form
+\begin{align}
+  \sigma_\alpha^{(j)} \equiv \sum_{r,s\in\set{\up,\dn}}
+  c_{jr}^\dag \bk{r|\sigma_\alpha|s} c_{js},
+\end{align}
+where $\sigma_\alpha$ for $\alpha\in\set{\x,\y,\z,\1}$ is a Pauli
+operator, with $\sigma_\1\equiv\1$; and $\bk{r|\sigma_\alpha|s}$
+denotes a matrix element of $\sigma_\alpha$.  This construction
+exemplifies how the set of jump operators
+$\J_{\t{loss}}^{\t{bare}}\equiv\set{c_{js}}$ that generate particle
+loss cannot be constructed from spin operators, which are generally
+bilinear in particle creation/annihilation operators.  When working on
+the level of a spin model, therefore, we can at best only {\it
+  emulate} the effect of particle loss by some indirect means.
+
+To understand the effect of particle loss on collective spin
+operators, we first define a single multi-body spin operator
+addressing sites $\v j=\set{j_1,j_2,\cdots,j_{\abs{\v j}}}$,
+\begin{align}
+  \sigma_{\v j\v\alpha} \equiv \prod_{j\in\v j} \sigma_{\alpha_j}^{(j)},
+\end{align}
+and expand
+\begin{align}
+  \D\p{\J_{\t{loss}}^{\t{bare}}} \sigma_{\v j\v\alpha}
+  &= \sum_{k,s} \p{c_{ks}^\dag \sigma_{\v j\v\alpha} c_{ks}
+    - \f12\sp{c_{ks}^\dag c_{ks}, \sigma_{\v j\v\alpha}}_+} \\
+  &= \sum_{k\in\v j} \sum_s c_{ks}^\dag \sigma_{\alpha_k}^{(k)} c_{ks}
+  \prod_{\substack{j\in\v j\\j\ne k}} \sigma_{\alpha_j}^{(j)}
+  + \sum_{k\notin\v j} \sum_s c_{ks}^\dag c_{ks} \sigma_{\v j\v\alpha}
+  - \f12 \sum_k \sp{\1^{(k)}, \sigma_{\v j\v\alpha}}_+ \\
+  &= \sum_{k\in\v j} \sum_{q,r,s} \bk{q|\sigma_{\alpha_k}|r}
+  c_{ks}^\dag c_{kq}^\dag c_{kr} c_{ks}
+  \prod_{\substack{j\in\v j\\j\ne k}} \sigma_{\alpha_j}^{(j)}
+  - \abs{\v j} \sigma_{\v j\v\alpha}.
+\end{align}
+In order to have an actual spin model, fermionic statistics or
+energetic considerations must forbid multiple occupation of individual
+lattice sites.  In that case, the on-site four-point product
+$c_{ks}^\dag c_{kq}^\dag c_{kr} c_{ks}=0$ vanishes, and
+\begin{align}
+  \D\p{\J_{\t{loss}}^{\t{bare}}} \sigma_{\v j\v\alpha}
+  = - \abs{\v j} \sigma_{\v j\v\alpha}.
+\end{align}
+Up to $O(1/N)$ corrections, a collective spin operator $\S_{\v m}$
+essentially consists of $\abs{\v m}$-body operators of the form
+$\sigma_{\v j\v\alpha}$ with $\abs{\v j}=\abs{\v m}$, which implies
+that the dissipator $\D_{\t{loss}}$ defined by
+$\D_{\t{loss}}\S_{\v m}=-\abs{\v m}\S_{\v m}$ describes particle loss
+with $O(1/N)$ error.  We note that the dissipator $\D_{\t{loss}}$ is
+essentially the depolarizing channel,
+i.e.~$\D_{\t{loss}}=\D\p{\J_{\t{loss}}}$ for
+$\J_{\t{loss}} = \set{s_\alpha^{(j)}}$ with $\alpha\in\set{\x,\y,\z}$
+and $j\in\set{1,2,\cdots,N}$.  A direct implementation of
+$\D_{\t{loss}}$ with $\D_{\t{loss}}\S_{\v m}=-\abs{\v m}\S_{\v m}$,
+however, is much more efficient than evaluating the depolarizing
+channel $\D\p{\J_{\t{loss}}}$ with the ingredients in Appendices
+\ref{sec:sandwich_single} and \ref{sec:decoherence_single}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Initial conditions}
 \label{sec:initial_conditions}
 
@@ -1988,6 +2115,25 @@ sufficient to compute the spin squeezing parameter $\xi^2$ in
 state $\ket\X$ under $H_{\t{OAT}}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Robustness of squeezing generated by the twist-and-turn (TNT)
+  model}
+\label{sec:small_system}
+
+% \begin{figure}
+%   \centering
+%   \includegraphics{decoherence_strong_small.pdf}
+%   \caption{Spin squeezing of $N=100$ spins initially in $\ket\X$ with
+%     spontaneous decay, excitation, and dephasing of individual spins
+%     at rates $\gamma_-=\gamma_+=\gamma_\z=2\chi$.  Computed computed
+%     using exact methods (solid line), quantum trajectory simulations
+%     with $10^4$ trajectories (dots), and the TST expansion in
+%     Eq.~\eqref{eq:TST} with $M=35$ (dashed lines).}
+%   \label{fig:decoherence_strong_small}
+% \end{figure}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Heisenberg operators in open quantum systems}
 \label{sec:noise}
 
@@ -1995,12 +2141,12 @@ Here we explain the origin and character of the mean-zero ``noise''
 operators $\E_\O\p{t}$ that appear in the expansion of a Heisenberg
 operator $\O\p{t}=\sum_{\v m}\O_{\v m}\p{t}\S_{\v m}+\E_\O\p{t}$ with
 time-dependent coefficients $\O_{\v m}\p{t}$ for time-independent
-Schr\"odinger operators $\hat\S_{\v m}$.  Our discussion should
-clarify why noise operators play no role in our calculation of
-expectation values of the form $\bk{\O\p{t}}$ and $\bk{\O\Q\p{t}}$,
-despite the fact that noise operators generally {\it do} need to be
-considered in the calculation of more general multi-time correlators
-in open quantum systems\cite{blocher2019quantum}.
+Schr\"odinger operators $\S_{\v m}$.  Our discussion should clarify
+why noise operators play no role in our calculation of expectation
+values of the form $\bk{\O\p{t}}$ and $\bk{\O\Q\p{t}}$, despite the
+fact that noise operators generally {\it do} need to be considered in
+the calculation of more general multi-time correlators in open quantum
+systems\cite{blocher2019quantum}.
 
 In any closed quantum system with initial state $\rho$ and propagator
 $U\p{t}$, such that the state at time $t$ is
@@ -2032,7 +2178,7 @@ and the quantum channel $\U_{\ul S}\p{t}$ has the
 decomposition\cite{rivas2012time}
 \begin{align}
   \U_{\ul S}\p{t} \rho_S
-  = \sum_j \U_S^{(j)}\p{t} \rho_S {\U_S^{(j)}}^\dag\p{t}
+  = \sum_j \U_S^{(j)}\p{t} \rho_S \U_S^{(j)\dag}\p{t}
 \end{align}
 with ordinary operators $\U_S^{(j)}\p{t}$ on $S$.  We can therefore
 expand
@@ -2051,7 +2197,7 @@ we define the time-dependent operator
 \begin{align}
   \ul{\O_S}\p{t}
   \equiv \U_{\ul S}^\dag\p{t} \O_S
-  = \sum_j {\U_S^{(j)}}^\dag\p{t} \O_S \U_S^{(j)}\p{t}.
+  = \sum_j \U_S^{(j)\dag}\p{t} \O_S \U_S^{(j)}\p{t}.
   \label{eq:heisenberg_wrong}
 \end{align}
 We thus find that substituting $\ul{\O_S}\p{t}$ in place of

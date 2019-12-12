@@ -361,19 +361,25 @@ numbers, page numbers, etc.~refer to those in the revised manuscript.
   We have also added a reference to these works to the discussion of
   the limitations of the TST expansion at the end of the theory
   section of our manuscript (right column of page 3), changing the
-  sentence:
+  text:
 
   \red{Precisely characterizing the implications of these last two
     considerations for the TST expansion requires additional analysis
-    that we defer to future work.}
+    that we defer to future work.  As we show from benchmarks of the
+    TST expansion in Section III, however, a detailed understanding of
+    these limitations is not necessary ...}
 
   to:
 
   \green{Precisely characterizing the implications of these last two
     considerations for the TST expansion requires additional analysis
-    that we defer to future work, which may benefit from an
-    investigation of the connections between the TST expansion and
-    past works related to the Mori formalism[59, 60].}
+    that we defer to future work.  {\bf An investigation of
+      connections between the TST expansion and past work related to
+      the Mori formalism[59, 60], for example, might answer questions
+      about the breakdown and convergence of the TST expansion.}  As
+    we show from benchmarks of the TST expansion in Section III,
+    however, a detailed understanding of {\bf breakdown} is not
+    necessary ...}
 
   We hope that the referee considers these additions a sufficient
   acknowledgment of the Mori formalism and related work.
@@ -408,7 +414,7 @@ numbers, page numbers, etc.~refer to those in the revised manuscript.
   than just uncorrelated decay of individual spins: we also address
   uncorrelated excitation and dephasing of individual spins, as well
   as arbitrary coherent or incoherent combinations of these processes.
-  Similarly, we provide all ingredients necessary to account for
+  Similarly, we have done all of the work necessary to account for
   arbitrary combinations of {\it collective} decay, excitation, and
   dephasing in Appendices D-G, as mentioned in the paragraph below
   Eq.~(4) of our manuscript.
@@ -449,8 +455,8 @@ numbers, page numbers, etc.~refer to those in the revised manuscript.
   references is due to the fact that we do not have any particular
   discussions of the influence of decoherence on spin squeezing with
   OAT, and do not consider such discussions relevant to our current
-  work.  Even with decoherence (of the types considered in our work),
-  the OAT model is an exactly analytically solvable (see
+  work.  Even with decoherence (of the types primarily considered in
+  our work), the OAT model is an exactly analytically solvable (see
   \url{https://doi.org/gcsjdp}).  Approximate numerical methods such
   as that presented in our manuscript are therefore inappropriate
   tools for the study of OAT.  The primary role of OAT in our work is
@@ -472,22 +478,15 @@ numbers, page numbers, etc.~refer to those in the revised manuscript.
   \green{Note that the OAT model is a special case of the zero-field
     Ising model, whose quantum dynamics admits an exact analytic
     solution even in the presence of decoherence[64].  The approximate
-    and numerics-oriented TST expansion is therefore ill-suited for
-    studying the OAT model, which will merely serve as an exactly
-    solvable benchmark of our methods.  Wherever applicable, we will
-    provide exact results for the OAT model (see Appendix K, as well
-    as the Supplementary Material of Ref.~[14]).}
-
-  We hope that the referee and editors understand our position on this
-  matter -- namely, that we would rather avoid adding spurious
-  references to past works on a subject (the influence of decoherence
-  on spin squeezing in the exactly solvable OAT model) that is of
-  little relevance to our work on a numerical method to compute spin
-  correlators.
+    and numerics-oriented TST expansion is therefore an inappropriate
+    tool for studying the OAT model, which will merely serve as an
+    exactly solvable benchmark of our methods.  Wherever applicable,
+    we will provide exact results for the OAT model (see Appendix K,
+    as well as the Supplementary Material of Ref.~[14]).}
 
 
-\item Concerning the final question, about the robustness of the TNT
-  model:
+\item Concerning the final question, about the advantages of the TNT
+  model in the presence of decoherence:
 
   \blue{3. I am surprised by the results from the strong decoherence
     regimes in Fig.~2, which shows that twist and-turn (TNT) model is
@@ -499,7 +498,45 @@ numbers, page numbers, etc.~refer to those in the revised manuscript.
     indeed physical, if would be very helpful if the authors could
     comment on the reason?}
 
+  We thank the referee for their careful attention to our results.  We
+  agree that our findings warrant a comment on why TNT performs better
+  than OAT or TAT in the presence of decoherence.  We have therefore
+  rewritten most of the last paragraph of section III, changing:
 
+  \red{The results in Figure 2 show that TNT is much more robust to
+    single-spin decoherence than OAT or TAT, a finding that could not
+    necessarily be deduced from the weak-decoherence simulations
+    presented in Figure 1.  Strong-decoherence computations of this
+    sort ...}
+
+  to:
+
+  \green{The results in Figure 2 show that the TNT model can generate
+    more squeezing than the OAT or TAT models in the presence of
+    strong decoherence.  The better performance of TNT is a
+    consequence of the fact that TNT initially generates squeezing at
+    a faster rate than OAT or TAT, thereby allowing it to produce more
+    squeezing before the degrading effects of decoherence kick in.  We
+    corroborate this finding with quantum trajectory simulations of a
+    small system in Appendix L.  Strong-decoherence computations of
+    the sort used for Figure 2 ...}
+
+  The new appendix includes Monte Carlo simulations of a small system
+  with sufficiently strong decoherence to reproduce the improved
+  performance of TNT.  We hope that these additions address the
+  referee's questions and concerns about figure 2 to a satisfactory
+  degree.
+
+  % One consequence of applying our method in the large system, strong
+  % decoherence regime in figure 2 is that there is no way (barring a
+  % detailed analysis of error and breakdown in the TST expansion) to
+  % completely rule out numerical errors, as there are no other
+  % simulation methods available to corroborate the results.  We had
+  % hoped that the benchmarking in figure 1 and the discussion of
+  % breakdown mechanisms would assure readers that the TST expansion
+  % self-diagnoses its sudden departure from virtually exact results,
+  % thereby increasing confidence that the TST expansion can be
+  % trusted when no other methods are available.
 
 \end{enumerate}
 
@@ -531,10 +568,10 @@ numbers, page numbers, etc.~refer to those in the revised manuscript.
 \item One of our previous changes to the manuscript defined
   ``\green{$\abs{\v m}\equiv\sum_\alpha m_\alpha$}'' (bottom of page 2
   in the new text).  We have therefore removed a subsequent definition
-  of this notation, which previously appeared in the following
-  paragraph, ``\red{where
-    $\abs{\v\ell}\equiv\sum_\alpha\ell_\alpha$}'' (middle right column
-  of page 2 in the old text).
+  of this notation, ``\red{where
+    $\abs{\v\ell}\equiv\sum_\alpha\ell_\alpha$}'', which previously
+  appeared in the following paragraph (middle right column of page 2
+  in the old text).
 
 \end{enumerate}
 
