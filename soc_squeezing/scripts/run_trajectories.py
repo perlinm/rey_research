@@ -11,8 +11,8 @@ assert(len(sys.argv[1:]) in [ 2, 3 ])
 method = sys.argv[1]
 seed = int(sys.argv[2])
 
-TAT, TNT = "TAT", "TNT"
-assert(method in [ TAT, TNT ])
+OAT, TAT, TNT = "OAT", "TAT", "TNT"
+assert(method in [ OAT, TAT, TNT ])
 
 log10_N = 2
 N = 10**log10_N
@@ -52,6 +52,7 @@ dec_rates = [ (2,2,2), (0,0,0) ]
 
 init_state = "-Z"
 h_vec = {}
+h_vec[OAT] = { (0,2,0) : 1 }
 h_vec[TAT] = { (0,2,0) : +1/3,
                (0,0,2) : -1/3 }
 h_vec[TNT] = { (0,2,0) : 1,
