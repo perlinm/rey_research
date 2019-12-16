@@ -14,20 +14,13 @@ seed = int(sys.argv[2])
 TAT, TNT = "TAT", "TNT"
 assert(method in [ TAT, TNT ])
 
-log10_N = 4
+log10_N = 2
 N = 10**log10_N
 
-if method == TAT:
-    trajectories = 100
-    max_tau = 2
-    time_steps = 200
-    default_savepoints = True
-
-else: # method == TNT
-    trajectories = 1
-    max_tau = 1
-    time_steps = 100
-    default_savepoints = False
+trajectories = 100
+max_tau = 2
+time_steps = 100
+default_savepoints = True
 
 log_dir = "./logs/"
 data_dir = "../data/squeezing/jumps/"
@@ -55,7 +48,7 @@ if len(sys.argv[1:]) == 3:
         f.write(log_text)
     exit()
 
-dec_rates = [ (1,1,1), (0,0,0) ]
+dec_rates = [ (2,2,2), (0,0,0) ]
 
 init_state = "-Z"
 h_vec = {}
@@ -63,8 +56,8 @@ h_vec[TAT] = { (0,2,0) : +1/3,
                (0,0,2) : -1/3 }
 h_vec[TNT] = { (0,2,0) : 1,
                (1,0,0) : -N/2 }
-for method, vec in h_vec.items():
-    h_vec[method] = vec_zxy_to_pzm(vec)
+for model, vec in h_vec.items():
+    h_vec[model] = vec_zxy_to_pzm(vec)
 
 dec_mat_zxy = np.array([ [ 0, -1, 0 ],
                          [ 1,  0, 0 ],
