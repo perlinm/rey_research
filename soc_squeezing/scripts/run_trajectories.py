@@ -14,7 +14,7 @@ seed = int(sys.argv[2])
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
 assert(method in [ OAT, TAT, TNT ])
 
-log10_N = 2
+log10_N = 3
 N = 10**log10_N
 
 trajectories = 100
@@ -48,7 +48,7 @@ if len(sys.argv[1:]) == 3:
         f.write(log_text)
     exit()
 
-dec_rates = [ (2,2,2), (0,0,0) ]
+dec_rates = [ (10,10,10), (0,0,0) ]
 
 init_state = "-Z"
 h_vec = {}

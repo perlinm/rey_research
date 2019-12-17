@@ -5,7 +5,7 @@ import numpy as np
 
 from squeezing_methods import squeezing_from_correlators
 
-log10_N = 4
+log10_N = 3
 method = "TNT"
 
 files = glob.glob(f"../data/squeezing/jumps/sqz_D_exact_logN{log10_N}_{method}_s???.txt")
