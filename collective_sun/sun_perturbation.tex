@@ -72,17 +72,9 @@
 
 \newcommand{\FS}{\text{FS}}
 \newcommand{\EQFS}{=_{\text{FS}}}
-\newcommand{\col}{\overline}
+\newcommand{\col}{\underline}
 
-\DeclareMathOperator{\sign}{sign}
-\DeclareMathOperator{\cov}{cov}
-\let\var\oldvar
-\DeclareMathOperator{\var}{var}
 \DeclareMathOperator{\diag}{diag}
-\let\flat\oldflat
-\DeclareMathOperator{\flat}{flat}
-\DeclareMathOperator{\counts}{counts}
-\newcommand{\flatvec}{\underline\flat\,}
 \newcommand{\ul}{\underline}
 
 \usepackage{accents}
@@ -307,7 +299,7 @@ Appendix \ref{sec:PXYP}.  In total, we find
   H_1^{(2)}
   \EQFS \f1{N\p{N-1}} \sum_{X,Y} \sum_{\Delta\ne0}
   \f{\v v_X^\Delta\c\v v_Y^\Delta}{\Delta}
-  \p{\col{X}\,\col{Y} - N\, \col{XY}},
+  \p{\col{X}\,\col{Y} - N \col{XY}},
   \label{eq:H_1_2}
 \end{align}
 where $\EQFS$ denotes equality under a restriction to the fully
@@ -621,7 +613,7 @@ Altogether, we have that
 \begin{align}
   \P_0 \p{\V_1^\Delta}^2 \P_0
   = - \f1{N\p{N-1}} \sum_{X,Y} \v v_X \c\v v_Y
-  \p{\col{X}\,\col{Y} - N\,\col{XY}}.
+  \p{\col{X}\,\col{Y} - N \col{XY}}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -826,17 +818,17 @@ can write
 \end{align}
 and define
 \begin{align}
-  \ul{\check{\m h}}
+  \ut{\check{\m h}}
   \equiv \sum_{d\ne0} h_{d,0} \op{d}
   + \sum_{c,d\ne0} h_{d-c,0} \op{d}{c},
   &&
-  \ul{\v{\m w}} \equiv \sum_{d\ne0} w_{d,0} \ket{d},
+  \ut{\v{\m w}} \equiv \sum_{d\ne0} w_{d,0} \ket{d},
 \end{align}
 in order to express \eqref{eq:cond_2_shift} as the eigenvalue
 equation
 \begin{align}
-  \ul{\check{\m h}} \c \ul{\v{\m w}}
-  = \p{\f12\Delta + h_0} \ul{\v{\m w}}.
+  \ut{\check{\m h}} \c \ut{\v{\m w}}
+  = \p{\f12\Delta + h_0} \ut{\v{\m w}}.
   \label{eq:cond_2_square}
 \end{align}
 We can reduce this eigenvalue problem even further by making use of a
@@ -858,17 +850,17 @@ $d\in\VV_N\equiv\set{1,2,\cdots,\floor{N/2}}$,
 where the special case of $d=N/2$ affects only even $N$, for which
 $\ket{N/2}=\ket{-N/2}$.  We can use these vectors to define a
 projector onto the reflection-symmetric subspace and expand
-$\ul{\v{\m w}}$ as
+$\ut{\v{\m w}}$ as
 \begin{align}
   \P_+ \equiv \sum_{d\in\VV_N} \op{d_+},
   &&
-  \ul{\v{\m w}} = \sum_{d\in\VV_N} w_{d,0} \,
+  \ut{\v{\m w}} = \sum_{d\in\VV_N} w_{d,0} \,
   \eta_d \sqrt{2} \ket{d_+}.
 \end{align}
-Finally, we project $\ul{\check{\m h}}$ onto the reflection-symmetric
+Finally, we project $\ut{\check{\m h}}$ onto the reflection-symmetric
 subspace,
 \begin{align}
-  \P_+ \ul{\check{\m h}} \P_+
+  \P_+ \ut{\check{\m h}} \P_+
   &= \sum_{a,b\in\VV_N} \sum_{c,d\ne0}
   \p{h_{d,0} \delta_{cd} + h_{c-d,0}} \op{a_+} \op{d} \op{b_+} \\
   &= \sum_{a,b\in\VV_N} \op{a_+}{b_+} \f12 \eta_a\eta_b
@@ -880,13 +872,13 @@ subspace,
 \end{align}
 which allows us to write down the reduced eigenvalue problem
 \begin{align}
-  \P_+ \ul{\check{\m h}} \P_+ \c \ul{\v{\m w}}
-  = \p{\f12\Delta + h_0} \ul{\v{\m w}}.
+  \P_+ \ut{\check{\m h}} \P_+ \c \ut{\v{\m w}}
+  = \p{\f12\Delta + h_0} \ut{\v{\m w}}.
 \end{align}
 Note that the factors of $\eta_a,\eta_b$ in
-$\P_+ \ul{\check{\m h}} \P_+$ only matter when $N$ is even, in which
+$\P_+ \ut{\check{\m h}} \P_+$ only matter when $N$ is even, in which
 case these factors merely multiply the last row and last column of
-$\P_+ \ul{\check{\m h}} \P_+$ by a factor of $1/\sqrt{2}$.
+$\P_+ \ut{\check{\m h}} \P_+$ by a factor of $1/\sqrt{2}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Collective and multi-local operators in the fully symmetric
@@ -956,18 +948,18 @@ we can similarly define the collective operators
   &&
   \O_P \equiv \bigodot_{p\in P} \col{\textstyle\bigodot_{O\in p} O},
 \end{align}
-where we place a bar over a single-spin operator to denote its
-collective version, i.e.~$\col{Q}\equiv\sum_j Q^{(j)}$, where
-$Q^{(j)}$ is an operator that acts with the single-spin operator $Q$
-on spin $j$ and trivially on all other spins.  By construction, the
-set of collective operators $\set{\O_P:\t{partitions}~P~\t{of}~S}$ is
-one-to-one to the set of multi-local operators
-$\set{O_P:\t{partitions}~P~\t{of}~S}$, and it is straightforward to
-work out that for any set $S$ of single-spin operators,
+where we underline a single-spin operator to denote its collective
+version, i.e.~$\col{Q}\equiv\sum_j Q^{(j)}$, where $Q^{(j)}$ is an
+operator that acts with the single-spin operator $Q$ on spin $j$ and
+trivially on all other spins.  By construction, the set of collective
+operators $\set{\O_P:\t{partitions}~P~\t{of}~S}$ is one-to-one to the
+set of multi-local operators $\set{O_P:\t{partitions}~P~\t{of}~S}$,
+and it is straightforward to work out that for any set $S$ of
+single-spin operators,
 \begin{align}
   \O_S
   \EQFS \sum_{\substack{\t{partitions}\\P~\t{of}~S}}
-  N!_{\abs{P}}\, O_P,
+  N!_{\abs{P}} O_P,
   &&
   N!_k \equiv \prod_{j=0}^{k-1}\p{N-j}! = \f{N!}{\p{N-k}!},
   \label{eq:collective_to_multi_full}
@@ -981,7 +973,7 @@ $\L$, and in turn solve $\L$ for $O_S$.  When
 $\abs{S}\in\set{1,2,3,4}$ (and, by conjecture, for all $S$), by use of
 a computer algebra system (namely, Mathematica) we find that
 \begin{align}
-  N!_{\abs{S}}\, O_S
+  N!_{\abs{S}} O_S
   &\EQFS \sum_{\substack{\t{partitions}\\P~\t{of}~S}}
   \p{-1}^{\abs{S}-\abs{P}} \O_P \times \prod_{p\in P}\p{\abs{p}-1}!
   \label{eq:multi_to_collective_full} \\
@@ -1038,9 +1030,9 @@ lack of symmetrization in the construction of $\O_{\tilde P}$.  There
 are, in principle, even more economical decompositions of a
 multi-local operators into collective opreators, for example
 \begin{align}
-  N!_2\, X\otimes Y
+  N!_2 X\otimes Y
   &\EQFS \col{X}\,\col{Y} - \col{XY}, \\
-  N!_3\, X\otimes Y \otimes Z
+  N!_3 X\otimes Y \otimes Z
   &\EQFS \col{X}\,\col{Y}\,\col{Z}
   - \col{X}\,\col{YZ} - \col{Y}\,\col{XZ} - \col{Z}\,\col{XY}
   + \col{ZXY} + \col{YXZ},
@@ -1054,28 +1046,28 @@ collective operators to multi-local operators.
 On a final note, we consider the special case that all operators
 $O\in S$ are identical, for which we provide the expansions
 \begin{align}
-  N!_2\, X\otimes X \EQFS {\col{X}\,}^2 - \col{X^2},
+  N!_2 X\otimes X \EQFS \col{X}^2 - \col{X^2},
   &&
-  N!_3\, X^{\otimes 3} \EQFS {\col{X}\,}^3
+  N!_3 X^{\otimes 3} \EQFS \col{X}^3
   - 3 \col{X} \odot \col{X^2} + 2\col{X^3},
 \end{align}
 \begin{align}
-  N!_4\, X^{\otimes 4}
-  \EQFS {\col{X}\,}^4 - 4 {\col{X}\,}^2 \odot \col{X^2}
-  - 2 \col{X} \, {\col{X}\,}^2 \, \col{X}
-  + 3 {\col{X^2}\,}^2 + 8 \col{X} \odot \col{X^3}
+  N!_4 X^{\otimes 4}
+  \EQFS \col{X}^4 - 4 \col{X}^2 \odot \col{X^2}
+  - 2 \col{X} \, \col{X}^2 \, \col{X}
+  + 3 \p{\col{X^2}}^2 + 8 \col{X} \odot \col{X^3}
   - 6 \col{X^4}.
 \end{align}
 If furthermore $X^2=1$, as with e.g.~the Pauli operators of SU(2),
 then
 \begin{align}
-  N!_2\, X\otimes X \EQFS {\col{X}\,}^2 - N,
+  N!_2 X\otimes X \EQFS \col{X}^2 - N,
   &&
-  N!_3\, X^{\otimes 3} \EQFS {\col{X}\,}^3 - \p{3N-2} \col{X},
+  N!_3 X^{\otimes 3} \EQFS \col{X}^3 - \p{3N-2} \col{X},
 \end{align}
 \begin{align}
-  N!_4\, X^{\otimes 4} \EQFS {\col{X}\,}^4
-  - 2\p{3N-4} {\col{X}\,}^2 + 3 N \p{N-2}.
+  N!_4 X^{\otimes 4} \EQFS \col{X}^4
+  - 2\p{3N-4} \col{X}^2 + 3 N \p{N-2}.
 \end{align}
 
 \bibliography{multilevel_spin_notes.bib}
