@@ -368,7 +368,7 @@ where
   \p{h_{pk} \bra{\set{k,q}} + h_{kq} \bra{\set{p,k}}}.
   \label{eq:h_super_mat}
 \end{align}
-The eigenvalue problem in \eqref{eq:cond_2} can be simplified somewhat
+The eigenvalue problem in \eqref{eq:cond_2} can be simplified further
 when the interaction Hamiltonian $H_0$ is translationally invariant;
 we discuss this simplification in Appendix \ref{sec:trans_inv}.
 
@@ -718,7 +718,10 @@ in the single- and two-body theory in Sections
 a translationally invariant system with periodic boundary conditions.
 We solve the single-body eigenvalue problem analytically, and reduce
 the two-body eigenvalue problem to that of diagonalizing an
-$\floor{N/2}\times\floor{N/2}$ matrix.
+$\p{N-1}\times\p{N-1}$ matrix.  Finally, we discuss the reduction of
+the two-body problem to that of diagonalizing a
+$\sim\p{N/2^D}\times\p{N/2^D}$ matrix, and work out the case of $D=1$
+explicitly as an example.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body eigenvalue problem}
@@ -741,26 +744,28 @@ eigenvectors of $\m h$ are plane waves of the form
 \begin{align}
   \v v_k \equiv \sum_p e^{ipk} \ket{p},
 \end{align}
-where $k\in\ZZ_N\times2\pi/N$.  The corresponding eigenvalues can be
-determined by expanding
+where $k\in\ZZ_N\times2\pi/N$ (with
+$\ZZ_N\equiv\set{0,1,\cdots,N-1}$).  The corresponding eigenvalues can
+be determined by expanding
 \begin{align}
   \m h\c\v v_k = \sum_{p,q} h_{pq} e^{iqk} \ket{p}
   = \sum_{p,d} h_{p,d+p} e^{i\p{d+p}k} \ket{p}
-  = \sum_d h_{0,d} e^{idk} \sum_p e^{ipk}\ket{p}
-  = \sum_d h_{0,d} \cos\p{dk} \v v_k.
+  = \sum_d h_{0,d} e^{idk} \v v_k
+  = \sum_d h_{0,d} \cos\p{dk} \v v_k,
 \end{align}
-The remainder of \eqref{eq:cond_1_ref} that we need to sort out is
-$\diag\v h$, where all $h_p=\sum_qh_{pq}=\sum_dh_{0,d}$ are equal,
-which implies that $\diag\v h=\sum_dh_{0,d}$ is a scalar.  We thus
-find that
+where the imaginary terms vanish due to the fact that
+$h_{0,d}=h_{0,-d}$.  The remainder of \eqref{eq:cond_1_ref} that we
+need to sort out is $\diag\v h$, where all
+$h_p=\sum_qh_{pq}=\sum_dh_{0,d}$ are equal, which implies that
+$\diag\v h=\sum_dh_{0,d}$ is a scalar.  We thus find that
 \begin{align}
   \p{\m h - \diag\v h}\c\v v_k = \Delta_k \v v_k,
   &&
   \Delta_k \equiv \sum_d h_{0,d} \sp{\cos\p{dk}-1}.
 \end{align}
-Note that $\Delta_k=\Delta_{-k}$, which implies that there are at most
-$\lceil N/2\rceil$ distinct eigenvalues of $\m h - \diag\v h$ (one of
-which is $\Delta_0=0$).
+This solution also holds for a $D$-dimensional periodic lattice of
+$N=L^D$ spins, with $d\in\ZZ_L^D$ and $k\in\ZZ_L^D\times 2\pi/L$ (and
+$dk\to d\c k\equiv\sum_{j=1}^D d_j k_j$).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Two-body eigenvalue problem}
@@ -776,9 +781,9 @@ find solutions $\m w$ to the equation
 \end{align}
 where $h_p\equiv\sum_q h_{pq}$.  If the interaction Hamiltonian $H_0$
 and perturbation $\V_2\p{\m w}$ are translationally invariant, then
-the couplings $h_{pq}$ and coefficients $w_{pq}$ depend only on the
-separation $\abs{p-q}$.  In this case, all $h_p=h_0$ are equal, and
-\eqref{eq:cond_2_ref_start} can be written in the form
+the couplings $h_{pq}$ and coefficients $w_{pq}$ depend on $p$ and $q$
+only through the separation $\abs{p-q}$.  In this case, all $h_p=h_0$
+are equal, and \eqref{eq:cond_2_ref_start} can be written in the form
 \begin{align}
   2 \m h\circ \m w + \m h\c\m w + \m w\c\m h
   = \sp{\Delta + 2h_0} \m w,
@@ -831,13 +836,24 @@ equation
   = \p{\f12\Delta + h_0} \ut{\v{\m w}}.
   \label{eq:cond_2_square}
 \end{align}
-We can reduce this eigenvalue problem even further by making use of a
-reflection symmetry that comes from the fact that $h_{pq}=h_{qp}$ and
-$w_{pq}=w_{qp}$, which implies $h_{d,0}=h_{-d,0}$ and
-$w_{d,0}=w_{-d,0}$ (where all indices are taken modulo $N$, taking
-$-d\to N-d$).  To this end, we define a complete basis of orthogonal
-vectors that are symmetric under reflection, namely for all
-$d\in\VV_N\equiv\set{1,2,\cdots,\floor{N/2}}$,
+This eigenvalue problem takes an identical form a $D$ dimensional
+periodic lattice of $N=L^D$ spins, in which case lattice sites and
+shift matrices are indexed by vectors $d\in\ZZ_L^D$.
+
+We can reduce the eigenvalue problem in \eqref{eq:cond_2_square} even
+further by making use of reflection symmetries such as
+$h_{d,0}=h_{-d,0}$.  In $D$ dimensions, there is one such symmetry for
+each coordinate that indexes lattice sites, which implies that the
+degrees of freedom in $\ut{\v{\m w}}$ gets reduced by a factor of
+$\sim 2^D$.  Reflection symmetries similarly reduce the degrees of
+freedom in $\ut{\check{\m h}}$ from $\sim N\times N$ to
+$\sim\p{N/2^D}\times\p{N/2^D}$.  We work out the case of $D=1$ below
+as an example, and leave the general case of arbitrary dimension
+$D\ge1$ to the future, if and when it becomes necessary.
+
+In order to exploit reflection symmetry in one dimension ($D=1$), we
+define a complete basis of orthogonal vectors that are symmetric under
+reflection: for all $d\in\VV_N\equiv\set{1,2,\cdots,\floor{N/2}}$,
 \begin{align}
   \ket{d_+} \equiv \f{\eta_d}{\sqrt{2}}\p{\ket{d} + \ket{-d}},
   &&
