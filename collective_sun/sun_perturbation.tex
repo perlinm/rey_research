@@ -239,13 +239,14 @@ vectors $\v v_X^\Delta$ all satisfy the eigenvalue equation
   \v h \equiv \sum_q h_q \ket{q},
   \label{eq:cond_1}
 \end{align}
-where $\diag\v h\equiv\sum_p h_p \op{p}$ is a matrix with $\v h$ on
-the diagonal and zeros everywhere else.  Solving the general
-eigenvalue problem in \eqref{eq:cond_1} requires diagonalizing the
-$N\times N$ matrix $\m h-\diag\v h$.  When the interaction Hamiltonian
-$H_0$ is translationally invariant, however, this eigenvalue problem
-can be solved analytically; we provide the corresponding solution in
-Appendix \ref{sec:trans_inv}.
+where $\m h$ is a matrix of all $h_{pq}$, and
+$\diag\v h\equiv\sum_p h_p \op{p}$ is a matrix with $\v h$ on the
+diagonal and zeros everywhere else.  Solving the general eigenvalue
+problem in \eqref{eq:cond_1} requires diagonalizing the $N\times N$
+matrix $\m h-\diag\v h$.  When the interaction Hamiltonian $H_0$ is
+translationally invariant, however, this eigenvalue problem can be
+solved analytically; we provide the corresponding solution in Appendix
+\ref{sec:trans_inv}.
 
 If we {\it construct} a perturbation $\V_1^\Delta$ with coefficients
 $\v v_X^\Delta$ that satisfy \eqref{eq:cond_1} with eigenvalue
@@ -368,9 +369,12 @@ where
   \p{h_{pk} \bra{\set{k,q}} + h_{kq} \bra{\set{p,k}}}.
   \label{eq:h_super_mat}
 \end{align}
-The eigenvalue problem in \eqref{eq:cond_2} can be simplified further
-when the interaction Hamiltonian $H_0$ is translationally invariant;
-we discuss this simplification in Appendix \ref{sec:trans_inv}.
+Solving the general eigenvalue problem in \eqref{eq:cond_2} requires
+diagonalizing the ${N \choose 2}\times{N \choose 2}\sim N^2\times N^2$
+matrix $\check{\m h}$.  When the interaction Hamiltonian $H_0$ is
+translationally invariant, however, this eigenvalue problem can be
+reduced to that of diagonalizing an $\sim N\times N$ matrix; we
+discuss this reduction in Appendix \ref{sec:trans_inv}.
 
 If we {\it construct} a perturbation $\V_2^\Delta$ with coefficients
 $\v{\m w}_O^\Delta$ that satisfy \eqref{eq:cond_2} with eigenvalue
@@ -718,9 +722,10 @@ in the single- and two-body theory in Sections
 a translationally invariant system with periodic boundary conditions.
 We solve the single-body eigenvalue problem analytically, and reduce
 the two-body eigenvalue problem to that of diagonalizing an
-$\p{N-1}\times\p{N-1}$ matrix.  Finally, we discuss the reduction of
-the two-body problem to that of diagonalizing a
-$\sim\p{N/2^D}\times\p{N/2^D}$ matrix, and work out the case of $D=1$
+$\p{N-1}\times\p{N-1}$ matrix.  Finally, we discuss the further
+reduction of the two-body problem to that of diagonalizing a matrix
+with dimensions $\sim\p{N/2^D}\times\p{N/2^D}$ in the case of
+$D$-dimensional periodic lattice, and work out the case of $D=1$
 explicitly as an example.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -742,16 +747,17 @@ interaction Hamiltonian $H_0$ is translationally invariant, the
 couplings $h_{pq}$ depend only on the separation $\abs{p-q}$, so the
 eigenvectors of $\m h$ are plane waves of the form
 \begin{align}
-  \v v_k \equiv \sum_p e^{ipk} \ket{p},
+  \v v_k \equiv \sum_p e^{ip\c k} \ket{p},
 \end{align}
-where $k\in\ZZ_N\times2\pi/N$ (with
-$\ZZ_N\equiv\set{0,1,\cdots,N-1}$).  The corresponding eigenvalues can
-be determined by expanding
+where on a $D$-dimensional periodic lattice of $N=L^D$ spins, lattice
+sites are indexed by vectors $p\in\ZZ_L^D$, and wavenumbers take on
+values $k\in\ZZ_L^D\times2\pi/N$.  The corresponding eigenvalues of
+$\m h$ can be determined by expanding
 \begin{align}
-  \m h\c\v v_k = \sum_{p,q} h_{pq} e^{iqk} \ket{p}
-  = \sum_{p,d} h_{p,d+p} e^{i\p{d+p}k} \ket{p}
-  = \sum_d h_{0,d} e^{idk} \v v_k
-  = \sum_d h_{0,d} \cos\p{dk} \v v_k,
+  \m h\c\v v_k = \sum_{p,q} h_{pq} e^{iq\c k} \ket{p}
+  = \sum_{p,d} h_{p,d+p} e^{i\p{d+p}\c k} \ket{p}
+  = \sum_d h_{0,d} e^{id\c k} \v v_k
+  = \sum_d h_{0,d} \cos\p{d\c k} \v v_k,
 \end{align}
 where the imaginary terms vanish due to the fact that
 $h_{0,d}=h_{0,-d}$.  The remainder of \eqref{eq:cond_1_ref} that we
@@ -761,11 +767,8 @@ $\diag\v h=\sum_dh_{0,d}$ is a scalar.  We thus find that
 \begin{align}
   \p{\m h - \diag\v h}\c\v v_k = \Delta_k \v v_k,
   &&
-  \Delta_k \equiv \sum_d h_{0,d} \sp{\cos\p{dk}-1}.
+  \Delta_k \equiv \sum_d h_{0,d} \sp{\cos\p{d\c k}-1}.
 \end{align}
-This solution also holds for a $D$-dimensional periodic lattice of
-$N=L^D$ spins, with $d\in\ZZ_L^D$ and $k\in\ZZ_L^D\times 2\pi/L$ (and
-$dk\to d\c k\equiv\sum_{j=1}^D d_j k_j$).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Two-body eigenvalue problem}
@@ -789,15 +792,18 @@ are equal, and \eqref{eq:cond_2_ref_start} can be written in the form
   = \sp{\Delta + 2h_0} \m w,
   \label{eq:cond_2_ref}
 \end{align}
-where $\m h\circ\m w$ denotes an element-wise (Kronecker) product of
-$\m h$ and $\m w$, i.e.~with matrix elements $h_{pq}w_{pq}$.  In order
-to find solutions to \eqref{eq:cond_2_ref}, we we expand the matrices
+where $\m h$ and $\m w$ are matrices of all $h_{pq}$ and $w_{pq}$, and
+$\m h\circ\m w$ denotes an element-wise (Kronecker) product of $\m h$
+and $\m w$, i.e.~with matrix elements $h_{pq}w_{pq}$.  In order to
+find solutions to \eqref{eq:cond_2_ref}, we we expand the matrices
 $\m h,\m w$ in a basis that respects translational symmetry.  To this
-end, for all $d\in\ZZ_N$ we define the {\it shift matrices}
+end, for all lattice site displacements $d\in\ZZ_L^D$ we define the
+{\it shift matrices}
 \begin{align}
   \m s_d \equiv \sum_p \op{p+d}{p},
 \end{align}
-where the sum $p+d$ is implicitly taken modulo $N$.  The shift
+where the element-wise sums in $p+d$ are implicitly taken modulo $L$
+(i.e.~the length of the periodic lattice along each axis).  The shift
 matrices allow us to expand
 \begin{align}
   \m h = \sum_{p,q} h_{pq} \op{p}{q}
@@ -836,20 +842,15 @@ equation
   = \p{\f12\Delta + h_0} \ut{\v{\m w}}.
   \label{eq:cond_2_square}
 \end{align}
-This eigenvalue problem takes an identical form a $D$ dimensional
-periodic lattice of $N=L^D$ spins, in which case lattice sites and
-shift matrices are indexed by vectors $d\in\ZZ_L^D$.
-
-We can reduce the eigenvalue problem in \eqref{eq:cond_2_square} even
-further by making use of reflection symmetries such as
-$h_{d,0}=h_{-d,0}$.  In $D$ dimensions, there is one such symmetry for
-each coordinate that indexes lattice sites, which implies that the
-degrees of freedom in $\ut{\v{\m w}}$ gets reduced by a factor of
+We can reduce this eigenvalue problem even further by making use of
+reflection symmetries such as $h_{d,0}=h_{-d,0}$.  In $D$ dimensions,
+there is one such symmetry for each lattice axis, which implies that
+the degrees of freedom in $\ut{\v{\m w}}$ gets reduced by a factor of
 $\sim 2^D$.  Reflection symmetries similarly reduce the degrees of
 freedom in $\ut{\check{\m h}}$ from $\sim N\times N$ to
 $\sim\p{N/2^D}\times\p{N/2^D}$.  We work out the case of $D=1$ below
 as an example, and leave the general case of arbitrary dimension
-$D\ge1$ to the future, if and when it becomes necessary.
+$D\ge1$ to future work.
 
 In order to exploit reflection symmetry in one dimension ($D=1$), we
 define a complete basis of orthogonal vectors that are symmetric under
