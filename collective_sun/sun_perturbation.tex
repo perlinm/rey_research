@@ -64,9 +64,8 @@
 \newcommand{\Y}{\mathcal{Y}}
 \newcommand{\Z}{\mathcal{Z}}
 
-\newcommand{\EE}{\mathbb{E}}
-\newcommand{\RR}{\mathbb{R}}
 \renewcommand{\SS}{\mathbb{S}}
+\newcommand{\TT}{\mathbb{T}}
 \newcommand{\VV}{\mathbb{V}}
 \newcommand{\ZZ}{\mathbb{Z}}
 
@@ -166,10 +165,11 @@ that the initial state of the spins is fully symmetric (e.g.~a
 spin-polarized state).  We will also assume throughout these notes
 that the fully symmetric manifold $\M_0$ is gapped away from all other
 states by an interaction energy difference that is large compared to
-any coupling between $\M_0$ and its orthogonal complement.  The
-precise conditions for such a non-vanishing many-body interaction
-energy gap is an important question that deserves further study in
-future work.
+any coupling between $\M_0$ and its orthogonal complement.  Power-law
+couplings of the form $h_{pq}=-h/\abs{p-q}^\alpha$ on a
+$D$-dimensional lattice, for example, yield a non-vanishing spectral
+gap in the thermodynamic limit when $\alpha\le D$ (see Appendix
+\ref{sec:gap}).
 
 The effective Hamiltonian $H_M$ induced on the ground-state manifold
 $\M_0$ by an $M$-body perturbation $\V_M$ through second order in
@@ -396,7 +396,7 @@ us to expand
 \end{align}
 and in turn write
 \begin{align}
-  H_2^{(2)} = - \P_0 \V_2^\Delta \E \V_2^\Delta \P_0
+  H_2^{(2)} = - \P_0 \V_2 \E \V_2 \P_0
   = -\sum_{\Delta\ne0} \f1\Delta \P_0 \p{\V_2^\Delta}^2 \P_0,
 \end{align}
 where the product $\P_0 \p{\V_2^\Delta}^2 \P_0$ is simplified in
@@ -406,7 +406,7 @@ special case that
   \V_2 = \sum_{p<q} w_{pq} s_\z^{(p)} s_\z^{(q)},
 \end{align}
 where $s_\z\equiv\p{\op\up-\op\dn}/2$ is an SU(2) spin-$z$ operator,
-then
+the second-order effective Hamiltonian $H_2^{(2)}$ takes the form
 \begin{align}
   H_2^{(2)} \EQFS W_4 S_\z^4 - W_2 S_\z^2,
 \end{align}
@@ -423,7 +423,7 @@ where we define $m_{pq}$ for all $p,q$ (as opposed to only $p<q$) by
 enforcing $m_{pq}=m_{qp}$ and $m_{pp}=0$.  We then denote the
 projection of $\v{\m m}$ onto the $\Delta$-eigenspace of the matrix
 $\check{\m h}$ defined in \eqref{eq:h_super_mat} by $\v{\m m}_\Delta$,
-which allows us to expand
+which allows us to concisely write
 \begin{align}
   W_4
   \equiv \sum_{\Delta\ne0} \f1\Delta \f{\v w_\Delta\c\v w_\Delta
@@ -439,11 +439,78 @@ and
 \end{align}
 where
 \begin{align}
-  N!_k \equiv \prod_{j=0}^{k-1} \p{N-j} = \f{N!}{\p{N-k}!}.
+  N!_k \equiv \prod_{j=0}^{k-1} \p{N-j} = \f{N!}{\p{N-k}!}
 \end{align}
+denotes a falling factorial.
 
 \newpage
 \appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Existence of a spectral gap with power-law interactions}
+\label{sec:gap}
+
+Here we show that power-law SU($n$)-symmetric interactions of the form
+in \eqref{eq:ints} with $h_{pq}=-h/\abs{p-q}^\alpha$ yield a
+non-vanishing many-body interaction energy gap when $\alpha<D$, where
+$D$ is the dimension of the lattice.  On a periodic lattice of $N=L^D$
+spins, the spectral gap of the interaction Hamiltonian is (see
+Appendix \ref{sec:trans_inv_single})
+\begin{align}
+  \Delta_D
+  = \sum_{d\in\tilde\ZZ_L^D} h_{0,d} \sp{\cos\p{d \c k_{\t{SE}}}-1}
+  = h \sum_{\substack{d\in\tilde\ZZ_L^D\\d\ne0}}
+  \f{1-\cos\p{d \c k_{\t{SE}}}}{\abs{d}^\alpha},
+\end{align}
+where the domain of $d$ is given by
+$\tilde\ZZ_L\equiv\set{-\floor{L/2},-\floor{L/2}+1,\cdots,\ceil{L/2}}$,
+and $k_{\t{SE}}$ is a wavenumber for a singly-excited spin-wave state.
+In order to yield the smallest excitation energy $\Delta_D$, the
+wavenumber $k_{\t{SE}}$ should maximize the contribution of the cosine
+term above, which is achieved by a wavenumber that minimizes the
+oscillations of this term when integrated over the entire lattice.  A
+suitable candidate for a minimal wavenumber is
+$k_{\t{SE}}=\p{2\pi/L,0,0,\cdots}$, which corresponds to an excitation
+energy
+\begin{align}
+  \Delta_D = h \sum_{\substack{d\in\tilde\ZZ_L^D\\d\ne0}}
+  \f{1-\cos\p{d_12\pi/L}}{\abs{d}^\alpha}.
+\end{align}
+Defining $\epsilon\equiv2/L$ and a rescaled domain
+$\SS_\epsilon\equiv\tilde\ZZ_L/\epsilon\subset\sp{-1,1}$, we
+substitute $x\equiv\epsilon d\in\SS_\epsilon^D$ to get
+\begin{align}
+  \Delta_D
+  = h \sum_{\substack{x\in\SS_\epsilon^D\\x\ne0}}
+  \f{1-\cos\p{\pi x_1}}{\abs{x/\epsilon}^\alpha}
+  = h \epsilon^{D-\alpha} \sum_{\substack{x\in\SS_L^D\\x\ne0}}
+  \epsilon^D \f{1-\cos\p{\pi x_1}}{\abs{x}^\alpha}.
+\end{align}
+As $\epsilon\to0$ the discrete sum over $x$ becomes an integral that
+avoids an infinitesimal region about the origin, i.e.
+\begin{align}
+  \Delta_D = h \epsilon^{\alpha-D} \I_{D\epsilon},
+  &&
+  \I_{D\epsilon}
+  \equiv \int_{\TT_1^D\setminus\TT_\epsilon^D} \d^Dx\,
+  \f{1-\cos\p{\pi x_1}}{\abs{x}^\alpha},
+\end{align}
+where the integral $\I_{D\epsilon}$ is defined using the interval
+$\TT_a\equiv\p{-a,a}$.  The integrand of $\I_{D\epsilon}$ is strictly
+positive and well-behaved on the entirety of its domain except for the
+origin, where depending on the value of $\alpha$ the integrand may
+vanish or diverge as $\abs{x}\to0$.  Together, these facts mean that
+\begin{align}
+  \I_{D\epsilon} \stackrel{\epsilon\to0}{\sim} \epsilon^{-\gamma},
+  &&
+  \Delta_D \stackrel{\epsilon\to0}{\sim} h \epsilon^{\alpha-D-\gamma},
+\end{align}
+for some $\gamma\ge0$, which implies that gap $\Delta_D$ is
+non-vanishing when
+\begin{align}
+  \alpha \le D + \gamma,
+\end{align}
+and in particular when $\alpha \le D$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Diagnosing perturbed states with the interaction Hamiltonian}
@@ -750,9 +817,11 @@ eigenvectors of $\m h$ are plane waves of the form
   \v v_k \equiv \sum_p e^{ip\c k} \ket{p},
 \end{align}
 where on a $D$-dimensional periodic lattice of $N=L^D$ spins, lattice
-sites are indexed by vectors $p\in\ZZ_L^D$, and wavenumbers take on
-values $k\in\ZZ_L^D\times2\pi/N$.  The corresponding eigenvalues of
-$\m h$ can be determined by expanding
+sites are indexed by vectors
+$p\in\tilde\ZZ_L^D \equiv
+\set{-\floor{L/2},-\floor{L/2}+1,\cdots,\ceil{L/2}}$, and wavenumbers
+take on values $k\in\tilde\ZZ_L^D\times2\pi/L$.  The corresponding
+eigenvalues of $\m h$ can be determined by expanding
 \begin{align}
   \m h\c\v v_k = \sum_{p,q} h_{pq} e^{iq\c k} \ket{p}
   = \sum_{p,d} h_{p,d+p} e^{i\p{d+p}\c k} \ket{p}
@@ -797,8 +866,8 @@ $\m h\circ\m w$ denotes an element-wise (Kronecker) product of $\m h$
 and $\m w$, i.e.~with matrix elements $h_{pq}w_{pq}$.  In order to
 find solutions to \eqref{eq:cond_2_ref}, we we expand the matrices
 $\m h,\m w$ in a basis that respects translational symmetry.  To this
-end, for all lattice site displacements $d\in\ZZ_L^D$ we define the
-{\it shift matrices}
+end, for all lattice site displacements $d\in\tilde\ZZ_L^D$ we define
+the {\it shift matrices}
 \begin{align}
   \m s_d \equiv \sum_p \op{p+d}{p},
 \end{align}
