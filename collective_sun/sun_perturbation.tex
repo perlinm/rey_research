@@ -50,6 +50,7 @@
 \newcommand{\E}{\mathcal{E}}
 \renewcommand{\H}{\mathcal{H}}
 \newcommand{\I}{\mathcal{I}}
+\newcommand{\K}{\mathcal{K}}
 \renewcommand{\L}{\mathcal{L}}
 \newcommand{\M}{\mathcal{M}}
 \newcommand{\N}{\mathcal{N}}
@@ -506,11 +507,79 @@ vanish or diverge as $\abs{x}\to0$.  Together, these facts mean that
   \Delta_D \stackrel{\epsilon\to0}{\sim} h \epsilon^{\alpha-D-\gamma},
 \end{align}
 for some $\gamma\ge0$, which implies that gap $\Delta_D$ is
-non-vanishing when
+non-vanishing when $\alpha\le D\le D+\gamma$.
+
+For the sake of completion, we add that in fact
+$\gamma=\max\set{0,\alpha-D-2}$, which implies that the gap $\Delta_D$
+vanishes in the thermodynamic limit when $\alpha>D$.  The value of
+$\gamma$ is determined by the behavior of the integrand of
+$\I_{D\epsilon}$ near $\abs{x}\sim\epsilon\ll1$, where
+$1-\cos\p{\pi x_1}\sim x_1^2$, so
 \begin{align}
-  \alpha \le D + \gamma,
+  \I_{D\epsilon}
+  \stackrel{\epsilon\to0}{\sim} \K_{D\epsilon}
+  \equiv \int_{\TT_1^D\setminus\TT_\epsilon^D} \d^Dx\,
+  \f{x_1^2}{\abs{x}^\alpha}
+  = \int_{\TT_1^D\setminus\TT_\epsilon^D} \d y\, \d z^{D-1}
+  \f{y^2}{\p{y^2+z^2}^{\alpha/2}},
 \end{align}
-and in particular when $\alpha \le D$.
+where for convenience we introduced the variables $y\equiv x_1$ and
+$z\equiv\p{x_2,x_3,\cdots,x_D}$.  The integral $\K_{D\epsilon}$ can be
+split up into two contributions: a ``bulk'' term
+$\K_{D\epsilon}^{\t{B}}$ that integrates over
+$\abs{z}\gtrsim\epsilon$, and a remainder $\K_{D\epsilon}^{\t{R}}$
+that integrates over $\abs{z}\lesssim\epsilon$.  The domain of $y$ in
+each case is determined by the restriction that
+$\p{y,z}\notin\TT_\epsilon^D$.  Altogether,
+\begin{align}
+  \K_{D\epsilon} = \K_{D\epsilon}^{\t{B}} + \K_{D\epsilon}^{\t{R}},
+\end{align}
+where
+\begin{align}
+  \K_{D\epsilon}^{\t{B}}
+  &\equiv \int_{\TT_1} \d y
+  \int_{\TT_1^{D-1}\setminus\TT_\epsilon^{D-1}} \d^{D-1}z\,
+  \f{y^2}{\p{y^2+z^2}^{\alpha/2}}, \\
+  \K_{D\epsilon}^{\t{R}}
+  &\equiv \int_{\TT_1\setminus\TT_\epsilon} \d y
+  \int_{\TT_\epsilon^{D-1}} \d^{D-1}z\,
+  \f{y^2}{\p{y^2+z^2}^{\alpha/2}}.
+\end{align}
+Changing to spherical coordinates, we can say that
+\begin{align}
+  \K_{D\epsilon}^{\t{B}}
+  \sim \int_0^1 \d y \int_\epsilon^1 \d z\,
+  \f{y^2 z^{D-2}}{\p{y^2+z^2}^{\alpha/2}},
+  &&
+  \K_{D\epsilon}^{\t{R}}
+  \sim \int_\epsilon^1 \d y \int_0^\epsilon \d z\,
+  \f{y^2 z^{D-2}}{\p{y^2+z^2}^{\alpha/2}},
+\end{align}
+where the resulting integrals can be evaluated on a computer algebra
+system (e.g.~Mathematica) and expanded to leading orders in $\epsilon$
+to find that
+\begin{align}
+  \K_{D\epsilon}^{\t{B}} \stackrel{\epsilon\to0}{\sim}
+  B_0 + B_1 \epsilon^{D-\alpha+2},
+  &&
+  \K_{D\epsilon}^{\t{R}} \stackrel{\epsilon\to0}{\sim}
+  R_1 \epsilon^{D-\alpha+2},
+\end{align}
+for some constants $B_0,B_1,R_1$ that generally depend on $D$ and
+$\alpha$.  It follows that
+\begin{align}
+  \I_{H\epsilon} \stackrel{\epsilon\to0}{\sim} \K_{D\epsilon}
+  = \K_{D\epsilon}^{\t{B}} + \K_{D\epsilon}^{\t{R}}
+  \stackrel{\epsilon\to0}{\sim} \epsilon^{-\gamma},
+  &&
+  \gamma = -\min\set{0,D-\alpha+2}
+\end{align}
+and so
+\begin{align}
+  \Delta_D
+  \stackrel{\epsilon\to0}{\sim} \epsilon^{\alpha-D-\gamma}
+  = \epsilon^{\min\set{\alpha-D,2}}.
+\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Diagnosing perturbed states with the interaction Hamiltonian}
