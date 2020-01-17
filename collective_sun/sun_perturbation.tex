@@ -458,7 +458,7 @@ where $D$ is the dimension of the lattice.  On a periodic lattice of
 $N=L^D$ spins, the spectral gap of the interaction Hamiltonian is (see
 Appendix \ref{sec:trans_inv_single})
 \begin{align}
-  \Delta_D
+  \Delta
   = \sum_{d\in\tilde\ZZ_L^D} h_{0,d} \sp{\cos\p{d \c k_{\t{SE}}}-1}
   = h \sum_{\substack{d\in\tilde\ZZ_L^D\\d\ne0}}
   \f{1-\cos\p{d \c k_{\t{SE}}}}{\abs{d}^\alpha},
@@ -466,7 +466,7 @@ Appendix \ref{sec:trans_inv_single})
 where the domain of $d$ is given by
 $\tilde\ZZ_L\equiv\set{-\floor{L/2},-\floor{L/2}+1,\cdots,\ceil{L/2}}$,
 and $k_{\t{SE}}$ is a wavenumber for a singly-excited spin-wave state.
-In order to yield the smallest excitation energy $\Delta_D$, the
+In order to yield the smallest excitation energy $\Delta$, the
 wavenumber $k_{\t{SE}}$ should maximize the contribution of the cosine
 term above, which is achieved by a wavenumber that minimizes the
 oscillations of this term when integrated over the entire lattice.  A
@@ -474,14 +474,14 @@ suitable candidate for a minimal wavenumber is
 $k_{\t{SE}}=\p{2\pi/L,0,0,\cdots}$, which corresponds to an excitation
 energy
 \begin{align}
-  \Delta_D = h \sum_{\substack{d\in\tilde\ZZ_L^D\\d\ne0}}
+  \Delta = h \sum_{\substack{d\in\tilde\ZZ_L^D\\d\ne0}}
   \f{1-\cos\p{d_12\pi/L}}{\abs{d}^\alpha}.
 \end{align}
 Defining $\epsilon\equiv2/L$ and a rescaled domain
 $\SS_\epsilon\equiv\tilde\ZZ_L/\epsilon\subset\sp{-1,1}$, we
 substitute $x\equiv\epsilon d\in\SS_\epsilon^D$ to get
 \begin{align}
-  \Delta_D
+  \Delta
   = h \sum_{\substack{x\in\SS_\epsilon^D\\x\ne0}}
   \f{1-\cos\p{\pi x_1}}{\abs{x/\epsilon}^\alpha}
   = h \epsilon^{D-\alpha} \sum_{\substack{x\in\SS_L^D\\x\ne0}}
@@ -490,7 +490,7 @@ substitute $x\equiv\epsilon d\in\SS_\epsilon^D$ to get
 As $\epsilon\to0$ the discrete sum over $x$ becomes an integral that
 avoids an infinitesimal region about the origin, i.e.
 \begin{align}
-  \Delta_D = h \epsilon^{\alpha-D} \I_{D\epsilon},
+  \Delta = h \epsilon^{\alpha-D} \I_{D\epsilon},
   &&
   \I_{D\epsilon}
   \equiv \int_{\TT_1^D\setminus\TT_\epsilon^D} \d^Dx\,
@@ -504,12 +504,12 @@ vanish or diverge as $\abs{x}\to0$.  Together, these facts mean that
 \begin{align}
   \I_{D\epsilon} \stackrel{\epsilon\to0}{\sim} \epsilon^{-\gamma},
   &&
-  \Delta_D \stackrel{\epsilon\to0}{\sim} h \epsilon^{\alpha-D-\gamma},
+  \Delta \stackrel{\epsilon\to0}{\sim} h \epsilon^{\alpha-D-\gamma},
 \end{align}
-for some $\gamma\ge0$, which implies that gap $\Delta_D$ is
+for some $\gamma\ge0$, which implies that gap $\Delta$ is
 non-vanishing when $\alpha\le D\le D+\gamma$.
 
-For the sake of completion, we add that in fact the gap $\Delta_D$
+For the sake of completion, we add that in fact the gap $\Delta$
 always vanishes in the thermodynamic limit when $\alpha>D$.  To see
 this behavior, we note that the asymptotic dependence of the integral
 $I_{D\epsilon}$ on $\epsilon$ is determined by the behavior of its
@@ -534,9 +534,9 @@ spherical coordinates to find that
     \epsilon^{D+2-\alpha} & \alpha > D+2
   \end{cases}.
 \end{align}
-It follows that the gap
+It follows that the spectral gap
 \begin{align}
-  \Delta_D \stackrel{\epsilon\to0}{\lesssim}
+  \Delta \stackrel{\epsilon\to0}{\lesssim}
   \begin{cases}
     \epsilon^{\alpha-D} & \alpha < D+2 \\
     \epsilon^2 \log\p{1/\epsilon} & \alpha = D + 2 \\
