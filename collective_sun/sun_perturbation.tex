@@ -453,9 +453,9 @@ denotes a falling factorial.
 
 Here we show that power-law SU($n$)-symmetric interactions of the form
 in \eqref{eq:ints} with $h_{pq}=-h/\abs{p-q}^\alpha$ yield a
-non-vanishing many-body interaction energy gap when $\alpha<D$, where
-$D$ is the dimension of the lattice.  On a periodic lattice of $N=L^D$
-spins, the spectral gap of the interaction Hamiltonian is (see
+non-vanishing many-body interaction energy gap when $\alpha\le D$,
+where $D$ is the dimension of the lattice.  On a periodic lattice of
+$N=L^D$ spins, the spectral gap of the interaction Hamiltonian is (see
 Appendix \ref{sec:trans_inv_single})
 \begin{align}
   \Delta_D
@@ -509,77 +509,41 @@ vanish or diverge as $\abs{x}\to0$.  Together, these facts mean that
 for some $\gamma\ge0$, which implies that gap $\Delta_D$ is
 non-vanishing when $\alpha\le D\le D+\gamma$.
 
-For the sake of completion, we add that in fact
-$\gamma=\max\set{0,\alpha-D-2}$, which implies that the gap $\Delta_D$
-vanishes in the thermodynamic limit when $\alpha>D$.  The value of
-$\gamma$ is determined by the behavior of the integrand of
-$\I_{D\epsilon}$ near $\abs{x}\sim\epsilon\ll1$, where
+For the sake of completion, we add that in fact the gap $\Delta_D$
+always vanishes in the thermodynamic limit when $\alpha>D$.  To see
+this behavior, we note that the asymptotic dependence of the integral
+$I_{D\epsilon}$ on $\epsilon$ is determined by the behavior of its
+integrand when $\abs{x}\sim\epsilon$, in which case
 $1-\cos\p{\pi x_1}\sim x_1^2$, so
 \begin{align}
   \I_{D\epsilon}
-  \stackrel{\epsilon\to0}{\sim} \K_{D\epsilon}
-  \equiv \int_{\TT_1^D\setminus\TT_\epsilon^D} \d^Dx\,
-  \f{x_1^2}{\abs{x}^\alpha}
-  = \int_{\TT_1^D\setminus\TT_\epsilon^D} \d y\, \d z^{D-1}
-  \f{y^2}{\p{y^2+z^2}^{\alpha/2}},
+  \sim \int_{\TT_1^D\setminus\TT_\epsilon^D} \d^Dx\,
+  \f{x_1^2}{\abs{x}^\alpha}.
 \end{align}
-where for convenience we introduced the variables $y\equiv x_1$ and
-$z\equiv\p{x_2,x_3,\cdots,x_D}$.  The integral $\K_{D\epsilon}$ can be
-split up into two contributions: a ``bulk'' term
-$\K_{D\epsilon}^{\t{B}}$ that integrates over
-$\abs{z}\gtrsim\epsilon$, and a remainder $\K_{D\epsilon}^{\t{R}}$
-that integrates over $\abs{z}\lesssim\epsilon$.  The domain of $y$ in
-each case is determined by the restriction that
-$\p{y,z}\notin\TT_\epsilon^D$.  Altogether,
+We can then use the fact that $x_1^2\le\abs{x}^2$ and change to
+spherical coordinates to find that
 \begin{align}
-  \K_{D\epsilon} = \K_{D\epsilon}^{\t{B}} + \K_{D\epsilon}^{\t{R}},
+  \I_{D\epsilon} \lesssim
+  \int_{\TT_1^D\setminus\TT_\epsilon^D} \d^Dx\,
+  \f{\abs{x}^2}{\abs{x}^\alpha}
+  \sim \int_\epsilon^1 \d x\, x^{D+1-\alpha}
+  \sim
+  \begin{cases}
+    \epsilon^0 & \alpha < D+2 \\
+    \log\p{1/\epsilon} & \alpha = D+2 \\
+    \epsilon^{D+2-\alpha} & \alpha > D+2
+  \end{cases}.
 \end{align}
-where
+It follows that the gap
 \begin{align}
-  \K_{D\epsilon}^{\t{B}}
-  &\equiv \int_{\TT_1} \d y
-  \int_{\TT_1^{D-1}\setminus\TT_\epsilon^{D-1}} \d^{D-1}z\,
-  \f{y^2}{\p{y^2+z^2}^{\alpha/2}}, \\
-  \K_{D\epsilon}^{\t{R}}
-  &\equiv \int_{\TT_1\setminus\TT_\epsilon} \d y
-  \int_{\TT_\epsilon^{D-1}} \d^{D-1}z\,
-  \f{y^2}{\p{y^2+z^2}^{\alpha/2}}.
+  \Delta_D \stackrel{\epsilon\to0}{\lesssim}
+  \begin{cases}
+    \epsilon^{\alpha-D} & \alpha < D+2 \\
+    \epsilon^2 \log\p{1/\epsilon} & \alpha = D + 2 \\
+    \epsilon^2 & \alpha > D+2
+  \end{cases},
 \end{align}
-Changing to spherical coordinates, we can say that
-\begin{align}
-  \K_{D\epsilon}^{\t{B}}
-  \sim \int_0^1 \d y \int_\epsilon^1 \d z\,
-  \f{y^2 z^{D-2}}{\p{y^2+z^2}^{\alpha/2}},
-  &&
-  \K_{D\epsilon}^{\t{R}}
-  \sim \int_\epsilon^1 \d y \int_0^\epsilon \d z\,
-  \f{y^2 z^{D-2}}{\p{y^2+z^2}^{\alpha/2}},
-\end{align}
-where the resulting integrals can be evaluated on a computer algebra
-system (e.g.~Mathematica) and expanded to leading orders in $\epsilon$
-to find that
-\begin{align}
-  \K_{D\epsilon}^{\t{B}} \stackrel{\epsilon\to0}{\sim}
-  B_0 + B_1 \epsilon^{D-\alpha+2},
-  &&
-  \K_{D\epsilon}^{\t{R}} \stackrel{\epsilon\to0}{\sim}
-  R_1 \epsilon^{D-\alpha+2},
-\end{align}
-for some constants $B_0,B_1,R_1$ that generally depend on $D$ and
-$\alpha$.  It follows that
-\begin{align}
-  \I_{H\epsilon} \stackrel{\epsilon\to0}{\sim} \K_{D\epsilon}
-  = \K_{D\epsilon}^{\t{B}} + \K_{D\epsilon}^{\t{R}}
-  \stackrel{\epsilon\to0}{\sim} \epsilon^{-\gamma},
-  &&
-  \gamma = -\min\set{0,D-\alpha+2}
-\end{align}
-and so
-\begin{align}
-  \Delta_D
-  \stackrel{\epsilon\to0}{\sim} \epsilon^{\alpha-D-\gamma}
-  = \epsilon^{\min\set{\alpha-D,2}}.
-\end{align}
+which vanishes as $\epsilon\to0$ for all $\alpha>D$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Diagnosing perturbed states with the interaction Hamiltonian}
