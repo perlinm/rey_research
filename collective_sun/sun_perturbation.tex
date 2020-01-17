@@ -822,11 +822,11 @@ in the single- and two-body theory in Sections
 a translationally invariant system with periodic boundary conditions.
 We solve the single-body eigenvalue problem analytically, and reduce
 the two-body eigenvalue problem to that of diagonalizing an
-$\p{N-1}\times\p{N-1}$ matrix.  Finally, we discuss the further
+$\p{N-1}\times\p{N-1}$ matrix.  Finally, for we discuss the further
 reduction of the two-body problem to that of diagonalizing a matrix
-with dimensions $\sim\p{N/2^D}\times\p{N/2^D}$ in the case of
-$D$-dimensional periodic lattice, and work out the case of $D=1$
-explicitly as an example.
+with dimensions $\sim\p{N/2^D}\times\p{N/2^D}$ in the case of an
+isotropic system on a $D$-dimensional periodic lattice, and we work
+out the case of $D=1$ explicitly as an example.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body eigenvalue problem}
@@ -844,7 +844,7 @@ on the diagonal and zeroes everywhere else; and $\v v$ is a vector of
 coefficients used to construct the single-body perturbation
 $\V_1\p{\v v}$ defined in \eqref{eq:perturbations}.  When the
 interaction Hamiltonian $H_0$ is translationally invariant, the
-couplings $h_{pq}$ depend only on the separation $\abs{p-q}$, so the
+couplings $h_{pq}$ depend only on the separation $\pm\p{p-q}$, so the
 eigenvectors of $\m h$ are plane waves of the form
 \begin{align}
   \v v_k \equiv \sum_p e^{ip\c k} \ket{p},
@@ -857,15 +857,15 @@ take on values $k\in\tilde\ZZ_L^D\times2\pi/L$.  The corresponding
 eigenvalues of $\m h$ can be determined by expanding
 \begin{align}
   \m h\c\v v_k = \sum_{p,q} h_{pq} e^{iq\c k} \ket{p}
-  = \sum_{p,d} h_{p,d+p} e^{i\p{d+p}\c k} \ket{p}
+  = \sum_{p,d} h_{p,p+d} e^{i\p{p+d}\c k} \ket{p}
   = \sum_d h_{0,d} e^{id\c k} \v v_k
   = \sum_d h_{0,d} \cos\p{d\c k} \v v_k,
 \end{align}
-where the imaginary terms vanish due to the fact that
-$h_{0,d}=h_{0,-d}$.  The remainder of \eqref{eq:cond_1_ref} that we
-need to sort out is $\diag\v h$, where all
-$h_p=\sum_qh_{pq}=\sum_dh_{0,d}$ are equal, which implies that
-$\diag\v h=\sum_dh_{0,d}$ is a scalar.  We thus find that
+where the imaginary terms vanish because $h_{0,d}=h_{0,-d}$.  The
+remainder of \eqref{eq:cond_1_ref} that we need to sort out is
+$\diag\v h$, where all $h_p=\sum_qh_{pq}=\sum_dh_{0,d}$ are equal,
+which implies that $\diag\v h=\sum_dh_{0,d}$ is a scalar.  We thus
+find that
 \begin{align}
   \p{\m h - \diag\v h}\c\v v_k = \Delta_k \v v_k,
   &&
@@ -887,7 +887,7 @@ find solutions $\m w$ to the equation
 where $h_p\equiv\sum_q h_{pq}$.  If the interaction Hamiltonian $H_0$
 and perturbation $\V_2\p{\m w}$ are translationally invariant, then
 the couplings $h_{pq}$ and coefficients $w_{pq}$ depend on $p$ and $q$
-only through the separation $\abs{p-q}$.  In this case, all $h_p=h_0$
+only through the separation $\pm\p{p-q}$.  In this case, all $h_p=h_0$
 are equal, and \eqref{eq:cond_2_ref_start} can be written in the form
 \begin{align}
   2 \m h\circ \m w + \m h\c\m w + \m w\c\m h
@@ -944,11 +944,12 @@ equation
   = \p{\f12\Delta + h_0} \ut{\v{\m w}}.
   \label{eq:cond_2_square}
 \end{align}
-We can reduce this eigenvalue problem even further by making use of
-reflection symmetries such as $h_{d,0}=h_{-d,0}$.  In $D$ dimensions,
-there is one such symmetry for each lattice axis, which implies that
-the degrees of freedom in $\ut{\v{\m w}}$ gets reduced by a factor of
-$\sim 2^D$.  Reflection symmetries similarly reduce the degrees of
+We can reduce this eigenvalue problem even further in the case of an
+isotropic system, in which $h_{pq}$ and $w_{pq}$ depend only on the
+distance $\abs{p-q}$.  On a $D$ dimensional lattice, isotropy implies
+one reflection symmetry for each lattice axis, which implies that the
+number of degrees of freedom in $\ut{\v{\m w}}$ gets reduced by a
+factor of $\sim 2^D$.  Isotropy similarly reduces the degrees of
 freedom in $\ut{\check{\m h}}$ from $\sim N\times N$ to
 $\sim\p{N/2^D}\times\p{N/2^D}$.  We work out the case of $D=1$ below
 as an example, and leave the general case of arbitrary dimension
