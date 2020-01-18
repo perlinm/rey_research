@@ -413,10 +413,10 @@ $m_0+m_1=N$ and the integer $m_0$ ($m_1$) indicates the total
 occupation number of qubit state $\ket{0}$ ($\ket{1}$).  The dimension
 of fully symmetric manifold $\M_\FS$ is determined by the number of
 ways to assign $N$ subsystems to $n$ states, which is
-${N+n-1 \choose n-1}$, and the energy of any fully symmetric state
+${N+n-1 \choose n-1}$.  The energy of any fully symmetric state
 $\ket{\psi_\FS}\in\M_\FS$ with respect to the interaction Hamiltonian
 $H_{\t{int}}$ in \eqref{eq:H_int_perm} is
-$-u{N \choose 2}=-\p{1/4}N\p{N-1}u$.
+$-u{N \choose 2}=-\p{1/2}N\p{N-1}u$.
 
 In addition to the fact that the fully symmetric manifold $\M_\FS$ is
 ground-state manifold of the interaction Hamltonian $H_{\t{int}}$, an
@@ -484,6 +484,7 @@ however, transforms as (see Appendix \ref{sec:lat_drive})
 with effective inhomogeneous driving field amplitudes
 \begin{align}
   B_L^{(\phi,q)} = -t w_L\p{qa} A_L^{(\phi)},
+  \label{eq:B_L_phi}
 \end{align}
 where
 \begin{align}
@@ -676,8 +677,8 @@ We now consider the effect of applying periodic drive of the form
 \begin{align}
   H_{\t{pd}}\p{t} = \sum_p \chi_p \omega \cos\p{\omega t} D_\z^{(p)},
 \end{align}
-where $\omega$ is a driving frequency, and $\chi_p$ is a (real)
-dimensionless driving amplitude for spin $p$, and
+where $\omega$ is a driving frequency, $\chi_p$ is a dimensionless
+driving amplitude for spin $p$, and
 $D_\z^{(p)} \equiv \xi_1 D_{1,0}^{(p)}$ with $\xi_1$ defined in
 \eqref{eq:scale_fac}.  The periodic drive $H_{\t{pd}}\p{t}$ can be
 implemented directly using external magnetic fields or driving lasers.
@@ -717,11 +718,6 @@ terms with $n\ne0$, arriving at
   T_{LM}^{(p)\dag} T_{LM}^{(q)}.
 \end{align}
 
-
-
-
-\vspace{5cm}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Possible future directions}
 
@@ -734,16 +730,16 @@ terms with $n\ne0$, arriving at
   \end{itemize}
 \item Implications of SOC
   \begin{itemize}
-  \item Special angles $\phi$
+  \item Special angles $\phi$?
   \end{itemize}
+\item Different (more realistic / general) drives
 \item Generalizations of squeezing beyond SU(2)?
 \item Consider different interactions
   \begin{itemize}
   \item Include electronic states
   \item Super-exchange regime
-  \item Non-uniform (``disordered'') interactions
+  \item Non-uniform (local / disordered) interactions
   \end{itemize}
-\item Consider different drives
 \end{itemize}
 
 \appendix
@@ -917,11 +913,11 @@ single-particle Hamiltonian in \eqref{eq:H_lat_spin} yields
 Here we derive multiplication rules for transition operators on an $n$-dimensional Hilbert space, which allows us to expand
 \begin{align}
   T_{\ell_1 m_1} T_{\ell_2 m_2}
-  = \sum_{L,M} f_{\ell_1 m_1;\ell_2 m_2}^{LM} T_{LM},
+  = \sum_{L,M} g_{\ell_1 m_1;\ell_2 m_2}^{LM} T_{LM},
 \end{align}
 with structure constants
 \begin{align}
-  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  g_{\ell_1 m_1;\ell_2 m_2}^{LM}
   \equiv \obk{T_{LM} | T_{\ell_1 m_1} T_{\ell_2 m_2}}
   = \tr\p{T_{LM}^\dag T_{\ell_1 m_1} T_{\ell_2 m_2}}.
   \label{eq:trans_struct}
@@ -963,7 +959,7 @@ Clebsch-Gordan coefficients in terms of Wigner 3-$j$ symbols as
 \end{align}
 we find that
 \begin{multline}
-  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  g_{\ell_1 m_1;\ell_2 m_2}^{LM}
   = \delta_{M,m_1+m_2}
   \p{-1}^M \sqrt{\p{2L+1}\p{2\ell_1+1}\p{2\ell_2+1}} \\
   \times \sum_{\mu,\nu,\rho} \p{-1}^{-3I+L+\ell_1+\ell_2-\mu-\nu-\rho}
@@ -983,7 +979,7 @@ we find that
 where we can evaluate the sum and introduce Wigner 6-$j$ symbols to
 get
 \begin{align}
-  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  g_{\ell_1 m_1;\ell_2 m_2}^{LM}
   &= \delta_{M,m_1+m_2} \p{-1}^{2I+M}
   \sqrt{\p{2L+1}\p{2\ell_1+1}\p{2\ell_2+1}}
   \begin{pmatrix}
@@ -1012,8 +1008,8 @@ columns, while Clebsch-Gordan coefficients satisfy
 \end{align}
 which implies that
 \begin{align}
-  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
-  = \p{-1}^{\ell_1+\ell_2-L} f_{\ell_2 m_2;\ell_1 m_1}^{LM}.
+  g_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  = \p{-1}^{\ell_1+\ell_2-L} g_{\ell_2 m_2;\ell_1 m_1}^{LM}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1061,9 +1057,9 @@ product of two drive operators takes the form
 \begin{align}
   D_{\ell_1 m_1} D_{\ell_2 m_2}
   = \f{\tau_{m_1}\tau_{m_2}}{\sqrt{2}}
-  \sum_L \p{f_{\ell_1 m_1;\ell_2 m_2}^{L,m_1+m_2}
+  \sum_L \p{g_{\ell_1 m_1;\ell_2 m_2}^{L,m_1+m_2}
     E_{\ell_1 m_1;\ell_2 m_2}^{(L,+)}
-    + f_{\ell_1 m_1;\ell_2,-m_2}^{L,m_1-m_2}
+    + g_{\ell_1 m_1;\ell_2,-m_2}^{L,m_1-m_2}
     E_{\ell_1 m_1;\ell_2 m_2}^{(L,-)}},
 \end{align}
 where in terms of
@@ -1114,7 +1110,7 @@ If $\p{m_1,m_2}=\p{0,m}$, then we can use the fact that
 $i\tau_m\tau_{-m}^*=\epsilon_m$ for $m\ne0$ to simplify
 \begin{align}
   D_{\ell_1,0} D_{\ell_2 m}
-  = \sum_L f_{\ell_1,0,\ell_2,m}^{Lm}
+  = \sum_L g_{\ell_1,0,\ell_2,m}^{Lm}
   \sum_{s\in\set{\pm1}} \f12 \sp{1 + s \p{-1}^{L+\ell_1+\ell_2}}
   \sqrt{s} D_{L,sm}.
 \end{align}
@@ -1123,294 +1119,60 @@ $i\tau_m\tau_{-m}^*=\epsilon_m$ for $m\ne0$ to simplify
 \section{Weak SOC in the fully symmetric manifold}
 \label{sec:SOC_pert}
 
-Here we derive the effective Hamiltonian induced on the fully
-symmetric manifold $\M_\FS$ by the single-particle SOC Hamiltonian
+Here we derive the first- and second-order effective Hamiltonians
+induced on the fully symmetric manifold $\M_\FS$ by the
+single-particle weak-SOC Hamiltonian
 \begin{align}
   H_{\t{lat}}^{(\phi)}
-  = -t \sum_{q,L} w_L\p{q} A_L^{(\phi)} D_{L,0}^{(q)},
-  &&
-  w_L\p{q} \equiv
-  \begin{cases}
-    \cos q & L~\t{even} \\
-    \sin q & L~\t{odd}
-  \end{cases},
+  = \sum_{q,L} B_L^{(\phi,q)} D_{L,0}^{(q)},
 \end{align}
-where $A_L^{(\phi)}$ is essentially a sum over Clebsch-Gordan
-coefficients, defined in \eqref{eq:A_L_phi}, and scales as
-$A_L^{(\phi)} \sim \phi^L + O\p{\phi^{L+2}}$ when $\abs{\phi}\ll1$.
-For brevity, we work in units with the lattice spacing $a=1$ and
-implicitly assume the limit $\abs{\phi}\ll1$ throughout this section.
-
-In order to simplify the calculation of effective Hamiltonians, we
-write the SOC Hamiltonian in the form
-\begin{align}
-  H_{\t{lat}}^{(\phi)} = \sum_{q,L} v_L^{(q)} D_{L,0}^{(q)},
-  &&
-  v_L^{(q)} \equiv - t w_L\p{q} A_L^{(\phi)},
-\end{align}
-and decompose it into its uniform and inhomogeneous parts as
-\begin{align}
-  H_{\t{lat}}^{(\phi)}
-  = \sum_L v_L \D_{L,0} + \sum_{q,L} z_L^{(q)} D_{L,0}^{(q)},
-\end{align}
-where
-\begin{align}
-  v_L \equiv \EE_q\sp{v_L^{(q)}},
-  &&
-  z_L^{(q)} \equiv v_L^{(q)} - v_L,
-  &&
-  \EE_q\sp{X_q} \equiv \f1N \sum_q X_q.
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Effective SOC at first order}
-\label{sec:H_eff_1}
-
-The effective Hamiltonian in induced on the fully symmetric manifold
-$\M_\FS$ at first order is
+where $D_{L,0}^{(q)}$ is a drive operator that acts on spin $q$, and
+$B_L^{(\phi,q)}$ is an effective inhomogeneous driving field amplitude
+defined in \eqref{eq:B_L_phi} and \eqref{eq:A_L_phi}.  A perturbative
+treatment of $H_{\t{lat}}^{(\phi)}$ yields the effective
+Hamiltonians[\red{TODO: cite perturbation theory notes}]
 \begin{align}
   H_{\t{eff}}^{(1)}
-  = \P_0 H_{\t{lat}}^{(\phi)} \P_0
-  = \sum_L v_L \P_0 \D_{L,0} \P_0
-  + \sum_{q,L} z_L^{(q)} \P_0 D_{L,0}^{(q)} \P_0,
-\end{align}
-where $\P_0$ is a projector onto $\M_\FS$.  Permutational symmetry
-within the fully symmetric manifold $\M_\FS$ allow us to freely change
-the quasi-momentum index on $\P_0D_{L,0}^{(q)}\P_0$, and the
-coefficients $z_L^{(q)}$ are mean-zero by construction, so
-\begin{align}
-  \sum_{q,L} z_L^{(q)} \P_0 D_{L,0}^{(q)} \P_0
-  = \sum_q z_L^{(q)} \P_0 D_{L,0}^{(0)} \P_0
-  = 0,
-\end{align}
-which implies that
-\begin{align}
-  H_{\t{eff}}^{(1)}
-  = \sum_L z_L \D_{L,0}
-  = -t \sum_L \EE_q\sp{w_L\p{q}} A_L^{(\phi)} \D_{L,0},
-  \label{eq:H_eff_1}
-\end{align}
-where we implicitly restrict $H_{\t{eff}}^{(1)}$ to the fully
-symmetric manifold $\M_\FS$.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Effective SOC at second order}
-\label{sec:H_eff_2}
-
-The effective Hamiltonian in induced on the fully symmetric manifold
-$\M_\FS$ at second order is\cite{bravyi2011schrieffer,
-  perlin2019effective}
-\begin{align}
+  &\equiv \sum_L \EE_q\sp{B_L^{(\phi,q)}} \D_{L,0},
+  \\
   H_{\t{eff}}^{(2)}
-  = - \P_0 H_{\t{lat}}^{(\phi)} \E H_{\t{lat}}^{(\phi)} \P_0
-  &&
-  \E \equiv \sum_{\Delta>0} \f{\P_\Delta}{\Delta},
+  &\equiv \sum_{J,K}
+  \f{\cov_q\sp{B_J^{(\phi,q)}, B_K^{(\phi,q)}}}{u\p{N-1}}
+  \p{\D_{J,0} \D_{K,0} - N \sum_L g_{JKL} \D_{L,0}},
 \end{align}
-where $\P_\Delta$ is a projector onto the eigenspace of the
-interaction Hamiltonian $H_0$, with interaction energy $\Delta$ above
-that of fully symmetric manifold $\M_\FS$.  The uniform part of the
-SOC Hamiltonian $H_{\t{lat}}^{(\phi)}$ is permutationally symmetric,
-and therefore does not couple the fully symmetric manifold $\M_\FS$ to
-its orthogonal complement.  As a consequence, the uniform part of
-$H_{\t{lat}}^{(\phi)}$ is annihilated between the projector $\P_0$
-onto $\M_\FS$ and the projectors in $\E$ onto the orthogonal
-complement of $\M_\FS$.  We can therefore keep only the inhomogeneous
-parts of $H_{\t{lat}}^{(\phi)}$ and expand
-\begin{align}
-  H_{\t{eff}}^{(2)}
-  = -\sum_{J,K} \P_0 \Z_J \E \Z_K \P_0,
-  &&
-  \Z_L \equiv \sum_{q,L} z_L^{(q)} D_{L,0},
-  \label{eq:H_eff_2_start}
-\end{align}
-We now divide the task of further simplifying $H_{\t{eff}}^{(2)}$ into
-two steps:
-\begin{enumerate*}
-\item eliminating the excited-state projectors in $\E$, and
-\item projecting the remaining product of operators in
-  \eqref{eq:H_eff_2_start} onto the fully symmetric manifold.
-\end{enumerate*}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Eliminating excited-state projectors}
-
-In order to eliminate the excited-state projectors in $\E$, we observe
-that the action of $\Z_L$ on any fully symmetric state
-$\ket{\psi_{\FS}}\in\M_\FS$ yields an eigenvector of the interaction
-Hamiltonian $H_{\t{int}}=-u\sum_{p<q}\Pi_{pq}$.  To substantiate this
-claim, we expand
-\begin{align}
-  \sum_{p<q} \Pi_{pq} \Z_L \ket{\psi_\FS}
-  = \sum_{\substack{p<q\\k}}
-  z_L^{(k)} \Pi_{pq} D_{L,0}^{(k)} \ket{\psi_\FS}
-\end{align}
-If $k\notin\set{p,q}$, then the permutation operator $\Pi_{pq}$
-commutes with $D_{L,0}^{(k)}$, and in turn acts trivially on the
-permutationally-symmetric state $\ket{\psi_\FS}$, giving us
-\begin{align}
-  \sum_{\substack{p<q\\k\notin\set{p,q}}}
-  z_L^{(k)} \Pi_{pq} D_{L,0}^{(k)} \ket{\psi_\FS}
-  = \sum_k \sum_{\substack{p<q\\p,q\ne k}}
-  z_L^{(k)} D_{L,0}^{(k)} \ket{\psi_\FS}
-  = { N-1 \choose 2 } \Z_L \ket{\psi_\FS}.
-  \label{eq:Z_eig_notin}
-\end{align}
-If $k\in\set{p,q}$, then we can resolve the identity operator
-$\1=\Pi_{pq}\Pi_{pq}$ to expand
-\begin{multline}
-  \sum_{\substack{p<q\\k\in\set{p,q}}}
-  z_L^{(k)} \Pi_{pq} D_{L,0}^{(k)} \ket{\psi_\FS}
-  = \f12 \sum_{\substack{p\ne q\\k\in\set{p,q}}}
-  z_L^{(k)} \Pi_{pq} D_{L,0}^{(k)} \Pi_{pq} \Pi_{pq} \ket{\psi_\FS}
-  = \sum_q \sum_{k\ne q} z_L^{(k)} D_{L,0}^{(q)} \ket{\psi_\FS},
-\end{multline}
-where, using the fact that the coefficients $z_L^{(k)}$ are mean-zero,
-\begin{align}
-  \sum_{k\ne q} z_L^{(k)}
-  = \sum_k z_L^{(k)} - z_L^{(q)}
-  = - z_L^{(q)},
-\end{align}
-so
-\begin{align}
-  \sum_{\substack{p<q\\k\in\set{p,q}}}
-  z_L^{(k)} \Pi_{pq} D_{L,0}^{(k)} \ket{\psi_\FS}
-  = - \sum_q z_L^{(q)} D_{L,0}^{(q)} \ket{\psi_\FS}
-  = - \Z_L \ket{\psi_\FS}.
-\end{align}
-In total,
-\begin{align}
-  \sum_{p<q} \Pi_{pq} \Z_L \ket{\psi_\FS}
-  = \sp{{N-1\choose 2}-1} \Z_L \ket{\psi_\FS}.
-\end{align}
-The image of any fully symmetric state $\ket{\psi_\FS}\in\M_\FS$ under
-the action of $\Z_L$ is thus proportional to an eigenstate of
-$H_{\t{int}}$ with interaction energy $-u\sp{{ N-1 \choose 2 } - 1}$,
-which is $Nu$ above the interaction energy $-u{N\choose2}$ of states
-in the fully symmetric manifold, so
-\begin{align}
-  \E \Z_L \P_0
-  = \sum_{\Delta>0} \f1{\Delta} \P_\Delta \Z_L \P_0
-  =  \f1{Nu} \Z_L \P_0
-  = \f1{fU} \Z_L \P_0,
-  \label{eq:proj_elim}
-\end{align}
-where $f$ is the filling fraction of lattice sites and $U$ is the
-two-body on-site interaction energy.  Our effective Hamiltonian thus
-far is
-\begin{align}
-  H_{\t{eff}}^{(2)}
-  = - \f1{fU} \sum_{J,K} \P_0 \Z_J \Z_K \P_0.
-  \label{eq:H_eff_2_mid}
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Projecting onto the fully symmetric manifold}
-
-We now need to evaluate the product
-\begin{align}
-  \P_0 \Z_J \Z_K \P_0
-  = \sum_{p,q} z_J^{(p)} z_K^{(q)} \P_0 D_{J,0}^{(p)} D_{K,0}^{(q)} \P_0.
-  \label{eq:PZZP_start}
-\end{align}
-Using the permutational symmetry of the fully symmetric manifold, we
-can simplify the $p=q$ terms above to
-\begin{align}
-  \sum_q z_J^{(q)} z_K^{(q)}
-  \P_0 D_{J,0}^{(q)} D_{K,0}^{(q)} \P_0
-  = N \cov_q\sp{z_J^{(q)},z_K^{(q)}}
-  \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0,
-  \label{eq:PZZP_eq}
-\end{align}
-where
+where $\EE_q\sp{X_q} \equiv \sum_q X_q / N$ is the mean of $X_q$ over
+all occupied quasi-momenta $q$;
 \begin{align}
   \cov_q\sp{X_q,Y_q}
   \equiv \EE_q\sp{\p{X_q-\EE_k\sp{X_k}}\p{Y_q-\EE_\ell\sp{Y_\ell}}}
-  = \EE_q\sp{X_q Y_q} - \EE_k\sp{X_k} \EE_\ell\sp{Y_\ell}
+  = \EE_q\sp{X_q Y_q} - \EE_k\sp{X_k} \EE_\ell\sp{Y_\ell},
   \label{eq:cov}
 \end{align}
-is the covariance between $X_q$ and $Y_q$, evaluated over all occupied
-quasi-momenta $q$.  The terms with $p\ne q$ in \eqref{eq:PZZP_start},
-meanwhile, are
+is the covariance of $X_q$ and $Y_q$ over all occupied quasi-momenta
+$q$; and $g_{JKL} \equiv g_{J,0;K,0}^{L,0}$ is a structure constant of
+the transition operator algebra, defined in \eqref{eq:trans_prod}.
+Substituting the form of $B_L^{(\phi,q)}$ in \eqref{eq:B_L_phi}, we
+get
 \begin{align}
-  \sum_{p\ne q} z_J^{(p)} z_K^{(q)}
-  \P_0 D_{J,0}^{(p)} D_{K,0}^{(q)} \P_0
-  = \sum_{p\ne q} z_J^{(p)} z_K^{(q)}
-  \P_0 D_{J,0}^{(0)} D_{K,0}^{(1)} \P_0,
-\end{align}
-where the remaining sum over coefficients is
-\begin{align}
-  \sum_{p\ne q} z_J^{(p)} z_K^{(q)}
-  = \sum_{p,q} z_J^{(p)} z_K^{(q)} - \sum_q z_J^{(q)} z_K^{(q)}
-  = - N \cov_q\sp{z_J^{(q)},z_K^{(q)}},
-\end{align}
-so
-\begin{align}
-  \sum_{p\ne q} z_J^{(p)} z_K^{(q)}
-  \P_0 D_{J,0}^{(p)} D_{K,0}^{(q)} \P_0
-  = - N \cov_q\sp{z_J^{(q)},z_K^{(q)}}
-  \P_0 D_{J,0}^{(0)} D_{K,0}^{(1)} \P_0.
-  \label{eq:PZZP_neq}
-\end{align}
-Combining \eqref{eq:PZZP_eq} and \eqref{eq:PZZP_neq} gives us
-\begin{align}
-  \P_0 \Z_J \Z_K \P_0
-  = N \cov_q\sp{z_J^{(q)},z_K^{(q)}}
-  \P_0\p{D_{J,0}^{(0)} D_{K,0}^{(0)}
-    - D_{J,0}^{(0)} D_{K,0}^{(1)}} \P_0.
-\end{align}
-In order to express this result in terms of collective operators, we
-expand
-\begin{align}
-  \P_0 \D_{J,0} \D_{K,0} \P_0
-  = N \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0
-  + N\p{N-1} \P_0 D_{J,0}^{(0)} D_{K,0}^{(1)} \P_0,
-\end{align}
-which implies that
-\begin{align}
-  - N \P_0 D_{J,0}^{(0)} D_{K,0}^{(1)} \P_0
-  = \f1{N-1} \P_0 \p{N D_{J,0}^{(0)} D_{K,0}^{(0)}
-    - \D_{J,0} \D_{K,0}} \P_0
-\end{align}
-and in turn
-\begin{align}
-  \P_0 \Z_J \Z_K \P_0
-  = \f1{N-1} \cov_q\sp{z_J^{(q)},z_K^{(q)}}
-  \P_0 \p{N^2 D_{J,0}^{(0)} D_{K,0}^{(0)} - \D_{J,0} \D_{K,0}} \P_0.
-\end{align}
-Finally, we can simplify
-\begin{align}
-  N \P_0 D_{J,0}^{(0)} D_{K,0}^{(0)} \P_0
-  = N \sum_L f_{JKL} \P_0 D_{L,0}^{(0)} \P_0
-  = \sum_L f_{JKL} \P_0 \D_{L,0} \P_0,
-  &&
-  f_{JKL} \equiv f_{J,0;K,0}^{L,0},
-\end{align}
-where $f_{\ell_1 m_1;\ell_2 m_2}^{LM}$ is a structure constant of the
-transition operator algebra, defined in \eqref{eq:trans_prod}.  In
-total,
-\begin{align}
-  \P_0 \Z_J \Z_K \P_0
-  = \f1{N-1} \cov_q\sp{z_J^{(q)},z_K^{(q)}}
-  \P_0 \p{N \sum_L f_{JKL} \D_{L,0} - \D_{J,0} \D_{K,0}} \P_0,
-\end{align}
-which implies that the effective Hamiltonian $H_{\t{eff}}^{(2)}$ in
-\eqref{eq:H_eff_2_mid} is
-\begin{align}
+  H_{\t{eff}}^{(1)}
+  &= -t \sum_L \EE_q\sp{w_L\p{qa}} A_L^{(\phi)} \D_{L,0},
+  \label{eq:H_eff_1}
+  \\
   H_{\t{eff}}^{(2)}
-  = \f{t^2}{fU\p{N-1}} \sum_{J,K}
-  \cov_q\sp{w_J\p{qa},w_K\p{qa}} A_J^{(\phi)} A_K^{(\phi)}
-  \p{\D_{J,0} \D_{K,0} - N \sum_L f_{JKL} \D_{L,0}},
+  &\equiv \f{t^2}{fU\p{N-1}} \sum_{J,K}
+  \cov_q\sp{w_J\p{qa}, w_K\p{qa}} A_J^{(\phi)} A_K^{(\phi)}
+  \p{\D_{J,0} \D_{K,0} - N \sum_L g_{JKL} \D_{L,0}}.
   \label{eq:H_eff_2}
 \end{align}
-where we have recovered factors of the lattice spacing $a$ as
-appropriate, and we have dropped the explicit projection operators
-$\P_0$ with the understanding that we are implicitly restricting all
-effective dynamics to the fully symmetric manifold $\M_\FS$.  Note
-that as the spatial filling fraction $f\to1$, the sums over occupied
-quasi-momenta $q$ become sums over nearly all angles
-$q\in\ZZ_N\times2\pi/N$.  In this case, when both $J,K$ are even or
-odd (i.e.~$J=K~\t{mod}~2$) the covariance in \eqref{eq:H_eff_2}
-becomes $\cov_p\sp{\sin\p{p},\sin\p{p}}\to1/2$ or
+where $t$ is the nearest-neighbor tunneling rate, $a$ is the spacing
+between neighboring lattice sites, $f$ is the filling fraction of
+spatial modes, $U$ is the two-body on-site interaction energy, and
+$w_L$ is cosine (sine) for even (odd) $L$.  Note that as the spatial
+filling fraction $f\to1$, the sums over occupied quasi-momenta $q$
+become sums over nearly all angles $q\in\ZZ_N\times2\pi/N$.  In this
+case, when both $J,K$ are even or odd (i.e.~$J=K~\t{mod}~2$) the
+covariance in \eqref{eq:H_eff_2} becomes
+$\cov_p\sp{\sin\p{p},\sin\p{p}}\to1/2$ or
 $\cov_p\sp{\cos\p{p},\cos\p{p}}\to1/2$, whereas when one of $J,K$ is
 even and the other is odd (i.e.~$J\ne K~\t{mod}~2$), this covariance
 becomes $\cov_p\sp{\cos\p{p},\sin\p{p}}\to0$.  In the case of SU(2),
@@ -1418,14 +1180,12 @@ the effective Hamiltonian $H_{\t{eff}}^{(2)}$ in \eqref{eq:H_eff_2}
 reduces to the one-axis twisting Hamiltonian derived in
 Ref.~\cite{he2019engineering}.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Extracting dependence on the SOC angle $\phi$}
-
 The effective Hamiltonians in \eqref{eq:H_eff_1} and
 \eqref{eq:H_eff_2} are respectively first and second order in the SOC
-Hamiltonian $H_{\t{lat}}^{(\phi)}$.  Here we extract the leading and
+Hamiltonian $H_{\t{lat}}^{(\phi)}$.  We can extract the leading and
 next-to-leading order dependence of these effective Hamiltonians on
-the SOC angle $\phi$ using the expansion
+the SOC angle $\phi$ by using the expansions of $A_L^{(\phi)}$ in
+\eqref{eq:A_L_phi_small}, which gives us
 \begin{align}
   H_{\t{eff}}^{(1)}
   &= \phi t \, \EE_p\sp{\sin\p{pa}} \xi_1 \D_{1,0}
@@ -1543,6 +1303,14 @@ and uniform coefficients determined by \eqref{eq:O_X0} and
   \tilde\Omega_{2,2} \equiv \omega_{2,2}.
 \end{align}
 
+
 \bibliography{multilevel_spin_notes.bib}
 
 \end{document}
+
+% Level statistics of Hamiltonian
+% Dynamics of single-particle observables
+% Dynamics of two-point correlators
+% - Different sites
+% - Two-time correlators
+% TWA dynamics
