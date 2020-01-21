@@ -1,30 +1,26 @@
 #!/usr/bin/env python3
 
 import sys
-import numpy as np
 
-from dicke_methods import coherent_spin_state
-from correlator_methods import mat_zxy_to_pzm, vec_zxy_to_pzm
-from jump_methods import correlators_from_trajectories
-
-assert(len(sys.argv[1:]) in [ 2, 3 ])
+assert(len(sys.argv[1:]) in [ 3, 4 ])
 method = sys.argv[1]
-seed = int(sys.argv[2])
+dec_idx = int(sys.argv[2])
+seed = int(sys.argv[3])
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
 assert(method in [ OAT, TAT, TNT ])
 
-log10_N = 3
+log10_N = 2
 N = 10**log10_N
 
 trajectories = 100
 max_tau = 2
-time_steps = 100
+time_steps = 1000
 default_savepoints = True
 
-log_dir = "./logs/"
-data_dir = "../data/squeezing/jumps/"
-job_name = f"sqz_D_exact_logN{log10_N}_{method}_s{seed:03d}"
+log_dir = f"./logs/"
+data_dir = f"../data/squeezing/jumps/"
+job_name = f"sqz_D_exact_logN{log10_N}_{method}_d{dec_idx:02d}_s{seed:03d}"
 
 log_text = f"""#!/bin/sh
 
@@ -40,15 +36,24 @@ log_text = f"""#!/bin/sh
 
 module load python3
 
-python3 {sys.argv[0]} {method} {seed}
+python3 {sys.argv[0]} {method} {dec_idx} {seed}
 """
 
-if len(sys.argv[1:]) == 3:
+if len(sys.argv[1:]) == 4:
     with open(log_dir + job_name + ".sh", "w") as f:
         f.write(log_text)
     exit()
 
-dec_rates = [ (10,10,10), (0,0,0) ]
+######################################################################
+
+import numpy as np
+
+from dicke_methods import coherent_spin_state
+from correlator_methods import mat_zxy_to_pzm, vec_zxy_to_pzm
+from jump_methods import correlators_from_trajectories
+
+dec_rates = np.logspace(-3,1,13)
+dec_rates = [ (dec_rates[dec_idx],)*3, (0,0,0) ]
 
 init_state = "-Z"
 h_vec = {}

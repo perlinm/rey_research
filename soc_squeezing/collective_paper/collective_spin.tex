@@ -484,12 +484,12 @@ we will provide exact results for the OAT model (see Appendix
 Ref.~[\citenum{bohnet2016quantum}]).
 
 The Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT} squeeze the
-initial product state $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$
-with $\hat S_\x\ket{\X}=S\ket{\X}$.  Our measure of spin squeezing is
-the directionally-unbiased Ramsey squeezing parameter determined by
-the maximal gain in resolution $\Delta\phi$ of a phase angle $\phi$
-over that achieved by any spin-polarized product state
-(e.g.~$\ket{\X}$)\cite{wineland1992spin, ma2011quantum},
+initial product state $\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$
+with $\hat S_\x\ket\X=S\ket\X$.  Our measure of spin squeezing is the
+directionally-unbiased Ramsey squeezing parameter determined by the
+maximal gain in resolution $\Delta\phi$ of a phase angle $\phi$ over
+that achieved by any spin-polarized product state
+(e.g.~$\ket\X$)\cite{wineland1992spin, ma2011quantum},
 \begin{align}
   \xi^2
   \equiv \f{\p{\Delta\phi_{\t{min}}}^2}{\p{\Delta\phi_{\t{polarized}}}^2}
@@ -524,12 +524,12 @@ TST expansion in Eq.~\eqref{eq:TST}.
   {\includegraphics{unitary.pdf}} \\
   \subfloat[Squeezing with decoherence:
   $\gamma_-=\gamma_+=\gamma_\z=\chi$
-  \label{fig:squeezing_incoherent}]
+  \label{fig:squeezing_dec}]
   {\includegraphics{decoherence_weak.pdf}}
   \caption{Spin squeezing of $N=10^4$ spins initially in $\ket\X$
     under \sref{fig:squeezing_unitary} unitary and
-    \sref{fig:squeezing_incoherent} non-unitary dynamics, computed
-    using exact methods (solid lines), quantum trajectory simulations
+    \sref{fig:squeezing_dec} non-unitary dynamics, computed using
+    exact methods (solid lines), quantum trajectory simulations
     (dots), and the TST expansion in Eq.~\eqref{eq:TST} with $M=35$
     (dashed lines).  Solid circles mark the times at which the TST
     expansion gives an unphysical result with $\xi^2<0$.}
@@ -537,15 +537,15 @@ TST expansion in Eq.~\eqref{eq:TST}.
 \end{figure}
 
 Figure \ref{fig:benchmarking} compares the squeezing parameter $\xi^2$
-for $N=10^4$ spins initially in the state $\ket{\X}$ evolved under the
+for $N=10^4$ spins initially in the state $\ket\X$ evolved under the
 Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}, as computed via
 both benchmarking simulations and the TST expansion in
 Eq.~\eqref{eq:TST} with $M=35$.  Squeezing is shown for both unitary
 dynamics (Figure \ref{fig:squeezing_unitary}), as well as non-unitary
 dynamics in the presence of spontaneous decay, excitation, and
 dephasing of individual spins at rates $\chi$ (Figure
-\ref{fig:squeezing_incoherent}), respectively described by the sets of
-jump operators $\J_\a\equiv\set{\hat s_\a^{(j)}}$ with corresponding
+\ref{fig:squeezing_dec}), respectively described by the sets of jump
+operators $\J_\a\equiv\set{\hat s_\a^{(j)}}$ with corresponding
 decoherence rates $\gamma_\a=\chi$ for $\a\in\set{-,+,\z}$.  The
 results shown in Figure \ref{fig:benchmarking} were computed in a
 rotated basis with
@@ -583,11 +583,11 @@ $\xi^2$.  A proper diagnosis of breakdown therefore requires
 inspection of the correlators $\bk{\hat\S_{\v n}\p{t}}$ used to
 compute the squeezing parameter $\xi^2$, which upon breakdown will
 rapidly take unphysical values with
-$\abs{\bk{\hat\S_{\v n}\p{t}}}\gtrsim S^{\abs{\v n}}$.  The sudden and
-drastic departure from virtually exact results is consistent with the
-limitations of the TST expansion discussed at the end of Section
-\ref{sec:theory}.  Specifically, we identify three possible mechanisms
-for breakdown:
+$\abs{\bk{\hat\S_{\v n}\p{t}}}\gtrsim S^{\abs{\v n}}$ (see Appendix
+\ref{sec:breakdown} for an example).  The sudden and drastic departure
+from virtually exact results is consistent with the limitations of the
+TST expansion discussed at the end of Section \ref{sec:theory}.
+Specifically, we identify three possible mechanisms for breakdown:
 \begin{enumerate*}
 \item a rapid growth in the order $M$ necessary for the TST expansion
   to converge,
@@ -615,8 +615,8 @@ advantages over the quantum trajectory Monte Carlo method to compute
 correlators in the presence of decoherence.  First, computing spin
 correlators with the TST expansion is generally faster and requires
 fewer computing resources.  The TST expansion results in Figure
-\ref{fig:squeezing_incoherent}, for example, take $\sim10$ seconds to
-compute with a single CPU on modern computing hardware.  The quantum
+\ref{fig:squeezing_dec}, for example, take $\sim10$ seconds to compute
+with a single CPU on modern computing hardware.  The quantum
 trajectory Monte Carlo results in the same figure, meanwhile, take
 $\sim10^4$ CPU hours to compute on similar hardware; the bulk of this
 time is spent performing sparse matrix-vector multiplication, leaving
@@ -649,7 +649,7 @@ The second advantage of the TST expansion is the capability to compute
 spin correlators in strong-decoherence regimes of large systems that
 are entirely inaccessible to other methods.  As an example, Figure
 \ref{fig:decoherence_strong} shows squeezing of $N=10^4$ spins
-initially in $\ket{\X}$, undergoing spontaneous decay, excitation, and
+initially in $\ket\X$, undergoing spontaneous decay, excitation, and
 dephasing of individual spins at rates
 $\gamma_-=\gamma_+=\gamma_\z=100\chi$.  The system size in these
 simulations is too large for straightforward application of exact
@@ -660,18 +660,17 @@ trajectories that require averaging.
 
 The results in Figure \ref{fig:decoherence_strong} show that the TNT
 model can generate more squeezing than the OAT or TAT models in the
-presence of strong decoherence.  The better performance of TNT is a
-consequence of the fact that TNT initially generates squeezing at a
-faster rate than OAT or TAT, thereby allowing it to produce more
+presence of strong decoherence.  The better performance of TNT is in
+part a consequence of the fact that TNT initially generates squeezing
+at a faster rate than OAT or TAT, thereby allowing it to produce more
 squeezing before the degrading effects of decoherence kick in.  We
 corroborate this finding with quantum trajectory simulations of a
-small system in Appendix \ref{sec:small_system}.  Strong-decoherence
+smaller system in Appendix \ref{sec:strong_dec}.  Strong-decoherence
 computations of the sort used for Figure \ref{fig:decoherence_strong}
-were used to put lower bounds on theoretically achievable spin
-squeezing via TAT with decoherence in
-Ref.~[\citenum{he2019engineering}], exemplifying a concrete and
-practical application of the TST expansion and the collective-spin
-structure constants calculated in this work.
+put lower bounds on theoretically achievable spin squeezing via TAT
+with decoherence in Ref.~[\citenum{he2019engineering}], exemplifying a
+concrete and practical application of the TST expansion and the
+collective-spin structure constants calculated in this work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Two-time correlation functions and out-of-time-ordered
@@ -749,12 +748,13 @@ $D\p{0}\sim1/N$.
     commutator $D\p{t}$, respectively defined in
     Eqs.~\eqref{eq:two_time} and \eqref{eq:four_point}, for $N=10^4$
     spins initially in the polarized state
-    $\ket{\X}\propto\p{\ket\up+\ket\dn}^{\otimes N}$ evolving under
-    the squeezing Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}.
+    $\ket\X\propto\p{\ket\up+\ket\dn}^{\otimes N}$ evolving under the
+    squeezing Hamiltonians in Eqs.~\eqref{eq:OAT}--\eqref{eq:TNT}.
     Results are shown for both unitary dynamics (solid lines) and
-    non-unitary dynamics with $\gamma_-=\gamma_+=\gamma_\z=100\chi$
-    (dashed lines), computed using the TST expansion in
-    Eq.~\eqref{eq:TST} with $M=20$.}
+    non-unitary dynamics with
+    $\gamma_-=\gamma_+=\gamma_\z=\gamma_0=100\chi$ (dashed lines),
+    computed using the TST expansion in Eq.~\eqref{eq:TST} with
+    $M=20$.}
   \label{fig:multi_time}
 \end{figure*}
 
@@ -809,7 +809,6 @@ study the onset of quantum chaos and information scrambling.
   Technology (NIST).
 \end{acknowledgments}
 
-\vfill
 \onecolumngrid
 \appendix
 
@@ -2115,23 +2114,88 @@ sufficient to compute the spin squeezing parameter $\xi^2$ in
 state $\ket\X$ under $H_{\t{OAT}}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Robustness of squeezing generated by the twist-and-turn (TNT)
-  model}
-\label{sec:small_system}
+\section{Diagnosing breakdown of the TST expansion}
+\label{sec:breakdown}
 
-% \begin{figure}
-%   \centering
-%   \includegraphics{decoherence_strong_small.pdf}
-%   \caption{Spin squeezing of $N=100$ spins initially in $\ket\X$ with
-%     spontaneous decay, excitation, and dephasing of individual spins
-%     at rates $\gamma_-=\gamma_+=\gamma_\z=2\chi$.  Computed computed
-%     using exact methods (solid line), quantum trajectory simulations
-%     with $10^4$ trajectories (dots), and the TST expansion in
-%     Eq.~\eqref{eq:TST} with $M=35$ (dashed lines).}
-%   \label{fig:decoherence_strong_small}
-% \end{figure}
+In Figure \ref{fig:benchmarking} of the main text, the TST expansion
+provided nearly exact results for squeezing until a sudden departure
+that quickly resulted in an unphysical squeezing parameter, $\xi^2<0$.
+In general, however, there is no fundamental relationship between the
+breakdown of the TST expansion and the conditions for a physical
+squeezing parameter $\xi^2$.  A proper diagnosis of breakdown
+therefore requires inspection of the correlators $\bk{\S_{\v n}\p{t}}$
+used to compute the squeezing parameter $\xi^2$, which upon breakdown
+will rapidly take unphysical values with
+$\abs{\bk{\S_{\v n}\p{t}}}\gtrsim S^{\abs{\v n}}$.  As an example,
+Figure \ref{fig:unitary_small} shows the squeezing parameter $\xi^2$
+throughout decoherence-free evolution of $N=100$ spins initially in
+the state $\ket\X$.  In this example, the squeezing computed by the
+TST expansion for the TAT model diverges from the exact answer without
+an immediate and obvious signature of breakdown.  Nonetheless,
+breakdown can still be diagnosed by inspection of individual
+correlators, as shown in Figure \ref{fig:correlator_example}, where we
+plot $\t{Im}\bk{S_+^2}$ as a function of time for $N=100$ spins
+evolving under the TAT without decoherence.  Figure
+\ref{fig:correlator_example} shows that breakdown clearly occurs
+around $N\chi t\lesssim7$, when the correlator $\bk{S_+^2}$ begins to
+diverge to values $\gtrsim S^2=\p{N/2}^2=2500$ in magnitude.  A joint
+inspection of figures \ref{fig:unitary_small} and
+\ref{fig:correlator_example} suffice to trace the anomalous behavior
+of $\xi^2$ from $N\chi t\approx 7$ back to $N\chi t\approx 6$, when it
+first took a sudden turn before becoming unphysical at
+$N\chi t\approx 8$.
 
+\begin{figure}
+  \centering
+  \includegraphics{unitary_small.pdf}
+  \caption{Spin squeezing throughout decoherence-free evolution of
+    $N=100$ spins initially in the state $\ket\X$, computed using both
+    exact methods (solid lines) and the TST expansion in
+    Eq.~\eqref{eq:TST} with $M=35$ (dashed lines).  Solid circles mark
+    the times at which the TST expansion gives an unphysical result
+    with $\xi^2<0$.}
+  \label{fig:unitary_small}
+\end{figure}
 
+\begin{figure}
+  \centering
+  \includegraphics{correlator_example.pdf}
+  \caption{A collective spin correlator in the TAT model with $N=100$
+    spins and no decoherence, computed using the TST expansion with
+    $M=35$.  The divergence of correlators of this sort can be used to
+    diagnose the breakdown of the TST expansion.}
+  \label{fig:correlator_example}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Spin squeezing with strong decoherence}
+\label{sec:strong_dec}
+
+Here we provide supplementary evidence of our finding in Section
+\ref{sec:squeezing} that the TNT model can produce more squeezing than
+the OAT or TAT models in the presence of strong decoherence.  To this
+end, Figure \ref{fig:sqz_dec_scaling} shows the minimal squeezing
+parameter $\xi^2_{\t{min}}$ achievable with $N=100$ spins through the
+OAT, TAT, and TNT models as a function of the rate $\gamma_0$ at which
+individual spins undergo spontaneous decay, excitation, and dephasing.
+These results were computed with quantum trajectory simulations, with
+$10^3$ trajectories per data point.  While the OAT and TAT models
+produce more squeezing than TNT model with weak decoherence, this
+squeezing falls off faster with an increasing decoherence rate
+$\gamma_0$.  The relative robustness of TNT is in part a consequence
+of the fact that TNT initially generates squeezing at a faster rate
+than OAT or TAT, thereby allowing it to produce more squeezing before
+the degrading effects of decoherence kick in.
+
+\begin{figure}
+  \centering
+  \includegraphics{sqz_dec_scaling.pdf}
+  \caption{Optimal spin squeezing of $N=100$ spins undergoing
+    spontaneous decay, excitation, and dephasing at rates
+    $\gamma_-=\gamma_+=\gamma_\z=\gamma_0$, computed using quantum
+    trajectory simulations with $10^3$ trajectories per data point.}
+  \label{fig:sqz_dec_scaling}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Heisenberg operators in open quantum systems}

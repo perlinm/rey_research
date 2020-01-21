@@ -51,7 +51,7 @@ dec_rates_strong = [ (100,)*3, (0,)*3 ]
 
 OAT, TAT, TNT = "OAT", "TAT", "TNT"
 methods = [ OAT, TAT, TNT ]
-colors = { OAT: "#4E79A7", TAT: "#F28E2B", TNT : "#E15759" }
+colors = { OAT : "#1E4977", TAT : "#E15759", TNT : "#FFAE4B" }
 
 # construct Hamiltonians in (z,x,y) format, assuming an initial state in +X
 h_vec = { OAT : { (2,0,0) : 1 },
@@ -164,8 +164,6 @@ def jump_args(hamiltonian):
 for method in methods:
     if method == OAT: continue
     sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
-    if method == TNT:
-        sqz_path = data_dir + f"sqz_D_exact_logN{log10_N}_{method}.txt"
 
     if not os.path.isfile(sqz_path) or recompute_exact:
         correlators = correlators_from_trajectories(*jump_args(h_vec[method]))
@@ -240,7 +238,7 @@ for time_sqz in [ time_sqz_C_exact, time_sqz_C_trunc,
 time_pad = 1/3 # fractional time to add past TAT squeezing minimum
 sqz_pad = 1/10
 trajectory_marker_size = 2
-trunc_width = 2
+trunc_width = 3
 
 def positive(vals):
     idx = np.argmax(vals < 0)
@@ -258,13 +256,6 @@ def ylims(time_sqz_exact, time_sqz_trunc):
     yscale = (ymax/ymin)**sqz_pad
     return ymin/yscale, ymax*yscale
 
-# darken a color provided in hexidecimal format
-def darken_color(color, darken_val = 0.08):
-    # convert hexidecimal to [0,1)^3 RGB format
-    color = tuple([ int(color[jj:jj+2], 16)/255 - darken_val
-                           for jj in (1, 3 ,5) ])
-    return tuple( min(max(cc-darken_val,0), 1) for cc in color )
-
 ### unitary evolution
 
 plt.figure(figsize = figsize)
@@ -276,11 +267,11 @@ for method in methods:
     positive_vals = positive(time_sqz_C_trunc[method][1])
     plt.semilogy(time_sqz_C_trunc[method][0][:positive_vals],
                  time_sqz_C_trunc[method][1][:positive_vals],
-                 "--", linewidth = trunc_width, color = darken_color(colors[method]))
+                 "--", linewidth = trunc_width, color = colors[method])
     if positive_vals < len(times):
         plt.semilogy([time_sqz_C_trunc[method][0][positive_vals-1]],
                      [time_sqz_C_trunc[method][1][positive_vals-1]],
-                     "o", color = darken_color(colors[method]))
+                     "o", color = colors[method])
 
 plt.xlabel(r"Time ($N\chi t$)")
 plt.ylabel(r"Squeezing ($\xi^2$)")
@@ -306,11 +297,11 @@ for method in methods:
     positive_vals = positive(time_sqz_D_trunc[method][1])
     plt.semilogy(time_sqz_D_trunc[method][0][:positive_vals],
                  time_sqz_D_trunc[method][1][:positive_vals],
-                 "--", linewidth = trunc_width, color = darken_color(colors[method]))
+                 "--", linewidth = trunc_width, color = colors[method])
     if positive_vals < len(times):
         plt.semilogy([time_sqz_D_trunc[method][0][positive_vals-1]],
                      [time_sqz_D_trunc[method][1][positive_vals-1]],
-                     "o", color = darken_color(colors[method]))
+                     "o", color = colors[method])
 
 plt.xlabel(r"Time ($N\chi t$)")
 plt.ylabel(r"Squeezing ($\xi^2$)")

@@ -5,10 +5,13 @@ import numpy as np
 
 from squeezing_methods import squeezing_from_correlators
 
-log10_N = 3
-method = "TNT"
+log10_N = 2
+method = "OAT"
+dec_idx = 0
 
-files = glob.glob(f"../data/squeezing/jumps/sqz_D_exact_logN{log10_N}_{method}_s???.txt")
+data_dir = "../data/squeezing/jumps/"
+
+files = glob.glob(data_dir + f"sqz_D_exact_logN{log10_N}_{method}_d{dec_idx:02d}_s???.txt")
 data = sum([ np.loadtxt(f, dtype = complex, delimiter = ",")
              for f in files ]) / len(files)
 
