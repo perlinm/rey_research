@@ -372,7 +372,7 @@ where
 \end{align}
 Solving the general eigenvalue problem in \eqref{eq:cond_2} requires
 diagonalizing the ${N \choose 2}\times{N \choose 2}\sim N^2\times N^2$
-matrix $\check{\m h}$.  When the interaction Hamiltonian $H_0$ is
+matrix $\check{\m h}$.  When both he interaction Hamiltonian $H_0$
 translationally invariant, however, this eigenvalue problem can be
 reduced to that of diagonalizing an $\sim N\times N$ matrix; we
 discuss this reduction in Appendix \ref{sec:trans_inv}.
@@ -821,12 +821,12 @@ in the single- and two-body theory in Sections
 \ref{sec:single_body_pert} and \ref{sec:two_body_pert} in the case of
 a translationally invariant system with periodic boundary conditions.
 We solve the single-body eigenvalue problem analytically, and reduce
-the two-body eigenvalue problem to that of diagonalizing an
-$\p{N-1}\times\p{N-1}$ matrix.  Finally, for we discuss the further
-reduction of the two-body problem to that of diagonalizing a matrix
+the two-body eigenvalue problem to that of diagonalizing
+$\p{N-1}\times\p{N-1}$ matrices.  Finally, for we discuss the further
+reduction of the two-body problem to that of diagonalizing matrices
 with dimensions $\sim\p{N/2^D}\times\p{N/2^D}$ in the case of an
-isotropic system on a $D$-dimensional periodic lattice, and we work
-out the case of $D=1$ explicitly as an example.
+isotropic system on a $D$-dimensional periodic lattice, but leave this
+reduction to future work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body eigenvalue problem}
@@ -880,125 +880,107 @@ The two-body eigenvalue equation in \eqref{eq:cond_2} is designed to
 find solutions $\m w$ to the equation
 \begin{align}
   \p{2h_{pq}-h_p-h_q} w_{pq}
-  + \sum_{k\notin\set{p,q}} \p{h_{pk} w_{kq} + w_{pk} h_{kq}}
+  + \sum_k \p{h_{pk} w_{kq} + w_{pk} h_{kq}}
   = \Delta w_{pq},
   \label{eq:cond_2_ref_start}
 \end{align}
 where $h_p\equiv\sum_q h_{pq}$.  If the interaction Hamiltonian $H_0$
-and perturbation $\V_2\p{\m w}$ are translationally invariant, then
-the couplings $h_{pq}$ and coefficients $w_{pq}$ depend on $p$ and $q$
-only through the separation $\pm\p{p-q}$.  In this case, all $h_p=h_0$
-are equal, and \eqref{eq:cond_2_ref_start} can be written in the form
+is translationally invariant, then the couplings $h_{pq}$ depend on
+$p$ and $q$ only through the separation $\pm\p{p-q}$.  In this case,
+all $h_p=h_0$ are equal, and \eqref{eq:cond_2_ref_start} can be
+written in the form
 \begin{align}
-  2 \m h\circ \m w + \m h\c\m w + \m w\c\m h
-  = \sp{\Delta + 2h_0} \m w,
+  2 \m h\circ \m w + \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h}
+  = \p{\Delta + 2h_0} \m w,
   \label{eq:cond_2_ref}
 \end{align}
 where $\m h$ and $\m w$ are matrices of all $h_{pq}$ and $w_{pq}$, and
 $\m h\circ\m w$ denotes an element-wise (Kronecker) product of $\m h$
-and $\m w$, i.e.~with matrix elements $h_{pq}w_{pq}$.  In order to
-find solutions to \eqref{eq:cond_2_ref}, we we expand the matrices
-$\m h,\m w$ in a basis that respects translational symmetry.  To this
-end, for all lattice site displacements $d\in\tilde\ZZ_L^D$ we define
-the {\it shift matrices}
+and $\m w$, and
+$\P_{\t{off-diag}}\p{\m m}\equiv \m m-\sum_p\op{p}\m m\op{p}$ denotes
+the projection of $\m m$ onto the space of strictly off-diagonal
+matrices.  In order to find solutions to \eqref{eq:cond_2_ref}, we we
+expand the matrices $\m h,\m w$ in a basis that the respects
+translational symmetry of $\m h$.  To this end, for all lattice
+displacements $d\in\tilde\ZZ_L^D$ and wavenumbers
+$k\in\tilde\ZZ_L^D\times2\pi/L$ we define the {\it cycle matrices}
 \begin{align}
-  \m s_d \equiv \sum_p \op{p+d}{p},
+  \m m_{dk} \equiv \sum_p e^{ip\c k} \op{p+d}{p},
 \end{align}
 where the element-wise sums in $p+d$ are implicitly taken modulo $L$
-(i.e.~the length of the periodic lattice along each axis).  The shift
-matrices allow us to expand
+(i.e.~the length of the periodic lattice along each axis).  In terms of the cycle matrices, we define
+\begin{align}
+  \tilde w_{dk} \equiv \f1N \tr\p{\m m_{dk}^\dag \m w},
+\end{align}
+expand
 \begin{align}
   \m h = \sum_{p,q} h_{pq} \op{p}{q}
-  = \sum_{d,q} h_{q+d,q} \op{q+d}{q}
-  = \sum_d h_{d,0} \m s_d,
+  = \sum_{q,d} h_{q+d,q} \op{q+d}{q}
+  = \sum_d h_{d,0} \m m_{d,0},
   &&
-  \m w = \sum_d w_{d,0} \m s_d,
+  \m w = \sum_{d,k} \tilde w_{dk} \m m_{dk},
 \end{align}
-and write the condition in \eqref{eq:cond_2_ref} as
+and write the condition in \eqref{eq:cond_2_ref} as a new set of
+conditions
 \begin{align}
-  \sum_{d\ne 0} h_{d,0} w_{d,0} \m s_d
-  + \sum_{\substack{c,d\ne0\\c+d\ne0}} h_{c,0} w_{d,0} \m s_{c+d}
-  = \p{\f12\Delta + h_0} \sum_{d\ne 0} w_{d,0} \m s_d,
+  \sum_{d\ne0} 2 h_{d,0} \tilde w_{dk} \m m_{dk}
+  + \sum_{\substack{c,d\\c+d\ne0}}
+  h_{c,0} \tilde w_{dk} \p{1 + e^{-ic\c k}} \m m_{c+d,k}
+  = \p{\Delta + 2 h_0} \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
 \end{align}
-where we explicitly exclude terms that always vanish due to the fact
-that $\m h,\m w$ are zero on the diagonal.  With some re-indexing, we
-can write
+that must hold for all wavenumbers $k$.  With some re-indexing, we can
+write
 \begin{align}
-  \sum_{d\ne 0} h_{d,0} w_{d,0} \m s_d
-  + \sum_{\substack{c,d\ne0}} h_{d-c,0} w_{c,0} \m s_d
-  = \p{\f12\Delta + h_0} \sum_{d\ne 0} w_{d,0} \m s_d,
-  \label{eq:cond_2_shift}
+  \sum_{d\ne0} 2 h_{d,0} \tilde w_{dk} \m m_{dk}
+  + \sum_{c,d\ne0} h_{d-c,0} \tilde w_{ck}
+  \p{1 + e^{-i\p{d-c}\c k}} \m m_{dk}
+  = \p{\Delta + 2 h_0} \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
+  \label{eq:cond_2_cycle}
 \end{align}
 and define
 \begin{align}
-  \ut{\check{\m h}}
-  \equiv \sum_{d\ne0} h_{d,0} \op{d}
-  + \sum_{c,d\ne0} h_{d-c,0} \op{d}{c},
+  \ut{\check{\m h}}_k
+  \equiv \sum_{d\ne0} 2 h_{d,0} \op{d}
+  + \sum_{c,d\ne0} h_{d-c,0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
   &&
-  \ut{\v{\m w}} \equiv \sum_{d\ne0} w_{d,0} \ket{d},
+  \ut{\v{\m w}}_k \equiv \sum_{d\ne0} \tilde w_{dk} \ket{d},
 \end{align}
-in order to express \eqref{eq:cond_2_shift} as the eigenvalue
-equation
+in order to express \eqref{eq:cond_2_cycle} as the set of eigenvalue
+equations
 \begin{align}
-  \ut{\check{\m h}} \c \ut{\v{\m w}}
-  = \p{\f12\Delta + h_0} \ut{\v{\m w}}.
+  \ut{\check{\m h}}_k \c \ut{\v{\m w}}_k
+  = \p{\Delta + 2 h_0} \ut{\v{\m w}}_k.
   \label{eq:cond_2_square}
 \end{align}
-We can reduce this eigenvalue problem even further in the case of an
-isotropic system, in which $h_{pq}$ and $w_{pq}$ depend only on the
-distance $\abs{p-q}$.  On a $D$ dimensional lattice, isotropy implies
-one reflection symmetry for each lattice axis, which implies that the
-number of degrees of freedom in $\ut{\v{\m w}}$ gets reduced by a
-factor of $\sim 2^D$.  Isotropy similarly reduces the degrees of
-freedom in $\ut{\check{\m h}}$ from $\sim N\times N$ to
-$\sim\p{N/2^D}\times\p{N/2^D}$.  We work out the case of $D=1$ below
-as an example, and leave the general case of arbitrary dimension
-$D\ge1$ to future work.
+The appearance of a wavenumber index $k$ in \eqref{eq:cond_2_square}
+implies that all fixed-$k$ components of a general coefficient matrix
+$\m w$ must simultaneously satisfy \eqref{eq:cond_2_square} in order
+to generate states of fixed excitation energy $\Delta$ when the
+corresponding perturbation $\V_2^\Delta$ acts on a fully symmetric
+state $\ket\psi\in\M_0$.  The decomposition of an arbitrary
+coefficient vector $\v{\m w}=\sum_\Delta\v{\m w}_\Delta$ into
+coefficient vectors $\v{\m w}_\Delta$ that generate a fixed-energy
+perturbation $\V_2^\Delta$ is then performed by projecting each
+$k$-component of $\v{\m w}$ onto the corresponding $\Delta$-eigenspace
+of $\ut{\check{\m h}}_k$.  If the perturbation $\V_2$ is
+translationally invariant, then the $k$-components of $\v{\m w}$ for
+all $k\ne 0$ all vanish, so we only need to consider the case of
+$k=0$.
 
-In order to exploit reflection symmetry in one dimension ($D=1$), we
-define a complete basis of orthogonal vectors that are symmetric under
-reflection: for all $d\in\VV_N\equiv\set{1,2,\cdots,\floor{N/2}}$,
-\begin{align}
-  \ket{d_+} \equiv \f{\eta_d}{\sqrt{2}}\p{\ket{d} + \ket{-d}},
-  &&
-  \eta_d \equiv
-  \begin{cases}
-    1 & d \ne N/2, \\
-    1/\sqrt{2} & d = N/2
-  \end{cases},
-\end{align}
-where the special case of $d=N/2$ affects only even $N$, for which
-$\ket{N/2}=\ket{-N/2}$.  We can use these vectors to define a
-projector onto the reflection-symmetric subspace and expand
-$\ut{\v{\m w}}$ as
-\begin{align}
-  \P_+ \equiv \sum_{d\in\VV_N} \op{d_+},
-  &&
-  \ut{\v{\m w}} = \sum_{d\in\VV_N} w_{d,0} \,
-  \eta_d \sqrt{2} \ket{d_+}.
-\end{align}
-Finally, we project $\ut{\check{\m h}}$ onto the reflection-symmetric
-subspace,
-\begin{align}
-  \P_+ \ut{\check{\m h}} \P_+
-  &= \sum_{a,b\in\VV_N} \sum_{c,d\ne0}
-  \p{h_{d,0} \delta_{cd} + h_{c-d,0}} \op{a_+} \op{d} \op{b_+} \\
-  &= \sum_{a,b\in\VV_N} \op{a_+}{b_+} \f12 \eta_a\eta_b
-  \sum_{c,d\ne0} \p{h_{d,0} \delta_{cd} + h_{c-d,0}}
-  \p{\delta_{ac} + \delta_{-a,c}} \p{\delta_{bd} + \delta_{-b,d}} \\
-  &= \sum_{a\in\VV_N} h_{a,0} \op{a_+}
-  + \sum_{a,b\in\VV_N} \eta_a\eta_b
-  \p{h_{a-b,0} + h_{a+b,0}} \op{a_+}{b_+},
-\end{align}
-which allows us to write down the reduced eigenvalue problem
-\begin{align}
-  \P_+ \ut{\check{\m h}} \P_+ \c \ut{\v{\m w}}
-  = \p{\f12\Delta + h_0} \ut{\v{\m w}}.
-\end{align}
-Note that the factors of $\eta_a,\eta_b$ in
-$\P_+ \ut{\check{\m h}} \P_+$ only matter when $N$ is even, in which
-case these factors merely multiply the last row and last column of
-$\P_+ \ut{\check{\m h}} \P_+$ by a factor of $1/\sqrt{2}$.
+We can reduce the eigenvalue problem in \eqref{eq:cond_2_square} even
+further in the case of an isotropic system, in which the couplings
+$h_{pq}$ depend only on the distance $\abs{p-q}$.  On a $D$
+dimensional lattice, isotropy implies one reflection symmetry for each
+lattice axis, which reduces the degrees of freedom in of
+$\ut{\check{\m h}}_k$ from $\sim N\times N$ to
+$\sim\p{N/2^D}\times\p{N/2^D}$.  We leave this reduction to future
+work.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The fully collective model}
+
+[TODO: explicitly work out the special case of a fully collective
+model]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Collective and multi-local operators in the fully symmetric
