@@ -229,7 +229,7 @@ $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V1_psi}):
 \end{align}
 where we define $h_{pq}$ for all $p,q$ (as opposed to only $p<q$) by
 enforcing $h_{pq}=h_{qp}$ and $h_{pp}=0$.  We thus find that a
-perturbation $\V_1^\Delta\ket\psi$ indexed by a scalar $\Delta$ is an
+perturbation $\V_1^\Delta\ket\psi$ (indexed by $\Delta$) is an
 eigenvector of the interaction Hamiltonian $H_0$ if its coefficient
 vectors $\v v_X^\Delta$ all satisfy the eigenvalue equation
 \begin{align}
@@ -255,14 +255,14 @@ $\Delta$, then
 \begin{align}
   H_0 \V_1^\Delta \ket\psi = \p{E_0 + \Delta} \V_1^\Delta \ket\psi.
 \end{align}
-Interestingly, the energy of the (unnormalized) state
-$\V_1^\Delta\ket\psi$ depends only on the coefficients
-$\v v_X^\Delta$, and is entirely independent of the state $\ket\psi$
-or the choice of a trace-zero single-body operators $X$ used to build
-$\V_1^\Delta$.  Finding operators $\V_1^\Delta$ that generate
-eigenvectors of the interaction Hamiltonian $H_0$ when they act on
-fully symmetric states $\ket\psi$ thus reduces to finding eigenvectors
-of the interaction matrix $\m h-\diag\v h$.
+Interestingly, the energy of the state $\V_1^\Delta\ket\psi$ depends
+only on the coefficients $\v v_X^\Delta$, and is entirely independent
+of the state $\ket\psi$ or the choice of a trace-zero single-body
+operators $X$ used to build $\V_1^\Delta$.  Finding operators
+$\V_1^\Delta$ that generate eigenvectors of the interaction
+Hamiltonian $H_0$ when they act on fully symmetric states $\ket\psi$
+thus reduces to finding eigenvectors of the interaction matrix
+$\m h-\diag\v h$.
 
 If the fully symmetric manifold $\M_0$ is gapped away from all other
 states, then then a vector $\V_1^\Delta\ket\psi$ with $\Delta=0$ must
@@ -356,8 +356,8 @@ where to keep notation compact, we define
 \end{align}
 and we define $w_{Opq}$ for all $p,q$ (as opposed to only $p<q$) by
 enforcing $w_{Opq}=w_{Oqp}$ and $w_{Opp}=0$.  We thus find that the
-vector $\V_2^\Delta\ket\psi$ indexed by a scalar $\Delta$ is an
-eigenvector of the interaction Hamiltonian $H_0$ if its coefficients
+vector $\V_2^\Delta\ket\psi$ (indexed by $\Delta$) is an eigenvector
+of the interaction Hamiltonian $H_0$ if its coefficients
 $\v{\m w}_O^\Delta$ all satisfy the eigenvalue equation
 \begin{align}
   \check{\m h} \c \v{\m w} = \Delta \v{\m w},
@@ -383,11 +383,11 @@ $\Delta$, then
 \begin{align}
   H_0 \V_2^\Delta \ket\psi = \p{E_0 + \Delta} \V_2^\Delta \ket\psi,
 \end{align}
-which implies that $\V_2^\Delta\ket\psi$ is an (unnormalized state of
-definite energy that depends only on the coefficients $\m w_O^\Delta$.
-Similarly to the case of single-body perturbations, we can decompose
-any vector $\v{\m w}_O$ into its projections $\v{\m w}_O^\Delta$ onto
-the eigenspace of vectors satisfying \eqref{eq:cond_2} with eigenvalue
+which implies that $\V_2^\Delta\ket\psi$ is a state of definite energy
+that depends only on the coefficients $\m w_O^\Delta$.  Similarly to
+the case of single-body perturbations, we can decompose any vector
+$\v{\m w}_O$ into its projections $\v{\m w}_O^\Delta$ onto the
+eigenspace of vectors satisfying \eqref{eq:cond_2} with eigenvalue
 $\Delta$, i.e.~$\v{\m w}_O=\sum_\Delta\v{\m w}_O^\Delta$, which allows
 us to expand
 \begin{align}
@@ -979,8 +979,86 @@ work.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{The fully collective model}
 
-[TODO: explicitly work out the special case of a fully collective
-model]
+Here we solve the single- and two-body eigenvalue problems in the case
+of a fully collective spin model with uniform couplings:
+$h_{pq}=-1+\delta_{pq}$.  In this case, the single-body excitation
+energies $\Delta_k$ are
+\begin{align}
+  \Delta_k
+  = - \sum_{d\ne 0} \sp{\cos\p{d\c k}-1}
+  = N \p{1-\delta_{k,0}}.
+\end{align}
+In order to solve the two-body eigenvalue problem, we expand
+\begin{align}
+  \ut{\check{\m h}}_k
+  = \sum_{d\ne0} 2 \op{d}
+  + \sum_{\substack{c,d\ne0\\c\ne d}} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
+\end{align}
+and define the Fourier transform
+\begin{align}
+  F \equiv \sum_{\substack{d\in\ZZ_L^D\\q\in\ZZ_L^D\times2\pi/L}}
+  e^{-id\c q} \op{q}{d},
+\end{align}
+in terms of which
+\begin{align}
+  \f12 F \ut{\check{\m h}}_k F^\dag
+  &= - \f12 N^2 \p{\op{0} + \op{k}} + \sum_{p,q} \op{p}{q} \\
+  &= - \f12 N^2 \p{\op{0} + \op{k}} + \sum_{p,q\in\set{0,k}} \op{p}{q}
+  + \sum_{p,q\notin\set{0,k}} \op{p}{q}
+  + \sum_{\substack{p\in\set{0,k}\\q\notin\set{0,k}}}
+  \p{\op{p}{q} + \op{q}{p}}.
+\end{align}
+Defining the uniform, normalized vector
+\begin{align}
+  \ket{\bar{k}} \equiv \f1{\sqrt{N-2+\delta_{k,0}}}
+  \sum_{p\notin\set{0,k}} \ket{p},
+\end{align}
+we then have
+\begin{multline}
+  \f12 F \ut{\check{\m h}}_k F^\dag
+  = - \f12 N^2 \p{\op{0} + \op{k}}
+  + \sum_{p,q\in\set{0,k}} \op{p}{q} \\
+  + \sqrt{N-2+\delta_{k,0}} \sum_{p\in\set{0,k}}
+  \p{\op{p}{\bar{k}} + \op{\bar{k}}{p}}
+  + \p{N-2+\delta_{k,0}} \op{\bar{k}}.
+\end{multline}
+which is essentially a $2\times 2$ ($3\times 3$) matrix that can be
+diagonalized analytically in the case of $k=0$ ($k\ne0$).  The
+eigenvalues of $F \ut{\check{\m h}}_0 F^\dag$ are
+\begin{align}
+  \varepsilon_0^\pm \equiv \pm N\sqrt{\p{N+3}\p{N-1}} - N\p{N-1},
+\end{align}
+with corresponding (unnormalized) eigenvectors
+\begin{align}
+  \ut{\v{\m w}}_0^\pm
+  = \p{N - 1 - \f12 \Delta_0^\pm} \ket{0} - \sqrt{N-1} \ket{\bar{0}}.
+\end{align}
+Vectors orthogonal to both $\ut{\v{\m w}}_0^\pm$ are eigenvectors of
+$F \ut{\check{\m h}}_0 F^\dag$ with eigenvalue 0.  In the case of
+$k\ne0$, the eigenvalues of $F \ut{\check{\m h}}_{k\ne0} F^\dag$ are
+\begin{align}
+  \varepsilon_k^{(0)} \stackrel{k\ne0}{\equiv} -N^2,
+  &&
+  \varepsilon_k^{(\pm)}
+  \stackrel{k\ne0}{\equiv}
+  \pm \f12 N \sqrt{\p{N+6}\p{N-2}} - \f12 N \p{N-2},
+\end{align}
+with corresponding (unnormalized) eigenvectors
+\begin{align}
+  \ut{\v{\m w}}_k^{(0)}
+  \stackrel{k\ne0}{\equiv} \ket{0} - \ket{k},
+  &&
+  \ut{\v{\m w}}_k^{(\pm)}
+  \stackrel{k\ne0}{\equiv}
+  \p{N - 2 - \f12\Delta_k^{(\pm)}} \p{\ket{0}+\ket{k}}
+  - 2 \sqrt{N-2}\ket{\bar{k}}.
+\end{align}
+In the case of $k\ne0$, vectors orthogonal to all
+$\ut{\v{\m w}}_k^{(s)}$ for $s\in\set{0,+,-}$ are eigenvectors of
+$F \ut{\check{\m h}}_k F^\dag$ with eigenvalue 0.
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Collective and multi-local operators in the fully symmetric
