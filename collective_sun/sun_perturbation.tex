@@ -906,6 +906,7 @@ displacements $d\in\tilde\ZZ_L^D$ and wavenumbers
 $k\in\tilde\ZZ_L^D\times2\pi/L$ we define the {\it cycle matrices}
 \begin{align}
   \m m_{dk} \equiv \sum_p e^{ip\c k} \op{p+d}{p},
+  \label{eq:cycle}
 \end{align}
 where the element-wise sums in $p+d$ are implicitly taken modulo $L$
 (i.e.~the length of the periodic lattice along each axis).  In terms of the cycle matrices, we define
@@ -944,6 +945,7 @@ and define
   + \sum_{c,d\ne0} h_{d-c,0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
   &&
   \ut{\v{\m w}}_k \equiv \sum_{d\ne0} \tilde w_{dk} \ket{d},
+  \label{eq:cycle_vecs}
 \end{align}
 in order to express \eqref{eq:cond_2_cycle} as the set of eigenvalue
 equations
@@ -991,74 +993,69 @@ energies $\Delta_k$ are
 In order to solve the two-body eigenvalue problem, we expand
 \begin{align}
   \ut{\check{\m h}}_k
-  = \sum_{d\ne0} 2 \op{d}
-  + \sum_{\substack{c,d\ne0\\c\ne d}} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
+  = - \sum_{d\ne0} 2 \op{d}
+  - \sum_{\substack{c,d\ne0\\c\ne d}} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c}
+  = - \sum_{c,d\ne0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
 \end{align}
-and define the Fourier transform
+and define the vectors
 \begin{align}
-  F \equiv \sum_{\substack{d\in\ZZ_L^D\\q\in\ZZ_L^D\times2\pi/L}}
-  e^{-id\c q} \op{q}{d},
+  \ket{\ut{p}}
+  \equiv \f1{\sqrt{N-1}} \sum_{d\ne 0} e^{i p\c d}\ket{d},
 \end{align}
 in terms of which
 \begin{align}
-  \f12 F \ut{\check{\m h}}_k F^\dag
-  &= - \f12 N^2 \p{\op{0} + \op{k}} + \sum_{p,q} \op{p}{q} \\
-  &= - \f12 N^2 \p{\op{0} + \op{k}} + \sum_{p,q\in\set{0,k}} \op{p}{q}
-  + \sum_{p,q\notin\set{0,k}} \op{p}{q}
-  + \sum_{\substack{p\in\set{0,k}\\q\notin\set{0,k}}}
-  \p{\op{p}{q} + \op{q}{p}}.
+  \ut{\check{\m h}}_k
+  = -\p{N-1} \p{\op{\ut{0}} + \op{\ut{k}}}.
 \end{align}
-Defining the uniform, normalized vector
+The vectors $\ket{\ut{p}}$ are normalized, but not orthogonal:
+$\braket{\ut{p}|\ut{q}}=\delta_{pq}-\p{1-\delta_{pq}}/\p{N-1}$.  We
+therefore have
 \begin{align}
-  \ket{\bar{k}} \equiv \f1{\sqrt{N-2+\delta_{k,0}}}
-  \sum_{p\notin\set{0,k}} \ket{p},
+  \ut{\check{\m h}}_k
+  = - \sum_{s\in\set{\pm}} \varepsilon_s \op{\ut{k}^s}
 \end{align}
-we then have
-\begin{multline}
-  \f12 F \ut{\check{\m h}}_k F^\dag
-  = - \f12 N^2 \p{\op{0} + \op{k}}
-  + \sum_{p,q\in\set{0,k}} \op{p}{q} \\
-  + \sqrt{N-2+\delta_{k,0}} \sum_{p\in\set{0,k}}
-  \p{\op{p}{\bar{k}} + \op{\bar{k}}{p}}
-  + \p{N-2+\delta_{k,0}} \op{\bar{k}}.
-\end{multline}
-which is essentially a $2\times 2$ ($3\times 3$) matrix that can be
-diagonalized analytically in the case of $k=0$ ($k\ne0$).  The
-eigenvalues of $F \ut{\check{\m h}}_0 F^\dag$ are
+where
 \begin{align}
-  \varepsilon_0^\pm \equiv \pm N\sqrt{\p{N+3}\p{N-1}} - N\p{N-1},
-\end{align}
-with corresponding (unnormalized) eigenvectors
-\begin{align}
-  \ut{\v{\m w}}_0^\pm
-  = \p{N - 1 - \f12 \Delta_0^\pm} \ket{0} - \sqrt{N-1} \ket{\bar{0}}.
-\end{align}
-Vectors orthogonal to both $\ut{\v{\m w}}_0^\pm$ are eigenvectors of
-$F \ut{\check{\m h}}_0 F^\dag$ with eigenvalue 0.  In the case of
-$k\ne0$, the eigenvalues of $F \ut{\check{\m h}}_{k\ne0} F^\dag$ are
-\begin{align}
-  \varepsilon_k^{(0)} \stackrel{k\ne0}{\equiv} -N^2,
+  \varepsilon_\pm \equiv N - 1 \mp 1,
   &&
-  \varepsilon_k^{(\pm)}
-  \stackrel{k\ne0}{\equiv}
-  \pm \f12 N \sqrt{\p{N+6}\p{N-2}} - \f12 N \p{N-2},
+  \ket{\ut{k}^\pm}
+  \equiv \p{1\mp\f1{N-1}}^{-1/2}
+  \f{\ket{\ut{0}}\pm\ket{\ut{k}}}{\sqrt{2}}.
 \end{align}
-with corresponding (unnormalized) eigenvectors
+The vectors $\ket{\ut{k}^\pm}$ are orthonormal when $k\ne0$.  When
+$k=0$, meanwhile, we have
 \begin{align}
-  \ut{\v{\m w}}_k^{(0)}
-  \stackrel{k\ne0}{\equiv} \ket{0} - \ket{k},
-  &&
-  \ut{\v{\m w}}_k^{(\pm)}
-  \stackrel{k\ne0}{\equiv}
-  \p{N - 2 - \f12\Delta_k^{(\pm)}} \p{\ket{0}+\ket{k}}
-  - 2 \sqrt{N-2}\ket{\bar{k}}.
+  \ut{\check{\m h}}_0 = -2\p{N-1} \op{\ut{0}}.
 \end{align}
-In the case of $k\ne0$, vectors orthogonal to all
-$\ut{\v{\m w}}_k^{(s)}$ for $s\in\set{0,+,-}$ are eigenvectors of
-$F \ut{\check{\m h}}_k F^\dag$ with eigenvalue 0.
+Remembering from \eqref{eq:cycle_vecs} that vectors $\ket{\ut{k}^\pm}$
+are associated with the cycle matrices $\m m_{dk}$ defined in
+\eqref{eq:cycle} via
+\begin{align}
+  \ket{\ut{k}^\pm}
+  \propto \ket{\ut{0}} \pm \ket{\ut{k}}
+  \propto \sum_{d\ne0} \p{1 \pm e^{ik\c d}} \ket{d}
+  \to \sum_{d\ne0} \p{1 \pm e^{ik\c d}} \m m_{dk},
+\end{align}
+one can work out that the vectors $\ket{\ut{k}^\pm}$ correspond to
+matrices that are strictly symmetric ($+$) or anti-symmetric ($-$)
+under transposition.  The two-body perturbations considered in this
+work, however, are defined using coefficient vectors
+$\set{\v{\m w}_O}$ that correspond to symmetric matrices
+$\set{\m w_O}$, with $w_{Opq}=w_{Oqp}$.  We can therefore neglect the
+eigenvectors $\ket{\ut{k}^-}$ and corresponding eigenvalues
+$\varepsilon_-$ entirely for the purposes of this work.
 
-
-
+Altogether, the two-body excitation energies corresponding to
+non-trivial eigenstates of $\ut{\check{\m h}}_k$ are
+\begin{align}
+  \Delta_0 \equiv -2\p{N-1} - 2 h_0 = 0,
+  &&
+  \Delta_+ \equiv -\varepsilon_+ - 2 h_0 = N,
+\end{align}
+while the energy of all orthogonal two-body excitations is
+\begin{align}
+  \Delta_\perp \equiv - 2 h_0 = 2N - 2.
+\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Collective and multi-local operators in the fully symmetric
