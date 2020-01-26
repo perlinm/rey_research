@@ -345,7 +345,7 @@ $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V2_psi})
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
-  + \f12 \sum_{p\ne q} \sp{2\bar h_{pq} w_{Opq}
+  + \f12 \sum_O \sum_{p\ne q} \sp{2\bar h_{pq} w_{Opq}
     + \sum_k \p{h_{pk} w_{Okq} + w_{Opk} h_{kq}}}
   O_{pq} \ket\psi,
   \label{eq:H_V2_psi}
@@ -564,13 +564,15 @@ the expansions in \eqref{eq:H_V1_psi} and \eqref{eq:H_V2_psi}.
 We wish to simplify
 \begin{align}
   H_0 \V_1 \ket\psi
-  = \sum_{X,k} \sum_{p<q} h_{pq} v_{Xk} \Pi_{pq} X_k \ket\psi,
+  = \sum_k \sum_{p<q} h_{pq} v_k \Pi_{pq} X_k \ket\psi,
   \label{eq:H_V1_psi_start}
 \end{align}
-which has terms with $k\in\set{p,q}$, and terms with
-$k\notin\set{p,q}$.  In the case of $k\notin\set{p,q}$, the
-permutation operator $\Pi_{pq}$ commutes with $X_k$ and annihilates on
-$\ket\psi$, leaving terms at each fixed $k$ of the form
+where without loss of generality we consider a single-body
+perturbation $\V_1$ built out of only one single-body operator $X$.
+The sum in \eqref{eq:H_V1_psi_start} has terms with $k\in\set{p,q}$,
+and terms with $k\notin\set{p,q}$.  In the case of $k\notin\set{p,q}$,
+the permutation operator $\Pi_{pq}$ commutes with $X_k$ and
+annihilates on $\ket\psi$, leaving terms at each fixed $k$ of the form
 \begin{align}
   \sum_{\substack{p<q\\k\notin\set{p,q}}} h_{pq}
   = \sum_{p<q} h_{pq} - \sum_{\substack{p<q\\k\in\set{p,q}}} h_{pq}
@@ -582,25 +584,25 @@ enforcing $h_{pq}=h_{qp}$ and $h_{pp}=0$; and
 $h_k \equiv \sum_\ell h_{k\ell}$.  The terms in
 \eqref{eq:H_V1_psi_start} with $k\notin\set{p,q}$ are then
 \begin{align}
-  \sum_X \sum_{\substack{p<q\\k\notin\set{p,q}}}
-  h_{pq} v_{Xk} \Pi_{pq} X_k \ket\psi
-  = \sum_{X,k} \p{E_0 - h_k} v_{Xk} X_k \ket\psi
-  = E_0 \V_1 \ket\psi - \sum_{X,k} h_k v_{Xk} X_k \ket\psi
+  \sum_{\substack{p<q\\k\notin\set{p,q}}}
+  h_{pq} v_k \Pi_{pq} X_k \ket\psi
+  = \sum_k \p{E_0 - h_k} v_k X_k \ket\psi
+  = E_0 \V_1 \ket\psi - \sum_k h_k v_k X_k \ket\psi
 \end{align}
-while the terms in \eqref{eq:H_V1_psi_start} with $k\in\set{p,q}$ for
-each fixed $X$ take the form
+while the terms in \eqref{eq:H_V1_psi_start} with $k\in\set{p,q}$ take
+the form
 \begin{align}
   \sum_{\substack{p<q\\k\in\set{p,q}}}
-  h_{pq} v_{Xk} \Pi_{pq} X_k \ket\psi
-  = \sum_{k<q} h_{kq} v_{Xk} X_q \ket\psi
-  + \sum_{p<k} h_{pk} v_{Xk} X_p \ket\psi
-  = \sum_{k,q} h_{kq} v_{Xk} X_q \ket\psi
+  h_{pq} v_k \Pi_{pq} X_k \ket\psi
+  = \sum_{k<q} h_{kq} v_k X_q \ket\psi
+  + \sum_{p<k} h_{pk} v_k X_p \ket\psi
+  = \sum_{k,q} h_{kq} v_k X_q \ket\psi
 \end{align}
 which implies
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi
-  + \sum_X \p{\sum_{p,q} h_{pq} v_{Xp} X_q - \sum_p h_p v_{Xp} X_p}
+  + \p{\sum_{p,q} h_{pq} v_p X_q - \sum_p h_p v_p X_p}
   \ket\psi.
 \end{align}
 
@@ -611,14 +613,16 @@ which implies
 We wish to simplify
 \begin{align}
   H_0 \V_2 \ket\psi
-  = \sum_O \sum_{\substack{k<\ell\\p<q}} w_{Ok\ell} h_{pq}
+  = \sum_{\substack{k<\ell\\p<q}} w_{k\ell} h_{pq}
   \Pi_{pq} O_{k\ell} \ket\psi,
   \label{eq:H_V2_psi_start}
 \end{align}
-which has terms with $\set{p,q}=\set{k,\ell}$, terms with
-$p,q\notin\set{k,\ell}$, and terms with only one of $p$ or
+where without loss of generality we consider a two-body perturbation
+$\V_2$ built out of only one two-body operator $O$.  The sum in
+\eqref{eq:H_V2_psi_start} has terms with $\set{p,q}=\set{k,\ell}$,
+terms with $p,q\notin\set{k,\ell}$, and terms with only one of $p$ or
 $q\in\set{k,\ell}$.  The permutation operator $\Pi_{pq}$ acts
-trivially on $O_{k_\ell}\ket\psi$ when $\set{p,q}=\set{k,\ell}$ or
+trivially on $O_{k\ell}\ket\psi$ when $\set{p,q}=\set{k,\ell}$ or
 $p,q\notin\set{k,\ell}$, leaving terms at each fixed $k,\ell$ of the
 form
 \begin{align}
@@ -636,24 +640,24 @@ The corresponding terms in \eqref{eq:H_V2_psi_start} with
 $\set{p,q}=\set{k,\ell}$ or $p,q\notin\set{k,\ell}$ are then
 \begin{align}
   E_0 \V_2 \ket\psi
-  + \sum_O \sum_{k<\ell} 2 \bar h_{k\ell} w_{Ok\ell} O_{k\ell} \ket\psi.
+  + \sum_{k<\ell} 2 \bar h_{k\ell} w_{k\ell} O_{k\ell} \ket\psi.
 \end{align}
 Using similar techniques, we can simplify the terms in
 \eqref{eq:H_V2_psi_start} with only one of $p,q\in\set{k,\ell}$ to
 \begin{align}
-  \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{Oq\ell} + w_{Okq} h_{q\ell}}
+  \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{q\ell} + w_{kq} h_{q\ell}}
   O_{k\ell} \ket\psi.
 \end{align}
 In total,
 \begin{align}
   H_0 \V_2 \ket\psi
   &= E_0 \V_2 \ket\psi
-  + \sum_{k<\ell} 2\bar h_{k\ell} w_{Ok\ell} O_{k\ell} \ket\psi
-  + \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{Oq\ell} + w_{Okq} h_{q\ell}}
+  + \sum_{k<\ell} 2\bar h_{k\ell} w_{k\ell} O_{k\ell} \ket\psi
+  + \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{q\ell} + w_{kq} h_{q\ell}}
   O_{k\ell} \ket\psi \\
   &= E_0 \V_2 \ket\psi
-  + \f12 \sum_{k\ne\ell} \sp{2\bar h_{k\ell} w_{Ok\ell}
-    + \sum_q \p{h_{kq} w_{Oq\ell} + w_{Okq} h_{q\ell}}}
+  + \f12 \sum_{k\ne\ell} \sp{2\bar h_{k\ell} w_{k\ell}
+    + \sum_q \p{h_{kq} w_{q\ell} + w_{Okq} h_{q\ell}}}
   O_{k\ell} \ket\psi.
 \end{align}
 
