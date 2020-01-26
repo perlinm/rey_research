@@ -642,10 +642,14 @@ where we first split a sum over $\p{p,q}\in\C_N\p{2}$ with the
 restriction that $p,q\in k~\t{or}~p,q\notin k$ into an unrestricted
 sum minus a remainder, and then similarly split the sum over all spins
 $q$ with the restriction that $q\notin k$ into a sum over all $q$
-minus the remainder $q\in k$.  Defining $h_p\equiv\sum_q h_{pq}$, we thus find that
+minus the remainder $q\in k$.  We thus find that
 \begin{align}
   \sum_{\substack{\p{p,q}\in\C_N\p{2}\\p,q\in k~\t{or}~p,q\notin k}} h_{pq}
-  = E_0 + 2\sum_{\p{p,q}\subset k} h_{pq} - \sum_{p\in k} h_p,
+  = E_0 + \bar h_k,
+  &&
+  \bar h_k \equiv 2\sum_{\p{p,q}\subset k} h_{pq} - \sum_{p\in k} h_p,
+  &&
+  h_p \equiv \sum_q h_{pq},
 \end{align}
 where the sum over $\p{p,q}\subset k$ denotes a sum over distinct
 choices of two elements in $k$.  The terms in
@@ -674,14 +678,12 @@ and switch the labels for $p$ and $k_j$ to find that
 Defining
 \begin{align}
   \p{h\circ w}_k
-  \equiv \sum_{j=1}^M \sum_{p\in k} h_{pk_j} w_{k_{jp}}
-  = h_{pk_1} w_{pk_2k_3\cdots k_M}
-  + h_{pk_2} w_{k_1pk_3\cdots k_M}
-  + h_{pk_M} \cdots w_{k_1k_2\cdots k_{M-1} p}
-\end{align}
-and
-\begin{align}
-  \bar h_k \equiv 2 \sum_{\p{p,q}\subset k} h_{pq} - \sum_{p\in k} h_p,
+  \equiv \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{j=1}^M
+  h_{pk_j} w_{k_{jp}}
+  = \sum_{\substack{p\in\ZZ_N\\p\notin k}}
+  \p{h_{pk_1} w_{pk_2k_3\cdots k_M}
+    + h_{pk_2} w_{k_1pk_3\cdots k_M}
+    + \cdots + h_{pk_M} w_{k_1k_2\cdots k_{M-1} p}},
 \end{align}
 we thus find that
 \begin{align}
