@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import functools, scipy, sympy
+import functools, scipy, sympy, os
 
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
 spin_num = 16
-data_dir = "./projectors/"
 
 ##########################################################################################
 
@@ -119,7 +118,7 @@ projs[1] = projs[1].real
 
 for mm, proj in projs.items():
     print(f"writing projector {mm}")
-    with open(data_dir + f"projector_N{spin_num}_M{mm}.txt", "w") as f:
+    with open(f"projector_N{spin_num}_M{mm}.txt", "w") as f:
         f.write("# projector onto collective shell number {mm} of {spin_num} spins\n")
         f.write("# represented by a matrix in the standard basis of {spin_num} qubits\n")
         f.write("# row, column, value\n")
