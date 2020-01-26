@@ -46,6 +46,7 @@
 \newcommand{\z}{\text{z}}
 
 \newcommand{\B}{\mathcal{B}}
+\newcommand{\C}{\mathcal{C}}
 \newcommand{\D}{\mathcal{D}}
 \newcommand{\E}{\mathcal{E}}
 \renewcommand{\H}{\mathcal{H}}
@@ -341,18 +342,18 @@ operator $O_{pq}$.  If the two-body operator $O=X\otimes Y$, then
 \end{align}
 In order to compute the second-order effective Hamiltonian
 $H_2^{(2)}$, as before we pick an arbitrary fully symmetric state
-$\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V2_psi})
+$\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_VM_psi})
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
-  + \f12 \sum_O \sum_{p\ne q} \sp{2\bar h_{pq} w_{Opq}
-    + \sum_k \p{h_{pk} w_{Okq} + w_{Opk} h_{kq}}}
+  + \sum_O \sum_{p<q} \sp{\bar h_{pq} w_{Opq}
+    + \sum_k \p{h_{kp} w_{Okq} w_{Okq} + h_{kq} w_{Opk}}}
   O_{pq} \ket\psi,
   \label{eq:H_V2_psi}
 \end{align}
 where to keep notation compact, we define
 \begin{align}
-  \bar h_{pq} \equiv h_{pq} - \f12\p{h_p + h_q},
+  \bar h_{pq} \equiv 2 h_{pq} - h_p - h_q,
   &&
   h_p \equiv \sum_q h_{pq},
 \end{align}
@@ -367,9 +368,9 @@ $\v{\m w}_O^\Delta$ all satisfy the eigenvalue equation
 \end{align}
 where
 \begin{align}
-  \check{\m h} \equiv 2\sum_{p<q} \bar h_{pq} \op{\set{p,q}}
+  \check{\m h} \equiv \sum_{p<q} \bar h_{pq} \op{\set{p,q}}
   + \sum_{p<q} \ket{\set{p,q}} \sum_{k\notin\set{p,q}}
-  \p{h_{pk} \bra{\set{k,q}} + h_{kq} \bra{\set{p,k}}}.
+  \p{h_{kp} \bra{\set{k,q}} + h_{kq} \bra{\set{p,k}}}.
   \label{eq:h_super_mat}
 \end{align}
 Solving the general eigenvalue problem in \eqref{eq:cond_2} requires
@@ -567,12 +568,13 @@ We wish to simplify
   = \sum_k \sum_{p<q} h_{pq} v_k \Pi_{pq} X_k \ket\psi,
   \label{eq:H_V1_psi_start}
 \end{align}
-where without loss of generality we consider a single-body
-perturbation $\V_1$ built out of only one single-body operator $X$.
-The sum in \eqref{eq:H_V1_psi_start} has terms with $k\in\set{p,q}$,
-and terms with $k\notin\set{p,q}$.  In the case of $k\notin\set{p,q}$,
-the permutation operator $\Pi_{pq}$ commutes with $X_k$ and
-annihilates on $\ket\psi$, leaving terms at each fixed $k$ of the form
+where $\ket\psi\in\M_\FS$ is an arbitrary fully symmetric state, and
+without loss of generality we consider a single-body perturbation
+$\V_1$ built out of only one single-body operator $X$.  The sum in
+\eqref{eq:H_V1_psi_start} has terms with $k\in\set{p,q}$, and terms
+with $k\notin\set{p,q}$.  In the case of $k\notin\set{p,q}$, the
+permutation operator $\Pi_{pq}$ commutes with $X_k$ and annihilates on
+$\ket\psi$, leaving terms at each fixed $k$ of the form
 \begin{align}
   \sum_{\substack{p<q\\k\notin\set{p,q}}} h_{pq}
   = \sum_{p<q} h_{pq} - \sum_{\substack{p<q\\k\in\set{p,q}}} h_{pq}
@@ -607,58 +609,85 @@ which implies
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Two-body perturbation}
-\label{sec:H_V2_psi}
+\subsection{Multi-body perturbation}
+\label{sec:H_VM_psi}
 
-We wish to simplify
+Given an $M$-body perturbation
 \begin{align}
-  H_0 \V_2 \ket\psi
-  = \sum_{\substack{k<\ell\\p<q}} w_{k\ell} h_{pq}
-  \Pi_{pq} O_{k\ell} \ket\psi,
-  \label{eq:H_V2_psi_start}
+  \V_M \equiv \sum_{k\in\C_N\p{M}} w_k O_k,
 \end{align}
-where without loss of generality we consider a two-body perturbation
-$\V_2$ built out of only one two-body operator $O$.  The sum in
-\eqref{eq:H_V2_psi_start} has terms with $\set{p,q}=\set{k,\ell}$,
-terms with $p,q\notin\set{k,\ell}$, and terms with only one of $p$ or
-$q\in\set{k,\ell}$.  The permutation operator $\Pi_{pq}$ acts
-trivially on $O_{k\ell}\ket\psi$ when $\set{p,q}=\set{k,\ell}$ or
-$p,q\notin\set{k,\ell}$, leaving terms at each fixed $k,\ell$ of the
+where $O$ is an $M$-body operator; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
+a choice of $M$ distinct spins that $O$ acts on; and $\C_N\p{n}$ is a
+choice of $n$ elements from a set of $N$; we wish to simplify
+\begin{align}
+  H_0 \V_M \ket\psi
+  = \sum_{\substack{\p{p,q}\in\C_N\p{2}\\k\in\C_N\p{M}}} h_{pq} w_k
+  \Pi_{pq} O_k \ket\psi,
+  \label{eq:H_VM_psi_start}
+\end{align}
+where $\ket\psi\in\M_\FS$ is an arbitrary fully symmetric state.  The
+sum in \eqref{eq:H_VM_psi_start} has terms with $p,q\in k$, terms with
+$p,q\notin k$, and terms with only one of $p$ or $q\in k$.  The
+permutation operator $\Pi_{pq}$ acts trivially on $O_k\ket\psi$ when
+$p,q\in k$ or $p,q\notin k$, leaving terms at each fixed $k$ of the
 form
 \begin{align}
-  h_{k\ell} + \sum_{\substack{p<q\\p,q\notin\set{k,\ell}}} h_{pq}
-  = \sum_{p<q} h_{pq}
-  - \sum_{\substack{p\in\set{k,\ell}\\q\notin\set{k,\ell}}} h_{pq}
-  = E_0 - h_k - h_\ell + 2 h_{k\ell}
-  = E_0 + 2 \bar h_{k\ell},
+  \sum_{\substack{\p{p,q}\in\C_N\p{2}\\p,q\in k~\t{or}~p,q\notin k}} h_{pq}
+  = \sum_{\p{p,q}\in\C_N\p{2}} h_{pq}
+  - \sum_{p\in k} \sum_{\substack{q\in\ZZ_N\\q\notin k}} h_{pq}
+  = E_0 - \sum_{p\in k}
+  \p{\sum_{q\in\ZZ_N} h_{pq} - \sum_{q\in k} h_{pq}},
 \end{align}
-where
+where we first split a sum over $\p{p,q}\in\C_N\p{2}$ with the
+restriction that $p,q\in k~\t{or}~p,q\notin k$ into an unrestricted
+sum minus a remainder, and then similarly split the sum over all spins
+$q$ with the restriction that $q\notin k$ into a sum over all $q$
+minus the remainder $q\in k$.  Defining $h_p\equiv\sum_q h_{pq}$, we thus find that
 \begin{align}
-  \bar h_{k\ell} \equiv h_{k\ell} - \f12\p{h_k + h_\ell}.
+  \sum_{\substack{\p{p,q}\in\C_N\p{2}\\p,q\in k~\t{or}~p,q\notin k}} h_{pq}
+  = E_0 + 2\sum_{\p{p,q}\subset k} h_{pq} - \sum_{p\in k} h_p,
 \end{align}
-The corresponding terms in \eqref{eq:H_V2_psi_start} with
-$\set{p,q}=\set{k,\ell}$ or $p,q\notin\set{k,\ell}$ are then
+where the sum over $\p{p,q}\subset k$ denotes a sum over distinct
+choices of two elements in $k$.  The terms in
+\eqref{eq:H_VM_psi_start} with only one of $p\in k$ or $q\in k$,
+meanwhile, are
 \begin{align}
-  E_0 \V_2 \ket\psi
-  + \sum_{k<\ell} 2 \bar h_{k\ell} w_{k\ell} O_{k\ell} \ket\psi.
+  \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{q\in k}
+  h_{pq} w_k \Pi_{pq} O_k \ket\psi
+  = \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
+  \sum_{j=1}^M h_{p k_j} w_k \Pi_{p k_j} O_k \ket\psi.
 \end{align}
-Using similar techniques, we can simplify the terms in
-\eqref{eq:H_V2_psi_start} with only one of $p,q\in\set{k,\ell}$ to
+Defining
+$k_{jp}\equiv\p{k_1,k_2,\cdots,k_{j-1},p,k_{j+1},\cdots,k_M}$, i.e.~an
+element of $\C_N\p{M}$ in which the $j$-th number $k_j$ has been
+replaced by $p$, we can simplify
 \begin{align}
-  \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{q\ell} + w_{kq} h_{q\ell}}
-  O_{k\ell} \ket\psi.
+  \Pi_{p k_j} O_k \ket\psi = O_{k_{jp}}\ket\psi,
 \end{align}
-In total,
+and switch the labels for $p$ and $k_j$ to find that
 \begin{align}
-  H_0 \V_2 \ket\psi
-  &= E_0 \V_2 \ket\psi
-  + \sum_{k<\ell} 2\bar h_{k\ell} w_{k\ell} O_{k\ell} \ket\psi
-  + \f12 \sum_{k\ne\ell} \sum_q \p{h_{kq} w_{q\ell} + w_{kq} h_{q\ell}}
-  O_{k\ell} \ket\psi \\
-  &= E_0 \V_2 \ket\psi
-  + \f12 \sum_{k\ne\ell} \sp{2\bar h_{k\ell} w_{k\ell}
-    + \sum_q \p{h_{kq} w_{q\ell} + w_{Okq} h_{q\ell}}}
-  O_{k\ell} \ket\psi.
+  \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{q\in k}
+  h_{pq} w_k  \Pi_{pq} O_k \ket\psi
+  = \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
+  \sum_{j=1}^M h_{pk_j} w_{k_{jp}} O_k \ket\psi.
+\end{align}
+Defining
+\begin{align}
+  \p{h\circ w}_k
+  \equiv \sum_{j=1}^M \sum_{p\in k} h_{pk_j} w_{k_{jp}}
+  = h_{pk_1} w_{pk_2k_3\cdots k_M}
+  + h_{pk_2} w_{k_1pk_3\cdots k_M}
+  + h_{pk_M} \cdots w_{k_1k_2\cdots k_{M-1} p}
+\end{align}
+and
+\begin{align}
+  \bar h_k \equiv 2 \sum_{\p{p,q}\subset k} h_{pq} - \sum_{p\in k} h_p,
+\end{align}
+we thus find that
+\begin{align}
+  H_0 \V_M \ket\psi
+  = E_0 \V_M \ket\psi + \sum_{k\in\C_N\p{M}}
+  \sp{\bar h_k w_k + \p{h\circ w}_k} O_k \ket\psi.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -899,13 +928,13 @@ $p$ and $q$ only through the separation $\pm\p{p-q}$.  In this case,
 all $h_p=h_0$ are equal, and \eqref{eq:cond_2_ref_start} can be
 written in the form
 \begin{align}
-  2 \m h\circ \m w + \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h}
+  2 \m h*\m w + \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h}
   = \p{\Delta + 2h_0} \m w,
   \label{eq:cond_2_ref}
 \end{align}
-where $\m h$ and $\m w$ are matrices of all $h_{pq}$ and $w_{pq}$, and
-$\m h\circ\m w$ denotes an element-wise (Kronecker) product of $\m h$
-and $\m w$, and
+where $\m h$ and $\m w$ are matrices of all $h_{pq}$ and $w_{pq}$;
+$\m h*\m w$ denotes an element-wise (Kronecker) product of $\m h$ and
+$\m w$, i.e.~with matrix elements $h_{pq}w_{pq}$; and
 $\P_{\t{off-diag}}\p{\m m}\equiv \m m-\sum_p\op{p}\m m\op{p}$ denotes
 the projection of $\m m$ onto the space of strictly off-diagonal
 matrices.  In order to find solutions to \eqref{eq:cond_2_ref}, we we
