@@ -917,69 +917,74 @@ find that
 The two-body eigenvalue equation in \eqref{eq:cond_2} is designed to
 find solutions $\m w$ to the equation
 \begin{align}
-  \p{2h_{pq}-h_p-h_q} w_{pq}
+  \bar h_{pq} w_{pq}
   + \sum_k \p{h_{pk} w_{kq} + w_{pk} h_{kq}}
   = \Delta w_{pq},
+  &&
+  \bar h_{pq} \equiv 2h_{pq} - h_p - h_q,
+  &&
+  h_p \equiv \sum_q h_{pq},
   \label{eq:cond_2_ref_start}
 \end{align}
-where $h_p\equiv\sum_q h_{pq}$.  If the interaction Hamiltonian $H_0$
-is translationally invariant, then the couplings $h_{pq}$ depend on
-$p$ and $q$ only through the separation $\pm\p{p-q}$.  In this case,
-all $h_p=h_0$ are equal, and \eqref{eq:cond_2_ref_start} can be
-written in the form
+which can be written in matrix form as
 \begin{align}
-  2 \m h*\m w + \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h}
-  = \p{\Delta + 2h_0} \m w,
+  \bar{\m h}*\m w + \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h}
+  = \Delta \m w,
   \label{eq:cond_2_ref}
 \end{align}
-where $\m h$ and $\m w$ are matrices of all $h_{pq}$ and $w_{pq}$;
-$\m h*\m w$ denotes an element-wise (Kronecker) product of $\m h$ and
-$\m w$, i.e.~with matrix elements $h_{pq}w_{pq}$; and
+where $\m h$, $\bar{\m h}$, and $\m w$ are matrices of all $h_{pq}$,
+$\bar h_{pq}$ and $w_{pq}$; $\bar{\m h}*\m w$ denotes an element-wise
+(Kronecker) product of $\bar{\m h}$ and $\m w$, i.e.~with matrix
+elements $\bar h_{pq}w_{pq}$; and
 $\P_{\t{off-diag}}\p{\m m}\equiv \m m-\sum_p\op{p}\m m\op{p}$ denotes
 the projection of $\m m$ onto the space of strictly off-diagonal
-matrices.  In order to find solutions to \eqref{eq:cond_2_ref}, we we
-expand the matrices $\m h,\m w$ in a basis that the respects
-translational symmetry of $\m h$.  To this end, for all lattice
-displacements $d\in\ZZ_L^D$ and wavenumbers $k\in\ZZ_L^D\times2\pi/L$
-we define the {\it cycle matrices}
+matrices.  In order to find solutions to \eqref{eq:cond_2_ref} when
+the interaction Hamiltonian $H_0$ is translationally invariant, in
+which case $h_{pq}$ and $\bar h_{pq}$ depend only on the separation
+$\pm\p{p-q}$, we expand all matrices in a basis that the respects
+translational symmetry.  To this end, for all lattice displacements
+$d\in\ZZ_L^D$ and wavenumbers $k\in\ZZ_L^D\times2\pi/L$ we define the
+{\it cycle matrices}
 \begin{align}
   \m m_{dk} \equiv \sum_p e^{ip\c k} \op{p+d}{p},
   \label{eq:cycle}
 \end{align}
 where the element-wise sums in $p+d$ are implicitly taken modulo $L$
-(i.e.~the length of the periodic lattice along each axis).  In terms of the cycle matrices, we define
+(i.e.~the length of the periodic lattice along each axis).  In terms
+of these cycle matrices, we define
 \begin{align}
   \tilde w_{dk} \equiv \f1N \tr\p{\m m_{dk}^\dag \m w},
 \end{align}
-expand
+and expand
 \begin{align}
-  \m h = \sum_{p,q} h_{pq} \op{p}{q}
-  = \sum_{q,d} h_{q+d,q} \op{q+d}{q}
+  \m w = \sum_{d,k} \tilde w_{dk} \m m_{dk},
+  &&
+  \m h = \sum_{q,d} h_{q+d,q} \op{q+d}{q}
   = \sum_d h_{d,0} \m m_{d,0},
   &&
-  \m w = \sum_{d,k} \tilde w_{dk} \m m_{dk},
+  \bar{\m h} = \sum_d \bar h_{d,0} \m m_{d,0}.
 \end{align}
-and write the condition in \eqref{eq:cond_2_ref} as a new set of
-conditions
+We can then write the condition in \eqref{eq:cond_2_ref} as a new set
+of conditions
 \begin{align}
-  \sum_{d\ne0} 2 h_{d,0} \tilde w_{dk} \m m_{dk}
+  \sum_{d\ne0} \bar h_{d,0} \tilde w_{dk} \m m_{dk}
   + \sum_{\substack{c,d\\c+d\ne0}}
   h_{c,0} \tilde w_{dk} \p{1 + e^{-ic\c k}} \m m_{c+d,k}
-  = \p{\Delta + 2 h_0} \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
+  = \Delta \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
 \end{align}
 that must hold for all wavenumbers $k$.  With some re-indexing, we can
 write
 \begin{align}
-  \sum_{d\ne0} 2 h_{d,0} \tilde w_{dk} \m m_{dk}
+  \sum_{d\ne0} \bar h_{d,0} \tilde w_{dk} \m m_{dk}
   + \sum_{c,d\ne0} h_{d-c,0} \tilde w_{ck}
   \p{1 + e^{-i\p{d-c}\c k}} \m m_{dk}
-  = \p{\Delta + 2 h_0} \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
+  = \Delta \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
   \label{eq:cond_2_cycle}
 \end{align}
 and define
 \begin{align}
   \ut{\check{\m h}}_k
-  \equiv \sum_{d\ne0} 2 h_{d,0} \op{d}
+  \equiv \sum_{d\ne0} \bar h_{d,0} \op{d}
   + \sum_{c,d\ne0} h_{d-c,0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
   &&
   \ut{\v{\m w}}_k \equiv \sum_{d\ne0} \tilde w_{dk} \ket{d},
@@ -988,8 +993,7 @@ and define
 in order to express \eqref{eq:cond_2_cycle} as the set of eigenvalue
 equations
 \begin{align}
-  \ut{\check{\m h}}_k \c \ut{\v{\m w}}_k
-  = \p{\Delta + 2 h_0} \ut{\v{\m w}}_k.
+  \ut{\check{\m h}}_k \c \ut{\v{\m w}}_k = \Delta \ut{\v{\m w}}_k.
   \label{eq:cond_2_square}
 \end{align}
 The appearance of a wavenumber index $k$ in \eqref{eq:cond_2_square}
@@ -1031,11 +1035,13 @@ energies $\Delta_k$ are
 In order to solve the two-body eigenvalue problem, we expand
 \begin{align}
   \ut{\check{\m h}}_k
-  = - \sum_{d\ne0} 2 \op{d}
-  - \sum_{\substack{c,d\ne0\\c\ne d}} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c}
-  = - \sum_{c,d\ne0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
+  &= \sum_{d\ne0} \sp{-2+2\p{N-1}} \op{d}
+  - \sum_{\substack{c,d\ne0\\c\ne d}} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c} \\
+  &= 2\p{N-1} \1_{N-1}
+  - \sum_{c,d\ne0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
 \end{align}
-and define the vectors
+where $\1_{N-1}\equiv\sum_{d\ne0}\op{d}$ is the $\p{N-1}\times\p{N-1}$
+identity matrix, and define the vectors
 \begin{align}
   \ket{\ut{p}}
   \equiv \f1{\sqrt{N-1}} \sum_{d\ne 0} e^{i p\c d}\ket{d},
@@ -1043,14 +1049,14 @@ and define the vectors
 in terms of which
 \begin{align}
   \ut{\check{\m h}}_k
-  = -\p{N-1} \p{\op{\ut{0}} + \op{\ut{k}}}.
+  = 2\p{N-1} \1_{N-1} -\p{N-1} \p{\op{\ut{0}} + \op{\ut{k}}}.
 \end{align}
 The vectors $\ket{\ut{p}}$ are normalized, but not orthogonal:
 $\braket{\ut{p}|\ut{q}}=\delta_{pq}-\p{1-\delta_{pq}}/\p{N-1}$.  We
 therefore have
 \begin{align}
   \ut{\check{\m h}}_k
-  = - \sum_{s\in\set{\pm}} \varepsilon_s \op{\ut{k}^s}
+  = 2\p{N-1} \1_{N-1} - \sum_{s\in\set{\pm}} \varepsilon_s \op{\ut{k}^s}
 \end{align}
 where
 \begin{align}
@@ -1063,7 +1069,7 @@ where
 The vectors $\ket{\ut{k}^\pm}$ are orthonormal when $k\ne0$.  When
 $k=0$, meanwhile, we have
 \begin{align}
-  \ut{\check{\m h}}_0 = -2\p{N-1} \op{\ut{0}}.
+  \ut{\check{\m h}}_0 = 2\p{N-1} \p{\1_{N-1} - \op{\ut{0}}}.
 \end{align}
 Remembering from \eqref{eq:cycle_vecs} that vectors $\ket{\ut{k}^\pm}$
 are associated with the cycle matrices $\m m_{dk}$ defined in
@@ -1086,13 +1092,13 @@ $\varepsilon_-$ entirely for the purposes of this work.
 Altogether, the excitation energies corresponding to non-trivial
 eigenstates of $\ut{\check{\m h}}_k$ are
 \begin{align}
-  \Delta_0 \equiv -2\p{N-1} - 2 h_0 = 0,
+  \Delta_0 \equiv 0,
   &&
-  \Delta_+ \equiv -\varepsilon_+ - 2 h_0 = N,
+  \Delta_+ \equiv 2\p{N-1} - \varepsilon_+ = N,
 \end{align}
 while the energy of all orthogonal two-body excitations is
 \begin{align}
-  \Delta_\perp \equiv - 2 h_0 = 2N - 2.
+  \Delta_\perp \equiv 2\p{N-1}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
