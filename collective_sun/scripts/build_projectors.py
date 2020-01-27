@@ -125,8 +125,8 @@ for net_up in range(spin_num+1):
 
 print(f"writing projector")
 with open(f"projector_N{spin_num}_M{manifold}.txt", "w") as f:
-    f.write("# projector onto collective shell number {manifold} of {spin_num} spins\n")
-    f.write("# represented by a matrix in the standard basis of {spin_num} qubits\n")
+    f.write(f"# projector onto collective shell number {manifold} of {spin_num} spins\n")
+    f.write(f"# represented by a matrix in the standard basis of {spin_num} qubits\n")
     f.write("# row, column, value\n")
     for col in range(proj.shape[0]):
         for ind in range(proj.indptr[col], proj.indptr[col+1]):
