@@ -128,6 +128,7 @@ with open(f"projector_N{spin_num}_M{manifold}.txt", "w") as f:
     f.write("# projector onto collective shell number {manifold} of {spin_num} spins\n")
     f.write("# represented by a matrix in the standard basis of {spin_num} qubits\n")
     f.write("# row, column, value\n")
-    for idx, val in proj.todok().items():
-        if abs(val) < cutoff: continue
-        f.write(f"{idx[0]}, {idx[1]}, {val}\n")
+    for col in range(proj.shape[0]):
+        for ind in range(proj.indptr[col], proj.indptr[col+1]):
+            if abs(proj.data[ind]) < cutoff: continue
+            f.write(f"{proj.indices[ind]}, {col}, {proj.data[ind]}\n")
