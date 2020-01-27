@@ -125,6 +125,8 @@ for net_up in range(spin_num+1):
     print("    ",time.time()-time_start)
     sys.stdout.flush()
 
+proj.sort_indices()
+
 print(f"writing projector")
 
 if not os.path.isdir(data_dir):
