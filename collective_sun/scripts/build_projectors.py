@@ -81,7 +81,6 @@ def sparse_chop(op):
         if abs(data) < cutoff:
             op.data[idx] = 0
     op.eliminate_zeros()
-    return op
 
 for net_up in range(spin_num+1):
     print(f" {net_up}/{spin_num+1}")
@@ -105,7 +104,7 @@ for net_up in range(spin_num+1):
                 _cos_sin = np.sin
             op = sum( _cos_sin(pp * kk * 2*np.pi / spin_num) * Z_op(pp)
                       for pp in range(spin_num) )
-            op = sparse_chop(op)
+            sparse_chop(op)
 
             state = op @ this_sym_state
             proj += ( state @ state.T ) / ( state.T @ state )[0,0]
@@ -115,7 +114,7 @@ for net_up in range(spin_num+1):
         for val, vec in zip(vals, vecs.T):
             op = sum( weight * ZZ_op(*spin_pairs[pp_qq])
                       for pp_qq, weight in enumerate(vec) )
-            op = sparse_chop(op)
+            sparse_chop(op)
 
             state = op @ this_sym_state
             if state.count_nonzero() == 0: continue
