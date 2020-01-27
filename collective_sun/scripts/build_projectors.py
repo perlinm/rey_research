@@ -14,6 +14,8 @@ manifold = int(sys.argv[2])
 assert(spin_num <= 16)
 assert(manifold <= 2)
 
+data_dir = "../data/projectors/"
+
 ##########################################################################################
 
 def _bit_sign(bit):
@@ -121,13 +123,19 @@ for net_up in range(spin_num+1):
             proj += ( state @ state.T ) / ( state.T @ state )[0,0]
 
     print("    ",time.time()-time_start)
+    sys.stdout.flush()
 
 print(f"writing projector")
-with open(f"projector_N{spin_num}_M{manifold}.txt", "w") as f:
+
+if not os.path.isdir(data_dir):
+    os.makedirs(data_dir)
+
+with open(data_dir + f"projector_N{spin_num}_M{manifold}.txt", "w") as f:
     f.write(f"# projector onto collective shell number {manifold} of {spin_num} spins\n")
     f.write(f"# represented by a matrix in the standard basis of {spin_num} qubits\n")
     f.write("# row, column, value\n")
-    for col in range(proj.shape[0]):
-        for ind in range(proj.indptr[col], proj.indptr[col+1]):
-            if abs(proj.data[ind]) < cutoff: continue
-            f.write(f"{proj.indices[ind]}, {col}, {proj.data[ind]}\n")
+    for row in range(proj.shape[0]):
+        for ind in range(proj.indptr[row], proj.indptr[row+1]):
+            col, val = proj.indices[ind], proj.data[ind]
+            if abs(val) < cutoff: continue
+            f.write(f"{row}, {col}, {val}\n")
