@@ -15,6 +15,7 @@ np.set_printoptions(linewidth = 200)
 
 lattice_shape = (3,4)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
+periodic = True
 
 # values of the ZZ coupling to simulate in an XXZ model
 sweep_coupling_zz = np.linspace(-2,4,25)
@@ -77,9 +78,13 @@ def to_idx(vec):
     return _to_idx[ tuple( np.array(vec) % np.array(lattice_shape) ) ]
 
 # get the distance between two spins
-def dist_1D(pp, qq, axis):
-    diff = ( pp - qq ) % lattice_shape[axis]
-    return min(diff, lattice_shape[axis] - diff)
+if periodic:
+    def dist_1D(pp, qq, axis):
+        diff = ( pp - qq ) % lattice_shape[axis]
+        return min(diff, lattice_shape[axis] - diff)
+else:
+    def dist_1D(pp, qq, _):
+        return max(pp,qq) - min(pp,qq)
 def dist(pp, qq):
     pp = to_vec(pp)
     qq = to_vec(qq)
