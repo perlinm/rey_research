@@ -173,21 +173,7 @@ def spin_op(op, indices = None):
     return scipy.sparse.csr_matrix((op.values.numpy(), op.indices.numpy().T))
 
 ##########################################################################################
-print("building spin collective operators")
-
-def col_op(op):
-    return sum( spin_op(op,idx) for idx in range(spin_num) )
-Sz = col_op("Z") / 2
-Sx = col_op("X") / 2
-Sy = col_op("Y") / 2
-
-# spin operator vector, and the outer product of this vector with itself
-S_op_vec = [ Sz, Sx, Sy ]
-SS_op_mat = [ [ X @ Y for Y in S_op_vec ] for X in S_op_vec ]
-
-##########################################################################################
-
-state_X = functools.reduce(np.kron, [up_x]*spin_num).astype(complex)
+print("building operators")
 
 couplings_sun = { (pp,qq) : -1/dist(pp,qq)**alpha / 2
                   for qq in range(spin_num) for pp in range(qq) }
@@ -199,7 +185,19 @@ H_0 = sum( coupling * spin_op(swap, pp_qq)
 ZZ = sum( coupling * spin_op(["Z","Z"], pp_qq)
           for pp_qq, coupling in couplings_sun.items() )
 
+def col_op(op):
+    return sum( spin_op(op,idx) for idx in range(spin_num) )
+Sz = col_op("Z") / 2
+Sx = col_op("X") / 2
+Sy = col_op("Y") / 2
+
+S_op_vec = [ Sz, Sx, Sy ]
+SS_op_mat = [ [ X @ Y for Y in S_op_vec ] for X in S_op_vec ]
+
+##########################################################################################
+
 chi_eff_bare = 1/2 * np.mean(list(couplings_sun.values()))
+state_X = functools.reduce(np.kron, [up_x]*spin_num).astype(complex)
 
 def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
     print("coupling_zz:",coupling_zz)
