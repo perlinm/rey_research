@@ -224,7 +224,7 @@ $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V1_psi}):
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi
-  + \sum_X \p{\sum_{p,q} h_{pq} v_{Xp} X_q - \sum_p h_p v_{Xp} X_p}
+  + \sum_X \sum_p \p{\sum_q h_{pq} v_{Xq} - h_p v_{Xp}} X_p
   \ket\psi,
   &&
   h_p \equiv \sum_q h_{pq},
@@ -554,27 +554,37 @@ which vanishes as $\epsilon\to0$ for all $\alpha>D$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Diagnosing perturbed states with the interaction Hamiltonian}
+\label{sec:H_VM_psi}
 
-Here we simplify vectors of the form $H_0\V_M\ket\psi$ to arrive at
-the expansions in \eqref{eq:H_V1_psi} and \eqref{eq:H_V2_psi}.
+In this section, we simplify the products of the form
+$H_0\V_M\ket\psi$ to arrive at the expansions in \eqref{eq:H_V1_psi}
+and \eqref{eq:H_V2_psi}.  Here $H_0$ is the SU($n$)-symmetric
+interaction Hamiltonian in \eqref{eq:ints}, $\ket\psi$ is a fully
+symmetric state, and $\V_M$ is an $M$-body perturbation of the form
+\begin{align}
+  \V_M \equiv \sum_{k\in\C_N\p{M}} w_k O_k.
+\end{align}
+where $O$ is an $M$-body operator that is invariant under arbitrary
+permutation of its tensor factors; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
+a choice of $M$ distinct spins that $O$ acts on; and $\C_N\p{n}$ is a
+choice of $n$ elements from a set of $N$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body perturbation}
 \label{sec:H_V1_psi}
 
-We wish to simplify
+We first simplify
 \begin{align}
   H_0 \V_1 \ket\psi
   = \sum_k \sum_{p<q} h_{pq} v_k \Pi_{pq} X_k \ket\psi,
   \label{eq:H_V1_psi_start}
 \end{align}
-where $\ket\psi\in\M_\FS$ is an arbitrary fully symmetric state, and
-without loss of generality we consider a single-body perturbation
-$\V_1$ built out of only one single-body operator $X$.  The sum in
-\eqref{eq:H_V1_psi_start} has terms with $k\in\set{p,q}$, and terms
-with $k\notin\set{p,q}$.  In the case of $k\notin\set{p,q}$, the
-permutation operator $\Pi_{pq}$ commutes with $X_k$ and annihilates on
-$\ket\psi$, leaving terms at each fixed $k$ of the form
+where without loss of generality we consider a single-body
+perturbation $\V_1$ built out of only one single-body operator $X$.
+The sum in \eqref{eq:H_V1_psi_start} has terms with $k\in\set{p,q}$,
+and terms with $k\notin\set{p,q}$.  In the case of $k\notin\set{p,q}$,
+the permutation operator $\Pi_{pq}$ commutes with $X_k$ and
+annihilates on $\ket\psi$, leaving terms at each fixed $k$ of the form
 \begin{align}
   \sum_{\substack{p<q\\k\notin\set{p,q}}} h_{pq}
   = \sum_{p<q} h_{pq} - \sum_{\substack{p<q\\k\in\set{p,q}}} h_{pq}
@@ -604,29 +614,24 @@ which implies
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi
-  + \p{\sum_{p,q} h_{pq} v_p X_q - \sum_p h_p v_p X_p}
-  \ket\psi.
+  + \sum_p \p{\sum_{q} h_{pq} v_q - h_p v_p}
+  X_p \ket\psi.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Multi-body perturbation}
 \label{sec:H_VM_psi}
 
-Given an $M$-body perturbation
-\begin{align}
-  \V_M \equiv \sum_{k\in\C_N\p{M}} w_k O_k,
-\end{align}
-where $O$ is an $M$-body operator; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
-a choice of $M$ distinct spins that $O$ acts on; and $\C_N\p{n}$ is a
-choice of $n$ elements from a set of $N$; we wish to simplify
+We wish to simplify
 \begin{align}
   H_0 \V_M \ket\psi
   = \sum_{\substack{\p{p,q}\in\C_N\p{2}\\k\in\C_N\p{M}}} h_{pq} w_k
   \Pi_{pq} O_k \ket\psi,
   \label{eq:H_VM_psi_start}
 \end{align}
-where $\ket\psi\in\M_\FS$ is an arbitrary fully symmetric state.  The
-sum in \eqref{eq:H_VM_psi_start} has terms with $p,q\in k$, terms with
+where without loss of generality we consider an $M$-body perturbation
+$\V_M$ built out of only one $M$-body operator $O$.  The sum in
+\eqref{eq:H_VM_psi_start} has terms with $p,q\in k$, terms with
 $p,q\notin k$, and terms with only one of $p$ or $q\in k$.  The
 permutation operator $\Pi_{pq}$ acts trivially on $O_k\ket\psi$ when
 $p,q\in k$ or $p,q\notin k$, leaving terms at each fixed $k$ of the
@@ -691,6 +696,22 @@ we thus find that
   = E_0 \V_M \ket\psi + \sum_{k\in\C_N\p{M}}
   \sp{\bar h_k w_k + \p{h\circ w}_k} O_k \ket\psi.
 \end{align}
+If $M=1$, then $\bar h_k=-h_k$ and
+$\p{h\circ w}_k=\sum_\ell h_{k\ell}w_\ell$, so
+\begin{align}
+  H_0 \V_1 \ket\psi
+  = E_0 \V_1 \ket\psi + \sum_{k\in\ZZ_N}
+  \p{\sum_\ell h_{k\ell} w_\ell - h_k w_k} O_k \ket\psi.
+\end{align}
+If $M=2$, then
+$\p{h\circ w}_{pq}=\sum_k\p{h_{kp} w_{kq}+h_{kq}w_{pk}}$, so
+\begin{align}
+  H_0 \V_2 \ket\psi
+  = E_0 \V_2 \ket\psi + \sum_{p<q}
+  \sp{\bar h_{pq} w_{pq} + \sum_k\p{h_{kp} w_{kq} + h_{kq} w_{pk}}}
+  O_k \ket\psi,
+\end{align}
+where $\bar h_{pq}=2h_{pq}-h_p-h_q$ with $h_p\equiv\sum_qh_{pq}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Simplifying operator products restricted to the fully
@@ -794,19 +815,19 @@ vice versa:
 \begin{align}
   \f14 \sum_{\substack{k,\ell\\p\in\set{k,\ell}\\q\notin\set{k,\ell}}}
   w_{Ok\ell} w_{Qpq} O_{k\ell} Q_{pq}
-  &\EQFS \f14 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}}
-  w_{Ok\ell} w_{Qkq} \p{O_{0,1} Q_{0,2} + O_{0,1} Q_{1,2}} \\
+  &\EQFS \f12 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}}
+  w_{Ok\ell} w_{Qkq} O_{0,1} Q_{1,2} \\
   \f14 \sum_{\substack{k,\ell\\p\notin\set{k,\ell}\\q\in\set{k,\ell}}}
   w_{Ok\ell} w_{Qpq} O_{k\ell} Q_{pq}
-  &\EQFS \f14 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}}
-  w_{Ok\ell} w_{Qkq} \p{O_{0,1} Q_{2,0} + O_{0,1} Q_{2,1}},
+  &\EQFS \f12 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}}
+  w_{Ok\ell} w_{Qkq} O_{0,1} Q_{1,2},
 \end{align}
 where
 \begin{align}
-  \f14 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}} w_{Ok\ell} w_{Qkq}
-  = \f14 \sum_{k,\ell,q} w_{Ok\ell} w_{Qkq}
-  - \f14 \sum_{k,\ell} w_{Ok\ell} w_{Qk\ell}
-  = \f14 \v w_O\c\v w_Q - \f12 \v{\m w}_O \c \v{\m w}_Q.
+  \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}} w_{Ok\ell} w_{Qkq}
+  = \sum_{k,\ell,q} w_{Ok\ell} w_{Qkq}
+  - \sum_{k,\ell} w_{Ok\ell} w_{Qk\ell}
+  = \v w_O\c\v w_Q - 2 \v{\m w}_O \c \v{\m w}_Q.
 \end{align}
 Finally, the terms in \eqref{eq:POQP_start} with
 $p,q\notin\set{k,\ell}$ are
@@ -829,11 +850,12 @@ where, using the fact that all $\v{\m w}_O$ are mean-zero,
 Altogether, we thus have that
 \begin{multline}
   \P_0 \p{\V_2^\Delta}^2 \P_0
-  \EQFS - \sum_{O,Q} \bigg[
-  \p{\v w_O \c \v w_Q - \v{\m w}_O \c \v{\m w}_Q} O_{0,1} Q_{2,3}
-  - \v{\m w}_O \c \v{\m w}_Q O_{0,1} Q_{0,1} \\
-  -\f14 \p{\v w_O\c\v w_Q - 2 \v{\m w}_O \c \v{\m w}_Q}
-  O_{0,1} \p{Q_{0,2} + Q_{2,0} + Q_{1,2} + Q_{2,1}} \bigg].
+  \EQFS \sum_{O,Q}
+  \bigg[ \v{\m w}_O \c \v{\m w}_QO_{0,1} Q_{0,1}
+  + \p{\v w_O\c\v w_Q - 2 \v{\m w}_O \c \v{\m w}_Q}
+  O_{0,1} Q_{1,2} \\
+    - \p{\v w_O \c \v w_Q - \v{\m w}_O \c \v{\m w}_Q}
+    O_{0,1} Q_{2,3} \bigg].
   \label{eq:POQP}
 \end{multline}
 In principle, our next task is to write this result in terms of
