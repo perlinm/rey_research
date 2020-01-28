@@ -1,0 +1,331 @@
+#!/usr/bin/env python3
+
+import os
+import numpy as np
+import tensorflow as tf
+import functools, itertools, scipy
+import matplotlib.pyplot as plt
+
+from scipy import sparse
+from scipy.integrate import solve_ivp
+from squeezing_methods import spin_squeezing
+from tensorflow_extension import tf_outer_product
+
+np.set_printoptions(linewidth = 200)
+
+lattice_shape = (3,4)
+alpha = 3 # power-law couplings ~ 1 / r^\alpha
+
+# values of the ZZ coupling to simulate in an XXZ model
+sweep_coupling_zz = np.linspace(-2,4,25)
+
+# values of the ZZ coupling to inspect more closely
+inspect_coupling_zz = [ -1, 0.7 ]
+
+max_time = 10 # in units of J_\perp
+
+ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
+
+data_dir = "../data/projectors/"
+fig_dir = "../figures/"
+
+figsize = (5,4)
+params = { "font.size" : 16,
+           "text.usetex" : True,
+           "text.latex.preamble" : [ r"\usepackage{amsmath}",
+                                     r"\usepackage{braket}" ]}
+plt.rcParams.update(params)
+
+##################################################
+
+if type(lattice_shape) is int:
+    lattice_shape = (lattice_shape,)
+lattice_dim = len(lattice_shape)
+spin_num = np.product(lattice_shape)
+assert(spin_num <= 12)
+
+##########################################################################################
+print("reading in projectors onto manifolds of fixed net spin")
+
+projs = {}
+for manifold in range(3):
+    proj_path = data_dir + f"projector_N{spin_num}_M{manifold}.txt"
+    if not os.path.isfile(proj_path):
+        print(f"projector not found: {proj_path}")
+        exit(1)
+    projs[manifold] = scipy.sparse.dok_matrix((2**spin_num,)*2)
+    with open(proj_path, "r") as f:
+        for line in f:
+            if "#" in line: continue
+            row, col, val = line.split(", ")
+            projs[manifold][int(row),int(col)] = float(val)
+    projs[manifold] = projs[manifold].tocsr()
+
+##########################################################################################
+# define basic objects / operators
+
+# convert between integer and vector indices for a spin
+_to_vec = { idx : tuple(vec) for idx, vec in enumerate(np.ndindex(lattice_shape)) }
+_to_idx = { vec : idx for idx, vec in _to_vec.items() }
+def to_vec(idx):
+    if hasattr(idx, "__getitem__"):
+        return tuple( np.array(vec) % np.array(lattice_shape) )
+    return _to_vec[ idx % spin_num ]
+def to_idx(vec):
+    if type(vec) is int:
+        return vec % spin_num
+    return _to_idx[ tuple( np.array(vec) % np.array(lattice_shape) ) ]
+
+# get the distance between two spins
+def dist_1D(pp, qq, axis):
+    diff = ( pp - qq ) % lattice_shape[axis]
+    return min(diff, lattice_shape[axis] - diff)
+def dist(pp, qq):
+    pp = to_vec(pp)
+    qq = to_vec(qq)
+    return np.sqrt(sum( dist_1D(*pp_qq,aa)**2 for aa, pp_qq in enumerate(zip(pp,qq)) ))
+
+# qubit states and operators
+up = np.array([1,0])
+dn = np.array([0,1])
+up_z, dn_z = up, dn
+up_x = ( up + dn ) / np.sqrt(2)
+dn_x = ( up - dn ) / np.sqrt(2)
+up_y = ( up + 1j * dn ) / np.sqrt(2)
+dn_y = ( up - 1j * dn ) / np.sqrt(2)
+
+base_ops = {}
+base_ops["I"] = np.outer(up_z,up_z) + np.outer(dn_z,dn_z)
+base_ops["Z"] = np.outer(up_z,up_z.conj()) - np.outer(dn_z,dn_z.conj())
+base_ops["X"] = np.outer(up_x,up_x.conj()) - np.outer(dn_x,dn_x.conj())
+base_ops["Y"] = np.outer(up_y,up_y.conj()) - np.outer(dn_y,dn_y.conj())
+
+# act with a multi-local operator `op` on the spin specified by `indices`
+def spin_op(op, indices = None):
+    # make `op` and `indices` correspond to a single spin operator,
+    #   make them single-item lists
+    if type(op) is str:
+        op = [ op ]
+    if type(indices) is int:
+        indices = [ indices ]
+
+    # convert an array into a sparse tensor
+    def _to_sparse_tensor(array):
+        if type(array) is tf.sparse.SparseTensor: return array
+        if scipy.sparse.issparse(array):
+            _array_dok = array.todok()
+            _indices, _values = zip(*_array_dok.items())
+            _values = np.array(_values).astype(complex)
+            return tf.SparseTensor(indices = _indices, values = _values,
+                                   dense_shape = array.shape)
+        if type(array) is np.ndarray:
+            _indices = np.array(list(np.ndindex(array.shape)))
+            return tf.SparseTensor(indices = _indices[array.flatten()!=0],
+                                   values = array[array!=0].flatten().astype(complex),
+                                   dense_shape = array.shape)
+
+    # convert a list of strings into a sparse tensor in which the tensor factors
+    #   associated with each qubit are collected together and flattened
+    if type(op) is list:
+        op_spins = len(op)
+        op = functools.reduce(tf_outer_product,
+                              [ _to_sparse_tensor(base_ops[tag].flatten()) for tag in op ])
+    else:
+        op_spins = int(np.log2(np.prod(op.shape)) + 1/2) // 2
+        op = tf.sparse.reshape(_to_sparse_tensor(op), (2,2,)*op_spins)
+
+        fst_half = range(op_spins)
+        snd_half = range(op_spins,2*op_spins)
+        perm = np.array(list(zip(list(fst_half),list(snd_half)))).flatten()
+        op = tf.sparse.transpose(op, perm)
+        op = tf.sparse.reshape(op, (4,)*op_spins)
+
+    if indices is None:
+        # if we were not given indices, just return the multi-local operator
+        indices = list(range(op_spins))
+        total_spins = op_spins
+    else:
+        # otherwise, return an operator that acts on the indexed spins
+        indices = list(indices)
+        total_spins = spin_num
+        for _ in range(total_spins - op_spins):
+            op = tf_outer_product(op, _to_sparse_tensor(base_ops["I"].flatten()))
+
+    # rearrange tensor factors according to the desired qubit order
+    old_order = indices + [ jj for jj in range(total_spins) if jj not in indices ]
+    new_order = np.arange(total_spins)[np.argsort(old_order)]
+    op = tf.sparse.transpose(op, new_order)
+    op = tf.sparse.reshape(op, (2,2,)*total_spins)
+
+    # un-flatten the tensor factors, and flatten the tensor into
+    #   a matrix that acts on the joint Hilbert space of all qubits
+    evens = range(0,2*total_spins,2)
+    odds = range(1,2*total_spins,2)
+    op = tf.sparse.transpose(op, list(evens)+list(odds))
+    op = tf.sparse.reshape(op, (2**total_spins,2**total_spins))
+
+    # convert matrix into scipy's sparse matrix format
+    return scipy.sparse.csr_matrix((op.values.numpy(), op.indices.numpy().T))
+
+##########################################################################################
+print("building spin collective operators")
+
+def col_op(op):
+    return sum( spin_op(op,idx) for idx in range(spin_num) )
+Sz = col_op("Z") / 2
+Sx = col_op("X") / 2
+Sy = col_op("Y") / 2
+
+# spin operator vector, and the outer product of this vector with itself
+S_op_vec = [ Sz, Sx, Sy ]
+SS_op_mat = [ [ X @ Y for Y in S_op_vec ] for X in S_op_vec ]
+
+##########################################################################################
+
+state_X = functools.reduce(np.kron, [up_x]*spin_num).astype(complex)
+
+couplings_sun = { (pp,qq) : -1/dist(pp,qq)**alpha / 2
+                  for qq in range(spin_num) for pp in range(qq) }
+
+swap = sum( spin_op([op,op]) for op in ["X","Y","Z","I"] ).real
+H_0 = sum( coupling * spin_op(swap, pp_qq)
+           for pp_qq, coupling in couplings_sun.items() )
+
+ZZ = sum( coupling * spin_op(["Z","Z"], pp_qq)
+          for pp_qq, coupling in couplings_sun.items() )
+
+chi_eff_bare = 1/2 * np.mean(list(couplings_sun.values()))
+
+def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
+    print("coupling_zz:",coupling_zz)
+
+    coupling_ratio = coupling_zz - 1
+
+    H = H_0 + coupling_ratio * ZZ
+    def _time_derivative(time, state):
+        return -1j * ( H @ state )
+
+    if coupling_ratio != 0:
+        chi_eff = coupling_ratio * chi_eff_bare
+        sim_time = max(max_time, max_tau * spin_num**(-2/3) / chi_eff)
+    else:
+        sim_time = max_time
+
+    ivp_solution = solve_ivp(_time_derivative, (0, sim_time), state_X,
+                             rtol = ivp_tolerance, atol = ivp_tolerance)
+
+    times = ivp_solution.t
+    states = ivp_solution.y
+    sqz = np.array([ spin_squeezing(spin_num, state, S_op_vec, SS_op_mat)
+                     for state in states.T ])
+
+    max_tt = int( np.argmin(sqz) * overshoot_ratio )
+    if max_tt == 0:
+        max_tt = len(times)
+    else:
+        max_tt = min(max_tt, len(times))
+
+    times = times[:max_tt]
+    sqz = sqz[:max_tt]
+
+    pops = { manifold : np.array([ abs(states[:,tt].conj() @ proj @ states[:,tt])
+                               for tt in range(len(times)) ])
+             for manifold, proj in projs.items() }
+    pops["\mathrm{ext}"] = 1 - sum( pop for pop in pops.values() )
+
+    return times, sqz, pops
+
+def name_tag(coupling_zz = None):
+    base_tag = f"N{spin_num}_D{lattice_dim}_a{alpha}"
+    if coupling_zz == None: return base_tag
+    else: return base_tag + f"_z{coupling_zz}"
+
+def pop_label(manifold, prefix = None):
+    label = r"$\braket{\mathcal{P}_{" + str(manifold) + r"}}$"
+    if prefix == None:
+        return label
+    else:
+        return prefix + " " + label
+
+if not os.path.isdir(fig_dir):
+    os.makedirs(fig_dir)
+
+def to_dB(sqz):
+    return 10*np.log10(np.array(sqz))
+
+##########################################################################################
+print("running inspection simulations")
+
+for coupling_zz in inspect_coupling_zz:
+    times, sqz, pops = simulate(coupling_zz)
+
+    title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}," \
+        + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
+
+    plt.figure(figsize = figsize)
+    plt.title(title_text)
+    plt.plot(times, to_dB(sqz), "k")
+    plt.ylim(plt.gca().get_ylim()[0], 0)
+    plt.xlabel(r"time ($J_\perp t$)")
+    plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
+    plt.tight_layout()
+
+    plt.savefig(fig_dir + f"squeezing_{name_tag(coupling_zz)}.pdf")
+
+    plt.figure(figsize = figsize)
+    plt.title(title_text)
+    for manifold, pops in pops.items():
+        plt.plot(times, pops, label = pop_label(manifold))
+    plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
+    plt.xlabel(r"time ($J_\perp t$)")
+    plt.ylabel("population")
+    plt.legend(loc = "best")
+    plt.tight_layout()
+
+    plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
+
+##########################################################################################
+print("running sweep simulations")
+
+sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
+sweep_results = [ simulate(coupling_zz) for coupling_zz in sweep_coupling_zz ]
+sweep_times, sweep_sqz, sweep_pops = zip(*sweep_results)
+
+sweep_min_sqz = [ min(sqz) for sqz in sweep_sqz ]
+min_sqz_idx = [ np.argmin(sqz) for sqz in sweep_sqz ]
+
+title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}$"
+
+plt.figure(figsize = figsize)
+plt.title(title_text)
+plt.plot(sweep_coupling_zz, to_dB(sweep_min_sqz), "ko")
+plt.ylim(plt.gca().get_ylim()[0], 0)
+plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
+plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
+plt.tight_layout()
+plt.savefig(fig_dir + f"squeezing_N{spin_num}_D{lattice_dim}_a{alpha}.pdf")
+
+manifolds = sweep_pops[0].keys()
+sweep_points = len(sweep_coupling_zz)
+
+sweep_pops = { manifold : [ sweep_pops[jj][manifold][:min_sqz_idx[jj]]
+                            for jj in range(sweep_points) ]
+               for manifold in manifolds }
+sweep_min_pops = { manifold : [ min(sweep_pops[manifold][jj])
+                                for jj in range(sweep_points) ]
+                   for manifold in manifolds }
+sweep_max_pops = { manifold : [ max(sweep_pops[manifold][jj])
+                                for jj in range(sweep_points) ]
+                   for manifold in manifolds }
+
+plt.figure(figsize = figsize)
+plt.title(title_text)
+plt.plot(sweep_coupling_zz, sweep_min_pops[0], "o", label = pop_label(0,"min"))
+for manifold, max_pops in sweep_max_pops.items():
+    if manifold == 0: continue
+    plt.plot(sweep_coupling_zz, max_pops, "o", label = pop_label(manifold,"max"))
+plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
+plt.ylabel("population")
+plt.legend(loc = "best")
+plt.tight_layout()
+plt.savefig(fig_dir + f"populations_N{spin_num}_D{lattice_dim}_a{alpha}.pdf")
