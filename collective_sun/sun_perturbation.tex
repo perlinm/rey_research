@@ -29,7 +29,6 @@
 \newcommand{\bk}{\Braket} % shorthand for braket notation
 
 \renewcommand{\c}{\cdot} % inner product
-\renewcommand{\oc}{\circ} % element-wise product
 
 \newcommand{\m}{\bm} % bold symbol
 \renewcommand{\v}{\vec} % arrow vector
@@ -45,30 +44,22 @@
 \newcommand{\y}{\text{y}}
 \newcommand{\z}{\text{z}}
 
-\newcommand{\B}{\mathcal{B}}
 \newcommand{\C}{\mathcal{C}}
-\newcommand{\D}{\mathcal{D}}
 \newcommand{\E}{\mathcal{E}}
+\newcommand{\G}{\mathcal{G}}
 \renewcommand{\H}{\mathcal{H}}
 \newcommand{\I}{\mathcal{I}}
-\newcommand{\K}{\mathcal{K}}
 \renewcommand{\L}{\mathcal{L}}
 \newcommand{\M}{\mathcal{M}}
-\newcommand{\N}{\mathcal{N}}
 \renewcommand{\O}{\mathcal{O}}
 \renewcommand{\P}{\mathcal{P}}
-\newcommand{\Q}{\mathcal{Q}}
-\newcommand{\R}{\mathcal{R}}
-\newcommand{\T}{\mathcal{T}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\V}{\mathcal{V}}
 \newcommand{\X}{\mathcal{X}}
-\newcommand{\Y}{\mathcal{Y}}
-\newcommand{\Z}{\mathcal{Z}}
 
+\newcommand{\PP}{\mathbb{P}}
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\TT}{\mathbb{T}}
-\newcommand{\VV}{\mathbb{V}}
 \newcommand{\ZZ}{\mathbb{Z}}
 
 \newcommand{\FS}{\text{FS}}
@@ -92,6 +83,13 @@
 \usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
 \setlist{nolistsep} % more compact spacing between environments
+
+% for drawing set (Venn) diagrams
+\usepackage{tikz}
+\tikzset{
+  baseline = (current bounding box.center)
+}
+\usetikzlibrary{math}
 
 %%% text markup
 \usepackage{color} % text color
@@ -325,7 +323,7 @@ symmetric manifold $\M_0$ by the two-body perturbation $\V_2$ in
 $\M_0$:
 \begin{align}
   H_2^{(1)} = \sum_O \sum_{p<q} w_{Opq} \P_0 O_{pq} \P_0
-  \EQFS \sum_O \sum_{p<q} w_{Opq} O_{0,1}
+  \EQFS \sum_O \sum_{p<q} w_{Opq} O_{1,2}
   \EQFS \sum_O \bar w_O \col{O},
 \end{align}
 where
@@ -714,9 +712,167 @@ $\p{h\circ w}_{pq}=\sum_k\p{h_{kp} w_{kq}+h_{kq}w_{pk}}$, so
 where $\bar h_{pq}=2h_{pq}-h_p-h_q$ with $h_p\equiv\sum_qh_{pq}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Simplifying operator products restricted to the fully
-  symmetric manifold}
+\section{Operator products restricted to the fully symmetric manifold}
 \label{sec:sym_prod}
+
+Given a system of $N$ spins, we wish to simplify a product of
+multi-body operators restricted to the fully symmetric manifold.  For
+$p$ multi-body operators, such a product takes the form
+\begin{align}
+  \P_0 \sp{\prod_{j\in\ZZ_p}
+    \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}} \P_0,
+  \label{eq:sym_prod_choice}
+\end{align}
+where $\P_0$ is a projector onto the fully symmetric manifold;
+$k\in\C_N\p{M_j}$ is a choice of $M_j$ distinct spins; $O_j\p{k}$
+denotes the action of a permutationally-symmetric $M_j$-body operator
+acting on spins $k$; and $w_j\p{k}$ is a scalar coefficient for
+$O_j\p{k}$.
+
+To simplify the product in \eqref{eq:sym_prod_choice}, we first write
+\begin{align}
+  \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}
+  = \prod_{j\in\ZZ_p} \f1{M_j!} \sum_{k\in\ZZ_N^{M_j}} w_j\p{k} O_j\p{k},
+  \label{eq:sym_prod_vec}
+\end{align}
+where we extend the definitions of $w_j\p{k}$ and $O_j\p{k}$ to all
+vectors $k\in\ZZ_N^{M_j}$ by defining symmetric rank-$M_j$ tensors
+$w_j$ and $O_j$ (where $O_j$ is an {\it operator-valued} tensor) for
+which $w_j\p{k}=O_j\p{k}=0$ if $k$ contains any repeated symbols.
+
+In order to project \eqref{eq:sym_prod_vec} onto the fully symmetric
+manifold, we need to collect terms whose operator content is
+equivalent up to a permutation of spins.  To this end, we classify
+terms in \eqref{eq:sym_prod_vec} by the numbers $g_S$ of indices
+shared by all tensors $w_j,O_j$ with $j\in S\subset\ZZ_p$.  For
+example, a term of the form $w_1\p{a,b,c,d} w_2\p{b,c,d} w_3\p{b}$
+with distinct indices $\p{a,b,c,d}\in\C_N\p{4}$ would have
+\begin{align}
+  g_{\set{1}} = 1,
+  &&
+  g_{\set{1,2,3}} = 1,
+  &&
+  g_{\set{1,2}} = 2,
+\end{align}
+and $g_S=0$ for all other subsets $S\subset\ZZ_3$.  This index
+assignment can be represented by the Venn diagram
+\begin{align}
+  \begin{tikzpicture}]
+    \tikzmath{
+      \scale = 0.7;
+      \rr = 2.5 * \scale;
+      \aa = \scale;
+      \bb = sqrt(3) * \aa;
+      \cc = 2 * \aa;
+      \topY = \cc + \rr;
+      \crossLeftRightUpper = sqrt(\rr*\rr - \bb*\bb) - \aa;
+      \dotTopY = ( \crossLeftRightUpper + \topY ) / 2;
+      \dotTopLeftHeight = \crossLeftRightUpper - \scale/5;
+      \dotTopLeftXFst = -\rr*0.48 - \scale/3;
+      \dotTopLeftXSnd = -\rr*0.48 + \scale/3;
+      \labelDist = \scale * 0.8;
+      \labelTopY = \topY + \labelDist;
+      \labelBottomX = \labelTopY * sqrt(3) / 2;
+      \labelBottomY = \labelTopY / 2;
+    }
+    \draw (0, \cc em) circle [radius = \rr em];
+    \draw (-\bb em, -\aa em) circle [radius = \rr em];
+    \draw (+\bb em, -\aa em) circle [radius = \rr em];
+    \node[draw,fill,shape=circle,scale=0.3] at (0,0) {};
+    \node[draw,fill,shape=circle,scale=0.3] at (0, \dotTopY em) {};
+    \node[draw,fill,shape=circle,scale=0.3]
+    at (\dotTopLeftXFst em, \dotTopLeftHeight em) {};
+    \node[draw,fill,shape=circle,scale=0.3]
+    at (\dotTopLeftXSnd em, \dotTopLeftHeight em) {};
+    \node at (0, \labelTopY em) {1};
+    \node at (-\labelBottomX em, -\labelBottomY em) {2};
+    \node at (+\labelBottomX em, -\labelBottomY em) {3};
+  \end{tikzpicture},
+  \label{eq:venn_diagram}
+\end{align}
+where $g_S$ is determined the number of dots at the intersection of
+the circles $j\in S$.  We denote an assignment of distinct indices
+according to choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ by $g$, where
+$\PP\p{\ZZ_p}$ is the power set (i.e.~set of all subsets) of $\ZZ_p$.
+Given a vector $\m M$ of the tensor ranks $M_j$, we then denote the
+set of all valid index assignments $g$ by $\G\p{\m M}$.  For
+consistency, all valid index assignments $g\in\G\p{\m M}$ must assign
+exactly $M_j$ indices to the rank-$M_j$ tensor $w_j$, i.e.~
+\begin{align}
+  \sum_{S\in\PP\p{\ZZ_p}\,:\,j\in S} g_S
+  = \sum_{R\in\PP\p{\ZZ_p\setminus\set{j}}} g_{\set{j}\cup R}
+  = M_j
+\end{align}
+for all $j\in\ZZ_p$.  In order to make the index assignments
+determined by choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ unique, we
+also enforce that $g_{\set{}}=0$ for all $g\in\G\p{\m M}$, which is
+equivalent to saying that every dot in the corresponding Venn diagram
+must lie within some circle.  The set of valid index assignments
+$\G\p{\m M}$ is then essentially the set of all Venn diagrams of the
+form in \eqref{eq:venn_diagram} with $p=\rank\p{\m M}$ circles and a
+total of $M_j$ dots within circle $j$.
+
+A classification of terms in \eqref{eq:sym_prod_vec} by index
+assignments $g\in\G\p{\m M}$ allows us to expand
+\begin{align}
+  \prod_{j\in\ZZ_p} \sum_{k\in\ZZ_N^{M_j}} w_j\p{k} O_j\p{k}
+  \EQFS \sum_{g\in\G\p{\m M}} \S\p{g} w\p{g} O\p{g},
+  \label{eq:sym_prod_group_start}
+\end{align}
+where $O\p{g}$ is an operator acquired assigning indices to the
+tensors $O_j$ in a manner consistent with $g$; $w\p{g}$ is a scalar
+acquired by summing over all indices assigned to the tensors $w_j$
+according to $g$; and $\S\p{g}$ is a symmetry factor accounting for
+the number of equivalent ways to assign indices according to $g$.
+
+In order to write out the factors in \eqref{eq:sym_prod_group_start}
+explicitly, we define the set of values that the distinct indices
+assigned according to $g$ can take,
+\begin{align}
+  \C_N\p{g}
+  \equiv \set{ k \in \bigotimes_{S\in\PP\p{\ZZ_p}} \C_N\p{g_S}
+    : \t{all elements of $k$ are distinct} }
+  \simeq \C_N\p{\sum_{S\in\PP\p{\ZZ_p}}g_S},
+\end{align}
+where each $k\in\C_N\p{g}$ has the natural decomposition
+$k=\p{k_S:S\in\PP\p{\ZZ_p}}$ with $k_S\in\C_N\p{g_S}$, and we define
+the restriction of $k\in\C_N\p{g}$ to values associated with the
+tensors $w_j,O_j$,
+\begin{align}
+  k_j \equiv \bigcup_{S\in\PP\p{\ZZ_p} : j\in S} k_S
+  = \bigcup_{R\in\PP\p{\ZZ_p\setminus\set{j}}} k_{\set{j}\cup R},
+\end{align}
+where the union of lists $k_S$ denotes a concatenation of those lists.  We then have that
+\begin{align}
+  w\p{g} \equiv \sum_{k\in\C_N\p{g}} \prod_{j\in\ZZ_p} w_j\p{k_j},
+  &&
+  O\p{g}
+  \equiv \prod_{j\in\ZZ_p} O_j\p{k_j}~\t{for some}~k\in\C_N\p{g},
+\end{align}
+and
+\begin{align}
+  \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} { M_j \choose g_S : j\in S }}
+  \sp{\prod_{S\in\PP\p{\ZZ_p}} \p{g_S!}^\abs{S}}
+  = \prod_{j\in\ZZ_p} M_j!,
+  \label{eq:sym_prod_symmetry}
+\end{align}
+where the first product in \eqref{eq:sym_prod_symmetry} contains multinomial coefficients
+\begin{align}
+  { M \choose a_1, a_2, \cdots, a_m }
+  \equiv \f{M!}{a_1!a_2!\cdots a_m!},
+\end{align}
+that account for the number of ways to partition the indices of each
+$w_j,O_j$ into sets of shared indices according to $g_S$ for all
+$j\in S$, and the second product in \eqref{eq:sym_prod_symmetry}
+accounts for the number of ways to permute each set of shared indices
+on every tensor.  The choice of $k\in\C_N\p{g}$ in the definition of
+$O\p{g}$ is irrelevant after projection onto the fully symmetric
+manifold.  Altogether, we have that
+\begin{align}
+  \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}
+  \EQFS \sum_{g\in\G\p{\m M}} w\p{g} O\p{g}.
+  \label{eq:sym_prod_group}
+\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body product}
@@ -808,7 +964,7 @@ $\p{p,q}=\p{k,\ell}$:
 \begin{align}
   \sum_{k<\ell}
   w_{Ok\ell} w_{Qk\ell} O_{k\ell} Q_{k\ell}
-  = \v{\m w}_O \c \v{\m w}_Q O_{0,1} Q_{0,1}.
+  = \v{\m w}_O \c \v{\m w}_Q O_{1,2} Q_{1,2}.
 \end{align}
 We then consider terms $p\in\set{k,\ell}$ and $q\notin\set{k,\ell}$ or
 vice versa:
@@ -816,11 +972,11 @@ vice versa:
   \f14 \sum_{\substack{k,\ell\\p\in\set{k,\ell}\\q\notin\set{k,\ell}}}
   w_{Ok\ell} w_{Qpq} O_{k\ell} Q_{pq}
   &\EQFS \f12 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}}
-  w_{Ok\ell} w_{Qkq} O_{0,1} Q_{1,2} \\
+  w_{Ok\ell} w_{Qkq} O_{1,2} Q_{2,3} \\
   \f14 \sum_{\substack{k,\ell\\p\notin\set{k,\ell}\\q\in\set{k,\ell}}}
   w_{Ok\ell} w_{Qpq} O_{k\ell} Q_{pq}
   &\EQFS \f12 \sum_{\substack{k,\ell\\q\notin\set{k,\ell}}}
-  w_{Ok\ell} w_{Qkq} O_{0,1} Q_{1,2},
+  w_{Ok\ell} w_{Qkq} O_{1,2} Q_{2,3},
 \end{align}
 where
 \begin{align}
@@ -835,7 +991,7 @@ $p,q\notin\set{k,\ell}$ are
   \f14 \sum_{\substack{k,\ell\\p,q\notin\set{k,\ell}}}
   w_{Ok\ell} w_{Qpq} O_{k\ell} Q_{pq}
   \EQFS \f14 \sum_{\substack{k,\ell\\p,q\notin\set{k,\ell}}}
-  w_{Ok\ell} w_{Qpq} O_{0,1} Q_{2,3},
+  w_{Ok\ell} w_{Qpq} O_{1,2} Q_{3,4},
 \end{align}
 where, using the fact that all $\v{\m w}_O$ are mean-zero,
 \begin{multline}
@@ -851,17 +1007,17 @@ Altogether, we thus have that
 \begin{multline}
   \P_0 \p{\V_2^\Delta}^2 \P_0
   \EQFS \sum_{O,Q}
-  \bigg[ \v{\m w}_O \c \v{\m w}_QO_{0,1} Q_{0,1}
+  \bigg[ \v{\m w}_O \c \v{\m w}_Q O_{1,2} Q_{1,2}
   + \p{\v w_O\c\v w_Q - 2 \v{\m w}_O \c \v{\m w}_Q}
-  O_{0,1} Q_{1,2} \\
+  O_{1,2} Q_{2,3} \\
     - \p{\v w_O \c \v w_Q - \v{\m w}_O \c \v{\m w}_Q}
-    O_{0,1} Q_{2,3} \bigg].
+    O_{1,2} Q_{3,4} \bigg].
   \label{eq:POQP}
 \end{multline}
 In principle, our next task is to write this result in terms of
 collective operators within the fully symmetric manifold; this task
 turns out to be rather non-trivial in general.  We therefore discuss
-the decomposition of multi-local operators (e.g.~$O_{0,1} Q_{1,2}$, a
+the decomposition of multi-local operators (e.g.~$O_{1,2} Q_{2,3}$, a
 3-local operator) into a sum of collective operators within the fully
 symmetric manifold in Appendix \ref{sec:multi_to_collective}.  At the
 end of Appendix \ref{sec:multi_to_collective}, we provide analytical
@@ -914,9 +1070,9 @@ eigenvectors of $\m h$ are plane waves of the form
 \end{align}
 where on a $D$-dimensional periodic lattice of $N=L^D$ spins, lattice
 sites are indexed by vectors
-$p\in\ZZ_L^D\simeq\set{0,1,\cdots,L-1}^D$, and wavenumbers take on
-values $k\in\ZZ_L^D\times2\pi/L$.  The corresponding eigenvalues of
-$\m h$ can be determined by expanding
+$p\in\ZZ_L^D\simeq\set{0,1,\cdots,L-1}^{\otimes D}$, and wavenumbers
+take on values $k\in\ZZ_L^D\times2\pi/L$.  The corresponding
+eigenvalues of $\m h$ can be determined by expanding
 \begin{align}
   \m h\c\v v_k = \sum_{p,q} h_{pq} e^{iq\c k} \ket{p}
   = \sum_{p,d} h_{p,p+d} e^{i\p{p+d}\c k} \ket{p}
@@ -952,7 +1108,7 @@ find solutions $\m w$ to the equation
 \end{align}
 which can be written in matrix form as
 \begin{align}
-  \bar{\m h}*\m w + \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h}
+  \bar{\m h} * \m w + \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h}
   = \Delta \m w,
   \label{eq:cond_2_ref}
 \end{align}
