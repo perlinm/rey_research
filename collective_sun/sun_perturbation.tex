@@ -715,38 +715,37 @@ where $\bar h_{pq}=2h_{pq}-h_p-h_q$ with $h_p\equiv\sum_qh_{pq}$.
 \section{Operator products restricted to the fully symmetric manifold}
 \label{sec:sym_prod}
 
-Given a system of $N$ spins, we wish to simplify a product of
-multi-body operators restricted to the fully symmetric manifold.  For
-$p$ multi-body operators, such a product takes the form
+Given a system of $N$ spins, we wish to project a product of
+multi-body operators onto the fully symmetric manifold.  For $p$
+multi-body operators, the projection of such a product takes the form
 \begin{align}
   \P_0 \sp{\prod_{j\in\ZZ_p}
     \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}} \P_0,
-  \label{eq:sym_prod_choice}
+  \label{eq:sym_prod_proj}
 \end{align}
 where $\P_0$ is a projector onto the fully symmetric manifold;
 $k\in\C_N\p{M_j}$ is a choice of $M_j$ distinct spins; $O_j\p{k}$
-denotes the action of a permutationally-symmetric $M_j$-body operator
-acting on spins $k$; and $w_j\p{k}$ is a scalar coefficient for
-$O_j\p{k}$.
+denotes the action of an $M_j$-body operator on spins $k$ that is
+invariant under permutations of $k$; and $w_j\p{k}$ is a scalar
+coefficient for $O_j\p{k}$.
 
-To simplify the product in \eqref{eq:sym_prod_choice}, we first write
+To simplify the product in \eqref{eq:sym_prod_proj}, we first write
 \begin{align}
   \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}
-  = \prod_{j\in\ZZ_p} \f1{M_j!} \sum_{k\in\ZZ_N^{M_j}} w_j\p{k} O_j\p{k},
+  = \prod_{j\in\ZZ_p} \f1{M_j!} \sum_{k\in\ZZ_N^{M_j}}
+  w_j\p{k} O_j\p{k},
   \label{eq:sym_prod_vec}
 \end{align}
 where we extend the definitions of $w_j\p{k}$ and $O_j\p{k}$ to all
 vectors $k\in\ZZ_N^{M_j}$ by defining symmetric rank-$M_j$ tensors
 $w_j$ and $O_j$ (where $O_j$ is an {\it operator-valued} tensor) for
-which $w_j\p{k}=O_j\p{k}=0$ if $k$ contains any repeated symbols.
-
-In order to project \eqref{eq:sym_prod_vec} onto the fully symmetric
-manifold, we need to collect terms whose operator content is
-equivalent up to a permutation of spins.  To this end, we classify
-terms in \eqref{eq:sym_prod_vec} by the numbers $g_S$ of indices
-shared by all tensors $w_j,O_j$ with $j\in S\subset\ZZ_p$.  For
-example, a term of the form $w_1\p{a,b,c,d} w_2\p{b,c,d} w_3\p{b}$
-with distinct indices $\p{a,b,c,d}\in\C_N\p{4}$ would have
+which $w_j\p{k}=O_j\p{k}=0$ if $k$ contains any repeated symbols.  We
+then collect terms whose operator content is equivalent up to a
+permutation of all spins.  To this end, we classify terms in
+\eqref{eq:sym_prod_vec} by the numbers $g_S$ of indices shared by all
+tensors $w_j,O_j$ with $j\in S\subset\ZZ_p$.  For example, a term of
+the form $w_1\p{a,b,c,d} w_2\p{b,c,d} w_3\p{b}$ with distinct indices
+$\p{a,b,c,d}\in\C_N\p{4}$ would have
 \begin{align}
   g_{\set{1}} = 1,
   &&
@@ -819,44 +818,52 @@ assignments $g\in\G\p{\m M}$ allows us to expand
   \EQFS \sum_{g\in\G\p{\m M}} \S\p{g} w\p{g} O\p{g},
   \label{eq:sym_prod_group_start}
 \end{align}
-where $O\p{g}$ is an operator acquired assigning indices to the
+where $O\p{g}$ is an operator acquired by assigning indices to the
 tensors $O_j$ in a manner consistent with $g$; $w\p{g}$ is a scalar
 acquired by summing over all indices assigned to the tensors $w_j$
 according to $g$; and $\S\p{g}$ is a symmetry factor accounting for
 the number of equivalent ways to assign indices according to $g$.
 
 In order to write out the factors in \eqref{eq:sym_prod_group_start}
-explicitly, we define the set of values that the distinct indices
-assigned according to $g$ can take,
+explicitly, we define
+\begin{align}
+  \abs{g} \equiv \sum_{S\in\PP\p{\ZZ_p}} g_S,
+\end{align}
+which is equivalent to the total number of dots in the Venn diagram
+associated with $g$, and identify the set of values that the distinct
+indices assigned according to $g$ can take:
 \begin{align}
   \C_N\p{g}
   \equiv \set{ k \in \bigotimes_{S\in\PP\p{\ZZ_p}} \C_N\p{g_S}
     : \t{all elements of $k$ are distinct} }
-  \simeq \C_N\p{\sum_{S\in\PP\p{\ZZ_p}}g_S},
+  \simeq \C_N\p{\abs{g}},
 \end{align}
 where each $k\in\C_N\p{g}$ has the natural decomposition
-$k=\p{k_S:S\in\PP\p{\ZZ_p}}$ with $k_S\in\C_N\p{g_S}$, and we define
-the restriction of $k\in\C_N\p{g}$ to values associated with the
-tensors $w_j,O_j$,
+$k=\p{k_S:S\in\PP\p{\ZZ_p}}$ with $k_S\in\C_N\p{g_S}$.  We then define
+the restriction of $k\in\C_N\p{g}$ to values associated with $w_j$ and
+$O_j$:
 \begin{align}
   k_j \equiv \bigcup_{S\in\PP\p{\ZZ_p} : j\in S} k_S
   = \bigcup_{R\in\PP\p{\ZZ_p\setminus\set{j}}} k_{\set{j}\cup R},
 \end{align}
-where the union of lists $k_S$ denotes a concatenation of those lists.  We then have that
+where the union of lists $k_S$ denotes a concatenation of those lists.
+We then have that
 \begin{align}
   w\p{g} \equiv \sum_{k\in\C_N\p{g}} \prod_{j\in\ZZ_p} w_j\p{k_j},
   &&
-  O\p{g}
-  \equiv \prod_{j\in\ZZ_p} O_j\p{k_j}~\t{for some}~k\in\C_N\p{g},
+  O\p{g} \equiv \prod_{j\in\ZZ_p}
+  O_j\p{\ell_j}~\t{for some}~\ell\in\C_N\p{g},
 \end{align}
-and
+where the choice of $\ell\in\C_N\p{g}$ does not matter after
+projection onto fully symmetric manifold, and
 \begin{align}
   \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} { M_j \choose g_S : j\in S }}
   \sp{\prod_{S\in\PP\p{\ZZ_p}} \p{g_S!}^\abs{S}}
   = \prod_{j\in\ZZ_p} M_j!,
   \label{eq:sym_prod_symmetry}
 \end{align}
-where the first product in \eqref{eq:sym_prod_symmetry} contains multinomial coefficients
+where the first product in \eqref{eq:sym_prod_symmetry} contains
+multinomial coefficients
 \begin{align}
   { M \choose a_1, a_2, \cdots, a_m }
   \equiv \f{M!}{a_1!a_2!\cdots a_m!},
@@ -865,9 +872,9 @@ that account for the number of ways to partition the indices of each
 $w_j,O_j$ into sets of shared indices according to $g_S$ for all
 $j\in S$, and the second product in \eqref{eq:sym_prod_symmetry}
 accounts for the number of ways to permute each set of shared indices
-on every tensor.  The choice of $k\in\C_N\p{g}$ in the definition of
-$O\p{g}$ is irrelevant after projection onto the fully symmetric
-manifold.  Altogether, we have that
+on every tensor.  Altogether, the symmetry factors $\S\p{g}$ turn out
+to be independent of $g$, and cancel out exactly with the $\sim M_j!$
+prefactors in \eqref{eq:sym_prod_vec}, so
 \begin{align}
   \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}
   \EQFS \sum_{g\in\G\p{\m M}} w\p{g} O\p{g}.
