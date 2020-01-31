@@ -18,7 +18,6 @@
 \usepackage{lastpage} % for referencing last page
 \cfoot{\thepage~of \pageref{LastPage}} % "x of y" page labeling
 
-
 %%% symbols, notations, etc.
 \usepackage{physics,braket,bm,amssymb} % physics and math
 \renewcommand{\t}{\text} % text in math mode
@@ -84,12 +83,12 @@
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
 \setlist{nolistsep} % more compact spacing between environments
 
-% for drawing set (Venn) diagrams
-\usepackage{tikz}
-\tikzset{
-  baseline = (current bounding box.center)
-}
-\usetikzlibrary{math}
+%%% figures
+\usepackage{graphicx} % for figures
+\graphicspath{{./figures/}} % set path for all figures
+\usepackage[export]{adjustbox} % for vertical alignment in math
+\newcommand{\diagram}[1]
+{\,\includegraphics[valign=c]{diagrams/#1.pdf}\,}
 
 %%% text markup
 \usepackage{color} % text color
@@ -138,8 +137,8 @@ perturbations of the form
   \label{eq:perturbations}
 \end{align}
 where $p,q$ index individual spins; $v_{Xp}$ and $w_{Opq}$ are real
-numbers; $X$ is a trace-zero single-body operator on $\H_n$; $O$ is a
-trace-zero two-body operator on $\H_n\otimes\H_n$ that obeys pair-wise
+numbers; $X$ is a trace-zero single-spin operator on $\H_n$; $O$ is a
+trace-zero two-spin operator on $\H_n\otimes\H_n$ that obeys pair-wise
 permutational symmetry, i.e.~$O_{pq}=O_{qp}$; $\v v_X$ and $\v X$ are
 $N$-component vectors defined by
 \begin{align}
@@ -258,7 +257,7 @@ $\Delta$, then
 \end{align}
 Interestingly, the energy of the state $\V_1^\Delta\ket\psi$ depends
 only on the coefficients $\v v_X^\Delta$, and is entirely independent
-of the state $\ket\psi$ or the choice of a trace-zero single-body
+of the state $\ket\psi$ or the choice of a trace-zero single-spin
 operators $X$ used to build $\V_1^\Delta$.  Finding operators
 $\V_1^\Delta$ that generate eigenvectors of the interaction
 Hamiltonian $H_0$ when they act on fully symmetric states $\ket\psi$
@@ -308,7 +307,8 @@ Appendix \ref{sec:PXYP}.  In total, we find
 where $\EQFS$ denotes equality under a restriction to the fully
 symmetric manifold $\M_0$; $\v v_X^\Delta$ is the projection of
 $\v v_X$ onto the $\Delta$-eigenspace of the matrix $\m h-\diag\v h$;
-and for any single-body operator $Z$, we define the collective operator
+and for any single-spin operator $Z$, we define the collective
+operator
 \begin{align}
   \col{Z} \equiv \sum_p Z_p.
 \end{align}
@@ -332,8 +332,8 @@ where
   &&
   \col{O} \equiv \sum_{p<q} O_{pq},
 \end{align}
-are an average of $w_{Opq}$ and a collective version of the two-body
-operator $O_{pq}$.  If the two-body operator $O=X\otimes Y$, then
+are an average of $w_{Opq}$ and a collective version of the two-spin
+operator $O_{pq}$.  If the two-spin operator $O=X\otimes Y$, then
 \begin{align}
   H_2^{(1)} \EQFS \f12 \sum_{\p{X,Y}} \bar w_{\p{X,Y}}
   \p{\col{X}\,\col{Y} - \col{XY}}.
@@ -561,7 +561,7 @@ symmetric state, and $\V_M$ is an $M$-body perturbation of the form
 \begin{align}
   \V_M \equiv \sum_{k\in\C_N\p{M}} w_k O_k.
 \end{align}
-where $O$ is an $M$-body operator that is invariant under arbitrary
+where $O$ is an $M$-spin operator that is invariant under arbitrary
 permutation of its tensor factors; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
 a choice of $M$ distinct spins that $O$ acts on; and $\C_N\p{n}$ is a
 choice of $n$ elements from a set of $N$.
@@ -577,7 +577,7 @@ We first simplify
   \label{eq:H_V1_psi_start}
 \end{align}
 where without loss of generality we consider a single-body
-perturbation $\V_1$ built out of only one single-body operator $X$.
+perturbation $\V_1$ built out of only one single-spin operator $X$.
 The sum in \eqref{eq:H_V1_psi_start} has terms with $k\in\set{p,q}$,
 and terms with $k\notin\set{p,q}$.  In the case of $k\notin\set{p,q}$,
 the permutation operator $\Pi_{pq}$ commutes with $X_k$ and
@@ -627,7 +627,7 @@ We wish to simplify
   \label{eq:H_VM_psi_start}
 \end{align}
 where without loss of generality we consider an $M$-body perturbation
-$\V_M$ built out of only one $M$-body operator $O$.  The sum in
+$\V_M$ built out of only one $M$-spin operator $O$.  The sum in
 \eqref{eq:H_VM_psi_start} has terms with $p,q\in k$, terms with
 $p,q\notin k$, and terms with only one of $p$ or $q\in k$.  The
 permutation operator $\Pi_{pq}$ acts trivially on $O_k\ket\psi$ when
@@ -714,6 +714,8 @@ where $\bar h_{pq}=2h_{pq}-h_p-h_q$ with $h_p\equiv\sum_qh_{pq}$.
 \section{Operator products restricted to the fully symmetric manifold}
 \label{sec:sym_prod}
 
+\subsection{The general case}
+
 Given a system of $N$ spins, we wish to project a product of
 multi-body operators onto the fully symmetric manifold.  For $p$
 multi-body operators, the projection of such a product takes the form
@@ -724,7 +726,7 @@ multi-body operators, the projection of such a product takes the form
 \end{align}
 where $\P_0$ is a projector onto the fully symmetric manifold;
 $k\in\C_N\p{M_j}$ is a choice of $M_j$ distinct spins; $O_j\p{k}$
-denotes the action of an $M_j$-body operator on spins $k$ that is
+denotes the action of an $M_j$-spin operator on spins $k$ that is
 invariant under permutations of $k$; and $w_j\p{k}$ is a scalar
 coefficient for $O_j\p{k}$.
 
@@ -743,53 +745,25 @@ then collect terms whose operator content is equivalent up to a
 permutation of all spins.  To this end, we classify terms in
 \eqref{eq:sym_prod_vec} by the numbers $g_S$ of indices shared by all
 tensors $w_j,O_j$ with $j\in S\subset\ZZ_p$.  For example, a term of
-the form $w_1\p{a,b,c,d} w_2\p{b,c,d} w_3\p{b}$ with distinct indices
-$\p{a,b,c,d}\in\C_N\p{4}$ would have
+the form $w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}$ with distinct
+indices $\p{a,b,c,d,e}\in\C_N\p{5}$ would have
 \begin{align}
   g_{\set{1}} = 1,
   &&
   g_{\set{1,2,3}} = 1,
   &&
-  g_{\set{1,2}} = 2,
+  g_{\set{1,3}} = 1,
+  &&
+  g_{\set{2,3}} = 2,
 \end{align}
 and $g_S=0$ for all other subsets $S\subset\ZZ_3$.  This index
 assignment can be represented by the Venn diagram
 \begin{align}
-  \begin{tikzpicture}]
-    \tikzmath{
-      \scale = 0.7;
-      \rr = 2.5 * \scale;
-      \aa = \scale;
-      \bb = sqrt(3) * \aa;
-      \cc = 2 * \aa;
-      \topY = \cc + \rr;
-      \crossLeftRightUpper = sqrt(\rr*\rr - \bb*\bb) - \aa;
-      \dotTopY = ( \crossLeftRightUpper + \topY ) / 2;
-      \dotTopLeftHeight = \crossLeftRightUpper - \scale/5;
-      \dotTopLeftXFst = -\rr*0.48 - \scale/3;
-      \dotTopLeftXSnd = -\rr*0.48 + \scale/3;
-      \labelDist = \scale * 0.8;
-      \labelTopY = \topY + \labelDist;
-      \labelBottomX = \labelTopY * sqrt(3) / 2;
-      \labelBottomY = \labelTopY / 2;
-    }
-    \draw (0, \cc em) circle [radius = \rr em];
-    \draw (-\bb em, -\aa em) circle [radius = \rr em];
-    \draw (+\bb em, -\aa em) circle [radius = \rr em];
-    \node[draw,fill,shape=circle,scale=0.3] at (0,0) {};
-    \node[draw,fill,shape=circle,scale=0.3] at (0, \dotTopY em) {};
-    \node[draw,fill,shape=circle,scale=0.3]
-    at (\dotTopLeftXFst em, \dotTopLeftHeight em) {};
-    \node[draw,fill,shape=circle,scale=0.3]
-    at (\dotTopLeftXSnd em, \dotTopLeftHeight em) {};
-    \node at (0, \labelTopY em) {1};
-    \node at (-\labelBottomX em, -\labelBottomY em) {2};
-    \node at (+\labelBottomX em, -\labelBottomY em) {3};
-  \end{tikzpicture},
+  \diagram{example},
   \label{eq:venn_diagram}
 \end{align}
 where $g_S$ is determined the number of dots at the intersection of
-the circles $j\in S$.  We denote an assignment of distinct indices
+circles $j\in S$.  We denote an assignment of distinct indices
 according to choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ by $g$, where
 $\PP\p{\ZZ_p}$ is the power set (i.e.~set of all subsets) of $\ZZ_p$.
 Given a vector $\m M$ of the tensor ranks $M_j$, we then denote the
@@ -876,74 +850,77 @@ out with the $\sim M_j!$ prefactors in \eqref{eq:sym_prod_vec}, so
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Product of two single-body operators}
+\subsection{Two single-body operators}
 \label{sec:PXYP}
 
 Calculating the second-order effective Hamiltonian $H_1^{(2)}$ induced
 on the fully symmetric manifold $\M_0$ by the perturbation $\V_1$ in
 \eqref{eq:perturbations} requires us to simplify a product of the form
+
 \begin{align}
-  \P_0 \sp{\sum_{p,q} v_{Xp} v_{Yq} X_p Y_q} \P_0
-  \EQFS \sum_p v_{Xp} v_{Yp} X_1 Y_1
-  + \sum_{p\ne q} v_{Xp} v_{Yq} X_1 Y_2,
+  \P_0 \sp{\sum_{p,q} v_p w_q X_p Y_q} \P_0
+  \EQFS \diagram{single_body_0} X_1 Y_2
+  + \diagram{single_body_1} X_1 Y_1,
   \label{eq:PXYP_start}
 \end{align}
-where $X,Y$ are single-body operators; and the coefficients
-$v_{Xp},v_{Yq}$ satisfy \eqref{eq:cond_1} with eigenvalue
-$\Delta\ne0$, which implies that they are mean-zero.  The first sum on
-the right of \eqref{eq:PXYP_start} is then
+where $p,q$ index individual spins; $X,Y$ are single-spin operators;
+and the coefficients $v_p,w_q$ satisfy \eqref{eq:cond_1} with
+eigenvalue $\Delta\ne0$, which implies that they are mean-zero.
+Writing out
 \begin{align}
-  \sum_p v_{Xp} v_{Yp} X_1 Y_1
-  \EQFS \f1N \v v_X \c \v v_Y\, \col{XY},
+  \diagram{single_body_1}
+  \equiv \sum_p v_p w_p
+  = \v v\c\v w,
+\end{align}
+\begin{align}
+  \diagram{single_body_0}
+  \equiv \sum_{p\ne q} v_p w_q
+  = \sum_{p,q} v_p w_q - \sum_{p=q} v_p w_q
+  = - \v v \c\v w,
+\end{align}
+we thus have
+\begin{align}
+  \sum_{p,q} v_p w_q X_p Y_q
+  \EQFS - \v v\c\v w \p{X_1 Y_2 - X_1 Y_1},
+\end{align}
+This result is also simple to write in terms of collective operators,
+as
+\begin{align}
+  \col{X Y} \EQFS N X_1 Y_1,
   &&
-  \col{Z} \equiv \sum_p Z_p.
+  \col{Z} \equiv \sum_p Z_p,
 \end{align}
-To simplify the second sum on the right of \eqref{eq:PXYP_start}, we
-use the fact that $\v v$ is mean-zero to write
-\begin{align}
-  \sum_{p\ne q} v_{Xp} v_{Yq}
-  = \sum_{p,q} v_{Xp} v_{Yq} - \sum_{p=q} v_{Xp} v_{Yq}
-  = - \v v_X \c\v v_Y,
-\end{align}
-and we expand
 \begin{align}
   \col{X}\,\col{Y}
   = \sum_{p=q} X_p Y_q + \sum_{p\ne q} X_p Y_q
   \EQFS \col{XY} + N\p{N-1} X_1 Y_2,
 \end{align}
-which implies that
+so
 \begin{align}
-  \sum_{p\ne q} v_{Xp} v_{Yq} X_1 Y_2
-  \EQFS - \v v_X\c\v v_Y \p{\col{X}\,\col{Y} - \col{XY}}.
-\end{align}
-Altogether, we have that
-\begin{align}
-  \sum_{p,q} v_{Xp} v_{Yq} X_p Y_q
-  \EQFS - \f{\v v_X \c\v v_Y}{N\p{N-1}}
+  \sum_{p,q} v_p w_q X_p Y_q
+  \EQFS - \f{\v v \c\v w}{N\p{N-1}}
   \p{\col{X}\,\col{Y} - N \col{XY}}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Product of two two-body operators}
+\subsection{Two two-body operators}
 \label{sec:POQP}
 
 Calculating the second-order effective Hamiltonian $H_2^{(2)}$ induced
 on the fully symmetric manifold $\M_0$ by the perturbation $\V_2$ in
 \eqref{eq:perturbations} requires us to simplify
 \begin{multline}
-  \P_0 \sp{\sum_{\substack{k<l\\p<q}}
-    w_{Ok\ell} w_{Qpq} O_{k\ell} Q_{pq}} \P_0
-  \EQFS \sum_{p<q} w_{Opq} w_{Qpq} O_{1,2} Q_{1,2}
-  + \sum_{\substack{k,p,q\\k\ne p\ne q\ne k}}
-  w_{Okp} w_{Qkq} O_{1,2} Q_{1,3} \\
-  + \sum_{\substack{k<\ell\\p<q\\\set{k,\ell}\ne\set{p,q}}}
-  w_{Ok\ell} w_{Qpq} O_{1,2} Q_{3,4},
+  \P_0 \sp{\sum_{k<\ell} \sum_{p<q}
+    v_{k\ell} w_{pq} O_{k\ell} Q_{pq}} \P_0 \\
+  \EQFS \diagram{two_body_0} O_{1,2} Q_{3,4}
+  + \diagram{two_body_1} O_{1,2} Q_{1,3}
+  + \diagram{two_body_2} O_{1,2} Q_{1,2},
   \label{eq:POQP_start}
 \end{multline}
-where $O$ and $Q$ are permutationally-symmetric two-body operators;
-and the coefficients $w_{Ok\ell},w_{Qpq}$ satisfy \eqref{eq:cond_2}
-with eigenvalue $\Delta\ne0$, which implies that they are mean-zero.
-Defining
+where $k,\ell,p,q$ index individual spins; $O$ and $Q$ are
+permutationally-symmetric two-spin operators; and the coefficients
+$v_{k\ell},w_{pq}$ satisfy \eqref{eq:cond_2} with eigenvalue
+$\Delta\ne0$, which implies that they are mean-zero.  Defining
 \begin{align}
   \v{\m m} \equiv \sum_{p<q} m_{pq} \ket{\set{p,q}},
   &&
@@ -951,32 +928,83 @@ Defining
   &&
   m_p \equiv \sum_q m_{pq},
 \end{align}
-we can write the first sum on the right of \eqref{eq:POQP_start} as
+we can write out explicitly
 \begin{align}
-  \sum_{p<q} w_{Opq} w_{Qpq} = \v{\m w}_O \c\v{\m w}_Q,
+  \diagram{two_body_2}
+  \equiv \sum_{p<q} v_{pq} w_{pq} = \v{\m v} \c\v{\m w},
 \end{align}
-and, using the fact that $w_{Opp}=0$, we can write the second sum on
-the right of \eqref{eq:POQP_start} as
+and, using the fact that $v_{pp}=w_{pp}=0$,
 \begin{align}
-  \sum_{\substack{k,p,q\\k\ne p\ne q\ne k}} w_{Okp} w_{Qkq}
-  = \sum_{k,p} w_{Okp} \sum_{q\ne p} w_{Okq}
-  = \sum_{k,p} w_{Okp} \p{w_{Qk} - w_{Qkp}}
-  = \v w_O \c \v w_Q - 2 \v{\m w}_O \c \v{\m w}_Q.
+  \diagram{two_body_1}
+  \equiv \sum_{\substack{k,p,q\\k\ne p\ne q\ne k}} v_{kp} w_{kq}
+  = \sum_{k,p} v_{kp} \sum_{q\ne p} w_{kq}
+  = \sum_{k,p} v_{kp} \p{w_{k} - w_{kp}}
+  = \v v \c \v w - 2 \v{\m v} \c \v{\m w}.
 \end{align}
-Using additionally the fact that $w_{Opq},w_{Qpq}$ are mean-zero, we
-can similarly simplify
+Using additionally the fact that $v_{pq},w_{pq}$ are mean-zero, with
+some more work we can work out that
 \begin{align}
-  \sum_{\substack{p<q\\k<\ell\\\set{k,\ell}\ne\set{p,q}}}
-  w_{Ok\ell} w_{Qpq} = -\v w_O \c \v w_Q + \v{\m w}_O \c \v{\m w}_Q.
+  \diagram{two_body_0}
+  \equiv \sum_{k<\ell} \sum_{\substack{p<q\\p,q\notin\set{k,\ell}}}
+  v_{k\ell} w_{pq} = -\v v \c \v w + \v{\m v} \c \v{\m w}.
 \end{align}
 Altogether, we thus have that
 \begin{multline}
-  \sum_{\substack{k<l\\p<q}} w_{Ok\ell} w_{Qpq} O_{k\ell} Q_{pq}
-  \EQFS \v{\m w}_O \c \v{\m w}_Q O_{1,2} Q_{1,2}
-  + \p{\v w_O\c\v w_Q - 2 \v{\m w}_O \c \v{\m w}_Q} O_{1,2} Q_{1,3} \\
-  - \p{\v w_O \c \v w_Q - \v{\m w}_O \c \v{\m w}_Q} O_{1,2} Q_{3,4}.
+  \sum_{k<\ell} \sum_{p<q} v_{k\ell} w_{pq} O_{k\ell} Q_{pq} \\
+  \EQFS - \p{\v v \c \v w - \v{\m v} \c \v{\m w}} O_{1,2} Q_{3,4}
+  + \p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}} O_{1,2} Q_{1,3}
+  + \v{\m v} \c \v{\m w}\, O_{1,2} Q_{1,2}.
   \label{eq:POQP}
 \end{multline}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Three two-body Ising-like operators}
+
+Here we simplify a product of three two-body operators of a particular
+form projected onto the fully symmetric manifold:
+\begin{align}
+  \X \equiv \P_0 \sp{\sum_{k<\ell} \sum_{p<q} \sum_{r<s}
+    u_{k\ell} v_{pq} w_{rs} X_k X_\ell X_p X_q X_r X_s} \P_0,
+  &&
+  X^2 = 1,
+\end{align}
+where $k,\ell,p,q,r,s$ index individual spins; $X$ is a single-spin
+operator; and $u_{k\ell},v_{pq},w_{rs}$ are arbitrary scalar
+coefficients.  Collecting terms according to the number of $X$
+operators that remain after accounting for $X^2=1$, we find that
+\begin{align}
+  \X \EQFS A_6 X^{\otimes 6} + A_4 X^{\otimes 4} + A_2 X^{\otimes 2},
+\end{align}
+with
+\begin{align}
+  A_6 \equiv \diagram{triple_6},
+  &&
+  A_4 \equiv \diagram{triple_4_1} + \diagram{triple_4_0},
+  \label{eq:triple_64}
+\end{align}
+\begin{align}
+  A_2 \equiv \diagram{triple_2_0} + \diagram{triple_2_1}
+  + \diagram{triple_2_2} + \diagram{triple_2_3},
+  \label{eq:triple_2}
+\end{align}
+where a diagram with unlabeled circles implicitly contains a sum over
+all label assignments that result in a distinct diagram, e.g.
+\begin{align}
+  \diagram{triple_6} \equiv \diagram{triple_6_uvw},
+  \label{eq:trible_uvw}
+\end{align}
+\begin{align}
+  \diagram{triple_2_3} \equiv \diagram{triple_2_3_uvw}
+  + \diagram{triple_2_3_vwu} + \diagram{triple_2_3_wuv}.
+  \label{eq:trible_uvw_3}
+\end{align}
+The first diagram in each of $A_6,A_4,A_2$ as written in
+\eqref{eq:triple_64}, \eqref{eq:triple_2} thus has only one assignment
+of labels, as in \eqref{eq:trible_uvw}, while all other unlabeled
+diagrams have three assignments, as in \eqref{eq:trible_uvw_3}.
+
+\vspace{5cm}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Analytical results in translationally invariant systems}
