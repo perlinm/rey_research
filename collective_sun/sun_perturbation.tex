@@ -928,7 +928,7 @@ $\Delta\ne0$, which implies that they are mean-zero.  Defining
   &&
   m_p \equiv \sum_q m_{pq},
 \end{align}
-we can write out explicitly
+for $m\in\set{v,w}$, we can write out explicitly
 \begin{align}
   \diagram{two_body_2}
   \equiv \sum_{p<q} v_{pq} w_{pq} = \v{\m v} \c\v{\m w},
@@ -970,10 +970,12 @@ form projected onto the fully symmetric manifold:
 \end{align}
 where $k,\ell,p,q,r,s$ index individual spins; $X$ is a single-spin
 operator; and $u_{k\ell},v_{pq},w_{rs}$ are arbitrary scalar
-coefficients.  Collecting terms according to the number of $X$
+coefficients with $m_{pq}=m_{qp}$ and $m_{pp}=0$ for each of
+$m\in\set{u,v,w}$.  Collecting terms according to the number of $X$
 operators that remain after accounting for $X^2=1$, we find that
 \begin{align}
   \X \EQFS A_6 X^{\otimes 6} + A_4 X^{\otimes 4} + A_2 X^{\otimes 2},
+  \label{eq:triple_multi}
 \end{align}
 with
 \begin{align}
@@ -991,17 +993,36 @@ where a diagram with unlabeled circles implicitly contains a sum over
 all label assignments that result in a distinct diagram, e.g.
 \begin{align}
   \diagram{triple_6} \equiv \diagram{triple_6_uvw},
-  \label{eq:trible_uvw}
+  \label{eq:triple_uvw}
 \end{align}
 \begin{align}
   \diagram{triple_2_3} \equiv \diagram{triple_2_3_uvw}
   + \diagram{triple_2_3_vwu} + \diagram{triple_2_3_wuv}.
-  \label{eq:trible_uvw_3}
+  \label{eq:triple_uvw_3}
 \end{align}
 The first diagram in each of $A_6,A_4,A_2$ as written in
 \eqref{eq:triple_64}, \eqref{eq:triple_2} thus has only one assignment
-of labels, as in \eqref{eq:trible_uvw}, while all other unlabeled
-diagrams have three assignments, as in \eqref{eq:trible_uvw_3}.
+of labels, as in \eqref{eq:triple_uvw}, while all other unlabeled
+diagrams have three assignments, as in \eqref{eq:triple_uvw_3}.  We
+can write \eqref{eq:triple_multi} in terms of collective operators as
+\begin{align}
+  \X \EQFS
+  \tilde A_6 \col{X}^6 + \tilde A_4 \col{X}^4 + \tilde A_2 \col{X}^2,
+  \label{eq:triple_col}
+\end{align}
+where we have neglected scalar terms without physical consequence, and
+\begin{align}
+  \tilde A_6 \equiv \f{A_6}{N!_6},
+  &&
+  \tilde A_4 \equiv \f{A_4}{N!_4} - 5\p{3N-8} \f{A_6}{N!_6},
+\end{align}
+\begin{align}
+  \tilde A_2 \equiv \f{A_2}{N!_2} - 2\p{3N-4} \f{A_4}{N!_4}
+  + \p{45N^2-210N+184} \f{A_6}{N!_6}.
+\end{align}
+
+
+
 
 \vspace{5cm}
 
