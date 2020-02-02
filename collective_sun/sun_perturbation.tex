@@ -344,14 +344,15 @@ $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_VM_psi})
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
-  + \sum_O \sum_{p<q} \sp{\bar h_{pq} w_{Opq}
-    + \sum_k \p{h_{kp} w_{Okq} w_{Okq} + h_{kq} w_{Opk}}}
+  + \sum_O \sum_{p<q}
+  \sp{\sum_k \p{h_{kp} w_{Okq} w_{Okq} + h_{kq} w_{Opk}}
+  - \bar h_{pq} w_{Opq}}
   O_{pq} \ket\psi,
   \label{eq:H_V2_psi}
 \end{align}
 where to keep notation compact, we define
 \begin{align}
-  \bar h_{pq} \equiv 2 h_{pq} - h_p - h_q,
+  \bar h_{pq} \equiv h_p + h_q - 2 h_{pq},
   &&
   h_p \equiv \sum_q h_{pq},
 \end{align}
@@ -366,9 +367,10 @@ $\v{\m w}_O^\Delta$ all satisfy the eigenvalue equation
 \end{align}
 where
 \begin{align}
-  \check{\m h} \equiv \sum_{p<q} \bar h_{pq} \op{\set{p,q}}
-  + \sum_{p<q} \ket{\set{p,q}} \sum_{k\notin\set{p,q}}
-  \p{h_{kp} \bra{\set{k,q}} + h_{kq} \bra{\set{p,k}}}.
+  \check{\m h}
+  \equiv \sum_{p<q} \ket{\set{p,q}} \sp{\sum_{k\notin\set{p,q}}
+    \p{h_{kp} \bra{\set{k,q}} + h_{kq} \bra{\set{p,k}}}
+    - \bar h_{pq} \bra{\set{p,q}}}.
   \label{eq:h_super_mat}
 \end{align}
 Solving the general eigenvalue problem in \eqref{eq:cond_2} requires
@@ -648,16 +650,14 @@ $q$ with the restriction that $q\notin k$ into a sum over all $q$
 minus the remainder $q\in k$.  We thus find that
 \begin{align}
   \sum_{\substack{\p{p,q}\in\C_N\p{2}\\p,q\in k~\t{or}~p,q\notin k}} h_{pq}
-  = E_0 + \bar h_k,
+  = E_0 - \bar h_k,
   &&
-  \bar h_k \equiv 2\sum_{\p{p,q}\subset k} h_{pq} - \sum_{p\in k} h_p,
+  \bar h_k \equiv \sum_{p\in k}\p{h_p - \sum_{q\in k}h_{pq}},
   &&
-  h_p \equiv \sum_q h_{pq},
+  h_p \equiv \sum_q h_{pq}.
 \end{align}
-where the sum over $\p{p,q}\subset k$ denotes a sum over distinct
-choices of two elements in $k$.  The terms in
-\eqref{eq:H_VM_psi_start} with only one of $p\in k$ or $q\in k$,
-meanwhile, are
+The terms in \eqref{eq:H_VM_psi_start} with only one of $p\in k$ or
+$q\in k$, meanwhile, are
 \begin{align}
   \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{q\in k}
   h_{pq} w_k \Pi_{pq} O_k \ket\psi
@@ -692,10 +692,10 @@ we thus find that
 \begin{align}
   H_0 \V_M \ket\psi
   = E_0 \V_M \ket\psi + \sum_{k\in\C_N\p{M}}
-  \sp{\bar h_k w_k + \p{h\circ w}_k} O_k \ket\psi.
+  \sp{\p{h\circ w}_k - \bar h_k w_k} O_k \ket\psi.
 \end{align}
-If $M=1$, then $\bar h_k=-h_k$ and
-$\p{h\circ w}_k=\sum_\ell h_{k\ell}w_\ell$, so
+If $M=1$, then $\p{h\circ w}_k=\sum_\ell h_{k\ell}w_\ell$ and
+$\bar h_k=h_k$, so
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi + \sum_{k\in\ZZ_N}
@@ -707,11 +707,11 @@ so
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi + \sum_{\p{p,q}\in\C_N\p{2}}
-  \sp{\bar h_{pq} w_{pq} + \sum_{k\in\ZZ_N}
-    \p{h_{kp} w_{kq} + h_{kq} w_{pk}}}
+  \sp{\sum_{k\in\ZZ_N}\p{h_{kp} w_{kq} + h_{kq} w_{pk}}
+    - \bar h_{pq} w_{pq}}
   O_k \ket\psi,
 \end{align}
-where $\bar h_{pq}=2h_{pq}-h_p-h_q$ with $h_p\equiv\sum_qh_{pq}$.
+where $\bar h_{pq}=h_p+h_q-2h_{pq}$ with $h_p\equiv\sum_qh_{pq}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Operator products restricted to the fully symmetric manifold}
@@ -1096,34 +1096,34 @@ find that
 The two-body eigenvalue equation in \eqref{eq:cond_2} is designed to
 find solutions $\m w$ to the equation
 \begin{align}
-  \bar h_{pq} w_{pq}
-  + \sum_k \p{h_{pk} w_{kq} + w_{pk} h_{kq}}
+  \sum_k \p{h_{pk} w_{kq} + w_{pk} h_{kq}}
+  - \bar h_{pq} w_{pq}
   = \Delta w_{pq},
   &&
-  \bar h_{pq} \equiv 2h_{pq} - h_p - h_q,
+  \bar h_{pq} \equiv h_p + h_q - 2h_{pq},
   &&
   h_p \equiv \sum_q h_{pq},
   \label{eq:cond_2_ref_start}
 \end{align}
 which can be written in matrix form as
 \begin{align}
-  \bar{\m h} * \m w + \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h}
+  \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h} - \bar{\m h} * \m w
   = \Delta \m w,
   \label{eq:cond_2_ref}
 \end{align}
 where $\m h$, $\bar{\m h}$, and $\m w$ are matrices of all $h_{pq}$,
-$\bar h_{pq}$ and $w_{pq}$; $\bar{\m h}*\m w$ denotes an element-wise
-(Kronecker) product of $\bar{\m h}$ and $\m w$, i.e.~with matrix
-elements $\bar h_{pq}w_{pq}$; and
+$\bar h_{pq}$ and $w_{pq}$;
 $\P_{\t{off-diag}}\p{\m m}\equiv \m m-\sum_p\op{p}\m m\op{p}$ denotes
 the projection of $\m m$ onto the space of strictly off-diagonal
-matrices.  In order to find solutions to \eqref{eq:cond_2_ref} when
-the interaction Hamiltonian $H_0$ is translationally invariant, in
-which case $h_{pq}$ and $\bar h_{pq}$ depend only on the separation
-$\pm\p{p-q}$, we expand all matrices in a basis that the respects
-translational symmetry.  To this end, for all lattice displacements
-$d\in\ZZ_L^D$ and wavenumbers $k\in\ZZ_L^D\times2\pi/L$ we define the
-{\it cycle matrices}
+matrices; and $\bar{\m h}*\m w$ denotes an element-wise (Kronecker)
+product of $\bar{\m h}$ and $\m w$, i.e.~with matrix elements
+$\bar h_{pq}w_{pq}$.  In order to find solutions to
+\eqref{eq:cond_2_ref} when the interaction Hamiltonian $H_0$ is
+translationally invariant, in which case $h_{pq}$ and $\bar h_{pq}$
+depend only on the separation $\pm\p{p-q}$, we expand all matrices in
+a basis that the respects translational symmetry.  To this end, for
+all lattice displacements $d\in\ZZ_L^D$ and wavenumbers
+$k\in\ZZ_L^D\times2\pi/L$ we define the {\it cycle matrices}
 \begin{align}
   \m m_{dk} \equiv \sum_p e^{ip\c k} \op{p+d}{p},
   \label{eq:cycle}
@@ -1146,25 +1146,25 @@ and expand
 We can then write the condition in \eqref{eq:cond_2_ref} as a new set
 of conditions
 \begin{align}
-  \sum_{d\ne0} \bar h_{d,0} \tilde w_{dk} \m m_{dk}
-  + \sum_{\substack{c,d\\c+d\ne0}}
+  \sum_{\substack{c,d\\c+d\ne0}}
   h_{c,0} \tilde w_{dk} \p{1 + e^{-ic\c k}} \m m_{c+d,k}
+  - \sum_{d\ne0} \bar h_{d,0} \tilde w_{dk} \m m_{dk}
   = \Delta \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
 \end{align}
 that must hold for all wavenumbers $k$.  With some re-indexing, we can
 write
 \begin{align}
-  \sum_{d\ne0} \bar h_{d,0} \tilde w_{dk} \m m_{dk}
-  + \sum_{c,d\ne0} h_{d-c,0} \tilde w_{ck}
+  \sum_{c,d\ne0} h_{d-c,0} \tilde w_{ck}
   \p{1 + e^{-i\p{d-c}\c k}} \m m_{dk}
+  - \sum_{d\ne0} \bar h_{d,0} \tilde w_{dk} \m m_{dk}
   = \Delta \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
   \label{eq:cond_2_cycle}
 \end{align}
 and define
 \begin{align}
   \ut{\check{\m h}}_k
-  \equiv \sum_{d\ne0} \bar h_{d,0} \op{d}
-  + \sum_{c,d\ne0} h_{d-c,0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
+  \equiv \sum_{c,d\ne0} h_{d-c,0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c}
+  - \sum_{d\ne0} \bar h_{d,0} \op{d},
   &&
   \ut{\v{\m w}}_k \equiv \sum_{d\ne0} \tilde w_{dk} \ket{d},
   \label{eq:cycle_vecs}
@@ -1214,10 +1214,11 @@ energies $\Delta_k$ are
 In order to solve the two-body eigenvalue problem, we expand
 \begin{align}
   \ut{\check{\m h}}_k
-  &= \sum_{d\ne0} \sp{-2+2\p{N-1}} \op{d}
-  - \sum_{\substack{c,d\ne0\\c\ne d}} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c} \\
-  &= 2\p{N-1} \1_{N-1}
-  - \sum_{c,d\ne0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
+  &= -\sum_{\substack{c,d\ne0\\c\ne d}}
+  \p{1+e^{-i\p{d-c}\c k}} \op{d}{c}
+  + \sum_{d\ne0} \sp{2\p{N-1}-2} \op{d} \\
+  &= -\sum_{c,d\ne0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c}
+  + 2\p{N-1} \1_{N-1},
 \end{align}
 where $\1_{N-1}\equiv\sum_{d\ne0}\op{d}$ is the $\p{N-1}\times\p{N-1}$
 identity matrix, and define the vectors
@@ -1228,14 +1229,15 @@ identity matrix, and define the vectors
 in terms of which
 \begin{align}
   \ut{\check{\m h}}_k
-  = 2\p{N-1} \1_{N-1} -\p{N-1} \p{\op{\ut{0}} + \op{\ut{k}}}.
+  = 2 \p{N-1} \1_{N-1} - \p{N-1} \p{\op{\ut{0}} + \op{\ut{k}}}.
 \end{align}
 The vectors $\ket{\ut{p}}$ are normalized, but not orthogonal:
 $\braket{\ut{p}|\ut{q}}=\delta_{pq}-\p{1-\delta_{pq}}/\p{N-1}$.  We
 therefore have
 \begin{align}
   \ut{\check{\m h}}_k
-  = 2\p{N-1} \1_{N-1} - \sum_{s\in\set{\pm}} \varepsilon_s \op{\ut{k}^s}
+  = 2 \p{N-1} \1_{N-1}
+  - \sum_{s\in\set{\pm}} \varepsilon_s \op{\ut{k}^s}
 \end{align}
 where
 \begin{align}
