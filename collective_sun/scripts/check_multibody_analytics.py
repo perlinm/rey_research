@@ -104,7 +104,7 @@ def act(op, indices):
     return np.reshape(op, (dim**spins, dim**spins))
 
 ##########################################################################################
-# construct projector onto the fully symmetric manifold
+# methods to construct the product of multi-body operators from set diagrams
 ##########################################################################################
 
 # build random multi-body operators, each defined by a tensor and a "base" operator
@@ -175,5 +175,43 @@ for set_diagram in set_diagrams(ranks):
 
     simp_op += diagram_coefficient * ( sym_proj @ diagram_op @ sym_proj )
 
-# check whether the exact and simplified products of multi-body operators are equal
+# verify that the exact and simplified products of multi-body operators are equal
 print(abs(simp_op-exact_op).max() < cutoff)
+
+##########################################################################################
+# methods to verify the multi-body eigenvalue problem
+##########################################################################################
+
+# build random SU(n)-symmetric interaction Hamiltonian
+sun_coeffs = random_tensor(2)
+swap = sum( ( lambda op : np.kron(op.transpose(),op) )
+            ( np.kron(unit_vector(dim,nu),
+                      unit_vector(dim,mu)) )
+            for mu in range(dim) for nu in range(dim) )
+sun_interactions = sum( sun_coeffs[pp,qq] * act(swap,[pp,qq])
+                        for pp in range(spins) for qq in range(pp) )
+
+# build objects that appear in the multi-body eigenvalue problem
+sym_energy = sun_coeffs.sum()/2
+sun_coeff_vec = sum(sun_coeffs)
+def _coeff_mod(spin_choice):
+    pos = sum( sun_coeffs[pp,qq] for pp,qq in it.combinations(spin_choice, 2) )
+    neg = sum( sun_coeff_vec[pp] for pp in spin_choice )
+    return 2 * pos - neg
+def _coeff_zip_tensor(tensor):
+    return sum( np.tensordot(sun_coeffs, tensor, axes = [ 1, jj ])
+                for jj in range(tensor.ndim) )
+
+# verify the multi-body eigenvalue problem for every multi-body operator that we built
+for tensor, base_op, full_op in zip(tensors, base_ops, full_ops):
+    exact = sun_interactions @ full_op @ sym_proj
+
+    _coeff_zip = _coeff_zip_tensor(tensor)
+    remaining_op = sum( ( _coeff_mod(idx) * tensor[idx] + _coeff_zip[idx] )
+                        * act(base_op, idx)
+                        for idx in it.combinations(range(spins), tensor.ndim))
+
+    simpl = ( sym_energy * full_op + remaining_op ) @ sym_proj
+    print(abs(simp_op-exact_op).max() < cutoff)
+
+

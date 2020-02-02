@@ -613,6 +613,7 @@ which implies
   = E_0 \V_1 \ket\psi
   + \sum_p \p{\sum_{q} h_{pq} v_q - h_p v_p}
   X_p \ket\psi.
+  \label{eq:H_V1_psi_end}
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -683,9 +684,9 @@ Defining
   \equiv \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{j=1}^M
   h_{pk_j} w_{k_{jp}}
   = \sum_{\substack{p\in\ZZ_N\\p\notin k}}
-  \p{h_{pk_1} w_{pk_2k_3\cdots k_M}
-    + h_{pk_2} w_{k_1pk_3\cdots k_M}
-    + \cdots + h_{pk_M} w_{k_1k_2\cdots k_{M-1} p}},
+  \p{h_{k_1 p} w_{pk_2k_3\cdots k_M}
+    + h_{k_2 p} w_{k_1pk_3\cdots k_M}
+    + \cdots + h_{k_M p} w_{k_1k_2\cdots k_{M-1} p}},
 \end{align}
 we thus find that
 \begin{align}
@@ -698,14 +699,16 @@ $\p{h\circ w}_k=\sum_\ell h_{k\ell}w_\ell$, so
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi + \sum_{k\in\ZZ_N}
-  \p{\sum_\ell h_{k\ell} w_\ell - h_k w_k} O_k \ket\psi.
+  \p{\sum_{\ell\in\ZZ_N} h_{k\ell} w_\ell - h_k w_k} O_k \ket\psi,
 \end{align}
-If $M=2$, then
-$\p{h\circ w}_{pq}=\sum_k\p{h_{kp} w_{kq}+h_{kq}w_{pk}}$, so
+which is precisely what we found in \eqref{eq:H_V1_psi_end}.  If
+$M=2$, then $\p{h\circ w}_{pq}=\sum_k\p{h_{kp} w_{kq}+h_{kq}w_{pk}}$,
+so
 \begin{align}
   H_0 \V_2 \ket\psi
-  = E_0 \V_2 \ket\psi + \sum_{p<q}
-  \sp{\bar h_{pq} w_{pq} + \sum_k\p{h_{kp} w_{kq} + h_{kq} w_{pk}}}
+  = E_0 \V_2 \ket\psi + \sum_{\p{p,q}\in\C_N\p{2}}
+  \sp{\bar h_{pq} w_{pq} + \sum_{k\in\ZZ_N}
+    \p{h_{kp} w_{kq} + h_{kq} w_{pk}}}
   O_k \ket\psi,
 \end{align}
 where $\bar h_{pq}=2h_{pq}-h_p-h_q$ with $h_p\equiv\sum_qh_{pq}$.
@@ -1028,7 +1031,7 @@ where we have neglected scalar terms without physical consequence, and
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Analytical results in translationally invariant systems}
+\section{Making use of translational invariance}
 \label{sec:trans_inv}
 
 Here we simplify the eigenvalue problems that appear at second order
