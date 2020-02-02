@@ -185,8 +185,8 @@ print(abs(simp_op-exact_op).max() < cutoff)
 # build random SU(n)-symmetric interaction Hamiltonian
 sun_coeffs = random_tensor(2)
 swap = sum( ( lambda op : np.kron(op.transpose(),op) )
-            ( np.kron(unit_vector(dim,nu),
-                      unit_vector(dim,mu)) )
+            ( np.outer(unit_vector(dim,nu),
+                       unit_vector(dim,mu)) )
             for mu in range(dim) for nu in range(dim) )
 sun_interactions = sum( sun_coeffs[pp,qq] * act(swap,[pp,qq])
                         for pp in range(spins) for qq in range(pp) )
@@ -195,23 +195,28 @@ sun_interactions = sum( sun_coeffs[pp,qq] * act(swap,[pp,qq])
 sym_energy = sun_coeffs.sum()/2
 sun_coeff_vec = sum(sun_coeffs)
 def _coeff_mod(spin_choice):
-    pos = sum( sun_coeffs[pp,qq] for pp,qq in it.combinations(spin_choice, 2) )
-    neg = sum( sun_coeff_vec[pp] for pp in spin_choice )
-    return 2 * pos - neg
+    return sum( sun_coeff_vec[pp] - sum( sun_coeffs[pp,qq] for qq in spin_choice )
+                for pp in spin_choice )
 def _coeff_zip_tensor(tensor):
-    return sum( np.tensordot(sun_coeffs, tensor, axes = [ 1, jj ])
-                for jj in range(tensor.ndim) )
+    axes = tensor.ndim
+    def _zip_axis(axis):
+        prod = np.tensordot(sun_coeffs, tensor, axes = [ 1, axis ])
+        old_order = [ axis ] + [ jj for jj in range(axes) if jj != axis ]
+        new_order = np.arange(axes)[np.argsort(old_order)]
+        return np.transpose(prod, axes = new_order)
+    return sum( _zip_axis(axis) for axis in range(axes) )
 
 # verify the multi-body eigenvalue problem for every multi-body operator that we built
 for tensor, base_op, full_op in zip(tensors, base_ops, full_ops):
     exact = sun_interactions @ full_op @ sym_proj
 
     _coeff_zip = _coeff_zip_tensor(tensor)
-    remaining_op = sum( ( _coeff_mod(idx) * tensor[idx] + _coeff_zip[idx] )
+    remaining_op = sum( ( _coeff_zip[idx] - _coeff_mod(idx) * tensor[idx] )
                         * act(base_op, idx)
-                        for idx in it.combinations(range(spins), tensor.ndim))
+                        for idx in it.combinations(range(spins), tensor.ndim) )
 
     simpl = ( sym_energy * full_op + remaining_op ) @ sym_proj
-    print(abs(simp_op-exact_op).max() < cutoff)
+
+    print(abs(simpl-exact).max() < cutoff)
 
 
