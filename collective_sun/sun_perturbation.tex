@@ -158,19 +158,19 @@ two distinct spins $p,q$.
 
 If the coefficients $h_{pq}$ of the interaction Hamiltonian $H_0$ are
 all negative, then the ground-state manifold $\M_0$ of the interaction
-Hamiltonian $H_0$ consists of fully symmetric states that are
-simultaneous $+1$ eigenstates of all permutation operators $\Pi_{pq}$.
-We will adopt the restriction that all $h_{pq}<0$ throughout these
-notes, but note that this restriction can be relaxed to the assumption
-that the initial state of the spins is fully symmetric (e.g.~a
-spin-polarized state).  We will also assume throughout these notes
-that the fully symmetric manifold $\M_0$ is gapped away from all other
-states by an interaction energy difference that is large compared to
-any coupling between $\M_0$ and its orthogonal complement.  Power-law
-couplings of the form $h_{pq}=-h/\abs{p-q}^\alpha$ on a
-$D$-dimensional lattice, for example, yield a non-vanishing spectral
-gap in the thermodynamic limit when $\alpha\le D$ (see Appendix
-\ref{sec:gap}).
+Hamiltonian $H_0$ consists of permutationally symmetric states that
+are simultaneous $+1$ eigenstates of all permutation operators
+$\Pi_{pq}$.  We will adopt the restriction that all $h_{pq}<0$
+throughout these notes, but note that this restriction can be relaxed
+to the assumption that the initial state of the spins is
+permutationally symmetric (e.g.~a spin-polarized state).  We will also
+assume throughout these notes that the permutationally symmetric
+manifold $\M_0$ is gapped away from all other states by an interaction
+energy difference that is large compared to any coupling between
+$\M_0$ and its orthogonal complement.  Power-law couplings of the form
+$h_{pq}=-h/\abs{p-q}^\alpha$ on a $D$-dimensional lattice, for
+example, yield a non-vanishing spectral gap in the thermodynamic limit
+when $\alpha\le D$ (see Appendix \ref{sec:gap}).
 
 The effective Hamiltonian $H_M$ induced on the ground-state manifold
 $\M_0$ by an $M$-body perturbation $\V_M$ through second order in
@@ -187,12 +187,14 @@ perturbation theory is given by\cite{bravyi2011schrieffer,
 \end{align}
 where $\P_\Delta$ is a projector onto the eigenspace of the
 interaction Hamiltonian $H_0$, with interaction energy $\Delta$ above
-that of fully symmetric manifold $\M_0$; that is, the interaction
-energy of states in the image of $\P_\Delta$ is $E_0+\Delta$, where
+that of permutationally symmetric manifold $\M_0$; that is, the
+interaction energy of states in the image of $\P_\Delta$ is
+$E_0+\Delta$, where
 \begin{align}
   E_0 = \sum_{p<q} h_{pq}
 \end{align}
-is the interaction energy of fully symmetric states $\ket\psi\in\M_0$.
+is the interaction energy of permutationally symmetric states
+$\ket\psi\in\M_0$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Single-body perturbations}
@@ -216,8 +218,8 @@ symmetric manifold $\M_0$, and
 \end{align}
 are respectively the mean value in $\v v_X$ and the collective version
 of $X$.  In order to compute the second order effective Hamiltonian
-$H_1^{(2)}$, we first choose an arbitrary fully symmetric state
-$\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V1_psi}):
+$H_1^{(2)}$, we first choose an arbitrary permutationally symmetric
+state $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_V1_psi}):
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi
@@ -260,19 +262,19 @@ only on the coefficients $\v v_X^\Delta$, and is entirely independent
 of the state $\ket\psi$ or the choice of a trace-zero single-spin
 operators $X$ used to build $\V_1^\Delta$.  Finding operators
 $\V_1^\Delta$ that generate eigenvectors of the interaction
-Hamiltonian $H_0$ when they act on fully symmetric states $\ket\psi$
-thus reduces to finding eigenvectors of the interaction matrix
-$\m h-\diag\v h$.
+Hamiltonian $H_0$ when they act on permutationally symmetric states
+$\ket\psi\in\M_0$ thus reduces to finding eigenvectors of the
+interaction matrix $\m h-\diag\v h$.
 
-If the fully symmetric manifold $\M_0$ is gapped away from all other
-states, then then a vector $\V_1^\Delta\ket\psi$ with $\Delta=0$ must
-lie within the fully symmetric manifold $\M_0$, which implies that the
-operator $\V_1^\Delta$ preserves the permutational symmetry of $\M_0$.
-Indeed, a constant vector $\v\1\equiv\p{1,1,1,\cdots}$ of ones
-satisfies the condition in \eqref{eq:cond_1} with eigenvalue $0$,
-which implies that all vectors $\v v$ satisfying \eqref{eq:cond_1}
-with $\Delta\ne0$ must be orthogonal to $\v\1$, and therefore
-mean-zero.
+If the permutationally symmetric manifold $\M_0$ is gapped away from
+all other states, then then a vector $\V_1^\Delta\ket\psi$ with
+$\Delta=0$ must lie within the permutationally symmetric manifold
+$\M_0$, which implies that the operator $\V_1^\Delta$ preserves the
+permutational symmetry of $\M_0$.  Indeed, a constant vector
+$\v\1\equiv\p{1,1,1,\cdots}$ of ones satisfies the condition in
+\eqref{eq:cond_1} with eigenvalue $0$, which implies that all vectors
+$\v v$ satisfying \eqref{eq:cond_1} with $\Delta\ne0$ must be
+orthogonal to $\v\1$, and therefore mean-zero.
 
 We now return to the task of computing the second-order effective
 Hamiltonian $H_1^{(2)}$.  Any coefficient vector $\v v_X$ can be
@@ -286,8 +288,8 @@ expand
   \V_1^\Delta \equiv \sum_X \v v_X^\Delta \c \v X,
 \end{align}
 where each operator $\V_1^\Delta$ generates a state with definite
-interaction energy $\Delta$ above that of the fully symmetric manifold
-$\M_0$.  We can therefore simplify
+interaction energy $\Delta$ above that of the permutationally
+symmetric manifold $\M_0$.  We can therefore simplify
 \begin{align}
   H_1^{(2)}
   = - \P_0 \V_1 \E \V_1 \P_0
@@ -339,8 +341,8 @@ operator $O_{pq}$.  If the two-spin operator $O=X\otimes Y$, then
   \p{\col{X}\,\col{Y} - \col{XY}}.
 \end{align}
 In order to compute the second-order effective Hamiltonian
-$H_2^{(2)}$, as before we pick an arbitrary fully symmetric state
-$\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_VM_psi})
+$H_2^{(2)}$, as before we pick an arbitrary permutationally symmetric
+state $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_VM_psi})
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
@@ -552,14 +554,16 @@ It follows that the spectral gap
 which vanishes as $\epsilon\to0$ for all $\alpha>D$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Diagnosing perturbed states with the interaction Hamiltonian}
+\section{Constructing eigenstates of multi-body perturbations}
 \label{sec:H_VM_psi}
 
 In this section, we simplify the products of the form
-$H_0\V_M\ket\psi$ to arrive at the expansions in \eqref{eq:H_V1_psi}
-and \eqref{eq:H_V2_psi}.  Here $H_0$ is the SU($n$)-symmetric
-interaction Hamiltonian in \eqref{eq:ints}, $\ket\psi$ is a fully
-symmetric state, and $\V_M$ is an $M$-body perturbation of the form
+$H_0\V_M\ket\psi$ to arrive at expansions such as \eqref{eq:H_V1_psi}
+and \eqref{eq:H_V2_psi}, which define conditions under which a
+multi-body perturbation $\V_M$ generates eigenstates of the
+SU($n$)-symmetric interaction Hamiltonian $H_0$ in \eqref{eq:ints}
+when acting on a permutationally symmetric state $\ket\psi\in\M_0$.
+Here $\V_M$ is an $M$-body perturbation of the form
 \begin{align}
   \V_M \equiv \sum_{k\in\C_N\p{M}} w_k O_k.
 \end{align}
@@ -714,324 +718,8 @@ so
 where $\bar h_{pq}=h_p+h_q-2h_{pq}$ with $h_p\equiv\sum_qh_{pq}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Operator products restricted to the fully symmetric manifold}
-\label{sec:sym_prod}
-
-\subsection{The general case}
-
-Given a system of $N$ spins, we wish to project a product of
-multi-body operators onto the fully symmetric manifold.  For $p$
-multi-body operators, the projection of such a product takes the form
-\begin{align}
-  \P_0 \sp{\prod_{j\in\ZZ_p}
-    \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}} \P_0,
-  \label{eq:sym_prod_proj}
-\end{align}
-where $\P_0$ is a projector onto the fully symmetric manifold;
-$k\in\C_N\p{M_j}$ is a choice of $M_j$ distinct spins; $O_j\p{k}$
-denotes the action of an $M_j$-spin operator on spins $k$ that is
-invariant under permutations of $k$; and $w_j\p{k}$ is a scalar
-coefficient for $O_j\p{k}$.
-
-To simplify the product in \eqref{eq:sym_prod_proj}, we first write
-\begin{align}
-  \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}
-  = \prod_{j\in\ZZ_p} \f1{M_j!} \sum_{k\in\ZZ_N^{M_j}}
-  w_j\p{k} O_j\p{k},
-  \label{eq:sym_prod_vec}
-\end{align}
-where we extend the definitions of $w_j\p{k}$ and $O_j\p{k}$ to all
-vectors $k\in\ZZ_N^{M_j}$ by defining symmetric rank-$M_j$ tensors
-$w_j$ and $O_j$ (where $O_j$ is an {\it operator-valued} tensor) for
-which $w_j\p{k}=O_j\p{k}=0$ if $k$ contains any repeated symbols.  We
-then collect terms whose operator content is equivalent up to a
-permutation of all spins.  To this end, we classify terms in
-\eqref{eq:sym_prod_vec} by the numbers $g_S$ of indices shared by all
-tensors $w_j,O_j$ with $j\in S\subset\ZZ_p$.  For example, a term of
-the form $w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}$ with distinct
-indices $\p{a,b,c,d,e}\in\C_N\p{5}$ would have
-\begin{align}
-  g_{\set{1}} = 1,
-  &&
-  g_{\set{1,2,3}} = 1,
-  &&
-  g_{\set{1,3}} = 1,
-  &&
-  g_{\set{2,3}} = 2,
-\end{align}
-and $g_S=0$ for all other subsets $S\subset\ZZ_3$.  This index
-assignment can be represented by the Venn diagram
-\begin{align}
-  \diagram{example},
-  \label{eq:venn_diagram}
-\end{align}
-where $g_S$ is determined the number of dots at the intersection of
-circles $j\in S$.  We denote an assignment of distinct indices
-according to choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ by $g$, where
-$\PP\p{\ZZ_p}$ is the power set (i.e.~set of all subsets) of $\ZZ_p$.
-Given a vector $\m M$ of the tensor ranks $M_j$, we then denote the
-set of all valid index assignments $g$ by $\G\p{\m M}$.  For
-consistency, all valid index assignments $g\in\G\p{\m M}$ must assign
-exactly $M_j$ indices to the rank-$M_j$ tensor $w_j$, i.e.~
-\begin{align}
-  \sum_{S\in\PP\p{\ZZ_p}\,:\,j\in S} g_S
-  = \sum_{R\in\PP\p{\ZZ_p\setminus\set{j}}} g_{\set{j}\cup R}
-  = M_j
-\end{align}
-for all $j\in\ZZ_p$.  In order to make the index assignments
-determined by choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ unique, we
-also enforce that $g_{\set{}}=0$ for all $g\in\G\p{\m M}$, which is
-equivalent to saying that every dot in the corresponding Venn diagram
-must lie within some circle.  The set of valid index assignments
-$\G\p{\m M}$ is then essentially the set of all Venn diagrams of the
-form in \eqref{eq:venn_diagram} with $p=\rank\p{\m M}$ circles and a
-total of $M_j$ dots within circle $j$.
-
-A classification of terms in \eqref{eq:sym_prod_vec} by index
-assignments $g\in\G\p{\m M}$ allows us to expand
-\begin{align}
-  \prod_{j\in\ZZ_p} \sum_{k\in\ZZ_N^{M_j}} w_j\p{k} O_j\p{k}
-  \EQFS \sum_{g\in\G\p{\m M}} \S\p{g} w\p{g} O\p{g},
-  \label{eq:sym_prod_group_start}
-\end{align}
-where $\EQFS$ denotes equality up to a restriction to the fully
-symmetric manifold, $O\p{g}$ is an operator acquired by assigning
-indices to the tensors $O_j$ in a manner consistent with $g$; $w\p{g}$
-is a scalar acquired by summing over all indices assigned to the
-tensors $w_j$ according to $g$; and $\S\p{g}$ is a symmetry factor
-accounting for the number of equivalent ways to assign indices
-according to $g$.
-
-In order to write out the factors in \eqref{eq:sym_prod_group_start}
-explicitly, we identify the set of values that the distinct indices
-assigned according to $g$ can take:
-\begin{align}
-  \C_N\p{g}
-  \equiv \set{ k \in \bigotimes_{S\in\PP\p{\ZZ_p}} \C_N\p{g_S}
-    : \t{all elements of $k$ are distinct} },
-\end{align}
-where each $k\in\C_N\p{g}$ has the natural decomposition
-$k=\p{k_S:S\in\PP\p{\ZZ_p}}$ with $k_S\in\C_N\p{g_S}$.  We then define
-the restriction of $k\in\C_N\p{g}$ to values associated with $w_j$ and
-$O_j$:
-\begin{align}
-  k_j \equiv \bigcup_{S\in\PP\p{\ZZ_p} : j\in S} k_S
-  = \bigcup_{R\in\PP\p{\ZZ_p\setminus\set{j}}} k_{\set{j}\cup R},
-\end{align}
-where the union of lists $k_S$ denotes a concatenation of those lists.
-These definitions allow us to expand
-\begin{align}
-  w\p{g} \equiv \sum_{k\in\C_N\p{g}} \prod_{j\in\ZZ_p} w_j\p{k_j},
-  &&
-  O\p{g} \equiv \prod_{j\in\ZZ_p}
-  O_j\p{\ell_j}~\t{for some}~\ell\in\C_N\p{g},
-\end{align}
-where the choice of $\ell\in\C_N\p{g}$ does not matter after
-projection onto fully symmetric manifold, and
-\begin{align}
-  \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} { M_j \choose g_S : j\in S }}
-  \sp{\prod_{S\in\PP\p{\ZZ_p}} \p{g_S!}^\abs{S}}
-  = \prod_{j\in\ZZ_p} M_j!,
-  \label{eq:sym_prod_symmetry}
-\end{align}
-where the first product in \eqref{eq:sym_prod_symmetry} contains
-multinomial coefficients
-\begin{align}
-  { M \choose a_1, a_2, \cdots, a_m }
-  \equiv \f{M!}{a_1!a_2!\cdots a_m!},
-\end{align}
-that account for the number of ways to partition the indices of each
-$w_j,O_j$ into sets of shared indices according to $g_S$ for all
-$j\in S$, and the second product in \eqref{eq:sym_prod_symmetry}
-accounts for the number of ways to permute each set of shared indices
-on every tensor.  Altogether, the symmetry factors $\S\p{g}$ cancel
-out with the $\sim M_j!$ prefactors in \eqref{eq:sym_prod_vec}, so
-\begin{align}
-  \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}
-  \EQFS \sum_{g\in\G\p{\m M}} w\p{g} O\p{g}.
-  \label{eq:sym_prod_group}
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Two single-body operators}
-\label{sec:PXYP}
-
-Calculating the second-order effective Hamiltonian $H_1^{(2)}$ induced
-on the fully symmetric manifold $\M_0$ by the perturbation $\V_1$ in
-\eqref{eq:perturbations} requires us to simplify a product of the form
-
-\begin{align}
-  \P_0 \sp{\sum_{p,q} v_p w_q X_p Y_q} \P_0
-  \EQFS \diagram{single_body_0} X_1 Y_2
-  + \diagram{single_body_1} X_1 Y_1,
-  \label{eq:PXYP_start}
-\end{align}
-where $p,q$ index individual spins; $X,Y$ are single-spin operators;
-and the coefficients $v_p,w_q$ satisfy \eqref{eq:cond_1} with
-eigenvalue $\Delta\ne0$, which implies that they are mean-zero.
-Writing out
-\begin{align}
-  \diagram{single_body_1}
-  \equiv \sum_p v_p w_p
-  = \v v\c\v w,
-\end{align}
-\begin{align}
-  \diagram{single_body_0}
-  \equiv \sum_{p\ne q} v_p w_q
-  = \sum_{p,q} v_p w_q - \sum_{p=q} v_p w_q
-  = - \v v \c\v w,
-\end{align}
-we thus have
-\begin{align}
-  \sum_{p,q} v_p w_q X_p Y_q
-  \EQFS - \v v\c\v w \p{X_1 Y_2 - X_1 Y_1},
-\end{align}
-This result is also simple to write in terms of collective operators,
-as
-\begin{align}
-  \col{X Y} \EQFS N X_1 Y_1,
-  &&
-  \col{Z} \equiv \sum_p Z_p,
-\end{align}
-\begin{align}
-  \col{X}\,\col{Y}
-  = \sum_{p=q} X_p Y_q + \sum_{p\ne q} X_p Y_q
-  \EQFS \col{XY} + N\p{N-1} X_1 Y_2,
-\end{align}
-so
-\begin{align}
-  \sum_{p,q} v_p w_q X_p Y_q
-  \EQFS - \f{\v v \c\v w}{N\p{N-1}}
-  \p{\col{X}\,\col{Y} - N \col{XY}}.
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Two two-body operators}
-\label{sec:POQP}
-
-Calculating the second-order effective Hamiltonian $H_2^{(2)}$ induced
-on the fully symmetric manifold $\M_0$ by the perturbation $\V_2$ in
-\eqref{eq:perturbations} requires us to simplify
-\begin{multline}
-  \P_0 \sp{\sum_{k<\ell} \sum_{p<q}
-    v_{k\ell} w_{pq} O_{k\ell} Q_{pq}} \P_0 \\
-  \EQFS \diagram{two_body_0} O_{1,2} Q_{3,4}
-  + \diagram{two_body_1} O_{1,2} Q_{1,3}
-  + \diagram{two_body_2} O_{1,2} Q_{1,2},
-  \label{eq:POQP_start}
-\end{multline}
-where $k,\ell,p,q$ index individual spins; $O$ and $Q$ are
-permutationally-symmetric two-spin operators; and the coefficients
-$v_{k\ell},w_{pq}$ satisfy \eqref{eq:cond_2} with eigenvalue
-$\Delta\ne0$, which implies that they are mean-zero.  Defining
-\begin{align}
-  \v{\m m} \equiv \sum_{p<q} m_{pq} \ket{\set{p,q}},
-  &&
-  \v m \equiv \sum_p m_p \ket{p},
-  &&
-  m_p \equiv \sum_q m_{pq},
-\end{align}
-for $m\in\set{v,w}$, we can write out explicitly
-\begin{align}
-  \diagram{two_body_2}
-  \equiv \sum_{p<q} v_{pq} w_{pq} = \v{\m v} \c\v{\m w},
-\end{align}
-and, using the fact that $v_{pp}=w_{pp}=0$,
-\begin{align}
-  \diagram{two_body_1}
-  \equiv \sum_{\substack{k,p,q\\k\ne p\ne q\ne k}} v_{kp} w_{kq}
-  = \sum_{k,p} v_{kp} \sum_{q\ne p} w_{kq}
-  = \sum_{k,p} v_{kp} \p{w_{k} - w_{kp}}
-  = \v v \c \v w - 2 \v{\m v} \c \v{\m w}.
-\end{align}
-Using additionally the fact that $v_{pq},w_{pq}$ are mean-zero, with
-some more work we can work out that
-\begin{align}
-  \diagram{two_body_0}
-  \equiv \sum_{k<\ell} \sum_{\substack{p<q\\p,q\notin\set{k,\ell}}}
-  v_{k\ell} w_{pq} = -\v v \c \v w + \v{\m v} \c \v{\m w}.
-\end{align}
-Altogether, we thus have that
-\begin{multline}
-  \sum_{k<\ell} \sum_{p<q} v_{k\ell} w_{pq} O_{k\ell} Q_{pq} \\
-  \EQFS - \p{\v v \c \v w - \v{\m v} \c \v{\m w}} O_{1,2} Q_{3,4}
-  + \p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}} O_{1,2} Q_{1,3}
-  + \v{\m v} \c \v{\m w}\, O_{1,2} Q_{1,2}.
-  \label{eq:POQP}
-\end{multline}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Three two-body Ising-like operators}
-
-Here we simplify a product of three two-body operators of a particular
-form projected onto the fully symmetric manifold:
-\begin{align}
-  \X \equiv \P_0 \sp{\sum_{k<\ell} \sum_{p<q} \sum_{r<s}
-    u_{k\ell} v_{pq} w_{rs} X_k X_\ell X_p X_q X_r X_s} \P_0,
-  &&
-  X^2 = 1,
-\end{align}
-where $k,\ell,p,q,r,s$ index individual spins; $X$ is a single-spin
-operator; and $u_{k\ell},v_{pq},w_{rs}$ are arbitrary scalar
-coefficients with $m_{pq}=m_{qp}$ and $m_{pp}=0$ for each of
-$m\in\set{u,v,w}$.  Collecting terms according to the number of $X$
-operators that remain after accounting for $X^2=1$, we find that
-\begin{align}
-  \X \EQFS A_6 X^{\otimes 6} + A_4 X^{\otimes 4} + A_2 X^{\otimes 2},
-  \label{eq:triple_multi}
-\end{align}
-with
-\begin{align}
-  A_6 \equiv \diagram{triple_6},
-  &&
-  A_4 \equiv \diagram{triple_4_1} + \diagram{triple_4_0},
-  \label{eq:triple_64}
-\end{align}
-\begin{align}
-  A_2 \equiv \diagram{triple_2_0} + \diagram{triple_2_1}
-  + \diagram{triple_2_2} + \diagram{triple_2_3},
-  \label{eq:triple_2}
-\end{align}
-where a diagram with unlabeled circles implicitly contains a sum over
-all label assignments that result in a distinct diagram, e.g.
-\begin{align}
-  \diagram{triple_6} \equiv \diagram{triple_6_uvw},
-  \label{eq:triple_uvw}
-\end{align}
-\begin{align}
-  \diagram{triple_2_3} \equiv \diagram{triple_2_3_uvw}
-  + \diagram{triple_2_3_vwu} + \diagram{triple_2_3_wuv}.
-  \label{eq:triple_uvw_3}
-\end{align}
-The first diagram in each of $A_6,A_4,A_2$ as written in
-\eqref{eq:triple_64}, \eqref{eq:triple_2} thus has only one assignment
-of labels, as in \eqref{eq:triple_uvw}, while all other unlabeled
-diagrams have three assignments, as in \eqref{eq:triple_uvw_3}.  We
-can write \eqref{eq:triple_multi} in terms of collective operators as
-\begin{align}
-  \X \EQFS
-  \tilde A_6 \col{X}^6 + \tilde A_4 \col{X}^4 + \tilde A_2 \col{X}^2,
-  \label{eq:triple_col}
-\end{align}
-where we have neglected scalar terms without physical consequence, and
-\begin{align}
-  \tilde A_6 \equiv \f{A_6}{N!_6},
-  &&
-  \tilde A_4 \equiv \f{A_4}{N!_4} - 5\p{3N-8} \f{A_6}{N!_6},
-\end{align}
-\begin{align}
-  \tilde A_2 \equiv \f{A_2}{N!_2} - 2\p{3N-4} \f{A_4}{N!_4}
-  + \p{45N^2-210N+184} \f{A_6}{N!_6}.
-\end{align}
-
-
-
-
-\vspace{5cm}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Making use of translational invariance}
+\section{Constructing eigenstates of translationally invariant
+  systems}
 \label{sec:trans_inv}
 
 Here we simplify the eigenvalue problems that appear at second order
@@ -1179,8 +867,8 @@ The appearance of a wavenumber index $k$ in \eqref{eq:cond_2_square}
 implies that all fixed-$k$ components of a general coefficient matrix
 $\m w$ must simultaneously satisfy \eqref{eq:cond_2_square} in order
 to generate states of fixed excitation energy $\Delta$ when the
-corresponding perturbation $\V_2^\Delta$ acts on a fully symmetric
-state $\ket\psi\in\M_0$.  The decomposition of an arbitrary
+corresponding perturbation $\V_2^\Delta$ acts on a permutationally
+symmetric state $\ket\psi\in\M_0$.  The decomposition of an arbitrary
 coefficient vector $\v{\m w}=\sum_\Delta\v{\m w}_\Delta$ into
 coefficient vectors $\v{\m w}_\Delta$ that generate a
 fixed-excitation-energy perturbation $\V_2^\Delta$ is then performed
@@ -1282,30 +970,344 @@ while the energy of all orthogonal two-body excitations is
   \Delta_\perp \equiv 2\p{N-1}.
 \end{align}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Operator products restricted to the permutationally symmetric
+  manifold}
+\label{sec:sym_prod}
+
+\subsection{The general case}
+
+Given a system of $N$ spins, we wish to project a product of
+multi-body operators onto the permutationally symmetric manifold.  For
+$p$ multi-body operators, the projection of such a product takes the
+form
+\begin{align}
+  \P_0 \sp{\prod_{j\in\ZZ_p}
+    \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}} \P_0,
+  \label{eq:sym_prod_proj}
+\end{align}
+where $\P_0$ is a projector onto the permutationally symmetric
+manifold; $k\in\C_N\p{M_j}$ is a choice of $M_j$ distinct spins;
+$O_j\p{k}$ denotes the action of an $M_j$-spin operator on spins $k$
+that is invariant under permutations of $k$; and $w_j\p{k}$ is a
+scalar coefficient for $O_j\p{k}$.
+
+To simplify the product in \eqref{eq:sym_prod_proj}, we first write
+\begin{align}
+  \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}
+  = \prod_{j\in\ZZ_p} \f1{M_j!} \sum_{k\in\ZZ_N^{M_j}}
+  w_j\p{k} O_j\p{k},
+  \label{eq:sym_prod_vec}
+\end{align}
+where we extend the definitions of $w_j\p{k}$ and $O_j\p{k}$ to all
+vectors $k\in\ZZ_N^{M_j}$ by defining symmetric rank-$M_j$ tensors
+$w_j$ and $O_j$ (where $O_j$ is an {\it operator-valued} tensor) for
+which $w_j\p{k}=O_j\p{k}=0$ if $k$ contains any repeated symbols.  We
+then collect terms whose operator content is equivalent up to a
+permutation of spins.  To this end, we classify terms in
+\eqref{eq:sym_prod_vec} by the numbers $g_S$ of indices shared by all
+tensors $w_j,O_j$ with $j\in S\subset\ZZ_p$.  For example, a term of
+the form $w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}$ with distinct
+indices $\p{a,b,c,d,e}\in\C_N\p{5}$ would have
+\begin{align}
+  g_{\set{1}} = 1,
+  &&
+  g_{\set{1,2,3}} = 1,
+  &&
+  g_{\set{1,3}} = 1,
+  &&
+  g_{\set{2,3}} = 2,
+\end{align}
+and $g_S=0$ for all other subsets $S\subset\ZZ_3$.  This index
+assignment can be represented by the Venn diagram
+\begin{align}
+  \diagram{example},
+  \label{eq:venn_diagram}
+\end{align}
+where $g_S$ is determined the number of dots at the intersection of
+circles $j\in S$.  We denote an assignment of distinct indices
+according to choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ by $g$, where
+$\PP\p{\ZZ_p}$ is the power set (i.e.~set of all subsets) of $\ZZ_p$.
+Given a vector $\m M$ of the tensor ranks $M_j$, we then denote the
+set of all valid index assignments $g$ by $\G\p{\m M}$.  For
+consistency, all valid index assignments $g\in\G\p{\m M}$ must assign
+exactly $M_j$ indices to the rank-$M_j$ tensor $w_j$, i.e.~
+\begin{align}
+  \sum_{S\in\PP\p{\ZZ_p}\,:\,j\in S} g_S
+  = \sum_{R\in\PP\p{\ZZ_p\setminus\set{j}}} g_{\set{j}\cup R}
+  = M_j
+\end{align}
+for all $j\in\ZZ_p$.  In order to make the index assignments
+determined by choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ unique, we
+also enforce that $g_{\set{}}=0$ for all $g\in\G\p{\m M}$, which is
+equivalent to saying that every dot in the corresponding Venn diagram
+must lie within some circle.  The set of valid index assignments
+$\G\p{\m M}$ is then essentially the set of all Venn diagrams of the
+form in \eqref{eq:venn_diagram} with $p=\rank\p{\m M}$ circles and a
+total of $M_j$ dots within circle $j$.
+
+A classification of terms in \eqref{eq:sym_prod_vec} by index
+assignments $g\in\G\p{\m M}$ allows us to expand
+\begin{align}
+  \prod_{j\in\ZZ_p} \sum_{k\in\ZZ_N^{M_j}} w_j\p{k} O_j\p{k}
+  \EQFS \sum_{g\in\G\p{\m M}} \S\p{g} w\p{g} O\p{g},
+  \label{eq:sym_prod_group_start}
+\end{align}
+where $\EQFS$ denotes equality up to a restriction to the fully
+symmetric manifold, $O\p{g}$ is an operator acquired by assigning
+indices to the tensors $O_j$ in a manner consistent with $g$; $w\p{g}$
+is a scalar acquired by summing over all indices assigned to the
+tensors $w_j$ according to $g$; and $\S\p{g}$ is a symmetry factor
+accounting for the number of equivalent ways to assign indices
+according to $g$.
+
+In order to write out the factors in \eqref{eq:sym_prod_group_start}
+explicitly, we identify the set of values that the distinct indices
+assigned according to $g$ can take:
+\begin{align}
+  \C_N\p{g}
+  \equiv \set{ k \in \bigotimes_{S\in\PP\p{\ZZ_p}} \C_N\p{g_S}
+    : \t{all elements of $k$ are distinct} },
+\end{align}
+where each $k\in\C_N\p{g}$ has the natural decomposition
+$k=\p{k_S:S\in\PP\p{\ZZ_p}}$ with $k_S\in\C_N\p{g_S}$.  We then define
+the restriction of $k\in\C_N\p{g}$ to values associated with $w_j$ and
+$O_j$:
+\begin{align}
+  k_j \equiv \bigcup_{S\in\PP\p{\ZZ_p} : j\in S} k_S
+  = \bigcup_{R\in\PP\p{\ZZ_p\setminus\set{j}}} k_{\set{j}\cup R},
+\end{align}
+where the union of lists $k_S$ denotes a concatenation of those lists.
+These definitions allow us to expand
+\begin{align}
+  w\p{g} \equiv \sum_{k\in\C_N\p{g}} \prod_{j\in\ZZ_p} w_j\p{k_j},
+  &&
+  O\p{g} \equiv \prod_{j\in\ZZ_p}
+  O_j\p{\ell_j}~\t{for some}~\ell\in\C_N\p{g},
+\end{align}
+where the choice of $\ell\in\C_N\p{g}$ does not matter after
+projection onto permutationally symmetric manifold, and
+\begin{align}
+  \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} { M_j \choose g_S : j\in S }}
+  \sp{\prod_{S\in\PP\p{\ZZ_p}} \p{g_S!}^\abs{S}}
+  = \prod_{j\in\ZZ_p} M_j!,
+  \label{eq:sym_prod_symmetry}
+\end{align}
+where the first product in \eqref{eq:sym_prod_symmetry} contains
+multinomial coefficients
+\begin{align}
+  { M \choose a_1, a_2, \cdots, a_m }
+  \equiv \f{M!}{a_1!a_2!\cdots a_m!},
+\end{align}
+that account for the number of ways to partition the indices of each
+$w_j,O_j$ into sets of shared indices according to $g_S$ for all
+$j\in S$, and the second product in \eqref{eq:sym_prod_symmetry}
+accounts for the number of ways to permute each set of shared indices
+on every tensor.  Altogether, the symmetry factors $\S\p{g}$ cancel
+out with the $\sim M_j!$ prefactors in \eqref{eq:sym_prod_vec}, so
+\begin{align}
+  \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}
+  \EQFS \sum_{g\in\G\p{\m M}} w\p{g} O\p{g}.
+  \label{eq:sym_prod_group}
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Two single-body operators}
+\label{sec:PXYP}
+
+Calculating the second-order effective Hamiltonian $H_1^{(2)}$ induced
+on the permutationally symmetric manifold $\M_0$ by the perturbation
+$\V_1$ in \eqref{eq:perturbations} requires us to simplify a product
+of the form
+
+\begin{align}
+  \P_0 \sp{\sum_{p,q} v_p w_q X_p Y_q} \P_0
+  \EQFS \diagram{single_body_0} X_1 Y_2
+  + \diagram{single_body_1} X_1 Y_1,
+  \label{eq:PXYP_start}
+\end{align}
+where $p,q$ index individual spins; $X,Y$ are single-spin operators;
+and the coefficients $v_p,w_q$ satisfy \eqref{eq:cond_1} with
+eigenvalue $\Delta\ne0$, which implies that they are mean-zero.
+Writing out
+\begin{align}
+  \diagram{single_body_1}
+  \equiv \sum_p v_p w_p
+  = \v v\c\v w,
+\end{align}
+\begin{align}
+  \diagram{single_body_0}
+  \equiv \sum_{p\ne q} v_p w_q
+  = \sum_{p,q} v_p w_q - \sum_{p=q} v_p w_q
+  = - \v v \c\v w,
+\end{align}
+we thus have
+\begin{align}
+  \sum_{p,q} v_p w_q X_p Y_q
+  \EQFS - \v v\c\v w \p{X_1 Y_2 - X_1 Y_1},
+\end{align}
+This result is also simple to write in terms of collective operators,
+as
+\begin{align}
+  \col{X Y} \EQFS N X_1 Y_1,
+  &&
+  \col{Z} \equiv \sum_p Z_p,
+\end{align}
+\begin{align}
+  \col{X}\,\col{Y}
+  = \sum_{p=q} X_p Y_q + \sum_{p\ne q} X_p Y_q
+  \EQFS \col{XY} + N\p{N-1} X_1 Y_2,
+\end{align}
+so
+\begin{align}
+  \sum_{p,q} v_p w_q X_p Y_q
+  \EQFS - \f{\v v \c\v w}{N\p{N-1}}
+  \p{\col{X}\,\col{Y} - N \col{XY}}.
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Two two-body operators}
+\label{sec:POQP}
+
+Calculating the second-order effective Hamiltonian $H_2^{(2)}$ induced
+on the permutationally symmetric manifold $\M_0$ by the perturbation
+$\V_2$ in \eqref{eq:perturbations} requires us to simplify
+\begin{multline}
+  \P_0 \sp{\sum_{k<\ell} \sum_{p<q}
+    v_{k\ell} w_{pq} O_{k\ell} Q_{pq}} \P_0 \\
+  \EQFS \diagram{two_body_0} O_{1,2} Q_{3,4}
+  + \diagram{two_body_1} O_{1,2} Q_{1,3}
+  + \diagram{two_body_2} O_{1,2} Q_{1,2},
+  \label{eq:POQP_start}
+\end{multline}
+where $k,\ell,p,q$ index individual spins; $O$ and $Q$ are
+permutationally-symmetric two-spin operators; and the coefficients
+$v_{k\ell},w_{pq}$ satisfy \eqref{eq:cond_2} with eigenvalue
+$\Delta\ne0$, which implies that they are mean-zero.  Defining
+\begin{align}
+  \v{\m m} \equiv \sum_{p<q} m_{pq} \ket{\set{p,q}},
+  &&
+  \v m \equiv \sum_p m_p \ket{p},
+  &&
+  m_p \equiv \sum_q m_{pq},
+\end{align}
+for $m\in\set{v,w}$, we can write out explicitly
+\begin{align}
+  \diagram{two_body_2}
+  \equiv \sum_{p<q} v_{pq} w_{pq} = \v{\m v} \c\v{\m w},
+\end{align}
+and, using the fact that $v_{pp}=w_{pp}=0$,
+\begin{align}
+  \diagram{two_body_1}
+  \equiv \sum_{\substack{k,p,q\\k\ne p\ne q\ne k}} v_{kp} w_{kq}
+  = \sum_{k,p} v_{kp} \sum_{q\ne p} w_{kq}
+  = \sum_{k,p} v_{kp} \p{w_{k} - w_{kp}}
+  = \v v \c \v w - 2 \v{\m v} \c \v{\m w}.
+\end{align}
+Using additionally the fact that $v_{pq},w_{pq}$ are mean-zero, with
+some more work we find that
+\begin{align}
+  \diagram{two_body_0}
+  \equiv \sum_{k<\ell} \sum_{\substack{p<q\\p,q\notin\set{k,\ell}}}
+  v_{k\ell} w_{pq} = -\v v \c \v w + \v{\m v} \c \v{\m w}.
+\end{align}
+Altogether, we thus have that
+\begin{multline}
+  \sum_{k<\ell} \sum_{p<q} v_{k\ell} w_{pq} O_{k\ell} Q_{pq} \\
+  \EQFS - \p{\v v \c \v w - \v{\m v} \c \v{\m w}} O_{1,2} Q_{3,4}
+  + \p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}} O_{1,2} Q_{1,3}
+  + \v{\m v} \c \v{\m w}\, O_{1,2} Q_{1,2}.
+  \label{eq:POQP}
+\end{multline}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Three two-body Ising-like operators}
+
+Here we simplify a product of three two-body operators of a particular
+form projected onto the permutationally symmetric manifold:
+\begin{align}
+  \X \equiv \P_0 \sp{\sum_{k<\ell} \sum_{p<q} \sum_{r<s}
+    u_{k\ell} v_{pq} w_{rs} X_k X_\ell X_p X_q X_r X_s} \P_0,
+  &&
+  X^2 = 1,
+\end{align}
+where $k,\ell,p,q,r,s$ index individual spins; $X$ is a single-spin
+operator; and $u_{k\ell},v_{pq},w_{rs}$ are arbitrary scalar
+coefficients with $m_{pq}=m_{qp}$ and $m_{pp}=0$ for each of
+$m\in\set{u,v,w}$.  Collecting terms according to the number of $X$
+operators that remain after accounting for $X^2=1$, we find that
+\begin{align}
+  \X \EQFS A_6 X^{\otimes 6} + A_4 X^{\otimes 4} + A_2 X^{\otimes 2},
+  \label{eq:triple_multi}
+\end{align}
+with
+\begin{align}
+  A_6 \equiv \diagram{triple_6},
+  &&
+  A_4 \equiv \diagram{triple_4_1} + \diagram{triple_4_0},
+  \label{eq:triple_64}
+\end{align}
+\begin{align}
+  A_2 \equiv \diagram{triple_2_0} + \diagram{triple_2_1}
+  + \diagram{triple_2_2} + \diagram{triple_2_3},
+  \label{eq:triple_2}
+\end{align}
+where a diagram with unlabeled circles implicitly contains a sum over
+all label assignments that result in a distinct diagram, e.g.
+\begin{align}
+  \diagram{triple_6} \equiv \diagram{triple_6_uvw},
+  \label{eq:triple_uvw}
+\end{align}
+\begin{align}
+  \diagram{triple_2_3} \equiv \diagram{triple_2_3_uvw}
+  + \diagram{triple_2_3_vwu} + \diagram{triple_2_3_wuv}.
+  \label{eq:triple_uvw_3}
+\end{align}
+The first diagram in each of $A_6,A_4,A_2$ as written in
+\eqref{eq:triple_64}, \eqref{eq:triple_2} thus has only one assignment
+of labels, as in \eqref{eq:triple_uvw}, while all other unlabeled
+diagrams have three assignments, as in \eqref{eq:triple_uvw_3}.  We
+can write \eqref{eq:triple_multi} in terms of collective operators as
+\begin{align}
+  \X \EQFS
+  \tilde A_6 \col{X}^6 + \tilde A_4 \col{X}^4 + \tilde A_2 \col{X}^2,
+  \label{eq:triple_col}
+\end{align}
+where we have neglected scalar terms without physical consequence, and
+\begin{align}
+  \tilde A_6 \equiv \f{A_6}{N!_6},
+  &&
+  \tilde A_4 \equiv \f{A_4}{N!_4} - 5\p{3N-8} \f{A_6}{N!_6},
+\end{align}
+\begin{align}
+  \tilde A_2 \equiv \f{A_2}{N!_2} - 2\p{3N-4} \f{A_4}{N!_4}
+  + \p{45N^2-210N+184} \f{A_6}{N!_6}.
+\end{align}
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \section{Collective and multi-local operators in the fully symmetric
-%   manifold}
+% \section{Collective and multi-local operators in the permutationally
+%   symmetric manifold}
 % \label{sec:multi_to_collective}
 
 % Here we provide a decomposition multi-local operators into sums of
-% collective operators (and vice versa) within the fully symmetric
-% manifold of $N$ spins.  Multi-local operators are operators of the
-% form
+% collective operators (and vice versa) within the permutationally
+% symmetric manifold of $N$ spins.  Multi-local operators are operators
+% of the form
 % \begin{align}
 %   O_S \equiv \bigotimes_{O\in S} O,
 %   \label{eq:multi_op_set}
 % \end{align}
 % where $S\equiv\set{O}$ is a set of single-spin operators $O$.  The
 % order of tensor factors in \eqref{eq:multi_op_set} does not matter
-% after projecting operators onto the fully symmetric manifold, as we
-% always will in this section.  While the decomposition of a collective
-% operator into a sum of multi-local operators is unique, the opposite
-% is not true: there is generally no unique decomposition of a
-% multi-local operator into a sum of collective operators.  We can,
-% however, enforce a canonical decomposition by choosing a set of
-% collective operators that obey the same symmetries as $O_S$, namely
-% invariance under arbitrary permutations of the single-spin operators
-% $O\in S$.
+% after projecting operators onto the permutationally symmetric
+% manifold, as we always will in this section.  While the decomposition
+% of a collective operator into a sum of multi-local operators is
+% unique, the opposite is not true: there is generally no unique
+% decomposition of a multi-local operator into a sum of collective
+% operators.  We can, however, enforce a canonical decomposition by
+% choosing a set of collective operators that obey the same symmetries
+% as $O_S$, namely invariance under arbitrary permutations of the
+% single-spin operators $O\in S$.
 
 % Even though $S$ contains $\abs{S}$ spins, a collective operator built
 % from the single-spin operators $O\in S$ may have multiple
