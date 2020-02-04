@@ -353,7 +353,7 @@ limitations:
 \item the weight measure $w$ may need to be chosen carefully, as the
   optimal measure is generally system-dependent, and
 \item simulation results can only be trusted up to the time at which
-  the initial value of operators $\hat\S_{\v m}$ with weight
+  the initial values of operators $\hat\S_{\v m}$ with weight
   $w\p{\v m}\ge W$ have a non-negligible contribution to expectation
   values of interest.\label{pt:limitation}
 \end{enumerate*}
@@ -381,7 +381,7 @@ derivative operator $\check T^k$ are
   T_{\v m\v p_{k-1}} \cdots T_{\v p_3\v p_2}
   T_{\v p_2\v p_1} T_{\v p_1\v n},
 \end{align}
-with $\delta_{\v m\v n}=1$ if $\v m=\v n$ and 0 otherwise.  For
+with $\delta_{\v m\v n}=1$ if $\v m=\v n$ and zero otherwise.  For
 sufficiently short times, we can truncate the series in
 Eq.~\eqref{eq:time_series} by taking
 \begin{align}
@@ -390,7 +390,7 @@ Eq.~\eqref{eq:time_series} by taking
   \sum_{\v m, \v n} \bk{\hat\S_{\v m}} T^k_{\v m\v n} \O_{\v n}\p{0}.
   \label{eq:TST}
 \end{align}
-We refer Eq.~\eqref{eq:TST} as the truncated short-time (TST)
+We refer to Eq.~\eqref{eq:TST} as the truncated short-time (TST)
 expansion of Heisenberg operators.  Note that when computing an
 expectation value $\bk{\hat\O\p{t}}$, the relation
 $\hat\S_{\v m}^\dag=\hat\S_{\v m^*}$, which by Hermitian conjugation
@@ -434,21 +434,22 @@ terms at high orders of the TST expansion in Eq.~\eqref{eq:TST} can
 grow excessively large, greatly amplifying any numerical errors and
 thereby spoiling cancellations that are necessary to arrive at a
 physical value of a correlator, i.e.~with
-$\abs{\bk{\hat S_{\v n}\p{t}}}\lesssim S^{\abs{\v n}}$.  Finally, the
-TST expansion is essentially perturbative in the time $t$, which
-implies that its validity as a formal expansion eventually breaks
-down.  Precisely characterizing the implications of these last two
-considerations for the TST expansion requires additional analysis that
-we defer to future work.  An investigation of connections between the
-TST expansion and past work related to the Mori
-formalism\cite{mori1965continuedfraction, annett1994recursive}, for
-example, might answer questions about the breakdown and convergence of
-the TST expansion.  As we show from benchmarks of the TST expansion in
-Section \ref{sec:squeezing}, however, a detailed understanding of
-breakdown is not necessary to diagnose the breakdown time
-$t_{\t{break}}^{(M)}$ beyond which the TST expansion yields inaccurate
-results.  Empirically, we find that going beyond order $M\approx35$
-yields no significant gains in all cases considered in this work.
+$\abs{\bk{\hat S_{\v n}\p{t}}}\lesssim S^{\abs{\v n}}$ (where
+$S\equiv N/2$).  Finally, the TST expansion is essentially
+perturbative in the time $t$, which implies that its validity as a
+formal expansion eventually breaks down.  Precisely characterizing the
+implications of these last two considerations for the TST expansion
+requires additional analysis that we defer to future work.  An
+investigation of connections between the TST expansion and past work
+related to the Mori formalism\cite{mori1965continuedfraction,
+  annett1994recursive}, for example, might answer questions about the
+breakdown and convergence of the TST expansion.  As we show from
+benchmarks of the TST expansion in Section \ref{sec:squeezing},
+however, a detailed understanding of breakdown is not necessary to
+diagnose the breakdown time $t_{\t{break}}^{(M)}$ beyond which the TST
+expansion yields inaccurate results.  Empirically, we find that going
+beyond order $M\approx35$ yields no significant gains in all cases
+considered in this work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin squeezing, benchmarking, and breakdown}
@@ -724,7 +725,7 @@ as that in Eq.~\eqref{eq:four_point}, meanwhile, are commonly examined
 for signatures of quantum chaos and information
 scrambling\cite{maldacena2016bound, swingle2018unscrambling,
   garcia-mata2018chaos}.  In typical scenarios, such squared
-commutators initially vanish by construction through to a choice of
+commutators initially vanish by construction through a choice of
 spatially separated operators.  Collective spin systems, however, have
 no intrinsic notion of locality or spatial separation.  In our case,
 therefore, with the choice of initial state
@@ -774,8 +775,8 @@ form $f\p{t}=f\p{0}+a\sp{\exp\p{bN\chi t}-1}$ with $a\sim b\sim 1$.
 As may be expected, the growth of $C\p{t}$ and $D\p{t}$ is generally
 suppressed by decoherence.  Figure \ref{fig:multi_time} serves as an
 example for the type of behavior that is accessible at short times
-with the TST expansion.  These examples are straightforward extend to
-equilibrium settings and spin-boson systems.
+with the TST expansion.  These examples are straightforward to extend
+to equilibrium settings and spin-boson systems.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
@@ -801,12 +802,11 @@ study the onset of quantum chaos and information scrambling.
   Tucker, and Colin Kennedy; as well as some technical contributions
   from Diego Barberena.  This work is supported by the Air Force
   Office of Scientific Research (AFOSR) grant FA9550-18-1-0319; the
-  AFOSR Multidisciplinary University Research Initiative (MURI) grant;
-  the Defense Advanced Research Projects Agency (DARPA) and Army
-  Research Office (ARO) grant W911NF-16-1-0576 and W911NF-19-1-0210;
-  the National Science Foundation (NSF) grant PHY-1820885; JILA-NSF
-  grant PFC-173400; and the National Institute of Standards and
-  Technology (NIST).
+  Defense Advanced Research Projects Agency (DARPA) and Army Research
+  Office (ARO) grant W911NF-16-1-0576 and W911NF-19-1-0210; the
+  National Science Foundation (NSF) grant PHY-1820885; JILA-NSF grant
+  PFC-1734006; and the National Institute of Standards and Technology
+  (NIST).
 \end{acknowledgments}
 
 \onecolumngrid
@@ -967,7 +967,7 @@ which implies
   \equiv n \sum_{k=0}^{m-1} S_\mu^{m-k-1} S_\bmu^{n-1}
   \p{1 - n + 2\mu S_\z} S_\mu^k.
 \end{align}
-We now need rearrange the operators in $C_{mn;\mu}$ into a standard
+We now need to rearrange the operators in $C_{mn;\mu}$ into a standard
 order, which means pushing all $S_\z$ operators to the right and, for
 the purposes of this calculation, all $S_\bmu$ operators to the left.
 We begin by pushing $S_\mu^k$ to the left of $S_\z$, which takes
@@ -1746,7 +1746,7 @@ enabling the straightforward construction of spin operators
   &&
   \1^{(j)} \equiv c_{j,\up}^\dag c_{j,\up} + c_{j,\dn}^\dag c_{j,\dn},
 \end{align}
-which satisfy same commutation relations as the standard Pauli
+which satisfy the same commutation relations as the standard Pauli
 operators.  These spin operators can be more compactly defined in the
 form
 \begin{align}
@@ -1759,8 +1759,8 @@ denotes a matrix element of $\sigma_\alpha$.  This construction
 exemplifies how the set of jump operators
 $\J_{\t{loss}}^{\t{bare}}\equiv\set{c_{js}}$ that generate particle
 loss cannot be constructed from spin operators, which are generally
-bilinear in particle creation/annihilation operators.  When working on
-the level of a spin model, therefore, we can at best only {\it
+bilinear in particle creation or annihilation operators.  When working
+on the level of a spin model, therefore, we can at best only {\it
   emulate} the effect of particle loss by some indirect means.
 
 To understand the effect of particle loss on collective spin
@@ -2180,7 +2180,7 @@ OAT, TAT, and TNT models as a function of the rate $\gamma_0$ at which
 individual spins undergo spontaneous decay, excitation, and dephasing.
 These results were computed with quantum trajectory simulations, with
 $10^3$ trajectories per data point.  While the OAT and TAT models
-produce more squeezing than TNT model with weak decoherence, this
+produce more squeezing than the TNT model with weak decoherence, this
 squeezing falls off faster with an increasing decoherence rate
 $\gamma_0$.  The relative robustness of TNT is in part a consequence
 of the fact that TNT initially generates squeezing at a faster rate
