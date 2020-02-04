@@ -1000,15 +1000,16 @@ To simplify the product in \eqref{eq:sym_prod_proj}, we first write
   \label{eq:sym_prod_vec}
 \end{align}
 where we extend the definitions of $w_j\p{k}$ and $O_j\p{k}$ to all
-vectors $k\in\ZZ_N^{M_j}$ by defining symmetric rank-$M_j$ tensors
-$w_j$ and $O_j$ (where $O_j$ is an {\it operator-valued} tensor) for
-which $w_j\p{k}=O_j\p{k}=0$ if $k$ contains any repeated symbols.  We
-then collect terms whose operator content is equivalent up to a
-permutation of spins.  To this end, we classify terms in
-\eqref{eq:sym_prod_vec} by the numbers $g_S$ of indices shared by all
-tensors $w_j,O_j$ with $j\in S\subset\ZZ_p$.  For example, a term of
-the form $w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}$ with distinct
-indices $\p{a,b,c,d,e}\in\C_N\p{5}$ would have
+vectors $k\in\ZZ_N^{M_j}$ by defining symmetric dimension-$M_j$
+tensors $w_j$ and $O_j$ (i.e.~tensors with $M_j$ indices, with $O_j$
+an {\it operator-valued} tensor) for which $w_j\p{k}=O_j\p{k}=0$ if
+$k$ contains any repeated symbols.  We then collect terms whose
+operator content is equivalent up to a permutation of spins.  To this
+end, we classify terms in \eqref{eq:sym_prod_vec} by the numbers $g_S$
+of indices shared by all tensors $w_j,O_j$ with $j\in S\subset\ZZ_p$.
+For example, a term of the form
+$w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}$ with distinct indices
+$\p{a,b,c,d,e}\in\C_N\p{5}$ would have
 \begin{align}
   g_{\set{1}} = 1,
   &&
@@ -1021,17 +1022,17 @@ indices $\p{a,b,c,d,e}\in\C_N\p{5}$ would have
 and $g_S=0$ for all other subsets $S\subset\ZZ_3$.  This index
 assignment can be represented by the Venn diagram
 \begin{align}
-  \diagram{example},
+  \diagram{example_triple},
   \label{eq:venn_diagram}
 \end{align}
 where $g_S$ is determined the number of dots at the intersection of
 circles $j\in S$.  We denote an assignment of distinct indices
 according to choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ by $g$, where
 $\PP\p{\ZZ_p}$ is the power set (i.e.~set of all subsets) of $\ZZ_p$.
-Given a vector $\m M$ of the tensor ranks $M_j$, we then denote the
-set of all valid index assignments $g$ by $\G\p{\m M}$.  For
-consistency, all valid index assignments $g\in\G\p{\m M}$ must assign
-exactly $M_j$ indices to the rank-$M_j$ tensor $w_j$, i.e.~
+Given a vector $\m M$ of the dimensions $M_j$, we then denote the set
+of all valid index assignments $g$ by $\G\p{\m M}$.  For consistency,
+all valid index assignments $g\in\G\p{\m M}$ must assign exactly $M_j$
+indices to the dimension-$M_j$ tensor $w_j$, i.e.~
 \begin{align}
   \sum_{S\in\PP\p{\ZZ_p}\,:\,j\in S} g_S
   = \sum_{R\in\PP\p{\ZZ_p\setminus\set{j}}} g_{\set{j}\cup R}
@@ -1043,7 +1044,7 @@ also enforce that $g_{\set{}}=0$ for all $g\in\G\p{\m M}$, which is
 equivalent to saying that every dot in the corresponding Venn diagram
 must lie within some circle.  The set of valid index assignments
 $\G\p{\m M}$ is then essentially the set of all Venn diagrams of the
-form in \eqref{eq:venn_diagram} with $p=\rank\p{\m M}$ circles and a
+form in \eqref{eq:venn_diagram} with $p=\dim\p{\m M}$ circles and a
 total of $M_j$ dots within circle $j$.
 
 A classification of terms in \eqref{eq:sym_prod_vec} by index
@@ -1068,11 +1069,16 @@ assigned according to $g$ can take:
   \C_N\p{g}
   \equiv \set{ k \in \bigotimes_{S\in\PP\p{\ZZ_p}} \C_N\p{g_S}
     : \t{all elements of $k$ are distinct} },
+  \label{eq:index_values}
 \end{align}
 where each $k\in\C_N\p{g}$ has the natural decomposition
-$k=\p{k_S:S\in\PP\p{\ZZ_p}}$ with $k_S\in\C_N\p{g_S}$.  We then define
-the restriction of $k\in\C_N\p{g}$ to values associated with $w_j$ and
-$O_j$:
+$k=\p{k_S:S\in\PP\p{\ZZ_p}}$ with $k_S\in\C_N\p{g_S}$.  In words,
+$\C_N\p{g}$ consists of all the ways to choose, for each subset $S$ of
+the tensors $\set{w_j}$, a set $k_S$ of $g_S$ distinct spins, with the
+restriction that all $k_S$ are orthogonal: if $z\in k_S$, then
+$z\notin k_R$ for $R\ne S$.  Having defined the set $\C_N\p{g}$ of
+index values, we define the restriction of $k\in\C_N\p{g}$ to values
+associated with $w_j$ and $O_j$:
 \begin{align}
   k_j \equiv \bigcup_{S\in\PP\p{\ZZ_p} : j\in S} k_S
   = \bigcup_{R\in\PP\p{\ZZ_p\setminus\set{j}}} k_{\set{j}\cup R},
@@ -1084,6 +1090,7 @@ These definitions allow us to expand
   &&
   O\p{g} \equiv \prod_{j\in\ZZ_p}
   O_j\p{\ell_j}~\t{for some}~\ell\in\C_N\p{g},
+  \label{eq:diagram_factors}
 \end{align}
 where the choice of $\ell\in\C_N\p{g}$ does not matter after
 projection onto permutationally symmetric manifold, and
@@ -1097,7 +1104,7 @@ where the first product in \eqref{eq:sym_prod_symmetry} contains
 multinomial coefficients
 \begin{align}
   { M \choose a_1, a_2, \cdots, a_m }
-  \equiv \f{M!}{a_1!a_2!\cdots a_m!},
+  \equiv \f{M!}{a_1!a_2!\cdots a_m!}
 \end{align}
 that account for the number of ways to partition the indices of each
 $w_j,O_j$ into sets of shared indices according to $g_S$ for all
@@ -1110,6 +1117,145 @@ out with the $\sim M_j!$ prefactors in \eqref{eq:sym_prod_vec}, so
   \EQFS \sum_{g\in\G\p{\m M}} w\p{g} O\p{g}.
   \label{eq:sym_prod_group}
 \end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Formalizing diagrams}
+\label{sec:diagrams}
+
+Diagrams such as \eqref{eq:venn_diagram} will play a major role in the
+calculations in this section.  Here, we define diagrams as formal
+objects that we can use in mathematical expressions.  Formalizing
+diagrams will enable us to perform necessary calculations that are
+otherwise intractable.
+
+The simplest diagrams have $g_S$ dots (``$\bullet$'') at the
+intersection of the circles $j\in S$, and are simply equal to the
+associated scalar $w\p{g}$ defined in \eqref{eq:diagram_factors}, e.g.
+\begin{align}
+  \diagram{example_triple}
+  \equiv \sum_{\substack{a,b,c\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
+      \abs{\set{a,b,c,d,e}}=5}}
+  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}.
+  \label{eq:diagram_definition}
+\end{align}
+Additionally, we will define diagrams in which dots may be replaced by
+colored crosses (``$\bm\times$'') or colored pluses (``$\bm+$'').
+Whereas a diagram with $\abs{g}$ dots defines a scalar that takes
+$\O\p{N^\abs{g}}$ time to compute, diagrams with crosses and pluses
+will be used to compute the same scalar with a reduced computational
+cost.
+
+In a diagram with dots, crosses, and pluses, the values of indices
+associated with dots are summed as if the diagram had only dots,
+treating all other indices as independent and fixed.  Crosses in a
+diagram then correspond to indices that are summed over all of $\ZZ_N$
+without additional constraints, e.g.
+\begin{align}
+  \diagram{example_triple_xx_2} \equiv
+  \sum_{a,c\in\ZZ_N}
+  \sum_{\substack{b\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
+      \abs{\set{b,d,e}}=3}}
+  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}.
+\end{align}
+If two crosses have the same color, then the corresponding indices
+must be equal:
+\begin{align}
+  \diagram{example_triple_xx_1} \equiv
+  \sum_{c\in\ZZ_N} \sum_{\substack{a,b,d\in\ZZ_N\\\abs{\set{a,b,d}}=3}}
+  w_1\p{a,b,c} w_2\p{b,d,c} w_3\p{b,c,d,c}.
+\end{align}
+Crosses thus correspond to indices that are entirely independent of
+all other indices.  Pluses, meanwhile, correspond to indices that are
+{\it maximally dependent} on the dots: ``plus indices'' are summed
+{\it only} over the values of ``dot indices''.  As with crosses, the
+same color on two pluses indicates that the corresponding indices are
+equal, e.g.
+\begin{align}
+  \diagram{example_triple_pp_1}
+  \equiv \sum_{\substack{a\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
+      \abs{\set{a,d,e}}=3}} \sum_{b\in\set{a,d,e}}
+  w_1\p{a,b,b} w_2\p{b,d,e} w_3\p{b,b,d,e}.
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Decomposing diagrams to reduce computational costs}
+\label{sec:costs}
+
+The diagrams generated by a product of multi-body operators in
+\eqref{eq:sym_prod_group} generally have only dots, without crosses or
+pluses.  Such a diagram with $\abs{g}$ dots nominally takes
+$\O\p{N^{\abs{g}}}$ time to compute.  In practice, this cost can be
+prohibitive for performing numerical simulations of systems of any
+appreciable size.  Here, we discuss the decomposition of the diagrams
+that appear in \eqref{eq:sym_prod_group} into diagrams with reduced
+computational cost.  As an example, we can decompose
+\begin{align}
+  \diagram{example_triple}
+  = \diagram{example_triple_x_top} - \diagram{example_triple_p_top},
+  \label{eq:example_decomposition}
+\end{align}
+where
+\begin{align}
+  \diagram{example_triple}
+  \equiv \sum_{\substack{a,b,c\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
+      \abs{\set{a,b,c,d,e}}=5}}
+  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
+\end{align}
+\begin{align}
+  \diagram{example_triple_p_top}
+  \equiv \sum_{\substack{b,c\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
+      \abs{\set{b,c,d,e}}=4\\a\in\set{b,c,d,e}}}
+  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
+\end{align}
+\begin{align}
+  \diagram{example_triple_x_top}
+  \equiv \sum_{\substack{b,c\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
+      \abs{\set{b,c,d,e}}=4}}
+  w_1\p{\times,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
+  \label{eq:example_triple_x_top}
+\end{align}
+with
+\begin{align}
+  w_1\p{\times,b,c} \equiv \sum_{a\in\ZZ_N} w_1\p{a,b,c},
+\end{align}
+The decomposition in \eqref{eq:example_decomposition} essentially
+breaks up a sum over $a\in\ZZ_N\setminus\set{b,c,d,e}$ into a
+difference of sums over $a\in\ZZ_N$ and $a\in\set{b,c,d,e}$.  The sum
+over $a\in\ZZ_N$ to compute $w_1\p{\times,b,c}$ has $\O\p{N}$ cost,
+and can be performed prior to computing the diagram in
+\eqref{eq:example_triple_x_top}.  The decomposition in
+\eqref{eq:example_decomposition} thereby reduces the calculation of
+one $\O\p{N^5}$ diagram to the calculation of two $\O\p{N^4}$
+diagrams.
+
+In general, in a diagram with only dots and crosses, any dot may be
+decomposed similarly to \eqref{eq:example_decomposition} into a cross
+and a plus (with a new color).  The only catch in making such a
+replacement is that one must manually keep track of combinatorial
+factors: if the replaced dot was in a region of the diagram with $D$
+dots, then the new diagrams pick up a factor of $1/D$, e.g.
+\begin{align}
+  \diagram{example_double}
+  = \f13 \diagram{example_double_x}
+  - \f13 \diagram{example_double_p}.
+\end{align}
+This factor can be derived by first treating the values $\bar R$ of
+dots {\it outside} the region of interest fixed, and replacing the sum
+over $\C_N\p{D}\setminus\bar R$ for the dots {\it within} the region
+by a sum over $\ZZ_N^D\setminus\bar R$.  This replacement picks up a
+factor of $1/D!$ to account for the number of ways to permute $D$
+values.  After setting aside one dot for replacement by a cross and a
+plus, the sum over $\ZZ_N^{D-1}\setminus\bar R$ for the remaining dots
+can be changed back to a sum over $\C_N\p{D-1}\setminus\bar R$,
+picking up a factor of $\p{D-1}!$.  The overall factor picked up
+throughout this procedure is therefore $\p{D-1}!/D!=1/D$.
+
+While it is possible to derive rules for decomposing dots in a diagram
+with pluses, it is easier to instead eliminate pluses from a diagram
+altogether.
+
+
+\vspace{5cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Two single-body operators}
@@ -1283,6 +1429,47 @@ where we have neglected scalar terms without physical consequence, and
   \tilde A_2 \equiv \f{A_2}{N!_2} - 2\p{3N-4} \f{A_4}{N!_4}
   + \p{45N^2-210N+184} \f{A_6}{N!_6}.
 \end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Reducing computational costs}
+
+The results in \eqref{eq:triple_multi} and \eqref{eq:triple_col}
+suffer from the fact that the coefficients $A_6$, $A_4$, and $A_2$
+respectively take $\O\p{N^6}$, $\O\p{N^5}$, and $\O\p{N^4}$ time to
+compute in general.  Here, we reduce the computational cost of these
+coefficients.
+
+We begin with the (only) diagram for $A_6$:
+\begin{align}
+  \diagram{triple_6}
+  &= \sum_{\substack{\p{k,\ell},\p{p,q},\p{r,s}\in\C_N\p{2}\\
+      \abs{\set{k,\ell,p,q,r,s}}=6}}
+  u_{k\ell} v_{pq} w_{rs} \\
+  &= \f12 \sum_{k,\ell\in\ZZ_N} u_{k\ell}
+  \  \f12 \sum_{p,q\in\ZZ_N\setminus\set{k,\ell}} v_{pq}
+  \  \f12 \sum_{r,s\in\ZZ_N\setminus\set{k,\ell,p,q}} w_{rs},
+\end{align}
+where we first simplify
+\begin{align}
+  \sum_{r,s\in\ZZ_N\setminus\set{k,\ell,p,q}} w_{rs}
+  = \col{w}_{k\ell pq}
+  \equiv \col{w} - 2 \sum_{r\in\set{k,\ell,p,q}} w_r
+  + \sum_{r,s\in\set{k,\ell,p,q}} w_{rs},
+\end{align}
+with
+\begin{align}
+  \col{w} \equiv \sum_{r,s} w_{rs},
+  &&
+  w_r \equiv \sum_{s\in\ZZ_N} w_{rs}.
+\end{align}
+In turn,
+\begin{align}
+  \sum_{p,q\in\ZZ_N\setminus\set{k,\ell}} v_{pq} \, \col{w}_{k\ell pq}
+  &=
+\end{align}
+
+\vspace{5cm}
+
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \section{Collective and multi-local operators in the permutationally

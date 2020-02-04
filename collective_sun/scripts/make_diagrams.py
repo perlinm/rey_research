@@ -70,24 +70,36 @@ region_mids["ac"] = rotate("b") @ region_mids["bc"]
 ##################################################
 # define constructor for diagram
 
-def place_dots(region, num, region_mids = region_mids, sep = radius/3,
-               marker = "k.", markersize = 5):
-    point = region_mids[region]
+def place_dots(region, num, markers = None, region_mids = region_mids,
+               sep = radius/3, markersize = 3):
+    if markers is None:
+        markers = "ko" * num
+
+    vec_list = []
+
     if num == 1:
-        plt.plot(*point, marker, markersize = markersize)
+        vec_list = [ np.zeros(2) ]
 
     elif num == 2:
         sep_vec = np.array([sep,0])
-        point_1 = point - sep_vec/2
-        point_2 = point + sep_vec/2
-        plt.plot(*point_1, marker, markersize = markersize)
-        plt.plot(*point_2, marker, markersize = markersize)
+        vec_list = [ -sep_vec/2, +sep_vec/2 ]
 
-    elif num > 2:
+    elif num == 3:
+        sep_vec = np.array([0,sep])
+        vec_list = [ rotate(jj) @ sep_vec / np.sqrt(3) for jj in range(3) ]
+
+    elif num > 3:
         print("capability to place more than two dots not implemented")
         exit()
 
-def make_diagram(region_dots, figsize = figsize, pad = radius/20):
+    point = region_mids[region]
+    marker_list = [ markers[2*jj:2*jj+2] for jj in range(num) ]
+    for vec, marker in zip(vec_list, marker_list):
+        pos = point + vec
+        size = markersize + ( 1 if marker[1] == "+" else 0 )
+        plt.plot(*pos, marker, markersize = size)
+
+def make_triple_diagram(region_dots, markers = {}, figsize = figsize, pad = radius/20):
     fig = plt.figure(figsize = figsize)
     plt.axes().set_aspect("equal")
 
@@ -117,14 +129,14 @@ def make_diagram(region_dots, figsize = figsize, pad = radius/20):
 
     # plot dots
     for region, num in region_dots.items():
-        place_dots(region, num)
+        place_dots(region, num, markers.get(region))
 
     # trim figure and return handle
     plt.axis("off")
     plt.tight_layout(pad = 0)
     return fig
 
-def make_doublet_diagram(region_dots, size_x = figsize[1], pad = radius/20):
+def make_double_diagram(region_dots, markers = {}, size_x = figsize[1], pad = radius/20):
     dist = 0.5
     size_y = (radius+pad) / ( radius+3/4*dist*3/4+pad ) * size_x
     _figsize = ( size_x, size_y )
@@ -148,87 +160,143 @@ def make_doublet_diagram(region_dots, size_x = figsize[1], pad = radius/20):
                     "b" : ( +radius, 0),
                     "ab" : ( 0, 0) }
     for region, num in region_dots.items():
-        place_dots(region, num, region_mids)
+        place_dots(region, num, markers.get(region), region_mids)
 
     # trim figure and return handle
     plt.axis("off")
     plt.tight_layout(pad = 0)
     return fig
 
-def add_labels(labels):
-    for circle, label, pad in zip(circles, labels, [ 0.3, 0.4, 0.4 ]):
+def add_triple_labels(labels, pads = [ 0.3, 0.4, 0.4 ]):
+    for circle, label, pad in zip(circles, labels, pads):
         pos = vec(circle) * ( dist + radius * ( 1 + pad ) )
         plt.text(*pos, f"${label}$",
+                 horizontalalignment = "center", verticalalignment = "center")
+
+def add_double_labels(labels, pads = [ 0.3, 0.3 ]):
+    for label, pad, direction in zip(labels, pads, [-1,+1]):
+        plt.text(direction * dist, radius + pad, f"${label}$",
                  horizontalalignment = "center", verticalalignment = "center")
 
 ##################################################
 # make diagrams
 
-### example diagram
+### example diagrams
 dots = { "a" : 1, "abc" : 1, "ac" : 1, "bc" : 2 }
-make_diagram(dots, figsize = (1,1))
-add_labels([1,2,3])
-plt.tight_layout(pad = 0.1)
-plt.savefig(fig_dir + "example.pdf")
+make_triple_diagram(dots, figsize = (1,1))
+add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
+plt.tight_layout(pad = 0)
+plt.savefig(fig_dir + "example_triple.pdf")
+
+make_triple_diagram(dots, {"a" : "rx"}, figsize = (1,1))
+add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
+plt.tight_layout(pad = 0)
+plt.savefig(fig_dir + "example_triple_x_top.pdf")
+
+make_triple_diagram(dots, {"a" : "r+"}, figsize = (1,1))
+add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
+plt.tight_layout(pad = 0)
+plt.savefig(fig_dir + "example_triple_p_top.pdf")
+
+make_triple_diagram(dots, {"a" : "rx", "ac" : "bx"}, figsize = (1,1))
+add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
+plt.tight_layout(pad = 0)
+plt.savefig(fig_dir + "example_triple_xx_2.pdf")
+
+make_triple_diagram(dots, {"ac" : "rx", "bc" : "korx"}, figsize = (1,1))
+add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
+plt.tight_layout(pad = 0)
+plt.savefig(fig_dir + "example_triple_xx_1.pdf")
+
+make_triple_diagram(dots, {"abc" : "r+", "ac" : "r+"}, figsize = (1,1))
+add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
+plt.tight_layout(pad = 0)
+plt.savefig(fig_dir + "example_triple_pp_1.pdf")
+plt.close()
+
+dots = { "a" : 3, "b" : 2, "ab" : 2 }
+make_double_diagram(dots, {"ab" : "korx"})
+add_double_labels(["w_1","w_2"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_double.pdf")
+
+make_double_diagram(dots, {"ab" : "korx", "a" : "bxkoko"})
+add_double_labels(["w_1","w_2"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_double_x.pdf")
+
+make_double_diagram(dots, {"ab" : "korx", "a" : "b+koko"})
+add_double_labels(["w_1","w_2"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_double_p.pdf")
+plt.close()
 
 ### single-body product
 for assignment in [ { "a" : 1, "b" : 1, "ab" : 0 },
                     { "ab" : 1 } ]:
-    make_doublet_diagram(assignment)
-    plt.text(-0.6, 1.35, "$v$",
-             horizontalalignment = "center", verticalalignment = "center")
-    plt.text(+0.6, 1.35, "$w$",
-             horizontalalignment = "center", verticalalignment = "center")
-    plt.tight_layout(pad = 0)
-    plt.savefig(fig_dir + f"single_body_{assignment['ab']}.pdf")
+    make_double_diagram(assignment)
+    add_double_labels(["v","w"])
+    plt.tight_layout(pad = 0.05)
+    tag = assignment["ab"]
+    plt.savefig(fig_dir + f"single_body_{tag}.pdf")
+
+plt.close()
 
 ### two-body product
 for assignment in [ { "a" : 2, "b" : 2, "ab" : 0 },
                     { "a" : 1, "b" : 1, "ab" : 1 },
                     { "ab" : 2 } ]:
-    make_doublet_diagram(assignment)
-    plt.text(-0.6, 1.35, "$v$",
-             horizontalalignment = "center", verticalalignment = "center")
-    plt.text(+0.6, 1.35, "$w$",
-             horizontalalignment = "center", verticalalignment = "center")
-    plt.tight_layout(pad = 0)
-    plt.savefig(fig_dir + f"two_body_{assignment['ab']}.pdf")
+    make_double_diagram(assignment)
+    add_double_labels(["v","w"])
+    plt.tight_layout(pad = 0.05)
+    tag = assignment["ab"]
+    plt.savefig(fig_dir + f"two_body_{tag}.pdf")
+
+plt.close()
 
 ### twiple two-body product
 
 # 6-point diagram
-make_diagram({ "a" : 2, "b" : 2, "c" : 2 })
+make_triple_diagram({ "a" : 2, "b" : 2, "c" : 2 })
 plt.savefig(fig_dir + "triple_6.pdf")
 
-make_diagram({ "a" : 2, "b" : 2, "c" : 2 }, figsize = (0.9,0.7))
-add_labels(["u","v","w"])
-plt.tight_layout(pad = 0.1)
+make_triple_diagram({ "a" : 2, "b" : 2, "c" : 2 }, figsize = (0.9,0.7))
+add_triple_labels(["u","v","w"])
+plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + "triple_6_uvw.pdf")
 
+plt.close()
+
 # 4-point diagrams
-make_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 })
+make_triple_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 })
 plt.savefig(fig_dir + "triple_4_1.pdf")
 
-make_diagram({ "a" : 2, "b" : 1, "c" : 1, "bc" : 1 })
+
+make_triple_diagram({ "a" : 2, "b" : 1, "c" : 1, "bc" : 1 })
 plt.savefig(fig_dir + "triple_4_0.pdf")
 
+plt.close()
+
 # 2-point diagrams
-make_diagram({ "abc" : 2 })
+make_triple_diagram({ "abc" : 2 })
 plt.savefig(fig_dir + "triple_2_0.pdf")
 
-make_diagram({ "a" : 1, "bc" : 1, "abc" : 1 })
+make_triple_diagram({ "a" : 1, "bc" : 1, "abc" : 1 })
 plt.savefig(fig_dir + "triple_2_1.pdf")
 
-make_diagram({ "a" : 2, "bc" : 2 })
+make_triple_diagram({ "a" : 2, "bc" : 2 })
 plt.savefig(fig_dir + "triple_2_2.pdf")
 
-make_diagram({ "ab" : 1, "ac" : 1, "b" : 1, "c" : 1 })
+make_triple_diagram({ "ab" : 1, "ac" : 1, "b" : 1, "c" : 1 })
 plt.savefig(fig_dir + "triple_2_3.pdf")
 
-plt.savefig(fig_dir + "triple_2_3.pdf", figsize = (0.9,0.9))
+plt.close()
 
 for labels in [ ["u","v","w"], ["v","w","u"], ["w","u","v"] ]:
-    make_diagram({ "ab" : 1, "ac" : 1, "b" : 1, "c" : 1 }, figsize = (0.9,0.7))
-    add_labels(labels)
+    make_triple_diagram({ "ab" : 1, "ac" : 1, "b" : 1, "c" : 1 }, figsize = (0.9,0.7))
+    add_triple_labels(labels)
     plt.tight_layout(pad = 0)
-    plt.savefig(fig_dir + f"triple_2_3_{''.join(labels)}.pdf")
+    tag = "".join(labels)
+    plt.savefig(fig_dir + f"triple_2_3_{tag}.pdf")
+
+plt.close()
