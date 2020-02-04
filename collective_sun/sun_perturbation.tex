@@ -1119,143 +1119,135 @@ out with the $\sim M_j!$ prefactors in \eqref{eq:sym_prod_vec}, so
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Formalizing diagrams}
+\subsection{Formalizing diagrams and reducing computational costs}
 \label{sec:diagrams}
 
 Diagrams such as \eqref{eq:venn_diagram} will play a major role in the
-calculations in this section.  Here, we define diagrams as formal
-objects that we can use in mathematical expressions.  Formalizing
-diagrams will enable us to perform necessary calculations that are
-otherwise intractable.
+calculations in this section.  Here, we first define diagrams as
+formal objects that we can use in mathematical expressions.
+Formalizing diagrams will enable us to perform necessary calculations
+that are otherwise intractable.  We then discuss rules for decomposing
+these diagrams in order to reduce the computational cost of their
+numerical evaluation.
 
 The simplest diagrams have $g_S$ dots (``$\bullet$'') at the
-intersection of the circles $j\in S$, and are simply equal to the
+intersection of the circles $j\in S$, and are proportional to the
 associated scalar $w\p{g}$ defined in \eqref{eq:diagram_factors}, e.g.
 \begin{align}
   \diagram{example_triple}
-  \equiv \sum_{\substack{a,b,c\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
+  \equiv \sp{\prod_{S\in\PP\p{\ZZ_p}} g_S!} w\p{g}
+  = \sum_{\substack{a,b,c,d,e\in\ZZ_N\\
       \abs{\set{a,b,c,d,e}}=5}}
   w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}.
   \label{eq:diagram_definition}
 \end{align}
-Additionally, we will define diagrams in which dots may be replaced by
-colored crosses (``$\bm\times$'') or colored pluses (``$\bm+$'').
-Whereas a diagram with $\abs{g}$ dots defines a scalar that takes
-$\O\p{N^\abs{g}}$ time to compute, diagrams with crosses and pluses
-will be used to compute the same scalar with a reduced computational
-cost.
+The proportionality factor accounts for the number of ways to permute
+the indices within each region $S\in\PP\p{\ZZ_p}$.  Including this
+symmetry factor in the definition of a diagram is a matter of choice
+that will ultimately make it easier to work with diagrams.  A diagram
+such at that in \eqref{eq:diagram_definition} with $\abs{g}$ dots
+nominally takes $\O\p{N^{\abs{g}}}$ time to compute.  In practice,
+this computational cost can be prohibitive for performing numerical
+simulations of systems of any appreciable size.  If possible, we
+therefore wish to simplify diagrams in order to reduce their
+computational complexity.  To this end, we first need to define simple
+modifications of diagrams in which dots may be replaced by empty dots
+(``$\circ$'') or crosses (``$\bm\times$'').
 
-In a diagram with dots, crosses, and pluses, the values of indices
-associated with dots are summed as if the diagram had only dots,
-treating all other indices as independent and fixed.  Crosses in a
-diagram then correspond to indices that are summed over all of $\ZZ_N$
-without additional constraints, e.g.
+In any diagram (with filled dots, empty dots, or crosses), the values
+of indices associated with filled dots are always summed as if the
+diagram had only dots, without regard for all other indices.  Empty
+dots in a diagram then correspond to indices that are summed over all
+of $\ZZ_N$ independently and without additional constraints, e.g.
 \begin{align}
-  \diagram{example_triple_xx_2} \equiv
+  \diagram{example_triple_oo_2} \equiv
   \sum_{a,c\in\ZZ_N}
-  \sum_{\substack{b\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
-      \abs{\set{b,d,e}}=3}}
+  \sum_{\substack{b,d,e\in\ZZ_N\\\abs{\set{b,d,e}}=3}}
   w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}.
 \end{align}
-If two crosses have the same color, then the corresponding indices
-must be equal:
+Crosses, meanwhile, correspond to indices that are {\it maximally
+  dependent} on filled dots: ``cross indices'' are summed {\it only}
+over the values of ``filled dot indices'', e.g.
 \begin{align}
-  \diagram{example_triple_xx_1} \equiv
-  \sum_{c\in\ZZ_N} \sum_{\substack{a,b,d\in\ZZ_N\\\abs{\set{a,b,d}}=3}}
-  w_1\p{a,b,c} w_2\p{b,d,c} w_3\p{b,c,d,c}.
+  \diagram{example_triple_xx_1}
+  \equiv \sum_{\substack{a,d,e\in\ZZ_N\\\abs{\set{a,d,e}}=3}}
+  \sum_{b,c\in\set{a,d,e}}
+  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}.
 \end{align}
-Crosses thus correspond to indices that are entirely independent of
-all other indices.  Pluses, meanwhile, correspond to indices that are
-{\it maximally dependent} on the dots: ``plus indices'' are summed
-{\it only} over the values of ``dot indices''.  As with crosses, the
-same color on two pluses indicates that the corresponding indices are
-equal, e.g.
-\begin{align}
-  \diagram{example_triple_pp_1}
-  \equiv \sum_{\substack{a\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
-      \abs{\set{a,d,e}}=3}} \sum_{b\in\set{a,d,e}}
-  w_1\p{a,b,b} w_2\p{b,d,e} w_3\p{b,b,d,e}.
-\end{align}
+Empty dots and crosses allow us to decompose diagrams into sums of
+different diagrams that (may) require less time to evaluate.  We will
+essentially use two tricks to decompose diagrams: eliminating filled
+dots, and eliminating crosses.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Decomposing diagrams to reduce computational costs}
-\label{sec:costs}
-
-The diagrams generated by a product of multi-body operators in
-\eqref{eq:sym_prod_group} generally have only dots, without crosses or
-pluses.  Such a diagram with $\abs{g}$ dots nominally takes
-$\O\p{N^{\abs{g}}}$ time to compute.  In practice, this cost can be
-prohibitive for performing numerical simulations of systems of any
-appreciable size.  Here, we discuss the decomposition of the diagrams
-that appear in \eqref{eq:sym_prod_group} into diagrams with reduced
-computational cost.  As an example, we can decompose
+Given a diagram containing only dots (filled or empty), we can
+decompose any filled dot into an empty dot and a cross.  For example
 \begin{align}
   \diagram{example_triple}
-  = \diagram{example_triple_x_top} - \diagram{example_triple_p_top},
+  = \diagram{example_triple_o_top} - \diagram{example_triple_x_top},
   \label{eq:example_decomposition}
 \end{align}
 where
 \begin{align}
   \diagram{example_triple}
-  \equiv \sum_{\substack{a,b,c\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
-      \abs{\set{a,b,c,d,e}}=5}}
-  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
-\end{align}
-\begin{align}
-  \diagram{example_triple_p_top}
-  \equiv \sum_{\substack{b,c\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
-      \abs{\set{b,c,d,e}}=4\\a\in\set{b,c,d,e}}}
+  \equiv \sum_{\substack{a,b,c,d,e\in\ZZ_N\\\abs{\set{a,b,c,d,e}}=5}}
   w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
 \end{align}
 \begin{align}
   \diagram{example_triple_x_top}
-  \equiv \sum_{\substack{b,c\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
-      \abs{\set{b,c,d,e}}=4}}
-  w_1\p{\times,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
+  \equiv \sum_{\substack{b,c,d,e\in\ZZ_N\\\abs{\set{b,c,d,e}}=4}}
+  \sum_{a\in\set{b,c,d,e}}
+  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
+\end{align}
+\begin{align}
+  \diagram{example_triple_o_top}
+  \equiv \sum_{\substack{b,c,d,e\in\ZZ_N\\\abs{\set{b,c,d,e}}=4}}
+  w_1\p{\circ,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
   \label{eq:example_triple_x_top}
 \end{align}
 with
 \begin{align}
-  w_1\p{\times,b,c} \equiv \sum_{a\in\ZZ_N} w_1\p{a,b,c},
+  w_1\p{\circ,b,c} \equiv \sum_{a\in\ZZ_N} w_1\p{a,b,c},
 \end{align}
 The decomposition in \eqref{eq:example_decomposition} essentially
 breaks up a sum over $a\in\ZZ_N\setminus\set{b,c,d,e}$ into a
 difference of sums over $a\in\ZZ_N$ and $a\in\set{b,c,d,e}$.  The sum
-over $a\in\ZZ_N$ to compute $w_1\p{\times,b,c}$ has $\O\p{N}$ cost,
+over $a\in\ZZ_N$ to compute $w_1\p{\circ,b,c}$ has $\O\p{N^3}$ cost,
 and can be performed prior to computing the diagram in
 \eqref{eq:example_triple_x_top}.  The decomposition in
 \eqref{eq:example_decomposition} thereby reduces the calculation of
 one $\O\p{N^5}$ diagram to the calculation of two $\O\p{N^4}$
-diagrams.
+diagrams.  A similar reduction by a factor of $\sim N$ can be achieved
+by decomposing any dot in a region $S\in\PP\p{\ZZ_p}$ addressing only
+one tensor, i.e.~with $\abs{S}=1$.
 
-In general, in a diagram with only dots and crosses, any dot may be
-decomposed similarly to \eqref{eq:example_decomposition} into a cross
-and a plus (with a new color).  The only catch in making such a
-replacement is that one must manually keep track of combinatorial
-factors: if the replaced dot was in a region of the diagram with $D$
-dots, then the new diagrams pick up a factor of $1/D$, e.g.
+While it is possible, in principle, to derive rules for decomposing
+filled dots in a diagram that contains crosses, it is much easier to
+simply eliminate crosses from a diagram altogether.  To eliminate a
+cross from a diagram, we first note that the corresponding index need
+not sum over the values of indices in any tensor that contains that
+index; that is (hint: pay attention to the second sum on each line),
 \begin{align}
-  \diagram{example_double}
-  = \f13 \diagram{example_double_x}
-  - \f13 \diagram{example_double_p}.
+  \diagram{example_triple_x_top_elim}
+  &\equiv \sum_{\substack{b,c,d,e,f\in\ZZ_N\\\abs{\set{b,c,d,e,f}}=5}}
+  \sum_{a\in\set{b,c,d,e,f}}
+  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,f} \\
+  &= \sum_{\substack{b,c,d,e,f\in\ZZ_N\\\abs{\set{b,c,d,e,f}}=5}}
+  \sum_{a\in\set{d,e,f}}
+  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,f}.
+  \label{eq:x_elim}
 \end{align}
-This factor can be derived by first treating the values $\bar R$ of
-dots {\it outside} the region of interest fixed, and replacing the sum
-over $\C_N\p{D}\setminus\bar R$ for the dots {\it within} the region
-by a sum over $\ZZ_N^D\setminus\bar R$.  This replacement picks up a
-factor of $1/D!$ to account for the number of ways to permute $D$
-values.  After setting aside one dot for replacement by a cross and a
-plus, the sum over $\ZZ_N^{D-1}\setminus\bar R$ for the remaining dots
-can be changed back to a sum over $\C_N\p{D-1}\setminus\bar R$,
-picking up a factor of $\p{D-1}!$.  The overall factor picked up
-throughout this procedure is therefore $\p{D-1}!/D!=1/D$.
-
-While it is possible to derive rules for decomposing dots in a diagram
-with pluses, it is easier to instead eliminate pluses from a diagram
-altogether.
-
-
-\vspace{5cm}
+For each remaining index addressed by a cross, meanwhile, the cross
+simply forces the corresponding indices to be equal, so
+\begin{align}
+  \diagram{example_triple_x_top_elim}
+  = 2 \diagram{example_triple_x_lft_elim}
+  + \diagram{example_triple_x_rht_elim},
+\end{align}
+where the factor of 2 appears simply to account for both of
+$a\in\set{d,e}$ in \eqref{eq:x_elim}.  The rules derived here for
+replacing filled dots and crosses will be used in the following
+sections to simplify diagrams and minimize the computational cost of
+their evaluation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Two single-body operators}
@@ -1265,46 +1257,44 @@ Calculating the second-order effective Hamiltonian $H_1^{(2)}$ induced
 on the permutationally symmetric manifold $\M_0$ by the perturbation
 $\V_1$ in \eqref{eq:perturbations} requires us to simplify a product
 of the form
-
 \begin{align}
   \P_0 \sp{\sum_{p,q} v_p w_q X_p Y_q} \P_0
-  \EQFS \diagram{single_body_0} X_1 Y_2
+  \EQFS \diagram{single_body_2} X_1 Y_2
   + \diagram{single_body_1} X_1 Y_1,
   \label{eq:PXYP_start}
 \end{align}
 where $p,q$ index individual spins; $X,Y$ are single-spin operators;
 and the coefficients $v_p,w_q$ satisfy \eqref{eq:cond_1} with
 eigenvalue $\Delta\ne0$, which implies that they are mean-zero.
-Writing out
+Defining $\v m \equiv \sum_p m_p \ket{p}$ for $m\in\set{v,w}$, we can
+simplify
 \begin{align}
   \diagram{single_body_1}
   \equiv \sum_p v_p w_p
   = \v v\c\v w,
 \end{align}
+and
 \begin{align}
-  \diagram{single_body_0}
-  \equiv \sum_{p\ne q} v_p w_q
-  = \sum_{p,q} v_p w_q - \sum_{p=q} v_p w_q
+  \diagram{single_body_2}
+  = \diagram{single_body_2_o} - \diagram{single_body_2_x}
+  = - \diagram{single_body_1}
   = - \v v \c\v w,
 \end{align}
-we thus have
+so
 \begin{align}
   \sum_{p,q} v_p w_q X_p Y_q
   \EQFS - \v v\c\v w \p{X_1 Y_2 - X_1 Y_1},
 \end{align}
-This result is also simple to write in terms of collective operators,
-as
+In order to write this result in terms of collective operators
+$\col{Z} \equiv \sum_p Z_p$, we expand
 \begin{align}
   \col{X Y} \EQFS N X_1 Y_1,
   &&
-  \col{Z} \equiv \sum_p Z_p,
-\end{align}
-\begin{align}
   \col{X}\,\col{Y}
   = \sum_{p=q} X_p Y_q + \sum_{p\ne q} X_p Y_q
   \EQFS \col{XY} + N\p{N-1} X_1 Y_2,
 \end{align}
-so
+which implies that
 \begin{align}
   \sum_{p,q} v_p w_q X_p Y_q
   \EQFS - \f{\v v \c\v w}{N\p{N-1}}
@@ -1317,19 +1307,22 @@ so
 
 Calculating the second-order effective Hamiltonian $H_2^{(2)}$ induced
 on the permutationally symmetric manifold $\M_0$ by the perturbation
-$\V_2$ in \eqref{eq:perturbations} requires us to simplify
+$\V_2$ in \eqref{eq:perturbations} requires us to simplify a product
+of the form
 \begin{multline}
   \P_0 \sp{\sum_{k<\ell} \sum_{p<q}
     v_{k\ell} w_{pq} O_{k\ell} Q_{pq}} \P_0 \\
-  \EQFS \diagram{two_body_0} O_{1,2} Q_{3,4}
-  + \diagram{two_body_1} O_{1,2} Q_{1,3}
-  + \diagram{two_body_2} O_{1,2} Q_{1,2},
+  \EQFS \f14 \diagram{two_body_4} O_{1,2} Q_{3,4}
+  + \diagram{two_body_3} O_{1,2} Q_{1,3}
+  + \f12 \diagram{two_body_2} O_{1,2} Q_{1,2},
   \label{eq:POQP_start}
 \end{multline}
 where $k,\ell,p,q$ index individual spins; $O$ and $Q$ are
-permutationally-symmetric two-spin operators; and the coefficients
+permutationally-symmetric two-spin operators; the coefficients
 $v_{k\ell},w_{pq}$ satisfy \eqref{eq:cond_2} with eigenvalue
-$\Delta\ne0$, which implies that they are mean-zero.  Defining
+$\Delta\ne0$, which implies that they are mean-zero; and the factors
+of $1/4$ and $1/2$ are included to cancel out the symmetry factors
+that appear in the definition of a diagram.  Defining
 \begin{align}
   \v{\m m} \equiv \sum_{p<q} m_{pq} \ket{\set{p,q}},
   &&
@@ -1337,25 +1330,33 @@ $\Delta\ne0$, which implies that they are mean-zero.  Defining
   &&
   m_p \equiv \sum_q m_{pq},
 \end{align}
-for $m\in\set{v,w}$, we can write out explicitly
+for $m\in\set{v,w}$, we can write
 \begin{align}
-  \diagram{two_body_2}
-  \equiv \sum_{p<q} v_{pq} w_{pq} = \v{\m v} \c\v{\m w},
+  \diagram{two_body_2} = \sum_{p,q\in\ZZ_N} v_{pq} w_{pq}
+  = 2 \sum_{p,q\in\C_N\p{2}} v_{pq} w_{pq}
+  = \v{\m v} \c\v{\m w},
 \end{align}
-and, using the fact that $v_{pp}=w_{pp}=0$,
+and simplify
 \begin{align}
-  \diagram{two_body_1}
-  \equiv \sum_{\substack{k,p,q\\k\ne p\ne q\ne k}} v_{kp} w_{kq}
-  = \sum_{k,p} v_{kp} \sum_{q\ne p} w_{kq}
-  = \sum_{k,p} v_{kp} \p{w_{k} - w_{kp}}
-  = \v v \c \v w - 2 \v{\m v} \c \v{\m w}.
+  \diagram{two_body_3}
+  &= \diagram{two_body_3_o} - \diagram{two_body_3_x} \\
+  &= \diagram{two_body_3_oo} - \diagram{two_body_3_ox}
+  - \diagram{two_body_2} \label{eq:mid_zero} \\
+  &= \v v \c \v w - 2 \v{\m v} \c \v{\m w},
 \end{align}
-Using additionally the fact that $v_{pq},w_{pq}$ are mean-zero, with
-some more work we find that
+where the middle diagram in \eqref{eq:mid_zero} contains an empty sum
+for the cross, and is therefore equal to zero.  Similarly neglecting
+diagrams with empty sums and additionally using the fact that
+$v_{pq},w_{pq}$ are mean-zero, we can work out
 \begin{align}
-  \diagram{two_body_0}
-  \equiv \sum_{k<\ell} \sum_{\substack{p<q\\p,q\notin\set{k,\ell}}}
-  v_{k\ell} w_{pq} = -\v v \c \v w + \v{\m v} \c \v{\m w}.
+  \diagram{two_body_4}
+  &= \diagram{two_body_4_o} - \diagram{two_body_4_x} \\
+  &= \sp{\diagram{two_body_4_oo} - \diagram{two_body_4_ox}}
+  - 2 \sp{\diagram{two_body_3}} \\
+  &= \sp{-2 \diagram{two_body_3_o}}
+  - 2 \sp{\diagram{two_body_3_oo} - \diagram{two_body_2}} \\
+  &= -4 \diagram{two_body_3_oo} + 2 \diagram{two_body_2} \\
+  &= -4 \v v\c\v w + 4 \v{\m w}\c\v{\m w}.
 \end{align}
 Altogether, we thus have that
 \begin{multline}
@@ -1429,47 +1430,6 @@ where we have neglected scalar terms without physical consequence, and
   \tilde A_2 \equiv \f{A_2}{N!_2} - 2\p{3N-4} \f{A_4}{N!_4}
   + \p{45N^2-210N+184} \f{A_6}{N!_6}.
 \end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Reducing computational costs}
-
-The results in \eqref{eq:triple_multi} and \eqref{eq:triple_col}
-suffer from the fact that the coefficients $A_6$, $A_4$, and $A_2$
-respectively take $\O\p{N^6}$, $\O\p{N^5}$, and $\O\p{N^4}$ time to
-compute in general.  Here, we reduce the computational cost of these
-coefficients.
-
-We begin with the (only) diagram for $A_6$:
-\begin{align}
-  \diagram{triple_6}
-  &= \sum_{\substack{\p{k,\ell},\p{p,q},\p{r,s}\in\C_N\p{2}\\
-      \abs{\set{k,\ell,p,q,r,s}}=6}}
-  u_{k\ell} v_{pq} w_{rs} \\
-  &= \f12 \sum_{k,\ell\in\ZZ_N} u_{k\ell}
-  \  \f12 \sum_{p,q\in\ZZ_N\setminus\set{k,\ell}} v_{pq}
-  \  \f12 \sum_{r,s\in\ZZ_N\setminus\set{k,\ell,p,q}} w_{rs},
-\end{align}
-where we first simplify
-\begin{align}
-  \sum_{r,s\in\ZZ_N\setminus\set{k,\ell,p,q}} w_{rs}
-  = \col{w}_{k\ell pq}
-  \equiv \col{w} - 2 \sum_{r\in\set{k,\ell,p,q}} w_r
-  + \sum_{r,s\in\set{k,\ell,p,q}} w_{rs},
-\end{align}
-with
-\begin{align}
-  \col{w} \equiv \sum_{r,s} w_{rs},
-  &&
-  w_r \equiv \sum_{s\in\ZZ_N} w_{rs}.
-\end{align}
-In turn,
-\begin{align}
-  \sum_{p,q\in\ZZ_N\setminus\set{k,\ell}} v_{pq} \, \col{w}_{k\ell pq}
-  &=
-\end{align}
-
-\vspace{5cm}
-
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \section{Collective and multi-local operators in the permutationally
