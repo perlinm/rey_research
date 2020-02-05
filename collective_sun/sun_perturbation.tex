@@ -1225,7 +1225,7 @@ filled dots in a diagram that contains crosses, it is much easier to
 simply eliminate crosses from a diagram altogether.  To eliminate a
 cross from a diagram, we first note that the corresponding index need
 not sum over the values of indices in any tensor that contains that
-index; that is (hint: pay attention to the second sum on each line),
+index; that is (pay attention to the second sum in each line),
 \begin{align}
   \diagram{example_triple_x_top_elim}
   &\equiv \sum_{\substack{b,c,d,e,f\in\ZZ_N\\\abs{\set{b,c,d,e,f}}=5}}
@@ -1444,8 +1444,37 @@ where
   - 6 \diagram{triple_11_o}
   + 2 \diagram{triple_2}.
 \end{align}
-We can also write the product $\X$ in \eqref{eq:triple_multi} using
-collective operators as
+Defining, for each of $m\in\set{u,v,w}$,
+\begin{align}
+  \m m \equiv \sum_{p,q} m_{pq} \op{p}{q},
+  &&
+  \v{\m m} \equiv \sum_{p<q} m_{pq} \ket{\set{p,q}},
+  &&
+  \v m \equiv \sum_p m_p \ket{p},
+  &&
+  m_p \equiv \sum_q m_{pq},
+  &&
+  \col{m} \equiv \sum_{p<q} m_{pq},
+\end{align}
+we can expand
+\begin{align}
+  D_1 = \col{u}\,\col{v}\,\col{w},
+  &&
+  D_2 = \col{u}\,\v v\c\v w + \col{v}\,\v w\c\v u
+  + \col{w}\,\v u\c\v v - 2 \sum_p u_p v_p w_p,
+  &&
+  D_4 = \tr\p{\m u \c \m v \c \m w},
+\end{align}
+\begin{multline}
+  D_3 = \v u \c\m v\c\v w + \v v \c\m w\c\v u + \v w \c\m u\c\v v
+  + \col{u}\,\v{\m v}\c\v{\m w} + \col{v}\,\v{\m w}\c\v{\m u}
+  + \col{w}\,\v{\m u}\c\v{\m v} \\
+  - 2 \sum_{p,q} \p{u_p v_{pq} w_{pq}
+    + v_p w_{pq} u_{pq} + w_p u_{pq} v_{pq}}
+  + 4 \sum_{p<q} u_{pq} v_{pq} w_{pq}.
+\end{multline}
+Finally, we also write the product $\X$ in \eqref{eq:triple_multi}
+using the collective operator $\col{X} \equiv \sum_p X_p$:
 \begin{align}
   \X \EQFS
   \tilde A_6 \col{X}^6 + \tilde A_4 \col{X}^4 + \tilde A_2 \col{X}^2,
