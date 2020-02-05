@@ -19,8 +19,6 @@ op_num = np.random.randint(2,5) # total number of multi-body operators
 # the rank of each multi-body operator: an operator with rank M is an M-local operator
 ranks = [ np.random.randint(1,spins) for _ in range(op_num) ]
 
-cutoff = 1e-10 # treat values below this cutoff as zero
-
 print("dimension of each spin:", dim)
 print("total number of spins:", spins)
 print("multi-body operator ranks", ranks)
@@ -176,7 +174,7 @@ for set_diagram in set_diagrams(ranks):
     simp_op += diagram_coefficient * ( sym_proj @ diagram_op @ sym_proj )
 
 # verify that the exact and simplified products of multi-body operators are equal
-print(abs(simp_op-exact_op).max() < cutoff)
+print(np.allclose(simp_op, exact_op))
 
 ##########################################################################################
 # methods to verify the multi-body eigenvalue problem
@@ -217,6 +215,6 @@ for tensor, base_op, full_op in zip(tensors, base_ops, full_ops):
 
     simpl = ( sym_energy * full_op + remaining_op ) @ sym_proj
 
-    print(abs(simpl-exact).max() < cutoff)
+    print(np.allclose(simpl, exact))
 
 
