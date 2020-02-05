@@ -1259,7 +1259,7 @@ $\V_1$ in \eqref{eq:perturbations} requires us to simplify a product
 of the form
 \begin{align}
   \P_0 \sp{\sum_{p,q} v_p w_q X_p Y_q} \P_0
-  \EQFS \diagram{single_body_2} X_1 Y_2
+  \EQFS \diagram{single_body_0} X_1 Y_2
   + \diagram{single_body_1} X_1 Y_1,
   \label{eq:PXYP_start}
 \end{align}
@@ -1275,9 +1275,9 @@ simplify
 \end{align}
 and
 \begin{align}
-  \diagram{single_body_2}
-  = \diagram{single_body_2_o} - \diagram{single_body_2_x}
-  = \diagram{single_body_2_oo} - \diagram{single_body_1}
+  \diagram{single_body_0}
+  = \diagram{single_body_0_o} - \diagram{single_body_0_x}
+  = \diagram{single_body_0_oo} - \diagram{single_body_1}
   = - \v v \c\v w,
 \end{align}
 so
@@ -1312,8 +1312,8 @@ of the form
 \begin{multline}
   \P_0 \sp{\sum_{k<\ell} \sum_{p<q}
     v_{k\ell} w_{pq} O_{k\ell} Q_{pq}} \P_0 \\
-  \EQFS \f14 \diagram{two_body_4} O_{1,2} Q_{3,4}
-  + \diagram{two_body_3} O_{1,2} Q_{1,3}
+  \EQFS \f14 \diagram{two_body_0} O_{1,2} Q_{3,4}
+  + \diagram{two_body_1} O_{1,2} Q_{1,3}
   + \f12 \diagram{two_body_2} O_{1,2} Q_{1,2},
   \label{eq:POQP_start}
 \end{multline}
@@ -1338,9 +1338,9 @@ for $m\in\set{v,w}$, we can write
 \end{align}
 and simplify
 \begin{align}
-  \diagram{two_body_3}
-  &= \diagram{two_body_3_o} - \diagram{two_body_3_x} \\
-  &= \diagram{two_body_3_oo} - \diagram{two_body_3_ox}
+  \diagram{two_body_1}
+  &= \diagram{two_body_1_o} - \diagram{two_body_1_x} \\
+  &= \diagram{two_body_1_oo} - \diagram{two_body_1_ox}
   - \diagram{two_body_2} \label{eq:mid_zero} \\
   &= \v v \c \v w - 2 \v{\m v} \c \v{\m w},
 \end{align}
@@ -1349,13 +1349,13 @@ for the cross, and is therefore equal to zero.  Similarly neglecting
 diagrams with empty sums and additionally using the fact that
 $v_{pq},w_{pq}$ are mean-zero, we can work out
 \begin{align}
-  \diagram{two_body_4}
-  &= \diagram{two_body_4_o} - \diagram{two_body_4_x} \\
-  &= \sp{\diagram{two_body_4_oo} - \diagram{two_body_4_ox}}
-  - 2 \sp{\diagram{two_body_3}} \\
-  &= \sp{-2 \diagram{two_body_3_o}}
-  - 2 \sp{\diagram{two_body_3_oo} - \diagram{two_body_2}} \\
-  &= -4 \diagram{two_body_3_oo} + 2 \diagram{two_body_2} \\
+  \diagram{two_body_0}
+  &= \diagram{two_body_0_o} - \diagram{two_body_0_x} \\
+  &= \sp{\diagram{two_body_0_oo} - \diagram{two_body_0_ox}}
+  - 2 \sp{\diagram{two_body_1}} \\
+  &= \sp{-2 \diagram{two_body_1_o}}
+  - 2 \sp{\diagram{two_body_1_oo} - \diagram{two_body_2}} \\
+  &= -4 \diagram{two_body_1_oo} + 2 \diagram{two_body_2} \\
   &= -4 \v v\c\v w + 4 \v{\m w}\c\v{\m w}.
 \end{align}
 Altogether, we thus have that
@@ -1389,33 +1389,63 @@ operators that remain after accounting for $X^2=1$, we find that
 \end{align}
 with
 \begin{align}
-  A_6 \equiv \f18 \diagram{triple_6},
+  A_6 \equiv \f18 \diagram{triple_0},
   &&
-  A_4 \equiv \diagram{triple_4_1} + \f32 \diagram{triple_4_0},
+  A_4 \equiv \diagram{triple_1} + \f32 \diagram{triple_01},
   \label{eq:triple_64}
 \end{align}
 \begin{align}
-  A_2 \equiv \f12 \diagram{triple_2_0} + 3 \diagram{triple_2_1}
-  + \f34 \diagram{triple_2_2} + 3 \diagram{triple_2_3},
+  A_2 \equiv \f12 \diagram{triple_2} + 3 \diagram{triple_11}
+  + \f34 \diagram{triple_02} + 3 \diagram{triple_011},
   \label{eq:triple_2}
 \end{align}
 where a diagram with unlabeled circles denotes an average over all
 label assignments that result in a distinct diagram, e.g.
 \begin{align}
-  \diagram{triple_6} \equiv \diagram{triple_6_uvw},
+  \diagram{triple_0} \equiv \diagram{triple_0_uvw},
   \label{eq:triple_uvw}
 \end{align}
 \begin{align}
-  \diagram{triple_2_3}
-  \equiv \f13 \sp{\diagram{triple_2_3_uvw}
-  + \diagram{triple_2_3_vwu} + \diagram{triple_2_3_wuv}}.
+  \diagram{triple_011}
+  \equiv \f13 \sp{\diagram{triple_011_uvw}
+  + \diagram{triple_011_vwu} + \diagram{triple_011_wuv}}.
   \label{eq:triple_uvw_3}
 \end{align}
 The first diagram in each of $A_6,A_4,A_2$ as written in
 \eqref{eq:triple_64}, \eqref{eq:triple_2} thus has only one assignment
 of labels, as in \eqref{eq:triple_uvw}, while all other unlabeled
-diagrams have three assignments, as in \eqref{eq:triple_uvw_3}.  We
-can write \eqref{eq:triple_multi} in terms of collective operators as
+diagrams have three assignments, as in \eqref{eq:triple_uvw_3}.
+
+Having identified diagrammatic representations of the coefficients
+$A_6,A_4,A_2$, we now need to simplify all diagrams to reduce their
+computational complexity, as discussed in Section \ref{sec:diagrams}.
+Eliminating all filled dots in regions that address only one tensor
+yields:
+\begin{align}
+  A_6 = D_1 - D_2 + D_3 - D_4,
+\end{align}
+\begin{align}
+  A_4 = D_2 - 2 D_3 + 3 D_4,
+  &&
+  A_2 = D_3 - 3 D_4
+\end{align}
+where
+\begin{align}
+  D_1 \equiv \f18 \diagram{triple_0_o6},
+  &&
+  D_2 \equiv \f32 \diagram{triple_01_o4}
+  - 2 \diagram{triple_1_o3},
+  &&
+  D_4 \equiv \diagram{triple_0111}.
+\end{align}
+\begin{align}
+  D_3 \equiv 3 \diagram{triple_011_o2}
+  + \f34 \diagram{triple_02_o2}
+  - 6 \diagram{triple_11_o}
+  + 2 \diagram{triple_2}.
+\end{align}
+We can also write the product $\X$ in \eqref{eq:triple_multi} using
+collective operators as
 \begin{align}
   \X \EQFS
   \tilde A_6 \col{X}^6 + \tilde A_4 \col{X}^4 + \tilde A_2 \col{X}^2,

@@ -207,17 +207,17 @@ add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
 plt.tight_layout(pad = 0)
 plt.savefig(fig_dir + "example_triple.pdf")
 
-make_triple_diagram(dots, {"a" : "o", "ac" : "o"}, figsize = (1,1))
+make_triple_diagram(dots, { "a" : "o", "ac" : "o" }, figsize = (1,1))
 add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
 plt.tight_layout(pad = 0)
 plt.savefig(fig_dir + "example_triple_oo_2.pdf")
 
-make_triple_diagram(dots, {"ac" : "o", "bc" : "o"}, figsize = (1,1))
+make_triple_diagram(dots, { "ac" : "o", "bc" : "o" }, figsize = (1,1))
 add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
 plt.tight_layout(pad = 0)
 plt.savefig(fig_dir + "example_triple_oo_1.pdf")
 
-make_triple_diagram(dots, {"abc" : "x", "ac" : "x"}, figsize = (1,1))
+make_triple_diagram(dots, { "abc" : "x", "ac" : "x" }, figsize = (1,1))
 add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
 plt.tight_layout(pad = 0)
 plt.savefig(fig_dir + "example_triple_xx_1.pdf")
@@ -227,28 +227,28 @@ plt.close("all")
 ### example diagrams for open dot elimination
 
 dots = { "a" : 1, "abc" : 1, "ac" : 1, "bc" : 2 }
-make_triple_diagram(dots, {"a" : "o"}, figsize = (1,1))
+make_triple_diagram(dots, { "a" : "o" }, figsize = (1,1))
 add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
 plt.tight_layout(pad = 0)
 plt.savefig(fig_dir + "example_triple_o_top.pdf")
 
-make_triple_diagram(dots, {"a" : "x"}, figsize = (1,1))
+make_triple_diagram(dots, { "a" : "x" }, figsize = (1,1))
 add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
 plt.tight_layout(pad = 0)
 plt.savefig(fig_dir + "example_triple_x_top.pdf")
 
 dots = { "a" : 3, "b" : 2, "ab" : 2 }
-make_double_diagram(dots, {"ab" : "o"})
+make_double_diagram(dots, { "ab" : "o" })
 add_double_labels(["w_1","w_2"])
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_double.pdf")
 
-make_double_diagram(dots, {"ab" : "o", "a" : "o"})
+make_double_diagram(dots, { "ab" : "o", "a" : "o" })
 add_double_labels(["w_1","w_2"])
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_double_o.pdf")
 
-make_double_diagram(dots, {"ab" : "o", "a" : "x"})
+make_double_diagram(dots, { "ab" : "o", "a" : "x" })
 add_double_labels(["w_1","w_2"])
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_double_x.pdf")
@@ -258,7 +258,7 @@ plt.close("all")
 ### example diagrams for cross elimination
 
 dots = { "a" : 1, "abc" : 1, "ac" : 1, "b" : 2, "c" : 1 }
-make_triple_diagram(dots, {"a" : "x"}, figsize = (1,1), dot_sep = 0.9)
+make_triple_diagram(dots, { "a" : "x" }, figsize = (1,1), dot_sep = 0.9)
 add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
 plt.tight_layout(pad = 0)
 plt.savefig(fig_dir + "example_triple_x_top_elim.pdf")
@@ -284,119 +284,118 @@ for assignment in [ { "a" : 1, "b" : 1, "ab" : 0 },
     make_double_diagram(assignment)
     add_double_labels(["v","w"])
     plt.tight_layout(pad = 0.05)
-    tag = sum(assignment.values())
+    tag = assignment["ab"]
     plt.savefig(fig_dir + f"single_body_{tag}.pdf")
 
 plt.close("all")
 
 dots = { "a" : 1, "b" : 1 }
-make_double_diagram(dots, {"a" : "o"})
+make_double_diagram(dots, { "a" : "o" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"single_body_2_o.pdf")
+plt.savefig(fig_dir + f"single_body_0_o.pdf")
 
-make_double_diagram(dots, {"a" : "x"})
+make_double_diagram(dots, { "a" : "x" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"single_body_2_x.pdf")
+plt.savefig(fig_dir + f"single_body_0_x.pdf")
 
-make_double_diagram(dots, {"a" : "o", "b" : "o"})
+make_double_diagram(dots, { "a" : "o", "b" : "o" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"single_body_2_oo.pdf")
+plt.savefig(fig_dir + f"single_body_0_oo.pdf")
 
 plt.close("all")
 
 ### two-body product
 
-for assignment in [ { "a" : 2, "b" : 2 },
+for assignment in [ { "a" : 2, "b" : 2, "ab" : 0 },
                     { "a" : 1, "b" : 1, "ab" : 1 },
                     { "ab" : 2 } ]:
     make_double_diagram(assignment)
     add_double_labels(["v","w"])
     plt.tight_layout(pad = 0.05)
-    tag = sum(assignment.values())
+    tag = assignment["ab"]
     plt.savefig(fig_dir + f"two_body_{tag}.pdf")
 
 dots = { "a" : 1, "b" : 1, "ab" : 1 }
-make_double_diagram(dots, {"a" : "o"})
+make_double_diagram(dots, { "a" : "o" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_3_o.pdf")
+plt.savefig(fig_dir + f"two_body_1_o.pdf")
 
-make_double_diagram(dots, {"a" : "x"})
+make_double_diagram(dots, { "a" : "x" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_3_x.pdf")
+plt.savefig(fig_dir + f"two_body_1_x.pdf")
 
-make_double_diagram(dots, {"a" : "o", "b" : "o"})
+make_double_diagram(dots, { "a" : "o", "b" : "o" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_3_oo.pdf")
+plt.savefig(fig_dir + f"two_body_1_oo.pdf")
 
-make_double_diagram(dots, {"a" : "o", "b" : "x"})
+make_double_diagram(dots, { "a" : "o", "b" : "x" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_3_ox.pdf")
+plt.savefig(fig_dir + f"two_body_1_ox.pdf")
 
 dots = { "a" : 2, "b" : 2 }
-make_double_diagram(dots, {"a" : "o"})
+make_double_diagram(dots, { "a" : "o" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_4_o.pdf")
+plt.savefig(fig_dir + f"two_body_0_o.pdf")
 
-make_double_diagram(dots, {"a" : "x"})
+make_double_diagram(dots, { "a" : "x" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_4_x.pdf")
+plt.savefig(fig_dir + f"two_body_0_x.pdf")
 
-make_double_diagram(dots, {"a" : "oo"})
+make_double_diagram(dots, { "a" : "oo" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_4_oo.pdf")
+plt.savefig(fig_dir + f"two_body_0_oo.pdf")
 
-make_double_diagram(dots, {"a" : "ox"})
+make_double_diagram(dots, { "a" : "ox" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_4_ox.pdf")
+plt.savefig(fig_dir + f"two_body_0_ox.pdf")
 
 plt.close("all")
 
-### twiple two-body product
+### triple two-body product
 
 # 6-point diagram
 make_triple_diagram({ "a" : 2, "b" : 2, "c" : 2 })
-plt.savefig(fig_dir + "triple_6.pdf")
+plt.savefig(fig_dir + "triple_0.pdf")
 
 make_triple_diagram({ "a" : 2, "b" : 2, "c" : 2 }, figsize = (0.9,0.7))
 add_triple_labels(["u","v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + "triple_6_uvw.pdf")
+plt.savefig(fig_dir + "triple_0_uvw.pdf")
 
 plt.close("all")
 
 # 4-point diagrams
 make_triple_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 })
-plt.savefig(fig_dir + "triple_4_1.pdf")
-
+plt.savefig(fig_dir + "triple_1.pdf")
 
 make_triple_diagram({ "a" : 2, "b" : 1, "c" : 1, "bc" : 1 })
-plt.savefig(fig_dir + "triple_4_0.pdf")
+plt.savefig(fig_dir + "triple_01.pdf")
 
 plt.close("all")
 
 # 2-point diagrams
 make_triple_diagram({ "abc" : 2 })
-plt.savefig(fig_dir + "triple_2_0.pdf")
+plt.savefig(fig_dir + "triple_2.pdf")
 
 make_triple_diagram({ "a" : 1, "bc" : 1, "abc" : 1 })
-plt.savefig(fig_dir + "triple_2_1.pdf")
+plt.savefig(fig_dir + "triple_11.pdf")
 
 make_triple_diagram({ "a" : 2, "bc" : 2 })
-plt.savefig(fig_dir + "triple_2_2.pdf")
+plt.savefig(fig_dir + "triple_02.pdf")
 
 make_triple_diagram({ "ab" : 1, "ac" : 1, "b" : 1, "c" : 1 })
-plt.savefig(fig_dir + "triple_2_3.pdf")
+plt.savefig(fig_dir + "triple_011.pdf")
 
 plt.close("all")
 
@@ -405,6 +404,42 @@ for labels in [ ["u","v","w"], ["v","w","u"], ["w","u","v"] ]:
     add_triple_labels(labels)
     plt.tight_layout(pad = 0)
     tag = "".join(labels)
-    plt.savefig(fig_dir + f"triple_2_3_{tag}.pdf")
+    plt.savefig(fig_dir + f"triple_011_{tag}.pdf")
+
+plt.close("all")
+
+### simplified triple two-body product
+
+make_triple_diagram({ "a": 2, "b": 2, "c": 2 },
+                    { "a": "oo", "b": "oo", "c": "oo" })
+plt.savefig(fig_dir + "triple_0_o6.pdf")
+
+make_triple_diagram({ "a": 2, "b": 1, "c": 1, "bc": 1 },
+                    { "a": "oo", "b": "o", "c": "o", "bc": "." })
+plt.savefig(fig_dir + "triple_01_o4.pdf")
+
+make_triple_diagram({ "a": 1, "b": 1, "c": 1, "abc": 1 },
+                    { "a": "o", "b": "o", "c": "o", "abc": "." })
+plt.savefig(fig_dir + "triple_1_o3.pdf")
+
+make_triple_diagram({ "ab": 1, "ac": 1, "b": 1, "c": 1 },
+                    { "ab": ".", "ac": ".", "b": "o", "c": "o" })
+plt.savefig(fig_dir + "triple_011_o2.pdf")
+
+make_triple_diagram({ "a": 2, "bc": 2 },
+                    { "a": "oo", "bc": ".." })
+plt.savefig(fig_dir + "triple_02_o2.pdf")
+
+make_triple_diagram({ "a": 1, "bc": 1, "abc": 1 },
+                    { "a": "o", "bc": ".", "abc": "." })
+plt.savefig(fig_dir + "triple_11_o.pdf")
+
+make_triple_diagram({ "abc": 2 },
+                    { "abc": ".." })
+plt.savefig(fig_dir + "triple_2.pdf")
+
+make_triple_diagram({ "ab": 1, "ac": 1, "bc": 1 },
+                    { "ab": ".", "ac": ".", "bc": "." })
+plt.savefig(fig_dir + "triple_0111.pdf")
 
 plt.close("all")
