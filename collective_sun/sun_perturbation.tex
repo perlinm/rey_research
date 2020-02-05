@@ -1391,23 +1391,24 @@ with
 \begin{align}
   A_6 \equiv \f18 \diagram{triple_6},
   &&
-  A_4 \equiv \diagram{triple_4_1} + \f12 \diagram{triple_4_0},
+  A_4 \equiv \diagram{triple_4_1} + \f32 \diagram{triple_4_0},
   \label{eq:triple_64}
 \end{align}
 \begin{align}
-  A_2 \equiv \f12 \diagram{triple_2_0} + \diagram{triple_2_1}
-  + \f14 \diagram{triple_2_2} + \diagram{triple_2_3},
+  A_2 \equiv \f12 \diagram{triple_2_0} + 3 \diagram{triple_2_1}
+  + \f34 \diagram{triple_2_2} + 3 \diagram{triple_2_3},
   \label{eq:triple_2}
 \end{align}
-where a diagram with unlabeled circles implicitly contains a sum over
-all label assignments that result in a distinct diagram, e.g.
+where a diagram with unlabeled circles denotes an average over all
+label assignments that result in a distinct diagram, e.g.
 \begin{align}
   \diagram{triple_6} \equiv \diagram{triple_6_uvw},
   \label{eq:triple_uvw}
 \end{align}
 \begin{align}
-  \diagram{triple_2_3} \equiv \diagram{triple_2_3_uvw}
-  + \diagram{triple_2_3_vwu} + \diagram{triple_2_3_wuv}.
+  \diagram{triple_2_3}
+  \equiv \f13 \sp{\diagram{triple_2_3_uvw}
+  + \diagram{triple_2_3_vwu} + \diagram{triple_2_3_wuv}}.
   \label{eq:triple_uvw_3}
 \end{align}
 The first diagram in each of $A_6,A_4,A_2$ as written in
