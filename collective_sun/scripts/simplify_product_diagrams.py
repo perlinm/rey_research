@@ -92,26 +92,25 @@ def permute_diagram(diagram, permutation):
     return { tuple(sorted( permutation[idx] for idx in region )) : markers
              for region, markers in diagram.items() }
 
-# reduce a diagram by eliminating filled dots and crosses in single-tensor regions
+# reduce a diagram by eliminating filled dots and crosses
 def reduce_diagram(diagram):
     diagram = { region : markers if type(markers) is tuple else (markers,0,0)
                 for region, markers in diagram.items()
                 if markers != 0 and markers != (0,0,0) }
 
-    def _net_lone_markers(mm):
-        return sum([ markers[mm]
-                     for region, markers in diagram.items()
-                     if len(region) == 1 ])
+    def _net_markers(mm):
+        return sum([ markers[mm] for region, markers in diagram.items() ])
 
-    # first, cover the simpler case of a diagram without any crosses
-    if _net_lone_markers(2) == 0:
-        if _net_lone_markers(0) == 0:
-            cross_free_diagram = { region : markers[:2]
-                                   for region, markers in diagram.items() }
-            return diagram_vec(cross_free_diagram)
+    # first, cover the simpler case of a diagram without any crosses,
+    #        in which we eliminate any filled dots that we find
+    if _net_markers(2) == 0:
+        # if there are no crosses and no filled dots, then we are done simplifying
+        if _net_markers(0) == 0:
+            empty_dot_diagram = { region : markers[1]
+                                  for region, markers in diagram.items() }
+            return diagram_vec(empty_dot_diagram)
 
         for region, markers in diagram.items():
-            if len(region) != 1: continue
             if markers[0] == 0: continue
             empty_copy = copy.deepcopy(diagram)
             cross_copy = copy.deepcopy(diagram)
@@ -122,19 +121,18 @@ def reduce_diagram(diagram):
     # otherwise, eliminate any crosses in a diagram
     else:
         for region, markers in diagram.items():
-            if len(region) != 1: continue
             if markers[2] == 0: continue
 
-            this_primary_set = region[0]
             def _take_from_region(other_region):
                 other_markers = diagram[other_region]
                 mutiplicity = other_markers[0]
+                if mutiplicity == 0: return
 
                 new_diagram = copy.deepcopy(diagram)
-                new_diagram[(this_primary_set,)] = markers[:2] + ( markers[2]-1, )
+                new_diagram[region] = markers[:2] + ( markers[2]-1, )
                 new_diagram[other_region] = ( other_markers[0]-1, ) + other_markers[-2:]
 
-                joint_region = tuple(sorted( ( this_primary_set, ) + other_region ))
+                joint_region = tuple(sorted( region + other_region ))
                 joint_markers = new_diagram.get(joint_region)
                 if joint_markers == None: joint_markers = (0,0,0)
                 new_diagram[joint_region] = ( joint_markers[0]+1, ) + joint_markers[-2:]
@@ -143,7 +141,8 @@ def reduce_diagram(diagram):
 
             return sum([ _take_from_region(other_region)
                          for other_region, other_markers in diagram.items()
-                         if this_primary_set not in other_region
+                         if all( primary_set not in other_region
+                                 for primary_set in region )
                          and other_markers[0] > 0 ])
 
 # construct a random symmetric tensor with zeros on all diagonal blocks
@@ -154,9 +153,6 @@ def random_tensor(rank):
         for perm in it.permutations(comb):
             tensor[perm] = num
     return tensor
-
-def complexity(diagram):
-    return sum( val[0] if type(val) is tuple else val for val in diagram.values() )
 
 def symmetry(diagram):
     return np.product([ np.math.factorial(val[0] if type(val) is tuple else val)
@@ -184,29 +180,21 @@ for weight, vec in list(weight_vec.items())[::-1]:
     def _name(diag):
         diag_name = ""
         if (0,1,2) in diag.keys():
-            diag_name += str(diag[0,1,2][0])
+            diag_name += str(diag[0,1,2])
         else:
             diag_name += "0"
-        double_occupancies = [ str(markers[0]) for region, markers in diag.items()
+        double_occupancies = [ str(markers) for region, markers in diag.items()
                                if len(region) == 2 ]
         diag_name += "".join(sorted(double_occupancies)[::-1])
 
-        empty_dots = sum( markers[1] for markers in diag.values() )
-        if empty_dots > 0:
-            diag_name += "_o"
-        if empty_dots > 1:
-            diag_name += str(empty_dots)
-
         return diag_name
 
-    diags_coefs = sorted( diags_coefs,
-                          key = lambda d_c : ( complexity(d_c[0]), _name(d_c[0]) ) )
+    diags_coefs = sorted( diags_coefs, key = lambda d_c : ( _name(d_c[0]) ) )
 
     for diag, coef in diags_coefs:
         diag_name = _name(diag)
         if coef == int(coef): coef = int(coef)
         print("name:", diag_name)
-        print("complexity:", complexity(diag))
         print("coefficient:", coef)
         print(diag)
         print()

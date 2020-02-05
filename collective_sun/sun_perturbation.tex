@@ -1356,7 +1356,7 @@ $v_{pq},w_{pq}$ are mean-zero, we can work out
   &= \sp{-2 \diagram{two_body_1_o}}
   - 2 \sp{\diagram{two_body_1_oo} - \diagram{two_body_2}} \\
   &= -4 \diagram{two_body_1_oo} + 2 \diagram{two_body_2} \\
-  &= -4 \v v\c\v w + 4 \v{\m w}\c\v{\m w}.
+  &= -4 \v v\c\v w + 4 \v{\m v}\c\v{\m w}.
 \end{align}
 Altogether, we thus have that
 \begin{multline}
@@ -1420,8 +1420,9 @@ diagrams have three assignments, as in \eqref{eq:triple_uvw_3}.
 Having identified diagrammatic representations of the coefficients
 $A_6,A_4,A_2$, we now need to simplify all diagrams to reduce their
 computational complexity, as discussed in Section \ref{sec:diagrams}.
-Eliminating all filled dots in regions that address only one tensor
-yields:
+Simplifying all these diagrams by hand is tedious, but the process of
+eliminating filled dots and crosses from a diagram is algorithmic
+enough to execute on a computer, doing which we find
 \begin{align}
   A_6 = D_0 - D_1 + D_2 - D_3,
   &&
@@ -1431,17 +1432,17 @@ yields:
 \end{align}
 where
 \begin{align}
-  D_0 \equiv \f18 \diagram{triple_0_o6},
+  D_0 \equiv \f18 \diagram{triple_0_o},
   &&
-  D_1 \equiv \f12 \diagram{triple_01_o4} - 2 \diagram{triple_1_o3},
+  D_1 \equiv \f12 \diagram{triple_01_o} - 2 \diagram{triple_1_o},
   &&
-  D_3 \equiv \diagram{triple_0111},
+  D_3 \equiv \diagram{triple_0111_o},
 \end{align}
 \begin{align}
-  D_2 \equiv \diagram{triple_011_o2}
-  + \f14 \diagram{triple_02_o2}
+  D_2 \equiv \diagram{triple_011_o}
+  + \f14 \diagram{triple_02_o}
   - 2 \diagram{triple_11_o}
-  + 2 \diagram{triple_2}.
+  + 2 \diagram{triple_2_o}.
 \end{align}
 Defining, for each of $m\in\set{u,v,w}$,
 \begin{align}

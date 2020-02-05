@@ -71,14 +71,17 @@ region_mids["ac"] = rotate("b") @ region_mids["bc"]
 # define constructor for diagram
 
 def place_dots(region, num, markers = None, dot_sep = None,
-               region_mids = region_mids, markersize = 3):
+               region_mids = region_mids, markersize = 3,
+               default_marker = None):
+    if default_marker is None:
+        default_marker = "."
     if dot_sep == None:
         dot_sep = 1
     dot_sep *= radius / 3
     if markers is None:
-        markers = "." * num
+        markers = default_marker * num
     if len(markers) < num:
-        markers += "." * (num-len(markers))
+        markers += default_marker * (num-len(markers))
 
     vecs = []
 
@@ -116,7 +119,8 @@ def place_dots(region, num, markers = None, dot_sep = None,
         plt.plot(*pos, "k"+marker, markersize = size, fillstyle = fill_style)
 
 def make_triple_diagram(region_dots, markers = {}, figsize = figsize,
-                        dot_sep = None, pad = radius/20):
+                        dot_sep = None, pad = radius/20,
+                        default_marker = None):
     fig = plt.figure(figsize = figsize)
     plt.axes().set_aspect("equal")
 
@@ -146,7 +150,8 @@ def make_triple_diagram(region_dots, markers = {}, figsize = figsize,
 
     # plot dots
     for region, num in region_dots.items():
-        place_dots(region, num, markers.get(region), dot_sep)
+        place_dots(region, num, markers.get(region), dot_sep,
+                   default_marker = default_marker)
 
     # trim figure and return handle
     plt.axis("off")
@@ -154,7 +159,8 @@ def make_triple_diagram(region_dots, markers = {}, figsize = figsize,
     return fig
 
 def make_double_diagram(region_dots, markers = {}, size_x = figsize[1],
-                        dot_sep = None, pad = radius/20):
+                        dot_sep = None, pad = radius/20,
+                        default_marker = None):
     dist = 0.5
     size_y = (radius+pad) / ( radius+3/4*dist*3/4+pad ) * size_x
     _figsize = ( size_x, size_y )
@@ -178,7 +184,8 @@ def make_double_diagram(region_dots, markers = {}, size_x = figsize[1],
                     "b" : ( +radius, 0),
                     "ab" : ( 0, 0) }
     for region, num in region_dots.items():
-        place_dots(region, num, markers.get(region), dot_sep, region_mids)
+        place_dots(region, num, markers.get(region), dot_sep, region_mids,
+                   default_marker = default_marker)
 
     # trim figure and return handle
     plt.axis("off")
@@ -364,40 +371,48 @@ plt.close("all")
 
 ### triple two-body product
 
-# 6-point diagram
-make_triple_diagram({ "a" : 2, "b" : 2, "c" : 2 })
-plt.savefig(fig_dir + "triple_0.pdf")
+for marker, suffix in zip([ ".", "o" ], [ "", "_o" ]):
 
-plt.close("all")
+    # 6-point diagram
+    make_triple_diagram({ "a" : 2, "b" : 2, "c" : 2 }, default_marker = marker)
+    plt.savefig(fig_dir + "triple_0" + suffix + ".pdf")
 
-# 4-point diagrams
-make_triple_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 })
-plt.savefig(fig_dir + "triple_1.pdf")
+    plt.close("all")
+
+    # 4-point diagrams
+    make_triple_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 }, default_marker = marker)
+    plt.savefig(fig_dir + "triple_1" + suffix + ".pdf")
+
+    make_triple_diagram({ "a" : 2, "b" : 1, "c" : 1, "bc" : 1 }, default_marker = marker)
+    plt.savefig(fig_dir + "triple_01" + suffix + ".pdf")
+
+    plt.close("all")
+
+    # 2-point diagrams
+    make_triple_diagram({ "abc" : 2 }, default_marker = marker)
+    plt.savefig(fig_dir + "triple_2" + suffix + ".pdf")
+
+    make_triple_diagram({ "a" : 1, "bc" : 1, "abc" : 1 }, default_marker = marker)
+    plt.savefig(fig_dir + "triple_11" + suffix + ".pdf")
+
+    make_triple_diagram({ "a" : 2, "bc" : 2 }, default_marker = marker)
+    plt.savefig(fig_dir + "triple_02" + suffix + ".pdf")
+
+    make_triple_diagram({ "ab" : 1, "ac" : 1, "b" : 1, "c" : 1 }, default_marker = marker)
+    plt.savefig(fig_dir + "triple_011" + suffix + ".pdf")
+
+    # trace diagram
+    make_triple_diagram({ "ab" : 1, "ac" : 1, "bc" : 1 }, default_marker = marker)
+    plt.savefig(fig_dir + "triple_0111" + suffix + ".pdf")
+
+    plt.close("all")
+
+### example label assignments for unlabeled diagrams
 
 make_triple_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 }, figsize = (0.9,0.7))
 add_triple_labels(["u","v","w"])
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + "triple_1_uvw.pdf")
-
-make_triple_diagram({ "a" : 2, "b" : 1, "c" : 1, "bc" : 1 })
-plt.savefig(fig_dir + "triple_01.pdf")
-
-plt.close("all")
-
-# 2-point diagrams
-make_triple_diagram({ "abc" : 2 })
-plt.savefig(fig_dir + "triple_2.pdf")
-
-make_triple_diagram({ "a" : 1, "bc" : 1, "abc" : 1 })
-plt.savefig(fig_dir + "triple_11.pdf")
-
-make_triple_diagram({ "a" : 2, "bc" : 2 })
-plt.savefig(fig_dir + "triple_02.pdf")
-
-make_triple_diagram({ "ab" : 1, "ac" : 1, "b" : 1, "c" : 1 })
-plt.savefig(fig_dir + "triple_011.pdf")
-
-plt.close("all")
 
 for labels in [ ["u","v","w"], ["v","w","u"], ["w","u","v"] ]:
     make_triple_diagram({ "ab" : 1, "ac" : 1, "b" : 1, "c" : 1 }, figsize = (0.9,0.7))
@@ -405,41 +420,3 @@ for labels in [ ["u","v","w"], ["v","w","u"], ["w","u","v"] ]:
     plt.tight_layout(pad = 0)
     tag = "".join(labels)
     plt.savefig(fig_dir + f"triple_011_{tag}.pdf")
-
-plt.close("all")
-
-### simplified triple two-body product
-
-make_triple_diagram({ "a": 2, "b": 2, "c": 2 },
-                    { "a": "oo", "b": "oo", "c": "oo" })
-plt.savefig(fig_dir + "triple_0_o6.pdf")
-
-make_triple_diagram({ "a": 2, "b": 1, "c": 1, "bc": 1 },
-                    { "a": "oo", "b": "o", "c": "o", "bc": "." })
-plt.savefig(fig_dir + "triple_01_o4.pdf")
-
-make_triple_diagram({ "a": 1, "b": 1, "c": 1, "abc": 1 },
-                    { "a": "o", "b": "o", "c": "o", "abc": "." })
-plt.savefig(fig_dir + "triple_1_o3.pdf")
-
-make_triple_diagram({ "ab": 1, "ac": 1, "b": 1, "c": 1 },
-                    { "ab": ".", "ac": ".", "b": "o", "c": "o" })
-plt.savefig(fig_dir + "triple_011_o2.pdf")
-
-make_triple_diagram({ "a": 2, "bc": 2 },
-                    { "a": "oo", "bc": ".." })
-plt.savefig(fig_dir + "triple_02_o2.pdf")
-
-make_triple_diagram({ "a": 1, "bc": 1, "abc": 1 },
-                    { "a": "o", "bc": ".", "abc": "." })
-plt.savefig(fig_dir + "triple_11_o.pdf")
-
-make_triple_diagram({ "abc": 2 },
-                    { "abc": ".." })
-plt.savefig(fig_dir + "triple_2.pdf")
-
-make_triple_diagram({ "ab": 1, "ac": 1, "bc": 1 },
-                    { "ab": ".", "ac": ".", "bc": "." })
-plt.savefig(fig_dir + "triple_0111.pdf")
-
-plt.close("all")
