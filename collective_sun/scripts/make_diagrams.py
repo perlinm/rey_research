@@ -368,16 +368,16 @@ plt.close("all")
 make_triple_diagram({ "a" : 2, "b" : 2, "c" : 2 })
 plt.savefig(fig_dir + "triple_0.pdf")
 
-make_triple_diagram({ "a" : 2, "b" : 2, "c" : 2 }, figsize = (0.9,0.7))
-add_triple_labels(["u","v","w"])
-plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + "triple_0_uvw.pdf")
-
 plt.close("all")
 
 # 4-point diagrams
 make_triple_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 })
 plt.savefig(fig_dir + "triple_1.pdf")
+
+make_triple_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 }, figsize = (0.9,0.7))
+add_triple_labels(["u","v","w"])
+plt.tight_layout(pad = 0.05)
+plt.savefig(fig_dir + "triple_1_uvw.pdf")
 
 make_triple_diagram({ "a" : 2, "b" : 1, "c" : 1, "bc" : 1 })
 plt.savefig(fig_dir + "triple_01.pdf")

@@ -1391,25 +1391,25 @@ with
 \begin{align}
   A_6 \equiv \f18 \diagram{triple_0},
   &&
-  A_4 \equiv \diagram{triple_1} + \f32 \diagram{triple_01},
+  A_4 \equiv \diagram{triple_1} + \f12 \diagram{triple_01},
   \label{eq:triple_64}
 \end{align}
 \begin{align}
-  A_2 \equiv \f12 \diagram{triple_2} + 3 \diagram{triple_11}
-  + \f34 \diagram{triple_02} + 3 \diagram{triple_011},
+  A_2 \equiv \f12 \diagram{triple_2} + \diagram{triple_11}
+  + \f14 \diagram{triple_02} + \diagram{triple_011},
   \label{eq:triple_2}
 \end{align}
 where we have neglected scalar terms without physical consequence, and
-a diagram with unlabeled circles denotes an average over all distinct
-label assignments, e.g.
+a diagram with unlabeled circles denotes a sum over all distinct label
+assignments, e.g.
 \begin{align}
-  \diagram{triple_0} \equiv \diagram{triple_0_uvw},
+  \diagram{triple_1} \equiv \diagram{triple_1_uvw},
   \label{eq:triple_uvw}
 \end{align}
 \begin{align}
   \diagram{triple_011}
-  \equiv \f13 \sp{\diagram{triple_011_uvw}
-  + \diagram{triple_011_vwu} + \diagram{triple_011_wuv}}.
+  \equiv \diagram{triple_011_uvw}
+  + \diagram{triple_011_vwu} + \diagram{triple_011_wuv}.
   \label{eq:triple_uvw_3}
 \end{align}
 The first diagram in each of $A_6,A_4,A_2$ as written in
@@ -1427,21 +1427,20 @@ yields:
   &&
   A_4 = D_1 - 2 D_2 + 3 D_3,
   &&
-  A_2 = D_2 - 3 D_3
+  A_2 = D_2 - 3 D_3,
 \end{align}
 where
 \begin{align}
   D_0 \equiv \f18 \diagram{triple_0_o6},
   &&
-  D_1 \equiv \f32 \diagram{triple_01_o4}
-  - 2 \diagram{triple_1_o3},
+  D_1 \equiv \f12 \diagram{triple_01_o4} - 2 \diagram{triple_1_o3},
   &&
-  D_3 \equiv \diagram{triple_0111}.
+  D_3 \equiv \diagram{triple_0111},
 \end{align}
 \begin{align}
-  D_2 \equiv 3 \diagram{triple_011_o2}
-  + \f34 \diagram{triple_02_o2}
-  - 6 \diagram{triple_11_o}
+  D_2 \equiv \diagram{triple_011_o2}
+  + \f14 \diagram{triple_02_o2}
+  - 2 \diagram{triple_11_o}
   + 2 \diagram{triple_2}.
 \end{align}
 Defining, for each of $m\in\set{u,v,w}$,
