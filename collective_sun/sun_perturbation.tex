@@ -1423,24 +1423,23 @@ computational complexity, as discussed in Section \ref{sec:diagrams}.
 Eliminating all filled dots in regions that address only one tensor
 yields:
 \begin{align}
-  A_6 = D_1 - D_2 + D_3 - D_4,
-\end{align}
-\begin{align}
-  A_4 = D_2 - 2 D_3 + 3 D_4,
+  A_6 = D_0 - D_1 + D_2 - D_3,
   &&
-  A_2 = D_3 - 3 D_4
+  A_4 = D_1 - 2 D_2 + 3 D_3,
+  &&
+  A_2 = D_2 - 3 D_3
 \end{align}
 where
 \begin{align}
-  D_1 \equiv \f18 \diagram{triple_0_o6},
+  D_0 \equiv \f18 \diagram{triple_0_o6},
   &&
-  D_2 \equiv \f32 \diagram{triple_01_o4}
+  D_1 \equiv \f32 \diagram{triple_01_o4}
   - 2 \diagram{triple_1_o3},
   &&
-  D_4 \equiv \diagram{triple_0111}.
+  D_3 \equiv \diagram{triple_0111}.
 \end{align}
 \begin{align}
-  D_3 \equiv 3 \diagram{triple_011_o2}
+  D_2 \equiv 3 \diagram{triple_011_o2}
   + \f34 \diagram{triple_02_o2}
   - 6 \diagram{triple_11_o}
   + 2 \diagram{triple_2}.
@@ -1459,15 +1458,15 @@ Defining, for each of $m\in\set{u,v,w}$,
 \end{align}
 we can expand
 \begin{align}
-  D_1 = \col{u}\,\col{v}\,\col{w},
+  D_0 = \col{u}\,\col{v}\,\col{w},
   &&
-  D_2 = \col{u}\,\v v\c\v w + \col{v}\,\v w\c\v u
+  D_1 = \col{u}\,\v v\c\v w + \col{v}\,\v w\c\v u
   + \col{w}\,\v u\c\v v - 2 \sum_p u_p v_p w_p,
   &&
-  D_4 = \tr\p{\m u \c \m v \c \m w},
+  D_3 = \tr\p{\m u \c \m v \c \m w},
 \end{align}
 \begin{multline}
-  D_3 = \v u \c\m v\c\v w + \v v \c\m w\c\v u + \v w \c\m u\c\v v
+  D_2 = \v u \c\m v\c\v w + \v v \c\m w\c\v u + \v w \c\m u\c\v v
   + \col{u}\,\v{\m v}\c\v{\m w} + \col{v}\,\v{\m w}\c\v{\m u}
   + \col{w}\,\v{\m u}\c\v{\m v} \\
   - 2 \sum_{p,q} \p{u_p v_{pq} w_{pq}
