@@ -34,7 +34,7 @@ class diagram_vec:
     def __str__(self): return self.__repr__()
 
     def __add__(self, other):
-        if other == 0: return self
+        if other == 0 or other == None: return self
         new_diags = self.diags
         new_coefs = self.coefs
         for other_diag, other_coef in zip(other.diags, other.coefs):
@@ -66,9 +66,10 @@ class diagram_vec:
         return sum( coef * reduce_diagram(diag)
                     for coef, diag in zip(self.coefs, self.diags) )
 
-    def equate_permutations(self):
+    def zip_permutations(self):
         new_diags = []
         new_coefs = []
+        num_terms = []
         for diag, coef in zip(self.diags, self.coefs):
             labels = functools.reduce(set.union, ( set(region) for region in diag.keys() ))
             eliminated_diag = False
@@ -77,14 +78,16 @@ class diagram_vec:
                 for dd, new_diag in enumerate(new_diags):
                     if new_diag == perm_diag:
                         new_coefs[dd] += coef
+                        num_terms[dd] += 1
                         eliminated_diag = True
                         break
                 if eliminated_diag: break
             if not eliminated_diag:
                 new_diags += [ diag ]
                 new_coefs += [ coef ]
+                num_terms += [ 1 ]
         new_diags = [ diag for dd, diag in enumerate(new_diags) if new_coefs[dd] != 0 ]
-        new_coefs = [ coef for coef in new_coefs if coef != 0 ]
+        new_coefs = [ coef/num for coef, num in zip(new_coefs, num_terms) if coef != 0 ]
         return diagram_vec(new_diags, new_coefs)
 
 # permute the labels on a diagram
@@ -116,7 +119,11 @@ def reduce_diagram(diagram):
             cross_copy = copy.deepcopy(diagram)
             empty_copy[region] = ( markers[0]-1, markers[1]+1, markers[2] )
             cross_copy[region] = ( markers[0]-1, markers[1], markers[2]+1 )
-            return reduce_diagram(empty_copy) - reduce_diagram(cross_copy)
+            empty_diag = reduce_diagram(empty_copy)
+            cross_diag = reduce_diagram(cross_copy)
+            empty_sym = ( markers[1]+1 ) / markers[0]
+            cross_sym = 1 / markers[0]
+            return empty_sym * empty_diag - cross_sym * cross_diag
 
     # otherwise, eliminate any crosses in a diagram
     else:
@@ -125,8 +132,7 @@ def reduce_diagram(diagram):
 
             def _take_from_region(other_region):
                 other_markers = diagram[other_region]
-                mutiplicity = other_markers[0]
-                if mutiplicity == 0: return
+                if other_markers[0] == 0: return 0
 
                 new_diagram = copy.deepcopy(diagram)
                 new_diagram[region] = markers[:2] + ( markers[2]-1, )
@@ -137,7 +143,8 @@ def reduce_diagram(diagram):
                 if joint_markers == None: joint_markers = (0,0,0)
                 new_diagram[joint_region] = ( joint_markers[0]+1, ) + joint_markers[-2:]
 
-                return mutiplicity * reduce_diagram(new_diagram)
+                symmetry_factor = new_diagram[joint_region][0]
+                return symmetry_factor * reduce_diagram(new_diagram)
 
             return sum([ _take_from_region(other_region)
                          for other_region, other_markers in diagram.items()
@@ -154,10 +161,6 @@ def random_tensor(rank):
             tensor[perm] = num
     return tensor
 
-def symmetry(diagram):
-    return np.product([ np.math.factorial(val[0] if type(val) is tuple else val)
-                        for val in diagram.values() ])
-
 # collect diagrams by weight of the multi-body operator they are associated with
 weight_vec = {}
 for diagram in set_diagrams(ranks):
@@ -166,16 +169,13 @@ for diagram in set_diagrams(ranks):
                   if len(ops) % 2 == 1 )
     if weight == 0: continue
     if weight not in weight_vec.keys():
-        weight_vec[weight] = diagram_vec(diagram) / symmetry(diagram)
+        weight_vec[weight] = diagram_vec(diagram)
     else:
-        weight_vec[weight] += diagram_vec(diagram) / symmetry(diagram)
+        weight_vec[weight] += diagram_vec(diagram)
 
 for weight, vec in list(weight_vec.items())[::-1]:
     print(weight)
     print("-"*10)
-
-    reduced_vec = vec.equate_permutations().reduce().equate_permutations()
-    diags_coefs = list(zip(reduced_vec.diags, reduced_vec.coefs))
 
     def _name(diag):
         diag_name = ""
@@ -189,12 +189,14 @@ for weight, vec in list(weight_vec.items())[::-1]:
 
         return diag_name
 
-    diags_coefs = sorted( diags_coefs, key = lambda d_c : ( _name(d_c[0]) ) )
+    reduced_vec = vec.reduce().zip_permutations()
+    names_diags_coefs = sorted(zip(map(_name, reduced_vec.diags),
+                                   reduced_vec.diags,
+                                   reduced_vec.coefs))[::-1]
 
-    for diag, coef in diags_coefs:
-        diag_name = _name(diag)
+    for name, diag, coef in names_diags_coefs:
         if coef == int(coef): coef = int(coef)
-        print("name:", diag_name)
+        print("name:", name)
         print("coefficient:", coef)
         print(diag)
         print()

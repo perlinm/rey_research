@@ -96,7 +96,13 @@ def place_dots(region, num, markers = None, dot_sep = None,
         sep_vec = np.array([0,dot_sep])
         vecs = [ rotate(jj) @ sep_vec / np.sqrt(3) for jj in range(3) ]
 
-    elif num > 3:
+    elif num == 4:
+        vecs = [ [ -dot_sep/2, +dot_sep/2 ],
+                 [ +dot_sep/2, +dot_sep/2 ],
+                 [ +dot_sep/2, -dot_sep/2 ],
+                 [ -dot_sep/2, -dot_sep/2 ] ]
+
+    elif num > 4:
         print("capability to place more than two dots not implemented")
         exit()
 
@@ -115,7 +121,7 @@ def place_dots(region, num, markers = None, dot_sep = None,
         if marker == "+":
             size += 1
 
-        pos = point + vec
+        pos = np.array(point) + np.array(vec)
         plt.plot(*pos, "k"+marker, markersize = size, fillstyle = fill_style)
 
 def make_triple_diagram(region_dots, markers = {}, figsize = figsize,
@@ -210,77 +216,97 @@ def add_double_labels(labels, pads = [ 0.3, 0.3 ]):
 
 dots = { "a" : 1, "abc" : 1, "ac" : 1, "bc" : 2 }
 make_triple_diagram(dots, figsize = (1,1))
-add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
+add_triple_labels(["u","v","w"])
 plt.tight_layout(pad = 0)
-plt.savefig(fig_dir + "example_triple.pdf")
-
-make_triple_diagram(dots, { "a" : "o", "ac" : "o" }, figsize = (1,1))
-add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
-plt.tight_layout(pad = 0)
-plt.savefig(fig_dir + "example_triple_oo_2.pdf")
-
-make_triple_diagram(dots, { "ac" : "o", "bc" : "o" }, figsize = (1,1))
-add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
-plt.tight_layout(pad = 0)
-plt.savefig(fig_dir + "example_triple_oo_1.pdf")
-
-make_triple_diagram(dots, { "abc" : "x", "ac" : "x" }, figsize = (1,1))
-add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
-plt.tight_layout(pad = 0)
-plt.savefig(fig_dir + "example_triple_xx_1.pdf")
-
-plt.close("all")
-
-### example diagrams for open dot elimination
+plt.savefig(fig_dir + "example.pdf")
 
 dots = { "a" : 1, "abc" : 1, "ac" : 1, "bc" : 2 }
-make_triple_diagram(dots, { "a" : "o" }, figsize = (1,1))
+make_triple_diagram(dots, figsize = (1,1))
 add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
 plt.tight_layout(pad = 0)
-plt.savefig(fig_dir + "example_triple_o_top.pdf")
+plt.savefig(fig_dir + "example_123.pdf")
 
-make_triple_diagram(dots, { "a" : "x" }, figsize = (1,1))
-add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
+dots = { "a" : 4, "ab" : 1, "b" : 1 }
+markers = { "a" : "..oo", "b" : "o" }
+make_double_diagram(dots, markers)
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_o.pdf")
+
+dots = { "a" : 1, "abc" : 1, "ac" : 1, "b" : 1, "bc" : 1 }
+markers = { "abc" : "x", "ac" : "x", "b" : "o" }
+make_triple_diagram(dots, markers, figsize = (1,1))
+add_triple_labels(["u","v","w"])
 plt.tight_layout(pad = 0)
-plt.savefig(fig_dir + "example_triple_x_top.pdf")
-
-dots = { "a" : 3, "b" : 2, "ab" : 2 }
-make_double_diagram(dots, { "ab" : "o" })
-add_double_labels(["w_1","w_2"])
-plt.tight_layout(pad = 0.15)
-plt.savefig(fig_dir + "example_double.pdf")
-
-make_double_diagram(dots, { "ab" : "o", "a" : "o" })
-add_double_labels(["w_1","w_2"])
-plt.tight_layout(pad = 0.15)
-plt.savefig(fig_dir + "example_double_o.pdf")
-
-make_double_diagram(dots, { "ab" : "o", "a" : "x" })
-add_double_labels(["w_1","w_2"])
-plt.tight_layout(pad = 0.15)
-plt.savefig(fig_dir + "example_double_x.pdf")
+plt.savefig(fig_dir + "example_x.pdf")
 
 plt.close("all")
 
-### example diagrams for cross elimination
+### example diagrams for elimination
 
-dots = { "a" : 1, "abc" : 1, "ac" : 1, "b" : 2, "c" : 1 }
-make_triple_diagram(dots, { "a" : "x" }, figsize = (1,1), dot_sep = 0.9)
-add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
-plt.tight_layout(pad = 0)
-plt.savefig(fig_dir + "example_triple_x_top_elim.pdf")
+dots = { "a" : 1, "ab" : 1, "b" : 1 }
+make_double_diagram(dots)
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_elim.pdf")
 
-dots = { "abc" : 1, "ac" : 1, "b" : 1, "c" : 1, "ab" : 1 }
-make_triple_diagram(dots, figsize = (1,1), dot_sep = 0.9)
-add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
-plt.tight_layout(pad = 0)
-plt.savefig(fig_dir + "example_triple_x_lft_elim.pdf")
+make_double_diagram(dots, { "a" : "o" })
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_elim_o.pdf")
 
-dots = { "abc" : 1, "ac" : 2, "b" : 2 }
-make_triple_diagram(dots, figsize = (1,1), dot_sep = 0.9)
-add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
-plt.tight_layout(pad = 0)
-plt.savefig(fig_dir + "example_triple_x_rht_elim.pdf")
+make_double_diagram(dots, { "a" : "x" })
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_elim_x.pdf")
+
+make_double_diagram(dots, { "a" : "x" })
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_elim_x.pdf")
+
+dots = { "ab" : 2 }
+make_double_diagram(dots)
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_elim_x_full.pdf")
+
+plt.close("all")
+
+### example diagrams for symmetry factors
+
+dots = { "a" : 4, "b" : 4, "ab" : 1 }
+make_double_diagram(dots)
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym.pdf")
+
+make_double_diagram(dots, { "a" : "o" })
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym_o.pdf")
+
+make_double_diagram(dots, { "a" : "x" })
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym_x.pdf")
+
+make_double_diagram(dots, { "a" : "oo" })
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym_oo.pdf")
+
+make_double_diagram(dots, { "a" : "ox" })
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym_ox.pdf")
+
+
+dots = { "a" : 3, "b" : 3, "ab" : 2 }
+make_double_diagram(dots)
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym_x_elim.pdf")
 
 plt.close("all")
 

@@ -1022,7 +1022,7 @@ $\p{a,b,c,d,e}\in\C_N\p{5}$ would have
 and $g_S=0$ for all other subsets $S\subset\ZZ_3$.  This index
 assignment can be represented by the Venn diagram
 \begin{align}
-  \diagram{example_triple},
+  \diagram{example_123},
   \label{eq:venn_diagram}
 \end{align}
 where $g_S$ is determined the number of dots at the intersection of
@@ -1131,123 +1131,159 @@ these diagrams in order to reduce the computational cost of their
 numerical evaluation.
 
 The simplest diagrams have $g_S$ dots (``$\bullet$'') at the
-intersection of the circles $j\in S$, and are proportional to the
+intersection of the circles $j\in S$, and are simply equal to the
 associated scalar $w\p{g}$ defined in \eqref{eq:diagram_factors}, e.g.
 \begin{align}
-  \diagram{example_triple}
-  \equiv \sp{\prod_{S\in\PP\p{\ZZ_p}} g_S!} w\p{g}
-  = \sum_{\substack{a,b,c,d,e\in\ZZ_N\\
+  \diagram{example_123}
+  \equiv \sum_{\substack{a,b,c,\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
       \abs{\set{a,b,c,d,e}}=5}}
   w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}.
-  \label{eq:diagram_definition}
 \end{align}
-The proportionality factor accounts for the number of ways to permute
-the indices within each region $S\in\PP\p{\ZZ_p}$.  Including this
-symmetry factor in the definition of a diagram is a matter of choice
-that will ultimately make it easier to work with diagrams.  A diagram
-such at that in \eqref{eq:diagram_definition} with $\abs{g}$ dots
-nominally takes $\O\p{N^{\abs{g}}}$ time to compute.  In practice,
-this computational cost can be prohibitive for performing numerical
-simulations of systems of any appreciable size.  If possible, we
-therefore wish to simplify diagrams in order to reduce their
-computational complexity.  To this end, we first need to define simple
-modifications of diagrams in which dots may be replaced by empty dots
+Such a diagram with $\abs{g}$ dots nominally takes $\O\p{N^{\abs{g}}}$
+time to compute.  In practice, this computational cost can be
+prohibitive for performing numerical simulations of systems with any
+appreciable size.  We therefore wish to simplify diagrams in order to
+reduce their computational cost as much as possible.  Our general
+strategy will be to replace constrained sums that make all indices
+interdependent (such as $\abs{\set{a,b,c,d,e}}=5$ above) by
+unconstrained sums that can be carried out in sequence.  In order to
+represent different constraints, we need to define diagrams in which
+filled dots (``$\bullet$'') may be replaced by empty dots
 (``$\circ$'') or crosses (``$\bm\times$'').
 
-In any diagram (with filled dots, empty dots, or crosses), the values
-of indices associated with filled dots are always summed as if the
-diagram had only dots, without regard for all other indices.  Empty
-dots in a diagram then correspond to indices that are summed over all
-of $\ZZ_N$ independently and without additional constraints, e.g.
+If a region of a diagram contains $F$ filled dots, those dots
+correspond to indices that sum over $\C_N\p{F}$ with the constraint
+that they are not equal to any other filled dots in a diagram.  $E$
+empty dots in a region, meanwhile, correspond to indices that are
+summed over $\C_N\p{E}$ without any additional constraints, e.g.
 \begin{align}
-  \diagram{example_triple_oo_2} \equiv
-  \sum_{a,c\in\ZZ_N}
-  \sum_{\substack{b,d,e\in\ZZ_N\\\abs{\set{b,d,e}}=3}}
-  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}.
+  \diagram{example_o}
+  \equiv \sum_{\substack{\p{a,b}\in\C_N\p{2}\\e\in\ZZ_N\\
+      \abs{\set{a,b,e}}=3}}
+  \sum_{\substack{\p{c,d}\in\C_N\p{2}\\f\in\ZZ_N}}
+  v\p{a,b,c,d,e} w\p{e,f}.
 \end{align}
-Crosses, meanwhile, correspond to indices that are {\it maximally
-  dependent} on filled dots: ``cross indices'' are summed {\it only}
-over the values of ``filled dot indices'', e.g.
+Empty dots are therefore entirely independent of filled dots.
+Crosses, meanwhile, are {\it entirely dependent} on filled dots:
+``cross indices'' are summed {\it only} over the values of ``filled
+dot indices'', e.g.
 \begin{align}
-  \diagram{example_triple_xx_1}
-  \equiv \sum_{\substack{a,d,e\in\ZZ_N\\\abs{\set{a,d,e}}=3}}
-  \sum_{b,c\in\set{a,d,e}}
-  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}.
+  \diagram{example_x}
+  \equiv \sum_{\substack{a,e\in\ZZ_N\\\abs{\set{a,e}}=2}}
+  \sum_{b,c\in\set{a,e}} \sum_{d\in\ZZ_N}
+  u\p{a,b,c} v\p{b,d,e} w\p{b,c,e}.
 \end{align}
-Empty dots and crosses allow us to decompose diagrams into sums of
-different diagrams that (may) require less time to evaluate.  We will
-essentially use two tricks to decompose diagrams: eliminating filled
-dots, and eliminating crosses.
+Empty dots and crosses allow us to decompose diagrams with a high
+computational cost into different diagrams with a lower computational
+cost.  We will essentially use two tricks to decompose diagrams:
+eliminating filled dots, and eliminating crosses.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Decomposing diagrams}
 
 Given a diagram containing only dots (filled or empty), we can
 decompose any filled dot into an empty dot and a cross.  For example
 \begin{align}
-  \diagram{example_triple}
-  = \diagram{example_triple_o_top} - \diagram{example_triple_x_top},
-  \label{eq:example_decomposition}
+  \diagram{example_elim}
+  = \diagram{example_elim_o}
+  - \diagram{example_elim_x}
+  \label{eq:example_elim}
 \end{align}
 where
 \begin{align}
-  \diagram{example_triple}
-  \equiv \sum_{\substack{a,b,c,d,e\in\ZZ_N\\\abs{\set{a,b,c,d,e}}=5}}
-  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
+  \diagram{example_elim}
+  \equiv \sum_{\substack{a,b,c\in\ZZ_N\\\abs{\set{a,b,c}}=2}}
+  v\p{a,b} w\p{b,c},
 \end{align}
 \begin{align}
-  \diagram{example_triple_x_top}
-  \equiv \sum_{\substack{b,c,d,e\in\ZZ_N\\\abs{\set{b,c,d,e}}=4}}
-  \sum_{a\in\set{b,c,d,e}}
-  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
+  \diagram{example_elim_o}
+  \equiv \sum_{\substack{b,c\in\ZZ_N\\\abs{\set{b,c}}=2}}
+  v\p{\circ,b} w\p{b,c},
+  &&
+  v\p{\circ,b} \equiv \sum_{a\in\ZZ_N} v\p{a,b},
+  \label{eq:example_elim_o}
 \end{align}
 \begin{align}
-  \diagram{example_triple_o_top}
-  \equiv \sum_{\substack{b,c,d,e\in\ZZ_N\\\abs{\set{b,c,d,e}}=4}}
-  w_1\p{\circ,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
-  \label{eq:example_triple_x_top}
+  \diagram{example_elim_x}
+  \equiv \sum_{\substack{b,c\in\ZZ_N\\\abs{\set{b,c}}=2}}
+  \sum_{a\in\set{b,c}} v\p{a,b} w\p{b,c}.
 \end{align}
-with
-\begin{align}
-  w_1\p{\circ,b,c} \equiv \sum_{a\in\ZZ_N} w_1\p{a,b,c},
-\end{align}
-The decomposition in \eqref{eq:example_decomposition} essentially
-breaks up a sum over $a\in\ZZ_N\setminus\set{b,c,d,e}$ into a
-difference of sums over $a\in\ZZ_N$ and $a\in\set{b,c,d,e}$.  The sum
-over $a\in\ZZ_N$ to compute $w_1\p{\circ,b,c}$ has $\O\p{N^3}$ cost,
-and can be performed prior to computing the diagram in
-\eqref{eq:example_triple_x_top}.  The decomposition in
-\eqref{eq:example_decomposition} thereby reduces the calculation of
-one $\O\p{N^5}$ diagram to the calculation of two $\O\p{N^4}$
-diagrams.  A similar reduction by a factor of $\sim N$ can be achieved
-by decomposing any dot in a region $S\in\PP\p{\ZZ_p}$ addressing only
-one tensor, i.e.~with $\abs{S}=1$.
+The decomposition in \eqref{eq:example_elim} essentially breaks
+up a sum over $a\in\ZZ_N\setminus\set{b,c}$ into a difference of sums
+over $a\in\ZZ_N$ and $a\in\set{b,c}$.  The sum over $a\in\ZZ_N$ to
+compute $v\p{\circ,b}$ has $\O\p{N^2}$ cost, and can be performed
+prior to evaluating the diagram in \eqref{eq:example_elim_o}.
+The decomposition in \eqref{eq:example_elim} therefore splits
+one $\O\p{N^3}$ into two $\O\p{N^2}$ diagrams.
 
-While it is possible, in principle, to derive rules for decomposing
-filled dots in a diagram that contains crosses, it is much easier to
-simply eliminate crosses from a diagram altogether.  To eliminate a
-cross from a diagram, we first note that the corresponding index need
-not sum over the values of indices in any tensor that contains that
-index; that is (pay attention to the second sum in each line),
+After splitting a filled dot into an empty dot and a cross, the next
+step is to immediately eliminate the cross.  To eliminate a cross from
+a diagram, we first note that the corresponding index can ignore other
+indices on tensors that contain the index; that is (pay attention to
+the sum over $a$),
 \begin{align}
-  \diagram{example_triple_x_top_elim}
-  &\equiv \sum_{\substack{b,c,d,e,f\in\ZZ_N\\\abs{\set{b,c,d,e,f}}=5}}
-  \sum_{a\in\set{b,c,d,e,f}}
-  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,f} \\
-  &= \sum_{\substack{b,c,d,e,f\in\ZZ_N\\\abs{\set{b,c,d,e,f}}=5}}
-  \sum_{a\in\set{d,e,f}}
-  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,f}.
-  \label{eq:x_elim}
+  \diagram{example_elim_x}
+  \equiv \sum_{\substack{b,c\in\ZZ_N\\\abs{\set{b,c}}=2}}
+  \sum_{a\in\set{b,c}} v\p{a,b} w\p{b,c}
+  = \sum_{\substack{b,c\in\ZZ_N\\\abs{\set{b,c}}=2}}
+  \sum_{a\in\set{c}} v\p{a,b} w\p{b,c}.
 \end{align}
 For each remaining index addressed by a cross, meanwhile, the cross
-simply forces the corresponding indices to be equal, so
+simply forces the corresponding indices to be equal, which is
+equivalent to moving a filled dot into a different region:
 \begin{align}
-  \diagram{example_triple_x_top_elim}
-  = 2 \diagram{example_triple_x_lft_elim}
-  + \diagram{example_triple_x_rht_elim},
+  \diagram{example_elim_x}
+  = 2 \diagram{example_elim_x_full}
+  = 2 \sum_{b,c\in\C_N\p{2}} v\p{c,b} w\p{b,c}.
+  \label{eq:example_elim_final}
 \end{align}
-where the factor of 2 appears simply to account for both of
-$a\in\set{d,e}$ in \eqref{eq:x_elim}.  The rules derived here for
-replacing filled dots and crosses will be used in the following
-sections to simplify diagrams and minimize the computational cost of
-their evaluation.
+The factor of 2 accounts for the fact that the left diagram sums over
+$b,c\in\ZZ_N$, while the right diagram sums over
+$\p{b,c}\in\C_N\p{2}$.  We can generally repeat the above process of
+eliminating filled dots and crosses until only empty dots remain in a
+diagram.  The only complication in carrying out this process is that
+we have to manually keep track of symmetry factors at each step, such
+as the factor of 2 in \eqref{eq:example_elim_final}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Symmetry factors}
+
+Here we discuss the rules governing symmetry factors that appear when
+decomposing diagrams.  In general, eliminating a filled dot from a
+region with $F$ filled dots makes a diagram pick up a factor of $1/F$,
+e.g.
+\begin{align}
+  \diagram{example_sym}
+  = \f14 \diagram{example_sym_o}
+  - \f14 \diagram{example_sym_x}.
+\end{align}
+This factor can be derived by replacing the sum over $\C_N\p{F}$ for
+the filled dots within the region by a sum over $\ZZ_N^{F}$, which
+picks up a factor of $1/F!$ to account for the number of ways to
+permute $F$ values.  Setting aside one filled dot for replacement by
+an empty dot and a cross, the sum over $\ZZ_N^{F-1}$ for the remaining
+dots can be changed back to a sum over $\C_N\p{F-1}$, picking up a
+factor of $\p{F-1}!$.  The overall factor picked up throughout this
+procedure is therefore $\p{F-1}!/F!=1/F$.  Similarly, adding an empty
+dot to a region with $E$ empty dots makes the diagram pick up a factor
+of $\p{E+1}!/E!=E+1$, so
+\begin{align}
+  \diagram{example_sym_o}
+  = \f23 \diagram{example_sym_oo}
+  - \f13 \diagram{example_sym_ox}.
+\end{align}
+Finally, eliminating a cross by moving a filled dot from an ``old''
+region with $F_{\t{old}}$ filled dots into a ``new'' region with
+$F_{\t{new}}$ filled dots picks up an overall factor of $F_{\t{new}}$,
+so
+\begin{align}
+  \diagram{example_sym_x}
+  = 2 \diagram{example_sym_x_elim},
+\end{align}
+where the factor of $1/F_{\t{old}}$ that would be acquired from
+removing a dot from the old region is canceled out by a factor of
+$F_{\t{old}}$ that accounts for the number of ways to move a dot from
+the old region to the new one.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Two single-body operators}
@@ -1312,9 +1348,9 @@ of the form
 \begin{multline}
   \P_0 \sp{\sum_{k<\ell} \sum_{p<q}
     v_{k\ell} w_{pq} O_{k\ell} Q_{pq}} \P_0 \\
-  \EQFS \f14 \diagram{two_body_0} O_{1,2} Q_{3,4}
+  \EQFS \diagram{two_body_0} O_{1,2} Q_{3,4}
   + \diagram{two_body_1} O_{1,2} Q_{1,3}
-  + \f12 \diagram{two_body_2} O_{1,2} Q_{1,2},
+  + \diagram{two_body_2} O_{1,2} Q_{1,2},
   \label{eq:POQP_start}
 \end{multline}
 where $k,\ell,p,q$ index individual spins; $O$ and $Q$ are
@@ -1332,16 +1368,15 @@ that appear in the definition of a diagram.  Defining
 \end{align}
 for $m\in\set{v,w}$, we can write
 \begin{align}
-  \diagram{two_body_2} = \sum_{p,q\in\ZZ_N} v_{pq} w_{pq}
-  = 2 \sum_{p,q\in\C_N\p{2}} v_{pq} w_{pq}
+  \diagram{two_body_2} \equiv \sum_{p,q\in\C_N\p{2}} v_{pq} w_{pq}
   = \v{\m v} \c\v{\m w},
 \end{align}
 and simplify
 \begin{align}
   \diagram{two_body_1}
-  &= \diagram{two_body_1_o} - \diagram{two_body_1_x} \\
-  &= \diagram{two_body_1_oo} - \diagram{two_body_1_ox}
-  - \diagram{two_body_2} \label{eq:mid_zero} \\
+  &= \sp{\diagram{two_body_1_o}} - \sp{\diagram{two_body_1_x}} \\
+  &= \sp{\diagram{two_body_1_oo} - \diagram{two_body_1_ox}}
+  - \sp{2\diagram{two_body_2}} \label{eq:mid_zero} \\
   &= \v v \c \v w - 2 \v{\m v} \c \v{\m w},
 \end{align}
 where the middle diagram in \eqref{eq:mid_zero} contains an empty sum
@@ -1350,13 +1385,13 @@ diagrams with empty sums and additionally using the fact that
 $v_{pq},w_{pq}$ are mean-zero, we can work out
 \begin{align}
   \diagram{two_body_0}
-  &= \diagram{two_body_0_o} - \diagram{two_body_0_x} \\
-  &= \sp{\diagram{two_body_0_oo} - \diagram{two_body_0_ox}}
-  - 2 \sp{\diagram{two_body_1}} \\
-  &= \sp{-2 \diagram{two_body_1_o}}
-  - 2 \sp{\diagram{two_body_1_oo} - \diagram{two_body_2}} \\
-  &= -4 \diagram{two_body_1_oo} + 2 \diagram{two_body_2} \\
-  &= -4 \v v\c\v w + 4 \v{\m v}\c\v{\m w}.
+  &= \f12 \sp{\diagram{two_body_0_o}}
+  - \f12 \sp{\diagram{two_body_0_x}} \\
+  &= \f12 \sp{\diagram{two_body_0_oo} - \diagram{two_body_0_ox}}
+  - \f12 \sp{\diagram{two_body_1}} \\
+  &= \f12 \sp{-\diagram{two_body_1_o}}
+  - \f12 \p{\v v\c\v w - 2\v{\m v}\c\v{\m w}} \\
+  &= -\v v\c\v w + \v{\m v}\c\v{\m w}.
 \end{align}
 Altogether, we thus have that
 \begin{multline}
@@ -1389,14 +1424,14 @@ operators that remain after accounting for $X^2=1$, we find that
 \end{align}
 with
 \begin{align}
-  A_6 \equiv \f18 \diagram{triple_0},
+  A_6 \equiv \diagram{triple_0},
   &&
-  A_4 \equiv \diagram{triple_1} + \f12 \diagram{triple_01},
+  A_4 \equiv \diagram{triple_01} + \diagram{triple_1},
   \label{eq:triple_64}
 \end{align}
 \begin{align}
-  A_2 \equiv \f12 \diagram{triple_2} + \diagram{triple_11}
-  + \f14 \diagram{triple_02} + \diagram{triple_011},
+  A_2 \equiv \diagram{triple_011} + \diagram{triple_02}
+  + \diagram{triple_11} + \diagram{triple_2},
   \label{eq:triple_2}
 \end{align}
 where we have neglected scalar terms without physical consequence, and
@@ -1432,17 +1467,17 @@ enough to execute on a computer, doing which we find
 \end{align}
 where
 \begin{align}
-  D_0 \equiv \f18 \diagram{triple_0_o},
+  D_0 \equiv \diagram{triple_0_o},
   &&
-  D_1 \equiv \f12 \diagram{triple_01_o} - 2 \diagram{triple_1_o},
+  D_1 \equiv \diagram{triple_01_o} - 2 \diagram{triple_1_o},
   &&
   D_3 \equiv \diagram{triple_0111_o},
 \end{align}
 \begin{align}
   D_2 \equiv \diagram{triple_011_o}
-  + \f14 \diagram{triple_02_o}
+  + \diagram{triple_02_o}
   - 2 \diagram{triple_11_o}
-  + 2 \diagram{triple_2_o}.
+  + 4 \diagram{triple_2_o}.
 \end{align}
 Defining, for each of $m\in\set{u,v,w}$,
 \begin{align}
