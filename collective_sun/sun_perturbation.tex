@@ -1196,7 +1196,7 @@ decompose any filled dot into an empty dot and a cross.  For example,
 where
 \begin{align}
   \diagram{example_elim}
-  \equiv \sum_{\substack{a,b,c\in\ZZ_N\\\abs{\set{a,b,c}}=2}}
+  \equiv \sum_{\substack{a,b,c\in\ZZ_N\\\abs{\set{a,b,c}}=3}}
   v\p{a,b} w\p{b,c},
 \end{align}
 \begin{align}
@@ -1284,7 +1284,7 @@ $F_{\t{new}}+1$, so
   \diagram{example_sym_x}
   = 2 \diagram{example_sym_x_elim},
 \end{align}
-where the factor of $1/F_{\t{old}}$ that is acquired from removing a
+where the factor of $1/F_{\t{old}}$ that is acquired due to removing a
 dot from the old region is canceled out by a factor of $F_{\t{old}}$
 that accounts for the number of ways to move a dot from the old region
 to the new one.
@@ -1407,8 +1407,8 @@ Altogether, we thus have that
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Three two-body Ising-like operators}
 
-Here we simplify a product of three two-body operators of a particular
-form projected onto the permutationally symmetric manifold:
+Here we simplify a product of three two-body operators projected onto
+the permutationally symmetric manifold:
 \begin{align}
   \X \equiv \P_0 \sp{\sum_{k<\ell} \sum_{p<q} \sum_{r<s}
     u_{k\ell} v_{pq} w_{rs} X_k X_\ell X_p X_q X_r X_s} \P_0,
