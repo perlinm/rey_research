@@ -167,7 +167,6 @@ for diagram in set_diagrams(ranks):
     weight = sum( num_indices
                   for ops, num_indices in diagram.items()
                   if len(ops) % 2 == 1 )
-    if weight == 0: continue
     if weight not in weight_vec.keys():
         weight_vec[weight] = diagram_vec(diagram)
     else:
