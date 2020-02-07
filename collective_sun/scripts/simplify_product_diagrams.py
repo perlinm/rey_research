@@ -69,25 +69,22 @@ class diagram_vec:
     def zip_permutations(self):
         new_diags = []
         new_coefs = []
-        num_terms = []
         for diag, coef in zip(self.diags, self.coefs):
             labels = functools.reduce(set.union, ( set(region) for region in diag.keys() ))
             eliminated_diag = False
             for perm in it.permutations(labels):
                 perm_diag = permute_diagram(diag, perm)
-                for dd, new_diag in enumerate(new_diags):
+                for new_diag, new_coef in zip(new_diags, new_coefs):
                     if new_diag == perm_diag:
-                        new_coefs[dd] += coef
-                        num_terms[dd] += 1
+                        assert( new_coef == coef )
                         eliminated_diag = True
                         break
                 if eliminated_diag: break
             if not eliminated_diag:
                 new_diags += [ diag ]
                 new_coefs += [ coef ]
-                num_terms += [ 1 ]
         new_diags = [ diag for dd, diag in enumerate(new_diags) if new_coefs[dd] != 0 ]
-        new_coefs = [ coef/num for coef, num in zip(new_coefs, num_terms) if coef != 0 ]
+        new_coefs = [ coef for coef in new_coefs if coef != 0 ]
         return diagram_vec(new_diags, new_coefs)
 
 # permute the labels on a diagram
