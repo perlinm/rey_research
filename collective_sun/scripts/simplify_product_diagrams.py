@@ -169,7 +169,7 @@ for diagram in set_diagrams(ranks):
     else:
         weight_vec[weight] += diagram_vec(diagram)
 
-for weight, vec in list(weight_vec.items())[::-1]:
+for weight, vec in weight_vec.items():
     print(weight)
     print("-"*10)
 
