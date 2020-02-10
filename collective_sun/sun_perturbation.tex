@@ -56,7 +56,9 @@
 \newcommand{\V}{\mathcal{V}}
 \newcommand{\X}{\mathcal{X}}
 
+\newcommand{\DD}{\mathbb{D}}
 \newcommand{\PP}{\mathbb{P}}
+\newcommand{\RR}{\mathbb{R}}
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\TT}{\mathbb{T}}
 \newcommand{\ZZ}{\mathbb{Z}}
@@ -729,11 +731,12 @@ in the single- and two-body theory in Sections
 a translationally invariant system with periodic boundary conditions.
 We solve the single-body eigenvalue problem analytically, and reduce
 the two-body eigenvalue problem to that of diagonalizing
-$\p{N-1}\times\p{N-1}$ matrices.  Finally, for we discuss the further
-reduction of the two-body problem to that of diagonalizing matrices
-with dimensions $\sim\p{N/2^D}\times\p{N/2^D}$ in the case of an
-isotropic system on a $D$-dimensional periodic lattice, but leave this
-reduction to future work.
+$\p{N-1}\times\p{N-1}$ matrices.  We then reduce the two-body
+eigenvalue problem even further for the case of an isotropic system,
+to that of diagonalizing a single $\sim\p{N/2^D}\times\p{N/2^D}$
+matrix.  Finally, we provide an analytic solution to the two-body
+problem in the case of a fully collective model with uniform
+couplings.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body eigenvalue problem}
@@ -785,8 +788,7 @@ find that
 The two-body eigenvalue equation in \eqref{eq:cond_2} is designed to
 find solutions $\m w$ to the equation
 \begin{align}
-  \sum_k \p{h_{pk} w_{kq} + w_{pk} h_{kq}}
-  - \bar h_{pq} w_{pq}
+  \sum_k \p{h_{pk} w_{kq} + w_{pk} h_{kq}} - \bar h_{pq} w_{pq}
   = \Delta w_{pq},
   &&
   \bar h_{pq} \equiv h_p + h_q - 2h_{pq},
@@ -794,25 +796,31 @@ find solutions $\m w$ to the equation
   h_p \equiv \sum_q h_{pq},
   \label{eq:cond_2_ref_start}
 \end{align}
-which can be written in matrix form as
+where translational invariance implies that
+$\bar h_{pq}=2h_0-2h_{pq}$, so we can equivalently write
 \begin{align}
-  \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h} - \bar{\m h} * \m w
-  = \Delta \m w,
+  h_{pq} w_{pq}
+  + \f12 \sum_k \p{h_{pk} w_{kq} + w_{pk} h_{kq}}
+  = \p{\f12 \Delta + h_0} w_{pq},
+\end{align}
+which can also be written in matrix form as
+\begin{align}
+  \m h * \m w + \f12 \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h}
+  = \p{\f12 \Delta + h_0} \m w,
   \label{eq:cond_2_ref}
 \end{align}
-where $\m h$, $\bar{\m h}$, and $\m w$ are matrices of all $h_{pq}$,
-$\bar h_{pq}$ and $w_{pq}$;
+where $\m h$ and $\m w$ are matrices of all $h_{pq}$ and $w_{pq}$;
+$\m h*\m w$ denotes an element-wise (Kronecker) product of $\m h$ and
+$\m w$, i.e.~with matrix elements $h_{pq}w_{pq}$; and
 $\P_{\t{off-diag}}\p{\m m}\equiv \m m-\sum_p\op{p}\m m\op{p}$ denotes
 the projection of $\m m$ onto the space of strictly off-diagonal
-matrices; and $\bar{\m h}*\m w$ denotes an element-wise (Kronecker)
-product of $\bar{\m h}$ and $\m w$, i.e.~with matrix elements
-$\bar h_{pq}w_{pq}$.  In order to find solutions to
-\eqref{eq:cond_2_ref} when the interaction Hamiltonian $H_0$ is
-translationally invariant, in which case $h_{pq}$ and $\bar h_{pq}$
-depend only on the separation $\pm\p{p-q}$, we expand all matrices in
-a basis that the respects translational symmetry.  To this end, for
-all lattice displacements $d\in\ZZ_L^D$ and wavenumbers
-$k\in\ZZ_L^D\times2\pi/L$ we define the {\it cycle matrices}
+matrices.  In order to find solutions to \eqref{eq:cond_2_ref} when
+the interaction Hamiltonian $H_0$ is translationally invariant, in
+which case $h_{pq}$ depends only on the separation $\pm\p{p-q}$, we
+expand all matrices in a basis that the respects translational
+symmetry.  To this end, for all lattice displacements $d\in\ZZ_L^D$
+and wavenumbers $k\in\ZZ_L^D\times2\pi/L$ we define the {\it cycle
+  matrices}
 \begin{align}
   \m m_{dk} \equiv \sum_p e^{ip\c k} \op{p+d}{p},
   \label{eq:cycle}
@@ -828,32 +836,30 @@ and expand
   \m w = \sum_{d,k} \tilde w_{dk} \m m_{dk},
   &&
   \m h = \sum_{q,d} h_{q+d,q} \op{q+d}{q}
-  = \sum_d h_{d,0} \m m_{d,0},
-  &&
-  \bar{\m h} = \sum_d \bar h_{d,0} \m m_{d,0}.
+  = \sum_d h_{d,0} \m m_{d,0}.
 \end{align}
 We can then write the condition in \eqref{eq:cond_2_ref} as a new set
 of conditions
 \begin{align}
-  \sum_{\substack{c,d\\c+d\ne0}}
+  \sum_{d\ne0} h_{d,0} \tilde w_{dk} \m m_{dk}
+  + \f12 \sum_{\substack{c,d\\c+d\ne0}}
   h_{c,0} \tilde w_{dk} \p{1 + e^{-ic\c k}} \m m_{c+d,k}
-  - \sum_{d\ne0} \bar h_{d,0} \tilde w_{dk} \m m_{dk}
-  = \Delta \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
+  = \p{\f12\Delta + h_0} \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
 \end{align}
 that must hold for all wavenumbers $k$.  With some re-indexing, we can
 write
 \begin{align}
-  \sum_{c,d\ne0} h_{d-c,0} \tilde w_{ck}
+  \sum_{d\ne0} h_{d,0} \tilde w_{dk} \m m_{dk}
+  + \f12 \sum_{c,d\ne0} h_{d-c,0} \tilde w_{ck}
   \p{1 + e^{-i\p{d-c}\c k}} \m m_{dk}
-  - \sum_{d\ne0} \bar h_{d,0} \tilde w_{dk} \m m_{dk}
-  = \Delta \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
+  = \p{\f12\Delta + h_0} \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
   \label{eq:cond_2_cycle}
 \end{align}
 and define
 \begin{align}
   \ut{\check{\m h}}_k
-  \equiv \sum_{c,d\ne0} h_{d-c,0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c}
-  - \sum_{d\ne0} \bar h_{d,0} \op{d},
+  \equiv \sum_{d\ne0} h_{d,0} \op{d}
+  + \f12 \sum_{c,d\ne0} h_{d-c,0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
   &&
   \ut{\v{\m w}}_k \equiv \sum_{d\ne0} \tilde w_{dk} \ket{d},
   \label{eq:cycle_vecs}
@@ -861,32 +867,76 @@ and define
 in order to express \eqref{eq:cond_2_cycle} as the set of eigenvalue
 equations
 \begin{align}
-  \ut{\check{\m h}}_k \c \ut{\v{\m w}}_k = \Delta \ut{\v{\m w}}_k.
-  \label{eq:cond_2_square}
+  \ut{\check{\m h}}_k \c \ut{\v{\m w}}_k
+  = \p{\f12\Delta + h_0} \ut{\v{\m w}}_k.
+  \label{eq:cond_2_cycle_block}
 \end{align}
-The appearance of a wavenumber index $k$ in \eqref{eq:cond_2_square}
-implies that all fixed-$k$ components of a general coefficient matrix
-$\m w$ must simultaneously satisfy \eqref{eq:cond_2_square} in order
-to generate states of fixed excitation energy $\Delta$ when the
-corresponding perturbation $\V_2^\Delta$ acts on a permutationally
-symmetric state $\ket\psi\in\M_0$.  The decomposition of an arbitrary
-coefficient vector $\v{\m w}=\sum_\Delta\v{\m w}_\Delta$ into
-coefficient vectors $\v{\m w}_\Delta$ that generate a
-fixed-excitation-energy perturbation $\V_2^\Delta$ is then performed
-by projecting each $k$-component of $\v{\m w}$ onto the corresponding
-$\Delta$-eigenspace of $\ut{\check{\m h}}_k$.  If the perturbation
-$\V_2$ is translationally invariant, then the $k$-components of
-$\v{\m w}$ for all $k\ne 0$ all vanish, so we only need to consider
-the case of $k=0$.
+The appearance of a wavenumber index $k$ in
+\eqref{eq:cond_2_cycle_block} implies that all fixed-$k$ components of
+a general coefficient matrix $\m w$ must simultaneously satisfy
+\eqref{eq:cond_2_cycle_block} in order to generate states of fixed
+excitation energy $\Delta$ when the corresponding perturbation
+$\V_2^\Delta$ acts on a permutationally symmetric state
+$\ket\psi\in\M_0$.  The decomposition of an arbitrary coefficient
+vector $\v{\m w}=\sum_\Delta\v{\m w}_\Delta$ into coefficient vectors
+$\v{\m w}_\Delta$ that generate a fixed-excitation-energy perturbation
+$\V_2^\Delta$ is then performed by projecting each $k$-component of
+$\v{\m w}$ onto the corresponding $\Delta$-eigenspace of
+$\ut{\check{\m h}}_k$.  If the perturbation $\V_2$ is translationally
+invariant, then $\ut{\v{\m w}}_k=0$ for all $k\ne0$, so we only need
+to consider the case of $k=0$:
+\begin{align}
+  \ut{\check{\m h}}_0 \c \ut{\v{\m w}}_0
+  = \p{\f12\Delta + h_0} \ut{\v{\m w}}_0,
+  &&
+  \ut{\check{\m h}}_0
+  = \sum_{d\ne0} h_{d,0} \op{d}
+  + \sum_{c,d\ne0} h_{cd} \op{c}{d},
+  &&
+  \ut{\v{\m w}}_0 \equiv \sum_{d\ne0} \tilde w_{d,0} \ket{d}.
+  \label{eq:cond_2_cycle_0}
+\end{align}
 
-We can reduce the eigenvalue problem in \eqref{eq:cond_2_square} even
-further in the case of an isotropic system, in which the couplings
-$h_{pq}$ depend only on the distance $\abs{p-q}$.  On a $D$
-dimensional lattice, isotropy implies one reflection symmetry for each
-lattice axis, which reduces the degrees of freedom in of
-$\ut{\check{\m h}}_k$ from $\sim N\times N$ to
-$\sim\p{N/2^D}\times\p{N/2^D}$.  We leave this reduction to future
-work.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Isotropic systems}
+
+If the interaction Hamiltonian $H_0$ and two-body perturbation $\V_2$
+are both translationally invariant isotropic, then we can reduce the
+eigenvalue problem \eqref{eq:cond_2_cycle_0} even further by making
+use of the fact that the couplings $h_{pq}$ depend only on the
+distance $\abs{p-q}$.  To this end, we define vectors $\ket{a}$
+labeled by distances $a\in\RR$ from the origin:
+\begin{align}
+  \ket{a} \equiv \f1{\sqrt{N_a}}
+  \sum_{\substack{d\in\ZZ_L^D\\\abs{d}=a}} \ket{d},
+\end{align}
+where the norm $\abs{d}$ of a vector $d$ on a periodic lattice is
+implicitly understood to mean the smallest Euclidean distance of $d$
+from the origin; and $N_a$ is a normalization factor equal to the
+number of displacements $d\in\ZZ_L^D$ with $\abs{d}=a$, such that
+$\bk{a|a}=1$.  Defining the set of distances
+\begin{align}
+  \DD_{LD} \equiv \set{ \abs{d} : d \in \ZZ_L^D } \setminus \set{0},
+\end{align}
+we can expand
+\begin{align}
+  \ut{\check{\m h}}_0
+  = \sum_{a\in\DD_{LD}} \tilde h_a \op{a}
+  + \sum_{a,b\in\DD_{LD}} \tilde h_{ab} \op{a}{b},
+  &&
+  \ut{\v{\m w}}_0
+  \equiv \sum_{a\in\DD_{LD}} \tilde w_a \sqrt{N_a} \ket{a},
+\end{align}
+where $\tilde h_a=h_{d,0}$ and
+$\tilde w_a=\tilde w_{d,0}=\tr\p{\m m_{d,0}^\dag \m w}/N$ for all
+$\abs{d}=a$, and
+\begin{align}
+  \tilde h_{ab} \equiv \f1{\sqrt{N_aN_b}}
+  \sum_{\substack{c,d\in\ZZ_L^D\\\abs{c}=a\\\abs{d}=b}} h_{cd}.
+\end{align}
+By rough accounting, isotropy in $D$ dimensions implies one reflection
+symmetry for each of $D$ axes, so the matrix $\ut{\check{\m h}}_0$ has
+dimensions $\sim\p{N/2^D}\times\p{N/2^D}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{The fully collective model}
