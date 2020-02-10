@@ -300,22 +300,20 @@ symmetric manifold $\M_0$.  We can therefore simplify
   = - \sum_{\Delta\ne0} \f1{\Delta} \P_0 \p{\V_1^\Delta}^2 \P_0,
 \end{align}
 where the product $\P_0 \p{\V_1^\Delta}^2 \P_0$ is worked out in
-Appendix \ref{sec:PXYP}.  In total, we find
+Appendix \ref{sec:PXYP}.  In total, using the fact that
+$\v v_X^\Delta$ is mean-zero for all $\Delta\ne0$, we find
 \begin{align}
   H_1^{(2)}
   \EQPS \f1{N\p{N-1}} \sum_{X,Y} \sum_{\Delta\ne0}
   \f{\v v_X^\Delta\c\v v_Y^\Delta}{\Delta}
   \p{\col{X}\,\col{Y} - N \col{XY}},
+  &&
+  \col{Z} \equiv \sum_p Z_p.
   \label{eq:H_1_2}
 \end{align}
 where $\EQPS$ denotes equality under a restriction to the fully
 symmetric manifold $\M_0$; $\v v_X^\Delta$ is the projection of
-$\v v_X$ onto the $\Delta$-eigenspace of the matrix $\m h-\diag\v h$;
-and for any single-spin operator $Z$, we define the collective
-operator
-\begin{align}
-  \col{Z} \equiv \sum_p Z_p.
-\end{align}
+$\v v_X$ onto the $\Delta$-eigenspace of the matrix $\m h-\diag\v h$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Two-body perturbations}
@@ -421,29 +419,32 @@ where $\simeq_\PS$ denotes equality up to scalar terms and a
 restriction to the permutationally symmetric manifold;
 $S_\z\equiv\sum_p s_\z^{(p)}$ is a collective SU(2) spin operator; and
 $W_k$ are scalar coefficients.  In order to expand the coefficients
-$W_k$, for any ${N \choose 2}$-component vector
-$\v{\m m}=\sum_{p<q}m_{pq}\ket{\set{p,q}}$ we define the $N$-component
-vector
+$W_k$, we define
 \begin{align}
-  \v m \equiv \sum_{p,q} m_{pq} \ket{p},
+  \v{\m w}=\sum_{p<q} w_{pq} \ket{\set{p,q}},
+  &&
+  \v w \equiv \sum_{p,q} w_{pq} \ket{p},
 \end{align}
-where we define $m_{pq}$ for all $p,q$ (as opposed to only $p<q$) by
-enforcing $m_{pq}=m_{qp}$ and $m_{pp}=0$.  We then denote the
-projection of $\v{\m m}$ onto the $\Delta$-eigenspace of the matrix
-$\check{\m h}$ defined in \eqref{eq:h_super_mat} by $\v{\m m}_\Delta$,
-which allows us to concisely write
+where $w_{pq}$ is defined for all $p,q$ (as opposed to only $p<q$) by
+enforcing $w_{pq}=w_{qp}$ and $w_{pp}=0$.  The vector $\v w$ is the
+sum of all columns of the matrix
+$\m w\equiv\sum_{p,q}w_{pq}\op{p}{q}$.  We then denote the projection
+of $\v{\m w}$ onto the $\Delta$-eigenspace of the matrix
+$\check{\m h}$ defined in \eqref{eq:h_super_mat} by $\v{\m w}_\Delta$,
+and define
 \begin{align}
-  W_4
-  \equiv \sum_{\Delta\ne0} \f1\Delta \f{\v w_\Delta\c\v w_\Delta
-    - \v{\m w}_\Delta\c\v{\m w}_\Delta}{N!_4},
+  w_{\t{columns}}^{(2)} \equiv \sum_{\Delta\ne0}
+  \f{\v w_\Delta\c\v w_\Delta}{\Delta},
+  &&
+  w_{\t{pairs}}^{(2)} \equiv \sum_{\Delta\ne0}
+  \f{\v{\m w}_\Delta\c\v{\m w}_\Delta}{\Delta},
 \end{align}
-and
+in terms of which
 \begin{align}
-  W_2
-  \equiv \sum_{\Delta\ne0} \f1{\Delta} \sp{\f{\v w_\Delta\c\v w_\Delta
-      - 2\v{\m w}_\Delta\c\v{\m w}_\Delta}{4N!_2}
-    + \f{\p{3N-4}\p{\v w_\Delta\c\v w_\Delta
-        - \v{\m w}_\Delta\c\v{\m w}_\Delta}}{2N!_4}},
+  W_4 \equiv \f{w_{\t{columns}}^{(2)} - w_{\t{pairs}}^{(2)}}{N!_4},
+  &&
+  W_2 \equiv \f{w_{\t{columns}}^{(2)} - 2 w_{\t{pairs}}^{(2)}}
+  {4N!_2} + \f12 \p{3N-4} W_4,
 \end{align}
 where
 \begin{align}
@@ -1343,21 +1344,26 @@ to the new one.
 \subsection{Two single-body operators}
 \label{sec:PXYP}
 
-Calculating the second-order effective Hamiltonian $H_1^{(2)}$ induced
-on the permutationally symmetric manifold $\M_0$ by the perturbation
-$\V_1$ in \eqref{eq:perturbations} requires us to simplify a product
-of the form
+Here we simplify the product
 \begin{align}
   \P_0 \sp{\sum_{p,q} v_p w_q X_p Y_q} \P_0
   \EQPS \diagram{single_body_0} X_1 Y_2
   + \diagram{single_body_1} X_1 Y_1,
   \label{eq:PXYP_start}
 \end{align}
-where $p,q$ index individual spins; $X,Y$ are single-spin operators;
-and the coefficients $v_p,w_q$ satisfy \eqref{eq:cond_1} with
-eigenvalue $\Delta\ne0$, which implies that they are mean-zero.
-Defining $\v m \equiv \sum_p m_p \ket{p}$ for $m\in\set{v,w}$, we can
-simplify
+where $\P_0$ is a projector onto the permutationally symmetric
+manifold $\M_0$; $p,q$ index individual spins; $v_p,w_p$ are scalars;
+and $X,Y$ are single-spin operators.  This product appears, for
+example, in the calculation of the second-order effective Hamiltonian
+$H_1^{(2)}$ induced on the permutationally symmetric manifold $\M_0$
+by the single-body perturbation $\V_1$ in \eqref{eq:perturbations}.
+Defining
+\begin{align}
+  \v m \equiv \sum_p m_p \ket{p},
+  &&
+  \col{m} \equiv \sum_p m_p,
+\end{align}
+for $m\in\set{v,w}$, we can simplify
 \begin{align}
   \diagram{single_body_1}
   \equiv \sum_p v_p w_p
@@ -1367,38 +1373,35 @@ and
 \begin{align}
   \diagram{single_body_0}
   = \diagram{single_body_0_o} - \diagram{single_body_0_x}
-  = \diagram{single_body_0_o} - \diagram{single_body_1}
-  = - \v v \c\v w,
+  = \diagram{single_body_0_oo} - \diagram{single_body_1}
+  = \col{u}\,\col{v} - \v v \c\v w,
 \end{align}
 so
 \begin{align}
   \sum_{p,q} v_p w_q X_p Y_q
-  \EQPS - \v v\c\v w \p{X_1 Y_2 - X_1 Y_1},
+  \EQPS \col{u}\,\col{v} X_1 Y_2 - \v v\c\v w \p{X_1 Y_2 - X_1 Y_1},
 \end{align}
 In order to write this result in terms of collective operators
 $\col{Z} \equiv \sum_p Z_p$, we expand
 \begin{align}
   \col{X Y} \EQPS N X_1 Y_1,
   &&
-  \col{X}\,\col{Y}
-  = \sum_{p=q} X_p Y_q + \sum_{p\ne q} X_p Y_q
-  \EQPS \col{XY} + N\p{N-1} X_1 Y_2,
+  \col{X}\,\col{Y} \EQPS \col{XY} + N\p{N-1} X_1 Y_2,
 \end{align}
 which implies that
 \begin{align}
   \sum_{p,q} v_p w_q X_p Y_q
-  \EQPS - \f{\v v \c\v w}{N\p{N-1}}
-  \p{\col{X}\,\col{Y} - N \col{XY}}.
+  \EQPS \f{\col{u}\,\col{v}}{N\p{N-1}}
+  \p{\col{X}\,\col{Y} - \col{XY}}
+  - \f{\v v \c\v w}{N\p{N-1}}
+  \p{\col{X}\,\col{Y} - N\col{XY}}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Two two-body operators}
 \label{sec:POQP}
 
-Calculating the second-order effective Hamiltonian $H_2^{(2)}$ induced
-on the permutationally symmetric manifold $\M_0$ by the perturbation
-$\V_2$ in \eqref{eq:perturbations} requires us to simplify a product
-of the form
+Here we simplify the product
 \begin{multline}
   \P_0 \sp{\sum_{k<\ell} \sum_{p<q}
     v_{k\ell} w_{pq} O_{k\ell} Q_{pq}} \P_0 \\
@@ -1407,16 +1410,23 @@ of the form
   + \diagram{two_body_2} O_{1,2} Q_{1,2},
   \label{eq:POQP_start}
 \end{multline}
-where $k,\ell,p,q$ index individual spins; $O$ and $Q$ are
-permutationally-symmetric two-spin operators; and the coefficients
-$v_{k\ell},w_{pq}$ satisfy \eqref{eq:cond_2} with eigenvalue
-$\Delta\ne0$, which implies that they are mean-zero.  Defining
+where $\P_0$ is a projector onto the permutationally symmetric
+manifold $\M_0$; $k,\ell,p,q$ index individual spins;
+$v_{k\ell},w_{pq}$ are scalar coefficients with $m_{pq}=m_{qp}$ and
+$m_{pp}=0$ for each of $m\in\set{v,w}$; and $O,Q$ are
+permutationally-symmetric two-spin operators.  This product appears,
+for example, in the calculation of the second-order effective
+Hamiltonian $H_2^{(2)}$ induced on the permutationally symmetric
+manifold $\M_0$ by the two-body perturbation $\V_2$ in
+\eqref{eq:perturbations} in \eqref{eq:perturbations}.  Defining
 \begin{align}
   \v{\m m} \equiv \sum_{p<q} m_{pq} \ket{\set{p,q}},
   &&
   \v m \equiv \sum_p m_p \ket{p},
   &&
   m_p \equiv \sum_q m_{pq},
+  &&
+  \col{m} \equiv \sum_{p<q} m_{pq},
 \end{align}
 for $m\in\set{v,w}$, we can write
 \begin{align}
@@ -1432,41 +1442,60 @@ and simplify
   &= \v v \c \v w - 2 \v{\m v} \c \v{\m w},
 \end{align}
 where the middle diagram in \eqref{eq:mid_zero} contains an empty sum
-for the cross, and is therefore equal to zero.  Similarly neglecting
-diagrams with empty sums and additionally using the fact that
-$v_{pq},w_{pq}$ are mean-zero, we can work out
+for the cross, and is therefore equal to zero.  Finally, with a bit of
+more work (or a computer) we can work out that
 \begin{align}
   \diagram{two_body_0}
-  &= \f12 \sp{\diagram{two_body_0_o}}
-  - \f12 \sp{\diagram{two_body_0_x}} \\
-  &= \f12 \sp{\diagram{two_body_0_oo} - \diagram{two_body_0_ox}}
-  - \f12 \sp{\diagram{two_body_1}} \\
-  &= \f12 \sp{-\diagram{two_body_1_o}}
-  - \f12 \p{\v v\c\v w - 2\v{\m v}\c\v{\m w}} \\
-  &= -\v v\c\v w + \v{\m v}\c\v{\m w}.
+  = \diagram{two_body_0_oooo} - \diagram{two_body_1_ooo}
+  + \diagram{two_body_2_oo}
+  = \col{v}\,\col{w} -\v v\c\v w + \v{\m v}\c\v{\m w}.
 \end{align}
-Altogether, we thus have that
+Altogether,
 \begin{multline}
   \sum_{k<\ell} \sum_{p<q} v_{k\ell} w_{pq} O_{k\ell} Q_{pq} \\
-  \EQPS - \p{\v v \c \v w - \v{\m v} \c \v{\m w}} O_{1,2} Q_{3,4}
+  \EQPS \p{\col{v}\,\col{w} -\v v\c\v w + \v{\m v}\c\v{\m w}}
+  O_{1,2} Q_{3,4}
   + \p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}} O_{1,2} Q_{1,3}
   + \v{\m v} \c \v{\m w}\, O_{1,2} Q_{1,2}.
   \label{eq:POQP}
 \end{multline}
+In the special case that $O=Q=X\otimes X$ with $X^2=1$, we can further
+simplify
+\begin{align}
+  \sum_{k<\ell} \sum_{p<q} v_{k\ell} w_{pq} X_k X_\ell X_p X_q
+  \simeq_\PS
+  \p{\col{v}\,\col{w} -\v v\c\v w + \v{\m v}\c\v{\m w}} X^{\otimes 4}
+  + \p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}} X^{\otimes 2},
+\end{align}
+where $\simeq_\PS$ denotes equality up to scalar terms and a
+restriction to the permutationally symmetric manifold.  In terms of
+collective operators $\col{X} \equiv \sum_p X_p$, we then have
+\begin{multline}
+  \sum_{k<\ell} \sum_{p<q} v_{k\ell} w_{pq} X_k X_\ell X_p X_q \\
+  \simeq_\PS
+  \f{\col{v}\,\col{w} -\v v\c\v w + \v{\m v}\c\v{\m w}}{N!_4}
+  \sp{\col{X}^4 - 2\p{3N-4} \col{X}^2}
+  + \f{\p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}}}{N!_2}\, \col{X}^2,
+\end{multline}
+where
+\begin{align}
+  N!_k \equiv \prod_{j=0}^{k-1} \p{N-j} = \f{N!}{\p{N-k}!}
+\end{align}
+denotes a falling factorial.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Three two-body Ising-like operators}
 
-Here we simplify a product of three two-body operators projected onto
-the permutationally symmetric manifold:
+Here we simplify the product
 \begin{align}
   \X \equiv \P_0 \sp{\sum_{k<\ell} \sum_{p<q} \sum_{r<s}
     u_{k\ell} v_{pq} w_{rs} X_k X_\ell X_p X_q X_r X_s} \P_0,
   &&
   X^2 = 1,
 \end{align}
-where $k,\ell,p,q,r,s$ index individual spins; $X$ is a single-spin
-operator; and $u_{k\ell},v_{pq},w_{rs}$ are arbitrary scalar
+where $\P_0$ is a projector onto the permutationally symmetric
+manifold $\M_0$; $k,\ell,p,q,r,s$ index individual spins; $X$ is a
+single-spin operator; and $u_{k\ell},v_{pq},w_{rs}$ are scalar
 coefficients with $m_{pq}=m_{qp}$ and $m_{pp}=0$ for each of
 $m\in\set{u,v,w}$.  Collecting terms according to the number of $X$
 operators that remain after accounting for $X^2=1$, we find that

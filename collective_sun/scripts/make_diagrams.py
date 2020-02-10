@@ -351,6 +351,12 @@ for assignment in [ { "a" : 2, "b" : 2, "ab" : 0 },
     tag = assignment["ab"]
     plt.savefig(fig_dir + f"two_body_{tag}.pdf")
 
+dots = { "ab" : 2 }
+make_double_diagram(dots, { "ab" : "oo" })
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.05)
+plt.savefig(fig_dir + f"two_body_2_oo.pdf")
+
 dots = { "a" : 1, "b" : 1, "ab" : 1 }
 make_double_diagram(dots, { "a" : "o" })
 add_double_labels(["v","w"])
@@ -372,6 +378,11 @@ add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_1_ox.pdf")
 
+make_double_diagram(dots, { "a" : "o", "b" : "o", "ab" : "o" })
+add_double_labels(["v","w"])
+plt.tight_layout(pad = 0.05)
+plt.savefig(fig_dir + f"two_body_1_ooo.pdf")
+
 dots = { "a" : 2, "b" : 2 }
 make_double_diagram(dots, { "a" : "o" })
 add_double_labels(["v","w"])
@@ -383,15 +394,10 @@ add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_0_x.pdf")
 
-make_double_diagram(dots, { "a" : "oo" })
+make_double_diagram(dots, { "a" : "oo", "b" : "oo" })
 add_double_labels(["v","w"])
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_0_oo.pdf")
-
-make_double_diagram(dots, { "a" : "ox" })
-add_double_labels(["v","w"])
-plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_0_ox.pdf")
+plt.savefig(fig_dir + f"two_body_0_oooo.pdf")
 
 plt.close("all")
 
