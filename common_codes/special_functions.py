@@ -2,8 +2,10 @@
 
 # FILE CONTENTS: special functions used in other files
 
-import scipy
 import numpy as np
+
+import scipy
+from scipy import linalg
 
 from sympy.functions.combinatorial.numbers import stirling as sympy_stirling
 
