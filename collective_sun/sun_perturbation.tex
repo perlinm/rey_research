@@ -1463,19 +1463,21 @@ In the special case that $O=Q=X\otimes X$ with $X^2=1$, we can further
 simplify
 \begin{align}
   \sum_{k<\ell} \sum_{p<q} v_{k\ell} w_{pq} X_k X_\ell X_p X_q
-  \simeq_\PS
+  \EQPS
   \p{\col{v}\,\col{w} -\v v\c\v w + \v{\m v}\c\v{\m w}} X^{\otimes 4}
-  + \p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}} X^{\otimes 2},
+  + \p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}} X^{\otimes 2}
+  + \v{\m v}\c\v{\m w}.
 \end{align}
-where $\simeq_\PS$ denotes equality up to scalar terms and a
-restriction to the permutationally symmetric manifold.  In terms of
-collective operators $\col{X} \equiv \sum_p X_p$, we then have
+In terms of collective operators $\col{X} \equiv \sum_p X_p$, we then
+have
 \begin{multline}
   \sum_{k<\ell} \sum_{p<q} v_{k\ell} w_{pq} X_k X_\ell X_p X_q \\
-  \simeq_\PS
+  \EQPS
   \f{\col{v}\,\col{w} -\v v\c\v w + \v{\m v}\c\v{\m w}}{N!_4}
   \sp{\col{X}^4 - 2\p{3N-4} \col{X}^2}
-  + \f{\p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}}}{N!_2}\, \col{X}^2,
+  + \f{\p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}}}{N!_2}\, \col{X}^2 \\
+  + \f{3\,\col{v}\,\col{w} - N \v v\c\v w
+    + N\p{N-2}\v{\m v}\c\v{\m w}}{\p{N-1}\p{N-3}},
 \end{multline}
 where
 \begin{align}
@@ -1530,17 +1532,18 @@ label assignments, e.g.
   + \diagram{triple_011_vwu} + \diagram{triple_011_wuv}.
   \label{eq:triple_uvw_3}
 \end{align}
-The first diagram in each of $A_6,A_4,A_2$ as written in
+The first diagram in each of $A_6,A_4,A_2,A_0$ as written in
 \eqref{eq:triple_64}, \eqref{eq:triple_2} thus has only one assignment
 of labels, as in \eqref{eq:triple_uvw}, while all other unlabeled
 diagrams have three assignments, as in \eqref{eq:triple_uvw_3}.
 
 Having identified diagrammatic representations of the coefficients
-$A_6,A_4,A_2$, we now need to simplify all diagrams to reduce their
-computational complexity, as discussed in Section \ref{sec:diagrams}.
-Simplifying all these diagrams by hand is tedious, but the process of
-eliminating filled dots and crosses from a diagram is algorithmic
-enough to execute on a computer, doing which we find
+$A_6,A_4,A_2,A_0$, we now need to simplify all diagrams to reduce
+their computational complexity, as discussed in Section
+\ref{sec:diagrams}.  Simplifying all these diagrams by hand is
+tedious, but the process of eliminating filled dots and crosses from a
+diagram is algorithmic enough to execute on a computer, doing which we
+find
 \begin{align}
   A_6 = D_0 - D_1 + D_2 - D_3,
   &&
@@ -1596,12 +1599,12 @@ we can expand
 Finally, we can also write the product $\X$ in \eqref{eq:triple_multi}
 in terms of the collective operator $\col{X} \equiv \sum_p X_p$:
 \begin{align}
-  \X \simeq_\PS
-  \tilde A_6 \col{X}^6 + \tilde A_4 \col{X}^4 + \tilde A_2 \col{X}^2,
+  \X \EQPS
+  \tilde A_6 \col{X}^6 + \tilde A_4 \col{X}^4
+  + \tilde A_2 \col{X}^2 + \tilde A_0,
   \label{eq:triple_col}
 \end{align}
-where $\simeq_\PS$ denotes equality up to scalar terms and a
-restriction to the permutationally symmetric manifold, and
+where
 \begin{align}
   \tilde A_6 \equiv \f{A_6}{N!_6},
   &&
@@ -1609,7 +1612,12 @@ restriction to the permutationally symmetric manifold, and
 \end{align}
 \begin{align}
   \tilde A_2 \equiv \f{A_2}{N!_2} - 2\p{3N-4} \f{A_4}{N!_4}
-  + \p{45N^2-210N+184} \f{A_6}{N!_6}.
+  + \p{45N^2-210N+184} \f{A_6}{N!_6},
+\end{align}
+\begin{align}
+  \tilde A_0 \equiv A_0 - \f{A_2}{N-1}
+  + \f{3A_4}{\p{N-1}\p{N-3}}
+  - \f{15A_6}{\p{N-1}\p{N-3}\p{N-5}}.
 \end{align}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
