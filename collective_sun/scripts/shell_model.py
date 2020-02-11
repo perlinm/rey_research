@@ -218,7 +218,7 @@ for shell in range(shell_num):
 #   on states with definite spin projection onto the z axis
 def _ff(nn, kk): # falling factorial
     return np.prod([ nn-jj for jj in range(kk) ])
-def _norm(spin_proj, shell):
+def _norm(spin_diff, shell):
     tot_sqr = sunc[shell]["tot"]**2
     col_sqr = sunc[shell]["col"] @ sunc[shell]["col"]
     pair_sqr = sunc[shell]["pair"] @ sunc[shell]["pair"]
@@ -226,7 +226,7 @@ def _norm(spin_proj, shell):
     c_2 = ( col_sqr - 2 * pair_sqr ) / _ff(spin_num, 2) - 2*(3*spin_num-4) * c_4
     c_0 = 3*tot_sqr - spin_num*col_sqr + spin_num*(spin_num-2)*pair_sqr
     c_0 /= (spin_num-1) * (spin_num-3)
-    norm_sqr = c_4 * (2*spin_proj)**4 + c_2 * (2*spin_proj)**2 + c_0
+    norm_sqr = c_4 * spin_diff**4 + c_2 * spin_diff**2 + c_0
     if np.allclose(norm_sqr,0):
         return 0
     else:
@@ -282,23 +282,23 @@ def local_coefs(shell_1, shell_2):
 def collective_coefs(shell_1, shell_2):
     local_A_6, local_A_4, local_A_2, local_A_0 = local_coefs(shell_1, shell_2)
 
-    def _ff(kk):
-        return np.product([ spin_num-jj for jj in range(kk) ])
-    sup_A_6 = local_A_6 / _ff(6) if spin_num >= 6 else 0
-    sup_A_4 = local_A_4 / _ff(4) if spin_num >= 4 else 0
-    sup_A_2 = local_A_2 / _ff(2) if spin_num >= 2 else 0
-    sup_A_0 = local_A_0
-
-    A_6 = sup_A_6
-    A_4 = sup_A_4 \
-        - 5*(3*spin_num-8) * sup_A_6
-    A_2 = sup_A_2 \
-        - 2*(3*spin_num-4) * sup_A_4 \
-        + (45*spin_num**2 - 210*spin_num + 184) * sup_A_6
-    A_0 = local_A_0 \
-        - local_A_2 / (spin_num-1) \
-        + local_A_4 * 3 / ( (spin_num-1) * (spin_num-3) ) \
-        - local_A_6 * 15 / ( (spin_num-1) * (spin_num-3) * (spin_num-5) )
+    A_6, A_4, A_2 = 0, 0, 0
+    A_0 = local_A_0
+    if spin_num >= 2:
+        sup_A_2 = local_A_2 / _ff(spin_num, 2)
+        A_2 += sup_A_2
+        A_0 -= local_A_2 / (spin_num-1)
+    if spin_num >= 4:
+        sup_A_4 = local_A_4 / _ff(spin_num, 4)
+        A_4 += sup_A_4
+        A_2 -= sup_A_4 * 2*(3*spin_num-4)
+        A_0 += local_A_4 * 3 / ( (spin_num-1) * (spin_num-3) )
+    if spin_num >= 6:
+        sup_A_6 = local_A_6 / _ff(spin_num, 6)
+        A_6 += sup_A_6
+        A_4 -= sup_A_6 * 5*(3*spin_num-8)
+        A_2 += sup_A_6 * (45*spin_num**2 - 210*spin_num + 184)
+        A_0 -= local_A_6 * 15 / ( (spin_num-1) * (spin_num-3) * (spin_num-5) )
 
     return A_6, A_4, A_2, A_0
 
@@ -323,19 +323,19 @@ for pp, qq in itertools.combinations(range(shell_num), 2):
 
 # construct the Hamiltonian induced by ZZ interactions
 #   for a fixed spin projection onto the Z axis
-def _shell_mat(spin_proj):
-    bare_shell_mat = shell_coefs_6 * (2*spin_proj)**6 \
-                   + shell_coefs_4 * (2*spin_proj)**4 \
-                   + shell_coefs_2 * (2*spin_proj)**2 \
+def _shell_mat(spin_diff):
+    bare_shell_mat = shell_coefs_6 * spin_diff**6 \
+                   + shell_coefs_4 * spin_diff**4 \
+                   + shell_coefs_2 * spin_diff**2 \
                    + shell_coefs_0
     inv_norm_vec = np.array([ ( lambda val : 1/val if val != 0 else 0 )
-                              ( sunc[shell]["norm"](spin_proj) )
+                              ( sunc[shell]["norm"](spin_diff) )
                               for shell in range(shell_num) ])
     return bare_shell_mat * np.outer(inv_norm_vec, inv_norm_vec)
 
 # construct the net Hamiltonian induced by SU(n) + ZZ interactions
-def _hamiltonian(zz_sun_ratio, spin_proj):
-    return np.diag(eig_vals) + zz_sun_ratio * _shell_mat(spin_proj)
+def _hamiltonian(zz_sun_ratio, spin_diff):
+    return np.diag(eig_vals) + zz_sun_ratio * _shell_mat(spin_diff)
 
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):
@@ -344,10 +344,10 @@ def energies_states(zz_sun_ratio):
 
     for spins_dn in range(spin_num+1):
         spins_up = spin_num - spins_dn
-        spin_proj = spins_up - spin_num/2
+        spin_diff = spins_up - spins_dn
 
         energies[spins_up,:], eig_states[spins_up,:,:] \
-            = np.linalg.eigh(_hamiltonian(zz_sun_ratio, spin_proj))
+            = np.linalg.eigh(_hamiltonian(zz_sun_ratio, spin_diff))
 
         if spins_up == spins_dn: break
         energies[spins_dn,:], eig_states[spins_dn,:,:] \
