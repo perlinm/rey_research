@@ -200,6 +200,7 @@ SS_op_mat = [ [ X @ Y for Y in S_op_vec ] for X in S_op_vec ]
 
 ##########################################################################################
 
+# note: factor of 1/2 included for compatibility with Chunlei's work
 chi_eff_bare = 1/4 * np.mean(list(couplings_sun.values()))
 state_X = functools.reduce(np.kron, [up_x]*spin_num).astype(complex)
 
@@ -267,7 +268,7 @@ for coupling_zz in inspect_coupling_zz:
     times, sqz, pops = simulate(coupling_zz)
 
     title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}," \
-        + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
+               + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
 
     plt.figure(figsize = figsize)
     plt.title(title_text)
