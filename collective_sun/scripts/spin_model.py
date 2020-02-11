@@ -13,7 +13,7 @@ from tensorflow_extension import tf_outer_product
 
 np.set_printoptions(linewidth = 200)
 
-lattice_shape = (3,4)
+lattice_shape = (3,3)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 periodic = True
 
@@ -28,7 +28,7 @@ max_time = 10 # in units of J_\perp
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
 data_dir = "../data/projectors/"
-fig_dir = "../figures/"
+fig_dir = "../figures/spins/"
 
 figsize = (5,4)
 params = { "font.size" : 16,
@@ -120,13 +120,13 @@ def spin_op(op, indices = None):
         if scipy.sparse.issparse(array):
             _array_dok = array.todok()
             _indices, _values = zip(*_array_dok.items())
-            _values = np.array(_values).astype(complex)
+            _values = np.array(_values)
             return tf.SparseTensor(indices = _indices, values = _values,
                                    dense_shape = array.shape)
         if type(array) is np.ndarray:
             _indices = np.array(list(np.ndindex(array.shape)))
             return tf.SparseTensor(indices = _indices[array.flatten()!=0],
-                                   values = array[array!=0].flatten().astype(complex),
+                                   values = array[array!=0].flatten(),
                                    dense_shape = array.shape)
 
     # convert a list of strings into a sparse tensor in which the tensor factors
@@ -175,14 +175,18 @@ def spin_op(op, indices = None):
 ##########################################################################################
 print("building operators")
 
-couplings_sun = { (pp,qq) : -1/dist(pp,qq)**alpha / 2
+couplings_sun = { (pp,qq) : -1/dist(pp,qq)**alpha
                   for qq in range(spin_num) for pp in range(qq) }
 
-swap = sum( spin_op([op,op]) for op in ["X","Y","Z","I"] ).real
-H_0 = sum( coupling * spin_op(swap, pp_qq)
+swap = np.array([[ 1, 0, 0, 0 ],
+                 [ 0, 0, 1, 0 ],
+                 [ 0, 1, 0, 0 ],
+                 [ 0, 0, 0, 1 ]])
+H_0 = sum( coupling * spin_op(swap, pp_qq).real
            for pp_qq, coupling in couplings_sun.items() )
 
-ZZ = sum( coupling * spin_op(["Z","Z"], pp_qq)
+# note: factor of 1/2 included for compatibility with Chunlei's work
+ZZ = sum( coupling * spin_op(["Z","Z"], pp_qq).real / 2
           for pp_qq, coupling in couplings_sun.items() )
 
 def col_op(op):
@@ -196,21 +200,21 @@ SS_op_mat = [ [ X @ Y for Y in S_op_vec ] for X in S_op_vec ]
 
 ##########################################################################################
 
-chi_eff_bare = 1/2 * np.mean(list(couplings_sun.values()))
+chi_eff_bare = 1/4 * np.mean(list(couplings_sun.values()))
 state_X = functools.reduce(np.kron, [up_x]*spin_num).astype(complex)
 
 def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
     print("coupling_zz:",coupling_zz)
 
-    coupling_ratio = coupling_zz - 1
+    zz_sun_ratio = coupling_zz - 1
 
-    H = H_0 + coupling_ratio * ZZ
+    H = H_0 + zz_sun_ratio * ZZ
     def _time_derivative(time, state):
         return -1j * ( H @ state )
 
-    if coupling_ratio != 0:
-        chi_eff = coupling_ratio * chi_eff_bare
-        sim_time = max(max_time, max_tau * spin_num**(-2/3) / chi_eff)
+    if zz_sun_ratio != 0:
+        chi_eff = zz_sun_ratio * chi_eff_bare
+        sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
     else:
         sim_time = max_time
 
@@ -250,11 +254,11 @@ def pop_label(manifold, prefix = None):
     else:
         return prefix + " " + label
 
-if not os.path.isdir(fig_dir):
-    os.makedirs(fig_dir)
-
 def to_dB(sqz):
     return 10*np.log10(np.array(sqz))
+
+if not os.path.isdir(fig_dir):
+    os.makedirs(fig_dir)
 
 ##########################################################################################
 print("running inspection simulations")
