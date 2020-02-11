@@ -13,8 +13,8 @@ cutoff = 1e-10
 lattice_size = 3
 lattice_dim = 2
 
-# default exponent for power-law couplings
-default_alpha = 3
+# exponent for power-law couplings
+alpha = 3
 
 # values of the ZZ coupling to simulate in an XXZ model
 sweep_coupling_zz = np.linspace(-2,4,25)
@@ -112,7 +112,7 @@ def pair_vec_to_mat(vec):
 ##########################################################################################
 
 # define SU(n) interaction couplings between spins
-def sunc_val(pp, qq, alpha = default_alpha):
+def sunc_val(pp, qq):
     if to_int(pp) == to_int(qq): return 0
     return -1/dist(pp, qq)**alpha
 
@@ -334,21 +334,22 @@ def _shell_mat(spin_proj):
     return bare_shell_mat * np.outer(inv_norm_vec, inv_norm_vec)
 
 # construct the net Hamiltonian induced by SU(n) + ZZ interactions
-def _hamiltonian(zz_sun_ratio, spins_up):
-    return np.diag(eig_vals) + zz_sun_ratio * _shell_mat(spins_up)
+def _hamiltonian(zz_sun_ratio, spin_proj):
+    return np.diag(eig_vals) + zz_sun_ratio * _shell_mat(spin_proj)
 
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):
     energies = np.zeros((spin_num+1,shell_num))
     eig_states = np.zeros((spin_num+1,shell_num,shell_num))
 
-    for spins_up in range(spin_num+1):
+    for spins_dn in range(spin_num+1):
+        spins_up = spin_num - spins_dn
         spin_proj = spins_up - spin_num/2
+
         energies[spins_up,:], eig_states[spins_up,:,:] \
             = np.linalg.eigh(_hamiltonian(zz_sun_ratio, spin_proj))
 
-        spins_dn = spin_num - spins_up
-        if spins_dn == spins_up: break
+        if spins_up == spins_dn: break
         energies[spins_dn,:], eig_states[spins_dn,:,:] \
             = energies[spins_up,:], eig_states[spins_up,:,:]
 
@@ -383,8 +384,6 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
     else:
         sim_time = max_time
 
-    sim_time = 2
-
     times = np.linspace(0, sim_time, points)
 
     # note: factor of 1/2 included for compatibility with Chunlei's work
@@ -394,9 +393,24 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
 
     return times, pops
 
+def name_tag(coupling_zz = None):
+    base_tag = f"N{spin_num}_D{lattice_dim}_a{alpha}"
+    if coupling_zz == None: return base_tag
+    else: return base_tag + f"_z{coupling_zz}"
+
 for coupling_zz in inspect_coupling_zz:
-    plt.plot(*simulate(coupling_zz))
+    times, pops = simulate(coupling_zz)
+
+    title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}," \
+               + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
+
+    plt.figure(figsize = figsize)
+    plt.title(title_text)
+    plt.plot(times, pops[:,0], "k")
+    for ss in range(1,shell_num):
+        plt.plot(times, pops[:,ss])
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel("population")
     plt.tight_layout()
-    plt.show()
+
+    plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
