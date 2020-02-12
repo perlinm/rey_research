@@ -9,12 +9,8 @@ from dicke_methods import coherent_spin_state as coherent_state_PS
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-# size and dimension of a periodic lattice
-lattice_size = 3
-lattice_dim = 2
-
-# exponent for power-law couplings
-alpha = 3
+lattice_shape = (3,3)
+alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
 sweep_coupling_zz = np.linspace(-2,4,25)
@@ -40,43 +36,42 @@ plt.rcParams.update(params)
 # define some basic methods
 ##########################################################################################
 
-# identify number of spins and collect a list of all spin pairs
-spin_num = lattice_size**lattice_dim
-spin_pairs = [ (pp,qq) for qq in range(spin_num) for pp in range(qq) ]
+lattice_dim = len(lattice_shape)
+spin_num = np.product(lattice_shape)
+spin_pairs = [ (pp,qq) for pp, qq in itertools.combinations(range(spin_num), 2) ]
 pair_index = { pair : idx for idx, pair in enumerate(spin_pairs) }
 
 # convert between integer and vector indices for a spin
-def to_int(spin_vec):
-    if type(spin_vec) == int:
-        return spin_vec % spin_num
-    return sum( lattice_size**pos * ( idx % lattice_size )
-                for pos, idx in enumerate(spin_vec[::-1]) )
-_idx_vec = { to_int(vec) : np.array(vec)
-            for vec in np.ndindex((lattice_size,)*lattice_dim) }
-def to_vec(spin_idx):
-    if hasattr(spin_idx, "__getitem__"):
-        return np.array(spin_idx)
-    return _idx_vec[spin_idx % spin_num]
+_to_vec = { idx : tuple(vec) for idx, vec in enumerate(np.ndindex(lattice_shape)) }
+_to_idx = { vec : idx for idx, vec in _to_vec.items() }
+def to_vec(idx):
+    if hasattr(idx, "__getitem__"):
+        return np.array(idx) % np.array(lattice_shape)
+    return np.array(_to_vec[ idx % spin_num ])
+def to_idx(vec):
+    if type(vec) is int:
+        return vec % spin_num
+    return _to_idx[ tuple( np.array(vec) % np.array(lattice_shape) ) ]
 
-# distance between two spins
-def dist_1D(pp,qq):
-    diff = ( pp - qq ) % lattice_size
-    return min(diff, lattice_size - diff)
-def dist(pp,qq):
-    if type(pp) is int: pp = to_vec(pp)
-    if type(qq) is int: qq = to_vec(qq)
-    return np.sqrt(sum( dist_1D(pp_jj,qq_jj)**2 for pp_jj, qq_jj in zip(pp, qq) ))
+# get the distance between two spins
+def dist_1D(pp, qq, axis):
+    diff = ( pp - qq ) % lattice_shape[axis]
+    return min(diff, lattice_shape[axis] - diff)
+def dist(pp, qq):
+    pp = to_vec(pp)
+    qq = to_vec(qq)
+    return np.sqrt(sum( dist_1D(*pp_qq,aa)**2 for aa, pp_qq in enumerate(zip(pp,qq)) ))
 
 # define cycle matrices
 def cycle_mat(dd, kk = 0):
     dd_vec = to_vec(dd)
     def _shift(pp):
-        return to_int( dd_vec + to_vec(pp) )
+        return to_idx( dd_vec + to_vec(pp) )
 
     if kk == 0:
         def _val(_): return 1
     else:
-        kk_vec = to_vec(kk) * 2*pi/lattice_size
+        kk_vec = to_vec(kk) * 2*pi/np.array(lattice_shape)
         def _val(pp):
             return np.exp(1j * to_vec(pp) @ kk_vec)
 
@@ -87,7 +82,7 @@ def cycle_mat(dd, kk = 0):
 
 # recover a matrix from a vector of cycle (displacement) matrix coefficients
 def disp_vec_to_mat(disp_vec, kk = 0):
-    ignore_0 = len(disp_vec) == spin_num-1
+    ignore_0 = int( len(disp_vec) == spin_num-1 )
     return sum( disp_vec[dd] * cycle_mat(dd+ignore_0, kk)
                 for dd in range(len(disp_vec)) )
 
@@ -113,7 +108,7 @@ def pair_vec_to_mat(vec):
 
 # define SU(n) interaction couplings between spins
 def sunc_val(pp, qq):
-    if to_int(pp) == to_int(qq): return 0
+    if to_idx(pp) == to_idx(qq): return 0
     return -1/dist(pp, qq)**alpha
 
 # define quantities associated with the couplings
@@ -172,7 +167,7 @@ def unit_vec(dim, idx):
     vec[idx] = 1
     return vec
 def dist_vec(dist):
-    vec = sum( unit_vec(spin_num-1,to_int(disp)-1) for disp in dist_to_disps[dist] )
+    vec = sum( unit_vec(spin_num-1,to_idx(disp)-1) for disp in dist_to_disps[dist] )
     return vec / np.sqrt( len(dist_to_disps[dist]) )
 _dist_to_disp = np.vstack([ dist_vec(dist) for dist in dist_to_disps.keys() ]).T
 def dist_to_disp_vec(dist_vec):
