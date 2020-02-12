@@ -9,7 +9,7 @@ from dicke_methods import coherent_spin_state as coherent_state_PS
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (3,3)
+lattice_shape = (3,4)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -117,12 +117,10 @@ _sunc_mat = np.array([ [ sunc_val(pp,qq) for pp in range(spin_num) ]
 _sunc_pair_vec = mat_to_pair_vec(_sunc_mat)
 _sunc_disp_vec = mat_to_disp_vec(_sunc_mat)
 _sunc_col_vec = sum(_sunc_mat)
-_sunc_tot = sum(_sunc_pair_vec)
 sunc = { "disp" : _sunc_disp_vec,
          "pair" : _sunc_pair_vec,
          "mat" : _sunc_mat,
-         "col" : _sunc_col_vec,
-         "tot" : _sunc_tot }
+         "col" : _sunc_col_vec }
 
 ##########################################################################################
 # decompose interaction matrix into generators of SU(n)-symmetric interaction eigenstates
@@ -139,7 +137,7 @@ for dd in range(1,spin_num):
 shell_num = len(dist_to_disps)
 
 # solve the translationally invariant, isotropic two-body eigenvalue problem
-characteristic_matrix = np.zeros((len(dist_to_disps),)*2)
+characteristic_matrix = np.zeros((shell_num,)*2)
 for aa, aa_disps in enumerate(dist_to_disps.values()):
     characteristic_matrix[aa,aa] += sunc["mat"][0,aa_disps[0]]
 
@@ -180,20 +178,17 @@ _eig_disp_vecs[abs(_eig_disp_vecs) < cutoff] = 0
 _eig_mats = np.array([ disp_vec_to_mat(vec) for vec in _eig_disp_vecs.T ])
 _eig_pair_vecs = np.array([ mat_to_pair_vec(mat) for mat in _eig_mats ]).T
 _eig_col_vecs = np.array([ mat[:,0] for mat in _eig_mats ]).T
-_eig_tots = np.array([ sum(vec) for vec in _eig_pair_vecs.T ])
 
+_eig_mats[abs(_eig_mats) < cutoff] = 0
 _eig_pair_vecs[abs(_eig_pair_vecs) < cutoff] = 0
 _eig_col_vecs[abs(_eig_col_vecs) < cutoff] = 0
-_eig_tots[abs(_eig_tots) < cutoff] = 0
-assert(np.all(_eig_tots[1:] == 0))
 
 # collect all two-body problem data in one place
 eigs = { shell : { "val" : eig_vals[shell],
                    "disp" : _eig_disp_vecs[:,shell],
                    "pair" : _eig_pair_vecs[:,shell],
                    "mat" : _eig_mats[shell],
-                   "col" : _eig_col_vecs[:,shell],
-                   "tot" : _eig_tots[shell] }
+                   "col" : _eig_col_vecs[:,shell] }
          for shell in range(shell_num) }
 
 # convert vector into projector
@@ -207,7 +202,6 @@ for shell in range(shell_num):
     sunc[shell]["pair"] = to_proj( eigs[shell]["pair"] ) @ sunc["pair"]
     sunc[shell]["mat"] = disp_vec_to_mat(sunc[shell]["disp"])
     sunc[shell]["col"] = sum(sunc[shell]["mat"])
-    sunc[shell]["tot"] = sum(sunc[shell]["pair"])
 
 ##########################################################################################
 # compute couplings induced between shells by ZZ interactions
@@ -222,7 +216,7 @@ def diagram_coefs(shell_1, shell_2):
     assert(shell_1 != 0 and shell_2 != 0)
     sunc_1 = sunc[shell_1]
     sunc_2 = sunc[shell_2]
-    D_2 = sunc["tot"] * sunc_1["pair"] @ sunc_2["pair"] \
+    D_2 = sum(sunc["pair"]) * sunc_1["pair"] @ sunc_2["pair"] \
         - 2 * sum( sunc["col"] * sum( sunc_1["mat"] * sunc_2["mat"] ) ) \
         + 4 * sum( sunc_1["pair"] * sunc_2["pair"] * sunc["pair"] )
     D_3 = spin_num * sunc_1["mat"][0,:] @ sunc["mat"] @ sunc_2["mat"][:,0]
@@ -285,7 +279,7 @@ for op_num in prod_coefs.keys():
     for power in range(0,2*op_num+1,2):
         prod_coefs[op_num][power] = np.zeros((shell_num-1,)*(op_num-1))
 
-prod_coefs[1][2] = sunc["tot"] / ( spin_num*(spin_num-1) )
+prod_coefs[1][2] = sum(sunc["pair"]) / ( spin_num*(spin_num-1) )
 prod_coefs[1][0] = -spin_num * prod_coefs[1][2]
 
 for ss in range(shell_num-1):
@@ -346,15 +340,15 @@ def energies_states(zz_sun_ratio):
 
     return energies, eig_states
 
-##########################################################################################
-# simulate!
-##########################################################################################
-
 # coherent spin state
 def coherent_spin_state(vec):
     zero_shell = np.zeros(shell_num)
     zero_shell[0] = 1
     return np.outer(coherent_state_PS(vec,spin_num), zero_shell)
+
+##########################################################################################
+# simulate!
+##########################################################################################
 
 # note: extra factor of 1/2 in che_eff_bare for compatibility with Chunlei's work
 chi_eff_bare = 1/4 * np.mean(sunc["pair"])
@@ -362,9 +356,9 @@ state_X = coherent_spin_state([0,1,0])
 
 def _states(initial_state, zz_sun_ratio, times):
     energies, eig_states = energies_states(zz_sun_ratio)
-    init_state_eig = np.einsum("zsS,zS->zs", eig_states, initial_state)
+    init_state_eig = np.einsum("zSs,zS->zs", eig_states, initial_state)
     phases = np.exp(-1j * np.tensordot(times, energies, axes = 0))
-    return np.einsum("zSs,tzS->tzs", eig_states, phases * init_state_eig[None,:,:])
+    return np.einsum("zsS,tzS->tzs", eig_states, phases * init_state_eig[None,:,:])
 
 def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
     zz_sun_ratio = coupling_zz - 1
@@ -374,6 +368,10 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
         sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
     else:
         sim_time = max_time
+
+    ##################################################
+    sim_time = 2
+    ##################################################
 
     times = np.linspace(0, sim_time, points)
 
@@ -397,9 +395,17 @@ for coupling_zz in inspect_coupling_zz:
 
     plt.figure(figsize = figsize)
     plt.title(title_text)
-    plt.plot(times, pops[:,0], "k")
+    ##################################################
+    # plt.plot(times, pops[:,0], "k")
+    # for ss in range(1,shell_num):
+        # plt.plot(times, pops[:,ss])
+    plt.plot(times, pops[:,0])
+    plt.plot([times[0], times[-1]], [0,0])
+    plt.plot(times, np.sum(pops[:,1:], axis = 1))
+    plt.plot([times[0], times[-1]], [0,0])
     for ss in range(1,shell_num):
-        plt.plot(times, pops[:,ss])
+        plt.plot(times, pops[:,ss], "k--")
+    ##################################################
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel("population")
     plt.tight_layout()
