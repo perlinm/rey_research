@@ -70,7 +70,7 @@ _to_vec = { idx : tuple(vec) for idx, vec in enumerate(np.ndindex(lattice_shape)
 _to_idx = { vec : idx for idx, vec in _to_vec.items() }
 def to_vec(idx):
     if hasattr(idx, "__getitem__"):
-        return tuple( np.array(vec) % np.array(lattice_shape) )
+        return tuple( np.array(idx) % np.array(lattice_shape) )
     return _to_vec[ idx % spin_num ]
 def to_idx(vec):
     if type(vec) is int:
