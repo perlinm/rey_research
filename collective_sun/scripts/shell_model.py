@@ -227,18 +227,10 @@ def diagram_coefs(shell_1, shell_2):
     assert(shell_1 != 0 and shell_2 != 0)
     sunc_1 = sunc[shell_1]
     sunc_2 = sunc[shell_2]
-    triplets = [ [ sunc, sunc_1, sunc_2 ],
-                 [ sunc_1, sunc_2, sunc ],
-                 [ sunc_2, sunc, sunc_1 ] ]
-
-    D_2 = sum( ( uu["col"] @ vv["mat"] @ ww["col"]
-               + uu["tot"] * vv["pair"] @ ww["pair"]
-               - 2 * uu["col"] @ sum( vv["mat"] * ww["mat"] ) )
-               for uu, vv, ww in triplets ) \
+    D_2 = sunc["tot"] * sunc_1["pair"] @ sunc_2["pair"] \
+        - 2 * sum( sunc["col"] * sum( sunc_1["mat"] * sunc_2["mat"] ) ) \
         + 4 * sum( sunc_1["pair"] * sunc_2["pair"] * sunc["pair"] )
-
     D_3 = spin_num * sunc_1["mat"][0,:] @ sunc["mat"] @ sunc_2["mat"][:,0]
-
     return D_2, D_3
 
 # coefficients of the triple-ZZ product
@@ -273,13 +265,11 @@ def triple_product_coefs(shell_1, shell_2):
 
 # coefficients of the double-ZZ product
 def double_product_coefs(shell):
-    tot_sqr = sunc[shell]["tot"] * sunc[shell]["tot"]
-    col_sqr = sunc[shell]["col"] @ sunc[shell]["col"]
     pair_sqr = sunc[shell]["pair"] @ sunc[shell]["pair"]
 
     # coefficients in the multi-local operator expansion
-    lB_4 = tot_sqr - col_sqr + pair_sqr
-    lB_2 = col_sqr - 2 * pair_sqr
+    lB_4 = pair_sqr
+    lB_2 = -2*pair_sqr
     lB0 = pair_sqr
 
     B_4 = B_2 = 0
