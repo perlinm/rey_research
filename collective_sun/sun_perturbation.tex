@@ -211,8 +211,8 @@ ground-state manifold to simplify
   \EQPS \sum_X \bar v_X \col{X},
   \label{eq:H_1_1}
 \end{align}
-where $\EQPS$ denotes equality under a restriction to the fully
-symmetric manifold $\M_0$, and
+where $\EQPS$ denotes equality under a restriction to the
+permutationally symmetric manifold $\M_0$, and
 \begin{align}
   \bar v_X \equiv \f1N \sum_p v_{Xp},
   &&
@@ -311,18 +311,19 @@ $\v v_X^\Delta$ is mean-zero for all $\Delta\ne0$, we find
   \col{Z} \equiv \sum_p Z_p.
   \label{eq:H_1_2}
 \end{align}
-where $\EQPS$ denotes equality under a restriction to the fully
-symmetric manifold $\M_0$; $\v v_X^\Delta$ is the projection of
-$\v v_X$ onto the $\Delta$-eigenspace of the matrix $\m h-\diag\v h$.
+where $\EQPS$ denotes equality under a restriction to the
+permutationally symmetric manifold $\M_0$; $\v v_X^\Delta$ is the
+projection of $\v v_X$ onto the $\Delta$-eigenspace of the matrix
+$\m h-\diag\v h$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Two-body perturbations}
 \label{sec:two_body_pert}
 
-The first-order effective Hamiltonian $H_2^{(1)}$ induced on the fully
-symmetric manifold $\M_0$ by the two-body perturbation $\V_2$ in
-\eqref{eq:perturbations} is simply the restriction of $\V_2$ onto
-$\M_0$:
+The first-order effective Hamiltonian $H_2^{(1)}$ induced on the
+permutationally symmetric manifold $\M_0$ by the two-body perturbation
+$\V_2$ in \eqref{eq:perturbations} is simply the restriction of $\V_2$
+onto $\M_0$:
 \begin{align}
   H_2^{(1)} = \sum_O \sum_{p<q} w_{Opq} \P_0 O_{pq} \P_0
   \EQPS \sum_O \sum_{p<q} w_{Opq} O_{1,2}
@@ -1106,12 +1107,12 @@ assignments $g\in\G\p{\m M}$ allows us to expand
   \EQPS \sum_{g\in\G\p{\m M}} \S\p{g} w\p{g} O\p{g},
   \label{eq:sym_prod_group_start}
 \end{align}
-where $\EQPS$ denotes equality up to a restriction to the fully
-symmetric manifold, $O\p{g}$ is an operator acquired by assigning
-indices to the tensors $O_j$ in a manner consistent with $g$; $w\p{g}$
-is a scalar acquired by summing over all indices assigned to the
-tensors $w_j$ according to $g$; and $\S\p{g}$ is a symmetry factor
-accounting for the number of equivalent ways to assign indices
+where $\EQPS$ denotes equality up to a restriction to the
+permutationally symmetric manifold; $O\p{g}$ is an operator acquired
+by assigning indices to the tensors $O_j$ in a manner consistent with
+$g$; $w\p{g}$ is a scalar acquired by summing over all indices
+assigned to the tensors $w_j$ according to $g$; and $\S\p{g}$ is a
+symmetry factor accounting for the number of ways to assign indices
 according to $g$.
 
 In order to write out the factors in \eqref{eq:sym_prod_group_start}
@@ -1183,7 +1184,7 @@ intractable.  We then derive rules to ``simplify'' these diagrams in
 such a way as to reduce the computational cost of their numerical
 evaluation.
 
-The simplest diagrams have $g_S$ dots (``$\bullet$'') at the
+The simplest diagrams have $g_S$ filled dots (``$\bullet$'') at the
 intersection of the circles $j\in S\in\PP\p{\ZZ_p}$, and are simply
 equal to the associated scalar $w\p{g}$ defined in
 \eqref{eq:diagram_factors}, e.g.
@@ -1191,16 +1192,17 @@ equal to the associated scalar $w\p{g}$ defined in
   \diagram{example_123}
   \equiv \sum_{\substack{a,b,c,\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
       \abs{\set{a,b,c,d,e}}=5}}
-  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}.
+  w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e},
 \end{align}
-Such a diagram with $\abs{g}$ dots nominally takes $\O\p{N^{\abs{g}}}$
-time to compute.  In practice, this computational cost can be
-prohibitive for performing numerical simulations of systems with any
-appreciable size.  We therefore wish to simplify diagrams in order to
-reduce their computational cost as much as possible.  Our general
-strategy will be to replace constrained sums that make all indices
-interdependent (e.g.~$\abs{\set{a,b,c,d,e}}=5$ above) by unconstrained
-sums that can be carried out in sequence.  In order to represent
+where the restriction $\abs{\set{a,b,c,d,e}}=5$ denotes that all of
+$a,b,c,d,e$ are distinct.  Such a diagram with $\abs{g}$ dots
+nominally takes $\O\p{N^{\abs{g}}}$ time to compute.  In practice,
+this computational cost can be prohibitive for performing numerical
+simulations of systems with any appreciable size.  We therefore wish
+to simplify diagrams in order to reduce their computational cost as
+much as possible.  Our general strategy will be to replace constrained
+sums that make all indices interdependent by unconstrained sums that
+can be carried out independently, in sequence.  In order to represent
 different constraints, we need to define diagrams in which filled dots
 (``$\bullet$'') may be replaced by empty dots (``$\circ$'') or crosses
 (``$\bm\times$'').
