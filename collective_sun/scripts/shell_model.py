@@ -224,21 +224,12 @@ def _ff(nn, kk):
 
 # diagram coefficients that appear in the triple-ZZ product
 def diagram_coefs(shell_1, shell_2):
+    assert(shell_1 != 0 and shell_2 != 0)
     sunc_1 = sunc[shell_1]
     sunc_2 = sunc[shell_2]
     triplets = [ [ sunc, sunc_1, sunc_2 ],
                  [ sunc_1, sunc_2, sunc ],
                  [ sunc_2, sunc, sunc_1 ] ]
-
-    if shell_1 == 0 and shell_2 == 0:
-        D_0 = sunc_1["tot"] * sunc_2["tot"] * sunc["tot"]
-
-        D_1 = sum( uu["tot"] * vv["col"] @ ww["col"] for uu, vv, ww in triplets ) \
-            - 2 * sum( sunc_1["col"] * sunc_2["col"] * sunc["col"] )
-
-    else:
-        D_0 = 0
-        D_1 = 0
 
     D_2 = sum( ( uu["col"] @ vv["mat"] @ ww["col"]
                + uu["tot"] * vv["pair"] @ ww["pair"]
@@ -248,16 +239,16 @@ def diagram_coefs(shell_1, shell_2):
 
     D_3 = spin_num * sunc_1["mat"][0,:] @ sunc["mat"] @ sunc_2["mat"][:,0]
 
-    return D_0, D_1, D_2, D_3
+    return D_2, D_3
 
 # coefficients of the triple-ZZ product
 def triple_product_coefs(shell_1, shell_2):
-    D_0, D_1, D_2, D_3 = diagram_coefs(shell_1, shell_2)
+    D_2, D_3 = diagram_coefs(shell_1, shell_2)
 
     # coefficients in the multi-local operator expansion
-    lA_6 = D_0 - D_1 + D_2 - D_3
-    lA_4 = D_1 - 2 * D_2 + 3 * D_3
-    lA_2 = D_2 - 3 * D_3
+    lA_6 = D_2 - D_3
+    lA_4 = -2*D_2 + 3*D_3
+    lA_2 = D_2 - 3*D_3
     lA_0 = D_3
 
     A_6 = A_4 = A_2 = 0
@@ -307,25 +298,25 @@ def double_product_coefs(shell):
 prod_coefs = { 3 : {}, 2 : {}, 1 : {} }
 for op_num in prod_coefs.keys():
     for power in range(0,2*op_num+1,2):
-        prod_coefs[op_num][power] = np.zeros((shell_num,)*(op_num-1))
+        prod_coefs[op_num][power] = np.zeros((shell_num-1,)*(op_num-1))
 
 prod_coefs[1][2] = sunc["tot"] / ( spin_num*(spin_num-1) )
 prod_coefs[1][0] = -spin_num * prod_coefs[1][2]
 
-for ss in range(shell_num):
-    B_4, B_2, B_0 = double_product_coefs(ss)
+for ss in range(shell_num-1):
+    B_4, B_2, B_0 = double_product_coefs(ss+1)
     prod_coefs[2][4][ss] = B_4
     prod_coefs[2][2][ss] = B_2
     prod_coefs[2][0][ss] = B_0
 
-    A_6, A_4, A_2, A_0 = triple_product_coefs(ss, ss)
+    A_6, A_4, A_2, A_0 = triple_product_coefs(ss+1, ss+1)
     prod_coefs[3][6][ss,ss] = A_6
     prod_coefs[3][4][ss,ss] = A_4
     prod_coefs[3][2][ss,ss] = A_2
     prod_coefs[3][0][ss,ss] = A_0
 
-for rr, ss in itertools.combinations(range(shell_num), 2):
-    A_6, A_4, A_2, A_0 = triple_product_coefs(rr, ss)
+for rr, ss in itertools.combinations(range(shell_num-1), 2):
+    A_6, A_4, A_2, A_0 = triple_product_coefs(rr+1, ss+1)
     prod_coefs[3][6][rr,ss] = prod_coefs[3][6][ss,rr] = A_6
     prod_coefs[3][4][rr,ss] = prod_coefs[3][4][ss,rr] = A_4
     prod_coefs[3][2][rr,ss] = prod_coefs[3][2][ss,rr] = A_2
@@ -343,8 +334,8 @@ def _shell_mat(spin_diff):
     mat = np.zeros((shell_num,shell_num))
     if abs(spin_diff) < spin_num-2:
         norms = ( lambda vec : np.outer(vec,vec) )( prod_val(2, spin_diff) )
-        mat[1:,1:] = prod_val(3, spin_diff)[1:,1:] / np.sqrt(norms[1:,1:])
-        mat[0,1:] = mat[1:,0] = np.sqrt(abs(prod_val(2, spin_diff)))[1:]
+        mat[1:,1:] = prod_val(3, spin_diff) / np.sqrt(norms)
+        mat[0,1:] = mat[1:,0] = np.sqrt(abs(prod_val(2, spin_diff)))
     mat[0,0] = prod_val(1, spin_diff)
     return mat
 
