@@ -358,6 +358,6 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None):
                                                unique_permutations(base_state_rht)):
             op_val += remainder_perms * local_op[ state_lft + state_rht ]
 
-    log_norm = 1/2 * ( np.log(multinomial(pops_lft)) + np.log(multinomial(pops_lft)) )
+    log_norm = 1/2 * ( np.log(multinomial(pops_lft)) + np.log(multinomial(pops_rht)) )
     norm = np.exp(log_norm)
     return op_val / norm
