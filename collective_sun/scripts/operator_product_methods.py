@@ -210,27 +210,65 @@ def contract_ops(base_ops, diagram):
 
 # contract tensors according to a set diagram
 # note: assumes translational invariance by default
-# TODO: make use of translational invariance
 # TODO: make use of mean-zero information
 def contract_tensors(full_tensors, diagram, TI = True):
     num_tensors = len(full_tensors)
     num_indices = [ tensor.ndim for tensor in full_tensors ]
     indices_used = [ 0 ] * num_tensors
 
-    indices = unique_char_lists(num_indices)
+    # assign contraction indices to each tensor
+    contraction = unique_char_lists(num_indices)
     for choice, shared_indices in diagram.items():
         fst_ten = choice[0]
         for _ in range(shared_indices):
-            _this_idx = indices[fst_ten][indices_used[fst_ten]]
+            _this_idx = contraction[fst_ten][indices_used[fst_ten]]
             for snd_ten in choice[1:]:
-                indices[snd_ten][indices_used[snd_ten]] = _this_idx
+                contraction[snd_ten][indices_used[snd_ten]] = _this_idx
             for tensor in choice:
                 indices_used[tensor] += 1
 
+    # group together tensors with shared indices
+    tensor_groups = []
+    contractions = []
+    for tensor, indices in zip(full_tensors, contraction):
+        added_to_group = False
+        for gg, index_group in enumerate(contractions):
+            group_indices = functools.reduce(set.union, map(set, index_group))
+            if any( index in group_indices for index in indices ):
+                tensor_groups[gg] += [ tensor ]
+                contractions[gg] += [ indices ]
+                added_to_group = True
+                break
+        if not added_to_group:
+            tensor_groups += [ [ tensor ] ]
+            contractions += [ [ indices ] ]
+
+    def _contract(tensors, contraction, eliminate_index = TI):
+        if not eliminate_index:
+            contraction = ",".join([ "".join(idx) for idx in contraction ]) + "->"
+            return np.einsum(contraction, *tensors)
+        else:
+            spin_num = tensors[0].shape[0]
+            fixed_index = contraction[0][0]
+            new_tensors = []
+            new_contraction = []
+            for indices, tensor in zip(contraction, tensors):
+                if fixed_index in indices:
+                    fixed_axis = indices.index(fixed_index)
+                    other_axes = list( idx for idx in range(tensor.ndim)
+                                       if idx != fixed_axis )
+                    tensor = tensor.transpose( [fixed_axis] + other_axes )[0]
+                    indices.remove(fixed_index)
+                new_tensors += [ tensor ]
+                new_contraction += [ indices ]
+            return spin_num * _contract(new_tensors, new_contraction, False)
+
+    contraction_factors = ( _contract(tensors, contraction)
+                            for tensors, contraction
+                            in zip(tensor_groups, contractions) )
     symmetry_factor = np.prod([ np.math.factorial(points)
                                 for points in diagram.values() ])
-    contraction = ",".join([ "".join(idx) for idx in indices ]) + "->"
-    return np.einsum(contraction, *full_tensors) / symmetry_factor
+    return functools.reduce(operator.mul, contraction_factors) / symmetry_factor
 
 # project the product of multi-body operators onto the permutationally symmetric manifold
 # return a list of multi-local operators
@@ -320,5 +358,6 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None):
                                                unique_permutations(base_state_rht)):
             op_val += remainder_perms * local_op[ state_lft + state_rht ]
 
-    normalization = np.sqrt( multinomial(pops_lft) * multinomial(pops_rht) )
-    return op_val / normalization
+    log_norm = 1/2 * ( np.log(multinomial(pops_lft)) + np.log(multinomial(pops_lft)) )
+    norm = np.exp(log_norm)
+    return op_val / norm
