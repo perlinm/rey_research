@@ -345,19 +345,23 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None):
     op_val = 0
     for assignment_lft in assignments(op_spins, spin_dim):
 
-        remainder_perms = multinomial(_remainder(pops_lft, assignment_lft))
-        if remainder_perms == 0: continue
-
         remainder = _remainder(pops_lft, assignment_lft)
+        if any( pop < 0 for pop in remainder ): continue
+
         assignment_rht = _remainder(pops_rht, remainder)
         if any(np.array(assignment_rht) < 0): continue
 
+        remainder_perms = multinomial(remainder)
         base_state_lft = _state_idx(assignment_lft)
         base_state_rht = _state_idx(assignment_rht)
         for state_lft, state_rht in it.product(unique_permutations(base_state_lft),
                                                unique_permutations(base_state_rht)):
             op_val += remainder_perms * local_op[ state_lft + state_rht ]
 
-    log_norm = 1/2 * ( np.log(multinomial(pops_lft)) + np.log(multinomial(pops_rht)) )
-    norm = np.exp(log_norm)
+    if pops_lft == pops_rht:
+        norm = multinomial(pops_lft)
+    else:
+        log_norm = 1/2 * ( np.log(float(multinomial(pops_lft))) +
+                           np.log(float(multinomial(pops_rht))) )
+        norm = np.exp(log_norm)
     return op_val / norm
