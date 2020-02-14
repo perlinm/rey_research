@@ -9,7 +9,7 @@ from dicke_methods import coherent_spin_state as coherent_state_PS
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (3,4)
+lattice_shape = (8,8)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -117,10 +117,12 @@ _sunc_mat = np.array([ [ sunc_val(pp,qq) for pp in range(spin_num) ]
 _sunc_pair_vec = mat_to_pair_vec(_sunc_mat)
 _sunc_disp_vec = mat_to_disp_vec(_sunc_mat)
 _sunc_col_vec = sum(_sunc_mat)
+_sunc_tot = sum(_sunc_pair_vec)
 sunc = { "disp" : _sunc_disp_vec,
          "pair" : _sunc_pair_vec,
          "mat" : _sunc_mat,
-         "col" : _sunc_col_vec }
+         "col" : _sunc_col_vec,
+         "tot" : _sunc_tot }
 
 ##########################################################################################
 # decompose interaction matrix into generators of SU(n)-symmetric interaction eigenstates
@@ -177,18 +179,15 @@ _eig_disp_vecs[abs(_eig_disp_vecs) < cutoff] = 0
 # collect remaining quantities associated with two-body eigenstates
 _eig_mats = np.array([ disp_vec_to_mat(vec) for vec in _eig_disp_vecs.T ])
 _eig_pair_vecs = np.array([ mat_to_pair_vec(mat) for mat in _eig_mats ]).T
-_eig_col_vecs = np.array([ mat[:,0] for mat in _eig_mats ]).T
 
 _eig_mats[abs(_eig_mats) < cutoff] = 0
 _eig_pair_vecs[abs(_eig_pair_vecs) < cutoff] = 0
-_eig_col_vecs[abs(_eig_col_vecs) < cutoff] = 0
 
 # collect all two-body problem data in one place
 eigs = { shell : { "val" : eig_vals[shell],
                    "disp" : _eig_disp_vecs[:,shell],
                    "pair" : _eig_pair_vecs[:,shell],
-                   "mat" : _eig_mats[shell],
-                   "col" : _eig_col_vecs[:,shell] }
+                   "mat" : _eig_mats[shell] }
          for shell in range(shell_num) }
 
 # convert vector into projector
@@ -202,6 +201,7 @@ for shell in range(shell_num):
     sunc[shell]["pair"] = to_proj( eigs[shell]["pair"] ) @ sunc["pair"]
     sunc[shell]["mat"] = disp_vec_to_mat(sunc[shell]["disp"])
     sunc[shell]["col"] = sum(sunc[shell]["mat"])
+    sunc[shell]["tot"] = sum(sunc[shell]["pair"])
 
 ##########################################################################################
 # compute couplings induced between shells by ZZ interactions
@@ -213,23 +213,43 @@ def _ff(nn, kk):
 
 # diagram coefficients that appear in the triple-ZZ product
 def diagram_coefs(shell_1, shell_2):
-    assert(shell_1 != 0 and shell_2 != 0)
     sunc_1 = sunc[shell_1]
     sunc_2 = sunc[shell_2]
-    D_2 = sum(sunc["pair"]) * sunc_1["pair"] @ sunc_2["pair"] \
-        - 2 * sum( sunc["col"] * sum( sunc_1["mat"] * sunc_2["mat"] ) ) \
-        + 4 * sum( sunc_1["pair"] * sunc_2["pair"] * sunc["pair"] )
+
+    if shell_1 == 0 or shell_2 == 0:
+        triplets = [ [ sunc_1, sunc, sunc_2 ],
+                     [ sunc, sunc_2, sunc_1 ],
+                     [ sunc_2, sunc_1, sunc ] ]
+
+        D_0 = sunc_1["tot"] * sunc_2["tot"] * sunc["tot"]
+
+        D_1 = sum( uu["tot"] * vv["col"] @ ww["col"] for uu, vv, ww in triplets ) \
+            - 2 * sum( sunc_1["col"] * sunc_2["col"] * sunc["col"] )
+
+        D_2 = sum( ( uu["col"] @ vv["mat"] @ ww["col"]
+                     + uu["tot"] * vv["pair"] @ ww["pair"]
+                     - 2 * uu["col"] @ sum( vv["mat"] * ww["mat"] ) )
+                   for uu, vv, ww in triplets )
+
+    else:
+        D_0 = D_1 = 0
+
+        D_2 = sum(sunc["pair"]) * sunc_1["pair"] @ sunc_2["pair"] \
+            - 2 * sum( sunc["col"] * sum( sunc_1["mat"] * sunc_2["mat"] ) )
+
+    D_2 += 4 * sum( sunc_1["pair"] * sunc_2["pair"] * sunc["pair"] )
     D_3 = spin_num * sunc_1["mat"][0,:] @ sunc["mat"] @ sunc_2["mat"][:,0]
-    return D_2, D_3
+
+    return D_0, D_1, D_2, D_3
 
 # coefficients of the triple-ZZ product
 def triple_product_coefs(shell_1, shell_2):
-    D_2, D_3 = diagram_coefs(shell_1, shell_2)
+    D_0, D_1, D_2, D_3 = diagram_coefs(shell_1, shell_2)
 
     # coefficients in the multi-local operator expansion
-    lA_6 = D_2 - D_3
-    lA_4 = -2*D_2 + 3*D_3
-    lA_2 = D_2 - 3*D_3
+    lA_6 = D_0 - D_1 + D_2 - D_3
+    lA_4 = D_1 - 2 * D_2 + 3 * D_3
+    lA_2 = D_2 - 3 * D_3
     lA_0 = D_3
 
     A_6 = A_4 = A_2 = 0
@@ -254,12 +274,18 @@ def triple_product_coefs(shell_1, shell_2):
 
 # coefficients of the double-ZZ product
 def double_product_coefs(shell):
-    pair_sqr = sunc[shell]["pair"] @ sunc[shell]["pair"]
+    pair_sqr = sum(sunc[shell]["pair"]**2)
 
     # coefficients in the multi-local operator expansion
     lB_4 = pair_sqr
     lB_2 = -2*pair_sqr
     lB0 = pair_sqr
+
+    if shell == 0:
+        tot_sqr = sunc[shell]["tot"]**2
+        col_sqr = sum(sunc[shell]["col"]**2)
+        lB_4 += tot_sqr - col_sqr
+        lB_2 += col_sqr
 
     B_4 = B_2 = 0
     B_0 = pair_sqr
@@ -277,25 +303,25 @@ def double_product_coefs(shell):
 prod_coefs = { 3 : {}, 2 : {}, 1 : {} }
 for op_num in prod_coefs.keys():
     for power in range(0,2*op_num+1,2):
-        prod_coefs[op_num][power] = np.zeros((shell_num-1,)*(op_num-1))
+        prod_coefs[op_num][power] = np.zeros((shell_num,)*(op_num-1))
 
 prod_coefs[1][2] = sum(sunc["pair"]) / ( spin_num*(spin_num-1) )
 prod_coefs[1][0] = -spin_num * prod_coefs[1][2]
 
-for ss in range(shell_num-1):
-    B_4, B_2, B_0 = double_product_coefs(ss+1)
+for ss in range(shell_num):
+    B_4, B_2, B_0 = double_product_coefs(ss)
     prod_coefs[2][4][ss] = B_4
     prod_coefs[2][2][ss] = B_2
     prod_coefs[2][0][ss] = B_0
 
-    A_6, A_4, A_2, A_0 = triple_product_coefs(ss+1, ss+1)
+    A_6, A_4, A_2, A_0 = triple_product_coefs(ss, ss)
     prod_coefs[3][6][ss,ss] = A_6
     prod_coefs[3][4][ss,ss] = A_4
     prod_coefs[3][2][ss,ss] = A_2
     prod_coefs[3][0][ss,ss] = A_0
 
-for rr, ss in itertools.combinations(range(shell_num-1), 2):
-    A_6, A_4, A_2, A_0 = triple_product_coefs(rr+1, ss+1)
+for rr, ss in itertools.combinations(range(shell_num), 2):
+    A_6, A_4, A_2, A_0 = triple_product_coefs(rr, ss)
     prod_coefs[3][6][rr,ss] = prod_coefs[3][6][ss,rr] = A_6
     prod_coefs[3][4][rr,ss] = prod_coefs[3][4][ss,rr] = A_4
     prod_coefs[3][2][rr,ss] = prod_coefs[3][2][ss,rr] = A_2
@@ -312,9 +338,9 @@ def prod_val(num, spin_diff):
 def _shell_mat(spin_diff):
     mat = np.zeros((shell_num,shell_num))
     if abs(spin_diff) < spin_num-2:
-        norms = ( lambda vec : np.outer(vec,vec) )( prod_val(2, spin_diff) )
-        mat[1:,1:] = prod_val(3, spin_diff) / np.sqrt(norms)
-        mat[0,1:] = mat[1:,0] = np.sqrt(abs(prod_val(2, spin_diff)))
+        norms = ( lambda vec : np.outer(vec,vec) )( prod_val(2, spin_diff)[1:] )
+        mat[1:,1:] = prod_val(3, spin_diff)[1:,1:] / np.sqrt(norms)
+        mat[0,1:] = mat[1:,0] = np.sqrt(abs(prod_val(2, spin_diff)[1:]))
     mat[0,0] = prod_val(1, spin_diff)
     return mat
 
@@ -389,7 +415,7 @@ def name_tag(coupling_zz = None):
 
 for coupling_zz in inspect_coupling_zz:
     times, pops = simulate(coupling_zz)
-
+    exit()
     title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}," \
                + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
 
