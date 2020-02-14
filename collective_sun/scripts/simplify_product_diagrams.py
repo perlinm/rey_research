@@ -2,157 +2,17 @@
 
 import numpy as np
 import itertools as it
-import functools, operator, copy
+import copy
 
 from itertools_extension import set_diagrams
+from operator_product_methods import diagram_vec
 
-ranks = [ 2, 2, 2 ]
-
-class diagram_vec:
-    def __init__(self, diagrams = None, coefficients = None):
-        if diagrams is None:
-            self.diags = []
-        elif type(diagrams) is list:
-            self.diags = diagrams
-        elif type(diagrams) is dict:
-            self.diags = [ diagrams ]
-        else:
-            print("diagram cannot be initialized with type:", type(diagrams))
-
-        if coefficients is None:
-            self.coefs = np.ones(len(self.diags)).astype(int)
-        elif hasattr(coefficients, "__getitem__"):
-            assert(len(coefficients) == len(self.diags))
-            self.coefs = np.array(coefficients)
-        else:
-            self.coefs = np.array([ coefficients ])
-
-    def __repr__(self):
-        return "\n".join([ f"{coef} : {diag}"
-                           for coef, diag in zip(self.coefs, self.diags) ])
-
-    def __str__(self): return self.__repr__()
-
-    def __add__(self, other):
-        if other == 0 or other == None: return self
-        new_diags = self.diags
-        new_coefs = self.coefs
-        for other_diag, other_coef in zip(other.diags, other.coefs):
-            try:
-                diag_idx = new_diags.index(other_diag)
-                new_coefs[diag_idx] += other_coef
-            except:
-                new_diags += [ other_diag ]
-                new_coefs = np.append(new_coefs, other_coef)
-        new_diags = [ diag for dd, diag in enumerate(new_diags) if new_coefs[dd] != 0 ]
-        return diagram_vec(new_diags, new_coefs[new_coefs != 0])
-    def __radd__(self, other):
-        return self + other
-    def __sub__(self, other):
-        if other == 0: return self
-        return self + diagram_vec(other.diags, -other.coefs)
-
-    def __rmul__(self, scalar):
-        return diagram_vec(self.diags, scalar * self.coefs)
-    def __mul__(self, scalar):
-        return scalar * self
-    def __truediv__(self, scalar):
-        return 1/scalar * self
-
-    def __pos__(self): return self
-    def __neg__(self): return -1 * self
-
-    def reduce(self):
-        return sum( coef * reduce_diagram(diag)
-                    for coef, diag in zip(self.coefs, self.diags) )
-
-    def zip_permutations(self):
-        new_diags = []
-        new_coefs = []
-        for diag, coef in zip(self.diags, self.coefs):
-            labels = functools.reduce(set.union, ( set(region) for region in diag.keys() ))
-            eliminated_diag = False
-            for perm in it.permutations(labels):
-                perm_diag = permute_diagram(diag, perm)
-                for new_diag, new_coef in zip(new_diags, new_coefs):
-                    if new_diag == perm_diag:
-                        assert( new_coef == coef )
-                        eliminated_diag = True
-                        break
-                if eliminated_diag: break
-            if not eliminated_diag:
-                new_diags += [ diag ]
-                new_coefs += [ coef ]
-        new_diags = [ diag for dd, diag in enumerate(new_diags) if new_coefs[dd] != 0 ]
-        new_coefs = [ coef for coef in new_coefs if coef != 0 ]
-        return diagram_vec(new_diags, new_coefs)
-
-# permute the labels on a diagram
-def permute_diagram(diagram, permutation):
-    return { tuple(sorted( permutation[idx] for idx in region )) : markers
-             for region, markers in diagram.items() }
-
-# reduce a diagram by eliminating filled dots and crosses
-def reduce_diagram(diagram):
-    diagram = { region : markers if type(markers) is tuple else (markers,0,0)
-                for region, markers in diagram.items()
-                if markers != 0 and markers != (0,0,0) }
-
-    def _net_markers(mm):
-        return sum([ markers[mm] for region, markers in diagram.items() ])
-
-    # first, cover the simpler case of a diagram without any crosses,
-    #        in which we eliminate any filled dots that we find
-    if _net_markers(2) == 0:
-        # if there are no crosses and no filled dots, then we are done simplifying
-        if _net_markers(0) == 0:
-            empty_dot_diagram = { region : markers[1]
-                                  for region, markers in diagram.items() }
-            return diagram_vec(empty_dot_diagram)
-
-        for region, markers in diagram.items():
-            if markers[0] == 0: continue
-            empty_copy = copy.deepcopy(diagram)
-            cross_copy = copy.deepcopy(diagram)
-            empty_copy[region] = ( markers[0]-1, markers[1]+1, markers[2] )
-            cross_copy[region] = ( markers[0]-1, markers[1], markers[2]+1 )
-            empty_diag = reduce_diagram(empty_copy)
-            cross_diag = reduce_diagram(cross_copy)
-            empty_sym = ( markers[1]+1 ) / markers[0]
-            cross_sym = 1 / markers[0]
-            return empty_sym * empty_diag - cross_sym * cross_diag
-
-    # otherwise, eliminate any crosses in a diagram
-    else:
-        for region, markers in diagram.items():
-            if markers[2] == 0: continue
-
-            def _take_from_region(other_region):
-                other_markers = diagram[other_region]
-                if other_markers[0] == 0: return 0
-
-                new_diagram = copy.deepcopy(diagram)
-                new_diagram[region] = markers[:2] + ( markers[2]-1, )
-                new_diagram[other_region] = ( other_markers[0]-1, ) + other_markers[-2:]
-
-                joint_region = tuple(sorted( region + other_region ))
-                joint_markers = new_diagram.get(joint_region)
-                if joint_markers == None: joint_markers = (0,0,0)
-                new_diagram[joint_region] = ( joint_markers[0]+1, ) + joint_markers[-2:]
-
-                symmetry_factor = new_diagram[joint_region][0]
-                return symmetry_factor * reduce_diagram(new_diagram)
-
-            return sum([ _take_from_region(other_region)
-                         for other_region, other_markers in diagram.items()
-                         if all( primary_set not in other_region
-                                 for primary_set in region )
-                         and other_markers[0] > 0 ])
+dimensions = [ 2, 2, 2 ]
 
 # construct a random symmetric tensor with zeros on all diagonal blocks
-def random_tensor(rank):
-    tensor = np.zeros((spins,)*rank)
-    for comb in it.combinations(range(spins), rank):
+def random_tensor(dimension):
+    tensor = np.zeros((spins,)*dimension)
+    for comb in it.combinations(range(spins), dimension):
         num = np.random.rand()
         for perm in it.permutations(comb):
             tensor[perm] = num
@@ -160,7 +20,7 @@ def random_tensor(rank):
 
 # collect diagrams by weight of the multi-body operator they are associated with
 weight_vec = {}
-for diagram in set_diagrams(ranks):
+for diagram in set_diagrams(dimensions):
     weight = sum( num_indices
                   for ops, num_indices in diagram.items()
                   if len(ops) % 2 == 1 )
@@ -185,7 +45,7 @@ for weight, vec in weight_vec.items():
 
         return diag_name
 
-    reduced_vec = vec.reduce().zip_permutations()
+    reduced_vec = vec.reduce().join_permutations()
     names_diags_coefs = sorted(zip(map(_name, reduced_vec.diags),
                                    reduced_vec.diags,
                                    reduced_vec.coefs))[::-1]
