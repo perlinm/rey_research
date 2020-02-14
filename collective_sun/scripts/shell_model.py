@@ -9,7 +9,7 @@ from dicke_methods import coherent_spin_state as coherent_state_PS
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (8,8)
+lattice_shape = (3,4)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -62,6 +62,28 @@ def dist(pp, qq):
     qq = to_vec(qq)
     return np.sqrt(sum( dist_1D(*pp_qq,aa)**2 for aa, pp_qq in enumerate(zip(pp,qq)) ))
 
+# organize all displacements by their magnitude
+dist_to_disps = {}
+for dd in range(1,spin_num):
+    dd_dist = dist(0, dd)
+    try:
+        dist_to_disps[dd_dist] += [ dd ]
+    except:
+        dist_to_disps[dd_dist] = [ dd ]
+shell_num = len(dist_to_disps)
+
+# convert "distance" vectors to "displacement" vectors
+def unit_vec(dim, idx):
+    vec = np.zeros(dim, dtype = int)
+    vec[idx] = 1
+    return vec
+def dist_vec(dist):
+    vec = sum( unit_vec(spin_num-1,to_idx(disp)-1) for disp in dist_to_disps[dist] )
+    return vec / np.sqrt( len(dist_to_disps[dist]) )
+_dist_to_disp = np.vstack([ dist_vec(dist) for dist in dist_to_disps.keys() ]).T
+def dist_to_disp_vec(dist_vec):
+    return _dist_to_disp @ dist_vec
+
 # define cycle matrices
 def cycle_mat(dd, kk = 0):
     dd_vec = to_vec(dd)
@@ -103,19 +125,14 @@ def pair_vec_to_mat(vec):
     return mat
 
 ##########################################################################################
-# collect interaction matrix data
+# collect interaction data
 ##########################################################################################
 
-# define SU(n) interaction couplings between spins
-def sunc_val(pp, qq):
-    if to_idx(pp) == to_idx(qq): return 0
-    return -1/dist(pp, qq)**alpha
-
-# define quantities associated with the couplings
-_sunc_mat = np.array([ [ sunc_val(pp,qq) for pp in range(spin_num) ]
-                       for qq in range(spin_num) ])
+_sunc_dist_vec = np.array([ -1/dist**alpha * np.sqrt(len(disps))
+                            for dist, disps in dist_to_disps.items() ])
+_sunc_disp_vec = dist_to_disp_vec(_sunc_dist_vec)
+_sunc_mat = disp_vec_to_mat(_sunc_disp_vec)
 _sunc_pair_vec = mat_to_pair_vec(_sunc_mat)
-_sunc_disp_vec = mat_to_disp_vec(_sunc_mat)
 _sunc_col_vec = sum(_sunc_mat)
 _sunc_tot = sum(_sunc_pair_vec)
 sunc = { "disp" : _sunc_disp_vec,
@@ -127,16 +144,6 @@ sunc = { "disp" : _sunc_disp_vec,
 ##########################################################################################
 # decompose interaction matrix into generators of SU(n)-symmetric interaction eigenstates
 ##########################################################################################
-
-# organize all displacements by their magnitude
-dist_to_disps = {}
-for dd in range(1,spin_num):
-    dd_dist = dist(0, dd)
-    try:
-        dist_to_disps[dd_dist] += [ dd ]
-    except:
-        dist_to_disps[dd_dist] = [ dd ]
-shell_num = len(dist_to_disps)
 
 # solve the translationally invariant, isotropic two-body eigenvalue problem
 characteristic_matrix = np.zeros((shell_num,)*2)
@@ -160,18 +167,6 @@ eig_vals *= 2
 eig_vals[abs(eig_vals) < cutoff] = 0
 _eig_dist_vecs[abs(_eig_dist_vecs) < cutoff] = 0
 assert(eig_vals[0] == 0)
-
-# convert "distance" vectors to "displacement" vectors
-def unit_vec(dim, idx):
-    vec = np.zeros(dim, dtype = int)
-    vec[idx] = 1
-    return vec
-def dist_vec(dist):
-    vec = sum( unit_vec(spin_num-1,to_idx(disp)-1) for disp in dist_to_disps[dist] )
-    return vec / np.sqrt( len(dist_to_disps[dist]) )
-_dist_to_disp = np.vstack([ dist_vec(dist) for dist in dist_to_disps.keys() ]).T
-def dist_to_disp_vec(dist_vec):
-    return _sym_to_disp @ dist_vec
 
 _eig_disp_vecs = _dist_to_disp @ _eig_dist_vecs
 _eig_disp_vecs[abs(_eig_disp_vecs) < cutoff] = 0
@@ -216,28 +211,21 @@ def diagram_coefs(shell_1, shell_2):
     sunc_1 = sunc[shell_1]
     sunc_2 = sunc[shell_2]
 
-    if shell_1 == 0 or shell_2 == 0:
-        triplets = [ [ sunc_1, sunc, sunc_2 ],
-                     [ sunc, sunc_2, sunc_1 ],
-                     [ sunc_2, sunc_1, sunc ] ]
+    triplets = [ [ sunc_1, sunc, sunc_2 ],
+                 [ sunc, sunc_2, sunc_1 ],
+                 [ sunc_2, sunc_1, sunc ] ]
 
-        D_0 = sunc_1["tot"] * sunc_2["tot"] * sunc["tot"]
+    D_0 = sunc_1["tot"] * sunc_2["tot"] * sunc["tot"]
 
-        D_1 = sum( uu["tot"] * vv["col"] @ ww["col"] for uu, vv, ww in triplets ) \
-            - 2 * sum( sunc_1["col"] * sunc_2["col"] * sunc["col"] )
+    D_1 = sum( uu["tot"] * vv["col"] @ ww["col"] for uu, vv, ww in triplets ) \
+        - 2 * sum( sunc_1["col"] * sunc_2["col"] * sunc["col"] )
 
-        D_2 = sum( ( uu["col"] @ vv["mat"] @ ww["col"]
-                     + uu["tot"] * vv["pair"] @ ww["pair"]
-                     - 2 * uu["col"] @ sum( vv["mat"] * ww["mat"] ) )
-                   for uu, vv, ww in triplets )
+    D_2 = sum( ( uu["col"] @ vv["mat"] @ ww["col"]
+                 + uu["tot"] * vv["pair"] @ ww["pair"]
+                 - 2 * uu["col"] @ sum( vv["mat"] * ww["mat"] ) )
+               for uu, vv, ww in triplets ) \
+        + 4 * sum( sunc_1["pair"] * sunc_2["pair"] * sunc["pair"] )
 
-    else:
-        D_0 = D_1 = 0
-
-        D_2 = sum(sunc["pair"]) * sunc_1["pair"] @ sunc_2["pair"] \
-            - 2 * sum( sunc["col"] * sum( sunc_1["mat"] * sunc_2["mat"] ) )
-
-    D_2 += 4 * sum( sunc_1["pair"] * sunc_2["pair"] * sunc["pair"] )
     D_3 = spin_num * sunc_1["mat"][0,:] @ sunc["mat"] @ sunc_2["mat"][:,0]
 
     return D_0, D_1, D_2, D_3
@@ -327,9 +315,6 @@ for rr, ss in itertools.combinations(range(shell_num), 2):
     prod_coefs[3][2][rr,ss] = prod_coefs[3][2][ss,rr] = A_2
     prod_coefs[3][0][rr,ss] = prod_coefs[3][0][ss,rr] = A_0
 
-print(time()-start)
-start = time()
-
 # expectation value of the `num`-ZZ product with respect to
 #   a permutationally symmetric state with definite spin difference
 def prod_val(num, spin_diff):
@@ -340,19 +325,38 @@ def prod_val(num, spin_diff):
 ##########################################################################################
 ##########################################################################################
 
-from operator_product_methods import project_product, evaluate_multi_local_op
+from operator_product_methods import reduced_diagrams, operator_contractions, \
+    project_product, evaluate_multi_local_op
 
-_Z1_op = np.array([[1,0],[0,-1]])
-_Z2_op = np.kron(_Z1_op,_Z1_op)
-shell_ops = [ ( sunc[shell]["mat"], _Z2_op ) for shell in range(shell_num) ]
-sunc_op = ( sunc["mat"], _Z2_op )
+Z1_op = np.array([[1,0],[0,-1]])
+Z2_op = np.kron(Z1_op,Z1_op).reshape((2,)*4)
+
+Z2_diags = { num : reduced_diagrams([2]*num)
+             for num in [ 1, 2, 3 ] }
+Z2_opers = { num : operator_contractions([Z2_op]*num)
+                 for num in [ 1, 2, 3 ] }
+
+def product(num, *args):
+    if num == 3:
+        shell_lft, shell_rht = args
+        couplings = [ sunc[shell_lft]["mat"], sunc["mat"], sunc[shell_rht]["mat"] ]
+    if num == 2:
+        shell = args[0]
+        couplings = [ sunc[shell]["mat"], sunc["mat"] ]
+    if num == 1:
+        couplings = [ sunc["mat"] ]
+
+    return project_product(couplings, Z2_diags[num], Z2_opers[num])
+
+def couplings(shell_lft, shell_rht):
+    return sunc[shell_lft]["mat"], sunc["mat"], sunc[shell_rht]["mat"]
 
 prod_vecs = {}
-prod_vecs[1] = project_product(sunc_op)
-prod_vecs[2] = [ project_product(sunc_op, shell_op) for shell_op in shell_ops ]
-prod_vecs[3] = [ [ project_product(shell_op_lft, sunc_op, shell_op_rht)
-                   for shell_op_lft in shell_ops ]
-                 for shell_op_rht in shell_ops ]
+prod_vecs[3] = { ( shell_lft, shell_rht ) : product(3, shell_lft, shell_rht)
+                 for shell_lft in range(shell_num)
+                 for shell_rht in range(shell_lft+1) }
+prod_vecs[2] = { shell : product(2, shell) for shell in range(shell_num) }
+prod_vecs[1] = product(1)
 
 # expectation value of the `num`-ZZ operator product with respect to
 #   a permutationally symmetric state with definite spin difference
@@ -371,9 +375,13 @@ def prod_val(num, spin_diff):
                           for shell in range(shell_num) ])
 
     if num == 3:
-        return np.array([ [ _val(prod_vecs[num][shell_lft][shell_rht])
-                            for shell_lft in range(shell_num) ]
-                          for shell_rht in range(shell_num) ])
+        prod_val = np.zeros((shell_num,shell_num))
+        for shell_lft in range(shell_num):
+            for shell_rht in range(shell_lft+1):
+                prod_val[shell_lft,shell_rht] = _val(prod_vecs[num][shell_lft,shell_rht])
+                if shell_rht != shell_lft:
+                    prod_val[shell_rht,shell_lft] = prod_val[shell_lft,shell_rht]
+        return prod_val
 
 ##########################################################################################
 ##########################################################################################
@@ -396,8 +404,8 @@ def _hamiltonian(zz_sun_ratio, spin_diff):
 
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):
-    energies = np.zeros((spin_num+1,shell_num))
-    eig_states = np.zeros((spin_num+1,shell_num,shell_num))
+    energies = np.zeros((spin_num+1,shell_num), dtype = complex)
+    eig_states = np.zeros((spin_num+1,shell_num,shell_num), dtype = complex)
 
     for spins_dn in range(spin_num+1):
         spins_up = spin_num - spins_dn
@@ -430,7 +438,8 @@ def _states(initial_state, zz_sun_ratio, times):
     energies, eig_states = energies_states(zz_sun_ratio)
     init_state_eig = np.einsum("zSs,zS->zs", eig_states, initial_state)
     phases = np.exp(-1j * np.tensordot(times, energies, axes = 0))
-    return np.einsum("zsS,tzS->tzs", eig_states, phases * init_state_eig[None,:,:])
+    evolved_eig_states = phases * init_state_eig[None,:,:]
+    return np.einsum("zsS,tzS->tzs", eig_states, evolved_eig_states)
 
 def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
     zz_sun_ratio = coupling_zz - 1
@@ -461,7 +470,6 @@ def name_tag(coupling_zz = None):
 
 for coupling_zz in inspect_coupling_zz:
     times, pops = simulate(coupling_zz)
-    exit()
     title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}," \
                + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
 
@@ -483,3 +491,5 @@ for coupling_zz in inspect_coupling_zz:
     plt.tight_layout()
 
     plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
+
+print("completed")

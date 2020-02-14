@@ -2,7 +2,7 @@
 
 import numpy as np
 import itertools as it
-import functools, operator, copy
+import functools, operator
 
 from itertools_extension import multinomial, unique_permutations, \
     assignments, set_diagrams
@@ -21,6 +21,8 @@ def unique_char_lists(lengths):
 ##########################################################################################
 # methods to manipulate diagrams
 ##########################################################################################
+
+def _hash_dict(dict): return frozenset(sorted(dict.items()))
 
 class diagram_vec:
     def __init__(self, diagrams = None, coefficients = None):
@@ -127,12 +129,12 @@ def reduce_diagram(diagram):
         for region, markers in diagram.items():
             if markers[0] == 0: continue
 
-            empty_copy = copy.deepcopy(diagram)
+            empty_copy = diagram.copy()
             empty_copy[region] = ( markers[0]-1, markers[1]+1, markers[2] )
             empty_diag = reduce_diagram(empty_copy)
             empty_sym = ( markers[1]+1 ) / markers[0]
 
-            cross_copy = copy.deepcopy(diagram)
+            cross_copy = diagram.copy()
             cross_copy[region] = ( markers[0]-1, markers[1], markers[2]+1 )
             cross_diag = reduce_diagram(cross_copy)
             cross_sym = 1 / markers[0]
@@ -148,7 +150,7 @@ def reduce_diagram(diagram):
                 other_markers = diagram[other_region]
                 if other_markers[0] == 0: return 0
 
-                new_diagram = copy.deepcopy(diagram)
+                new_diagram = diagram.copy()
                 new_diagram[region] = markers[:2] + ( markers[2]-1, )
                 new_diagram[other_region] = ( other_markers[0]-1, ) + other_markers[-2:]
 
@@ -209,7 +211,7 @@ def contract_ops(base_ops, diagram):
     return np.einsum(contraction, *base_ops)
 
 # contract tensors according to a set diagram
-# note: assumes translational invariance by default
+# note: assumes translational invariance
 # TODO: make use of mean-zero information
 def contract_tensors(full_tensors, diagram, TI = True):
     num_tensors = len(full_tensors)
@@ -270,50 +272,35 @@ def contract_tensors(full_tensors, diagram, TI = True):
                                 for points in diagram.values() ])
     return functools.reduce(operator.mul, contraction_factors) / symmetry_factor
 
+def reduced_diagrams(set_sizes):
+    return [ reduce_diagram(diagram) for diagram in set_diagrams(set_sizes) ]
+
+def operator_contractions(operators):
+    dimensions = [ operator.ndim//2 for operator in operators ]
+    return [ contract_ops(operators, diagram) for diagram in set_diagrams(dimensions) ]
+
 # project the product of multi-body operators onto the permutationally symmetric manifold
 # return a list of multi-local operators
-# note: assumes translational invariance by default
-def project_product(*full_ops, TI = True):
-    couplings, base_ops = zip(*full_ops)
+# note: assumes translational invariance
+def project_product(couplings, diagrams, operators, TI = True):
 
-    # get the dimension of each coupling tensor
-    dimensions = list(map(np.ndim, couplings))
-
-    # conert all base operators into permutationally symmetric multi-local operators
-    base_ops = list(base_ops)
-    for jj, base_op in enumerate(base_ops):
-        # convert base_op into a square matrix
-        if type(base_op) is list:
-            base_op = functools.reduce(np.kron, base_op)
-        # convert base_op into a tensor
-        spins = dimensions[jj]
-        spin_dim = int( base_op.shape[0]**(1/spins) + 0.5 )
-        base_op = np.reshape(base_op, (spin_dim,)*(2*spins))
-        # symmetrize base_op under all permutations of its target spaces
-        base_ops[jj] = symmetrize_operator(base_op)
-
-    # collect operators and coefficients
-    term_ops = [ contract_ops(base_ops, diagram) for diagram in set_diagrams(dimensions) ]
-    term_coefs = [ reduce_diagram(diagram) for diagram in set_diagrams(dimensions) ]
-
-    # evaluate all reduced diagrams necessary
-    def _hash_diag(diag): return frozenset(diag.items())
-    _reduced_diagram_vals = {}
-    for coef in term_coefs:
-        for diag in coef.diags:
-            _hash = _hash_diag(diag)
-            if _hash not in _reduced_diagram_vals:
-                _reduced_diagram_vals[_hash] = contract_tensors(couplings, diag, TI)
+    # evaluate all (reduced) diagrams
+    diagram_vals = {}
+    for diagram in diagrams:
+        for diag in diagram.diags:
+            _hash = _hash_dict(diag)
+            if _hash not in diagram_vals:
+                diagram_vals[_hash] = contract_tensors(couplings, diag, TI)
     def _evaluate(reduced_diag):
-        return _reduced_diagram_vals[_hash_diag(reduced_diag)]
+        return diagram_vals[_hash_dict(reduced_diag)]
 
     # evaluave coefficient vectors
-    term_coefs = [ np.dot(coef.coefs, list(map(_evaluate, coef.diags)))
-                   for coef in term_coefs ]
+    coefs = [ np.dot(diagram.coefs, list(map(_evaluate, diagram.diags)))
+              for diagram in diagrams ]
 
     # combine operators with the same shape
     terms_by_shape = {}
-    for coef, op in zip(term_coefs, term_ops):
+    for coef, op in zip(coefs, operators):
         try:
             terms_by_shape[op.shape] += coef * op
         except:
@@ -365,3 +352,6 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None):
                            np.log(float(multinomial(pops_rht))) )
         norm = np.exp(log_norm)
     return op_val / norm
+
+# TODO: speed up evaluate_multi_local_op
+#       simplify methods for diagonal operators(?)

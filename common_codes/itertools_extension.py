@@ -1,6 +1,19 @@
 #!/usr/bin/env python3
 
+import math, operator, functools
 import itertools as it
+
+# generate all unique permutations of a list of elements
+def unique_permutations(elements):
+    if len(elements) == 1:
+        yield (elements[0],)
+    else:
+        unique_elements = set(elements)
+        for first_element in unique_elements:
+            remaining_elements = list(elements)
+            remaining_elements.remove(first_element)
+            for sub_permutation in unique_permutations(remaining_elements):
+                yield (first_element,) + sub_permutation
 
 # standard "itertools" method
 # https://docs.python.org/3/library/itertools.html
@@ -16,6 +29,12 @@ def assignments(num, bins):
     for bars in it.combinations(range(num+bins-1), bins-1):
         bars = (-1,) + bars + (num+bins-1,)
         yield tuple( bars[bin+1] - bars[bin] - 1 for bin in range(bins) )
+
+# compute a multinomial coefficient
+def multinomial(params):
+    if not all( pp >= 0 for pp in params ): return 0
+    return functools.reduce(operator.mul, ( math.comb(sum(params[:idx]), val)
+                                            for idx, val in enumerate(params, 1) ))
 
 # add two dictionaries
 def _add_dicts(dict_1, dict_2):
