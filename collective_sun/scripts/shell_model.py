@@ -204,7 +204,7 @@ for shell in range(shell_num):
     sunc[shell]["tot"] = sum(sunc[shell]["pair"])
 
 ##########################################################################################
-# compute couplings induced between shells by ZZ interactions
+# compute operators in the spin projection/shell basis
 ##########################################################################################
 
 # falling factorial
@@ -327,11 +327,57 @@ for rr, ss in itertools.combinations(range(shell_num), 2):
     prod_coefs[3][2][rr,ss] = prod_coefs[3][2][ss,rr] = A_2
     prod_coefs[3][0][rr,ss] = prod_coefs[3][0][ss,rr] = A_0
 
+print(time()-start)
+start = time()
+
 # expectation value of the `num`-ZZ product with respect to
 #   a permutationally symmetric state with definite spin difference
 def prod_val(num, spin_diff):
     return sum( prod_coefs[num][power] * spin_diff**power
                 for power in prod_coefs[num].keys() )
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+
+from operator_product_methods import project_product, evaluate_multi_local_op
+
+_Z1_op = np.array([[1,0],[0,-1]])
+_Z2_op = np.kron(_Z1_op,_Z1_op)
+shell_ops = [ ( sunc[shell]["mat"], _Z2_op ) for shell in range(shell_num) ]
+sunc_op = ( sunc["mat"], _Z2_op )
+
+prod_vecs = {}
+prod_vecs[1] = project_product(sunc_op)
+prod_vecs[2] = [ project_product(sunc_op, shell_op) for shell_op in shell_ops ]
+prod_vecs[3] = [ [ project_product(shell_op_lft, sunc_op, shell_op_rht)
+                   for shell_op_lft in shell_ops ]
+                 for shell_op_rht in shell_ops ]
+
+# expectation value of the `num`-ZZ operator product with respect to
+#   a permutationally symmetric state with definite spin difference
+def prod_val(num, spin_diff):
+    spins_up = ( spin_diff + spin_num ) // 2
+    spins_dn = spin_num - spins_up
+    populations = ( spins_up, spins_dn )
+    def _val(ops):
+        return sum( evaluate_multi_local_op(op, populations)
+                    for op in ops )
+    if num == 1:
+        return _val(prod_vecs[num])
+
+    if num == 2:
+        return np.array([ _val(prod_vecs[num][shell])
+                          for shell in range(shell_num) ])
+
+    if num == 3:
+        return np.array([ [ _val(prod_vecs[num][shell_lft][shell_rht])
+                            for shell_lft in range(shell_num) ]
+                          for shell_rht in range(shell_num) ])
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
 
 # construct the Hamiltonian induced by ZZ interactions
 #   for a fixed spin projection onto the Z axis
