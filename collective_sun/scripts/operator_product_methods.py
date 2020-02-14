@@ -2,6 +2,7 @@
 
 import numpy as np
 import itertools as it
+import tensorflow as tf
 import functools, operator
 
 from itertools_extension import multinomial, unique_permutations, \
@@ -208,7 +209,7 @@ def contract_ops(base_ops, diagram):
     final_indices = final_out_indices + final_inp_indices
 
     contraction = start_indices + "->" + final_indices
-    return np.einsum(contraction, *base_ops)
+    return tf.einsum(contraction, *base_ops).numpy()
 
 # contract tensors according to a set diagram
 # note: assumes translational invariance
@@ -248,7 +249,7 @@ def contract_tensors(full_tensors, diagram, TI = True):
     def _contract(tensors, contraction, eliminate_index = TI):
         if not eliminate_index:
             contraction = ",".join([ "".join(idx) for idx in contraction ]) + "->"
-            return np.einsum(contraction, *tensors)
+            return tf.einsum(contraction, *tensors).numpy()
         else:
             spin_num = tensors[0].shape[0]
             fixed_index = contraction[0][0]
