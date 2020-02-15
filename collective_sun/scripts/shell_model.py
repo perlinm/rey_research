@@ -5,11 +5,13 @@ import itertools, functools
 import matplotlib.pyplot as plt
 
 from dicke_methods import coherent_spin_state as coherent_state_PS
+from operator_product_methods import reduced_diagrams, operator_contractions, \
+    evaluate_multi_local_op, evaluate_operator_product
 
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (3,4)
+lattice_shape = (3,3)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -171,18 +173,9 @@ assert(eig_vals[0] == 0)
 _eig_disp_vecs = _dist_to_disp @ _eig_dist_vecs
 _eig_disp_vecs[abs(_eig_disp_vecs) < cutoff] = 0
 
-# collect remaining quantities associated with two-body eigenstates
-_eig_mats = np.array([ disp_vec_to_mat(vec) for vec in _eig_disp_vecs.T ])
-_eig_pair_vecs = np.array([ mat_to_pair_vec(mat) for mat in _eig_mats ]).T
-
-_eig_mats[abs(_eig_mats) < cutoff] = 0
-_eig_pair_vecs[abs(_eig_pair_vecs) < cutoff] = 0
-
 # collect all two-body problem data in one place
 eigs = { shell : { "val" : eig_vals[shell],
-                   "disp" : _eig_disp_vecs[:,shell],
-                   "pair" : _eig_pair_vecs[:,shell],
-                   "mat" : _eig_mats[shell] }
+                   "disp" : _eig_disp_vecs[:,shell] }
          for shell in range(shell_num) }
 
 # convert vector into projector
@@ -193,8 +186,8 @@ def to_proj(vec):
 for shell in range(shell_num):
     sunc[shell] = {}
     sunc[shell]["disp"] = to_proj( eigs[shell]["disp"] ) @ sunc["disp"]
-    sunc[shell]["pair"] = to_proj( eigs[shell]["pair"] ) @ sunc["pair"]
     sunc[shell]["mat"] = disp_vec_to_mat(sunc[shell]["disp"])
+    sunc[shell]["pair"] = mat_to_pair_vec(sunc[shell]["mat"])
     sunc[shell]["col"] = sum(sunc[shell]["mat"])
     sunc[shell]["tot"] = sum(sunc[shell]["pair"])
 
@@ -202,218 +195,70 @@ for shell in range(shell_num):
 # compute operators in the spin projection/shell basis
 ##########################################################################################
 
-# falling factorial
-def _ff(nn, kk):
-    return np.prod([ nn-jj for jj in range(kk) ])
-
-# diagram coefficients that appear in the triple-ZZ product
-def diagram_coefs(shell_1, shell_2):
-    sunc_1 = sunc[shell_1]
-    sunc_2 = sunc[shell_2]
-
-    triplets = [ [ sunc_1, sunc, sunc_2 ],
-                 [ sunc, sunc_2, sunc_1 ],
-                 [ sunc_2, sunc_1, sunc ] ]
-
-    D_0 = sunc_1["tot"] * sunc_2["tot"] * sunc["tot"]
-
-    D_1 = sum( uu["tot"] * vv["col"] @ ww["col"] for uu, vv, ww in triplets ) \
-        - 2 * sum( sunc_1["col"] * sunc_2["col"] * sunc["col"] )
-
-    D_2 = sum( ( uu["col"] @ vv["mat"] @ ww["col"]
-                 + uu["tot"] * vv["pair"] @ ww["pair"]
-                 - 2 * uu["col"] @ sum( vv["mat"] * ww["mat"] ) )
-               for uu, vv, ww in triplets ) \
-        + 4 * sum( sunc_1["pair"] * sunc_2["pair"] * sunc["pair"] )
-
-    D_3 = spin_num * sunc_1["mat"][0,:] @ sunc["mat"] @ sunc_2["mat"][:,0]
-
-    return D_0, D_1, D_2, D_3
-
-# coefficients of the triple-ZZ product
-def triple_product_coefs(shell_1, shell_2):
-    D_0, D_1, D_2, D_3 = diagram_coefs(shell_1, shell_2)
-
-    # coefficients in the multi-local operator expansion
-    lA_6 = D_0 - D_1 + D_2 - D_3
-    lA_4 = D_1 - 2 * D_2 + 3 * D_3
-    lA_2 = D_2 - 3 * D_3
-    lA_0 = D_3
-
-    A_6 = A_4 = A_2 = 0
-    A_0 = lA_0
-    if spin_num >= 2:
-        sA_2 = lA_2 / _ff(spin_num, 2)
-        A_2 += sA_2
-        A_0 -= lA_2 / (spin_num-1)
-    if spin_num >= 4:
-        sA_4 = lA_4 / _ff(spin_num, 4)
-        A_4 += sA_4
-        A_2 -= sA_4 * 2*(3*spin_num-4)
-        A_0 += lA_4 * 3 / ( (spin_num-1) * (spin_num-3) )
-    if spin_num >= 6:
-        sA_6 = lA_6 / _ff(spin_num, 6)
-        A_6 += sA_6
-        A_4 -= sA_6 * 5*(3*spin_num-8)
-        A_2 += sA_6 * (45*spin_num**2 - 210*spin_num + 184)
-        A_0 -= lA_6 * 15 / ( (spin_num-1) * (spin_num-3) * (spin_num-5) )
-
-    return A_6, A_4, A_2, A_0
-
-# coefficients of the double-ZZ product
-def double_product_coefs(shell):
-    pair_sqr = sum(sunc[shell]["pair"]**2)
-
-    # coefficients in the multi-local operator expansion
-    lB_4 = pair_sqr
-    lB_2 = -2*pair_sqr
-    lB0 = pair_sqr
-
-    if shell == 0:
-        tot_sqr = sunc[shell]["tot"]**2
-        col_sqr = sum(sunc[shell]["col"]**2)
-        lB_4 += tot_sqr - col_sqr
-        lB_2 += col_sqr
-
-    B_4 = B_2 = 0
-    B_0 = pair_sqr
-    if spin_num >= 2:
-        B_2 += lB_2 / _ff(spin_num, 2)
-        B_0 -= lB_2 / (spin_num-1)
-    if spin_num >= 4:
-        B_4 += lB_4 / _ff(spin_num, 4)
-        B_2 -= 2*(3*spin_num-4) * B_4
-        B_0 += lB_4 * 3 / ( (spin_num-1) * (spin_num-3) )
-
-    return B_4, B_2, B_0
-
-# collect all operator product coefficients
-prod_coefs = { 3 : {}, 2 : {}, 1 : {} }
-for op_num in prod_coefs.keys():
-    for power in range(0,2*op_num+1,2):
-        prod_coefs[op_num][power] = np.zeros((shell_num,)*(op_num-1))
-
-prod_coefs[1][2] = sum(sunc["pair"]) / ( spin_num*(spin_num-1) )
-prod_coefs[1][0] = -spin_num * prod_coefs[1][2]
-
-for ss in range(shell_num):
-    B_4, B_2, B_0 = double_product_coefs(ss)
-    prod_coefs[2][4][ss] = B_4
-    prod_coefs[2][2][ss] = B_2
-    prod_coefs[2][0][ss] = B_0
-
-    A_6, A_4, A_2, A_0 = triple_product_coefs(ss, ss)
-    prod_coefs[3][6][ss,ss] = A_6
-    prod_coefs[3][4][ss,ss] = A_4
-    prod_coefs[3][2][ss,ss] = A_2
-    prod_coefs[3][0][ss,ss] = A_0
-
-for rr, ss in itertools.combinations(range(shell_num), 2):
-    A_6, A_4, A_2, A_0 = triple_product_coefs(rr, ss)
-    prod_coefs[3][6][rr,ss] = prod_coefs[3][6][ss,rr] = A_6
-    prod_coefs[3][4][rr,ss] = prod_coefs[3][4][ss,rr] = A_4
-    prod_coefs[3][2][rr,ss] = prod_coefs[3][2][ss,rr] = A_2
-    prod_coefs[3][0][rr,ss] = prod_coefs[3][0][ss,rr] = A_0
-
-# expectation value of the `num`-ZZ product with respect to
-#   a permutationally symmetric state with definite spin difference
-def prod_val(num, spin_diff):
-    return sum( prod_coefs[num][power] * spin_diff**power
-                for power in prod_coefs[num].keys() )
-
-##########################################################################################
-##########################################################################################
-##########################################################################################
-
-from operator_product_methods import reduced_diagrams, operator_contractions, \
-    project_product, evaluate_multi_local_op
-
 Z1_op = np.array([[1,0],[0,-1]])
 Z2_op = np.kron(Z1_op,Z1_op).reshape((2,)*4)
 
-Z2_diags = { num : reduced_diagrams([2]*num)
-             for num in [ 1, 2, 3 ] }
-Z2_opers = { num : operator_contractions([Z2_op]*num)
-                 for num in [ 1, 2, 3 ] }
+Z2_opers = {}
+for op_num in [ 1, 2, 3 ]:
+    multi_local_ops = operator_contractions([Z2_op]*op_num)
 
-def product(num, *args):
-    if num == 3:
-        shell_lft, shell_rht = args
-        couplings = [ sunc[shell_lft]["mat"], sunc["mat"], sunc[shell_rht]["mat"] ]
-    if num == 2:
-        shell = args[0]
-        couplings = [ sunc[shell]["mat"], sunc["mat"] ]
-    if num == 1:
-        couplings = [ sunc["mat"] ]
+    Z2_opers[op_num] = np.zeros((len(multi_local_ops), spin_num+1))
+    for spins_up in range(spin_num+1):
+        spins_dn = spin_num - spins_up
+        populations = ( spins_up, spins_dn )
 
-    return project_product(couplings, Z2_diags[num], Z2_opers[num])
+        Z2_opers[op_num][:,spins_up] \
+            = [ evaluate_multi_local_op(local_op, populations, diagonal = True)
+                for local_op in multi_local_ops ]
 
-def couplings(shell_lft, shell_rht):
-    return sunc[shell_lft]["mat"], sunc["mat"], sunc[shell_rht]["mat"]
+Z2_diags = { num : reduced_diagrams([2]*num) for num in [ 1, 2, 3 ] }
 
-prod_vecs = {}
-prod_vecs[3] = { ( shell_lft, shell_rht ) : product(3, shell_lft, shell_rht)
-                 for shell_lft in range(shell_num)
-                 for shell_rht in range(shell_lft+1) }
-prod_vecs[2] = { shell : product(2, shell) for shell in range(shell_num) }
-prod_vecs[1] = product(1)
+Z2_products = {}
+Z2_products[1] = evaluate_operator_product([ sunc["mat"] ], Z2_diags[1], Z2_opers[1])
+Z2_products[2] = np.zeros((spin_num+1,shell_num))
+Z2_products[3] = np.zeros((spin_num+1,shell_num,shell_num))
 
-# expectation value of the `num`-ZZ operator product with respect to
-#   a permutationally symmetric state with definite spin difference
-def prod_val(num, spin_diff):
-    spins_up = ( spin_diff + spin_num ) // 2
-    spins_dn = spin_num - spins_up
-    populations = ( spins_up, spins_dn )
-    def _val(ops):
-        return sum( evaluate_multi_local_op(op, populations)
-                    for op in ops )
-    if num == 1:
-        return _val(prod_vecs[num])
+for shell in range(shell_num):
+    couplings = [ sunc[shell]["mat"], sunc["mat"] ]
+    Z2_products[2][:,shell] \
+        = evaluate_operator_product(couplings, Z2_diags[2], Z2_opers[2])
 
-    if num == 2:
-        return np.array([ _val(prod_vecs[num][shell])
-                          for shell in range(shell_num) ])
+    couplings = [ sunc[shell]["mat"], sunc["mat"], sunc[shell]["mat"] ]
+    Z2_products[3][:,shell,shell] \
+        = evaluate_operator_product(couplings, Z2_diags[3], Z2_opers[3])
 
-    if num == 3:
-        prod_val = np.zeros((shell_num,shell_num))
-        for shell_lft in range(shell_num):
-            for shell_rht in range(shell_lft+1):
-                prod_val[shell_lft,shell_rht] = _val(prod_vecs[num][shell_lft,shell_rht])
-                if shell_rht != shell_lft:
-                    prod_val[shell_rht,shell_lft] = prod_val[shell_lft,shell_rht]
-        return prod_val
-
-##########################################################################################
-##########################################################################################
-##########################################################################################
+for shell_lft, shell_rht in itertools.combinations(range(shell_num), 2):
+    couplings = [ sunc[shell_lft]["mat"], sunc["mat"], sunc[shell_rht]["mat"] ]
+    Z2_products[3][:,shell_lft,shell_rht] = Z2_products[3][:,shell_rht,shell_lft] \
+        = evaluate_operator_product(couplings, Z2_diags[3], Z2_opers[3])
 
 # construct the Hamiltonian induced by ZZ interactions
 #   for a fixed spin projection onto the Z axis
-def _shell_mat(spin_diff):
+def _shell_mat(spins_up):
+    spins_dn = spin_num - spins_up
+    spin_diff = spins_up - spins_dn
     mat = np.zeros((shell_num,shell_num))
     if abs(spin_diff) < spin_num-2:
-        norms = ( lambda vec : np.outer(vec,vec) )( prod_val(2, spin_diff)[1:] )
-        mat[1:,1:] = prod_val(3, spin_diff)[1:,1:] / np.sqrt(norms)
-        mat[0,1:] = mat[1:,0] = np.sqrt(abs(prod_val(2, spin_diff)[1:]))
-    mat[0,0] = prod_val(1, spin_diff)
+        norms = ( lambda vec : np.outer(vec,vec) )( Z2_products[2][spins_up][1:] )
+        mat[1:,1:] = Z2_products[3][spins_up][1:,1:] / np.sqrt(norms)
+        mat[0,1:] = mat[1:,0] = np.sqrt(abs(Z2_products[2][spins_up][1:]))
+    mat[0,0] = Z2_products[1][spins_up]
     return mat
 
 # construct the net Hamiltonian induced by SU(n) + ZZ interactions
-def _hamiltonian(zz_sun_ratio, spin_diff):
-    return np.diag(eig_vals) + zz_sun_ratio * _shell_mat(spin_diff)
+def _hamiltonian(zz_sun_ratio, spins_up):
+    return np.diag(eig_vals) + zz_sun_ratio * _shell_mat(spins_up)
 
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):
     energies = np.zeros((spin_num+1,shell_num), dtype = complex)
     eig_states = np.zeros((spin_num+1,shell_num,shell_num), dtype = complex)
 
-    for spins_dn in range(spin_num+1):
-        spins_up = spin_num - spins_dn
-        spin_diff = spins_up - spins_dn
-
+    for spins_up in range(spin_num+1):
         energies[spins_up,:], eig_states[spins_up,:,:] \
-            = np.linalg.eigh(_hamiltonian(zz_sun_ratio, spin_diff))
+            = np.linalg.eigh(_hamiltonian(zz_sun_ratio, spins_up))
 
+        spins_dn = spin_num - spins_up
         if spins_up == spins_dn: break
         energies[spins_dn,:], eig_states[spins_dn,:,:] \
             = energies[spins_up,:], eig_states[spins_up,:,:]

@@ -3,6 +3,7 @@
 import numpy as np
 import itertools as it
 import tensorflow as tf
+import networkx as nx
 import functools, operator
 
 from itertools_extension import multinomial, unique_permutations, \
@@ -174,12 +175,12 @@ def reduce_diagram(diagram):
 ##########################################################################################
 
 # symmetrize a tensor operator under all permutations of its target spaces
-def symmetrize_operator(op):
-    subsystems = op.ndim//2
-    def _permuted_op(perm):
-        return np.transpose(op, perm + tuple( np.array(perm) + subsystems ) )
+def symmetrize_operator(oper):
+    subsystems = oper.ndim//2
+    def _permuted_oper(perm):
+        return np.transpose(oper, perm + tuple( np.array(perm) + subsystems ) )
     num_perms = np.math.factorial(subsystems)
-    return sum( _permuted_op(perm)
+    return sum( _permuted_oper(perm)
                 for perm in it.permutations(range(subsystems)) ) / num_perms
 
 # contract operators according to a set diagram
@@ -211,40 +212,38 @@ def contract_ops(base_ops, diagram):
     contraction = start_indices + "->" + final_indices
     return tf.einsum(contraction, *base_ops).numpy()
 
-# contract tensors according to a set diagram
-# note: assumes translational invariance
-# TODO: make use of mean-zero information
-def contract_tensors(full_tensors, diagram, TI = True):
-    num_tensors = len(full_tensors)
-    num_indices = [ tensor.ndim for tensor in full_tensors ]
-    indices_used = [ 0 ] * num_tensors
-
+# contract tensors according to a set/index diagram
+# note: assumes translational invariance by default
+def contract_tensors(tensors, diagram, TI = True):
     # assign contraction indices to each tensor
-    contraction = unique_char_lists(num_indices)
+    indices_used = [ 0 ] * len(tensors)
+    num_indices = [ tensor.ndim for tensor in tensors ]
+    full_contraction = unique_char_lists(num_indices)
     for choice, shared_indices in diagram.items():
         fst_ten = choice[0]
         for _ in range(shared_indices):
-            _this_idx = contraction[fst_ten][indices_used[fst_ten]]
+            _this_idx = full_contraction[fst_ten][indices_used[fst_ten]]
             for snd_ten in choice[1:]:
-                contraction[snd_ten][indices_used[snd_ten]] = _this_idx
+                full_contraction[snd_ten][indices_used[snd_ten]] = _this_idx
             for tensor in choice:
                 indices_used[tensor] += 1
 
-    # group together tensors with shared indices
-    tensor_groups = []
-    contractions = []
-    for tensor, indices in zip(full_tensors, contraction):
-        added_to_group = False
-        for gg, index_group in enumerate(contractions):
-            group_indices = functools.reduce(set.union, map(set, index_group))
-            if any( index in group_indices for index in indices ):
-                tensor_groups[gg] += [ tensor ]
-                contractions[gg] += [ indices ]
-                added_to_group = True
-                break
-        if not added_to_group:
-            tensor_groups += [ [ tensor ] ]
-            contractions += [ [ indices ] ]
+    # convert tensor diagram into an index graph
+    index_graph = nx.Graph()
+    index_graph.add_nodes_from(range(len(tensors)))
+    for region, shared_indices in diagram.items():
+        if shared_indices == 0:
+            del diagram[region]
+        else:
+            for ten_1, ten_2 in it.combinations(region,2):
+                index_graph.add_edge(ten_1, ten_2)
+
+    # group tensors and contractions
+    group_tensors = []
+    group_contractions = []
+    for tensor_group in nx.connected_components(index_graph):
+        group_tensors += [ [ tensors[idx] for idx in tensor_group ] ]
+        group_contractions += [ [ full_contraction[idx] for idx in tensor_group ] ]
 
     def _contract(tensors, contraction, eliminate_index = TI):
         if not eliminate_index:
@@ -268,50 +267,15 @@ def contract_tensors(full_tensors, diagram, TI = True):
 
     contraction_factors = ( _contract(tensors, contraction)
                             for tensors, contraction
-                            in zip(tensor_groups, contractions) )
+                            in zip(group_tensors, group_contractions) )
     symmetry_factor = np.prod([ np.math.factorial(points)
                                 for points in diagram.values() ])
     return functools.reduce(operator.mul, contraction_factors) / symmetry_factor
 
-def reduced_diagrams(set_sizes):
-    return [ reduce_diagram(diagram) for diagram in set_diagrams(set_sizes) ]
-
-def operator_contractions(operators):
-    dimensions = [ operator.ndim//2 for operator in operators ]
-    return [ contract_ops(operators, diagram) for diagram in set_diagrams(dimensions) ]
-
-# project the product of multi-body operators onto the permutationally symmetric manifold
-# return a list of multi-local operators
-# note: assumes translational invariance
-def project_product(couplings, diagrams, operators, TI = True):
-
-    # evaluate all (reduced) diagrams
-    diagram_vals = {}
-    for diagram in diagrams:
-        for diag in diagram.diags:
-            _hash = _hash_dict(diag)
-            if _hash not in diagram_vals:
-                diagram_vals[_hash] = contract_tensors(couplings, diag, TI)
-    def _evaluate(reduced_diag):
-        return diagram_vals[_hash_dict(reduced_diag)]
-
-    # evaluave coefficient vectors
-    coefs = [ np.dot(diagram.coefs, list(map(_evaluate, diagram.diags)))
-              for diagram in diagrams ]
-
-    # combine operators with the same shape
-    terms_by_shape = {}
-    for coef, op in zip(coefs, operators):
-        try:
-            terms_by_shape[op.shape] += coef * op
-        except:
-            terms_by_shape[op.shape] = coef * op
-
-    return list(terms_by_shape.values())
-
 # find a matrix element of a multi-local operator
 #   in the permutationally symmetric manifold
-def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None):
+# TODO: make faster
+def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None, diagonal = None):
     if pops_rht == None:
         pops_rht = pops_lft
 
@@ -320,6 +284,16 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None):
     spin_dim = len(pops_lft)
     spin_num = sum(pops_lft)
     op_spins = local_op.ndim//2
+
+    if diagonal is None:
+        op_dim = spin_dim**op_spins
+        # check whether the operator is diagonal in the symmetry index:
+        # (1) reshape operator into a matrix of size (op_dim-1)x(op_dim+1),
+        #       placing all (previously) diagonal elements (except for the last one)
+        #       into the first column of the new matrix
+        # (2) check whether the matrix is zero in all columns after the first
+        diagonal_test = local_op.flatten()[:-1].reshape((op_dim-1,op_dim+1))
+        diagonal = not np.any(diagonal_test[:,1:])
 
     def _remainder(pops,assignment):
         return tuple( np.array(pops) - np.array(assignment) )
@@ -330,6 +304,14 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None):
                    for _ in range(assignment[jj]) ]
         return functools.reduce(operator.add, states)
 
+    # determine overall normalization factor of the permutationally symmetric states
+    if pops_lft == pops_rht:
+        norm = multinomial(pops_lft)
+    else:
+        log_norm = 1/2 * ( np.log(float(multinomial(pops_lft))) +
+                           np.log(float(multinomial(pops_rht))) )
+        norm = np.exp(log_norm)
+
     op_val = 0
     for assignment_lft in assignments(op_spins, spin_dim):
 
@@ -339,20 +321,47 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None):
         assignment_rht = _remainder(pops_rht, remainder)
         if any(np.array(assignment_rht) < 0): continue
 
-        remainder_perms = multinomial(remainder)
+        # TODO: compute remainder_perms in a better way
+        remainder_perms = multinomial(remainder) / norm
         base_state_lft = _state_idx(assignment_lft)
-        base_state_rht = _state_idx(assignment_rht)
-        for state_lft, state_rht in it.product(unique_permutations(base_state_lft),
-                                               unique_permutations(base_state_rht)):
-            op_val += remainder_perms * local_op[ state_lft + state_rht ]
 
-    if pops_lft == pops_rht:
-        norm = multinomial(pops_lft)
-    else:
-        log_norm = 1/2 * ( np.log(float(multinomial(pops_lft))) +
-                           np.log(float(multinomial(pops_rht))) )
-        norm = np.exp(log_norm)
-    return op_val / norm
+        if diagonal:
+            for state in unique_permutations(base_state_lft):
+                op_val += remainder_perms * local_op[ state + state ]
+        else:
+            base_state_rht = _state_idx(assignment_rht)
+            for state_lft, state_rht in it.product(unique_permutations(base_state_lft),
+                                                   unique_permutations(base_state_rht)):
+                op_val += remainder_perms * local_op[ state_lft + state_rht ]
 
-# TODO: speed up evaluate_multi_local_op
-#       simplify methods for diagonal operators(?)
+    return op_val
+
+def reduced_diagrams(set_sizes):
+    return [ reduce_diagram(diagram) for diagram in set_diagrams(set_sizes) ]
+
+def operator_contractions(operators):
+    dimensions = [ operator.ndim//2 for operator in operators ]
+    return [ contract_ops(operators, diagram) for diagram in set_diagrams(dimensions) ]
+
+# project the product of multi-body operators onto the permutationally symmetric manifold
+# couplings: list of tensors (one for each multi-body operator)
+# diagrams:  list of (reduced!) diagrams that define tensor contractions
+# operators: matrix mapping diagram indices to operators on the many-body hilbert space
+def evaluate_operator_product(couplings, diagrams, operators, TI = True):
+    assert(len(diagrams) == operators.shape[0])
+
+    # evaluate all distinct diagrams
+    diagram_vals = {}
+    for diagram in diagrams:
+        for diag in diagram.diags:
+            _hash = _hash_dict(diag)
+            if _hash not in diagram_vals:
+                diagram_vals[_hash] = contract_tensors(couplings, diag, TI)
+    def _evaluate(diag):
+        return diagram_vals[_hash_dict(diag)]
+
+    # collect scalar coefficients for each diagram
+    coefficients = np.array([ np.dot(diagram.coefs, list(map(_evaluate, diagram.diags)))
+                              for diagram in diagrams ])
+
+    return coefficients @ operators
