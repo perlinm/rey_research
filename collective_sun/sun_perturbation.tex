@@ -1028,6 +1028,9 @@ while the energy of all orthogonal two-body excitations is
   manifold}
 \label{sec:sym_prod}
 
+\red{TODO: Discuss motivation, why we care about these products.  Give
+  an example of the diagram expansions we're after.}
+
 \subsection{The general case}
 
 Given a system of $N$ spins, we wish to project a product of
@@ -1148,7 +1151,7 @@ These definitions allow us to expand
 where the choice of $\ell\in\C_N\p{g}$ does not matter after
 projection onto permutationally symmetric manifold, and
 \begin{align}
-  \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} { M_j \choose g_S : j\in S }}
+  \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} \C\p{ g_S : j\in S }}
   \sp{\prod_{S\in\PP\p{\ZZ_p}} \p{g_S!}^\abs{S}}
   = \prod_{j\in\ZZ_p} M_j!,
   \label{eq:sym_prod_symmetry}
@@ -1156,8 +1159,8 @@ projection onto permutationally symmetric manifold, and
 where the first product in \eqref{eq:sym_prod_symmetry} contains
 multinomial coefficients
 \begin{align}
-  { M \choose a_1, a_2, \cdots, a_m }
-  \equiv \f{M!}{a_1!a_2!\cdots a_m!}
+  \C\p{a_1,a_2,\cdots,a_m}
+  \equiv \f{\p{a_1+a_2+\cdots+a_m}!}{a_1!a_2!\cdots a_m!}
 \end{align}
 that account for the number of ways to partition the indices of each
 $w_j,O_j$ into sets of shared indices as specified by the values of
