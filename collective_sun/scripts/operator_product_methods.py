@@ -112,50 +112,58 @@ def permute_diagram(diagram, permutation):
 
 # reduce a diagram by eliminating filled dots and crosses
 def reduce_diagram(diagram):
+    # enforce three types of markers in each region: ( filled dots, crosses, empty dots )
     diagram = { region : markers if type(markers) is tuple else (markers,0,0)
                 for region, markers in diagram.items()
                 if markers != 0 and markers != (0,0,0) }
 
-    def _net_markers(mm):
-        return sum([ markers[mm] for region, markers in diagram.items() ])
+    # are there any markers of type `mm` in the diagram?
+    def _any_markers(mm):
+        return any( markers[mm] for region, markers in diagram.items() )
 
     # first, cover the simpler case of a diagram without any crosses,
     #        in which we eliminate any filled dots that we find
-    if _net_markers(2) == 0:
-        # if there are no crosses and no filled dots, then we are done simplifying
-        if _net_markers(0) == 0:
-            empty_dot_diagram = { region : markers[1]
+    if not _any_markers(1):
+        # if there are no filled dots, then we are done simplifying
+        if not _any_markers(0):
+            empty_dot_diagram = { region : markers[2]
                                   for region, markers in diagram.items() }
             return diagram_vec(empty_dot_diagram)
 
+        # otherwise, eliminate a filled dot (from anywhere)
         for region, markers in diagram.items():
             if markers[0] == 0: continue
 
+            # convert a filled dot into an empty dot
             empty_copy = diagram.copy()
-            empty_copy[region] = ( markers[0]-1, markers[1]+1, markers[2] )
+            empty_copy[region] = ( markers[0]-1, markers[1], markers[2]+1 )
             empty_diag = reduce_diagram(empty_copy)
-            empty_sym = ( markers[1]+1 ) / markers[0]
+            empty_sym = ( markers[2]+1 ) / markers[0] # symmetry factor
 
+            # convert a filled dot into a cross
             cross_copy = diagram.copy()
-            cross_copy[region] = ( markers[0]-1, markers[1], markers[2]+1 )
+            cross_copy[region] = ( markers[0]-1, markers[1]+1, markers[2] )
             cross_diag = reduce_diagram(cross_copy)
-            cross_sym = 1 / markers[0]
+            cross_sym = 1 / markers[0] # symmetry factor
 
             return empty_sym * empty_diag - cross_sym * cross_diag
 
     # otherwise, eliminate any crosses in a diagram
     else:
         for region, markers in diagram.items():
-            if markers[2] == 0: continue
+            if markers[1] == 0: continue
 
             def _take_from_region(other_region):
                 other_markers = diagram[other_region]
                 if other_markers[0] == 0: return 0
 
+                # eliminate a cross from the "original" region,
+                #   and a filled dot from the "other" region
                 new_diagram = diagram.copy()
-                new_diagram[region] = markers[:2] + ( markers[2]-1, )
+                new_diagram[region] = ( markers[0], markers[1]-1, markers[2] )
                 new_diagram[other_region] = ( other_markers[0]-1, ) + other_markers[-2:]
 
+                # add a filled dot to the "joint" region
                 joint_region = tuple(sorted( region + other_region ))
                 joint_markers = new_diagram.get(joint_region)
                 if joint_markers == None: joint_markers = (0,0,0)
@@ -232,11 +240,9 @@ def contract_tensors(tensors, diagram, TI = True):
     index_graph = nx.Graph()
     index_graph.add_nodes_from(range(len(tensors)))
     for region, shared_indices in diagram.items():
-        if shared_indices == 0:
-            del diagram[region]
-        else:
-            for ten_1, ten_2 in it.combinations(region,2):
-                index_graph.add_edge(ten_1, ten_2)
+        if shared_indices == 0: continue
+        for ten_1, ten_2 in it.combinations(region,2):
+            index_graph.add_edge(ten_1, ten_2)
 
     # group tensors and contractions
     group_tensors = []
