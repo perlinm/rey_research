@@ -581,7 +581,7 @@ choice of $n$ elements from a set of $N$.
 \subsection{Single-body perturbation}
 \label{sec:H_V1_psi}
 
-We first simplify
+We first consider the single-body case and simplify
 \begin{align}
   H_0 \V_1 \ket\psi
   = \sum_k \sum_{p<q} h_{pq} v_k \Pi_{pq} X_k \ket\psi,
@@ -678,7 +678,9 @@ $k_{jp}\equiv\p{k_1,k_2,\cdots,k_{j-1},p,k_{j+1},\cdots,k_M}$, i.e.~an
 element of $\C_N\p{M}$ in which the $j$-th number $k_j$ has been
 replaced by $p$, we can simplify
 \begin{align}
-  \Pi_{p k_j} O_k \ket\psi = O_{k_{jp}}\ket\psi,
+  \Pi_{p k_j} O_k \ket\psi
+  = \Pi_{p k_j} O_k \Pi_{p k_j} \ket\psi
+  = O_{k_{jp}}\ket\psi,
 \end{align}
 and switch the labels for $p$ and $k_j$ to find that
 \begin{align}
@@ -906,8 +908,9 @@ If the interaction Hamiltonian $H_0$ and two-body perturbation $\V_2$
 are both translationally invariant isotropic, then we can reduce the
 eigenvalue problem \eqref{eq:cond_2_cycle_0} even further by making
 use of the fact that the couplings $h_{pq}$ depend only on the
-distance $\abs{p-q}$.  To this end, we define vectors $\ket{a}$
-labeled by distances $a\in\RR$ from the origin:
+distance $\abs{p-q}$.  To this end, we define uniform superpositions
+of all displacements $d\in\ZZ_L^D$ that are a distance $a\in\RR$ from
+the origin:
 \begin{align}
   \ket{a} \equiv \f1{\sqrt{N_a}}
   \sum_{\substack{d\in\ZZ_L^D\\\abs{d}=a}} \ket{d},
@@ -915,7 +918,7 @@ labeled by distances $a\in\RR$ from the origin:
 where the norm $\abs{d}$ of a vector $d$ on a periodic lattice is
 implicitly understood to mean the smallest Euclidean distance of $d$
 from the origin; and $N_a$ is a normalization factor equal to the
-number of displacements $d\in\ZZ_L^D$ with $\abs{d}=a$, such that
+number of displacements $d\in\ZZ_L^D$ with $\abs{d}=a$, so that
 $\bk{a|a}=1$.  Defining the set of distances
 \begin{align}
   \DD_{LD} \equiv \set{ \abs{d} : d \in \ZZ_L^D } \setminus \set{0},
@@ -1028,8 +1031,11 @@ while the energy of all orthogonal two-body excitations is
   manifold}
 \label{sec:sym_prod}
 
-\red{TODO: Discuss motivation, why we care about these products.  Give
-  an example of the diagram expansions we're after.}
+\red{TODO: Discuss motivation, why we care about these products
+  (answer: they appear in perturbation theory, as well as the
+  calculation of matrix elements within the outer-most ``shells'' of
+  fixed net spin).  Give an example of the diagram expansions we're
+  after.}
 
 \subsection{The general case}
 
@@ -1082,13 +1088,14 @@ assignment can be represented by the Venn diagram
   \label{eq:venn_diagram}
 \end{align}
 where $g_S$ is determined the number of dots at the intersection of
-circles $j\in S$.  We denote an assignment of distinct indices
-according to choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ by $g$, where
-$\PP\p{\ZZ_p}$ is the power set (i.e.~set of all subsets) of $\ZZ_p$.
-Given a vector $\m M$ of the dimensions $M_j$, we then denote the set
-of all valid index assignments $g$ by $\G\p{\m M}$.  For consistency,
-all valid index assignments $g\in\G\p{\m M}$ must assign exactly $M_j$
-indices to the dimension-$M_j$ tensor $w_j$, i.e.~
+circles $\set{w_j:j\in S}$.  We denote an assignment of distinct
+indices according to choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ by
+q$g$, where $\PP\p{\ZZ_p}$ is the power set (i.e.~set of all subsets)
+of $\ZZ_p$.  Given a vector $\m M$ of the dimensions $M_j$, we then
+denote the set of all valid index assignments $g$ by $\G\p{\m M}$.
+For consistency, all valid index assignments $g\in\G\p{\m M}$ must
+assign exactly $M_j$ indices to the dimension-$M_j$ tensor $w_j$,
+i.e.~
 \begin{align}
   \sum_{S\in\PP\p{\ZZ_p}\,:\,j\in S} g_S
   = \sum_{R\in\PP\p{\ZZ_p\setminus\set{j}}} g_{\set{j}\cup R}
@@ -1101,7 +1108,7 @@ equivalent to saying that every dot in the corresponding Venn diagram
 must lie within some circle.  The set of valid index assignments
 $\G\p{\m M}$ is then essentially the set of all Venn diagrams of the
 form in \eqref{eq:venn_diagram} with $p=\dim\p{\m M}$ circles and a
-total of $M_j$ dots within circle $j$.
+total of $M_j$ dots within circle $w_j$.
 
 A classification of terms in \eqref{eq:sym_prod_vec} by index
 assignments $g\in\G\p{\m M}$ allows us to expand
@@ -1550,21 +1557,21 @@ tedious, but the process of eliminating filled dots and crosses from a
 diagram is algorithmic enough to execute on a computer, doing which we
 find
 \begin{align}
-  A_6 = D_0 - D_1 + D_2 - D_3,
+  A_6 = D_6 - D_4 + D_2 - D_0,
   &&
-  A_4 = D_1 - 2 D_2 + 3 D_3,
+  A_4 = D_4 - 2 D_2 + 3 D_0,
   &&
-  A_2 = D_2 - 3 D_3,
+  A_2 = D_2 - 3 D_0,
   &&
-  A_0 \equiv D_3,
+  A_0 \equiv D_0,
 \end{align}
 where
 \begin{align}
-  D_0 \equiv \diagram{triple_0_o},
+  D_6 \equiv \diagram{triple_0_o},
   &&
-  D_1 \equiv \diagram{triple_01_o} - 2 \diagram{triple_1_o},
+  D_4 \equiv \diagram{triple_01_o} - 2 \diagram{triple_1_o},
   &&
-  D_3 \equiv \diagram{triple_0111_o},
+  D_0 \equiv \diagram{triple_0111_o},
 \end{align}
 \begin{align}
   D_2 \equiv \diagram{triple_011_o}
@@ -1586,12 +1593,12 @@ Defining, for each of $m\in\set{u,v,w}$,
 \end{align}
 we can expand
 \begin{align}
-  D_0 = \col{u}\,\col{v}\,\col{w},
+  D_6 = \col{u}\,\col{v}\,\col{w},
   &&
-  D_1 = \col{u}\,\v v\c\v w + \col{v}\,\v w\c\v u
+  D_4 = \col{u}\,\v v\c\v w + \col{v}\,\v w\c\v u
   + \col{w}\,\v u\c\v v - 2 \sum_p u_p v_p w_p,
   &&
-  D_3 = \tr\p{\m u \c \m v \c \m w},
+  D_0 = \tr\p{\m u \c \m v \c \m w},
 \end{align}
 \begin{multline}
   D_2 = \v u \c\m v\c\v w + \v v \c\m w\c\v u + \v w \c\m u\c\v v

@@ -11,7 +11,7 @@ from operator_product_methods import reduced_diagrams, operator_contractions, \
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (3,3)
+lattice_shape = (10,10)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -184,12 +184,8 @@ def to_proj(vec):
 
 # decompose couplings in the basis of coefficients that generate eigenstates
 for shell in range(shell_num):
-    sunc[shell] = {}
-    sunc[shell]["disp"] = to_proj( eigs[shell]["disp"] ) @ sunc["disp"]
-    sunc[shell]["mat"] = disp_vec_to_mat(sunc[shell]["disp"])
-    sunc[shell]["pair"] = mat_to_pair_vec(sunc[shell]["mat"])
-    sunc[shell]["col"] = sum(sunc[shell]["mat"])
-    sunc[shell]["tot"] = sum(sunc[shell]["pair"])
+    sunc_shell_disp = to_proj( eigs[shell]["disp"] ) @ sunc["disp"]
+    sunc[shell] = disp_vec_to_mat(sunc_shell_disp)
 
 ##########################################################################################
 # compute operators in the spin projection/shell basis
@@ -219,16 +215,16 @@ Z2_products[2] = np.zeros((spin_num+1,shell_num))
 Z2_products[3] = np.zeros((spin_num+1,shell_num,shell_num))
 
 for shell in range(shell_num):
-    couplings = [ sunc[shell]["mat"], sunc["mat"] ]
+    couplings = [ sunc[shell], sunc["mat"] ]
     Z2_products[2][:,shell] \
         = evaluate_operator_product(couplings, Z2_diags[2], Z2_opers[2])
 
-    couplings = [ sunc[shell]["mat"], sunc["mat"], sunc[shell]["mat"] ]
+    couplings = [ sunc[shell], sunc["mat"], sunc[shell] ]
     Z2_products[3][:,shell,shell] \
         = evaluate_operator_product(couplings, Z2_diags[3], Z2_opers[3])
 
 for shell_lft, shell_rht in itertools.combinations(range(shell_num), 2):
-    couplings = [ sunc[shell_lft]["mat"], sunc["mat"], sunc[shell_rht]["mat"] ]
+    couplings = [ sunc[shell_lft], sunc["mat"], sunc[shell_rht] ]
     Z2_products[3][:,shell_lft,shell_rht] = Z2_products[3][:,shell_rht,shell_lft] \
         = evaluate_operator_product(couplings, Z2_diags[3], Z2_opers[3])
 

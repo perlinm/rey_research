@@ -179,9 +179,9 @@ def symmetrize_operator(oper):
     subsystems = oper.ndim//2
     def _permuted_oper(perm):
         return np.transpose(oper, perm + tuple( np.array(perm) + subsystems ) )
+    perm_sum = sum( _permuted_oper(perm) for perm in it.permutations(range(subsystems)) )
     num_perms = np.math.factorial(subsystems)
-    return sum( _permuted_oper(perm)
-                for perm in it.permutations(range(subsystems)) ) / num_perms
+    return perm_sum / num_perms
 
 # contract operators according to a set diagram
 def contract_ops(base_ops, diagram):
@@ -319,7 +319,7 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None, diagonal = None
         if any( pop < 0 for pop in remainder ): continue
 
         assignment_rht = _remainder(pops_rht, remainder)
-        if any(np.array(assignment_rht) < 0): continue
+        if any( assignment < 0 for assignment in assignment_rht ): continue
 
         # TODO: compute remainder_perms in a better way
         remainder_perms = multinomial(remainder) / norm
