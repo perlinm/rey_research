@@ -202,14 +202,13 @@ def contract_ops(base_ops, diagram):
     final_inp_indices = ""
     for choice, shared_targets in diagram.items():
         for _ in range(shared_targets):
-            for ff, snd_op in enumerate(choice[1:]):
-                fst_op = choice[ff]
+            for fst_op, snd_op in zip(choice[:-1], choice[1:]):
                 indices[snd_op][targets_used[snd_op]] \
                     = indices[fst_op][targets[fst_op]+targets_used[fst_op]]
 
-            fst_op, lst_idx = choice[0], choice[-1]
+            fst_op, lst_op = choice[0], choice[-1]
             final_out_indices += indices[fst_op][targets_used[fst_op]]
-            final_inp_indices += indices[lst_idx][targets[lst_idx]+targets_used[lst_idx]]
+            final_inp_indices += indices[lst_op][targets[lst_op]+targets_used[lst_op]]
 
             for op in choice:
                 targets_used[op] += 1
