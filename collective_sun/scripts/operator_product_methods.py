@@ -443,8 +443,7 @@ def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True)
     diags[1], diag_ops[1] = diagram_operators(operators + [Z2_op])
     diags[2], diag_ops[2] = diagram_operators([Z2_op] + operators + [Z2_op])
 
-    diagonal_operators = all( _is_diagonal(op) for op in operators )
-    if diagonal_operators:
+    if all( _is_diagonal(op) for op in operators ):
         def _spins_up_rht_range(spins_up_lft): return [ spins_up_lft ]
     else:
         def _spins_up_rht_range(spins_up_lft): return range(spins_up_lft, spin_num+1)
@@ -479,13 +478,13 @@ def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True)
         for shell_rht in range(shell_lft,shell_num):
             inner_shell_num = ( shell_lft != 0 ) + ( shell_rht != 0 )
             if inner_shell_num == 0:
-                all_couplings = couplings
+                coups = couplings
             elif inner_shell_num == 1:
-                all_couplings = couplings + [ sunc[max(shell_lft,shell_rht)] ]
+                coups = couplings + [ sunc[max(shell_lft,shell_rht)] ]
             elif inner_shell_num == 2:
-                all_couplings = [ sunc[shell_lft] ] + couplings + [ sunc[shell_rht] ]
+                coups = [ sunc[shell_lft] ] + couplings + [ sunc[shell_rht] ]
 
-            product_args = ( all_couplings, diags[inner_shell_num], opers[inner_shell_num] )
+            product_args = ( coups, diags[inner_shell_num], opers[inner_shell_num] )
             product = evaluate_operator_product(*product_args, TI)
             shell_norms = np.outer(norms[:,shell_lft], norms[:,shell_rht])
 
