@@ -198,7 +198,7 @@ local_ops = { "I" : np.array([[ 1,   0 ], [  0,  1 ]]),
               "X" : np.array([[ 0,   1 ], [  1,  0 ]]),
               "Y" : np.array([[ 0, -1j ], [ 1j,  0 ]]) }
 
-# 2-local products of Z, X, Y operators
+# 2-local products of I, Z, X, Y operators
 for op_lft, op_rht in itertools.product(local_ops.keys(), repeat = 2):
     mat_lft = local_ops[op_lft]
     mat_rht = local_ops[op_rht]
