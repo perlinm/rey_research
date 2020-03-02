@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 
 from dicke_methods import coherent_spin_state as coherent_state_PS
 from operator_product_methods import reduced_diagrams, operator_contractions, \
-    evaluate_multi_local_op, evaluate_operator_product
+    evaluate_multi_local_op, evaluate_operator_product, build_shell_operator
 
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (10,10)
+lattice_shape = (3,4q)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -188,62 +188,40 @@ for shell in range(shell_num):
     sunc[shell] = disp_vec_to_mat(sunc_shell_disp)
 
 ##########################################################################################
-# compute operators in the spin projection/shell basis
+# compute operators in the Z-projection/shell basis
 ##########################################################################################
 
+# 1-local Z and 2-local ZZ operators
 Z1_op = np.array([[1,0],[0,-1]])
 Z2_op = np.kron(Z1_op,Z1_op).reshape((2,)*4)
 
-Z2_opers = {}
-for op_num in [ 1, 2, 3 ]:
-    multi_local_ops = operator_contractions([Z2_op]*op_num)
-
-    Z2_opers[op_num] = np.zeros((len(multi_local_ops), spin_num+1))
-    for spins_up in range(spin_num+1):
-        spins_dn = spin_num - spins_up
-        populations = ( spins_up, spins_dn )
-
-        Z2_opers[op_num][:,spins_up] \
-            = [ evaluate_multi_local_op(local_op, populations, diagonal = True)
-                for local_op in multi_local_ops ]
-
-Z2_diags = { num : reduced_diagrams([2]*num) for num in [ 1, 2, 3 ] }
-
-Z2_products = {}
-Z2_products[1] = evaluate_operator_product([ sunc["mat"] ], Z2_diags[1], Z2_opers[1])
-Z2_products[2] = np.zeros((spin_num+1,shell_num))
-Z2_products[3] = np.zeros((spin_num+1,shell_num,shell_num))
-
-for shell in range(shell_num):
-    couplings = [ sunc[shell], sunc["mat"] ]
-    Z2_products[2][:,shell] \
-        = evaluate_operator_product(couplings, Z2_diags[2], Z2_opers[2])
-
-    couplings = [ sunc[shell], sunc["mat"], sunc[shell] ]
-    Z2_products[3][:,shell,shell] \
-        = evaluate_operator_product(couplings, Z2_diags[3], Z2_opers[3])
-
-for shell_lft, shell_rht in itertools.combinations(range(shell_num), 2):
-    couplings = [ sunc[shell_lft], sunc["mat"], sunc[shell_rht] ]
-    Z2_products[3][:,shell_lft,shell_rht] = Z2_products[3][:,shell_rht,shell_lft] \
-        = evaluate_operator_product(couplings, Z2_diags[3], Z2_opers[3])
-
-# construct the Hamiltonian induced by ZZ interactions
-#   for a fixed spin projection onto the Z axis
-def _shell_mat(spins_up):
+# compute norms of generated states in the Z-projection / shell basis
+norm_diags = reduced_diagrams([2,2])
+norm_opers = np.zeros((len(norm_diags), spin_num+1))
+multi_local_ops = operator_contractions([Z2_op,Z2_op])
+for spins_up in range(spin_num+1):
     spins_dn = spin_num - spins_up
-    spin_diff = spins_up - spins_dn
-    mat = np.zeros((shell_num,shell_num))
-    if abs(spin_diff) < spin_num-2:
-        norms = ( lambda vec : np.outer(vec,vec) )( Z2_products[2][spins_up][1:] )
-        mat[1:,1:] = Z2_products[3][spins_up][1:,1:] / np.sqrt(norms)
-        mat[0,1:] = mat[1:,0] = np.sqrt(abs(Z2_products[2][spins_up][1:]))
-    mat[0,0] = Z2_products[1][spins_up]
-    return mat
+    populations = ( spins_up, spins_dn )
+    norm_opers[:,spins_up] \
+        = [ evaluate_multi_local_op(local_op, populations, diagonal = True)
+            for local_op in multi_local_ops ]
+
+norms = np.ones((spin_num+1, shell_num))
+for shell in range(1,shell_num):
+    couplings = [ sunc[shell], sunc[shell] ]
+    _norms_sqr = evaluate_operator_product(couplings, norm_diags, norm_opers)
+    norms[2:-2,shell] = np.sqrt(_norms_sqr[2:-2])
+
+_shell_coupling_mat = build_shell_operator([sunc["mat"]], [Z2_op], sunc, norms)
 
 # construct the net Hamiltonian induced by SU(n) + ZZ interactions
 def _hamiltonian(zz_sun_ratio, spins_up):
-    return np.diag(eig_vals) + zz_sun_ratio * _shell_mat(spins_up)
+    return np.diag(eig_vals) + zz_sun_ratio * _shell_coupling_mat[spins_up,:,spins_up,:]
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+##########################################################################################
 
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):

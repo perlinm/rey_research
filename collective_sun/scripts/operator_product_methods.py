@@ -277,28 +277,32 @@ def contract_tensors(tensors, diagram, TI = True):
                                 for points in diagram.values() ])
     return functools.reduce(operator.mul, contraction_factors) / symmetry_factor
 
+# check whether a multi-local operator is diagonal
+def _is_diagonal(operator):
+    op_spins = operator.ndim//2 # number of spins operator acts on
+    spin_dim = operator.shape[0] # dimension of each spin
+    op_dim = spin_dim**op_spins # dimension of Hilbert space the operator acts on
+    # reshape operator into a matrix of size (op_dim-1)x(op_dim+1),
+    #   placing all (previously) diagonal elements (except for the last one)
+    #   into the first column of the new matrix
+    diagonal_test = operator.flatten()[:-1].reshape((op_dim-1,op_dim+1))
+    # check whether the matrix is zero in all columns after the first
+    return not np.any(diagonal_test[:,1:])
+
 # find a matrix element of a multi-local operator
 #   in the permutationally symmetric manifold
-# TODO: make faster
+# TODO: make faster?
 def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None, diagonal = None):
     if pops_rht == None:
         pops_rht = pops_lft
 
     assert(len(pops_lft) == len(pops_rht))
     assert(sum(pops_lft) == sum(pops_rht))
-    spin_dim = len(pops_lft)
-    spin_num = sum(pops_lft)
+    spin_dim = local_op.shape[0]
     op_spins = local_op.ndim//2
 
     if diagonal is None:
-        op_dim = spin_dim**op_spins
-        # check whether the operator is diagonal in the symmetry index:
-        # (1) reshape operator into a matrix of size (op_dim-1)x(op_dim+1),
-        #       placing all (previously) diagonal elements (except for the last one)
-        #       into the first column of the new matrix
-        # (2) check whether the matrix is zero in all columns after the first
-        diagonal_test = local_op.flatten()[:-1].reshape((op_dim-1,op_dim+1))
-        diagonal = not np.any(diagonal_test[:,1:])
+        diagonal = _is_diagonal(local_op)
 
     def _remainder(pops,assignment):
         return tuple( np.array(pops) - np.array(assignment) )
@@ -369,4 +373,70 @@ def evaluate_operator_product(couplings, diagrams, operators, TI = True):
     coefficients = np.array([ np.dot(diagram.coefs, list(map(_evaluate, diagram.diags)))
                               for diagram in diagrams ])
 
-    return coefficients @ operators
+    return np.tensordot(coefficients, operators, axes = 1)
+
+# construct a product of operators in the shell basis
+def build_shell_operator(couplings, operators, sunc, norms = {}, TI = True):
+    proj_num, shell_num = norms.shape
+    spin_num = proj_num-1
+
+    coupling_targets = [ tensor.ndim for tensor in couplings ]
+    diags = {}
+    diags[0] = reduced_diagrams(coupling_targets)
+    diags[1] = reduced_diagrams(coupling_targets + [2])
+    diags[2] = reduced_diagrams([2] + coupling_targets + [2])
+
+    Z1_op = np.array([[1,0],[0,-1]])
+    Z2_op = np.kron(Z1_op,Z1_op).reshape((2,)*4)
+    multi_local_ops = {}
+    multi_local_ops[0] = operator_contractions(operators)
+    multi_local_ops[1] = operator_contractions(operators + [Z2_op])
+    multi_local_ops[2] = operator_contractions([Z2_op] + operators + [Z2_op])
+
+    diagonal_operators = all( _is_diagonal(op) for op in operators )
+    if diagonal_operators:
+        def _spins_up_rht_range(spins_up_lft): return [ spins_up_lft ]
+    else:
+        def _spins_up_rht_range(spins_up_lft): return range(spins_up_lft, proj_num)
+
+    opers = {}
+    for inner_shell_num in multi_local_ops.keys():
+        shape = (len(multi_local_ops[inner_shell_num]), proj_num, proj_num)
+        opers[inner_shell_num] = np.zeros(shape)
+
+        for spins_up_lft in range(proj_num):
+            spins_dn_lft = spin_num - spins_up_lft
+            pops_lft = ( spins_up_lft, spins_dn_lft )
+            for spins_up_rht in _spins_up_rht_range(spins_up_lft):
+                spins_dn_rht = spin_num - spins_up_rht
+                pops_rht = ( spins_up_rht, spins_dn_rht )
+
+                opers[inner_shell_num][:,spins_up_lft,spins_up_rht] \
+                    = [ evaluate_multi_local_op(local_op, pops_lft, pops_rht)
+                        for local_op in multi_local_ops[inner_shell_num] ]
+
+                if spins_up_rht != spins_up_lft:
+                    opers[inner_shell_num][:,spins_up_rht,spins_up_lft] \
+                        = np.conj(opers[inner_shell_num][:,spins_up_lft,spins_up_rht])
+
+    shell_operator = np.zeros( ( proj_num, shell_num, proj_num, shell_num ) )
+
+    for shell_lft in range(shell_num):
+        for shell_rht in range(shell_lft,shell_num):
+            inner_shell_num = ( shell_lft != 0 ) + ( shell_rht != 0 )
+            if inner_shell_num == 0:
+                all_couplings = couplings
+            elif inner_shell_num == 1:
+                all_couplings = couplings + [ sunc[max(shell_lft,shell_rht)] ]
+            elif inner_shell_num == 2:
+                all_couplings = [ sunc[shell_lft] ] + couplings + [ sunc[shell_rht] ]
+
+            product_args = ( all_couplings, diags[inner_shell_num], opers[inner_shell_num] )
+            product = evaluate_operator_product(*product_args, TI)
+            _norms = norms[:,shell_lft] * norms[:,shell_rht]
+
+            shell_operator[:,shell_lft,:,shell_rht] \
+                = shell_operator[:,shell_rht,:,shell_lft] \
+                = product / _norms
+
+    return shell_operator
