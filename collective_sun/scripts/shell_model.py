@@ -11,7 +11,7 @@ from operator_product_methods import reduced_diagrams, operator_contractions, \
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (3,4q)
+lattice_shape = (3,4)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -137,7 +137,8 @@ _sunc_mat = disp_vec_to_mat(_sunc_disp_vec)
 _sunc_pair_vec = mat_to_pair_vec(_sunc_mat)
 _sunc_col_vec = sum(_sunc_mat)
 _sunc_tot = sum(_sunc_pair_vec)
-sunc = { "disp" : _sunc_disp_vec,
+sunc = { "dist" : _sunc_dist_vec,
+         "disp" : _sunc_disp_vec,
          "pair" : _sunc_pair_vec,
          "mat" : _sunc_mat,
          "col" : _sunc_col_vec,
@@ -188,40 +189,23 @@ for shell in range(shell_num):
     sunc[shell] = disp_vec_to_mat(sunc_shell_disp)
 
 ##########################################################################################
-# compute operators in the Z-projection/shell basis
+# compute states and operators in the Z-projection/shell basis
 ##########################################################################################
 
-# 1-local Z and 2-local ZZ operators
-Z1_op = np.array([[1,0],[0,-1]])
-Z2_op = np.kron(Z1_op,Z1_op).reshape((2,)*4)
+# 1-local I, Z, X, Y operators
+local_ops = { "I" : np.array([[ 1,   0 ], [  0,  1 ]]),
+              "Z" : np.array([[ 1,   0 ], [  0, -1 ]]),
+              "X" : np.array([[ 0,   1 ], [  1,  0 ]]),
+              "Y" : np.array([[ 0, -1j ], [ 1j,  0 ]]) }
 
-# compute norms of generated states in the Z-projection / shell basis
-norm_diags = reduced_diagrams([2,2])
-norm_opers = np.zeros((len(norm_diags), spin_num+1))
-multi_local_ops = operator_contractions([Z2_op,Z2_op])
-for spins_up in range(spin_num+1):
-    spins_dn = spin_num - spins_up
-    populations = ( spins_up, spins_dn )
-    norm_opers[:,spins_up] \
-        = [ evaluate_multi_local_op(local_op, populations, diagonal = True)
-            for local_op in multi_local_ops ]
+# 2-local products of Z, X, Y operators
+for op_lft, op_rht in itertools.product(local_ops.keys(), repeat = 2):
+    mat_lft = local_ops[op_lft]
+    mat_rht = local_ops[op_rht]
+    local_ops[op_lft + op_rht] = np.kron(mat_lft,mat_rht).reshape((2,)*4)
 
-norms = np.ones((spin_num+1, shell_num))
-for shell in range(1,shell_num):
-    couplings = [ sunc[shell], sunc[shell] ]
-    _norms_sqr = evaluate_operator_product(couplings, norm_diags, norm_opers)
-    norms[2:-2,shell] = np.sqrt(_norms_sqr[2:-2])
-
-_shell_coupling_mat = build_shell_operator([sunc["mat"]], [Z2_op], sunc, norms)
-
-# construct the net Hamiltonian induced by SU(n) + ZZ interactions
-def _hamiltonian(zz_sun_ratio, spins_up):
-    return np.diag(eig_vals) + zz_sun_ratio * _shell_coupling_mat[spins_up,:,spins_up,:]
-
-##########################################################################################
-##########################################################################################
-##########################################################################################
-##########################################################################################
+# build the ZZ perturbation operator in the Z-projection/shell basis
+shell_coupling_mat = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]], sunc)
 
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):
@@ -229,8 +213,13 @@ def energies_states(zz_sun_ratio):
     eig_states = np.zeros((spin_num+1,shell_num,shell_num), dtype = complex)
 
     for spins_up in range(spin_num+1):
+        # construct the Hamiltonian at this Z projection, from SU(n) + ZZ couplings
+        _proj_hamiltonian \
+            = np.diag(eig_vals) + zz_sun_ratio * shell_coupling_mat[spins_up,:,spins_up,:]
+
+        # diagonalize the net Hamiltonian at this Z projection
         energies[spins_up,:], eig_states[spins_up,:,:] \
-            = np.linalg.eigh(_hamiltonian(zz_sun_ratio, spins_up))
+            = np.linalg.eigh(_proj_hamiltonian)
 
         spins_dn = spin_num - spins_up
         if spins_up == spins_dn: break
