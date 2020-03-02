@@ -4,14 +4,14 @@ import numpy as np
 import itertools, functools
 import matplotlib.pyplot as plt
 
+from operator_product_methods import build_shell_operator
+from squeezing_methods import spin_squeezing
 from dicke_methods import coherent_spin_state as coherent_state_PS
-from operator_product_methods import reduced_diagrams, operator_contractions, \
-    evaluate_multi_local_op, evaluate_operator_product, build_shell_operator
 
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (3,4)
+lattice_shape = (2,4)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -192,25 +192,31 @@ for shell in range(shell_num):
 # compute states and operators in the Z-projection/shell basis
 ##########################################################################################
 
-# 1-local I, Z, X, Y operators
-local_ops = { "I" : np.array([[ 1,   0 ], [  0,  1 ]]),
-              "Z" : np.array([[ 1,   0 ], [  0, -1 ]]),
+# 1-local Z, X, Y operators
+local_ops = { "Z" : np.array([[ 1,   0 ], [  0, -1 ]]),
               "X" : np.array([[ 0,   1 ], [  1,  0 ]]),
               "Y" : np.array([[ 0, -1j ], [ 1j,  0 ]]) }
 
-# 2-local products of I, Z, X, Y operators
+# 2-local products of Z, X, Y operators
 for op_lft, op_rht in itertools.product(local_ops.keys(), repeat = 2):
     mat_lft = local_ops[op_lft]
     mat_rht = local_ops[op_rht]
     local_ops[op_lft + op_rht] = np.kron(mat_lft,mat_rht).reshape((2,)*4)
+
+# collective spin vector, and its outer product with itself
+def _pauli_mat(pauli):
+    full_pauli_op = build_shell_operator([np.ones(spin_num)], [local_ops[pauli]], sunc)
+    return full_pauli_op.reshape( ( (spin_num+1)*shell_num, )*2 )
+S_op_vec = [ _pauli_mat(pauli)/2 for pauli in [ "Z", "X", "Y" ] ]
+SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
 
 # build the ZZ perturbation operator in the Z-projection/shell basis
 shell_coupling_mat = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]], sunc)
 
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):
-    energies = np.zeros((spin_num+1,shell_num), dtype = complex)
-    eig_states = np.zeros((spin_num+1,shell_num,shell_num), dtype = complex)
+    energies = np.zeros( ( spin_num+1, shell_num ) )
+    eig_states = np.zeros( ( spin_num+1, shell_num, shell_num ) )
 
     for spins_up in range(spin_num+1):
         # construct the Hamiltonian at this Z projection, from SU(n) + ZZ couplings
@@ -252,34 +258,59 @@ def _states(initial_state, zz_sun_ratio, times):
 def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
     zz_sun_ratio = coupling_zz - 1
 
+    # determine how long to simulate
     if zz_sun_ratio != 0:
         chi_eff = zz_sun_ratio * chi_eff_bare
         sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
     else:
         sim_time = max_time
 
-    ##################################################
-    sim_time = 2
-    ##################################################
-
     times = np.linspace(0, sim_time, points)
 
+    # compute states at all times of interest
     # note: factor of 1/2 included for compatibility with Chunlei's work
     states = _states(state_X, zz_sun_ratio/2, times)
 
-    pops = np.einsum("tzs->ts", abs(states)**2)
+    # compute squeezing
+    sqz = np.array([ spin_squeezing(spin_num, state.flatten(), S_op_vec, SS_op_mat)
+                     for state in states ])
 
-    return times, pops
+    # don't look too far beyond the maximum squeezing time
+    max_tt = int( np.argmin(sqz) * overshoot_ratio )
+    if max_tt == 0:
+        max_tt = len(times)
+    else:
+        max_tt = min(max_tt, len(times))
+    times = times[:max_tt]
+    sqz = sqz[:max_tt]
+
+    # compute populations
+    pops = np.einsum("tzs->ts", abs(states[:max_tt])**2)
+
+    return times, pops, sqz
 
 def name_tag(coupling_zz = None):
     base_tag = f"N{spin_num}_D{lattice_dim}_a{alpha}"
     if coupling_zz == None: return base_tag
     else: return base_tag + f"_z{coupling_zz}"
 
+def to_dB(sqz):
+    return 10*np.log10(np.array(sqz))
+
 for coupling_zz in inspect_coupling_zz:
-    times, pops = simulate(coupling_zz)
+    times, pops, sqz = simulate(coupling_zz)
     title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}," \
                + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
+
+    plt.figure(figsize = figsize)
+    plt.title(title_text)
+    plt.plot(times, to_dB(sqz), "k")
+    plt.ylim(plt.gca().get_ylim()[0], 0)
+    plt.xlabel(r"time ($J_\perp t$)")
+    plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
+    plt.tight_layout()
+
+    plt.savefig(fig_dir + f"squeezing_{name_tag(coupling_zz)}.pdf")
 
     plt.figure(figsize = figsize)
     plt.title(title_text)
@@ -294,6 +325,7 @@ for coupling_zz in inspect_coupling_zz:
     for ss in range(1,shell_num):
         plt.plot(times, pops[:,ss], "k--")
     ##################################################
+    plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel("population")
     plt.tight_layout()

@@ -13,7 +13,7 @@ from tensorflow_extension import tf_outer_product
 
 np.set_printoptions(linewidth = 200)
 
-lattice_shape = (3,3)
+lattice_shape = (2,4)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 periodic = True
 
@@ -196,7 +196,7 @@ Sx = col_op("X") / 2
 Sy = col_op("Y") / 2
 
 S_op_vec = [ Sz, Sx, Sy ]
-SS_op_mat = [ [ X @ Y for Y in S_op_vec ] for X in S_op_vec ]
+SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
 
 ##########################################################################################
 
@@ -213,12 +213,14 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
     def _time_derivative(time, state):
         return -1j * ( H @ state )
 
+    # determine how long to simulate
     if zz_sun_ratio != 0:
         chi_eff = zz_sun_ratio * chi_eff_bare
         sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
     else:
         sim_time = max_time
 
+    # simulate!
     ivp_solution = solve_ivp(_time_derivative, (0, sim_time), state_X,
                              rtol = ivp_tolerance, atol = ivp_tolerance)
 
@@ -227,15 +229,16 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
     sqz = np.array([ spin_squeezing(spin_num, state, S_op_vec, SS_op_mat)
                      for state in states.T ])
 
+    # don't look too far beyond the maximum squeezing time
     max_tt = int( np.argmin(sqz) * overshoot_ratio )
     if max_tt == 0:
         max_tt = len(times)
     else:
         max_tt = min(max_tt, len(times))
-
     times = times[:max_tt]
     sqz = sqz[:max_tt]
 
+    # compute populations
     pops = { manifold : np.array([ abs(states[:,tt].conj() @ proj @ states[:,tt])
                                for tt in range(len(times)) ])
              for manifold, proj in projs.items() }

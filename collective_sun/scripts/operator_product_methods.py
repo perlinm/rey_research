@@ -216,12 +216,20 @@ def contract_ops(base_ops, diagram):
     start_indices = ",".join([ "".join(idx) for idx in indices ])
     final_indices = final_out_indices + final_inp_indices
 
+    # cast all base operators into the appropriate data type
+    dtype = type(np.product([ op.flatten()[0] for op in base_ops ]))
+    base_ops = [ op.astype(dtype) for op in base_ops ]
+
     contraction = start_indices + "->" + final_indices
     return tf.einsum(contraction, *base_ops).numpy()
 
 # contract tensors according to a set/index diagram
 # note: assumes translational invariance by default
 def contract_tensors(tensors, diagram, TI = True):
+    # cast all tensors into the appropriate data type
+    dtype = type(np.product([ tensor.flatten()[0] for tensor in tensors ]))
+    tensors = [ tensor.astype(dtype) for tensor in tensors ]
+
     # assign contraction indices to each tensor
     indices_used = [ 0 ] * len(tensors)
     num_indices = [ tensor.ndim for tensor in tensors ]
@@ -315,11 +323,10 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None, diagonal = None
 
     # determine overall normalization factor of the permutationally symmetric states
     if pops_lft == pops_rht:
-        norm = multinomial(pops_lft)
+        log_norm = np.log( float(multinomial(pops_lft)) )
     else:
         log_norm = 1/2 * ( np.log(float(multinomial(pops_lft))) +
                            np.log(float(multinomial(pops_rht))) )
-        norm = np.exp(log_norm)
 
     op_val = 0
     for assignment_lft in assignments(op_spins, spin_dim):
@@ -330,8 +337,8 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None, diagonal = None
         assignment_rht = _remainder(pops_rht, remainder)
         if any( assignment < 0 for assignment in assignment_rht ): continue
 
-        # TODO: compute remainder_perms in a better way
-        remainder_perms = multinomial(remainder) / norm
+        # TODO: compute remainder_perms in a better way?
+        remainder_perms = np.exp( np.log(float(multinomial(remainder))) - log_norm )
         base_state_lft = _state_idx(assignment_lft)
 
         if diagonal:
@@ -345,12 +352,17 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None, diagonal = None
 
     return op_val
 
-def reduced_diagrams(set_sizes):
-    return [ reduce_diagram(diagram) for diagram in set_diagrams(set_sizes) ]
-
-def operator_contractions(operators):
+# return two lists characterizing the operator content of a multi-local operator product.
+# both lists are organized by "bare" diagrams containing filled dots,
+#   i.e. the `dd`-th element of a list is associated with the `dd`-th bare diagram.
+# elements of the first list are *reduced* diagram vectors
+#   (associated with the appropriate bare diagram).
+# elements of the second list are essentially maps
+#   from a reduced diagram to a multi-local operator.
+def diagram_operators(operators):
     dimensions = [ operator.ndim//2 for operator in operators ]
-    return [ contract_ops(operators, diagram) for diagram in set_diagrams(dimensions) ]
+    return zip(*[ ( reduce_diagram(diagram), contract_ops(operators, diagram) )
+                  for diagram in set_diagrams(dimensions) ])
 
 # project the product of multi-body operators onto the permutationally symmetric manifold
 # couplings: list of tensors (one for each multi-body operator)
@@ -387,15 +399,14 @@ def compute_norms(sunc):
 
     # get diagrams and operators (for each diagram) necessary
     #   to evaluate the relevant products of ZZ operators
-    norm_diags = reduced_diagrams([2,2])
-    multi_local_ops = operator_contractions([Z2_op,Z2_op])
+    norm_diags, diag_ops = diagram_operators([Z2_op,Z2_op])
     norm_opers = np.zeros((len(norm_diags), spin_num+1))
     for spins_up in range(spin_num+1):
         spins_dn = spin_num - spins_up
         populations = ( spins_up, spins_dn )
         norm_opers[:,spins_up] \
             = [ evaluate_multi_local_op(local_op, populations, diagonal = True)
-            for local_op in multi_local_ops ]
+                for local_op in diag_ops ]
 
     # compute norms, setting the norms of non-existant states to 1
     norms = np.ones((spin_num+1, shell_num))
@@ -427,14 +438,10 @@ def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True)
 
     coupling_targets = [ tensor.ndim for tensor in couplings ]
     diags = {}
-    diags[0] = reduced_diagrams(coupling_targets)
-    diags[1] = reduced_diagrams(coupling_targets + [2])
-    diags[2] = reduced_diagrams([2] + coupling_targets + [2])
-
-    multi_local_ops = {}
-    multi_local_ops[0] = operator_contractions(operators)
-    multi_local_ops[1] = operator_contractions(operators + [Z2_op])
-    multi_local_ops[2] = operator_contractions([Z2_op] + operators + [Z2_op])
+    diag_ops = {}
+    diags[0], diag_ops[0] = diagram_operators(operators)
+    diags[1], diag_ops[1] = diagram_operators(operators + [Z2_op])
+    diags[2], diag_ops[2] = diagram_operators([Z2_op] + operators + [Z2_op])
 
     diagonal_operators = all( _is_diagonal(op) for op in operators )
     if diagonal_operators:
@@ -442,10 +449,12 @@ def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True)
     else:
         def _spins_up_rht_range(spins_up_lft): return range(spins_up_lft, spin_num+1)
 
+    dtype = type( np.product([ operator.flatten()[0] for operator in operators ] +
+                             [ coupling.flatten()[0] for coupling in couplings ]) )
     opers = {}
-    for inner_shell_num in multi_local_ops.keys():
-        shape = (len(multi_local_ops[inner_shell_num]), spin_num+1, spin_num+1)
-        opers[inner_shell_num] = np.zeros(shape)
+    for inner_shell_num in diag_ops.keys():
+        shape = ( len(diag_ops[inner_shell_num]), spin_num+1, spin_num+1 )
+        opers[inner_shell_num] = np.zeros(shape, dtype = dtype)
 
         for spins_up_lft in range(spin_num+1):
             spins_dn_lft = spin_num - spins_up_lft
@@ -456,14 +465,15 @@ def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True)
 
                 opers[inner_shell_num][:,spins_up_lft,spins_up_rht] \
                     = [ evaluate_multi_local_op(local_op, pops_lft, pops_rht)
-                        for local_op in multi_local_ops[inner_shell_num] ]
+                        for local_op in diag_ops[inner_shell_num] ]
 
                 if spins_up_rht != spins_up_lft:
                     opers[inner_shell_num][:,spins_up_rht,spins_up_lft] \
                         = np.conj(opers[inner_shell_num][:,spins_up_lft,spins_up_rht])
 
     # start building the full operator in the Z-projection / shell basis
-    shell_operator = np.zeros( ( spin_num+1, shell_num, spin_num+1, shell_num ) )
+    shape = ( spin_num+1, shell_num, spin_num+1, shell_num )
+    shell_operator = np.zeros(shape, dtype = dtype)
 
     for shell_lft in range(shell_num):
         for shell_rht in range(shell_lft,shell_num):
@@ -477,7 +487,7 @@ def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True)
 
             product_args = ( all_couplings, diags[inner_shell_num], opers[inner_shell_num] )
             product = evaluate_operator_product(*product_args, TI)
-            shell_norms = norms[:,shell_lft] * norms[:,shell_rht]
+            shell_norms = np.outer(norms[:,shell_lft], norms[:,shell_rht])
 
             shell_operator[:,shell_lft,:,shell_rht] \
                 = shell_operator[:,shell_rht,:,shell_lft] \
