@@ -2,6 +2,7 @@
 
 import numpy as np
 import itertools, functools
+import scipy.sparse as sparse
 import matplotlib.pyplot as plt
 
 from operator_product_methods import build_shell_operator
@@ -11,7 +12,7 @@ from dicke_methods import coherent_spin_state as coherent_state_PS
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (2,4)
+lattice_shape = (12,12)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -207,7 +208,7 @@ for op_lft, op_rht in itertools.product(local_ops.keys(), repeat = 2):
 def _pauli_mat(pauli):
     full_pauli_op = build_shell_operator([np.ones(spin_num)], [local_ops[pauli]], sunc)
     return full_pauli_op.reshape( ( (spin_num+1)*shell_num, )*2 )
-S_op_vec = [ _pauli_mat(pauli)/2 for pauli in [ "Z", "X", "Y" ] ]
+S_op_vec = [ sparse.csr_matrix(_pauli_mat(pauli))/2 for pauli in [ "Z", "X", "Y" ] ]
 SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
 
 # build the ZZ perturbation operator in the Z-projection/shell basis
