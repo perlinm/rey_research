@@ -50,8 +50,10 @@
 \newcommand{\I}{\mathcal{I}}
 \renewcommand{\L}{\mathcal{L}}
 \newcommand{\M}{\mathcal{M}}
+\newcommand{\N}{\mathcal{N}}
 \renewcommand{\O}{\mathcal{O}}
 \renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\V}{\mathcal{V}}
 \newcommand{\X}{\mathcal{X}}
@@ -114,19 +116,19 @@ interactions that can be written in the form
 \begin{align}
   H_0 = \sum_{p<q} h_{pq} \Pi_{pq},
   &&
-  \Pi_{pq} \equiv \sum_{\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)},
+  \Pi_{pq} \equiv \sum_{\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)},
   \label{eq:ints}
 \end{align}
 where $p,q$ index individual spins; $\mu,\nu$ index states in an
 orthonormal basis for the $n$-dimensional Hilbert space $\H_n$ of a
 single spin; $h_{pq}$ are scalar coefficients; the operator
-$S_{\mu\nu}^{(p)}\equiv\op{\mu}{\nu}_p$ flips the state of spin $p$ to
+$s_{\mu\nu}^{(p)}\equiv\op{\mu}{\nu}_p$ flips the state of spin $p$ to
 $\ket\mu$ from $\ket\nu$; and the operator $\Pi_{pq}$ permutes the
 states of spins $p$ and $q$.  The permutation operator $\Pi_{pq}$ is a
 multilevel generalization of the SU(2)-symmetric spin interaction
-$\v S_p\c\v S_q$ for $\v S=\p{s_\x,s_\y,s_\z}$, with $s_\alpha$ an
-individual spin operator proportional to the Pauli matrix
-$\sigma_\alpha$.
+$\v s_p\c\v s_q$ for $\v s=\p{s_\x,s_\y,s_\z}$, with
+$s_\alpha=\sigma_\alpha/2$ and $\sigma_\alpha$ a Pauli matrix for an
+individual spin.
 
 We wish to determine the effective dynamics induced on the
 ground-state manifold $\M_0$ of $H_0$ by weak single- and two-body
@@ -139,10 +141,11 @@ perturbations of the form
   \label{eq:perturbations}
 \end{align}
 where $p,q$ index individual spins; $v_{Xp}$ and $w_{Opq}$ are real
-numbers; $X$ is a trace-zero single-spin operator on $\H_n$; $O$ is a
-trace-zero two-spin operator on $\H_n\otimes\H_n$ that obeys pair-wise
-permutational symmetry, i.e.~$O_{pq}=O_{qp}$; $\v v_X$ and $\v X$ are
-$N$-component vectors defined by
+numbers (coefficients); $X$ is a trace-zero single-spin operator on
+$\H_n$; $O$ is a trace-zero two-spin operator on $\H_n\otimes\H_n$
+that obeys pair-wise permutational symmetry,
+i.e.~$O_{pq} = \Pi_{pq} O_{pq} \Pi_{pq} = O_{qp}$; $\v v_X$ and $\v X$
+are $N$-component vectors defined by
 \begin{align}
   \v v_X \equiv \sum_p v_{Xp} \ket{p},
   &&
@@ -164,15 +167,15 @@ Hamiltonian $H_0$ consists of permutationally symmetric states that
 are simultaneous $+1$ eigenstates of all permutation operators
 $\Pi_{pq}$.  We will adopt the restriction that all $h_{pq}<0$
 throughout these notes, but note that this restriction can be relaxed
-to the assumption that the initial state of the spins is
+to the assumption that the initial state of all spins is
 permutationally symmetric (e.g.~a spin-polarized state).  We will also
 assume throughout these notes that the permutationally symmetric
 manifold $\M_0$ is gapped away from all other states by an interaction
 energy difference that is large compared to any coupling between
 $\M_0$ and its orthogonal complement.  Power-law couplings of the form
 $h_{pq}=-h/\abs{p-q}^\alpha$ on a $D$-dimensional lattice, for
-example, yield a non-vanishing spectral gap in the thermodynamic limit
-when $\alpha\le D$ (see Appendix \ref{sec:gap}).
+example, always yield a non-vanishing spectral gap when $\alpha\le D$
+(see Appendix \ref{sec:gap}).
 
 The effective Hamiltonian $H_M$ induced on the ground-state manifold
 $\M_0$ by an $M$-body perturbation $\V_M$ through second order in
@@ -186,11 +189,12 @@ perturbation theory is given by\cite{bravyi2011schrieffer,
   H_M^{(2)} = - \P_0 \V_M \E \V_M \P_0,
   &&
   \E \equiv \sum_{\Delta\ne0} \f{\P_\Delta}{\Delta},
+  \label{eq:H_M}
 \end{align}
 where $\P_\Delta$ is a projector onto the eigenspace of the
-interaction Hamiltonian $H_0$, with interaction energy $\Delta$ above
+interaction Hamiltonian $H_0$ with interaction energy $\Delta$ above
 that of permutationally symmetric manifold $\M_0$; that is, the
-interaction energy of states in the image of $\P_\Delta$ is
+interaction energy of states in the support of $\P_\Delta$ is
 $E_0+\Delta$, where
 \begin{align}
   E_0 = \sum_{p<q} h_{pq}
@@ -262,26 +266,27 @@ $\Delta$, then
 Interestingly, the energy of the state $\V_1^\Delta\ket\psi$ depends
 only on the coefficients $\v v_X^\Delta$, and is entirely independent
 of the state $\ket\psi$ or the choice of a trace-zero single-spin
-operators $X$ used to build $\V_1^\Delta$.  Finding operators
+operator $X$ used to build $\V_1^\Delta$.  Finding operators
 $\V_1^\Delta$ that generate eigenvectors of the interaction
 Hamiltonian $H_0$ when they act on permutationally symmetric states
 $\ket\psi\in\M_0$ thus reduces to finding eigenvectors of the
 interaction matrix $\m h-\diag\v h$.
 
-If the permutationally symmetric manifold $\M_0$ is gapped away from
-all other states, then then a vector $\V_1^\Delta\ket\psi$ with
-$\Delta=0$ must lie within the permutationally symmetric manifold
-$\M_0$, which implies that the operator $\V_1^\Delta$ preserves the
-permutational symmetry of $\M_0$.  Indeed, a constant vector
-$\v\1\equiv\p{1,1,1,\cdots}$ of ones satisfies the condition in
-\eqref{eq:cond_1} with eigenvalue $0$, which implies that all vectors
-$\v v$ satisfying \eqref{eq:cond_1} with $\Delta\ne0$ must be
-orthogonal to $\v\1$, and therefore mean-zero.
+% If the permutationally symmetric manifold $\M_0$ is gapped away from
+% all other states, then then a vector $\V_1^\Delta\ket\psi$ with
+% $\Delta=0$ must lie within the permutationally symmetric manifold
+% $\M_0$, which implies that the operator $\V_1^\Delta$ preserves the
+% permutational symmetry of $\M_0$.  Indeed, a constant vector
+% $\v\1\equiv\p{1,1,1,\cdots}$ of ones satisfies the condition in
+% \eqref{eq:cond_1} with eigenvalue $0$, which implies that all
+% vectors $\v v$ satisfying \eqref{eq:cond_1} with $\Delta\ne0$ must
+% be orthogonal to $\v\1$, and therefore mean-zero.
 
-We now return to the task of computing the second-order effective
-Hamiltonian $H_1^{(2)}$.  Any coefficient vector $\v v_X$ can be
-expanded into its projections $\v v_X^\Delta$ onto the eigenspace of
-vectors satisfying \eqref{eq:cond_1} with eigenvalue $\Delta$,
+% We now return to the task of computing the second-order effective
+% Hamiltonian $H_1^{(2)}$.
+Any coefficient vector $\v v_X$ can be expanded into its projections
+$\v v_X^\Delta$ onto the eigenspace of vectors satisfying
+\eqref{eq:cond_1} with eigenvalue $\Delta$,
 i.e.~$\v v_X = \sum_\Delta \v v_X^\Delta$, which also allows us to
 expand
 \begin{align}
@@ -300,8 +305,7 @@ symmetric manifold $\M_0$.  We can therefore simplify
   = - \sum_{\Delta\ne0} \f1{\Delta} \P_0 \p{\V_1^\Delta}^2 \P_0,
 \end{align}
 where the product $\P_0 \p{\V_1^\Delta}^2 \P_0$ is worked out in
-Appendix \ref{sec:PXYP}.  In total, using the fact that
-$\v v_X^\Delta$ is mean-zero for all $\Delta\ne0$, we find
+Appendix \ref{sec:PXYP}.  In total, we find that
 \begin{align}
   H_1^{(2)}
   \EQPS \f1{N\p{N-1}} \sum_{X,Y} \sum_{\Delta\ne0}
@@ -312,7 +316,7 @@ $\v v_X^\Delta$ is mean-zero for all $\Delta\ne0$, we find
   \label{eq:H_1_2}
 \end{align}
 where $\EQPS$ denotes equality under a restriction to the
-permutationally symmetric manifold $\M_0$; $\v v_X^\Delta$ is the
+permutationally symmetric manifold $\M_0$; and $\v v_X^\Delta$ is the
 projection of $\v v_X$ onto the $\Delta$-eigenspace of the matrix
 $\m h-\diag\v h$.
 
@@ -336,10 +340,11 @@ where
   \col{O} \equiv \sum_{p<q} O_{pq},
 \end{align}
 are an average of $w_{Opq}$ and a collective version of the two-spin
-operator $O_{pq}$.  If the two-spin operator $O=X\otimes Y$, then
+operator $O_{pq}$.  If the two-spin operator
+$O=X\otimes Y+Y\otimes X$, then
 \begin{align}
   H_2^{(1)} \EQPS \f12 \sum_{\p{X,Y}} \bar w_{\p{X,Y}}
-  \p{\col{X}\,\col{Y} - \col{XY}}.
+  \p{\col{X}\,\col{Y} + \col{Y}\,\col{X} - \col{XY} - \col{YX}}.
 \end{align}
 In order to compute the second-order effective Hamiltonian
 $H_2^{(2)}$, as before we pick an arbitrary permutationally symmetric
@@ -574,14 +579,16 @@ Here $\V_M$ is an $M$-body perturbation of the form
 \end{align}
 where $O$ is an $M$-spin operator that is invariant under arbitrary
 permutation of its tensor factors; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
-a choice of $M$ distinct spins that $O$ acts on; and $\C_N\p{n}$ is a
-choice of $n$ elements from a set of $N$.
+a choice of $M$ distinct spins that $O$ acts on; and $\C_N\p{n}$ is
+the set of all distinct choices of $n$ elements from a set of size
+$N$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body perturbation}
 \label{sec:H_V1_psi}
 
-We first consider the single-body case and simplify
+As a toy calculation, we first consider the simple case of a
+single-body perturbation and simplify
 \begin{align}
   H_0 \V_1 \ket\psi
   = \sum_k \sum_{p<q} h_{pq} v_k \Pi_{pq} X_k \ket\psi,
@@ -631,7 +638,7 @@ which implies
 \subsection{Multi-body perturbation}
 \label{sec:H_VM_psi}
 
-We wish to simplify
+We now consider the full $M$-body product
 \begin{align}
   H_0 \V_M \ket\psi
   = \sum_{\substack{\p{p,q}\in\C_N\p{2}\\k\in\C_N\p{M}}} h_{pq} w_k
@@ -736,11 +743,11 @@ a translationally invariant system with periodic boundary conditions.
 We solve the single-body eigenvalue problem analytically, and reduce
 the two-body eigenvalue problem to that of diagonalizing
 $\p{N-1}\times\p{N-1}$ matrices.  We then reduce the two-body
-eigenvalue problem even further for the case of an isotropic system,
-to that of diagonalizing a single $\sim\p{N/2^D}\times\p{N/2^D}$
-matrix.  Finally, we provide an analytic solution to the two-body
-problem in the case of a fully collective model with uniform
-couplings.
+eigenvalue problem even further to that of diagonalizing a single
+$\sim\p{N/2^D}\times\p{N/2^D}$ matrix in the case of an isotropic
+system with a translationally invariant (and isotropic) perturbation.
+Finally, we provide an analytic solution to the two-body problem in
+the case of a fully collective model with uniform couplings.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body eigenvalue problem}
@@ -912,12 +919,12 @@ distance $\abs{p-q}$.  To this end, we define uniform superpositions
 of all displacements $d\in\ZZ_L^D$ that are a distance $a\in\RR$ from
 the origin:
 \begin{align}
-  \ket{a} \equiv \f1{\sqrt{N_a}}
+  \ket{a} \equiv \f1{\sqrt{\N_a}}
   \sum_{\substack{d\in\ZZ_L^D\\\abs{d}=a}} \ket{d},
 \end{align}
 where the norm $\abs{d}$ of a vector $d$ on a periodic lattice is
 implicitly understood to mean the smallest Euclidean distance of $d$
-from the origin; and $N_a$ is a normalization factor equal to the
+from the origin; and $\N_a$ is a normalization factor equal to the
 number of displacements $d\in\ZZ_L^D$ with $\abs{d}=a$, so that
 $\bk{a|a}=1$.  Defining the set of distances
 \begin{align}
@@ -930,13 +937,13 @@ we can expand
   + \sum_{a,b\in\DD_{LD}} \tilde h_{ab} \op{a}{b},
   &&
   \ut{\v{\m w}}_0
-  \equiv \sum_{a\in\DD_{LD}} \tilde w_a \sqrt{N_a} \ket{a},
+  \equiv \sum_{a\in\DD_{LD}} \tilde w_a \sqrt{\N_a} \ket{a},
 \end{align}
 where $\tilde h_a=h_{d,0}$ and
 $\tilde w_a=\tilde w_{d,0}=\tr\p{\m m_{d,0}^\dag \m w}/N$ for all
 $\abs{d}=a$, and
 \begin{align}
-  \tilde h_{ab} \equiv \f1{\sqrt{N_aN_b}}
+  \tilde h_{ab} \equiv \f1{\sqrt{\N_a\N_b}}
   \sum_{\substack{c,d\in\ZZ_L^D\\\abs{c}=a\\\abs{d}=b}} h_{cd}.
 \end{align}
 By rough accounting, isotropy in $D$ dimensions implies one reflection
@@ -948,8 +955,9 @@ dimensions $\sim\p{N/2^D}\times\p{N/2^D}$.
 
 Here we solve the single- and two-body eigenvalue problems in the case
 of a fully collective spin model with uniform couplings:
-$h_{pq}=-1+\delta_{pq}$.  In this case, the single-body excitation
-energies $\Delta_k$ are
+$h_{pq}=-1+\delta_{pq}$, where $\delta_{pq}=1$ if $p=q$ and zero
+otherwise.  In this case, the single-body excitation energies
+$\Delta_k$ are
 \begin{align}
   \Delta_k
   = - \sum_{d\ne 0} \sp{\cos\p{d\c k}-1}
@@ -1031,13 +1039,62 @@ while the energy of all orthogonal two-body excitations is
   manifold}
 \label{sec:sym_prod}
 
-\red{TODO: Discuss motivation, why we care about these products
-  (answer: they appear in perturbation theory, as well as the
-  calculation of matrix elements within the outer-most ``shells'' of
-  fixed net spin).  Give an example of the diagram expansions we're
-  after.}
+Weak $M$-body perturbations $\V_M$ to SU($n$)-symmetric interactions
+can be treated perturbatively, resulting in an effective Hamiltonian
+on a permutationally symmetric manifold $\M_0$ of $N$ spins.
+Computing this effective Hamiltonian generally requires multiplying
+several operators, and projecting the resulting product onto $\M_0$.
+Even if the perturbation $\V_M$ is too strong for rigorous
+perturbative treatment, as long as it is comparable in magnitude to
+the energetic penalty incurred by breaking permutational symmetry, its
+effects can still be accounted for by an effective theory on the joint
+manifold of permutationally symmetric states together with states of
+``weak'' permutational symmetry breaking, e.g.~the manifold of states
+generated by the action of $M$-body perturbations on permutationally
+symmetric states.  The expansion of operators in a basis for this
+joint manifold likewise requires multiplying several operators and
+projecting the resulting product onto $\M_0$.  Specifically, if
+$\V_M=\sum_{k\in\C_N\p{M}}w_kO_k$, then we can define operators
+\begin{align}
+  \V_M^{(k)} \equiv \sum_{p\in\C_N\p{M}} w^{(k)}_p O_p,
+\end{align}
+where $\set{w^{(k)}}$ forms a complete basis for the set of symmetric
+tensors of dimension $M$ with zeros on all diagonals (i.e.~zero in all
+entries with a repeated index).  Denoting a complete basis of
+permutationally symmetric states by $\set{\ket{m}}$, we can then
+identify the $M$-body perturbed states
+\begin{align}
+  \ket{mk} \equiv \f1{\sqrt{\N_{mk}}} \V_M^{(k)} \ket{m},
+  &&
+  \N_{mk} \equiv \bk{m | \V_M^{(k)} \V_M^{(k)} | m}.
+\end{align}
+The restriction of a multi-body operator $\Q=\sum_p v_p Q_p$ to this
+expanded Hilbert space is then
+\begin{align}
+  \Q \simeq_M \P_M \Q \P_M,
+  &&
+  \P_M \equiv \sum_m \op{m} + \sum_{m,k} \op{mk},
+\end{align}
+where finding matrix elements of $\O$ now requires computing products
+of the form
+\begin{align}
+  \bk{\ell | \V_M^{(j)} \Q \V_M^{(k)} | m}
+  = \sum_{p,q,r} w^{(j)}_p v_q w^{(k)}_r \bk{\ell | O_p Q_q O_r | m}.
+  \label{eq:example_prod}
+\end{align}
+The purpose of this section is to work out such products in a
+systematic way.  To this end, we derive a general diagrammatic
+expansion of these products, as well as rules to simplify the
+resulting expansions so as to minimize their computational cost.
+These diagrammatic methods allow us to algorithmically evaluate
+products such as \eqref{eq:example_prod} from the bare multi-body
+operator data $\p{w^{(j)},O},\p{v,Q},\p{w^{(k)},O}$.  We then work out
+some special cases of products that are relevant to the perturbation
+theory in Sections \ref{sec:single_body_pert} and
+\ref{sec:two_body_pert}.
 
-\subsection{The general case}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{The general case: a diagrammatic expansion}
 
 Given a system of $N$ spins, we wish to project a product of
 multi-body operators onto the permutationally symmetric manifold.  For
@@ -1090,7 +1147,7 @@ assignment can be represented by the Venn diagram
 where $g_S$ is determined the number of dots at the intersection of
 circles $\set{w_j:j\in S}$.  We denote an assignment of distinct
 indices according to choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ by
-q$g$, where $\PP\p{\ZZ_p}$ is the power set (i.e.~set of all subsets)
+$g$, where $\PP\p{\ZZ_p}$ is the power set (i.e.~set of all subsets)
 of $\ZZ_p$.  Given a vector $\m M$ of the dimensions $M_j$, we then
 denote the set of all valid index assignments $g$ by $\G\p{\m M}$.
 For consistency, all valid index assignments $g\in\G\p{\m M}$ must
