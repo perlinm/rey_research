@@ -55,6 +55,7 @@
 \renewcommand{\P}{\mathcal{P}}
 \newcommand{\Q}{\mathcal{Q}}
 \renewcommand{\S}{\mathcal{S}}
+\newcommand{\T}{\mathcal{T}}
 \newcommand{\V}{\mathcal{V}}
 \newcommand{\X}{\mathcal{X}}
 
@@ -72,7 +73,7 @@
 \DeclareMathOperator{\diag}{diag}
 \newcommand{\ul}{\underline}
 
-\usepackage{accents}
+\usepackage{accents} % for the undertilde
 \newcommand{\ut}{\undertilde}
 
 \newcommand{\floor}[1]{\lfloor{#1}\rfloor}
@@ -82,6 +83,8 @@
 \def\oket#1{\mathinner{|{#1})}}
 \def\obk#1{\mathinner{({#1})}}
 \def\oop#1#2{\oket{#1}\!\obra{#2}}
+
+\usepackage{mathtools} % for coloneqq
 
 \usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
@@ -242,20 +245,17 @@ eigenvector of the interaction Hamiltonian $H_0$ if its coefficient
 vectors $\v v_X^\Delta$ all satisfy the eigenvalue equation
 \begin{align}
   \p{\m h - \diag\v h}\c\v v = \Delta \v v,
-  &&
-  \m h \equiv \sum_{p,q} h_{pq} \op{p}{q},
-  &&
-  \v h \equiv \sum_q h_q \ket{q},
   \label{eq:cond_1}
 \end{align}
-where $\m h$ is a matrix of all $h_{pq}$, and
-$\diag\v h\equiv\sum_p h_p \op{p}$ is a matrix with $\v h$ on the
-diagonal and zeros everywhere else.  Solving the general eigenvalue
-problem in \eqref{eq:cond_1} requires diagonalizing the $N\times N$
-matrix $\m h-\diag\v h$.  When the interaction Hamiltonian $H_0$ is
-translationally invariant, however, this eigenvalue problem can be
-solved analytically; we provide the corresponding solution in Appendix
-\ref{sec:trans_inv}.
+where $\m h\equiv\sum_{p,q}h_{pq}\op{p}{q}$ is a matrix of all
+couplings $h_{pq}$; the vector $\v h\equiv\sum_{p,q}h_{pq}\ket{p}$ is
+the sum of all columns of $\m h$; and $\diag\v h$ is a matrix with
+$\v h$ on the diagonal and zeroes everywhere else.  Solving the
+general eigenvalue problem in \eqref{eq:cond_1} requires diagonalizing
+the $N\times N$ matrix $\m h-\diag\v h$.  When the interaction
+Hamiltonian $H_0$ is translationally invariant, however, this
+eigenvalue problem can be solved analytically; we provide the
+corresponding solution in Appendix \ref{sec:trans_inv}.
 
 If we {\it construct} a perturbation $\V_1^\Delta$ with coefficients
 $\v v_X^\Delta$ that satisfy \eqref{eq:cond_1} with eigenvalue
@@ -353,7 +353,7 @@ state $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_VM_psi})
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
   + \sum_O \sum_{p<q}
-  \sp{\sum_k \p{h_{kp} w_{Okq} w_{Okq} + h_{kq} w_{Opk}}
+  \sp{\sum_k \p{h_{pk} w_{Okq} + h_{qk} w_{Opk}}
   - \bar h_{pq} w_{Opq}}
   O_{pq} \ket\psi,
   \label{eq:H_V2_psi}
@@ -377,13 +377,16 @@ where
 \begin{align}
   \check{\m h}
   \equiv \sum_{p<q} \ket{\set{p,q}} \sp{\sum_{k\notin\set{p,q}}
-    \p{h_{kp} \bra{\set{k,q}} + h_{kq} \bra{\set{p,k}}}
+    \p{h_{pk} \bra{\set{k,q}} + h_{qk} \bra{\set{p,k}}}
     - \bar h_{pq} \bra{\set{p,q}}}.
   \label{eq:h_super_mat}
 \end{align}
-Solving the general eigenvalue problem in \eqref{eq:cond_2} requires
-diagonalizing the ${N \choose 2}\times{N \choose 2}\sim N^2\times N^2$
-matrix $\check{\m h}$.  When both he interaction Hamiltonian $H_0$
+We explicitly exclude $k\in\set{p,q}$ in \eqref{eq:h_super_mat}
+because these terms vanish in \eqref{eq:H_V2_psi} from the fact that
+$h_{kk}=w_{Okk}=0$.  Solving the general eigenvalue problem in
+\eqref{eq:cond_2} requires diagonalizing the
+${N \choose 2}\times{N \choose 2}\sim N^2\times N^2$ matrix
+$\check{\m h}$.  When both he interaction Hamiltonian $H_0$
 translationally invariant, however, this eigenvalue problem can be
 reduced to that of diagonalizing an $\sim N\times N$ matrix; we
 discuss this reduction in Appendix \ref{sec:trans_inv}.
@@ -564,7 +567,7 @@ It follows that the spectral gap
 which vanishes as $\epsilon\to0$ for all $\alpha>D$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Constructing eigenstates of multi-body perturbations}
+\section{Constructing multi-body excitation energy eigenstates}
 \label{sec:H_VM_psi}
 
 In this section, we simplify the products of the form
@@ -584,7 +587,7 @@ the set of all distinct choices of $n$ elements from a set of size
 $N$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Single-body perturbation}
+\subsection{Single-body excitations}
 \label{sec:H_V1_psi}
 
 As a toy calculation, we first consider the simple case of a
@@ -633,9 +636,26 @@ which implies
   X_p \ket\psi.
   \label{eq:H_V1_psi_end}
 \end{align}
+The action of a single-body perturbation $\V_1=\sum_p v_p X_p$ on a
+fully symmetric state therefore generates an eigenstate of $H_0$ with
+energy $E_0+\Delta$ if the vector $\v v\equiv\sum_p v_p\ket{p}$
+satisfies the eigenvalue equation
+\begin{align}
+  \p{\m h - \diag\v h} \c \v v = \Delta \v v,
+  \label{eq:H_V1_psi_eig}
+\end{align}
+where $\m h\equiv\sum_{p,q}h_{pq}\op{p}{q}$ is a matrix of all
+couplings $h_{pq}$; the vector $\v h\equiv\sum_{p,q}h_{pq}\ket{p}$ is
+the sum of all columns of $\m h$; and $\diag\v h$ is a matrix with
+$\v h$ on the diagonal and zeroes everywhere else.
+
+% When the interaction Hamiltonian $H_0$ is translationally invariant,
+% the single-body eigenvalue problem in \eqref{eq:H_V1_psi_eig} is
+% exactly solvable.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Multi-body perturbation}
+\subsection{Multi-body excitations}
 \label{sec:H_VM_psi}
 
 We now consider the full $M$-body product
@@ -670,10 +690,21 @@ minus the remainder $q\in k$.  We thus find that
   &&
   \bar h_k \equiv \sum_{p\in k}\p{h_p - \sum_{q\in k}h_{pq}},
   &&
-  h_p \equiv \sum_q h_{pq}.
+  h_p \equiv \sum_q h_{pq},
 \end{align}
-The terms in \eqref{eq:H_VM_psi_start} with only one of $p\in k$ or
-$q\in k$, meanwhile, are
+which implies that the terms in \eqref{eq:H_VM_psi_start} with
+$p,q\in k$ or $p,q\notin k$ are
+\begin{align}
+  \sum_{k\in\C_N\p{M}} \p{E_0 - \bar h_k} w_k O_k \ket\psi
+  = E_0 \V_M \ket\psi
+  - \sum_{k\in\C_N\p{M}} \p{\bar{\m h} * \m w}_k O_k \ket\psi,
+\end{align}
+where $\bar{\m h}$ is a tensor with entries $\bar h_k$; and
+$\m x*\m y$ denotes an element-wise (Kronecker) product of $\m x$ and
+$\m y$, with entries $x_ky_k$.
+
+The remaining terms in \eqref{eq:H_VM_psi_start} with only one of
+$p\in k$ or $q\in k$ are
 \begin{align}
   \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{q\in k}
   h_{pq} w_k \Pi_{pq} O_k \ket\psi
@@ -696,23 +727,41 @@ and switch the labels for $p$ and $k_j$ to find that
   = \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
   \sum_{j=1}^M h_{pk_j} w_{k_{jp}} O_k \ket\psi.
 \end{align}
-Defining
+For each fixed $j$, the sum over $p$ above is essentially a
+contraction of the matrix $\m h$ with the $j$-th index of the tensor
+$\m w$.  Denoting such a contraction by $\m h\c_j\m w$, we can
+therefore write this result as
 \begin{align}
-  \p{h\circ w}_k
+  \sum_{k\in\C_N\p{M}} \p{\m h\circ \m w}_k O_k \ket\psi,
+  &&
+  \m h\circ\m w \equiv \sum_{j=1}^M \m h\c_j\m w,
+\end{align}
+where, for clarity, the matrix elements of $\m h\circ\m w$ are
+\begin{align}
+  \p{\m h\circ\m w}_k
   \equiv \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{j=1}^M
   h_{pk_j} w_{k_{jp}}
   = \sum_{\substack{p\in\ZZ_N\\p\notin k}}
   \p{h_{k_1 p} w_{pk_2k_3\cdots k_M}
     + h_{k_2 p} w_{k_1pk_3\cdots k_M}
-    + \cdots + h_{k_M p} w_{k_1k_2\cdots k_{M-1} p}},
+    + \cdots + h_{k_M p} w_{k_1k_2\cdots k_{M-1} p}}.
 \end{align}
-we thus find that
+Altogether, we thus find that
 \begin{align}
   H_0 \V_M \ket\psi
   = E_0 \V_M \ket\psi + \sum_{k\in\C_N\p{M}}
-  \sp{\p{h\circ w}_k - \bar h_k w_k} O_k \ket\psi.
+  \p{\m h\circ\m w - \bar{\m h} * \m w}_k O_k \ket\psi.
+  \label{eq:H_VM_psi_end}
 \end{align}
-If $M=1$, then $\p{h\circ w}_k=\sum_\ell h_{k\ell}w_\ell$ and
+The action of the $M$-body perturbation $\V_M$ on a fully symmetric
+state therefore generates an eigenstate of $H_0$ with energy
+$E_0+\Delta$ if the coefficient tensor $\m w$ satisfies the
+generalized eigenvalue equation
+\begin{align}
+  \m h\circ\m w - \bar{\m h} * \m w = \Delta \m w.
+  \label{eq:H_VM_psi_eig}
+\end{align}
+If $M=1$, then $\p{\m h\circ\m w}_k=\sum_\ell h_{k\ell}w_\ell$ and
 $\bar h_k=h_k$, so
 \begin{align}
   H_0 \V_1 \ket\psi
@@ -720,16 +769,144 @@ $\bar h_k=h_k$, so
   \p{\sum_{\ell\in\ZZ_N} h_{k\ell} w_\ell - h_k w_k} O_k \ket\psi,
 \end{align}
 which is precisely what we found in \eqref{eq:H_V1_psi_end}.  If
-$M=2$, then $\p{h\circ w}_{pq}=\sum_k\p{h_{kp} w_{kq}+h_{kq}w_{pk}}$,
-so
+$M=2$, then
+$\p{\m h\circ\m w}_{pq}=\sum_k\p{h_{pk}w_{kq}+h_{qk}w_{pk}}$, so
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi + \sum_{\p{p,q}\in\C_N\p{2}}
-  \sp{\sum_{k\in\ZZ_N}\p{h_{kp} w_{kq} + h_{kq} w_{pk}}
+  \sp{\sum_{k\in\ZZ_N}\p{h_{pk} w_{kq} + h_{qk} w_{pk}}
     - \bar h_{pq} w_{pq}}
   O_k \ket\psi,
 \end{align}
 where $\bar h_{pq}=h_p+h_q-2h_{pq}$ with $h_p\equiv\sum_qh_{pq}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Translational invariance}
+\label{sec:H_VM_psi_TI}
+
+Solving eigenvalue problem in \eqref{eq:H_VM_psi_eig} to find $M$-body
+perturbations $\V_M$ that generate states of definite interaction
+energy nominally requires diagonalizing an
+${N\choose M}\times{N\choose M}\sim N^M\times N^M$ matrix.  Here, we
+simplify this problem to that of diagonalizing an
+$\sim{N-1\choose M-1}\times{N-1\choose M-1}\sim N^{M-1}\times N^{M-1}$
+matrix when both the interaction Hamiltonian $H_0$ and the
+perturbation $\V_M$ are translationally invariant.  This
+simplification reduces the computational cost of solving the $M$-body
+eigenvalue problem by a factor of $\O\p{N^3}$.
+
+Our task is essentially to express the multi-body eigenvalue problem
+in \eqref{eq:H_VM_psi_eig} in a basis that obeys both permutational
+symmetry and translational invariance.  To this end, we first expand
+the coupling tensor $\m w$ in a complete basis for all tensors of
+dimension $M$:
+\begin{align}
+  \m w = \sum_{k\in\ZZ_N^M} w_k \m e_k,
+\end{align}
+where $\m e_k$ is a unit tensor with one in the entry indexed by $k$
+and zeros everywhere else.  We then use the permutational symmetry of
+$\m w$ to expand it in a basis for symmetric tensors, making use of
+the fact that all entries of $\m w$ with repeated indices are zero:
+\begin{align}
+  \m w = \sum_{k\in\C_N\p{M}} w_k \m m_k,
+  &&
+  \m m_k \equiv \sum_{\sigma\in P_M} \m e_{\sigma\p{k}},
+  \label{eq:sym_tensor}
+\end{align}
+where $P_M$ is the set of all permutations of $M$ symbols.  On a
+$D$-dimensional lattice of linear size $L$, translational invariance
+implies that the coefficients $w_k$ remain the same if all spins
+indexed by $k$ are shifted by the same displacement $d\in\ZZ_L^D$.  To
+account for this invariance, we denote a translation of all spins in
+$k$ by a displacement $d\in\ZZ_L^D$ by $k_d$, and define the
+translation-symmetrized basis tensors
+\begin{align}
+  \m m_k^{\t{TS}}
+  \equiv \f1{\N_k^{\t{TS}}} \sum_{d\in\ZZ_L^D} \m m_{k_d}
+  = \f1{\N_k^{\t{TS}}} \sum_{d\in\ZZ_L^D} \sum_{\sigma\in P_M}
+  \m e_{\sigma(k_d)},
+\end{align}
+where the normalization factor $\N_k^{\t{TS}}$ enforces that the
+entries of $\m m_k^{\t{TS}}$ are all either zero or one, which
+otherwise might not occur if some translations of $k$ results in the
+same choice of spins.  We then define the set $\T_N\p{M}$ of
+equivalence classes in $\C_N\p{M}$ under arbitrary translations, and
+expand
+\begin{align}
+  \m w = \sum_{k\in\T_N\p{M}} w_k \m m_k^{\t{TS}}.
+  \label{eq:sym_shift_tensor}
+\end{align}
+Having expanded $\m w$ in a basis that respects permutational symmetry
+and translational invariance, we need to express the eigenvalue
+equation \eqref{eq:H_VM_psi_eig} in the same basis.  In order to do
+so, we label spins $p,q$ by the position of the corresponding lattice
+site in $\ZZ_L^D$, and use translational invariance of the couplings
+$\m h$ to expand
+\begin{align}
+  \m h \equiv \sum_{p,q\in\ZZ_L^D} h_{pq} \op{p}{q}
+  = \sum_{q,d\in\ZZ_L^D} h_{q+d,q} \op{q+d}{q}
+  = \sum_{d\in\ZZ_L^D} h_{d,0} \m s_d,
+  &&
+  \m s_d \equiv \sum_{q\in\ZZ_L^D} \op{q+d}{d}.
+\end{align}
+Starting from this form of $\m h$ and the expansion of $\m w$ in
+\eqref{eq:sym_tensor}, we can work out that
+\begin{align}
+  \m h\circ\m w
+  = \sum_{k\in\T_N\p{M}} \m m_k^{\t{TS}}
+  \sum_{d\in\ZZ_L^D} h_{d,0} \sum_{a=1}^M w_{k_{d;a}},
+\end{align}
+where $k_{d;a}$ denotes the spins acquired by displacing the $a$-th
+spin of $k$ by $d$.  With a bit of additional work, we can also
+simplify
+\begin{align}
+  \bar{\m h} * \m w = M h_0 \m w
+  - \sum_{k\in\T_N\p{M}} w_k \m m_k^{\t{TS}}
+  \sum_{p,q\in k} h_{pq}
+  &&
+  h_0 \equiv \sum_{d\in\ZZ_L^D} h_{d,0}.
+\end{align}
+Putting everything together, the generalized eigenvalue problem in
+\eqref{eq:H_VM_psi_eig} can be written in the form
+\begin{align}
+  \sum_{k\in\T_N\p{M}} \m m_k^{\t{TS}}
+  \sp{\sum_{p,q\in k} h_{pq} w_k
+    + \sum_{d\in\ZZ_L^D} h_{d,0} \sum_{a=1}^M w_{k_{d;a}}}
+  = \p{M h_0 + \Delta} \m w,
+\end{align}
+or equivalently
+\begin{align}
+  \ut{\check{\m h}} \c \v{\m w} = \p{M h_0 + \Delta} \v{\m w},
+  \label{eq:H_VM_eig_simp}
+\end{align}
+where
+\begin{align}
+  \ut{\check{\m h}} \equiv
+  \sum_{k\in\T_N\p{M}} \ket{k}
+  \sp{\sum_{p,q\in k} h_{pq} \bra{k}
+    + \sum_{d\in\ZZ_L^D} h_{d,0} \sum_{a=1}^M \bra{k_{d;a}}},
+  &&
+  \v{\m w} \equiv \sum_{k\in\T_N\p{M}} w_k \ket{k},
+\end{align}
+and, to keep notation simple, we define $\ket{k}=0$ for all $k$ with
+repeated values, and enforce $\ket{j}=\ket{k}$ if spins $j$ and spins
+$k$ are the same up to a global translation.
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Two-body excitation energy eigenstates}
+% \label{sec:trans_inv_two}
+
+% The single-body excitation energy eigenvalue problem in
+% \eqref{eq:H_V1_psi_eig} is solvable analytically when the interaction
+% Hamiltonian $H_0$ is translationally invariant.
+
+\vspace{1cm}
+
+\red{TODO: write codes to check above work, fix any errors, explicitly
+  write out single- and two-body reduced eigenvalue problems, include
+  sub-section about isotropy, replace the following appendix}
+
+\vspace{1cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Constructing eigenstates of translationally invariant
@@ -1075,7 +1252,7 @@ expanded Hilbert space is then
   &&
   \P_M \equiv \sum_m \op{m} + \sum_{m,k} \op{mk},
 \end{align}
-where finding matrix elements of $\O$ now requires computing products
+where finding matrix elements of $\Q$ now requires computing products
 of the form
 \begin{align}
   \bk{\ell | \V_M^{(j)} \Q \V_M^{(k)} | m}
@@ -1215,7 +1392,7 @@ These definitions allow us to expand
 where the choice of $\ell\in\C_N\p{g}$ does not matter after
 projection onto permutationally symmetric manifold, and
 \begin{align}
-  \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} \C\p{ g_S : j\in S }}
+  \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} { M_j \choose g_S : j\in S }}
   \sp{\prod_{S\in\PP\p{\ZZ_p}} \p{g_S!}^\abs{S}}
   = \prod_{j\in\ZZ_p} M_j!,
   \label{eq:sym_prod_symmetry}
@@ -1223,16 +1400,15 @@ projection onto permutationally symmetric manifold, and
 where the first product in \eqref{eq:sym_prod_symmetry} contains
 multinomial coefficients
 \begin{align}
-  \C\p{a_1,a_2,\cdots,a_m}
-  \equiv \f{\p{a_1+a_2+\cdots+a_m}!}{a_1!a_2!\cdots a_m!}
+  {M_j \choose a_1,a_2,\cdots,a_m}
+  \equiv \f{M_j!}{a_1!a_2!\cdots a_m!}
 \end{align}
 that account for the number of ways to partition the indices of each
-$w_j,O_j$ into sets of shared indices as specified by the values of
-$g_S$ for all $j\in S$, and the second product in
-\eqref{eq:sym_prod_symmetry} accounts for the number of ways to
-permute each set of shared indices on every tensor.  Altogether, the
-symmetry factors $\S\p{g}$ cancel out with the $\sim M_j!$ prefactors
-in \eqref{eq:sym_prod_vec}, so
+$w_j,O_j$ into sets of shared indices as specified by $g$, and the
+second product in \eqref{eq:sym_prod_symmetry} accounts for the number
+of ways to permute each set of shared indices on every tensor.
+Altogether, the symmetry factors $\S\p{g}$ cancel out with the
+$\sim M_j!$ prefactors in \eqref{eq:sym_prod_vec}, so
 \begin{align}
   \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} O_j\p{k}
   \EQPS \sum_{g\in\G\p{\m M}} w\p{g} O\p{g}.
@@ -1410,6 +1586,11 @@ that accounts for the number of ways to move a dot from the old region
 to the new one.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Matrix elements of multi-body operators}
+
+\red{TODO: write section}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Two single-body operators}
 \label{sec:PXYP}
 
@@ -1482,12 +1663,12 @@ Here we simplify the product
 where $\P_0$ is a projector onto the permutationally symmetric
 manifold $\M_0$; $k,\ell,p,q$ index individual spins;
 $v_{k\ell},w_{pq}$ are scalar coefficients with $m_{pq}=m_{qp}$ and
-$m_{pp}=0$ for each of $m\in\set{v,w}$; and $O,Q$ are
-permutationally-symmetric two-spin operators.  This product appears,
-for example, in the calculation of the second-order effective
-Hamiltonian $H_2^{(2)}$ induced on the permutationally symmetric
-manifold $\M_0$ by the two-body perturbation $\V_2$ in
-\eqref{eq:perturbations} in \eqref{eq:perturbations}.  Defining
+$m_{pp}=0$ for each of $m\in\set{v,w}$; and $O,Q$ are permutationally
+symmetric two-spin operators.  This product appears, for example, in
+the calculation of the second-order effective Hamiltonian $H_2^{(2)}$
+induced on the permutationally symmetric manifold $\M_0$ by the
+two-body perturbation $\V_2$ in \eqref{eq:perturbations} in
+\eqref{eq:perturbations}.  Defining
 \begin{align}
   \v{\m m} \equiv \sum_{p<q} m_{pq} \ket{\set{p,q}},
   &&
