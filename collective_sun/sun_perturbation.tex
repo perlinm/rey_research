@@ -800,14 +800,15 @@ where $\bar h_{pq}=h_p+h_q-2h_{pq}$ with $h_p\equiv\sum_qh_{pq}$.
 
 Solving the eigenvalue problem in \eqref{eq:H_VM_psi_eig} to find
 $M$-body perturbations $\V_M$ that generate states of definite
-interaction energy nominally requires diagonalizing an
-${N\choose M}\times{N\choose M}\sim N^M\times N^M$ matrix.  Here, we
-simplify this problem to that of diagonalizing an
+interaction energy nominally requires diagonalizing a matrix with
+dimensions ${N\choose M}\times{N\choose M}\sim N^M\times N^M$.  Here,
+we simplify this problem to that of diagonalizing a matrix with
+dimensions
 $\sim{N-1\choose M-1}\times{N-1\choose M-1}\sim N^{M-1}\times N^{M-1}$
-matrix when both the interaction Hamiltonian $H_0$ and the
-perturbation $\V_M$ are translationally invariant.  This
-simplification reduces the computational cost of solving the $M$-body
-eigenvalue problem by a factor of $\O\p{N^3}$.
+when both the interaction Hamiltonian $H_0$ and the perturbation
+$\V_M$ are translationally invariant.  This simplification reduces the
+computational cost of solving the $M$-body eigenvalue problem by a
+factor of $\O\p{N^3}$.
 
 Our task is essentially to express the multi-body eigenvalue problem
 in \eqref{eq:H_VM_psi_eig} in a basis that obeys both permutational
@@ -902,7 +903,10 @@ where
 \end{align}
 and, to keep notation simple, we define $\ket{k}=0$ for all $k$ with
 repeated values, and enforce $\ket{j}=\ket{k}$ if spins $j$ and spins
-$k$ are the same up to a global translation.
+$k$ are the same up to a global translation.  The matrix
+$\check{\m h}$ has dimensions
+$\abs{\T_{LD}\p{M}}\times\abs{\T_{LD}\p{M}}$, where
+$\abs{\T_{LD}\p{M}} \approx { N-1 \choose M-1 }/M \sim N^{M-1}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Operator products restricted to the permutationally symmetric
