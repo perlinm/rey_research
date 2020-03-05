@@ -43,6 +43,7 @@
 \newcommand{\y}{\text{y}}
 \newcommand{\z}{\text{z}}
 
+\newcommand{\A}{\mathcal{A}}
 \newcommand{\C}{\mathcal{C}}
 \newcommand{\E}{\mathcal{E}}
 \newcommand{\G}{\mathcal{G}}
@@ -1084,7 +1085,7 @@ These definitions allow us to expand
 where the choice of $\ell\in\C_N\p{g}$ does not matter after
 projection onto permutationally symmetric manifold, and
 \begin{align}
-  \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} { M_j \choose g_S : j\in S }}
+  \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} \C\p{ g_S : j\in S }}
   \sp{\prod_{S\in\PP\p{\ZZ_p}} \p{g_S!}^\abs{S}}
   = \prod_{j\in\ZZ_p} M_j!,
   \label{eq:sym_prod_symmetry}
@@ -1092,8 +1093,8 @@ projection onto permutationally symmetric manifold, and
 where the first product in \eqref{eq:sym_prod_symmetry} contains
 multinomial coefficients
 \begin{align}
-  {M_j \choose a_1,a_2,\cdots,a_m}
-  \equiv \f{M_j!}{a_1!a_2!\cdots a_m!}
+  \C\p{a_1,a_2,\cdots,a_m}
+  \equiv \f{\p{a_1+a_2+\cdots+a_m}!}{a_1!a_2!\cdots a_m!}
 \end{align}
 that account for the number of ways to partition the indices of each
 $w_j,O_j$ into sets of shared indices as specified by $g$, and the
@@ -1240,10 +1241,12 @@ as the factor of 2 in \eqref{eq:example_elim_final}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Symmetry factors}
 
-Here we discuss the rules governing symmetry factors that appear when
-decomposing diagrams.  In general, eliminating a filled dot from a
-region with $F$ filled dots makes a diagram pick up a factor of $1/F$,
-e.g.
+As seen in \eqref{eq:example_elim_final}, the process of simplifying
+diagrams generally involves symmetry factors that need to be kept
+track of by hand.  Here we discuss the rules governing symmetry
+factors that appear when decomposing diagrams.  In general,
+eliminating a filled dot from a region with $F$ filled dots makes a
+diagram pick up a factor of $1/F$, e.g.
 \begin{align}
   \diagram{example_sym}
   = \f14 \diagram{example_sym_o}
@@ -1278,9 +1281,64 @@ that accounts for the number of ways to move a dot from the old region
 to the new one.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Matrix elements of multi-body operators}
+\subsubsection{Matrix elements of individual multi-spin operators}
 
-\red{TODO: write section}
+The process of constructing and simplifying diagrams to compute the
+coefficients $w\p{g}$ of the diagrammatic operator product expansion
+in \eqref{eq:sym_prod_group} is systematic enough to be converted into
+an algorithm for execution on a computer.  The last step necessary to
+automate the evaluation of \eqref{eq:sym_prod_group} is expansion of
+the multi-spin operators $O\p{g}$ in a basis for the permutationally
+symmetric manifold $\M_0$.  Without loss of generality, we consider a
+single permutationally symmetric $M$-spin operator $Q$; our task is
+essentially to find coefficients of the expansion
+\begin{align}
+  \P_0 Q \P_0
+  = \sum_{a,b} \bk{a|Q|b} \op{a}{b},
+\end{align}
+where $\set{\ket{a}},\set{\ket{b}}$ are complete bases for $\M_0$, and
+the choice of $M$ spins on which $Q$ acts is arbitrary.  In a system
+of $N$ spins with $n$ states each, a suitable basis for $\M_0$ can be
+labeled by the occupation number of each single-spin state, namely
+$a=\p{a_1,a_2,\cdots,a_n}$ with each $a_j\ge 0$ and $\sum_ja_j=N$.
+Written out explicitly,
+\begin{align}
+  \ket{a} = \f1{\sqrt{\C\p{a}}}
+  \sum_{\substack{\t{distinct}\\\t{permutations}\\\Pi~\t{of}~\tilde a}}
+  \Pi \ket{\tilde a},
+  &&
+  \C\p{a} \equiv \f{\p{\sum_j a_j}!}{\prod_ja_j!}
+  &&
+  \ket{\tilde a} \equiv \bigotimes_{j=1}^n \ket{j}^{\otimes a_j},
+\end{align}
+where the multinomial coefficient $\C\p{a}$ counts the number of
+distinct ways to permute the tensor factors of $\ket{\tilde a}$, and
+enforces $\bk{a|a}=1$.  We denote the set of all valid assignments of
+$S$ spins to $n$ states by $\A_n\p{S}$, such that the standard basis
+for the permutationally symmetric manifold of $S$ spins is
+$\set{\ket{a}:a\in\A_n\p{S}}$.  Identifying this standard basis allows
+us to expand
+\begin{align}
+  \bk{a|Q|b} = \sum_{\alpha,\beta\in\A_n\p{M}}
+  \delta_{a-\alpha,b-\beta}
+  \sqrt{\C\p{a-\alpha}\C\p{b-\beta}}
+  \sqrt{\f{\C\p{\alpha}\C\p{\beta}}{\C\p{a}\C\p{b}}}
+  \bk{\alpha|Q|\beta},
+  \label{eq:multi_body_eval}
+\end{align}
+where the differences $a-\alpha$ and $b-\beta$ are understood to be
+taken element-wise; $\delta_{a-\alpha,b-\beta}=1$ if
+$a-\alpha=b-\beta$ and zero otherwise; and for ease of notation we
+define $\C\p{c}\equiv 0$ if any entries of $c$ are negative.  We sum
+over both $\alpha$ and $\beta$ above merely to keep the expression
+symmetric with respect to transposition; in practice, one can simply
+sum over $\alpha\in\A_n\p{M}$ and set $\beta\equiv b-a+\alpha$.  Note
+that, by slight abuse of notation, the operator $Q$ on the left of
+\eqref{eq:multi_body_eval} acts on an arbitrary choice of $M$ spins
+(out of $N$), whereas the operator $Q$ on the right of
+\eqref{eq:multi_body_eval} is simply an $M$-spin operator, with matrix
+elements $\bk{\alpha|Q|\beta}$ evaluated with respect to the $M$-spin
+states $\ket\alpha,\ket\beta$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Two single-body operators}
