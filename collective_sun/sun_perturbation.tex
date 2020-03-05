@@ -120,7 +120,7 @@ interactions that can be written in the form
   H_0 = \sum_{p<q} h_{pq} \Pi_{pq},
   &&
   \Pi_{pq} \equiv \sum_{\mu,\nu} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)},
-  \label{eq:ints}
+  \label{eq:H_0}
 \end{align}
 where $p,q$ index individual spins; $\mu,\nu$ index states in an
 orthonormal basis for the $n$-dimensional Hilbert space $\H_n$ of a
@@ -178,7 +178,7 @@ energy difference that is large compared to any coupling between
 $\M_0$ and its orthogonal complement.  Power-law couplings of the form
 $h_{pq}=-h/\abs{p-q}^\alpha$ on a $D$-dimensional lattice, for
 example, always yield a non-vanishing spectral gap when $\alpha\le D$
-(see Appendix \ref{sec:gap}).
+(see Appendix \ref{sec:spectral_gap}).
 
 The effective Hamiltonian $H_M$ induced on the ground-state manifold
 $\M_0$ by an $M$-body perturbation $\V_M$ through second order in
@@ -245,20 +245,20 @@ eigenvector of the interaction Hamiltonian $H_0$ if its coefficient
 vectors $\v v_X^\Delta$ all satisfy the eigenvalue equation
 \begin{align}
   \p{\m h - \diag\v h}\c\v v = \Delta \v v,
-  \label{eq:cond_1}
+  \label{eq:V1_eig}
 \end{align}
 where $\m h\equiv\sum_{p,q}h_{pq}\op{p}{q}$ is a matrix of all
 couplings $h_{pq}$; the vector $\v h\equiv\sum_{p,q}h_{pq}\ket{p}$ is
 the sum of all columns of $\m h$; and $\diag\v h$ is a matrix with
 $\v h$ on the diagonal and zeroes everywhere else.  Solving the
-general eigenvalue problem in \eqref{eq:cond_1} requires diagonalizing
+general eigenvalue problem in \eqref{eq:V1_eig} requires diagonalizing
 the $N\times N$ matrix $\m h-\diag\v h$.  When the interaction
 Hamiltonian $H_0$ is translationally invariant, however, this
 eigenvalue problem can be solved analytically; we provide the
-corresponding solution in Appendix \ref{sec:trans_inv}.
+corresponding solution at the end of Appendix \ref{sec:H_V1_psi}.
 
 If we {\it construct} a perturbation $\V_1^\Delta$ with coefficients
-$\v v_X^\Delta$ that satisfy \eqref{eq:cond_1} with eigenvalue
+$\v v_X^\Delta$ that satisfy \eqref{eq:V1_eig} with eigenvalue
 $\Delta$, then
 \begin{align}
   H_0 \V_1^\Delta \ket\psi = \p{E_0 + \Delta} \V_1^\Delta \ket\psi.
@@ -272,21 +272,9 @@ Hamiltonian $H_0$ when they act on permutationally symmetric states
 $\ket\psi\in\M_0$ thus reduces to finding eigenvectors of the
 interaction matrix $\m h-\diag\v h$.
 
-% If the permutationally symmetric manifold $\M_0$ is gapped away from
-% all other states, then then a vector $\V_1^\Delta\ket\psi$ with
-% $\Delta=0$ must lie within the permutationally symmetric manifold
-% $\M_0$, which implies that the operator $\V_1^\Delta$ preserves the
-% permutational symmetry of $\M_0$.  Indeed, a constant vector
-% $\v\1\equiv\p{1,1,1,\cdots}$ of ones satisfies the condition in
-% \eqref{eq:cond_1} with eigenvalue $0$, which implies that all
-% vectors $\v v$ satisfying \eqref{eq:cond_1} with $\Delta\ne0$ must
-% be orthogonal to $\v\1$, and therefore mean-zero.
-
-% We now return to the task of computing the second-order effective
-% Hamiltonian $H_1^{(2)}$.
 Any coefficient vector $\v v_X$ can be expanded into its projections
 $\v v_X^\Delta$ onto the eigenspace of vectors satisfying
-\eqref{eq:cond_1} with eigenvalue $\Delta$,
+\eqref{eq:V1_eig} with eigenvalue $\Delta$,
 i.e.~$\v v_X = \sum_\Delta \v v_X^\Delta$, which also allows us to
 expand
 \begin{align}
@@ -348,7 +336,8 @@ $O=X\otimes Y+Y\otimes X$, then
 \end{align}
 In order to compute the second-order effective Hamiltonian
 $H_2^{(2)}$, as before we pick an arbitrary permutationally symmetric
-state $\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:H_VM_psi})
+state $\ket\psi\in\M_0$ and expand (see Appendix
+\ref{sec:eigenstates})
 \begin{align}
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi
@@ -371,7 +360,7 @@ of the interaction Hamiltonian $H_0$ if its coefficients
 $\v{\m w}_O^\Delta$ all satisfy the eigenvalue equation
 \begin{align}
   \check{\m h} \c \v{\m w} = \Delta \v{\m w},
-  \label{eq:cond_2}
+  \label{eq:V2_eig}
 \end{align}
 where
 \begin{align}
@@ -379,20 +368,20 @@ where
   \equiv \sum_{p<q} \ket{\set{p,q}} \sp{\sum_{k\notin\set{p,q}}
     \p{h_{pk} \bra{\set{k,q}} + h_{qk} \bra{\set{p,k}}}
     - \bar h_{pq} \bra{\set{p,q}}}.
-  \label{eq:h_super_mat}
+  \label{eq:V2_eig_mat}
 \end{align}
-We explicitly exclude $k\in\set{p,q}$ in \eqref{eq:h_super_mat}
-because these terms vanish in \eqref{eq:H_V2_psi} from the fact that
+We explicitly exclude $k\in\set{p,q}$ in \eqref{eq:V2_eig_mat} because
+these terms vanish in \eqref{eq:H_V2_psi} from the fact that
 $h_{kk}=w_{Okk}=0$.  Solving the general eigenvalue problem in
-\eqref{eq:cond_2} requires diagonalizing the
+\eqref{eq:V2_eig} requires diagonalizing the
 ${N \choose 2}\times{N \choose 2}\sim N^2\times N^2$ matrix
 $\check{\m h}$.  When both he interaction Hamiltonian $H_0$
 translationally invariant, however, this eigenvalue problem can be
 reduced to that of diagonalizing an $\sim N\times N$ matrix; we
-discuss this reduction in Appendix \ref{sec:trans_inv}.
+perform this reduction in Appendix \ref{sec:eigenstates_TI}.
 
 If we {\it construct} a perturbation $\V_2^\Delta$ with coefficients
-$\v{\m w}_O^\Delta$ that satisfy \eqref{eq:cond_2} with eigenvalue
+$\v{\m w}_O^\Delta$ that satisfy \eqref{eq:V2_eig} with eigenvalue
 $\Delta$, then
 \begin{align}
   H_0 \V_2^\Delta \ket\psi = \p{E_0 + \Delta} \V_2^\Delta \ket\psi,
@@ -401,7 +390,7 @@ which implies that $\V_2^\Delta\ket\psi$ is a state of definite energy
 that depends only on the coefficients $\m w_O^\Delta$.  Similarly to
 the case of single-body perturbations, we can decompose any vector
 $\v{\m w}_O$ into its projections $\v{\m w}_O^\Delta$ onto the
-eigenspace of vectors satisfying \eqref{eq:cond_2} with eigenvalue
+eigenspace of vectors satisfying \eqref{eq:V2_eig} with eigenvalue
 $\Delta$, i.e.~$\v{\m w}_O=\sum_\Delta\v{\m w}_O^\Delta$, which allows
 us to expand
 \begin{align}
@@ -439,7 +428,7 @@ enforcing $w_{pq}=w_{qp}$ and $w_{pp}=0$.  The vector $\v w$ is the
 sum of all columns of the matrix
 $\m w\equiv\sum_{p,q}w_{pq}\op{p}{q}$.  We then denote the projection
 of $\v{\m w}$ onto the $\Delta$-eigenspace of the matrix
-$\check{\m h}$ defined in \eqref{eq:h_super_mat} by $\v{\m w}_\Delta$,
+$\check{\m h}$ defined in \eqref{eq:V2_eig_mat} by $\v{\m w}_\Delta$,
 and define
 \begin{align}
   w_{\t{columns}}^{(2)} \equiv \sum_{\Delta\ne0}
@@ -466,14 +455,14 @@ denotes a falling factorial.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Existence of a spectral gap with power-law interactions}
-\label{sec:gap}
+\label{sec:spectral_gap}
 
 Here we show that power-law SU($n$)-symmetric interactions of the form
-in \eqref{eq:ints} with $h_{pq}=-h/\abs{p-q}^\alpha$ yield a
+in \eqref{eq:H_0} with $h_{pq}=-h/\abs{p-q}^\alpha$ yield a
 non-vanishing many-body interaction energy gap when $\alpha\le D$,
 where $D$ is the dimension of the lattice.  On a periodic lattice of
 $N=L^D$ spins, the spectral gap of the interaction Hamiltonian is (see
-Appendix \ref{sec:trans_inv_single})
+Appendix \ref{sec:H_V1_psi})
 \begin{align}
   \Delta
   = \sum_{d\in\ZZ_L^D} h_{0,d} \sp{\cos\p{d \c k_{\t{SE}}}-1}
@@ -568,15 +557,15 @@ which vanishes as $\epsilon\to0$ for all $\alpha>D$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Constructing multi-body excitation energy eigenstates}
-\label{sec:H_VM_psi}
+\label{sec:eigenstates}
 
 In this section, we simplify the products of the form
 $H_0\V_M\ket\psi$ to arrive at expansions such as \eqref{eq:H_V1_psi}
 and \eqref{eq:H_V2_psi}, which define conditions under which a
 multi-body perturbation $\V_M$ generates eigenstates of the
-SU($n$)-symmetric interaction Hamiltonian $H_0$ in \eqref{eq:ints}
-when acting on a permutationally symmetric state $\ket\psi\in\M_0$.
-Here $\V_M$ is an $M$-body perturbation of the form
+SU($n$)-symmetric interaction Hamiltonian $H_0$ in \eqref{eq:H_0} when
+acting on a permutationally symmetric state $\ket\psi\in\M_0$.  Here
+$\V_M$ is an $M$-body perturbation of the form
 \begin{align}
   \V_M \equiv \sum_{k\in\C_N\p{M}} w_k O_k.
 \end{align}
@@ -649,14 +638,39 @@ couplings $h_{pq}$; the vector $\v h\equiv\sum_{p,q}h_{pq}\ket{p}$ is
 the sum of all columns of $\m h$; and $\diag\v h$ is a matrix with
 $\v h$ on the diagonal and zeroes everywhere else.
 
-% When the interaction Hamiltonian $H_0$ is translationally invariant,
-% the single-body eigenvalue problem in \eqref{eq:H_V1_psi_eig} is
-% exactly solvable.
-
+When the interaction Hamiltonian $H_0$ is translationally invariant,
+the single-body eigenvalue problem in \eqref{eq:H_V1_psi_eig} is
+exactly solvable.  In this case, the couplings $h_{pq}$ depend only on
+the separation $\abs{p-q}$, so the eigenvectors of $\m h$ are plane
+waves of the form
+\begin{align}
+  \v v_k \equiv \sum_p e^{ip\c k} \ket{p},
+\end{align}
+where on a $D$-dimensional periodic lattice of $N=L^D$ spins, lattice
+sites are indexed by vectors
+$p\in\ZZ_L^D\simeq\set{0,1,\cdots,L-1}^{\otimes D}$, and wavenumbers
+take on values $k\in\ZZ_L^D\times2\pi/L$.  The corresponding
+eigenvalues of $\m h$ can be determined by expanding
+\begin{align}
+  \m h\c\v v_k = \sum_{p,q} h_{pq} e^{iq\c k} \ket{p}
+  = \sum_{p,d} h_{p,p+d} e^{i\p{p+d}\c k} \ket{p}
+  = \sum_d h_{0,d} e^{id\c k} \v v_k
+  = \sum_d h_{0,d} \cos\p{d\c k} \v v_k,
+\end{align}
+where the imaginary terms vanish because $h_{0,d}=h_{0,-d}$.  The
+remainder of \eqref{eq:H_V1_psi_eig} that we need to sort out is
+$\diag\v h$, where all $h_p=\sum_qh_{pq}=\sum_dh_{0,d}$ are equal,
+which implies that $\diag\v h=\sum_dh_{0,d}$ is a scalar.  We thus
+find that,
+\begin{align}
+  \p{\m h - \diag\v h}\c\v v_k = \Delta_k \v v_k,
+  &&
+  \Delta_k \equiv \sum_d h_{0,d} \sp{\cos\p{d\c k}-1}.
+\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Multi-body excitations}
-\label{sec:H_VM_psi}
+\label{sec:eigenstates}
 
 We now consider the full $M$-body product
 \begin{align}
@@ -782,11 +796,11 @@ where $\bar h_{pq}=h_p+h_q-2h_{pq}$ with $h_p\equiv\sum_qh_{pq}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Translational invariance}
-\label{sec:H_VM_psi_TI}
+\label{sec:eigenstates_TI}
 
-Solving eigenvalue problem in \eqref{eq:H_VM_psi_eig} to find $M$-body
-perturbations $\V_M$ that generate states of definite interaction
-energy nominally requires diagonalizing an
+Solving the eigenvalue problem in \eqref{eq:H_VM_psi_eig} to find
+$M$-body perturbations $\V_M$ that generate states of definite
+interaction energy nominally requires diagonalizing an
 ${N\choose M}\times{N\choose M}\sim N^M\times N^M$ matrix.  Here, we
 simplify this problem to that of diagonalizing an
 $\sim{N-1\choose M-1}\times{N-1\choose M-1}\sim N^{M-1}\times N^{M-1}$
@@ -892,324 +906,18 @@ and, to keep notation simple, we define $\ket{k}=0$ for all $k$ with
 repeated values, and enforce $\ket{j}=\ket{k}$ if spins $j$ and spins
 $k$ are the same up to a global translation.
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \subsubsection{Two-body excitation energy eigenstates}
-% \label{sec:trans_inv_two}
 
-% The single-body excitation energy eigenvalue problem in
-% \eqref{eq:H_V1_psi_eig} is solvable analytically when the interaction
-% Hamiltonian $H_0$ is translationally invariant.
+
 
 \vspace{1cm}
 
 \red{TODO: write codes to check above work, fix any errors, explicitly
-  write out single- and two-body reduced eigenvalue problems, include
-  sub-section about isotropy, replace the following appendix}
+  write out two-body reduced eigenvalue problems, include sub-section
+  about isotropy, replace the following appendix}
 
 \vspace{1cm}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Constructing eigenstates of translationally invariant
-  systems}
-\label{sec:trans_inv}
 
-Here we simplify the eigenvalue problems that appear at second order
-in the single- and two-body theory in Sections
-\ref{sec:single_body_pert} and \ref{sec:two_body_pert} in the case of
-a translationally invariant system with periodic boundary conditions.
-We solve the single-body eigenvalue problem analytically, and reduce
-the two-body eigenvalue problem to that of diagonalizing
-$\p{N-1}\times\p{N-1}$ matrices.  We then reduce the two-body
-eigenvalue problem even further to that of diagonalizing a single
-$\sim\p{N/2^D}\times\p{N/2^D}$ matrix in the case of an isotropic
-system with a translationally invariant (and isotropic) perturbation.
-Finally, we provide an analytic solution to the two-body problem in
-the case of a fully collective model with uniform couplings.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Single-body eigenvalue problem}
-\label{sec:trans_inv_single}
-
-For reference, the single-body eigenvalue problem is
-\begin{align}
-  \p{\m h - \diag\v h}\c\v v = \Delta \v v,
-  \label{eq:cond_1_ref}
-\end{align}
-where $\m h$ is a matrix of all couplings $h_{pq}$ that appear in the
-interaction Hamiltonian $H_0$ in \eqref{eq:ints}; $\v h$ is a vector
-of all $h_p\equiv\sum_q h_{pq}$; $\diag\v h$ is a matrix with $\v h$
-on the diagonal and zeroes everywhere else; and $\v v$ is a vector of
-coefficients used to construct the single-body perturbation
-$\V_1\p{\v v}$ defined in \eqref{eq:perturbations}.  When the
-interaction Hamiltonian $H_0$ is translationally invariant, the
-couplings $h_{pq}$ depend only on the separation $\pm\p{p-q}$, so the
-eigenvectors of $\m h$ are plane waves of the form
-\begin{align}
-  \v v_k \equiv \sum_p e^{ip\c k} \ket{p},
-\end{align}
-where on a $D$-dimensional periodic lattice of $N=L^D$ spins, lattice
-sites are indexed by vectors
-$p\in\ZZ_L^D\simeq\set{0,1,\cdots,L-1}^{\otimes D}$, and wavenumbers
-take on values $k\in\ZZ_L^D\times2\pi/L$.  The corresponding
-eigenvalues of $\m h$ can be determined by expanding
-\begin{align}
-  \m h\c\v v_k = \sum_{p,q} h_{pq} e^{iq\c k} \ket{p}
-  = \sum_{p,d} h_{p,p+d} e^{i\p{p+d}\c k} \ket{p}
-  = \sum_d h_{0,d} e^{id\c k} \v v_k
-  = \sum_d h_{0,d} \cos\p{d\c k} \v v_k,
-\end{align}
-where the imaginary terms vanish because $h_{0,d}=h_{0,-d}$.  The
-remainder of \eqref{eq:cond_1_ref} that we need to sort out is
-$\diag\v h$, where all $h_p=\sum_qh_{pq}=\sum_dh_{0,d}$ are equal,
-which implies that $\diag\v h=\sum_dh_{0,d}$ is a scalar.  We thus
-find that
-\begin{align}
-  \p{\m h - \diag\v h}\c\v v_k = \Delta_k \v v_k,
-  &&
-  \Delta_k \equiv \sum_d h_{0,d} \sp{\cos\p{d\c k}-1}.
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Two-body eigenvalue problem}
-\label{sec:trans_inv_two}
-
-The two-body eigenvalue equation in \eqref{eq:cond_2} is designed to
-find solutions $\m w$ to the equation
-\begin{align}
-  \sum_k \p{h_{pk} w_{kq} + w_{pk} h_{kq}} - \bar h_{pq} w_{pq}
-  = \Delta w_{pq},
-  &&
-  \bar h_{pq} \equiv h_p + h_q - 2h_{pq},
-  &&
-  h_p \equiv \sum_q h_{pq},
-  \label{eq:cond_2_ref_start}
-\end{align}
-where translational invariance implies that
-$\bar h_{pq}=2h_0-2h_{pq}$, so we can equivalently write
-\begin{align}
-  h_{pq} w_{pq}
-  + \f12 \sum_k \p{h_{pk} w_{kq} + w_{pk} h_{kq}}
-  = \p{\f12 \Delta + h_0} w_{pq},
-\end{align}
-which can also be written in matrix form as
-\begin{align}
-  \m h * \m w + \f12 \P_{\t{off-diag}}\p{\m h\c\m w + \m w\c\m h}
-  = \p{\f12 \Delta + h_0} \m w,
-  \label{eq:cond_2_ref}
-\end{align}
-where $\m h$ and $\m w$ are matrices of all $h_{pq}$ and $w_{pq}$;
-$\m h*\m w$ denotes an element-wise (Kronecker) product of $\m h$ and
-$\m w$, i.e.~with matrix elements $h_{pq}w_{pq}$; and
-$\P_{\t{off-diag}}\p{\m m}\equiv \m m-\sum_p\op{p}\m m\op{p}$ denotes
-the projection of $\m m$ onto the space of strictly off-diagonal
-matrices.  In order to find solutions to \eqref{eq:cond_2_ref} when
-the interaction Hamiltonian $H_0$ is translationally invariant, in
-which case $h_{pq}$ depends only on the separation $\pm\p{p-q}$, we
-expand all matrices in a basis that the respects translational
-symmetry.  To this end, for all lattice displacements $d\in\ZZ_L^D$
-and wavenumbers $k\in\ZZ_L^D\times2\pi/L$ we define the {\it cycle
-  matrices}
-\begin{align}
-  \m m_{dk} \equiv \sum_p e^{ip\c k} \op{p+d}{p},
-  \label{eq:cycle}
-\end{align}
-where the element-wise sums in $p+d$ are implicitly taken modulo $L$
-(i.e.~the length of the periodic lattice along each axis).  In terms
-of these cycle matrices, we define
-\begin{align}
-  \tilde w_{dk} \equiv \f1N \tr\p{\m m_{dk}^\dag \m w},
-\end{align}
-and expand
-\begin{align}
-  \m w = \sum_{d,k} \tilde w_{dk} \m m_{dk},
-  &&
-  \m h = \sum_{q,d} h_{q+d,q} \op{q+d}{q}
-  = \sum_d h_{d,0} \m m_{d,0}.
-\end{align}
-We can then write the condition in \eqref{eq:cond_2_ref} as a new set
-of conditions
-\begin{align}
-  \sum_{d\ne0} h_{d,0} \tilde w_{dk} \m m_{dk}
-  + \f12 \sum_{\substack{c,d\\c+d\ne0}}
-  h_{c,0} \tilde w_{dk} \p{1 + e^{-ic\c k}} \m m_{c+d,k}
-  = \p{\f12\Delta + h_0} \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
-\end{align}
-that must hold for all wavenumbers $k$.  With some re-indexing, we can
-write
-\begin{align}
-  \sum_{d\ne0} h_{d,0} \tilde w_{dk} \m m_{dk}
-  + \f12 \sum_{c,d\ne0} h_{d-c,0} \tilde w_{ck}
-  \p{1 + e^{-i\p{d-c}\c k}} \m m_{dk}
-  = \p{\f12\Delta + h_0} \sum_{d\ne0} \tilde w_{dk} \m m_{dk},
-  \label{eq:cond_2_cycle}
-\end{align}
-and define
-\begin{align}
-  \ut{\check{\m h}}_k
-  \equiv \sum_{d\ne0} h_{d,0} \op{d}
-  + \f12 \sum_{c,d\ne0} h_{d-c,0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c},
-  &&
-  \ut{\v{\m w}}_k \equiv \sum_{d\ne0} \tilde w_{dk} \ket{d},
-  \label{eq:cycle_vecs}
-\end{align}
-in order to express \eqref{eq:cond_2_cycle} as the set of eigenvalue
-equations
-\begin{align}
-  \ut{\check{\m h}}_k \c \ut{\v{\m w}}_k
-  = \p{\f12\Delta + h_0} \ut{\v{\m w}}_k.
-  \label{eq:cond_2_cycle_block}
-\end{align}
-The appearance of a wavenumber index $k$ in
-\eqref{eq:cond_2_cycle_block} implies that all fixed-$k$ components of
-a general coefficient matrix $\m w$ must simultaneously satisfy
-\eqref{eq:cond_2_cycle_block} in order to generate states of fixed
-excitation energy $\Delta$ when the corresponding perturbation
-$\V_2^\Delta$ acts on a permutationally symmetric state
-$\ket\psi\in\M_0$.  The decomposition of an arbitrary coefficient
-vector $\v{\m w}=\sum_\Delta\v{\m w}_\Delta$ into coefficient vectors
-$\v{\m w}_\Delta$ that generate a fixed-excitation-energy perturbation
-$\V_2^\Delta$ is then performed by projecting each $k$-component of
-$\v{\m w}$ onto the corresponding $\Delta$-eigenspace of
-$\ut{\check{\m h}}_k$.  If the perturbation $\V_2$ is translationally
-invariant, then $\ut{\v{\m w}}_k=0$ for all $k\ne0$, so we only need
-to consider the case of $k=0$:
-\begin{align}
-  \ut{\check{\m h}}_0 \c \ut{\v{\m w}}_0
-  = \p{\f12\Delta + h_0} \ut{\v{\m w}}_0,
-  &&
-  \ut{\check{\m h}}_0
-  = \sum_{d\ne0} h_{d,0} \op{d}
-  + \sum_{c,d\ne0} h_{cd} \op{c}{d},
-  &&
-  \ut{\v{\m w}}_0 \equiv \sum_{d\ne0} \tilde w_{d,0} \ket{d}.
-  \label{eq:cond_2_cycle_0}
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Isotropic systems}
-
-If the interaction Hamiltonian $H_0$ and two-body perturbation $\V_2$
-are both translationally invariant isotropic, then we can reduce the
-eigenvalue problem \eqref{eq:cond_2_cycle_0} even further by making
-use of the fact that the couplings $h_{pq}$ depend only on the
-distance $\abs{p-q}$.  To this end, we define uniform superpositions
-of all displacements $d\in\ZZ_L^D$ that are a distance $a\in\RR$ from
-the origin:
-\begin{align}
-  \ket{a} \equiv \f1{\sqrt{\N_a}}
-  \sum_{\substack{d\in\ZZ_L^D\\\abs{d}=a}} \ket{d},
-\end{align}
-where the norm $\abs{d}$ of a vector $d$ on a periodic lattice is
-implicitly understood to mean the smallest Euclidean distance of $d$
-from the origin; and $\N_a$ is a normalization factor equal to the
-number of displacements $d\in\ZZ_L^D$ with $\abs{d}=a$, so that
-$\bk{a|a}=1$.  Defining the set of distances
-\begin{align}
-  \DD_{LD} \equiv \set{ \abs{d} : d \in \ZZ_L^D } \setminus \set{0},
-\end{align}
-we can expand
-\begin{align}
-  \ut{\check{\m h}}_0
-  = \sum_{a\in\DD_{LD}} \tilde h_a \op{a}
-  + \sum_{a,b\in\DD_{LD}} \tilde h_{ab} \op{a}{b},
-  &&
-  \ut{\v{\m w}}_0
-  \equiv \sum_{a\in\DD_{LD}} \tilde w_a \sqrt{\N_a} \ket{a},
-\end{align}
-where $\tilde h_a=h_{d,0}$ and
-$\tilde w_a=\tilde w_{d,0}=\tr\p{\m m_{d,0}^\dag \m w}/N$ for all
-$\abs{d}=a$, and
-\begin{align}
-  \tilde h_{ab} \equiv \f1{\sqrt{\N_a\N_b}}
-  \sum_{\substack{c,d\in\ZZ_L^D\\\abs{c}=a\\\abs{d}=b}} h_{cd}.
-\end{align}
-By rough accounting, isotropy in $D$ dimensions implies one reflection
-symmetry for each of $D$ axes, so the matrix $\ut{\check{\m h}}_0$ has
-dimensions $\sim\p{N/2^D}\times\p{N/2^D}$.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{The fully collective model}
-
-Here we solve the single- and two-body eigenvalue problems in the case
-of a fully collective spin model with uniform couplings:
-$h_{pq}=-1+\delta_{pq}$, where $\delta_{pq}=1$ if $p=q$ and zero
-otherwise.  In this case, the single-body excitation energies
-$\Delta_k$ are
-\begin{align}
-  \Delta_k
-  = - \sum_{d\ne 0} \sp{\cos\p{d\c k}-1}
-  = N \p{1-\delta_{k,0}}.
-\end{align}
-In order to solve the two-body eigenvalue problem, we expand
-\begin{align}
-  \ut{\check{\m h}}_k
-  &= -\sum_{\substack{c,d\ne0\\c\ne d}}
-  \p{1+e^{-i\p{d-c}\c k}} \op{d}{c}
-  + \sum_{d\ne0} \sp{2\p{N-1}-2} \op{d} \\
-  &= -\sum_{c,d\ne0} \p{1+e^{-i\p{d-c}\c k}} \op{d}{c}
-  + 2\p{N-1} \1_{N-1},
-\end{align}
-where $\1_{N-1}\equiv\sum_{d\ne0}\op{d}$ is the $\p{N-1}\times\p{N-1}$
-identity matrix, and define the vectors
-\begin{align}
-  \ket{\ut{p}}
-  \equiv \f1{\sqrt{N-1}} \sum_{d\ne 0} e^{i p\c d}\ket{d},
-\end{align}
-in terms of which
-\begin{align}
-  \ut{\check{\m h}}_k
-  = 2 \p{N-1} \1_{N-1} - \p{N-1} \p{\op{\ut{0}} + \op{\ut{k}}}.
-\end{align}
-The vectors $\ket{\ut{p}}$ are normalized, but not orthogonal:
-$\braket{\ut{p}|\ut{q}}=\delta_{pq}-\p{1-\delta_{pq}}/\p{N-1}$.  We
-therefore have
-\begin{align}
-  \ut{\check{\m h}}_k
-  = 2 \p{N-1} \1_{N-1}
-  - \sum_{s\in\set{\pm}} \varepsilon_s \op{\ut{k}^s}
-\end{align}
-where
-\begin{align}
-  \varepsilon_\pm \equiv N - 1 \mp 1,
-  &&
-  \ket{\ut{k}^\pm}
-  \equiv \p{1\mp\f1{N-1}}^{-1/2}
-  \f{\ket{\ut{0}}\pm\ket{\ut{k}}}{\sqrt{2}}.
-\end{align}
-The vectors $\ket{\ut{k}^\pm}$ are orthonormal when $k\ne0$.  When
-$k=0$, meanwhile, we have
-\begin{align}
-  \ut{\check{\m h}}_0 = 2\p{N-1} \p{\1_{N-1} - \op{\ut{0}}}.
-\end{align}
-Remembering from \eqref{eq:cycle_vecs} that vectors $\ket{\ut{k}^\pm}$
-are associated with the cycle matrices $\m m_{dk}$ defined in
-\eqref{eq:cycle} via
-\begin{align}
-  \ket{\ut{k}^\pm}
-  \propto \ket{\ut{0}} \pm \ket{\ut{k}}
-  \propto \sum_{d\ne0} \p{1 \pm e^{ik\c d}} \ket{d}
-  \to \sum_{d\ne0} \p{1 \pm e^{ik\c d}} \m m_{dk},
-\end{align}
-one can work out that the vectors $\ket{\ut{k}^\pm}$ correspond to
-matrices that are strictly symmetric ($+$) or anti-symmetric ($-$)
-under transposition.  The two-body perturbations considered in this
-work, however, are defined using coefficient vectors
-$\set{\v{\m w}_O}$ that correspond to symmetric matrices
-$\set{\m w_O}$, with $w_{Opq}=w_{Oqp}$.  We can therefore neglect the
-eigenvectors $\ket{\ut{k}^-}$ and corresponding eigenvalues
-$\varepsilon_-$ entirely for the purposes of this work.
-
-Altogether, the excitation energies corresponding to non-trivial
-eigenstates of $\ut{\check{\m h}}_k$ are
-\begin{align}
-  \Delta_0 \equiv 0,
-  &&
-  \Delta_+ \equiv 2\p{N-1} - \varepsilon_+ = N,
-\end{align}
-while the energy of all orthogonal two-body excitations is
-\begin{align}
-  \Delta_\perp \equiv 2\p{N-1}.
-\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Operator products restricted to the permutationally symmetric
@@ -1869,196 +1577,6 @@ where
   + \f{3A_4}{\p{N-1}\p{N-3}}
   - \f{15A_6}{\p{N-1}\p{N-3}\p{N-5}}.
 \end{align}
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \section{Collective and multi-local operators in the permutationally
-%   symmetric manifold}
-% \label{sec:multi_to_collective}
-
-% Here we provide a decomposition multi-local operators into sums of
-% collective operators (and vice versa) within the permutationally
-% symmetric manifold of $N$ spins.  Multi-local operators are operators
-% of the form
-% \begin{align}
-%   O_S \equiv \bigotimes_{O\in S} O,
-%   \label{eq:multi_op_set}
-% \end{align}
-% where $S\equiv\set{O}$ is a set of single-spin operators $O$.  The
-% order of tensor factors in \eqref{eq:multi_op_set} does not matter
-% after projecting operators onto the permutationally symmetric
-% manifold, as we always will in this section.  While the decomposition
-% of a collective operator into a sum of multi-local operators is
-% unique, the opposite is not true: there is generally no unique
-% decomposition of a multi-local operator into a sum of collective
-% operators.  We can, however, enforce a canonical decomposition by
-% choosing a set of collective operators that obey the same symmetries
-% as $O_S$, namely invariance under arbitrary permutations of the
-% single-spin operators $O\in S$.
-
-% Even though $S$ contains $\abs{S}$ spins, a collective operator built
-% from the single-spin operators $O\in S$ may have multiple
-% (single-spin) operators acting on the same spin, resulting in a
-% $k$-local operator with $k<\abs{S}$.  We therefore {\it
-%   partition}\footnote{A partition $P\equiv\set{p}$ of $S$ is a set of
-%   mutually disjoint, non-empty subsets $p\subset S$ with
-%   $\bigcup_{p\in P}p=S$.} $S$ into subsets of operators that act on
-% the same spin.  For any partition $P\equiv\set{p}$ of $S$ (here
-% $p\subset S$ is a subset of operators $O\in S$ that address the same
-% spin), we then define the $\abs{P}$-local operator
-% \begin{align}
-%   O_P \equiv \bigotimes_{p\in P} \bigodot_{O\in p} O,
-% \end{align}
-% where $\bigodot_{x\in\X} x$ denotes a symmetrized product of all
-% elements in $\X$, i.e.
-% \begin{align}
-%   \bigodot_{x\in\X} x
-%   \equiv \f1{\abs{\X}!}
-%   \sum_{\substack{\t{permutations}\\\sigma~\t{of}~\X}}
-%   ~ \prod_{k=1}^{\abs{\X}} x_{\sigma_k},
-% \end{align}
-% with $\sigma_k$ the $k$-th element of the permutation $\sigma$ when
-% expressed in one-line notation; for example,
-% \begin{align}
-%   \bigodot_{j=1}^2 x_j &= x_1 \odot x_2 = \f12 \p{x_1x_2 + x_2x_1}, \\
-%   \bigodot_{j=1}^3 x_j
-%   &= \f1{3!} \p{x_1x_2x_3 + x_1x_3x_2 + x_2x_1x_3
-%     + x_2x_3x_1 + x_3x_1x_2 + x_3x_2x_1}.
-% \end{align}
-% The set of multi-local operators $\set{O_P:\t{partitions}~P~\t{of}~S}$
-% consists of all operators that
-% \begin{enumerate*}
-% \item can be built from ordinary products and tensor products of all
-%   single-spin operators $O\in S$, and
-% \item are invariant under arbitrary permutations of $S$.
-% \end{enumerate*}
-% For any set $S$ of single-spin operators and any partition $P$ of $S$,
-% we can similarly define the collective operators
-% \begin{align}
-%   \O_S \equiv \bigodot_{O\in S} \col{O},
-%   &&
-%   \O_P \equiv \bigodot_{p\in P} \col{\textstyle\bigodot_{O\in p} O},
-% \end{align}
-% where we underline a single-spin operator to denote its collective
-% version, i.e.~$\col{Q}\equiv\sum_j Q^{(j)}$, where $Q^{(j)}$ is an
-% operator that acts with the single-spin operator $Q$ on spin $j$ and
-% trivially on all other spins.  By construction, the set of collective
-% operators $\set{\O_P:\t{partitions}~P~\t{of}~S}$ is one-to-one to the
-% set of multi-local operators $\set{O_P:\t{partitions}~P~\t{of}~S}$,
-% and it is straightforward to work out that for any set $S$ of
-% single-spin operators,
-% \begin{align}
-%   \O_S
-%   \EQPS \sum_{\substack{\t{partitions}\\P~\t{of}~S}}
-%   N!_{\abs{P}} O_P,
-%   &&
-%   N!_k \equiv \prod_{j=0}^{k-1}\p{N-j}! = \f{N!}{\p{N-k}!},
-%   \label{eq:collective_to_multi_full}
-% \end{align}
-% where $\EQPS$ denotes equality under a restriction to the fully
-% symmetric manifold.  For any multi-local operator $O_S$ indexed by a
-% set $S$ of single-spin operators, we can collect expansions of the
-% form \eqref{eq:collective_to_multi_full} for all collective operators
-% built from non-empty subsets of $S$ into a system of linear equations
-% $\L$, and in turn solve $\L$ for $O_S$.  When
-% $\abs{S}\in\set{1,2,3,4}$ (and, by conjecture, for all $S$), by use of
-% a computer algebra system (namely, Mathematica) we find that
-% \begin{align}
-%   N!_{\abs{S}} O_S
-%   &\EQPS \sum_{\substack{\t{partitions}\\P~\t{of}~S}}
-%   \p{-1}^{\abs{S}-\abs{P}} \O_P \times \prod_{p\in P}\p{\abs{p}-1}!
-%   \label{eq:multi_to_collective_full} \\
-%   &\EQPS \f1{\abs{S}!} \sum_{\substack{\t{permutations}\\\Pi~\t{of}~S}}
-%   \sum_{\substack{\t{ordered}\\\t{partitions}\\\tilde P~\t{of}~\Pi}}
-%   \p{-1}^{\abs{S}-\abs{\tilde P}} \O_{\tilde P}
-%   \times \prod_{\tilde p\in\tilde P} \p{\abs{\tilde p}-1}!
-%   \label{eq:multi_to_collective_full_simp}
-% \end{align}
-% where we identify permutations $\Pi$ of $S$ with an ordered list
-% (tuple) $\p{O_1,O_2,\cdots,O_{\abs{S}}}$ of all single-spin operators
-% in $S$; and we enforce that partitions $\tilde P$ of an ordered list
-% $\Pi$, as well as parts $\tilde p\in\tilde P$, are lexicographically
-% ordered in accordance with the ordering of operators in $\Pi$.  If
-% $S=\set{X,Y,Z}$, for example, then the ordered partitions of the
-% trivial permutation $\Pi=\p{X,Y,Z}$ are
-% \begin{align}
-%   \p{\p{X,Y,Z}}, &&
-%   \p{\p{X,Y},\p{Z}}, &&
-%   \p{\p{X,Z},\p{Y}}, &&
-%   \p{\p{X},\p{Y,Z}}, &&
-%   \p{\p{X},\p{Y},\p{Z}}.
-% \end{align}
-% For ordered lists $\tilde S$ and ordered partitions $\tilde P$, we
-% define
-% \begin{align}
-%   O_{\tilde S} \equiv \bigotimes_{O\in\tilde S} O,
-%   &&
-%   O_{\tilde P}
-%   \equiv \bigotimes_{\tilde p\in\tilde P} \prod_{O\in\tilde p} O,
-%   &&
-%   \O_{\tilde S} \equiv \prod_{O\in\tilde S} \col{O},
-%   &&
-%   \O_{\tilde P}
-%   \equiv \prod_{\tilde p\in\tilde P}
-%   \col{\textstyle\prod_{O\in\tilde p} O},
-% \end{align}
-% where products over elements of $\tilde S,\tilde P,\tilde p$ are taken
-% in order according to the elements of these ordered lists, e.g.~if
-% $\tilde S=\p{O_1,O_2,\cdots,O_{\abs{S}}}$, then
-% $\prod_{O\in\tilde S}\equiv O_1O_2\cdots O_{\abs{S}}$.  These
-% definitions allow us to expand
-% \begin{align}
-%   \O_{\tilde S} \EQPS
-%   \sum_{\substack{\t{ordered}\\\t{partitions}\\\tilde P~\t{of}~\tilde S}}
-%   N!_{\abs{\tilde P}} O_{\tilde P},
-% \end{align}
-% in analogy to \eqref{eq:collective_to_multi_full}.
-
-% While the expansions in \eqref{eq:multi_to_collective_full} and
-% \eqref{eq:multi_to_collective_full_simp} closely resemble each other,
-% in practice the latter involves less computational overhead due to the
-% lack of symmetrization in the construction of $\O_{\tilde P}$.  There
-% are, in principle, even more economical decompositions of a
-% multi-local operators into collective opreators, for example
-% \begin{align}
-%   N!_2 X\otimes Y
-%   &\EQPS \col{X}\,\col{Y} - \col{XY}, \\
-%   N!_3 X\otimes Y \otimes Z
-%   &\EQPS \col{X}\,\col{Y}\,\col{Z}
-%   - \col{X}\,\col{YZ} - \col{Y}\,\col{XZ} - \col{Z}\,\col{XY}
-%   + \col{ZXY} + \col{YXZ},
-% \end{align}
-% but these decompositions generally do not preserve the manifest
-% symmetry of a multi-local operator $O_S$ under arbitrary permutations
-% of $S$, and we do not know of any general prescription to arrive at
-% such decompositions aside from solving systems of equations relating
-% collective operators to multi-local operators.
-
-% On a final note, we consider the special case that all operators
-% $O\in S$ are identical, for which we provide the expansions
-% \begin{align}
-%   N!_2 X\otimes X \EQPS \col{X}^2 - \col{X^2},
-%   &&
-%   N!_3 X^{\otimes 3} \EQPS \col{X}^3
-%   - 3 \col{X} \odot \col{X^2} + 2\col{X^3},
-% \end{align}
-% \begin{align}
-%   N!_4 X^{\otimes 4}
-%   \EQPS \col{X}^4 - 4 \col{X}^2 \odot \col{X^2}
-%   - 2 \col{X} \, \col{X}^2 \, \col{X}
-%   + 3 \p{\col{X^2}}^2 + 8 \col{X} \odot \col{X^3}
-%   - 6 \col{X^4}.
-% \end{align}
-% If furthermore $X^2=1$, as with e.g.~the Pauli operators of SU(2),
-% then
-% \begin{align}
-%   N!_2 X\otimes X \EQPS \col{X}^2 - N,
-%   &&
-%   N!_3 X^{\otimes 3} \EQPS \col{X}^3 - \p{3N-2} \col{X},
-% \end{align}
-% \begin{align}
-%   N!_4 X^{\otimes 4} \EQPS \col{X}^4
-%   - 2\p{3N-4} \col{X}^2 + 3 N \p{N-2}.
-% \end{align}
 
 \bibliography{multilevel_spin_notes.bib}
 
