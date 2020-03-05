@@ -6,29 +6,34 @@ import functools, operator
 
 from itertools_extension import assignments, set_diagrams
 
-max_dim = 500 # maximum dimension of Hilbert space that we want to test out
+max_spins = 10 # maximum number of spins
+max_dim = 2**10 # maximum dimension of Hilbert space that we want to test out
 
 total_dim = max_dim # total dimension of Hilbert space
 while total_dim >= max_dim:
-    dim = np.random.randint(2,5) # dimension of each spin
-    spins = np.random.randint(5,8) # total number of spins
-    total_dim = dim**spins
+    spin_dim = np.random.randint(2,5) # dimension of each spin
+    lattice_shape = ( np.random.randint(1,5),
+                      np.random.randint(1,5) )
+    spin_num = np.product(lattice_shape)
+    if spin_num > max_spins or spin_num == 1: continue
+    total_dim = spin_dim**spin_num
 
 op_num = np.random.randint(2,5) # total number of multi-body operators
 
-# the rank of each multi-body operator: an operator with rank M is an M-local operator
-ranks = [ np.random.randint(1,spins) for _ in range(op_num) ]
+# the dimension of each multi-body operator: an operator with dimension M is an M-local operator
+dimensions = [ np.random.randint(1,spin_num) for _ in range(op_num) ]
 
-print("dimension of each spin:", dim)
-print("total number of spins:", spins)
-print("multi-body operator ranks", ranks)
+print("dimension of each spin:", spin_dim)
+print("lattice shape:", lattice_shape)
+print("total number of spins:", spin_num)
+print("multi-body operator dimensions", dimensions)
 
 ##########################################################################################
 # construct projector onto the fully symmetric manifold
 ##########################################################################################
 
 # labels for all fully symmetric states
-sym_labels = list(assignments(spins,dim))
+sym_labels = list(assignments(spin_num,spin_dim))
 
 def unit_vector(size, idx):
     vec = np.zeros(size)
@@ -37,11 +42,11 @@ def unit_vector(size, idx):
 
 # build a fully symmetric state labelled by occupation number
 def sym_state(occupations):
-    assert(sum(occupations) == spins)
+    assert(sum(occupations) == spin_num)
     labels = [ [mm]*pop for mm, pop in enumerate(occupations) ]
     labels = np.concatenate(labels).astype(int)
     def _base_state(label):
-        return unit_vector(dim, label)
+        return unit_vector(spin_dim, label)
     vec = sum( functools.reduce(np.kron, map(_base_state, perm))
                for perm in it.permutations(labels) )
     return vec / np.sqrt(vec @ vec)
@@ -58,78 +63,69 @@ sym_proj = sum( to_proj(sym_state(label)) for label in sym_labels )
 ##########################################################################################
 
 # return a random symmetric tensor with zeros on all diagonal blocks
-def random_tensor(rank):
-    tensor = np.zeros((spins,)*rank)
-    for comb in it.combinations(range(spins), rank):
+def random_tensor(dimension):
+    tensor = np.zeros((spin_num,)*dimension)
+    for comb in it.combinations(range(spin_num), dimension):
         num = np.random.rand()
         for perm in it.permutations(comb):
             tensor[perm] = num
     return tensor
 
-# random `rank`-local operator that obeys permutational symmetry
-def random_op(rank):
-    ops = [ np.random.rand(dim,dim) for op in range(rank) ]
+# random `dimension`-local operator that obeys permutational symmetry
+def random_op(dimension):
+    ops = [ np.random.rand(spin_dim,spin_dim) for op in range(dimension) ]
     return sum( functools.reduce(np.kron, [ ops[pp] for pp in perm ])
-                for perm in it.permutations(range(rank)) ) / np.math.factorial(rank)
+                for perm in it.permutations(range(dimension)) ) / np.math.factorial(dimension)
 
 # act with the multi-local operator `op` on the spins indexed by `indices`
 def act(op, indices):
     if not hasattr(indices, "__getitem__"):
         indices = list(indices)
 
-    for _ in range(spins - len(indices)):
-        op = np.kron(op, np.eye(dim))
+    for _ in range(spin_num - len(indices)):
+        op = np.kron(op, np.eye(spin_dim))
 
     # collect and flatten tensor factors associated with each spin
-    fst_half = range(spins)
-    snd_half = range(spins,2*spins)
+    fst_half = range(spin_num)
+    snd_half = range(spin_num,2*spin_num)
     perm = np.array(list(zip(list(fst_half),list(snd_half)))).flatten()
-    op = np.reshape(op, (dim,)*2*spins)
+    op = np.reshape(op, (spin_dim,)*2*spin_num)
     op = np.transpose(op, perm)
-    op = np.reshape(op, (dim**2,)*spins)
+    op = np.reshape(op, (spin_dim**2,)*spin_num)
 
     # rearrange tensor factors according to the desired qubit order
-    old_order = list(indices) + [ jj for jj in range(spins) if jj not in indices ]
-    new_order = np.arange(spins)[np.argsort(old_order)]
+    old_order = list(indices) + [ jj for jj in range(spin_num) if jj not in indices ]
+    new_order = np.arange(spin_num)[np.argsort(old_order)]
     op = np.transpose(op, new_order)
-    op = np.reshape(op, (dim,)*2*spins)
+    op = np.reshape(op, (spin_dim,)*2*spin_num)
 
     # un-flatten the tensor factors, and flatten the tensor into
     #   a matrix that acts on the joint Hilbert space of all qubits
-    evens = range(0,2*spins,2)
-    odds = range(1,2*spins,2)
+    evens = range(0,2*spin_num,2)
+    odds = range(1,2*spin_num,2)
     op = np.transpose(op, list(evens)+list(odds))
-    return np.reshape(op, (dim**spins, dim**spins))
+    return np.reshape(op, (spin_dim**spin_num, spin_dim**spin_num))
 
 ##########################################################################################
 # methods to construct the product of multi-body operators from set diagrams
 ##########################################################################################
 
 # build random multi-body operators, each defined by a tensor and a "base" operator
-tensors = [ random_tensor(rank) for rank in ranks ]
-base_ops = [ random_op(rank) for rank in ranks ]
+tensors = [ random_tensor(dimension) for dimension in dimensions ]
+base_ops = [ random_op(dimension) for dimension in dimensions ]
 
 # construct the full, exact product of multi-body operators
 full_ops = [ sum( tensor[idx] * act(base_op, idx)
-                  for idx in it.combinations(range(spins), rank) )
-             for tensor, base_op, rank in zip(tensors, base_ops, ranks) ]
+                  for idx in it.combinations(range(spin_num), dimension) )
+             for tensor, base_op, dimension in zip(tensors, base_ops, dimensions) ]
 exact_op = sym_proj @ functools.reduce(operator.matmul, full_ops) @ sym_proj
-
-# choose a subset of `num` spins
-def spin_choice(num, _exclusions = None):
-    if _exclusions is None:
-        return it.combinations(range(spins), num)
-    else:
-        generator = ( num for num in range(spins)
-                      if num not in _exclusions )
-        return it.combinations(generator, num)
 
 # for shared index groups of given sizes, generate all allowed values of indices
 def index_values(group_sizes, _exclusions = None):
     if _exclusions == None: _exclusions = ()
     group_sizes = list(group_sizes)
 
-    fst_range = ( num for num in range(spins) if num not in _exclusions )
+    fst_range = ( num for num in range(spin_num) if num not in _exclusions )
     fst_combs = ( comb for comb in it.combinations(fst_range, group_sizes[0]) )
 
     if len(group_sizes) == 1:
@@ -151,7 +147,7 @@ def restrict_indices(subset_idx_vals, subsets, primary_index):
 
 # build the analytically simplified form of the exact product of multi-body operators
 simp_op = np.zeros(exact_op.shape)
-for set_diagram in set_diagrams(ranks):
+for set_diagram in set_diagrams(dimensions):
     def _index_val_set():
         return index_values(set_diagram.values())
     def _indices(subset_idx_vals, primary_index):
@@ -177,17 +173,17 @@ for set_diagram in set_diagrams(ranks):
 print(np.allclose(simp_op, exact_op))
 
 ##########################################################################################
-# methods to verify the multi-body eigenvalue problem
+# verify the multi-body eigenvalue problem
 ##########################################################################################
 
 # build random SU(n)-symmetric interaction Hamiltonian
 sun_coeffs = random_tensor(2)
 swap = sum( ( lambda op : np.kron(op.transpose(),op) )
-            ( np.outer(unit_vector(dim,nu),
-                       unit_vector(dim,mu)) )
-            for mu in range(dim) for nu in range(dim) )
+            ( np.outer(unit_vector(spin_dim,nu),
+                       unit_vector(spin_dim,mu)) )
+            for mu in range(spin_dim) for nu in range(spin_dim) )
 sun_interactions = sum( sun_coeffs[pp,qq] * act(swap,[pp,qq])
-                        for pp in range(spins) for qq in range(pp) )
+                        for pp in range(spin_num) for qq in range(pp) )
 
 # build objects that appear in the multi-body eigenvalue problem
 sym_energy = sun_coeffs.sum()/2
@@ -211,10 +207,8 @@ for tensor, base_op, full_op in zip(tensors, base_ops, full_ops):
     _coeff_zip = _coeff_zip_tensor(tensor)
     remaining_op = sum( ( _coeff_zip[idx] - _coeff_mod(idx) * tensor[idx] )
                         * act(base_op, idx)
-                        for idx in it.combinations(range(spins), tensor.ndim) )
+                        for idx in it.combinations(range(spin_num), tensor.ndim) )
 
     simpl = ( sym_energy * full_op + remaining_op ) @ sym_proj
 
     print(np.allclose(simpl, exact))
-
-
