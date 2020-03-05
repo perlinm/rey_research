@@ -715,46 +715,45 @@ $p,q\in k$ or $p,q\notin k$ are
 \end{align}
 where $\bar{\m h}$ is a tensor with entries $\bar h_k$; and
 $\m x*\m y$ denotes an element-wise (Kronecker) product of $\m x$ and
-$\m y$, with entries $x_ky_k$.
-
-The remaining terms in \eqref{eq:H_VM_psi_start} with only one of
-$p\in k$ or $q\in k$ are
+$\m y$, with entries $x_ky_k$.  The remaining terms in
+\eqref{eq:H_VM_psi_start} with only one of $p\in k$ or $q\in k$ are
 \begin{align}
   \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{q\in k}
   h_{pq} w_k \Pi_{pq} O_k \ket\psi
   = \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
-  \sum_{j=1}^M h_{p k_j} w_k \Pi_{p k_j} O_k \ket\psi.
+  \sum_{a=1}^M h_{p k_a} w_k \Pi_{p k_a} O_k \ket\psi.
 \end{align}
-Defining
-$k_{jp}\equiv\p{k_1,k_2,\cdots,k_{j-1},p,k_{j+1},\cdots,k_M}$, i.e.~an
-element of $\C_N\p{M}$ in which the $j$-th number $k_j$ has been
+where $k\equiv\p{k_1,k_2,\cdots,k_M}$, with $k_a$ the $a$-th entry in
+$k$.  Defining
+$k_{ap}\equiv\p{k_1,k_2,\cdots,k_{a-1},p,k_{a+1},\cdots,k_M}$, i.e.~an
+element of $\C_N\p{M}$ in which the $a$-th number $k_a$ has been
 replaced by $p$, we can simplify
 \begin{align}
-  \Pi_{p k_j} O_k \ket\psi
-  = \Pi_{p k_j} O_k \Pi_{p k_j} \ket\psi
-  = O_{k_{jp}}\ket\psi,
+  \Pi_{p k_a} O_k \ket\psi
+  = \Pi_{p k_a} O_k \Pi_{p k_a} \ket\psi
+  = O_{k_{ap}}\ket\psi,
 \end{align}
-and switch the labels for $p$ and $k_j$ to find that
+and switch the labels for $p$ and $k_a$ to find that
 \begin{align}
   \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{q\in k}
   h_{pq} w_k  \Pi_{pq} O_k \ket\psi
   = \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
-  \sum_{j=1}^M h_{pk_j} w_{k_{jp}} O_k \ket\psi.
+  \sum_{a=1}^M h_{pk_a} w_{k_{ap}} O_k \ket\psi.
 \end{align}
-For each fixed $j$, the sum over $p$ above is essentially a
-contraction of the matrix $\m h$ with the $j$-th index of the tensor
-$\m w$.  Denoting such a contraction by $\m h\c_j\m w$, we can
+For each fixed $a$, the sum over $p$ above is essentially a
+contraction of the matrix $\m h$ with the $a$-th index of the tensor
+$\m w$.  Denoting such a contraction by $\m h\c_a\m w$, we can
 therefore write this result as
 \begin{align}
   \sum_{k\in\C_N\p{M}} \p{\m h\circ \m w}_k O_k \ket\psi,
   &&
-  \m h\circ\m w \equiv \sum_{j=1}^M \m h\c_j\m w,
+  \m h\circ\m w \equiv \sum_{a=1}^M \m h\c_a\m w,
 \end{align}
 where, for clarity, the matrix elements of $\m h\circ\m w$ are
 \begin{align}
   \p{\m h\circ\m w}_k
-  \equiv \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{j=1}^M
-  h_{pk_j} w_{k_{jp}}
+  \equiv \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{a=1}^M
+  h_{pk_a} w_{k_{ap}}
   = \sum_{\substack{p\in\ZZ_N\\p\notin k}}
   \p{h_{k_1 p} w_{pk_2k_3\cdots k_M}
     + h_{k_2 p} w_{k_1pk_3\cdots k_M}
@@ -812,28 +811,21 @@ eigenvalue problem by a factor of $\O\p{N^3}$.
 Our task is essentially to express the multi-body eigenvalue problem
 in \eqref{eq:H_VM_psi_eig} in a basis that obeys both permutational
 symmetry and translational invariance.  To this end, we first expand
-the coupling tensor $\m w$ in a complete basis for all tensors of
-dimension $M$:
-\begin{align}
-  \m w = \sum_{k\in\ZZ_N^M} w_k \m e_k,
-\end{align}
-where $\m e_k$ is a unit tensor with one in the entry indexed by $k$
-and zeros everywhere else.  We then use the permutational symmetry of
-$\m w$ to expand it in a basis for symmetric tensors, making use of
-the fact that all entries of $\m w$ with repeated indices are zero:
+the coupling tensor $\m w$ in a complete basis for symmetric tensors:
 \begin{align}
   \m w = \sum_{k\in\C_N\p{M}} w_k \m m_k,
   &&
   \m m_k \equiv \sum_{\sigma\in P_M} \m e_{\sigma\p{k}},
   \label{eq:sym_tensor}
 \end{align}
-where $P_M$ is the set of all permutations of $M$ symbols.  On a
-$D$-dimensional lattice of linear size $L$, translational invariance
-implies that the coefficients $w_k$ remain the same if all spins
-indexed by $k$ are shifted by the same displacement $d\in\ZZ_L^D$.  To
-account for this invariance, we denote a translation of all spins in
-$k$ by a displacement $d\in\ZZ_L^D$ by $k_d$, and define the
-translation-symmetrized basis tensors
+where $P_M$ is the set of all permutations of $M$ symbols, and
+$\m e_\ell$ is a unit tensor with one in the entry indexed by $\ell$
+and zeros everywhere else.  On a $D$-dimensional lattice of linear
+size $L$, translational invariance implies that the coefficients $w_k$
+remain the same if all spins indexed by $k$ are shifted by the same
+displacement $d\in\ZZ_L^D$.  To account for this invariance, we denote
+a translation of all spins in $k$ by a displacement $d\in\ZZ_L^D$ by
+$k_d$, and define the translation-symmetrized basis tensors
 \begin{align}
   \m m_k^{\t{TS}}
   \equiv \f1{\N_k^{\t{TS}}} \sum_{d\in\ZZ_L^D} \m m_{k_d}
@@ -843,11 +835,11 @@ translation-symmetrized basis tensors
 where the normalization factor $\N_k^{\t{TS}}$ enforces that the
 entries of $\m m_k^{\t{TS}}$ are all either zero or one, which
 otherwise might not occur if some translations of $k$ results in the
-same choice of spins.  We then define the set $\T_N\p{M}$ of
-equivalence classes in $\C_N\p{M}$ under arbitrary translations, and
-expand
+same choice of spins.  We then define the set $\T_{LD}\p{M}$ of
+equivalence classes in $\C_N\p{M}$ under arbitrary translations on
+$D$-dimensional lattice of linear size $L$, and expand
 \begin{align}
-  \m w = \sum_{k\in\T_N\p{M}} w_k \m m_k^{\t{TS}}.
+  \m w = \sum_{k\in\T_{LD}\p{M}} w_k \m m_k^{\t{TS}}.
   \label{eq:sym_shift_tensor}
 \end{align}
 Having expanded $\m w$ in a basis that respects permutational symmetry
@@ -867,25 +859,30 @@ Starting from this form of $\m h$ and the expansion of $\m w$ in
 \eqref{eq:sym_tensor}, we can work out that
 \begin{align}
   \m h\circ\m w
-  = \sum_{k\in\T_N\p{M}} \m m_k^{\t{TS}}
-  \sum_{d\in\ZZ_L^D} h_{d,0} \sum_{a=1}^M w_{k_{d;a}},
+  = \sum_{k\in\T_{LD}\p{M}} \sum_{d\in\ZZ_L^D} \sum_{a=1}^M w_{k_{d;a}}
+  h_{d,0} w_{k_{d;a}} \m m_k^{\t{TS}},
 \end{align}
 where $k_{d;a}$ denotes the spins acquired by displacing the $a$-th
 spin of $k$ by $d$.  With a bit of additional work, we can also
 simplify
 \begin{align}
-  \bar{\m h} * \m w = M h_0 \m w
-  - \sum_{k\in\T_N\p{M}} w_k \m m_k^{\t{TS}}
-  \sum_{p,q\in k} h_{pq}
+  \bar{\m h}
+  = \sum_{k\in\T_{LD}\p{M}} \sp{M h_0 - \sum_{p,q\in k} h_{pq}}
+  \m m_k^{\t{TS}},
   &&
-  h_0 \equiv \sum_{d\in\ZZ_L^D} h_{d,0}.
+  h_0 \equiv \sum_{d\in\ZZ_L^D} h_{d,0},
+\end{align}
+which implies that
+\begin{align}
+  \bar{\m h} * \m w = M h_0 \m w
+  - \sum_{k\in\T_{LD}\p{M}} \sum_{p,q\in k} h_{pq} w_k \m m_k^{\t{TS}}.
 \end{align}
 Putting everything together, the generalized eigenvalue problem in
 \eqref{eq:H_VM_psi_eig} can be written in the form
 \begin{align}
-  \sum_{k\in\T_N\p{M}} \m m_k^{\t{TS}}
-  \sp{\sum_{p,q\in k} h_{pq} w_k
+  \sum_{k\in\T_{LD}\p{M}} \sp{\sum_{p,q\in k} h_{pq} w_k
     + \sum_{d\in\ZZ_L^D} h_{d,0} \sum_{a=1}^M w_{k_{d;a}}}
+  \m m_k^{\t{TS}}
   = \p{M h_0 + \Delta} \m w,
 \end{align}
 or equivalently
@@ -896,28 +893,15 @@ or equivalently
 where
 \begin{align}
   \ut{\check{\m h}} \equiv
-  \sum_{k\in\T_N\p{M}} \ket{k}
+  \sum_{k\in\T_{LD}\p{M}} \ket{k}
   \sp{\sum_{p,q\in k} h_{pq} \bra{k}
     + \sum_{d\in\ZZ_L^D} h_{d,0} \sum_{a=1}^M \bra{k_{d;a}}},
   &&
-  \v{\m w} \equiv \sum_{k\in\T_N\p{M}} w_k \ket{k},
+  \v{\m w} \equiv \sum_{k\in\T_{LD}\p{M}} w_k \ket{k},
 \end{align}
 and, to keep notation simple, we define $\ket{k}=0$ for all $k$ with
 repeated values, and enforce $\ket{j}=\ket{k}$ if spins $j$ and spins
 $k$ are the same up to a global translation.
-
-
-
-
-\vspace{1cm}
-
-\red{TODO: write codes to check above work, fix any errors, explicitly
-  write out two-body reduced eigenvalue problems, include sub-section
-  about isotropy, replace the following appendix}
-
-\vspace{1cm}
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Operator products restricted to the permutationally symmetric
