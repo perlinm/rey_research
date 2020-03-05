@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import itertools, functools
+import os, itertools, functools
 import scipy.sparse as sparse
 import matplotlib.pyplot as plt
 
@@ -16,10 +16,10 @@ lattice_shape = (12,12)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
-sweep_coupling_zz = np.linspace(-2,4,25)
+sweep_coupling_zz = np.linspace(-1,3,41)
 
 # values of the ZZ coupling to inspect more closely
-inspect_coupling_zz = [ -1, 0.7 ]
+inspect_coupling_zz = [ -1 ]
 
 max_time = 10 # in units of J_\perp
 
@@ -257,11 +257,12 @@ def _states(initial_state, zz_sun_ratio, times):
     return np.einsum("zsS,tzS->tzs", eig_states, evolved_eig_states)
 
 def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
+    print("coupling_zz:", coupling_zz)
     zz_sun_ratio = coupling_zz - 1
 
     # determine how long to simulate
     if zz_sun_ratio != 0:
-        chi_eff = zz_sun_ratio * chi_eff_bare
+        chi_eff = abs(zz_sun_ratio * chi_eff_bare)
         sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
     else:
         sim_time = max_time
@@ -288,7 +289,7 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
     # compute populations
     pops = np.einsum("tzs->ts", abs(states[:max_tt])**2)
 
-    return times, pops, sqz
+    return times, sqz, pops
 
 def name_tag(coupling_zz = None):
     base_tag = f"N{spin_num}_D{lattice_dim}_a{alpha}"
@@ -298,8 +299,14 @@ def name_tag(coupling_zz = None):
 def to_dB(sqz):
     return 10*np.log10(np.array(sqz))
 
+if not os.path.isdir(fig_dir):
+    os.makedirs(fig_dir)
+
+##########################################################################################
+print("running inspection simulations")
+
 for coupling_zz in inspect_coupling_zz:
-    times, pops, sqz = simulate(coupling_zz)
+    times, sqz, pops = simulate(coupling_zz)
     title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}," \
                + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
 
@@ -321,7 +328,7 @@ for coupling_zz in inspect_coupling_zz:
         # plt.plot(times, pops[:,ss])
     plt.plot(times, pops[:,0])
     plt.plot([times[0], times[-1]], [0,0])
-    plt.plot(times, np.sum(pops[:,1:], axis = 1))
+    plt.plot(times, pops[:,1:].sum(axis = 1))
     plt.plot([times[0], times[-1]], [0,0])
     for ss in range(1,shell_num):
         plt.plot(times, pops[:,ss], "k--")
@@ -332,5 +339,41 @@ for coupling_zz in inspect_coupling_zz:
     plt.tight_layout()
 
     plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
+
+##########################################################################################
+if len(sweep_coupling_zz) == 0: exit()
+print("running sweep simulations")
+
+sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
+sweep_results = [ simulate(coupling_zz) for coupling_zz in sweep_coupling_zz ]
+sweep_times, sweep_sqz, sweep_pops = zip(*sweep_results)
+
+sweep_min_sqz = [ min(sqz) for sqz in sweep_sqz ]
+min_sqz_idx = [ np.argmin(sqz) for sqz in sweep_sqz ]
+
+title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}$"
+
+plt.figure(figsize = figsize)
+plt.title(title_text)
+plt.plot(sweep_coupling_zz, to_dB(sweep_min_sqz), "ko")
+plt.ylim(plt.gca().get_ylim()[0], 0)
+plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
+plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
+plt.tight_layout()
+plt.savefig(fig_dir + f"squeezing_N{spin_num}_D{lattice_dim}_a{alpha}.pdf")
+
+sweep_pops = [ np.vstack([ pops[:min_idx,0], pops[:min_idx,1:].sum(axis = 1) ])
+               for pops, min_idx in zip(sweep_pops, min_sqz_idx) ]
+sweep_min_pops = np.array([ pops.min(axis = 1) for pops in sweep_pops ])
+sweep_max_pops = np.array([ pops.max(axis = 1) for pops in sweep_pops ])
+
+plt.figure(figsize = figsize)
+plt.title(title_text)
+plt.plot(sweep_coupling_zz, sweep_min_pops[:,0], "o")
+plt.plot(sweep_coupling_zz, sweep_max_pops[:,1], "o")
+plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
+plt.ylabel("population")
+plt.tight_layout()
+plt.savefig(fig_dir + f"populations_N{spin_num}_D{lattice_dim}_a{alpha}.pdf")
 
 print("completed")

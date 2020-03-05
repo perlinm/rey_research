@@ -205,8 +205,7 @@ chi_eff_bare = 1/4 * np.mean(list(couplings_sun.values()))
 state_X = functools.reduce(np.kron, [up_x]*spin_num).astype(complex)
 
 def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
-    print("coupling_zz:",coupling_zz)
-
+    print("coupling_zz:", coupling_zz)
     zz_sun_ratio = coupling_zz - 1
 
     H = H_0 + zz_sun_ratio * ZZ
@@ -215,7 +214,7 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
 
     # determine how long to simulate
     if zz_sun_ratio != 0:
-        chi_eff = zz_sun_ratio * chi_eff_bare
+        chi_eff = abs(zz_sun_ratio * chi_eff_bare)
         sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
     else:
         sim_time = max_time
