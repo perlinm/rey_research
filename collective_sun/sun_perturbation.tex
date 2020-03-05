@@ -360,12 +360,12 @@ vector $\V_2^\Delta\ket\psi$ (indexed by $\Delta$) is an eigenvector
 of the interaction Hamiltonian $H_0$ if its coefficients
 $\v{\m w}_O^\Delta$ all satisfy the eigenvalue equation
 \begin{align}
-  \check{\m h} \c \v{\m w} = \Delta \v{\m w},
+  \check{\m h}_2 \c \v{\m w} = \Delta \v{\m w},
   \label{eq:V2_eig}
 \end{align}
 where
 \begin{align}
-  \check{\m h}
+  \check{\m h}_2
   \equiv \sum_{p<q} \ket{\set{p,q}} \sp{\sum_{k\notin\set{p,q}}
     \p{h_{pk} \bra{\set{k,q}} + h_{qk} \bra{\set{p,k}}}
     - \bar h_{pq} \bra{\set{p,q}}}.
@@ -376,7 +376,7 @@ these terms vanish in \eqref{eq:H_V2_psi} from the fact that
 $h_{kk}=w_{Okk}=0$.  Solving the general eigenvalue problem in
 \eqref{eq:V2_eig} requires diagonalizing the
 ${N \choose 2}\times{N \choose 2}\sim N^2\times N^2$ matrix
-$\check{\m h}$.  When both he interaction Hamiltonian $H_0$
+$\check{\m h}_2$.  When both he interaction Hamiltonian $H_0$
 translationally invariant, however, this eigenvalue problem can be
 reduced to that of diagonalizing an $\sim N\times N$ matrix; we
 perform this reduction in Appendix \ref{sec:eigenstates_TI}.
@@ -429,8 +429,8 @@ enforcing $w_{pq}=w_{qp}$ and $w_{pp}=0$.  The vector $\v w$ is the
 sum of all columns of the matrix
 $\m w\equiv\sum_{p,q}w_{pq}\op{p}{q}$.  We then denote the projection
 of $\v{\m w}$ onto the $\Delta$-eigenspace of the matrix
-$\check{\m h}$ defined in \eqref{eq:V2_eig_mat} by $\v{\m w}_\Delta$,
-and define
+$\check{\m h}_2$ defined in \eqref{eq:V2_eig_mat} by
+$\v{\m w}_\Delta$, and define
 \begin{align}
   w_{\t{columns}}^{(2)} \equiv \sum_{\Delta\ne0}
   \f{\v w_\Delta\c\v w_\Delta}{\Delta},
@@ -888,12 +888,12 @@ Putting everything together, the generalized eigenvalue problem in
 \end{align}
 or equivalently
 \begin{align}
-  \ut{\check{\m h}} \c \v{\m w} = \p{M h_0 + \Delta} \v{\m w},
+  \check{\m h} \c \v{\m w} = \p{M h_0 + \Delta} \v{\m w},
   \label{eq:H_VM_eig_simp}
 \end{align}
 where
 \begin{align}
-  \ut{\check{\m h}} \equiv
+  \check{\m h} \equiv
   \sum_{k\in\T_{LD}\p{M}} \ket{k}
   \sp{\sum_{p,q\in k} h_{pq} \bra{k}
     + \sum_{d\in\ZZ_L^D} h_{d,0} \sum_{a=1}^M \bra{k_{d;a}}},
