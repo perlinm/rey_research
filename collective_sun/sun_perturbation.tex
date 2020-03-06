@@ -1373,26 +1373,26 @@ for the permutationally symmetric manifold of $S$ spins is
 $\set{\ket{a}:a\in\A_n\p{S}}$.  Identifying this standard basis allows
 us to expand
 \begin{align}
-  \bk{a|Q|b} = \sum_{\alpha,\beta\in\A_n\p{M}}
+  \bk{a|Q|b}
+  = \sum_{\substack{\alpha,\beta\in\A_n\p{M}\\\alpha\le a,\,\beta\le b}}
   \delta_{a-\alpha,b-\beta}
   \sqrt{\f{\C\p{\alpha}\C\p{a-\alpha}\C\p{\beta}\C\p{b-\beta}}
     {\C\p{a}\C\p{b}}}
   \bk{\alpha|Q|\beta},
   \label{eq:multi_body_eval}
 \end{align}
-where the differences $a-\alpha$ and $b-\beta$ are understood to be
-taken element-wise; $\delta_{a-\alpha,b-\beta}=1$ if
-$a-\alpha=b-\beta$ and zero otherwise; and for ease of notation we
-define $\C\p{c}\equiv 0$ if any entries of $c$ are negative.  We sum
-over both $\alpha$ and $\beta$ above merely to keep the expression
-symmetric with respect to transposition; in practice, one can simply
-sum over $\alpha\in\A_n\p{M}$ and set $\beta\equiv b-a+\alpha$.  Note
-that, by slight abuse of notation, the operator $Q$ on the left of
-\eqref{eq:multi_body_eval} acts on an arbitrary choice of $M$ spins
-(out of $N$), whereas the operator $Q$ on the right of
-\eqref{eq:multi_body_eval} is simply an $M$-spin operator, with matrix
-elements $\bk{\alpha|Q|\beta}$ evaluated with respect to the $M$-spin
-states $\ket\alpha,\ket\beta$.
+where the restriction $\alpha\le a$ and difference $a-\alpha$ are
+evaluated element-wise, i.e.~$\alpha<a\implies \alpha_j\le a_j$ and
+$\p{a-\alpha}_j=a_j-\alpha_j$ for all $j$; and $\delta_{cd}=1$ if
+$c=d$ and zero otherwise.  We sum over both $\alpha$ and $\beta$ above
+merely to keep the expression symmetric with respect to transposition;
+in practice, one can simply sum over $\alpha\in\A_n\p{M}$ and set
+$\beta\equiv b-a+\alpha$.  Note that, by slight abuse of notation, the
+operator $Q$ on the left of \eqref{eq:multi_body_eval} acts on an
+arbitrary choice of $M$ spins (out of $N$), whereas the operator $Q$
+on the right of \eqref{eq:multi_body_eval} is simply an $M$-spin
+operator, with matrix elements $\bk{\alpha|Q|\beta}$ evaluated with
+respect to the $M$-spin states $\ket\alpha,\ket\beta$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Two single-body operators}
