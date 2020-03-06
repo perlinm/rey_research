@@ -8,17 +8,17 @@ from itertools_extension import assignments, set_diagrams
 
 translational_invariance = True
 
-min_spins = 3
+min_spins = 4
 max_spins = 8
 max_dim = 2**max_spins
 
 total_dim = max_dim # total dimension of Hilbert space
 while total_dim >= max_dim:
     spin_dim = np.random.randint(2,5) # dimension of each spin
-    lattice_shape = ( np.random.randint(1,5),
-                      np.random.randint(1,5) )
+    lattice_shape = ( np.random.randint(1,max_spins),
+                      np.random.randint(1,max_spins) )
     spin_num = np.product(lattice_shape)
-    if spin_num > max_spins or spin_num == 1: continue
+    if spin_num > max_spins or spin_num < min_spins: continue
     total_dim = spin_dim**spin_num
 
 op_num = np.random.randint(2,5) # total number of multi-body operators
