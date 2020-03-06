@@ -909,6 +909,54 @@ $\check{\m h}$ has dimensions
 $\abs{\T_{LD}\p{M}}\times\abs{\T_{LD}\p{M}}$, where
 $\abs{\T_{LD}\p{M}} \approx { N-1 \choose M-1 }/M \sim N^{M-1}$.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Additional symmetries}
+
+If the interaction Hamiltonian $H_0$ and multi-body perturbation
+$\V_M$ have additional symmetries, such as isotropy or nonchirality,
+then we can use this symmetry to reduce the eigenvalue problem in
+\eqref{eq:H_VM_eig_simp} even further.  To this end, we define the set
+$\S_{LD}\p{M}$ of equivalence classes in $\T_{LD}\p{M}$ under the
+relevant symmetry.  In the case of isotropic two-body perturbations,
+for example, the set of translationally-symmetrized spin choices
+$\T_{LD}\p{2}$ can be classified by {\it displacements} on a lattice
+(i.e.~a vector from one chosen spin to the other), and we can equate
+all displacements that have the same magnitude, so elements of
+$\S_{LD}\p{2}$ can be classified by all by {\it distances} between any
+two points on the lattice.  For any member $s\in\S_{LD}\p{M}$, we then
+define a uniform superposition $\ket{s}$ over all corresponding
+members of $\T_{LD}\p{M}$, as well as the projector $\P_\S$ onto the
+space of uniform superpositions:
+\begin{align}
+  \ket{s} \equiv \f1{\sqrt{\abs{s}}} \sum_{k\in s} \ket{k},
+  &&
+  \P_\S \equiv \sum_{s\in\S_{LD}\p{M}} \op{s},
+\end{align}
+where $\abs{s}$ is the number of members of $\T_{LD}\p{M}$ in the
+equivalence class $s$.  We then expand the (symmetric) coefficient
+vector
+\begin{align}
+  \v{\m w} = \P_\S \v{\m w}
+  = \sum_{s\in\S_{LD}\p{M}} \ut{w}_s \ket{s},
+  &&
+  \ut{w}_s \equiv w_s \sqrt{\abs{s}},
+\end{align}
+as well as the symmetric projection of the matrix $\check{\m h}$:
+\begin{align}
+  \P_\S \check{\m h} \P_\S
+  = \sum_{s\in\S_{LD}\p{M}} \ket{s} \sp{\f{h_s}{\abs{s}} \bra{s}
+    + \sum_{d\in\ZZ_L^D} \f{h_{d,0}}{\sqrt{\abs{s}}} \sum_{a=1}^M
+    \f1{\sqrt{\abs{s_{d;a}}}} \bra{s_{d;a}}},
+\end{align}
+where $h_s\equiv\sum_{p,q\in k}h_{pq}$ for any $k\in s$; and,
+enforcing a canonical choice of $k\in s$ for all $s\in\S_{LD}\p{M}$,
+$s_{d;a}$ is the equivalence class of the corresponding $k_{d;a}$,
+with $\ket{s_{d;a}}\equiv0$ if $\ket{k_{d;a}}=0$.  The
+symmetry-reduced eigenvalue problem is then
+\begin{align}
+  \P_\S \check{\m h} \P_\S \c \v{\m w} = \p{M h_0 + \Delta} \v{\m w}.
+\end{align}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Operator products restricted to the permutationally symmetric
   manifold}
@@ -1327,8 +1375,8 @@ us to expand
 \begin{align}
   \bk{a|Q|b} = \sum_{\alpha,\beta\in\A_n\p{M}}
   \delta_{a-\alpha,b-\beta}
-  \sqrt{\C\p{a-\alpha}\C\p{b-\beta}}
-  \sqrt{\f{\C\p{\alpha}\C\p{\beta}}{\C\p{a}\C\p{b}}}
+  \sqrt{\f{\C\p{\alpha}\C\p{a-\alpha}\C\p{\beta}\C\p{b-\beta}}
+    {\C\p{a}\C\p{b}}}
   \bk{\alpha|Q|\beta},
   \label{eq:multi_body_eval}
 \end{align}
