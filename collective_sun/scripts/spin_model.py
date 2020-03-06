@@ -16,12 +16,13 @@ np.set_printoptions(linewidth = 200)
 lattice_shape = (2,4)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 periodic = True
+project_hamiltonian = True
 
 # values of the ZZ coupling to simulate in an XXZ model
 sweep_coupling_zz = np.linspace(-2,4,25)
 
 # values of the ZZ coupling to inspect more closely
-inspect_coupling_zz = [ -1, 0.7 ]
+inspect_coupling_zz = [ -1 ]
 
 max_time = 10 # in units of J_\perp
 
@@ -189,6 +190,11 @@ H_0 = sum( coupling * spin_op(swap, pp_qq).real
 ZZ = sum( coupling * spin_op(["Z","Z"], pp_qq).real / 2
           for pp_qq, coupling in couplings_sun.items() )
 
+if project_hamiltonian:
+    P_0 = sum( proj for proj in projs.values() )
+    H_0 = P_0 @ H_0 @ P_0
+    ZZ = P_0 @ ZZ @ P_0
+
 def col_op(op):
     return sum( spin_op(op,idx) for idx in range(spin_num) )
 Sz = col_op("Z") / 2
@@ -262,6 +268,7 @@ def to_dB(sqz):
 
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
+if project_hamiltonian: fig_dir += "proj_"
 
 ##########################################################################################
 print("running inspection simulations")
