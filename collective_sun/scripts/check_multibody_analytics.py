@@ -33,22 +33,6 @@ print("total number of spins:", spin_num)
 print("multi-body operator dimensions", dimensions)
 
 ##########################################################################################
-# methods for translations on the lattice
-##########################################################################################
-
-def unit_vector(idx):
-    vector = np.zeros(spin_dim)
-    vector[idx] = 1
-    return vector
-
-# remove diagonal elements of a tensor
-def _remove_diags(tensor):
-    for kk in np.ndindex(tensor.shape):
-        if len(set(kk)) != len(kk):
-            tensor[kk] = 0
-    return tensor
-
-##########################################################################################
 # construct projector onto the fully symmetric manifold
 ##########################################################################################
 
@@ -61,7 +45,7 @@ def sym_state(occupations):
     labels = [ [mm]*pop for mm, pop in enumerate(occupations) ]
     labels = np.concatenate(labels).astype(int)
     def _base_state(label):
-        return unit_vector(label)
+        return unit_tensor((label,), spin_dim)
     vec = sum( functools.reduce(np.kron, map(_base_state, perm))
                for perm in it.permutations(labels) )
     return vec / np.sqrt(vec @ vec)
@@ -215,6 +199,14 @@ def coef_mod_mat(shape):
     return mat
 def coef_mod(tensor):
     return coef_mod_mat(tensor.shape) * tensor
+
+
+# remove diagonal elements of a tensor
+def _remove_diags(tensor):
+    for kk in np.ndindex(tensor.shape):
+        if len(set(kk)) != len(kk):
+            tensor[kk] = 0
+    return tensor
 
 def coef_zip(tensor):
     axes = tensor.ndim

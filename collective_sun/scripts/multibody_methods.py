@@ -48,28 +48,8 @@ def spin_shift_method(lattice_shape):
     return spin_shift
 
 ##########################################################################################
-# building "unit" tensors
+# methods for building tensors
 ##########################################################################################
-
-def partition_values(values, partition_sizes):
-    assert( sum(partition_sizes) == len(values) )
-    return [ values[ sum(partition_sizes[:pp]) : sum(partition_sizes[:pp+1]) ]
-             for pp in range(len(partition_sizes)) ]
-
-def partitioned_permutations(values):
-    if len(values) == 0:
-        yield ()
-
-    else:
-        if not hasattr(values[0], "__getitem__"):
-            fst_values = values
-            lst_values = ()
-        else:
-            fst_values = values[0]
-            lst_values = values[1:]
-        for fst_perm in it.permutations(fst_values):
-            for lst_perm in partitioned_permutations(lst_values):
-                yield fst_perm + lst_perm
 
 # unit tensor
 def unit_tensor(idx, size):
@@ -77,21 +57,20 @@ def unit_tensor(idx, size):
     tensor[tuple(idx)] = 1
     return tensor
 
-# "unit" symmetric tensor
+# "unit" symmetric tensor, possibly symmetrized over all translations on a lattice
 def sym_tensor(idx, size, spin_shift = None):
-    if not hasattr(idx[0], "__getitem__"):
-        idx = (idx,)
-    tensor = np.zeros((size,) * sum( len(part) for part in idx ), dtype = int)
+    dimension = len(idx)
+    tensor = np.zeros((size,)*dimension, dtype = int)
 
     if spin_shift is None: # no translational symmetry
-        for kk in partitioned_permutations(idx):
-            tensor[kk] = 1
+        for perm_idx in it.permutations(idx):
+            tensor[perm_idx] = 1
 
     else: # symmetrize over all translations
-        for center in range(size):
-            shifted_idx = tuple( spin_shift(part,center) for part in idx )
-            for kk in partitioned_permutations(shifted_idx):
-                tensor[kk] |= 1 # tensor[kk] is either 0 or 1; set it to 1 with logical OR
+        for displacement in range(size):
+            shifted_idx = spin_shift(idx,displacement)
+            for perm_idx in it.permutations(shifted_idx):
+                tensor[perm_idx] |= 1 # set tensor[perm_idx] to 1 (from either 0 or 1)
 
     return tensor
 
