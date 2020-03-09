@@ -5,8 +5,7 @@ import itertools as it
 import functools, operator
 
 from itertools_extension import assignments, set_diagrams
-from multibody_methods import unit_tensor, sym_tensor, \
-    spin_shift_method, multibody_problem
+from multibody_methods import unit_tensor, sym_tensor, random_tensor, multibody_problem
 
 trans_inv = True
 
@@ -14,14 +13,11 @@ min_spins = 4
 max_spins = 8
 max_dim = 2**max_spins
 
-total_dim = max_dim # total dimension of Hilbert space
-while total_dim >= max_dim:
+total_dim = max_dim+1 # total dimension of Hilbert space
+while total_dim > max_dim:
     spin_dim = np.random.randint(2,5) # dimension of each spin
     lattice_shape = ( np.random.randint(1,max_spins),
                       np.random.randint(1,max_spins) )
-    ############################################################
-    lattice_shape = (4,) ############################################################
-    ############################################################
     spin_num = np.product(lattice_shape)
     if spin_num > max_spins or spin_num < min_spins: continue
     total_dim = spin_dim**spin_num
@@ -30,9 +26,6 @@ op_num = np.random.randint(2,5) # total number of multi-body operators
 
 # the dimension of each multi-body operator: an operator with dimension M is an M-local operator
 dimensions = [ np.random.randint(1,spin_num) for _ in range(op_num) ]
-############################################################
-dimensions = [ 1, 2, 3 ] ############################################################
-############################################################
 
 print("dimension of each spin:", spin_dim)
 print("lattice shape:", lattice_shape)
@@ -42,8 +35,6 @@ print("multi-body operator dimensions", dimensions)
 ##########################################################################################
 # methods for translations on the lattice
 ##########################################################################################
-
-spin_shift = spin_shift_method(lattice_shape)
 
 def unit_vector(idx):
     vector = np.zeros(spin_dim)
@@ -87,10 +78,9 @@ sym_proj = sum( to_proj(sym_state(label)) for label in sym_labels )
 ##########################################################################################
 
 # return a random symmetric tensor with zeros on all diagonal blocks
+_random_tensor = random_tensor
 def random_tensor(dimension):
-    shift_method = spin_shift if trans_inv else None
-    return sum( np.random.rand() * sym_tensor(choice, spin_num, shift_method)
-                for choice in it.combinations(range(spin_num), dimension) )
+    return _random_tensor(dimension, lattice_shape, trans_inv)
 
 # random `dimension`-local operator that obeys permutational symmetry
 def random_op(dimension):
@@ -258,7 +248,7 @@ for tensor, base_op, full_op in zip(tensors, base_ops, full_ops):
 for dimension, base_op, tensor in zip(dimensions, base_ops, tensors):
 
     excitation_mat, vector_to_tensor, tensor_to_vector \
-        = multibody_problem(sun_coefs, dimension, spin_shift, trans_inv)
+        = multibody_problem(sun_coefs, dimension, lattice_shape, trans_inv)
 
     vector = tensor_to_vector(tensor)
     coef_act_tensor = vector_to_tensor(excitation_mat @ vector)
@@ -275,6 +265,6 @@ for dimension, base_op, tensor in zip(dimensions, base_ops, tensors):
         act_tensor = coef_act(tensor)
         print(np.allclose(act_tensor, excitation_energy * tensor))
 
-        exact = sun_interactions @ operator @ sym_proj
-        simpl = ( sym_energy + excitation_energy ) * operator @ sym_proj
+        exact = sun_interactions @ ( operator @ sym_proj )
+        simpl = ( sym_energy + excitation_energy ) * ( operator @ sym_proj )
         print(np.allclose(simpl, exact))

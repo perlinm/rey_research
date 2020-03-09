@@ -95,13 +95,24 @@ def sym_tensor(idx, size, spin_shift = None):
 
     return tensor
 
+def random_tensor(dimension, lattice_shape, TI, seed = None):
+    if seed is not None: np.random.seed(seed)
+    spin_num = np.prod(lattice_shape)
+    if TI:
+        spin_shift = spin_shift_method(lattice_shape)
+        return sum( np.random.rand() * sym_tensor((0,)+choice, spin_num, spin_shift)
+                for choice in it.combinations(range(1,spin_num), dimension-1) )
+    else:
+        return sum( np.random.rand() * sym_tensor(choice, spin_num)
+                for choice in it.combinations(range(spin_num), dimension) )
+
 # TODO: symmetrize over rotations/reflections for isotropic systems
 
 ##########################################################################################
 # setting up the multibody eigenvalue problem
 ##########################################################################################
 
-def multibody_problem(sun_coefs, index_parts, spin_shift, TI = True):
+def multibody_problem(sun_coefs, index_parts, lattice_shape, TI = True):
     if type(index_parts) is int:
         index_parts = (index_parts,)
     index_num = sum( part for part in index_parts )
@@ -110,6 +121,7 @@ def multibody_problem(sun_coefs, index_parts, spin_shift, TI = True):
     spin_num = sun_coefs.shape[0]
     sun_coef_vec = sum(sun_coefs)
     sun_coef_0 = sun_coef_vec[0]
+    spin_shift = spin_shift_method(lattice_shape)
 
     # identify all distinct choices of spins, modding out by translations if appropriate
     if not TI:

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from squeezing_methods import spin_squeezing
 from dicke_methods import coherent_spin_state as coherent_state_PS
-from multibody_methods import dist_method, spin_shift_method, multibody_problem
+from multibody_methods import dist_method, multibody_problem
 from operator_product_methods import build_shell_operator
 
 np.set_printoptions(linewidth = 200)
@@ -52,10 +52,8 @@ for pp, qq in np.ndindex(sunc["mat"].shape):
     if _dist == 0: continue
     sunc["mat"][pp,qq] = -1/_dist**alpha
 
-spin_shift = spin_shift_method(lattice_shape)
-
 excitation_mat, vector_to_tensor, tensor_to_vector \
-    = multibody_problem(sunc["mat"], 2, spin_shift)
+    = multibody_problem(sunc["mat"], 2, lattice_shape)
 shell_num = excitation_mat.shape[0]
 
 eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
