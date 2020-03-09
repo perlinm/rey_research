@@ -343,13 +343,13 @@ state $\ket\psi\in\M_0$ and expand (see Section \ref{sec:eigenstates})
   = E_0 \V_2 \ket\psi
   + \sum_O \sum_{p<q}
   \sp{\sum_k \p{h_{pk} w_{Okq} + h_{qk} w_{Opk}}
-  - \bar h_{pq} w_{Opq}}
+    - \tilde h_{pq} w_{Opq}}
   O_{pq} \ket\psi,
   \label{eq:H_V2_psi}
 \end{align}
 where to keep notation compact, we define
 \begin{align}
-  \bar h_{pq} \equiv h_p + h_q - 2 h_{pq},
+  \tilde h_{pq} \equiv h_p + h_q - 2 h_{pq},
   &&
   h_p \equiv \sum_q h_{pq},
 \end{align}
@@ -367,7 +367,7 @@ where
   \check{\m h}_2
   \equiv \sum_{p<q} \ket{\set{p,q}} \sp{\sum_{k\notin\set{p,q}}
     \p{h_{pk} \bra{\set{k,q}} + h_{qk} \bra{\set{p,k}}}
-    - \bar h_{pq} \bra{\set{p,q}}}.
+    - \tilde h_{pq} \bra{\set{p,q}}}.
   \label{eq:V2_eig_mat}
 \end{align}
 We explicitly exclude $k\in\set{p,q}$ in \eqref{eq:V2_eig_mat} because
@@ -377,8 +377,9 @@ $h_{kk}=w_{Okk}=0$.  Solving the general eigenvalue problem in
 ${N \choose 2}\times{N \choose 2}\sim N^2\times N^2$ matrix
 $\check{\m h}_2$.  When both he interaction Hamiltonian $H_0$
 translationally invariant, however, this eigenvalue problem can be
-reduced to that of diagonalizing an $\sim N\times N$ matrix; we
-perform this reduction in Section \ref{sec:eigenstates_TI}.
+reduced to that of diagonalizing a matrix of dimensions
+$\sim N\times N$; we perform this reduction in Section
+\ref{sec:exploiting_symmetries}.
 
 If we {\it construct} a perturbation $\V_2^\Delta$ with coefficients
 $\v{\m w}_O^\Delta$ that satisfy \eqref{eq:V2_eig} with eigenvalue
@@ -701,20 +702,20 @@ $q$ with the restriction that $q\notin k$ into a sum over all $q$
 minus the remainder $q\in k$.  We thus find that
 \begin{align}
   \sum_{\substack{\p{p,q}\in\C_N\p{2}\\p,q\in k~\t{or}~p,q\notin k}} h_{pq}
-  = E_0 - \bar h_k,
+  = E_0 - \tilde h_k,
   &&
-  \bar h_k \equiv \sum_{p\in k}\p{h_p - \sum_{q\in k}h_{pq}},
+  \tilde h_k \equiv \sum_{p\in k}\p{h_p - \sum_{q\in k}h_{pq}},
   &&
   h_p \equiv \sum_q h_{pq},
 \end{align}
 which implies that the terms in \eqref{eq:H_VM_psi_start} with
 $p,q\in k$ or $p,q\notin k$ are
 \begin{align}
-  \sum_{k\in\C_N\p{M}} \p{E_0 - \bar h_k} w_k O_k \ket\psi
+  \sum_{k\in\C_N\p{M}} \p{E_0 - \tilde h_k} w_k O_k \ket\psi
   = E_0 \V_M \ket\psi
-  - \sum_{k\in\C_N\p{M}} \p{\bar{\m h} * \m w}_k O_k \ket\psi,
+  - \sum_{k\in\C_N\p{M}} \p{\tilde{\m h} * \m w}_k O_k \ket\psi,
 \end{align}
-where $\bar{\m h}$ is a tensor with entries $\bar h_k$; and
+where $\tilde{\m h}$ is a tensor with entries $\tilde h_k$; and
 $\m x*\m y$ denotes an element-wise (Kronecker) product of $\m x$ and
 $\m y$, with entries $x_ky_k$.  The remaining terms in
 \eqref{eq:H_VM_psi_start} with only one of $p\in k$ or $q\in k$ are
@@ -764,7 +765,7 @@ Altogether, we thus find that
 \begin{align}
   H_0 \V_M \ket\psi
   = E_0 \V_M \ket\psi + \sum_{k\in\C_N\p{M}}
-  \p{\m h\circ\m w - \bar{\m h} * \m w}_k O_k \ket\psi.
+  \p{\m h\circ\m w - \tilde{\m h} * \m w}_k O_k \ket\psi.
   \label{eq:H_VM_psi_end}
 \end{align}
 The action of the $M$-body perturbation $\V_M$ on a fully symmetric
@@ -772,11 +773,11 @@ state therefore generates an eigenstate of $H_0$ with energy
 $E_0+\Delta$ if the coefficient tensor $\m w$ satisfies the
 generalized eigenvalue equation
 \begin{align}
-  \m h\circ\m w - \bar{\m h} * \m w = \Delta \m w.
+  \m h\circ\m w - \tilde{\m h} * \m w = \Delta \m w.
   \label{eq:H_VM_psi_eig}
 \end{align}
 If $M=1$, then $\p{\m h\circ\m w}_k=\sum_\ell h_{k\ell}w_\ell$ and
-$\bar h_k=h_k$, so
+$\tilde h_k=h_k$, so
 \begin{align}
   H_0 \V_1 \ket\psi
   = E_0 \V_1 \ket\psi + \sum_{k\in\ZZ_N}
@@ -789,14 +790,13 @@ $\p{\m h\circ\m w}_{pq}=\sum_k\p{h_{pk}w_{kq}+h_{qk}w_{pk}}$, so
   H_0 \V_2 \ket\psi
   = E_0 \V_2 \ket\psi + \sum_{\p{p,q}\in\C_N\p{2}}
   \sp{\sum_{k\in\ZZ_N}\p{h_{pk} w_{kq} + h_{qk} w_{pk}}
-    - \bar h_{pq} w_{pq}}
+    - \tilde h_{pq} w_{pq}}
   O_k \ket\psi,
 \end{align}
-where $\bar h_{pq}=h_p+h_q-2h_{pq}$ with $h_p\equiv\sum_qh_{pq}$.
+where $\tilde h_{pq}=h_p+h_q-2h_{pq}$ with $h_p\equiv\sum_qh_{pq}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Translational invariance}
-\label{sec:eigenstates_TI}
 
 Solving the eigenvalue problem in \eqref{eq:H_VM_psi_eig} to find
 $M$-body perturbations $\V_M$ that generate states of definite
@@ -868,7 +868,7 @@ where $k_{d;a}$ denotes the spins acquired by displacing the $a$-th
 spin of $k$ by $d$.  With a bit of additional work, we can also
 simplify
 \begin{align}
-  \bar{\m h}
+  \tilde{\m h}
   = \sum_{k\in\T_{LD}\p{M}} \sp{M h_0 - \sum_{p,q\in k} h_{pq}}
   \m m_k^{\t{TS}},
   &&
@@ -876,7 +876,7 @@ simplify
 \end{align}
 which implies that
 \begin{align}
-  \bar{\m h} * \m w = M h_0 \m w
+  \tilde{\m h} * \m w = M h_0 \m w
   - \sum_{k\in\T_{LD}\p{M}} \sum_{p,q\in k} h_{pq} w_k \m m_k^{\t{TS}}.
 \end{align}
 Putting everything together, the generalized eigenvalue problem in
