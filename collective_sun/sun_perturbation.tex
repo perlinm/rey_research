@@ -846,115 +846,38 @@ $D$-dimensional lattice of linear size $L$, and expand
 \end{align}
 Having expanded $\m w$ in a basis that respects permutational symmetry
 and translational invariance, we need to express the eigenvalue
-equation \eqref{eq:H_VM_psi_eig} in the same basis.  In order to do
-so, we label spins $p,q$ by the position of the corresponding lattice
-site in $\ZZ_L^D$, and use translational invariance of the couplings
-$\m h$ to expand
-\begin{align}
-  \m h \equiv \sum_{p,q\in\ZZ_L^D} h_{pq} \op{p}{q}
-  = \sum_{q,d\in\ZZ_L^D} h_{q+d,q} \op{q+d}{q}
-  = \sum_{d\in\ZZ_L^D} h_{d,0} \m s_d,
-  &&
-  \m s_d \equiv \sum_{q\in\ZZ_L^D} \op{q+d}{d}.
-\end{align}
-Starting from this form of $\m h$ and the expansion of $\m w$ in
-\eqref{eq:sym_tensor}, we can work out that
+equation \eqref{eq:H_VM_psi_eig} in the same basis.  We therefore
+expand
 \begin{align}
   \m h\circ\m w
-  = \sum_{k\in\T_{LD}\p{M}} \sum_{d\in\ZZ_L^D} \sum_{a=1}^M w_{k_{d;a}}
-  h_{d,0} w_{k_{d;a}} \m m_k^{\t{TS}},
-\end{align}
-where $k_{d;a}$ denotes the spins acquired by displacing the $a$-th
-spin of $k$ by $d$.  With a bit of additional work, we can also
-simplify
-\begin{align}
-  \tilde{\m h}
-  = \sum_{k\in\T_{LD}\p{M}} \sp{M h_0 - \sum_{p,q\in k} h_{pq}}
-  \m m_k^{\t{TS}},
+  = \sum_{k\in\T_{LD}\p{M}} \sum_{p\in\ZZ_L^D} \sum_{a=1}^M
+  h_{pk_a} w_{k_{ap}} \m m_k^{\t{TS}},
   &&
-  h_0 \equiv \sum_{d\in\ZZ_L^D} h_{d,0},
+  \tilde{\m h} * \m w = \sum_{k\in\T_{LD}\p{M}}
+  \tilde h_k w_k \m m_k^{\t{TS}},
 \end{align}
-which implies that
+which implies that the generalized eigenvalue problem in
+\eqref{eq:H_VM_psi_eig} can be written as
 \begin{align}
-  \tilde{\m h} * \m w = M h_0 \m w
-  - \sum_{k\in\T_{LD}\p{M}} \sum_{p,q\in k} h_{pq} w_k \m m_k^{\t{TS}}.
-\end{align}
-Putting everything together, the generalized eigenvalue problem in
-\eqref{eq:H_VM_psi_eig} can be written in the form
-\begin{align}
-  \sum_{k\in\T_{LD}\p{M}} \sp{\sum_{p,q\in k} h_{pq} w_k
-    + \sum_{d\in\ZZ_L^D} h_{d,0} \sum_{a=1}^M w_{k_{d;a}}}
-  \m m_k^{\t{TS}}
-  = \p{M h_0 + \Delta} \m w,
-\end{align}
-or equivalently
-\begin{align}
-  \check{\m h} \c \v{\m w} = \p{M h_0 + \Delta} \v{\m w},
-  \label{eq:H_VM_eig_simp}
+  \check{\m h}\c\v{\m w} = \Delta\v{\m w},
 \end{align}
 where
 \begin{align}
-  \check{\m h} \equiv
-  \sum_{k\in\T_{LD}\p{M}} \ket{k}
-  \sp{\sum_{p,q\in k} h_{pq} \bra{k}
-    + \sum_{d\in\ZZ_L^D} h_{d,0} \sum_{a=1}^M \bra{k_{d;a}}},
+  \check{\m h}
+  \equiv \sum_{k\in\T_{LD}\p{M}} \sum_{p\in\ZZ_L^D} \sum_{a=1}^M
+  h_{pk_a} \op{k}{k_{ap}}
+  - \sum_{k\in\T_{LD}\p{M}} \tilde h_k \op{k},
   &&
   \v{\m w} \equiv \sum_{k\in\T_{LD}\p{M}} w_k \ket{k},
 \end{align}
-and, to keep notation simple, we define $\ket{k}=0$ for all $k$ with
-repeated values, and enforce $\ket{j}=\ket{k}$ if spins $j$ and spins
-$k$ are the same up to a global translation.  The matrix
-$\check{\m h}$ has dimensions
+and, by slight abuse of notation we identify an equivalence classes
+$k\in\T_{LD}\p{M}$ with a canonical choice of spins
+$\tilde k\in k\subset\C_N\p{M}$ (such that $k_{ap}=\tilde k_{ap}$,
+with $\tilde k_{ap}$ equal to $\tilde k$ with the $a$-th spin replaced
+by $p$); and we define $\ket{j}=0$ for all $j\in\C_N\p{M}$ with
+repeated values.  The matrix $\check{\m h}$ has dimensions
 $\abs{\T_{LD}\p{M}}\times\abs{\T_{LD}\p{M}}$, where
 $\abs{\T_{LD}\p{M}} \approx { N-1 \choose M-1 }/M \sim N^{M-1}$.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Additional symmetries}
-
-If the interaction Hamiltonian $H_0$ and multi-body perturbation
-$\V_M$ have additional symmetries, such as isotropy or nonchirality,
-then we can use this symmetry to reduce the eigenvalue problem in
-\eqref{eq:H_VM_eig_simp} even further.  To this end, we define the set
-$\S_{LD}\p{M}$ of equivalence classes in $\T_{LD}\p{M}$ under the
-relevant symmetry.  In the case of isotropic two-body perturbations,
-for example, the set of translationally-symmetrized spin choices
-$\T_{LD}\p{2}$ can be classified by {\it displacements} on a lattice
-(i.e.~a vector from one chosen spin to the other), and we can equate
-all displacements that have the same magnitude, so elements of
-$\S_{LD}\p{2}$ can be classified by all by {\it distances} between any
-two points on the lattice.  For any member $s\in\S_{LD}\p{M}$, we then
-define a uniform superposition $\ket{s}$ over all corresponding
-members of $\T_{LD}\p{M}$, as well as the projector $\P_\S$ onto the
-space of uniform superpositions:
-\begin{align}
-  \ket{s} \equiv \f1{\sqrt{\abs{s}}} \sum_{k\in s} \ket{k},
-  &&
-  \P_\S \equiv \sum_{s\in\S_{LD}\p{M}} \op{s},
-\end{align}
-where $\abs{s}$ is the number of members of $\T_{LD}\p{M}$ in the
-equivalence class $s$.  We then expand the (symmetric) coefficient
-vector
-\begin{align}
-  \v{\m w} = \P_\S \v{\m w}
-  = \sum_{s\in\S_{LD}\p{M}} \ut{w}_s \ket{s},
-  &&
-  \ut{w}_s \equiv w_s \sqrt{\abs{s}},
-\end{align}
-as well as the symmetric projection of the matrix $\check{\m h}$:
-\begin{align}
-  \P_\S \check{\m h} \P_\S
-  = \sum_{s\in\S_{LD}\p{M}} \ket{s} \sp{\f{h_s}{\abs{s}} \bra{s}
-    + \sum_{d\in\ZZ_L^D} \f{h_{d,0}}{\sqrt{\abs{s}}} \sum_{a=1}^M
-    \f1{\sqrt{\abs{s_{d;a}}}} \bra{s_{d;a}}},
-\end{align}
-where $h_s\equiv\sum_{p,q\in k}h_{pq}$ for any $k\in s$; and,
-enforcing a canonical choice of $k\in s$ for all $s\in\S_{LD}\p{M}$,
-$s_{d;a}$ is the equivalence class of the corresponding $k_{d;a}$,
-with $\ket{s_{d;a}}\equiv0$ if $\ket{k_{d;a}}=0$.  The
-symmetry-reduced eigenvalue problem is then
-\begin{align}
-  \P_\S \check{\m h} \P_\S \c \v{\m w} = \p{M h_0 + \Delta} \v{\m w}.
-\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Operator products restricted to the permutationally symmetric
