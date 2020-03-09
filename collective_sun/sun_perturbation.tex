@@ -868,14 +868,15 @@ where
   h_{pk_a} \op{k}{k_{ap}}
   - \sum_{k\in\T_{LD}\p{M}} \tilde h_k \op{k},
   &&
-  \v{\m w} \equiv \sum_{k\in\T_{LD}\p{M}} w_k \ket{k},
+  \v{\m w} \equiv \sum_{k\in\T_{LD}\p{M}} w_k \ket{k}.
 \end{align}
-and, by slight abuse of notation we identify an equivalence classes
-$k\in\T_{LD}\p{M}$ with a canonical choice of spins
-$\tilde k\in k\subset\C_N\p{M}$ (such that $k_{ap}=\tilde k_{ap}$,
-with $\tilde k_{ap}$ equal to $\tilde k$ with the $a$-th spin replaced
-by $p$); and we define $\ket{j}=0$ for all $j\in\C_N\p{M}$ with
-repeated values.  The matrix $\check{\m h}$ has dimensions
+In order to make sense of $\check{\m h}$ as written above, for each
+$k\in\T_{LD}\p{M}$ we enforce a canonical choice of spins
+$\tilde k\in k\subset\C_N\p{M}$; we define $k_{ap}$ to be the
+equivalence class of $\tilde k_{ap}$ (where $\tilde k_{ap}$ equal to
+$\tilde k$ with the $a$-th spin $k_a$ replaced by $p$); and we define
+$\ket{k}=0$ if $\tilde k$ has any repeated values.  The matrix
+$\check{\m h}$ has dimensions
 $\abs{\T_{LD}\p{M}}\times\abs{\T_{LD}\p{M}}$, where
 $\abs{\T_{LD}\p{M}} \approx { N-1 \choose M-1 }/M \sim N^{M-1}$.
 
