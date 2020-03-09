@@ -4,13 +4,12 @@ import numpy as np
 import itertools as it
 
 ##########################################################################################
-# dealing with translations on a lattice
+# dealing with lattice geometry
 ##########################################################################################
 
-def shift_spin_method(lattice_shape):
+# convert between integer and vector indices for a spin
+def index_methods(lattice_shape):
     spin_num = np.prod(lattice_shape)
-
-    # convert between integer and vector indices for a spin
     _to_vec = { idx : tuple(vec) for idx, vec in enumerate(np.ndindex(lattice_shape)) }
     _to_idx = { vec : idx for idx, vec in _to_vec.items() }
     def to_vec(idx):
@@ -21,17 +20,32 @@ def shift_spin_method(lattice_shape):
         if type(vec) is int:
             return vec % spin_num
         return _to_idx[ tuple( np.array(vec) % np.array(lattice_shape) ) ]
+    return to_vec, to_idx
 
-    # shift a choice of spins spins by a displacement
-    def shift_spins(spins, disp, aa = None):
+# method to compute the distance between two spins
+def dist_method(lattice_shape):
+    to_vec, to_idx = index_methods(lattice_shape)
+    def dist_1D(pp, qq, axis):
+        diff = ( pp - qq ) % lattice_shape[axis]
+        return min(diff, lattice_shape[axis] - diff)
+    def dist(pp, qq):
+        pp = to_vec(pp)
+        qq = to_vec(qq)
+        return np.sqrt(sum( dist_1D(*pp_qq,aa)**2
+                            for aa, pp_qq in enumerate(zip(pp,qq)) ))
+    return dist
+
+# method to shift spins by a displacement
+def spin_shift_method(lattice_shape):
+    to_vec, to_idx = index_methods(lattice_shape)
+    def spin_shift(spins, disp, aa = None):
         if aa is None: # shift all spins
             return tuple( to_idx( to_vec(idx) + to_vec(disp) ) for idx in spins )
         else: # only shift spin aa
             new_spins = list(spins)
             new_spins[aa] = to_idx( to_vec(spins[aa]) + to_vec(disp) )
             return tuple(new_spins)
-
-    return shift_spins
+    return spin_shift
 
 ##########################################################################################
 # building "unit" tensors
@@ -64,18 +78,18 @@ def unit_tensor(idx, size):
     return tensor
 
 # "unit" symmetric tensor
-def sym_tensor(idx, size, shift_spins = None):
+def sym_tensor(idx, size, spin_shift = None):
     if not hasattr(idx[0], "__getitem__"):
         idx = (idx,)
     tensor = np.zeros((size,) * sum( len(part) for part in idx ), dtype = int)
 
-    if shift_spins is None: # no translational symmetry
+    if spin_shift is None: # no translational symmetry
         for kk in partitioned_permutations(idx):
             tensor[kk] = 1
 
     else: # symmetrize over all translations
         for center in range(size):
-            shifted_idx = tuple( shift_spins(part,center) for part in idx )
+            shifted_idx = tuple( spin_shift(part,center) for part in idx )
             for kk in partitioned_permutations(shifted_idx):
                 tensor[kk] |= 1 # tensor[kk] is either 0 or 1; set it to 1 with logical OR
 
@@ -87,7 +101,7 @@ def sym_tensor(idx, size, shift_spins = None):
 # setting up the multibody eigenvalue problem
 ##########################################################################################
 
-def multibody_problem(sun_coefs, shift_spins, index_parts, TI = True):
+def multibody_problem(sun_coefs, index_parts, spin_shift, TI = True):
     if type(index_parts) is int:
         index_parts = (index_parts,)
     index_num = sum( part for part in index_parts )
@@ -116,7 +130,7 @@ def multibody_problem(sun_coefs, shift_spins, index_parts, TI = True):
             choice = (0,) + choice
             add_to_choices = True
             for shift in range(spin_num):
-                shifted_choice = tuple(sorted(shift_spins(choice,shift)))
+                shifted_choice = tuple(sorted(spin_shift(choice,shift)))
                 if shifted_choice in choices:
                     add_to_choices = False
                     break
@@ -127,13 +141,13 @@ def multibody_problem(sun_coefs, shift_spins, index_parts, TI = True):
         def choice_idx(choice):
             if len(set(choice)) != len(choice): return None
             for shift in range(spin_num):
-                shifted_choice = sorted(shift_spins(choice,shift))
+                shifted_choice = sorted(spin_shift(choice,shift))
                 idx = choices.get(tuple(shifted_choice))
                 if idx is not None:
                     return idx
 
     # build methods to convert between a tensor and a "choice vector"
-    shift_method = shift_spins if TI else None
+    shift_method = spin_shift if TI else None
     def vector_to_tensor(vector):
         return sum( val * sym_tensor(choice, spin_num, shift_method)
                     for val, choice in zip(vector, choices.keys()) )

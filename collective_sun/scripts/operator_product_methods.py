@@ -427,7 +427,7 @@ def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True)
     shell_num = max( shell for shell in sunc.keys() if type(shell) is int ) + 1
 
     # compute norms of generated states in the Z-projection / shell basis
-    sunc_hash = ( sunc["dist"] if TI else sunc["pair"] ).tobytes()
+    sunc_hash = sunc["mat"].tobytes()
     norms = sunc_norms.get(sunc_hash)
     if norms is None:
         norms = compute_norms(sunc)

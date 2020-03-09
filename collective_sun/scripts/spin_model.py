@@ -10,6 +10,7 @@ from scipy import sparse
 from scipy.integrate import solve_ivp
 from squeezing_methods import spin_squeezing
 from tensorflow_extension import tf_outer_product
+from multibody_methods import dist_method
 
 np.set_printoptions(linewidth = 200)
 
@@ -66,30 +67,7 @@ for manifold in range(3):
 ##########################################################################################
 # define basic objects / operators
 
-# convert between integer and vector indices for a spin
-_to_vec = { idx : tuple(vec) for idx, vec in enumerate(np.ndindex(lattice_shape)) }
-_to_idx = { vec : idx for idx, vec in _to_vec.items() }
-def to_vec(idx):
-    if hasattr(idx, "__getitem__"):
-        return tuple( np.array(idx) % np.array(lattice_shape) )
-    return _to_vec[ idx % spin_num ]
-def to_idx(vec):
-    if type(vec) is int:
-        return vec % spin_num
-    return _to_idx[ tuple( np.array(vec) % np.array(lattice_shape) ) ]
-
-# get the distance between two spins
-if periodic:
-    def dist_1D(pp, qq, axis):
-        diff = ( pp - qq ) % lattice_shape[axis]
-        return min(diff, lattice_shape[axis] - diff)
-else:
-    def dist_1D(pp, qq, _):
-        return max(pp,qq) - min(pp,qq)
-def dist(pp, qq):
-    pp = to_vec(pp)
-    qq = to_vec(qq)
-    return np.sqrt(sum( dist_1D(*pp_qq,aa)**2 for aa, pp_qq in enumerate(zip(pp,qq)) ))
+dist = dist_method(lattice_shape)
 
 # qubit states and operators
 up = np.array([1,0])
@@ -240,6 +218,7 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
         max_tt = len(times)
     else:
         max_tt = min(max_tt, len(times))
+
     times = times[:max_tt]
     sqz = sqz[:max_tt]
 

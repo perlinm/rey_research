@@ -6,7 +6,7 @@ import functools, operator
 
 from itertools_extension import assignments, set_diagrams
 from multibody_methods import unit_tensor, sym_tensor, \
-    shift_spin_method, multibody_problem
+    spin_shift_method, multibody_problem
 
 trans_inv = True
 
@@ -43,7 +43,7 @@ print("multi-body operator dimensions", dimensions)
 # methods for translations on the lattice
 ##########################################################################################
 
-shift_spins = shift_spin_method(lattice_shape)
+spin_shift = spin_shift_method(lattice_shape)
 
 def unit_vector(idx):
     vector = np.zeros(spin_dim)
@@ -88,7 +88,7 @@ sym_proj = sum( to_proj(sym_state(label)) for label in sym_labels )
 
 # return a random symmetric tensor with zeros on all diagonal blocks
 def random_tensor(dimension):
-    shift_method = shift_spins if trans_inv else None
+    shift_method = spin_shift if trans_inv else None
     return sum( np.random.rand() * sym_tensor(choice, spin_num, shift_method)
                 for choice in it.combinations(range(spin_num), dimension) )
 
@@ -258,7 +258,7 @@ for tensor, base_op, full_op in zip(tensors, base_ops, full_ops):
 for dimension, base_op, tensor in zip(dimensions, base_ops, tensors):
 
     excitation_mat, vector_to_tensor, tensor_to_vector \
-        = multibody_problem(sun_coefs, shift_spins, dimension, trans_inv)
+        = multibody_problem(sun_coefs, dimension, spin_shift, trans_inv)
 
     vector = tensor_to_vector(tensor)
     coef_act_tensor = vector_to_tensor(excitation_mat @ vector)

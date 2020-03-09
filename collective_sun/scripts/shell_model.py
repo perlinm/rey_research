@@ -5,14 +5,15 @@ import os, itertools, functools
 import scipy.sparse as sparse
 import matplotlib.pyplot as plt
 
-from operator_product_methods import build_shell_operator
 from squeezing_methods import spin_squeezing
 from dicke_methods import coherent_spin_state as coherent_state_PS
+from multibody_methods import dist_method, spin_shift_method, multibody_problem
+from operator_product_methods import build_shell_operator
 
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (12,12)
+lattice_shape = (2,4)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -31,163 +32,40 @@ fig_dir = "../figures/shells/"
 figsize = (5,4)
 params = { "font.size" : 16,
            "text.usetex" : True,
-           "text.latex.preamble" : [ r"\usepackage{amsmath}",
-                                     r"\usepackage{braket}" ]}
+           "text.latex.preamble" : [ r"\usepackage{amsmath}" ]}
 plt.rcParams.update(params)
-
-##########################################################################################
-# define some basic methods
-##########################################################################################
 
 lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
-spin_pairs = [ (pp,qq) for pp, qq in itertools.combinations(range(spin_num), 2) ]
-pair_index = { pair : idx for idx, pair in enumerate(spin_pairs) }
-
-# convert between integer and vector indices for a spin
-_to_vec = { idx : tuple(vec) for idx, vec in enumerate(np.ndindex(lattice_shape)) }
-_to_idx = { vec : idx for idx, vec in _to_vec.items() }
-def to_vec(idx):
-    if hasattr(idx, "__getitem__"):
-        return np.array(idx) % np.array(lattice_shape)
-    return np.array(_to_vec[ idx % spin_num ])
-def to_idx(vec):
-    if type(vec) is int:
-        return vec % spin_num
-    return _to_idx[ tuple( np.array(vec) % np.array(lattice_shape) ) ]
-
-# get the distance between two spins
-def dist_1D(pp, qq, axis):
-    diff = ( pp - qq ) % lattice_shape[axis]
-    return min(diff, lattice_shape[axis] - diff)
-def dist(pp, qq):
-    pp = to_vec(pp)
-    qq = to_vec(qq)
-    return np.sqrt(sum( dist_1D(*pp_qq,aa)**2 for aa, pp_qq in enumerate(zip(pp,qq)) ))
-
-# organize all displacements by their magnitude
-dist_to_disps = {}
-for dd in range(1,spin_num):
-    dd_dist = dist(0, dd)
-    try:
-        dist_to_disps[dd_dist] += [ dd ]
-    except:
-        dist_to_disps[dd_dist] = [ dd ]
-shell_num = len(dist_to_disps)
-
-# convert "distance" vectors to "displacement" vectors
-def unit_vec(dim, idx):
-    vec = np.zeros(dim, dtype = int)
-    vec[idx] = 1
-    return vec
-def dist_vec(dist):
-    vec = sum( unit_vec(spin_num-1,to_idx(disp)-1) for disp in dist_to_disps[dist] )
-    return vec / np.sqrt( len(dist_to_disps[dist]) )
-_dist_to_disp = np.vstack([ dist_vec(dist) for dist in dist_to_disps.keys() ]).T
-def dist_to_disp_vec(dist_vec):
-    return _dist_to_disp @ dist_vec
-
-# define cycle matrices
-def cycle_mat(dd, kk = 0):
-    dd_vec = to_vec(dd)
-    def _shift(pp):
-        return to_idx( dd_vec + to_vec(pp) )
-
-    if kk == 0:
-        def _val(_): return 1
-    else:
-        kk_vec = to_vec(kk) * 2*pi/np.array(lattice_shape)
-        def _val(pp):
-            return np.exp(1j * to_vec(pp) @ kk_vec)
-
-    mat = np.zeros((spin_num,)*2)
-    for pp in range(spin_num):
-        mat[_shift(pp),pp] = _val(pp)
-    return mat
-
-# recover a matrix from a vector of cycle (displacement) matrix coefficients
-def disp_vec_to_mat(disp_vec, kk = 0):
-    ignore_0 = int( len(disp_vec) == spin_num-1 )
-    return sum( disp_vec[dd] * cycle_mat(dd+ignore_0, kk)
-                for dd in range(len(disp_vec)) )
-
-# convert a translationally invariant matrix into
-#   a vector of displacement matrix coefficients
-def mat_to_disp_vec(mat):
-    return np.array([ cycle_mat(dd).T.flatten() @ mat.flatten() / spin_num
-                      for dd in range(1,spin_num) ])
-
-# methods to convert between matrix and pair-vectors
-def mat_to_pair_vec(mat):
-    return np.array([ mat[pairs] for pairs in spin_pairs ])
-def pair_vec_to_mat(vec):
-    mat = np.zeros((spin_num,spin_num))
-    for idx, pairs in enumerate(spin_pairs):
-        mat[pairs] = vec[idx]
-        mat[pairs[::-1]] = vec[idx]
-    return mat
 
 ##########################################################################################
-# collect interaction data
+# build SU(n) interaction matrix,
+# decompose the interaction matrix into generators of interaction eigenstates
 ##########################################################################################
 
-_sunc_dist_vec = np.array([ -1/dist**alpha * np.sqrt(len(disps))
-                            for dist, disps in dist_to_disps.items() ])
-_sunc_disp_vec = dist_to_disp_vec(_sunc_dist_vec)
-_sunc_mat = disp_vec_to_mat(_sunc_disp_vec)
-_sunc_pair_vec = mat_to_pair_vec(_sunc_mat)
-_sunc_col_vec = sum(_sunc_mat)
-_sunc_tot = sum(_sunc_pair_vec)
-sunc = { "dist" : _sunc_dist_vec,
-         "disp" : _sunc_disp_vec,
-         "pair" : _sunc_pair_vec,
-         "mat" : _sunc_mat,
-         "col" : _sunc_col_vec,
-         "tot" : _sunc_tot }
+dist = dist_method(lattice_shape)
 
-##########################################################################################
-# decompose interaction matrix into generators of SU(n)-symmetric interaction eigenstates
-##########################################################################################
+sunc = {}
+sunc["mat"] = np.zeros((spin_num,spin_num))
+for pp, qq in np.ndindex(sunc["mat"].shape):
+    _dist = dist(pp,qq)
+    if _dist == 0: continue
+    sunc["mat"][pp,qq] = -1/_dist**alpha
 
-# solve the translationally invariant, isotropic two-body eigenvalue problem
-characteristic_matrix = np.zeros((shell_num,)*2)
-for aa, aa_disps in enumerate(dist_to_disps.values()):
-    characteristic_matrix[aa,aa] += sunc["mat"][0,aa_disps[0]]
+spin_shift = spin_shift_method(lattice_shape)
 
-    for bb, bb_disps in enumerate(dist_to_disps.values()):
-        if bb > aa: break
-        aa_bb_val = sum( sunc["mat"][aa_disp,bb_disp]
-                         for aa_disp in aa_disps
-                         for bb_disp in bb_disps )
-        aa_bb_val /= np.sqrt( len(aa_disps) * len(bb_disps) )
+excitation_mat, vector_to_tensor, tensor_to_vector \
+    = multibody_problem(sunc["mat"], 2, spin_shift)
+shell_num = excitation_mat.shape[0]
 
-        characteristic_matrix[aa,bb] += aa_bb_val
-        if bb != aa:
-            characteristic_matrix[bb,aa] += aa_bb_val
-
-eig_vals, _eig_dist_vecs = np.linalg.eigh(characteristic_matrix)
-eig_vals -= sunc["col"][0]
-eig_vals *= 2
-eig_vals[abs(eig_vals) < cutoff] = 0
-_eig_dist_vecs[abs(_eig_dist_vecs) < cutoff] = 0
-assert(eig_vals[0] == 0)
-
-_eig_disp_vecs = _dist_to_disp @ _eig_dist_vecs
-_eig_disp_vecs[abs(_eig_disp_vecs) < cutoff] = 0
-
-# collect all two-body problem data in one place
-eigs = { shell : { "val" : eig_vals[shell],
-                   "disp" : _eig_disp_vecs[:,shell] }
+eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
+eigs = { shell : { "val" : eig_vals[shell], "vec" : eig_vecs[:,shell] }
          for shell in range(shell_num) }
-
-# convert vector into projector
-def to_proj(vec):
-    return np.outer( vec.conj(), vec ) / ( vec.conj() @ vec )
 
 # decompose couplings in the basis of coefficients that generate eigenstates
 for shell in range(shell_num):
-    sunc_shell_disp = to_proj( eigs[shell]["disp"] ) @ sunc["disp"]
-    sunc[shell] = disp_vec_to_mat(sunc_shell_disp)
+    sunc_shell_magnitude = eigs[shell]["vec"] @ tensor_to_vector(sunc["mat"])
+    sunc[shell] = sunc_shell_magnitude * vector_to_tensor(eigs[shell]["vec"])
 
 ##########################################################################################
 # compute states and operators in the Z-projection/shell basis
@@ -246,7 +124,7 @@ def coherent_spin_state(vec):
 ##########################################################################################
 
 # note: extra factor of 1/2 in che_eff_bare for compatibility with Chunlei's work
-chi_eff_bare = 1/4 * np.mean(sunc["pair"])
+chi_eff_bare = 1/4 * sunc["mat"].sum() / np.math.comb(spin_num,2)
 state_X = coherent_spin_state([0,1,0])
 
 def _states(initial_state, zz_sun_ratio, times):
@@ -283,6 +161,7 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
         max_tt = len(times)
     else:
         max_tt = min(max_tt, len(times))
+
     times = times[:max_tt]
     sqz = sqz[:max_tt]
 
@@ -322,17 +201,11 @@ for coupling_zz in inspect_coupling_zz:
 
     plt.figure(figsize = figsize)
     plt.title(title_text)
-    ##################################################
-    # plt.plot(times, pops[:,0], "k")
-    # for ss in range(1,shell_num):
-        # plt.plot(times, pops[:,ss])
     plt.plot(times, pops[:,0])
     plt.plot([times[0], times[-1]], [0,0])
-    plt.plot(times, pops[:,1:].sum(axis = 1))
-    plt.plot([times[0], times[-1]], [0,0])
+    plt.plot(times, pops[:,1:].sum(axis = 1)) ########################################
     for ss in range(1,shell_num):
         plt.plot(times, pops[:,ss], "k--")
-    ##################################################
     plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel("population")
