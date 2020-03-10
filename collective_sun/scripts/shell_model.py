@@ -56,14 +56,10 @@ excitation_mat, vector_to_tensor, tensor_to_vector \
     = multibody_problem(sunc["mat"], 2, lattice_shape)
 shell_num = excitation_mat.shape[0]
 
-eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
-eigs = { shell : { "val" : eig_vals[shell], "vec" : eig_vecs[:,shell] }
-         for shell in range(shell_num) }
-
-# decompose couplings in the basis of coefficients that generate eigenstates
+# compute tensors that generate multi-body excitation eigenstates
+excitation_energies, excitation_vecs = np.linalg.eig(excitation_mat)
 for shell in range(shell_num):
-    sunc_shell_magnitude = eigs[shell]["vec"] @ tensor_to_vector(sunc["mat"])
-    sunc[shell] = sunc_shell_magnitude * vector_to_tensor(eigs[shell]["vec"])
+    sunc[shell] = vector_to_tensor(excitation_vecs[:,shell])
 
 ##########################################################################################
 # compute states and operators in the Z-projection/shell basis
@@ -97,8 +93,8 @@ def energies_states(zz_sun_ratio):
 
     for spins_up in range(spin_num+1):
         # construct the Hamiltonian at this Z projection, from SU(n) + ZZ couplings
-        _proj_hamiltonian \
-            = np.diag(eig_vals) + zz_sun_ratio * shell_coupling_mat[spins_up,:,spins_up,:]
+        _proj_hamiltonian = np.diag(excitation_energies) \
+                          + zz_sun_ratio * shell_coupling_mat[spins_up,:,spins_up,:]
 
         # diagonalize the net Hamiltonian at this Z projection
         energies[spins_up,:], eig_states[spins_up,:,:] \
