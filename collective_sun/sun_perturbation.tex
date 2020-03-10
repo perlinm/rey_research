@@ -993,27 +993,22 @@ assignment can be represented by the Venn diagram
   \label{eq:venn_diagram}
 \end{align}
 where $g_S$ is determined the number of dots at the intersection of
-circles $\set{w_j:j\in S}$.  We denote an assignment of distinct
-indices according to choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ by
-$g$, where $\PP\p{\ZZ_p}$ is the power set (i.e.~set of all subsets)
-of $\ZZ_p$.  Given a vector $\m M$ of the dimensions $M_j$, we then
-denote the set of all valid index assignments $g$ by $\G\p{\m M}$.
-For consistency, all valid index assignments $g\in\G\p{\m M}$ must
-assign exactly $M_j$ indices to the dimension-$M_j$ tensor $w_j$,
-i.e.~
+circles $\set{w_j:j\in S}$.  Denoting the set of all nonempty subsets
+of $\ZZ_p$ by $\PP^*\p{\ZZ_p}$, we denote an assignment of distinct
+indices according to choices of $g_S$ for all $S\in\PP^*\p{\ZZ_p}$ by
+$g$.  Given a vector $\m M$ of the dimensions $M_j$, we then denote
+the set of all valid index assignments $g$ by $\G\p{\m M}$.  For
+consistency, all valid index assignments $g\in\G\p{\m M}$ must assign
+exactly $M_j$ indices to the dimension-$M_j$ tensor $w_j$, i.e.~
 \begin{align}
-  \sum_{S\in\PP\p{\ZZ_p}\,:\,j\in S} g_S
-  = \sum_{R\in\PP\p{\ZZ_p\setminus\set{j}}} g_{\set{j}\cup R}
+  \sum_{S\in\PP^*\p{\ZZ_p}\,:\,j\in S} g_S
+  = \sum_{R\in\PP^*\p{\ZZ_p\setminus\set{j}}} g_{\set{j}\cup R}
   = M_j
 \end{align}
-for all $j\in\ZZ_p$.  In order to make the index assignments
-determined by choices of $g_S$ for all $S\in\PP\p{\ZZ_p}$ unique, we
-also enforce that $g_{\set{}}=0$ for all $g\in\G\p{\m M}$, which is
-equivalent to saying that every dot in the corresponding Venn diagram
-must lie within some circle.  The set of valid index assignments
-$\G\p{\m M}$ is then essentially the set of all Venn diagrams of the
-form in \eqref{eq:venn_diagram} with $p=\dim\p{\m M}$ circles and a
-total of $M_j$ dots within circle $w_j$.
+for all $j\in\ZZ_p$.  The set of valid index assignments $\G\p{\m M}$
+is then essentially the set of all Venn diagrams of the form in
+\eqref{eq:venn_diagram} with $p=\dim\p{\m M}$ circles and a total of
+$M_j$ dots within circle $w_j$.
 
 A classification of terms in \eqref{eq:sym_prod_vec} by index
 assignments $g\in\G\p{\m M}$ allows us to expand
@@ -1035,12 +1030,12 @@ explicitly, we identify the set of values that the distinct indices
 assigned according to $g$ can take:
 \begin{align}
   \C_N\p{g}
-  \equiv \set{ k \in \bigotimes_{S\in\PP\p{\ZZ_p}} \C_N\p{g_S}
+  \equiv \set{ k \in \bigotimes_{S\in\PP^*\p{\ZZ_p}} \C_N\p{g_S}
     : \t{all elements of $k$ are distinct} },
   \label{eq:index_values}
 \end{align}
 where each $k\in\C_N\p{g}$ has the natural decomposition
-$k=\p{k_S:S\in\PP\p{\ZZ_p}}$ with $k_S\in\C_N\p{g_S}$.  In words,
+$k=\p{k_S:S\in\PP^*\p{\ZZ_p}}$ with $k_S\in\C_N\p{g_S}$.  In words,
 $\C_N\p{g}$ consists of all the ways to choose, for each subset $S$ of
 the tensors $\set{w_j}$, a set $k_S$ of $g_S$ distinct spins, with the
 restriction that all $k_S$ are orthogonal: if $z\in k_S$, then
@@ -1048,8 +1043,8 @@ $z\notin k_R$ for $R\ne S$.  Having defined the set $\C_N\p{g}$ of
 index values, we define the restriction of $k\in\C_N\p{g}$ to values
 associated with $w_j$ and $O_j$:
 \begin{align}
-  k_j \equiv \bigcup_{S\in\PP\p{\ZZ_p} : j\in S} k_S
-  = \bigcup_{R\in\PP\p{\ZZ_p\setminus\set{j}}} k_{\set{j}\cup R},
+  k_j \equiv \bigcup_{S\in\PP^*\p{\ZZ_p} : j\in S} k_S
+  = \bigcup_{R\in\PP^*\p{\ZZ_p\setminus\set{j}}} k_{\set{j}\cup R},
 \end{align}
 where the union of lists $k_S$ denotes a concatenation of those lists.
 These definitions allow us to expand
@@ -1064,7 +1059,7 @@ where the choice of $\ell\in\C_N\p{g}$ does not matter after
 projection onto permutationally symmetric manifold, and
 \begin{align}
   \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} \C\p{ g_S : j\in S }}
-  \sp{\prod_{S\in\PP\p{\ZZ_p}} \p{g_S!}^\abs{S}}
+  \sp{\prod_{S\in\PP^*\p{\ZZ_p}} \p{g_S!}^\abs{S}}
   = \prod_{j\in\ZZ_p} M_j!,
   \label{eq:sym_prod_symmetry}
 \end{align}
@@ -1099,9 +1094,8 @@ such a way as to reduce the computational cost of their numerical
 evaluation.
 
 The simplest diagrams have $g_S$ filled dots (``$\bullet$'') at the
-intersection of the circles $j\in S\in\PP\p{\ZZ_p}$, and are simply
-equal to the associated scalar $w\p{g}$ defined in
-\eqref{eq:diagram_factors}, e.g.
+intersection of the circles $j\in S$, and are simply equal to the
+associated scalar $w\p{g}$ defined in \eqref{eq:diagram_factors}, e.g.
 \begin{align}
   \diagram{example_123}
   \equiv \sum_{\substack{a,b,c,\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
