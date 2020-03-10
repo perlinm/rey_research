@@ -215,12 +215,11 @@ for coupling_zz in inspect_coupling_zz:
 if len(sweep_coupling_zz) == 0: exit()
 print("running sweep simulations")
 
-sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
 sweep_results = [ simulate(coupling_zz) for coupling_zz in sweep_coupling_zz ]
 sweep_times, sweep_sqz, sweep_pops = zip(*sweep_results)
 
 sweep_min_sqz = [ min(sqz) for sqz in sweep_sqz ]
-min_sqz_idx = [ np.argmin(sqz) for sqz in sweep_sqz ]
+min_sqz_idx = [ max(1,np.argmin(sqz)) for sqz in sweep_sqz ]
 
 title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}$"
 
