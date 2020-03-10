@@ -227,7 +227,7 @@ def contract_ops(base_ops, diagram):
 # note: assumes translational invariance by default
 def contract_tensors(tensors, diagram, TI = True):
     # cast all tensors into the appropriate data type
-    dtype = type(np.product([ tensor.flatten()[0] for tensor in tensors ]))
+    dtype = type(np.product([ tensor[(0,)*tensor.ndim] for tensor in tensors ]))
     tensors = [ tensor.astype(dtype) for tensor in tensors ]
 
     # assign contraction indices to each tensor
