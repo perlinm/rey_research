@@ -448,8 +448,8 @@ def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True)
     else:
         def _spins_up_rht_range(spins_up_lft): return range(spins_up_lft, spin_num+1)
 
-    dtype = type( np.product([ operator.flatten()[0] for operator in operators ] +
-                             [ coupling.flatten()[0] for coupling in couplings ]) )
+    dtype = type( np.product([ operator[(0,)*operator.ndim] for operator in operators ] +
+                             [ coupling[(0,)*coupling.ndim] for coupling in couplings ]) )
     opers = {}
     for inner_shell_num in diag_ops.keys():
         shape = ( len(diag_ops[inner_shell_num]), spin_num+1, spin_num+1 )
