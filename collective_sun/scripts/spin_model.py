@@ -27,6 +27,8 @@ inspect_coupling_zz = [ -1 ]
 
 max_time = 10 # in units of J_\perp
 
+fixed_sim_time = None # fix simulation time?
+
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
 data_dir = "../data/projectors/"
@@ -197,11 +199,14 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
         return -1j * ( H @ state )
 
     # determine how long to simulate
-    if zz_sun_ratio != 0:
-        chi_eff = abs(zz_sun_ratio * chi_eff_bare)
-        sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
+    if fixed_sim_time is not None:
+        sim_time = fixed_sim_time
     else:
-        sim_time = max_time
+        if zz_sun_ratio != 0:
+            chi_eff = abs(zz_sun_ratio * chi_eff_bare)
+            sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
+        else:
+            sim_time = max_time
 
     # simulate!
     ivp_solution = solve_ivp(_time_derivative, (0, sim_time), state_X,
@@ -213,11 +218,14 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
                      for state in states.T ])
 
     # don't look too far beyond the maximum squeezing time
-    max_tt = int( np.argmin(sqz) * overshoot_ratio )
-    if max_tt == 0:
+    if fixed_sim_time is not None:
         max_tt = len(times)
     else:
-        max_tt = min(max_tt, len(times))
+        max_tt = int( np.argmin(sqz) * overshoot_ratio )
+        if max_tt == 0:
+            max_tt = len(times)
+        else:
+            max_tt = min(max_tt, len(times))
 
     times = times[:max_tt]
     sqz = sqz[:max_tt]
@@ -282,6 +290,7 @@ for coupling_zz in inspect_coupling_zz:
     plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
 
 ##########################################################################################
+if fixed_sim_time is not None or len(sweep_coupling_zz) == 0: exit()
 print("running sweep simulations")
 
 sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
