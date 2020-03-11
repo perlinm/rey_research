@@ -18,20 +18,15 @@ while total_dim > max_dim:
     spin_dim = np.random.randint(2,5) # dimension of each spin
     lattice_shape = ( np.random.randint(1,max_spins),
                       np.random.randint(1,max_spins) )
-    ############################################################
-    lattice_shape = (4,) ############################################################
-    ############################################################
     spin_num = np.product(lattice_shape)
     if spin_num > max_spins or spin_num < min_spins: continue
     total_dim = spin_dim**spin_num
 
 op_num = np.random.randint(2,5) # total number of multi-body operators
 
-# the dimension of each multi-body operator: an operator with dimension M is an M-local operator
+# the dimension of each multi-body operator
+# an operator with dimension M is an M-local operator
 dimensions = [ np.random.randint(1,spin_num) for _ in range(op_num) ]
-############################################################
-dimensions = [ 1, 2, 3 ] ############################################################
-############################################################
 
 print("dimension of each spin:", spin_dim)
 print("lattice shape:", lattice_shape)
