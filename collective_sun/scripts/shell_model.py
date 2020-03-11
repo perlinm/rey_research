@@ -24,7 +24,8 @@ inspect_coupling_zz = [ -1 ]
 
 max_time = 10 # in units of J_\perp
 
-fixed_sim_time = None # fix simulation time?
+fixed_sim_time = 2 # fix simulation time?
+plot_all_shells = False # plot the population for each shell?
 
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
@@ -238,8 +239,9 @@ for coupling_zz in inspect_coupling_zz:
     plt.figure(figsize = figsize)
     plt.title(title_text)
     for manifold, shells in manifold_shells.items():
-        for shell in shells:
-            plt.plot(times, pops[:,shell], color = "gray", linestyle = "--")
+        if plot_all_shells:
+            for shell in shells:
+                plt.plot(times, pops[:,shell], color = "gray", linestyle = "--")
         plt.plot(times, pops[:,shells].sum(axis = 1), label = pop_label(manifold))
     plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
     plt.xlabel(r"time ($J_\perp t$)")
