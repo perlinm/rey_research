@@ -61,10 +61,11 @@ shell_num = 0
 manifold_shells = {}
 excitation_energies = {}
 for dimension in [ 0, 2, 4 ]:
-    print("dimension:",dimension)
+    print(f"dimension, size: {dimension}, ", end = "")
     old_shell_num = shell_num
     excitation_mat, vector_to_tensor, tensor_to_vector \
         = multibody_problem(lattice_shape, sunc["mat"], dimension)
+    print(excitation_mat.shape[0])
 
     eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
     for idx in np.argsort(eig_vals):
@@ -85,9 +86,9 @@ for dimension in [ 0, 2, 4 ]:
         excitation_energies[shell_num] = eig_vals[idx]
         sunc[shell_num] = tensor
         shell_num += 1
-        print("  shells:",shell_num)
+        print("  shells:", shell_num)
 
-    manifold_shells[dimension] = np.array(range(old_shell_num,shell_num))
+    manifold_shells[dimension] = np.array(range(old_shell_num,shell_num), dtype = int)
 
 excitation_energies = np.array(list(excitation_energies.values()))
 
