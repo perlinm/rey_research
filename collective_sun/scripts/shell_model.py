@@ -32,7 +32,8 @@ fig_dir = "../figures/shells/"
 figsize = (5,4)
 params = { "font.size" : 16,
            "text.usetex" : True,
-           "text.latex.preamble" : [ r"\usepackage{amsmath}" ]}
+           "text.latex.preamble" : [ r"\usepackage{amsmath}",
+                                     r"\usepackage{braket}" ]}
 plt.rcParams.update(params)
 
 lattice_dim = len(lattice_shape)
@@ -184,6 +185,13 @@ def name_tag(coupling_zz = None):
     if coupling_zz == None: return base_tag
     else: return base_tag + f"_z{coupling_zz}"
 
+def pop_label(manifold, prefix = None):
+    label = r"$\braket{\mathcal{P}_{" + str(manifold) + r"}}$"
+    if prefix == None:
+        return label
+    else:
+        return prefix + " " + label
+
 def to_dB(sqz):
     return 10*np.log10(np.array(sqz))
 
@@ -213,10 +221,11 @@ for coupling_zz in inspect_coupling_zz:
     for manifold, shells in manifold_shells.items():
         for shell in shells:
             plt.plot(times, pops[:,shell], color = "gray", linestyle = "--")
-        plt.plot(times, pops[:,shells].sum(axis = 1))
+        plt.plot(times, pops[:,shells].sum(axis = 1), label = pop_label(manifold))
     plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel("population")
+    plt.legend(loc = "best")
     plt.tight_layout()
 
     plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
@@ -242,17 +251,23 @@ plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
 plt.tight_layout()
 plt.savefig(fig_dir + f"squeezing_N{spin_num}_D{lattice_dim}_a{alpha}.pdf")
 
-sweep_pops = [ np.vstack([ pops[:min_idx,0], pops[:min_idx,1:].sum(axis = 1) ])
+sweep_pops = [ np.vstack([ pops[:,shells].sum(axis = 1)
+                           for shells in manifold_shells.values() ])
                for pops, min_idx in zip(sweep_pops, min_sqz_idx) ]
 sweep_min_pops = np.array([ pops.min(axis = 1) for pops in sweep_pops ])
 sweep_max_pops = np.array([ pops.max(axis = 1) for pops in sweep_pops ])
 
 plt.figure(figsize = figsize)
 plt.title(title_text)
-plt.plot(sweep_coupling_zz, sweep_min_pops[:,0], "o")
-plt.plot(sweep_coupling_zz, sweep_max_pops[:,1], "o")
+plt.plot(sweep_coupling_zz, sweep_min_pops[:,0], "o",
+         label = pop_label(0,"min"))
+for idx, manifold in enumerate(manifold_shells.keys()):
+    if manifold == 0: continue
+    plt.plot(sweep_coupling_zz, sweep_max_pops[:,idx], "o",
+             label = pop_label(manifold,"max"))
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel("population")
+plt.legend(loc = "best")
 plt.tight_layout()
 plt.savefig(fig_dir + f"populations_N{spin_num}_D{lattice_dim}_a{alpha}.pdf")
 
