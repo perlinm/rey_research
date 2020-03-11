@@ -66,6 +66,9 @@ for shell, idx in enumerate(np.argsort(eig_vals)[1:], 1):
 
 excitation_energies = np.array(list(excitation_energies.values()))
 
+manifold_shells = { 0 : np.array([0]),
+                    2 : np.array(range(1,shell_num)) }
+
 ##########################################################################################
 # compute states and operators in the Z-projection/shell basis
 ##########################################################################################
@@ -200,11 +203,14 @@ for coupling_zz in inspect_coupling_zz:
 
     plt.figure(figsize = figsize)
     plt.title(title_text)
-    plt.plot(times, pops[:,0])
-    plt.plot([times[0], times[-1]], [0,0])
-    plt.plot(times, pops[:,1:].sum(axis = 1)) ########################################
-    for ss in range(1,shell_num):
-        plt.plot(times, pops[:,ss], "k--")
+    for manifold in range(max(manifold_shells.keys())+1):
+        shells = manifold_shells.get(manifold)
+        if shells is not None:
+            for shell in shells:
+                plt.plot(times, pops[:,shell], "k--")
+            plt.plot(times, pops[:,shells].sum(axis = 1))
+        else:
+            plt.plot([times[0], times[-1]], [0,0])
     plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel("population")
