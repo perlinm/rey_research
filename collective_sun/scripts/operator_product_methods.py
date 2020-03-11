@@ -221,11 +221,13 @@ def contract_ops(base_ops, diagram):
     base_ops = [ op.astype(dtype) for op in base_ops ]
 
     contraction = start_indices + "->" + final_indices
-    return tf.einsum(contraction, *base_ops).numpy()
+    return np.array( tf.einsum(contraction, *base_ops).numpy() )
 
 # contract tensors according to a set/index diagram
 # note: assumes translational invariance by default
 def contract_tensors(tensors, diagram, TI = True):
+    if len(diagram) == 0: return 1
+
     # cast all tensors into the appropriate data type
     dtype = type(np.product([ tensor[(0,)*tensor.ndim] for tensor in tensors ]))
     tensors = [ tensor.astype(dtype) for tensor in tensors ]
@@ -255,8 +257,11 @@ def contract_tensors(tensors, diagram, TI = True):
     group_tensors = []
     group_contractions = []
     for tensor_group in nx.connected_components(index_graph):
-        group_tensors += [ [ tensors[idx] for idx in tensor_group ] ]
-        group_contractions += [ [ full_contraction[idx] for idx in tensor_group ] ]
+        _tensors = [ tensors[idx] for idx in tensor_group ]
+        if len(_tensors) == 1 and _tensors[0].ndim == 0: continue
+        _contractions = [ full_contraction[idx] for idx in tensor_group ]
+        group_tensors += [ _tensors ]
+        group_contractions += [ _contractions ]
 
     def _contract(tensors, contraction, eliminate_index = TI):
         if not eliminate_index:
@@ -306,6 +311,8 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None, diagonal = None
 
     assert(len(pops_lft) == len(pops_rht))
     assert(sum(pops_lft) == sum(pops_rht))
+    if local_op.ndim == 0: return pops_lft == pops_rht
+
     spin_dim = local_op.shape[0]
     op_spins = local_op.ndim//2
 
@@ -365,10 +372,10 @@ def diagram_operators(operators):
                   for diagram in set_diagrams(dimensions) ])
 
 # project the product of multi-body operators onto the permutationally symmetric manifold
-# couplings: list of tensors (one for each multi-body operator)
+# tensors: list of tensors (one for each multi-body operator)
 # diagrams:  list of (reduced!) diagrams that define tensor contractions
 # diagram_ops: matrix mapping diagram indices to operators on the many-body hilbert space
-def evaluate_operator_product(couplings, diagrams, diagram_ops, TI = True):
+def evaluate_operator_product(tensors, diagrams, diagram_ops, TI = True):
     assert(len(diagrams) == diagram_ops.shape[0])
 
     # evaluate all distinct diagrams
@@ -377,7 +384,7 @@ def evaluate_operator_product(couplings, diagrams, diagram_ops, TI = True):
         for diag in diagram.diags:
             _hash = _hash_dict(diag)
             if _hash not in diagram_vals:
-                diagram_vals[_hash] = contract_tensors(couplings, diag, TI)
+                diagram_vals[_hash] = contract_tensors(tensors, diag, TI)
     def _evaluate(diag):
         return diagram_vals[_hash_dict(diag)]
 
@@ -387,44 +394,57 @@ def evaluate_operator_product(couplings, diagrams, diagram_ops, TI = True):
 
     return np.tensordot(coefficients, diagram_ops, axes = 1)
 
+# Z-type multi-local operator
+def multi_Z_op(tensor_power):
+    empty_op = np.ones(())
+    Z = np.array([[1,0],[0,-1]])
+    mat = functools.reduce(np.kron, [ Z ]*tensor_power + [ empty_op ])
+    return mat.reshape((2,)*2*tensor_power)
+
 # compute norms of generated states in the Z-projection / shell basis
 def compute_norms(sunc):
-    # determine number of spins and shells
+    # determine number of spins, shells, and dimensions of excitation tensors
     spin_num = sunc["mat"].shape[0]
     shell_num = max( shell for shell in sunc.keys() if type(shell) is int ) + 1
+    shell_dims = set( sunc[shell].ndim for shell in range(shell_num) )
 
-    # built 2-local ZZ operator
-    Z1_op = np.array([[1,0],[0,-1]])
-    Z2_op = np.kron(Z1_op,Z1_op).reshape((2,)*4)
-
-    # get diagrams and operators (for each diagram) necessary
+    # get the diagrams and operators (for each diagram) necessary
     #   to evaluate the relevant products of ZZ operators
-    norm_diags, diag_ops = diagram_operators([Z2_op,Z2_op])
-    norm_opers = np.zeros((len(norm_diags), spin_num+1))
-    for spins_up in range(spin_num+1):
-        spins_dn = spin_num - spins_up
-        populations = ( spins_up, spins_dn )
-        norm_opers[:,spins_up] \
-            = [ evaluate_multi_local_op(local_op, populations, diagonal = True)
-                for local_op in diag_ops ]
+    norm_diags, norm_opers = {}, {}
+    for shell_dim in shell_dims:
+        excitation_op = multi_Z_op(shell_dim)
+        norm_diags[shell_dim], diag_ops = diagram_operators([excitation_op]*2)
+
+        norm_opers[shell_dim] = np.zeros((len(norm_diags[shell_dim]), spin_num+1))
+        for spins_up in range(spin_num+1):
+            spins_dn = spin_num - spins_up
+            populations = ( spins_up, spins_dn )
+            norm_opers[shell_dim][:,spins_up] \
+                = [ evaluate_multi_local_op(local_op, populations, diagonal = True)
+                    for local_op in diag_ops ]
 
     # compute norms, setting the norms of non-existant states to 1
     norms = np.ones((spin_num+1, shell_num))
-    for shell in range(1,shell_num):
-        shell_couplings = [ sunc[shell], sunc[shell] ]
-        _norms_sqr = evaluate_operator_product(shell_couplings, norm_diags, norm_opers)
+    for shell in range(shell_num):
+        shell_tensor = sunc[shell]
+        shell_dim = shell_tensor.ndim
+        _tensors = [ shell_tensor, shell_tensor ]
+        _norm_diags = norm_diags[shell_dim]
+        _norm_opers = norm_opers[shell_dim]
+        _norms_sqr = evaluate_operator_product(_tensors, _norm_diags, _norm_opers)
 
-        # the two top/bottom-most projections do not have any shells,
+        # the `shell_dim` top/bottom-most projections do not have any shells,
         #   so ignore the corresponding norms
-        norms[2:-2,shell] = np.sqrt(_norms_sqr[2:-2])
+        norms[shell_dim:-shell_dim,shell] = np.sqrt(_norms_sqr[shell_dim:-shell_dim])
 
     return norms
 
 # construct a product of operators in the shell basis
-def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True):
-    # determine number of spins and shells
+def build_shell_operator(tensors, operators, sunc, sunc_norms = {}, TI = True):
+    # determine number of spins, shells, and dimensions of excitation tensors
     spin_num = sunc["mat"].shape[0]
     shell_num = max( shell for shell in sunc.keys() if type(shell) is int ) + 1
+    shell_dims = set( sunc[shell].ndim for shell in range(shell_num) )
 
     # compute norms of generated states in the Z-projection / shell basis
     sunc_hash = sunc["mat"].tobytes()
@@ -433,27 +453,34 @@ def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True)
         norms = compute_norms(sunc)
         sunc_norms[sunc_hash] = norms
 
-    Z1_op = np.array([[1,0],[0,-1]])
-    Z2_op = np.kron(Z1_op,Z1_op).reshape((2,)*4)
+    # build operators that generate excited states
+    excitation_op = { shell_dim : multi_Z_op(shell_dim)
+                      for shell_dim in shell_dims }
 
-    coupling_targets = [ tensor.ndim for tensor in couplings ]
-    diags = {}
-    diag_ops = {}
-    diags[0], diag_ops[0] = diagram_operators(operators)
-    diags[1], diag_ops[1] = diagram_operators(operators + [Z2_op])
-    diags[2], diag_ops[2] = diagram_operators([Z2_op] + operators + [Z2_op])
-
+    # given a number of spins "up" in the state to the left of an operator,
+    #   determine the range for spins "up" in the state to the right of an operator
     if all( _is_diagonal(op) for op in operators ):
         def _spins_up_rht_range(spins_up_lft): return [ spins_up_lft ]
     else:
         def _spins_up_rht_range(spins_up_lft): return range(spins_up_lft, spin_num+1)
 
+    # determine the data type to use for operators
     dtype = type( np.product([ operator[(0,)*operator.ndim] for operator in operators ] +
-                             [ coupling[(0,)*coupling.ndim] for coupling in couplings ]) )
-    opers = {}
-    for inner_shell_num in diag_ops.keys():
-        shape = ( len(diag_ops[inner_shell_num]), spin_num+1, spin_num+1 )
-        opers[inner_shell_num] = np.zeros(shape, dtype = dtype)
+                             [ tensor[(0,)*tensor.ndim] for tensor in tensors ]) )
+
+    # get the diagrams and operators (for each diagram) necessary
+    #   to evaluate the relevant products of ZZ operators
+    diags, opers = {}, {}
+    for dim_min, dim_max in it.product(shell_dims, shell_dims):
+        if dim_min > dim_max: continue
+        dim_pair = dim_min, dim_max
+        op_lft = excitation_op[dim_min]
+        op_rht = excitation_op[dim_max]
+        diags[dim_pair], diag_ops \
+            = diagram_operators([ op_lft ] + operators + [ op_rht ])
+
+        shape = ( len(diag_ops), spin_num+1, spin_num+1 )
+        opers[dim_pair] = np.zeros(shape, dtype = dtype)
 
         for spins_up_lft in range(spin_num+1):
             spins_dn_lft = spin_num - spins_up_lft
@@ -462,29 +489,28 @@ def build_shell_operator(couplings, operators, sunc, sunc_norms = {}, TI = True)
                 spins_dn_rht = spin_num - spins_up_rht
                 pops_rht = ( spins_up_rht, spins_dn_rht )
 
-                opers[inner_shell_num][:,spins_up_lft,spins_up_rht] \
+                opers[dim_pair][:,spins_up_lft,spins_up_rht] \
                     = [ evaluate_multi_local_op(local_op, pops_lft, pops_rht)
-                        for local_op in diag_ops[inner_shell_num] ]
+                        for local_op in diag_ops ]
 
                 if spins_up_rht != spins_up_lft:
-                    opers[inner_shell_num][:,spins_up_rht,spins_up_lft] \
-                        = np.conj(opers[inner_shell_num][:,spins_up_lft,spins_up_rht])
+                    opers[dim_pair][:,spins_up_rht,spins_up_lft] \
+                        = np.conj(opers[dim_pair][:,spins_up_lft,spins_up_rht])
 
     # start building the full operator in the Z-projection / shell basis
     shape = ( spin_num+1, shell_num, spin_num+1, shell_num )
     shell_operator = np.zeros(shape, dtype = dtype)
-
     for shell_lft in range(shell_num):
         for shell_rht in range(shell_lft,shell_num):
-            inner_shell_num = ( shell_lft != 0 ) + ( shell_rht != 0 )
-            if inner_shell_num == 0:
-                coups = couplings
-            elif inner_shell_num == 1:
-                coups = couplings + [ sunc[max(shell_lft,shell_rht)] ]
-            elif inner_shell_num == 2:
-                coups = [ sunc[shell_lft] ] + couplings + [ sunc[shell_rht] ]
+            dim_lft = sunc[shell_lft].ndim
+            dim_rht = sunc[shell_rht].ndim
+            dim_pair = tuple(sorted([dim_lft,dim_rht]))
+            if dim_pair != (dim_lft,dim_rht):
+                shell_lft, shell_rht = shell_rht, shell_lft
 
-            product_args = ( coups, diags[inner_shell_num], opers[inner_shell_num] )
+            _tensors = [ sunc[shell_lft] ] + tensors + [ sunc[shell_rht] ]
+
+            product_args = ( _tensors, diags[dim_pair], opers[dim_pair] )
             product = evaluate_operator_product(*product_args, TI)
             shell_norms = np.outer(norms[:,shell_lft], norms[:,shell_rht])
 

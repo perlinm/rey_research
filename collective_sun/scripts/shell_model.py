@@ -39,8 +39,7 @@ lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
 
 ##########################################################################################
-# build SU(n) interaction matrix,
-# decompose the interaction matrix into generators of interaction eigenstates
+# build SU(n) interaction matrix, and build generators of interaction eigenstates
 ##########################################################################################
 
 dist = dist_method(lattice_shape)
@@ -52,14 +51,20 @@ for pp, qq in np.ndindex(sunc["mat"].shape):
     if _dist == 0: continue
     sunc["mat"][pp,qq] = -1/_dist**alpha
 
+sunc[0] = np.ones(())
+excitation_energies = { 0 : 0 }
+
 excitation_mat, vector_to_tensor, tensor_to_vector \
     = multibody_problem(sunc["mat"], 2, lattice_shape)
 shell_num = excitation_mat.shape[0]
 
 # compute tensors that generate multi-body excitation eigenstates
-excitation_energies, excitation_vecs = np.linalg.eig(excitation_mat)
-for shell in range(shell_num):
-    sunc[shell] = vector_to_tensor(excitation_vecs[:,shell])
+eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
+for shell, idx in enumerate(np.argsort(eig_vals)[1:], 1):
+    excitation_energies[shell] = eig_vals[idx]
+    sunc[shell] = vector_to_tensor(eig_vecs[:,idx])
+
+excitation_energies = np.array(list(excitation_energies.values()))
 
 ##########################################################################################
 # compute states and operators in the Z-projection/shell basis
