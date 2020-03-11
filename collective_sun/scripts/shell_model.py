@@ -55,7 +55,7 @@ sunc[0] = np.ones(())
 excitation_energies = { 0 : 0 }
 
 excitation_mat, vector_to_tensor, tensor_to_vector \
-    = multibody_problem(sunc["mat"], 2, lattice_shape)
+    = multibody_problem(lattice_shape, sunc["mat"], 2)
 shell_num = excitation_mat.shape[0]
 
 # compute tensors that generate multi-body excitation eigenstates

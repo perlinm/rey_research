@@ -91,11 +91,7 @@ def random_tensor(dimension, lattice_shape, TI, seed = None):
 # setting up the multibody eigenvalue problem
 ##########################################################################################
 
-def multibody_problem(sun_coefs, index_parts, lattice_shape, TI = True):
-    if type(index_parts) is int:
-        index_parts = (index_parts,)
-    index_num = sum( part for part in index_parts )
-
+def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True):
     # collect basic system info
     spin_num = sun_coefs.shape[0]
     sun_coef_vec = sum(sun_coefs)
@@ -106,7 +102,7 @@ def multibody_problem(sun_coefs, index_parts, lattice_shape, TI = True):
     if not TI:
         choices = { choice : idx
                     for idx, choice
-                    in enumerate(it.combinations(range(spin_num), index_num)) }
+                    in enumerate(it.combinations(range(spin_num), dimension)) }
         choice_num = len(choices)
 
         def choice_idx(choice):
@@ -117,7 +113,7 @@ def multibody_problem(sun_coefs, index_parts, lattice_shape, TI = True):
     else:
         choices = {}
         choice_num = 0
-        for choice in it.combinations(range(1,spin_num), index_num-1):
+        for choice in it.combinations(range(1,spin_num), dimension-1):
             choice = (0,) + choice
             add_to_choices = True
             for shift in range(spin_num):
@@ -153,7 +149,7 @@ def multibody_problem(sun_coefs, index_parts, lattice_shape, TI = True):
     excitation_mat = np.zeros((choice_num, choice_num))
     for choice, idx in choices.items():
         excitation_mat[idx,idx] += _diag_val(choice)
-        for pp, aa in it.product(range(spin_num), range(index_num)):
+        for pp, aa in it.product(range(spin_num), range(dimension)):
             choice_aa = choice[aa]
             choice_aa_pp = list(choice); choice_aa_pp[aa] = pp
             choice_aa_pp_idx = choice_idx(choice_aa_pp)
