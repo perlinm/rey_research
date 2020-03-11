@@ -92,6 +92,12 @@ def random_tensor(dimension, lattice_shape, TI, seed = None):
 ##########################################################################################
 
 def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True):
+    if dimension == 0:
+        excitation_mat = np.zeros((1,1))
+        def vector_to_tensor(vector): return vector[0] * np.ones(())
+        def tensor_to_vector(tensor): return tensor * np.ones(1)
+        return excitation_mat, vector_to_tensor, tensor_to_vector
+
     # collect basic system info
     spin_num = sun_coefs.shape[0]
     sun_coef_vec = sum(sun_coefs)

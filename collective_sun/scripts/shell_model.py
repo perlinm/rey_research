@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from squeezing_methods import spin_squeezing
 from dicke_methods import coherent_spin_state as coherent_state_PS
 from multibody_methods import dist_method, multibody_problem
-from operator_product_methods import build_shell_operator
+from operator_product_methods import compute_overlap, build_shell_operator
 
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
@@ -53,26 +53,36 @@ for pp, qq in np.ndindex(sunc["mat"].shape):
     if _dist == 0: continue
     sunc["mat"][pp,qq] = -1/_dist**alpha
 
-shell_num = 1
-sunc[0] = np.ones(())
-excitation_energies = { 0 : 0 }
-manifold_shells = { 0 : np.array([0]) }
-
 # compute tensors that generate multi-body excitation eigenstates
-for dimension in [ 2, 4 ]:
+shell_num = 0
+manifold_shells = {}
+excitation_energies = {}
+for dimension in [ 0, 2, 4 ]:
+    print("dimension:",dimension)
     old_shell_num = shell_num
     excitation_mat, vector_to_tensor, tensor_to_vector \
         = multibody_problem(lattice_shape, sunc["mat"], dimension)
 
     eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
-    for idx in np.argsort(eig_vals)[1:]:
-        energy = eig_vals[idx]
-        # TODO: this is hackish. what if there are degeneracies? fix it.
-        if any( np.allclose(energy,excitation_energy)
-                for excitation_energy in excitation_energies.values() ): continue
+    for idx in np.argsort(eig_vals):
+        eig_val = eig_vals[idx]
+        tensor = vector_to_tensor(eig_vecs[:,idx])
+
+        # exclude this tensor if it is redundant with (i.e. generates the same state as)
+        #   a tensor that we have already stored
+        add_shell = True
+        for shell in range(old_shell_num):
+            if np.allclose(eig_val, excitation_energies[shell]):
+                overlap = compute_overlap(sunc[shell], tensor)
+                if not np.allclose(overlap, np.zeros(overlap.shape)):
+                    add_shell = False
+                    break
+        if not add_shell: continue
+
         excitation_energies[shell_num] = eig_vals[idx]
-        sunc[shell_num] = vector_to_tensor(eig_vecs[:,idx])
+        sunc[shell_num] = tensor
         shell_num += 1
+        print("  shells:",shell_num)
 
     manifold_shells[dimension] = np.array(range(old_shell_num,shell_num))
 
