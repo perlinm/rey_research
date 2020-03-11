@@ -120,7 +120,7 @@ shell_coupling_mat = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]], sunc
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):
     energies = np.zeros( ( spin_num+1, shell_num ) )
-    eig_states = np.zeros( ( spin_num+1, shell_num, shell_num ) )
+    eig_states = np.zeros( ( spin_num+1, shell_num, shell_num ), dtype = complex )
 
     for spins_up in range(spin_num+1):
         # construct the Hamiltonian at this Z projection, from SU(n) + ZZ couplings
@@ -256,6 +256,7 @@ for coupling_zz in inspect_coupling_zz:
 if fixed_sim_time is not None or len(sweep_coupling_zz) == 0: exit()
 print("running sweep simulations")
 
+sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
 sweep_results = [ simulate(coupling_zz) for coupling_zz in sweep_coupling_zz ]
 sweep_times, sweep_sqz, sweep_pops = zip(*sweep_results)
 
