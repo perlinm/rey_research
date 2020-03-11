@@ -67,6 +67,7 @@ for dimension in [ 2, 4 ]:
     eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
     for idx in np.argsort(eig_vals)[1:]:
         energy = eig_vals[idx]
+        # TODO: this is hackish. what if there are degeneracies? fix it.
         if any( np.allclose(energy,excitation_energy)
                 for excitation_energy in excitation_energies.values() ): continue
         excitation_energies[shell_num] = eig_vals[idx]
