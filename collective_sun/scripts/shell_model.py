@@ -41,6 +41,7 @@ spin_num = np.product(lattice_shape)
 ##########################################################################################
 # build SU(n) interaction matrix, and build generators of interaction eigenstates
 ##########################################################################################
+print("builing generators of interaction eigenstates")
 
 dist = dist_method(lattice_shape)
 
@@ -51,23 +52,29 @@ for pp, qq in np.ndindex(sunc["mat"].shape):
     if _dist == 0: continue
     sunc["mat"][pp,qq] = -1/_dist**alpha
 
+shell_num = 1
 sunc[0] = np.ones(())
 excitation_energies = { 0 : 0 }
-
-excitation_mat, vector_to_tensor, tensor_to_vector \
-    = multibody_problem(lattice_shape, sunc["mat"], 2)
-shell_num = excitation_mat.shape[0]
+manifold_shells = { 0 : np.array([0]) }
 
 # compute tensors that generate multi-body excitation eigenstates
-eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
-for shell, idx in enumerate(np.argsort(eig_vals)[1:], 1):
-    excitation_energies[shell] = eig_vals[idx]
-    sunc[shell] = vector_to_tensor(eig_vecs[:,idx])
+for dimension in [ 2, 4 ]:
+    old_shell_num = shell_num
+    excitation_mat, vector_to_tensor, tensor_to_vector \
+        = multibody_problem(lattice_shape, sunc["mat"], dimension)
+
+    eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
+    for idx in np.argsort(eig_vals)[1:]:
+        energy = eig_vals[idx]
+        if any( np.allclose(energy,excitation_energy)
+                for excitation_energy in excitation_energies.values() ): continue
+        excitation_energies[shell_num] = eig_vals[idx]
+        sunc[shell_num] = vector_to_tensor(eig_vecs[:,idx])
+        shell_num += 1
+
+    manifold_shells[dimension] = np.array(range(old_shell_num,shell_num))
 
 excitation_energies = np.array(list(excitation_energies.values()))
-
-manifold_shells = { 0 : np.array([0]),
-                    2 : np.array(range(1,shell_num)) }
 
 ##########################################################################################
 # compute states and operators in the Z-projection/shell basis
@@ -203,14 +210,10 @@ for coupling_zz in inspect_coupling_zz:
 
     plt.figure(figsize = figsize)
     plt.title(title_text)
-    for manifold in range(max(manifold_shells.keys())+1):
-        shells = manifold_shells.get(manifold)
-        if shells is not None:
-            for shell in shells:
-                plt.plot(times, pops[:,shell], "k--")
-            plt.plot(times, pops[:,shells].sum(axis = 1))
-        else:
-            plt.plot([times[0], times[-1]], [0,0])
+    for manifold, shells in manifold_shells.items():
+        for shell in shells:
+            plt.plot(times, pops[:,shell], color = "gray", linestyle = "--")
+        plt.plot(times, pops[:,shells].sum(axis = 1))
     plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel("population")

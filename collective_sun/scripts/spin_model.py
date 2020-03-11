@@ -271,6 +271,7 @@ for coupling_zz in inspect_coupling_zz:
     plt.figure(figsize = figsize)
     plt.title(title_text)
     for manifold, pops in pops.items():
+        if np.allclose(max(pops),0): continue
         plt.plot(times, pops, label = pop_label(manifold))
     plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
     plt.xlabel(r"time ($J_\perp t$)")
