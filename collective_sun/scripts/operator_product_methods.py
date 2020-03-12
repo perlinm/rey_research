@@ -441,7 +441,8 @@ def get_diags_opers(shell_dims, spin_num, overlap_operators = None, dtype = None
         if any( not _is_diagonal(op) for op in overlap_operators ):
             max_spin_change = max( op.ndim//2 for op in overlap_operators )
             def _spins_up_rht_range(spins_up_lft):
-                return range(spins_up_lft, spins_up_lft + max_spin_change + 1)
+                max_spins_up_rht = min(spins_up_lft + max_spin_change + 1, spin_num+1)
+                return range(spins_up_lft, max_spins_up_rht)
         else:
             def _spins_up_rht_range(spins_up_lft):
                 return [ spins_up_lft ]
