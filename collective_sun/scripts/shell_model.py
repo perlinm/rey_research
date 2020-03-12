@@ -114,10 +114,12 @@ for op_lft, op_rht in itertools.product(local_ops.keys(), repeat = 2):
 def _pauli_mat(pauli):
     full_pauli_op = build_shell_operator([np.ones(spin_num)], [local_ops[pauli]], sunc)
     return full_pauli_op.reshape( ( (spin_num+1)*shell_num, )*2 )
+print("building collective spin operators")
 S_op_vec = [ sparse.csr_matrix(_pauli_mat(pauli))/2 for pauli in [ "Z", "X", "Y" ] ]
 SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
 
 # build the ZZ perturbation operator in the Z-projection/shell basis
+print("building perturbation operator")
 shell_coupling_mat = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]], sunc)
 
 # energies and energy eigenstates within each sector of fixed spin projection
@@ -205,7 +207,8 @@ def simulate(coupling_zz, sim_time = None, max_tau = 2,
     return times, sqz, pops
 
 def name_tag(coupling_zz = None):
-    base_tag = f"N{spin_num}_D{lattice_dim}_a{alpha}"
+    lattice_name = "_".join([ str(size) for size in lattice_shape ])
+    base_tag = f"L{lattice_name}_a{alpha}"
     if coupling_zz == None: return base_tag
     else: return base_tag + f"_z{coupling_zz}"
 
@@ -225,14 +228,21 @@ if not os.path.isdir(fig_dir):
 ##########################################################################################
 print("running inspection simulations")
 
+lattice_text = r"\times".join([ str(size) for size in lattice_shape ])
+common_title = f"L={lattice_text},~\\alpha={alpha}"
+
 for coupling_zz in inspect_coupling_zz:
+    title_text = f"${common_title},~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
     times, sqz, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
-    title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}," \
-               + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
+
+    try:
+        sqz_end = np.where(sqz[1:] > 1)[0][0] + 2
+    except:
+        sqz_end = len(times)
 
     plt.figure(figsize = figsize)
     plt.title(title_text)
-    plt.plot(times, to_dB(sqz), "k")
+    plt.plot(times[:sqz_end], to_dB(sqz)[:sqz_end], "k")
     plt.ylim(plt.gca().get_ylim()[0], 0)
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
@@ -266,7 +276,7 @@ sweep_times, sweep_sqz, sweep_pops = zip(*sweep_results)
 sweep_min_sqz = [ min(sqz) for sqz in sweep_sqz ]
 min_sqz_idx = [ max(1,np.argmin(sqz)) for sqz in sweep_sqz ]
 
-title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}$"
+title_text = f"${common_title}$"
 
 plt.figure(figsize = figsize)
 plt.title(title_text)
@@ -275,7 +285,7 @@ plt.ylim(plt.gca().get_ylim()[0], 0)
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
 plt.tight_layout()
-plt.savefig(fig_dir + f"squeezing_N{spin_num}_D{lattice_dim}_a{alpha}.pdf")
+plt.savefig(fig_dir + f"squeezing_{name_tag()}.pdf")
 
 sweep_pops = [ np.vstack([ pops[:min_idx,shells].sum(axis = 1)
                            for shells in manifold_shells.values() ])
@@ -295,6 +305,6 @@ plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel("population")
 plt.legend(loc = "best")
 plt.tight_layout()
-plt.savefig(fig_dir + f"populations_N{spin_num}_D{lattice_dim}_a{alpha}.pdf")
+plt.savefig(fig_dir + f"populations_{name_tag()}.pdf")
 
 print("completed")
