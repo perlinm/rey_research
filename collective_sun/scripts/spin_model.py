@@ -16,18 +16,18 @@ np.set_printoptions(linewidth = 200)
 
 lattice_shape = (2,4)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
-periodic = True
-project_hamiltonian = True
 
 # values of the ZZ coupling to simulate in an XXZ model
-sweep_coupling_zz = np.linspace(-2,4,25)
+sweep_coupling_zz = np.linspace(-1,3,41)
 
 # values of the ZZ coupling to inspect more closely
 inspect_coupling_zz = [ -1 ]
+inspect_sim_time = 2
 
 max_time = 10 # in units of J_\perp
 
-fixed_sim_time = None # fix simulation time?
+periodic = True # use periodic boundary conditions?
+project_hamiltonian = False
 
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
@@ -49,6 +49,7 @@ lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
 assert(spin_num <= 12)
 
+print("lattice shape:",lattice_shape)
 ##########################################################################################
 print("reading in projectors onto manifolds of fixed net spin")
 
@@ -190,7 +191,7 @@ if project_hamiltonian:
 chi_eff_bare = 1/4 * np.mean(list(couplings_sun.values()))
 state_X = functools.reduce(np.kron, [up_x]*spin_num).astype(complex)
 
-def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
+def simulate(coupling_zz, sim_time = None, max_tau = 2, overshoot_ratio = 1.5):
     print("coupling_zz:", coupling_zz)
     zz_sun_ratio = coupling_zz - 1
 
@@ -199,14 +200,15 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
         return -1j * ( H @ state )
 
     # determine how long to simulate
-    if fixed_sim_time is not None:
-        sim_time = fixed_sim_time
-    else:
+    if sim_time is None:
+        max_tt = None
         if zz_sun_ratio != 0:
             chi_eff = abs(zz_sun_ratio * chi_eff_bare)
             sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
         else:
             sim_time = max_time
+    else:
+        max_tt = 0
 
     # simulate!
     ivp_solution = solve_ivp(_time_derivative, (0, sim_time), state_X,
@@ -218,14 +220,14 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5):
                      for state in states.T ])
 
     # don't look too far beyond the maximum squeezing time
-    if fixed_sim_time is not None:
-        max_tt = len(times)
-    else:
+    if max_tt is None:
         max_tt = int( np.argmin(sqz) * overshoot_ratio )
         if max_tt == 0:
             max_tt = len(times)
         else:
             max_tt = min(max_tt, len(times))
+    else:
+        max_tt = len(times)
 
     times = times[:max_tt]
     sqz = sqz[:max_tt]
@@ -261,7 +263,7 @@ if project_hamiltonian: fig_dir += "proj_"
 print("running inspection simulations")
 
 for coupling_zz in inspect_coupling_zz:
-    times, sqz, pops = simulate(coupling_zz)
+    times, sqz, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
 
     title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}," \
                + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
@@ -290,7 +292,7 @@ for coupling_zz in inspect_coupling_zz:
     plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
 
 ##########################################################################################
-if fixed_sim_time is not None or len(sweep_coupling_zz) == 0: exit()
+if len(sweep_coupling_zz) == 0: exit()
 print("running sweep simulations")
 
 sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
@@ -314,8 +316,8 @@ plt.savefig(fig_dir + f"squeezing_N{spin_num}_D{lattice_dim}_a{alpha}.pdf")
 manifolds = sweep_pops[0].keys()
 sweep_points = len(sweep_coupling_zz)
 
-sweep_pops = { manifold : [ sweep_pops[jj][manifold][:min_sqz_idx[jj]]
-                            for jj in range(sweep_points) ]
+sweep_pops = { manifold : [ pops[manifold][:min_idx]
+                            for pops, min_idx in zip(sweep_pops, min_sqz_idx) ]
                for manifold in manifolds }
 sweep_min_pops = { manifold : [ min(sweep_pops[manifold][jj])
                                 for jj in range(sweep_points) ]

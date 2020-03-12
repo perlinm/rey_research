@@ -14,6 +14,7 @@ np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
 lattice_shape = (2,4)
+shell_dims = [ 0, 2, 4 ]
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -21,10 +22,10 @@ sweep_coupling_zz = np.linspace(-1,3,41)
 
 # values of the ZZ coupling to inspect more closely
 inspect_coupling_zz = [ -1 ]
+inspect_sim_time = 2
 
 max_time = 10 # in units of J_\perp
 
-fixed_sim_time = 2 # fix simulation time?
 plot_all_shells = False # plot the population for each shell?
 
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
@@ -42,6 +43,7 @@ plt.rcParams.update(params)
 lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
 
+print("lattice shape:",lattice_shape)
 ##########################################################################################
 # build SU(n) interaction matrix, and build generators of interaction eigenstates
 ##########################################################################################
@@ -60,7 +62,7 @@ for pp, qq in np.ndindex(sunc["mat"].shape):
 shell_num = 0
 manifold_shells = {}
 excitation_energies = {}
-for dimension in [ 0, 2, 4 ]:
+for dimension in shell_dims:
     print(f"dimension, size: {dimension}, ", end = "")
     old_shell_num = shell_num
     excitation_mat, vector_to_tensor, tensor_to_vector \
@@ -95,6 +97,7 @@ excitation_energies = np.array(list(excitation_energies.values()))
 ##########################################################################################
 # compute states and operators in the Z-projection/shell basis
 ##########################################################################################
+print("building operators in the Z-projection / shell basis")
 
 # 1-local Z, X, Y operators
 local_ops = { "Z" : np.array([[ 1,   0 ], [  0, -1 ]]),
@@ -159,19 +162,21 @@ def _states(initial_state, zz_sun_ratio, times):
     evolved_eig_states = phases * init_state_eig[None,:,:]
     return np.einsum("zsS,tzS->tzs", eig_states, evolved_eig_states)
 
-def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
+def simulate(coupling_zz, sim_time = None, max_tau = 2,
+             overshoot_ratio = 1.5, points = 500):
     print("coupling_zz:", coupling_zz)
     zz_sun_ratio = coupling_zz - 1
 
     # determine how long to simulate
-    if fixed_sim_time is not None:
-        sim_time = fixed_sim_time
+    if sim_time is None:
+        max_tt = None
+        if zz_sun_ratio != 0:
+            chi_eff = abs(zz_sun_ratio * chi_eff_bare)
+            sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
+        else:
+            sim_time = max_time
     else:
-      if zz_sun_ratio != 0:
-          chi_eff = abs(zz_sun_ratio * chi_eff_bare)
-          sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
-      else:
-          sim_time = max_time
+        max_tt = points
 
     times = np.linspace(0, sim_time, points)
 
@@ -184,9 +189,7 @@ def simulate(coupling_zz, max_tau = 2, overshoot_ratio = 1.5, points = 500):
                      for state in states ])
 
     # don't look too far beyond the maximum squeezing time
-    if fixed_sim_time is not None:
-        max_tt = len(times)
-    else:
+    if max_tt is None:
         max_tt = int( np.argmin(sqz) * overshoot_ratio )
         if max_tt == 0:
             max_tt = len(times)
@@ -223,7 +226,7 @@ if not os.path.isdir(fig_dir):
 print("running inspection simulations")
 
 for coupling_zz in inspect_coupling_zz:
-    times, sqz, pops = simulate(coupling_zz)
+    times, sqz, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
     title_text = f"$N={spin_num},~D={lattice_dim},~\\alpha={alpha}," \
                + f"~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
 
@@ -253,7 +256,7 @@ for coupling_zz in inspect_coupling_zz:
     plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
 
 ##########################################################################################
-if fixed_sim_time is not None or len(sweep_coupling_zz) == 0: exit()
+if len(sweep_coupling_zz) == 0: exit()
 print("running sweep simulations")
 
 sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
@@ -274,7 +277,7 @@ plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
 plt.tight_layout()
 plt.savefig(fig_dir + f"squeezing_N{spin_num}_D{lattice_dim}_a{alpha}.pdf")
 
-sweep_pops = [ np.vstack([ pops[:,shells].sum(axis = 1)
+sweep_pops = [ np.vstack([ pops[:min_idx,shells].sum(axis = 1)
                            for shells in manifold_shells.values() ])
                for pops, min_idx in zip(sweep_pops, min_sqz_idx) ]
 sweep_min_pops = np.array([ pops.min(axis = 1) for pops in sweep_pops ])
