@@ -2,7 +2,6 @@
 
 import numpy as np
 import os, itertools, functools
-import scipy.sparse as sparse
 import matplotlib.pyplot as plt
 
 from squeezing_methods import spin_squeezing
@@ -60,7 +59,7 @@ for pp, qq in np.ndindex(sunc["mat"].shape):
 
 # compute tensors that generate multi-body excitation eigenstates
 shell_num = 0
-manifold_shells = {}
+sunc["shells"] = {}
 excitation_energies = {}
 for dimension in shell_dims:
     print(f"dimension, size: {dimension}, ", end = "")
@@ -83,21 +82,22 @@ for dimension in shell_dims:
                 if not np.allclose(overlap, np.zeros(overlap.shape)):
                     add_shell = False
                     break
+
         if not add_shell: continue
 
-        excitation_energies[shell_num] = eig_vals[idx]
+        excitation_energies[shell_num] = eig_val
         sunc[shell_num] = tensor
         shell_num += 1
         print("  shells:", shell_num)
 
-    manifold_shells[dimension] = np.array(range(old_shell_num,shell_num), dtype = int)
+    sunc["shells"][dimension] = np.array(range(old_shell_num,shell_num), dtype = int)
 
 excitation_energies = np.array(list(excitation_energies.values()))
 
 ##########################################################################################
-# compute states and operators in the Z-projection/shell basis
+# compute states and operators in the shell / Z-projection basis
 ##########################################################################################
-print("building operators in the Z-projection / shell basis")
+print("building operators in the shell / Z-projection basis")
 
 # 1-local Z, X, Y operators
 local_ops = { "Z" : np.array([[ 1,   0 ], [  0, -1 ]]),
@@ -112,34 +112,36 @@ for op_lft, op_rht in itertools.product(local_ops.keys(), repeat = 2):
 
 # collective spin vector, and its outer product with itself
 def _pauli_mat(pauli):
-    full_pauli_op = build_shell_operator([np.ones(spin_num)], [local_ops[pauli]], sunc)
-    return full_pauli_op.reshape( ( (spin_num+1)*shell_num, )*2 )
+    tensors = [np.ones(spin_num)]
+    operators = [local_ops[pauli]]
+    full_pauli_op = build_shell_operator(tensors, operators, sunc, shell_diagonal = True)
+    full_pauli_op.shape = ( shell_num*(spin_num+1), )*2
+    return full_pauli_op
 print("building collective spin operators")
-S_op_vec = [ sparse.csr_matrix(_pauli_mat(pauli))/2 for pauli in [ "Z", "X", "Y" ] ]
+S_op_vec = [ _pauli_mat(pauli)/2 for pauli in [ "Z", "X", "Y" ] ]
 SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
 
-# build the ZZ perturbation operator in the Z-projection/shell basis
+# build the ZZ perturbation operator in the shell / Z-projection basis
 print("building perturbation operator")
 shell_coupling_mat = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]], sunc)
 
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):
-    energies = np.zeros( ( spin_num+1, shell_num ) )
-    eig_states = np.zeros( ( spin_num+1, shell_num, shell_num ), dtype = complex )
+    energies = np.zeros( ( shell_num, spin_num+1 ) )
+    eig_states = np.zeros( ( shell_num, shell_num, spin_num+1 ), dtype = complex )
 
     for spins_up in range(spin_num+1):
         # construct the Hamiltonian at this Z projection, from SU(n) + ZZ couplings
         _proj_hamiltonian = np.diag(excitation_energies) \
-                          + zz_sun_ratio * shell_coupling_mat[spins_up,:,spins_up,:]
+                          + zz_sun_ratio * shell_coupling_mat[:,spins_up,:,spins_up]
 
         # diagonalize the net Hamiltonian at this Z projection
-        energies[spins_up,:], eig_states[spins_up,:,:] \
-            = np.linalg.eigh(_proj_hamiltonian)
+        energies[:,spins_up], eig_states[:,:,spins_up] = np.linalg.eigh(_proj_hamiltonian)
 
         spins_dn = spin_num - spins_up
         if spins_up == spins_dn: break
-        energies[spins_dn,:], eig_states[spins_dn,:,:] \
-            = energies[spins_up,:], eig_states[spins_up,:,:]
+        energies[:,spins_dn], eig_states[:,:,spins_dn] \
+            = energies[:,spins_up], eig_states[:,:,spins_up]
 
     return energies, eig_states
 
@@ -147,7 +149,7 @@ def energies_states(zz_sun_ratio):
 def coherent_spin_state(vec):
     zero_shell = np.zeros(shell_num)
     zero_shell[0] = 1
-    return np.outer(coherent_state_PS(vec,spin_num), zero_shell)
+    return np.outer(zero_shell, coherent_state_PS(vec,spin_num))
 
 ##########################################################################################
 # simulate!
@@ -159,10 +161,10 @@ state_X = coherent_spin_state([0,1,0])
 
 def _states(initial_state, zz_sun_ratio, times):
     energies, eig_states = energies_states(zz_sun_ratio)
-    init_state_eig = np.einsum("zSs,zS->zs", eig_states, initial_state)
+    init_state_eig = np.einsum("Ssz,Sz->sz", eig_states, initial_state)
     phases = np.exp(-1j * np.tensordot(times, energies, axes = 0))
     evolved_eig_states = phases * init_state_eig[None,:,:]
-    return np.einsum("zsS,tzS->tzs", eig_states, evolved_eig_states)
+    return np.einsum("sSz,tSz->tsz", eig_states, evolved_eig_states)
 
 def simulate(coupling_zz, sim_time = None, max_tau = 2,
              overshoot_ratio = 1.5, points = 500):
@@ -202,7 +204,7 @@ def simulate(coupling_zz, sim_time = None, max_tau = 2,
     sqz = sqz[:max_tt]
 
     # compute populations
-    pops = np.einsum("tzs->ts", abs(states[:max_tt])**2)
+    pops = np.einsum("tsz->ts", abs(states[:max_tt])**2)
 
     return times, sqz, pops
 
@@ -252,7 +254,7 @@ for coupling_zz in inspect_coupling_zz:
 
     plt.figure(figsize = figsize)
     plt.title(title_text)
-    for manifold, shells in manifold_shells.items():
+    for manifold, shells in sunc["shells"].items():
         if plot_all_shells:
             for shell in shells:
                 plt.plot(times, pops[:,shell], color = "gray", linestyle = "--")
@@ -288,7 +290,7 @@ plt.tight_layout()
 plt.savefig(fig_dir + f"squeezing_{name_tag()}.pdf")
 
 sweep_pops = [ np.vstack([ pops[:min_idx,shells].sum(axis = 1)
-                           for shells in manifold_shells.values() ])
+                           for shells in sunc["shells"].values() ])
                for pops, min_idx in zip(sweep_pops, min_sqz_idx) ]
 sweep_min_pops = np.array([ pops.min(axis = 1) for pops in sweep_pops ])
 sweep_max_pops = np.array([ pops.max(axis = 1) for pops in sweep_pops ])
@@ -297,7 +299,7 @@ plt.figure(figsize = figsize)
 plt.title(title_text)
 plt.plot(sweep_coupling_zz, sweep_min_pops[:,0], "o",
          label = pop_label(0,"min"))
-for idx, manifold in enumerate(manifold_shells.keys()):
+for idx, manifold in enumerate(sunc["shells"].keys()):
     if manifold == 0: continue
     plt.plot(sweep_coupling_zz, sweep_max_pops[:,idx], "o",
              label = pop_label(manifold,"max"))
