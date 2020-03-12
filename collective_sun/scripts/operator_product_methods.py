@@ -437,10 +437,14 @@ def get_diags_opers(shell_dims, spin_num, overlap_operators = None, dtype = None
 
         # given a number of spins "up" in the state to the left of an operator,
         #   determine the range for spins "up" in the state to the right of an operator
+        # TODO: implement properly, rather than using a heuristic
         if any( not _is_diagonal(op) for op in overlap_operators ):
-            def _spins_up_rht_range(spins_up_lft): return range(spins_up_lft, spin_num+1)
+            max_spin_change = max( op.ndim//2 for op in overlap_operators )
+            def _spins_up_rht_range(spins_up_lft):
+                return range(spins_up_lft, spins_up_lft + max_spin_change + 1)
         else:
-            def _spins_up_rht_range(spins_up_lft): return [ spins_up_lft ]
+            def _spins_up_rht_range(spins_up_lft):
+                return [ spins_up_lft ]
 
         shell_dims = sorted(shell_dims)
         for min_dim_idx, dim_min in enumerate(shell_dims):
