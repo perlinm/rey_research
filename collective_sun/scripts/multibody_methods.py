@@ -38,12 +38,13 @@ def dist_method(lattice_shape):
 # method to shift spins by a displacement
 def spin_shift_method(lattice_shape):
     to_vec, to_idx = index_methods(lattice_shape)
-    def spin_shift(spins, disp, aa = None):
+    def spin_shift(spins, disp, aa = None, neg = False):
+        sign = 1 if not neg else -1
         if aa is None: # shift all spins
-            return tuple( to_idx( to_vec(idx) + to_vec(disp) ) for idx in spins )
+            return tuple( to_idx( to_vec(idx) + sign * to_vec(disp) ) for idx in spins )
         else: # only shift spin aa
             new_spins = list(spins)
-            new_spins[aa] = to_idx( to_vec(spins[aa]) + to_vec(disp) )
+            new_spins[aa] = to_idx( to_vec(spins[aa]) + sign * to_vec(disp) )
             return tuple(new_spins)
     return spin_shift
 
@@ -80,10 +81,10 @@ def random_tensor(dimension, lattice_shape, TI, seed = None):
     if TI:
         spin_shift = spin_shift_method(lattice_shape)
         return sum( np.random.rand() * sym_tensor((0,)+choice, spin_num, spin_shift)
-                for choice in it.combinations(range(1,spin_num), dimension-1) )
+                    for choice in it.combinations(range(1,spin_num), dimension-1) )
     else:
         return sum( np.random.rand() * sym_tensor(choice, spin_num)
-                for choice in it.combinations(range(spin_num), dimension) )
+                    for choice in it.combinations(range(spin_num), dimension) )
 
 # TODO: symmetrize over rotations/reflections for isotropic systems
 
@@ -122,8 +123,8 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True):
         for choice in it.combinations(range(1,spin_num), dimension-1):
             choice = (0,) + choice
             add_to_choices = True
-            for shift in range(spin_num):
-                shifted_choice = tuple(sorted(spin_shift(choice,shift)))
+            for shift in choice:
+                shifted_choice = tuple(sorted(spin_shift(choice,shift,neg=True)))
                 if shifted_choice in choices:
                     add_to_choices = False
                     break
@@ -133,9 +134,9 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True):
 
         def choice_idx(choice):
             if len(set(choice)) != len(choice): return None
-            for shift in range(spin_num):
-                shifted_choice = sorted(spin_shift(choice,shift))
-                idx = choices.get(tuple(shifted_choice))
+            for shift in choice:
+                shifted_choice = tuple(sorted(spin_shift(choice,shift,neg=True)))
+                idx = choices.get(shifted_choice)
                 if idx is not None:
                     return idx
 
