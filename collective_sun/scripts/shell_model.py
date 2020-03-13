@@ -52,10 +52,8 @@ dist = dist_method(lattice_shape)
 
 sunc = {}
 sunc["mat"] = np.zeros((spin_num,spin_num))
-for pp, qq in np.ndindex(sunc["mat"].shape):
-    _dist = dist(pp,qq)
-    if _dist == 0: continue
-    sunc["mat"][pp,qq] = -1/_dist**alpha
+for pp, qq in itertools.combinations(range(spin_num),2):
+    sunc["mat"][pp,qq] = sunc["mat"][qq,pp] = -1/dist(pp,qq)**alpha
 
 # compute tensors that generate multi-body excitation eigenstates
 shell_num = 0
