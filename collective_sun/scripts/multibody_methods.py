@@ -38,15 +38,23 @@ def dist_method(lattice_shape):
 # method to shift spins by a displacement
 def spin_shift_method(lattice_shape):
     to_vec, to_idx = index_methods(lattice_shape)
-    def spin_shift(spins, disp, aa = None, neg = False):
+    def spin_shift(spins, disp, neg = False, idx = None):
         sign = 1 if not neg else -1
-        if aa is None: # shift all spins
+        if idx is None: # shift all spins
             return tuple( to_idx( to_vec(idx) + sign * to_vec(disp) ) for idx in spins )
-        else: # only shift spin aa
+        else: # only shift spin `idx`
             new_spins = list(spins)
-            new_spins[aa] = to_idx( to_vec(spins[aa]) + sign * to_vec(disp) )
+            new_spins[idx] = to_idx( to_vec(spins[idx]) + sign * to_vec(disp) )
             return tuple(new_spins)
     return spin_shift
+
+# method to reflect spins about an axis
+def spin_reflect_method(lattice_shape):
+    to_vec, to_idx = index_methods(lattice_shape)
+    def spin_reflect(spins, reflection):
+        reflection = np.array(reflection)
+        return tuple( to_idx( reflection * to_vec(idx) ) for idx in spins )
+    return spin_reflect
 
 ##########################################################################################
 # methods for building tensors
@@ -59,20 +67,33 @@ def unit_tensor(idx, size):
     return tensor
 
 # "unit" symmetric tensor, possibly symmetrized over all translations on a lattice
-def sym_tensor(idx, size, spin_shift = None):
+def sym_tensor(idx, size):
     dimension = len(idx)
     tensor = np.zeros((size,)*dimension, dtype = int)
+    for perm_idx in it.permutations(idx):
+        tensor[perm_idx] = 1
+    return tensor
 
-    if spin_shift is None: # no translational symmetry
-        for perm_idx in it.permutations(idx):
-            tensor[perm_idx] = 1
+# "unit" symmetric tensor, symmetrized over all translations on a lattice
+def sym_tensor_TI(idx, size, spin_shift = None):
+    dimension = len(idx)
+    tensor = np.zeros((size,)*dimension, dtype = int)
+    for displacement in range(size):
+        shifted_idx = spin_shift(idx,displacement)
+        for perm_idx in it.permutations(shifted_idx):
+            tensor[perm_idx] |= 1 # set tensor[perm_idx] to 1 (from either 0 or 1)
+    return tensor
 
-    else: # symmetrize over all translations
+# "unit" symmetric tensor, symmetrized over all translations and reflections on a lattice
+def sym_tensor_TI_iso(idx, size, spin_shift, spin_reflect, lattice_dim):
+    dimension = len(idx)
+    tensor = np.zeros((size,)*dimension, dtype = int)
+    for reflection in it.product([1,-1], repeat = lattice_dim):
+        reflected_idx = spin_reflect(idx,reflection)
         for displacement in range(size):
-            shifted_idx = spin_shift(idx,displacement)
+            shifted_idx = spin_shift(reflected_idx,displacement)
             for perm_idx in it.permutations(shifted_idx):
-                tensor[perm_idx] |= 1 # set tensor[perm_idx] to 1 (from either 0 or 1)
-
+                tensor[perm_idx] |= 1
     return tensor
 
 def random_tensor(dimension, lattice_shape, TI, seed = None):
@@ -105,18 +126,28 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True):
     sun_coef_0 = sun_coef_vec[0]
     spin_shift = spin_shift_method(lattice_shape)
 
-    # identify all distinct choices of spins, modding out by translations if appropriate
+    def _diag_val(choice):
+        return sum( sun_coefs[pp,qq] for pp in choice for qq in choice ) \
+             - sum( sun_coef_vec[pp] for pp in choice )
+
+    # identify all distinct choices of spins,
+    #   modding out by translations and rotations/reflections if appropriate
     if not TI:
         choices = { choice : idx
                     for idx, choice
                     in enumerate(it.combinations(range(spin_num), dimension)) }
         choice_num = len(choices)
 
-        def choice_idx(choice):
+        def get_choice_idx(choice):
             for perm in it.permutations(choice):
-                if perm in choices:
-                    return choices.get(perm)
+                idx = choices.get(perm)
+                if idx is not None:
+                    return idx
 
+        def choice_tensor(choice):
+            return sym_tensor(choice, spin_num)
+
+    # translationally invariant but not isotropic systems
     else:
         choices = {}
         choice_num = 0
@@ -132,7 +163,7 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True):
                 choices[choice] = choice_num
                 choice_num += 1
 
-        def choice_idx(choice):
+        def get_choice_idx(choice):
             if len(set(choice)) != len(choice): return None
             for shift in choice:
                 shifted_choice = tuple(sorted(spin_shift(choice,shift,neg=True)))
@@ -140,17 +171,8 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True):
                 if idx is not None:
                     return idx
 
-    # build methods to convert between a tensor and a "choice vector"
-    shift_method = spin_shift if TI else None
-    def vector_to_tensor(vector):
-        return sum( val * sym_tensor(choice, spin_num, shift_method)
-                    for val, choice in zip(vector, choices.keys()) )
-    def tensor_to_vector(tensor):
-        return np.array([ tensor[idx] for idx in choices.keys() ])
-
-    def _diag_val(choice):
-        return sum( sun_coefs[pp,qq] for pp in choice for qq in choice ) \
-             - sum( sun_coef_vec[pp] for pp in choice )
+        def choice_tensor(choice):
+            return sym_tensor_TI(choice, spin_num, spin_shift)
 
     # build matrix for many-body eigenvalue problem
     excitation_mat = np.zeros((choice_num, choice_num))
@@ -159,8 +181,15 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True):
         for pp, aa in it.product(range(spin_num), range(dimension)):
             choice_aa = choice[aa]
             choice_aa_pp = list(choice); choice_aa_pp[aa] = pp
-            choice_aa_pp_idx = choice_idx(choice_aa_pp)
-            if choice_aa_pp_idx is None: continue
+            if len(set(choice_aa_pp)) != dimension: continue
+            choice_aa_pp_idx = get_choice_idx(choice_aa_pp)
             excitation_mat[idx,choice_aa_pp_idx] += sun_coefs[choice_aa,pp]
+
+    # build methods to convert between a tensor and a "choice vector"
+    def vector_to_tensor(vector):
+        return sum( val * choice_tensor(choice)
+                    for val, choice in zip(vector, choices.keys()) )
+    def tensor_to_vector(tensor):
+        return np.array([ tensor[idx] for idx in choices.keys() ])
 
     return excitation_mat, vector_to_tensor, tensor_to_vector
