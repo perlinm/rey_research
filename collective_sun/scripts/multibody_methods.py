@@ -210,20 +210,22 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
             _lattice_symmetries = [ iden ]
 
         def equivalence_class(choice, classes = {}):
-            choice = tuple(choice)
-            if choice not in classes:
-                classes[choice] = set( spin_shift(symmetry(choice),shift)
-                                       for symmetry in _lattice_symmetries
-                                       for shift in range(spin_num) )
-            return classes[choice]
+            try: return classes[choice]
+            except:
+                new_class = set( spin_shift(symmetry(choice),shift)
+                                 for symmetry in _lattice_symmetries
+                                 for shift in range(spin_num) )
+                classes[choice] = new_class
+                return new_class
         def class_label(choice, labels = {}):
-            choice = tuple(choice)
-            if not choice in labels:
-                labels[choice] = min( spin_shift(symmetry_choice,shift,neg=True)
-                                      for symmetry in _lattice_symmetries
-                                      if ( symmetry_choice := symmetry(choice) )
-                                      for shift in symmetry_choice )
-            return labels[choice]
+            try: return labels[choice]
+            except:
+                new_label = min( spin_shift(symmetry_choice,shift,neg=True)
+                                 for symmetry in _lattice_symmetries
+                                 if ( symmetry_choice := symmetry(choice) )
+                                 for shift in symmetry_choice )
+                labels[choice] = new_label
+                return new_label
 
         # construct all equivalence classes of choices of spins
         classes = {}
@@ -234,15 +236,6 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
                 classes[label] = class_num
                 class_num += 1
 
-        # dictionary mapping the label of an equivalence class
-        #   to the corresponding set of spin choices
-        label_class = { label : equivalence_class(label)
-                        for label in classes }
-
-        # get the index of the equivalence class of a choice of spins
-        def get_class_idx(choice):
-            return classes.get(class_label(choice))
-
         # construct a unit tensor symmetrized over an equivalence class
         def class_tensor(label):
             return sym_tensor_equivs(label, spin_num, equivalence_class)
@@ -252,16 +245,17 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
                     for idx, choice
                     in enumerate(it.combinations(range(spin_num), dimension)) }
 
-        label_class = { label : set({label}) for label in classes }
-
-        def get_class_idx(choice):
-            return classes.get(tuple(sorted(choice)))
+        def class_label(choice): return choice
 
         def class_tensor(choice):
             return sym_tensor(choice, spin_num)
 
+    # get the index of the equivalence class of a choice of spins
+    def get_class_idx(choice):
+        return classes.get(class_label(tuple(sorted(choice))))
+
     # equivalence class sizes (multiplicities)
-    mults = np.array([ len(_class) for _class in label_class.values() ])
+    mults = np.array([ len(equivalence_class(label)) for label in classes ])
     sqrt_mults = np.sqrt(mults)
 
     # build matrix for many-body eigenvalue problem
@@ -270,7 +264,7 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
              - sum( sun_coef_vec[pp] for pp in choice )
     excitation_mat = np.diag([ _diag_val(choice) for choice in classes ])
     for label, idx in classes.items():
-        for choice in label_class[label]:
+        for choice in equivalence_class(label):
             for pp, aa in it.product(range(spin_num), range(dimension)):
                 choice_aa = choice[aa]
                 if pp == choice_aa: continue
