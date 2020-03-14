@@ -210,15 +210,21 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
         else:
             _lattice_symmetries = [ iden ]
 
-        def equivalence_class(choice):
-            return set( spin_shift(symmetry(choice),shift)
-                        for symmetry in _lattice_symmetries
-                        for shift in range(spin_num) )
-        def class_label(choice):
-            return sorted( spin_shift(symmetry_choice,shift,neg=True)
-                           for symmetry in _lattice_symmetries
-                           if ( symmetry_choice := symmetry(choice) )
-                           for shift in symmetry_choice )[0]
+        def equivalence_class(choice, classes = {}):
+            choice = tuple(choice)
+            if choice not in classes:
+                classes[choice] = set( spin_shift(symmetry(choice),shift)
+                                       for symmetry in _lattice_symmetries
+                                       for shift in range(spin_num) )
+            return classes[choice]
+        def class_label(choice, labels = {}):
+            choice = tuple(choice)
+            if not choice in labels:
+                labels[choice] = sorted( spin_shift(symmetry_choice,shift,neg=True)
+                                         for symmetry in _lattice_symmetries
+                                         if ( symmetry_choice := symmetry(choice) )
+                                         for shift in symmetry_choice )[0]
+            return labels[choice]
 
         # construct all equivalence classes of choices of spins
         classes = {}
