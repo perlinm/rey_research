@@ -115,28 +115,18 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True, isotropic 
         def tensor_to_vector(tensor): return tensor * np.ones(1)
         return excitation_mat, vector_to_tensor, tensor_to_vector
 
-    # collect and determine basic system info
-    spin_num = sun_coefs.shape[0]
+    # compute total spin numder and SU(n) coupling vector
+    spin_num = np.prod(lattice_shape)
     sun_coef_vec = sum(sun_coefs)
+
+    # identify lattice symmetries
     assert( not ( isotropic and not TI ) )
     if isotropic is None: isotropic = TI
+    symmetrize_rotations = ( isotropic and len(set(lattice_shape)) == 1 )
 
-    # identify all distinct choices of spins,
-    #   modding out by translations and rotations/reflections if appropriate
-    if not TI: # no translational invariance
-        choices = { choice : idx
-                    for idx, choice
-                    in enumerate(it.combinations(range(spin_num), dimension)) }
-
-        def get_choice_idx(choice):
-            return choices.get(tuple(sorted(choice)))
-
-        def choice_tensor(choice):
-            return sym_tensor(choice, spin_num)
-
-    # translationally invariant and maybe isotropic systems
+    # identify all distinct choices of spins, modding out by any symmetries
     # TODO: symmetrize properly for isotropic systems
-    else:
+    if TI: # translationally invariant and maybe isotropic systems
         spin_shift = spin_shift_method(lattice_shape)
 
         # return the equivalence class of a choice of spins
@@ -156,6 +146,9 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True, isotropic 
                 choices[choice] = class_num
                 class_num += 1
 
+        # equivalence class sizes (multiplicities)
+        mults = np.array([ len(equivalence_class(choice)) for choice in choices ])
+
         # get the index of the equivalence class of a choice of spins
         def get_choice_idx(choice):
             return choices.get(class_label(choice))
@@ -164,25 +157,44 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True, isotropic 
         def choice_tensor(choice):
             return sym_tensor_equivs(choice, spin_num, equivalence_class)
 
+    else: # no translational invariance
+        choices = { choice : idx
+                    for idx, choice
+                    in enumerate(it.combinations(range(spin_num), dimension)) }
+
+        def equivalence_class(choice): return set({choice})
+        mults = np.ones(np.math.comb(spin_num,dimension))
+
+        def get_choice_idx(choice):
+            return choices.get(tuple(sorted(choice)))
+
+        def choice_tensor(choice):
+            return sym_tensor(choice, spin_num)
+
+    # square roots of equivalence class sizes (multiplicities)
+    sqrt_mults = np.sqrt(mults)
+
     # build matrix for many-body eigenvalue problem
     def _diag_val(choice):
         return sum( sun_coefs[pp,qq] for pp in choice for qq in choice ) \
              - sum( sun_coef_vec[pp] for pp in choice )
     excitation_mat = np.diag([ _diag_val(choice) for choice in choices ])
-    for choice, idx in choices.items():
-        for pp, aa in it.product(range(spin_num), range(dimension)):
-            choice_aa = choice[aa]
-            if pp == choice_aa: continue
-            choice_aa_pp = list(choice); choice_aa_pp[aa] = pp
-            if len(set(choice_aa_pp)) != dimension: continue
-            choice_aa_pp_idx = get_choice_idx(choice_aa_pp)
-            excitation_mat[idx,choice_aa_pp_idx] += sun_coefs[choice_aa,pp]
+    for label, idx in choices.items():
+        for choice in equivalence_class(label):
+            for pp, aa in it.product(range(spin_num), range(dimension)):
+                choice_aa = choice[aa]
+                if pp == choice_aa: continue
+                choice_aa_pp = list(choice); choice_aa_pp[aa] = pp
+                if len(set(choice_aa_pp)) != dimension: continue
+                choice_aa_pp_idx = get_choice_idx(choice_aa_pp)
+                norm = sqrt_mults[idx] * sqrt_mults[choice_aa_pp_idx]
+                excitation_mat[idx,choice_aa_pp_idx] += sun_coefs[choice_aa,pp] / norm
 
     # convert between a tensor and a vector of equivalence class coefficients
     def vector_to_tensor(vector):
         return sum( val * choice_tensor(choice)
-                    for val, choice in zip(vector, choices) )
+                    for val, choice in zip(vector/sqrt_mults, choices) )
     def tensor_to_vector(tensor):
-        return np.array([ tensor[choice] for choice in choices ])
+        return sqrt_mults * np.array([ tensor[choice] for choice in choices ])
 
     return excitation_mat, vector_to_tensor, tensor_to_vector
