@@ -132,13 +132,25 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
     if TI: # translationally invariant and maybe isotropic systems
         spin_shift = spin_shift_method(lattice_shape)
 
-        # return the equivalence class of a choice of spins
-        def equivalence_class(choice):
-            return set( spin_shift(choice,shift) for shift in range(spin_num) )
-
-        # return the label for the equivalence class of a choice of spins
-        def class_label(choice):
-            return sorted( spin_shift(choice,shift,neg=True) for shift in choice )[0]
+        # return the equivalence class of a choice of spins, as either a set or a label
+        if not isotropic:
+            def equivalence_class(choice):
+                return set( spin_shift(choice,shift) for shift in range(spin_num) )
+            def class_label(choice):
+                return sorted( spin_shift(choice,shift,neg=True) for shift in choice )[0]
+        else:
+            spin_reflect = spin_reflect_method(lattice_shape)
+            def reflections():
+                return it.product([True,False], repeat = len(lattice_shape))
+            def equivalence_class(choice):
+                return set( spin_shift(spin_reflect(choice,reflection),shift)
+                            for reflection in reflections()
+                            for shift in range(spin_num) )
+            def class_label(choice):
+                return sorted( spin_shift(reflected_choice,shift,neg=True)
+                               for reflection in reflections()
+                               if ( reflected_choice := spin_reflect(choice,reflection) )
+                               for shift in reflected_choice )[0]
 
         # construct all equivalence classes of choices of spins
         classes = {}
