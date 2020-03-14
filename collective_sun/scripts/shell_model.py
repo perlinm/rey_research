@@ -73,17 +73,14 @@ for dimension in shell_dims:
         eig_val = eig_vals[idx]
         tensor = vector_to_tensor(eig_vecs[:,idx])
 
-        # exclude this tensor if it is redundant with (i.e. generates the same state as)
-        #   a tensor that we have already stored
-        add_shell = True
-        for shell in range(old_shell_num):
-            if np.allclose(eig_val, excitation_energies[shell]):
-                overlap = compute_overlap(sunc[shell], tensor, sunc["TI"])
-                if not np.allclose(overlap, np.zeros(overlap.shape)):
-                    add_shell = False
-                    break
-
-        if not add_shell: continue
+        # if this eigenvalue matches an excitation energy of a fewer-body state,
+        #   then check that the corresponding states are orthogonal
+        # if these states are not orthogonal, then ignore this (redundant) state
+        if any( np.allclose(eig_val, excitation_energies[shell]) and
+                not np.allclose(compute_overlap(sunc[shell], tensor, sunc["TI"]),
+                                np.zeros((spin_num+1,)*2))
+                for shell in range(old_shell_num) ):
+            continue
 
         excitation_energies[shell_num] = eig_val
         sunc[shell_num] = tensor
