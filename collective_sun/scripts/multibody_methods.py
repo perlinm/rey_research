@@ -262,17 +262,18 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
     def _diag_val(choice):
         return sum( sun_coefs[pp,qq] for pp in choice for qq in choice ) \
              - sum( sun_coef_vec[pp] for pp in choice )
-    excitation_mat = np.diag([ _diag_val(choice) for choice in classes ])
+    excitation_mat = np.diag([ _diag_val(choice) * mult
+                               for choice, mult in zip(classes, mults) ])
     for label, idx in classes.items():
         for choice in equivalence_class(label):
-            for pp, aa in it.product(range(spin_num), range(dimension)):
-                choice_aa = choice[aa]
-                if pp == choice_aa: continue
-                choice_aa_pp = list(choice); choice_aa_pp[aa] = pp
-                if len(set(choice_aa_pp)) != dimension: continue
-                choice_aa_pp_idx = get_class_idx(choice_aa_pp)
-                norm = sqrt_mults[idx] * sqrt_mults[choice_aa_pp_idx]
-                excitation_mat[idx,choice_aa_pp_idx] += sun_coefs[choice_aa,pp] / norm
+            for pp in range(spin_num):
+                if pp in choice: continue
+                for aa in range(dimension):
+                    choice_aa = choice[aa]
+                    choice_aa_pp = list(choice); choice_aa_pp[aa] = pp
+                    choice_aa_pp_idx = get_class_idx(choice_aa_pp)
+                    excitation_mat[idx,choice_aa_pp_idx] += sun_coefs[choice_aa,pp]
+    excitation_mat /= np.outer(sqrt_mults, sqrt_mults)
 
     # convert between a tensor and a vector of equivalence class coefficients
     def vector_to_tensor(vector):
