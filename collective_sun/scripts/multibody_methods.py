@@ -2,6 +2,14 @@
 
 import numpy as np
 import itertools as it
+import functools
+
+# identity function
+def iden(xx): return xx
+
+# function composition
+def compose(*functions):
+    return functools.reduce(lambda ff, gg: lambda xx: ff(gg(xx)), functions, iden)
 
 ##########################################################################################
 # dealing with lattice geometry
@@ -23,8 +31,11 @@ def index_methods(lattice_shape):
     return to_vec, to_idx
 
 # method to compute the distance between two spins
-def dist_method(lattice_shape):
-    to_vec, to_idx = index_methods(lattice_shape)
+def dist_method(lattice_shape, _index_methods = None):
+    if _index_methods is None:
+        _index_methods = index_methods(lattice_shape)
+    to_vec, to_idx = _index_methods
+
     def dist_1D(pp, qq, axis):
         diff = ( pp - qq ) % lattice_shape[axis]
         return min(diff, lattice_shape[axis] - diff)
@@ -36,8 +47,11 @@ def dist_method(lattice_shape):
     return dist
 
 # method to shift spins by a displacement
-def spin_shift_method(lattice_shape):
-    to_vec, to_idx = index_methods(lattice_shape)
+def spin_shift_method(lattice_shape, _index_methods = None):
+    if _index_methods is None:
+        _index_methods = index_methods(lattice_shape)
+    to_vec, to_idx = _index_methods
+
     def spin_shift(spins, disp, neg = False, idx = None):
         sign = 1 if not neg else -1
         if idx is None: # shift all spins
@@ -48,16 +62,74 @@ def spin_shift_method(lattice_shape):
         return tuple(sorted(new_spins))
     return spin_shift
 
-# method to reflect spins about an axis
-def spin_reflect_method(lattice_shape):
-    to_vec, to_idx = index_methods(lattice_shape)
-    def spin_reflect(spins, reflection):
-        def _reflect(vec):
-            return [ pos if not reflect else size - pos
-                     for pos, reflect, size in zip(vec, reflection, lattice_shape) ]
-        new_spins = ( to_idx(_reflect(to_vec(spin))) for spin in spins )
-        return tuple(sorted(new_spins))
-    return spin_reflect
+# get generators of all lattice symmetries
+# each generator acts on a choice of lattice sites
+# TODO: allow singling out a single axis for separate treatment
+def lattice_symmetries(lattice_shape, _index_methods = None):
+    if _index_methods is None:
+        _index_methods = index_methods(lattice_shape)
+
+    dimension = len(lattice_shape)
+
+    # the lattice has a different size along each principal axis
+    if len(set(lattice_shape)) == dimension:
+        axis_symmetries = [ line_symmetries(_index_methods, axis)
+                            for axis in range(dimension) ]
+        return [ compose(*symmetries)
+                 for symmetries in it.product(*axis_symmetries) ]
+
+    if dimension == 2: # the lattice is a square
+        return square_symmetries(_index_methods, [ 0, 1 ])
+
+    if dimension == 3:
+        if len(set(lattice_shape)) == 1: # the lattice is a cube
+            return cube_symmetries(_index_methods)
+
+        if len(set(lattice_shape)) == 2: # the lattice is a ( square x line )
+            for axis_lft, axis_rht in it.combinations(range(3), 2):
+                if lattice_shape[axis_lft] == lattice_shape[axis_rht]:
+                    square_axes = ( axis_lft, axis_rht )
+                    break
+            line_axis = next( axis for axis in range(3) if axis not in square_axes )
+            return [ compose(square_symmetry, line_symmetry)
+                     for square_symmetry in square_symmetries(_index_methods, square_axes)
+                     for line_symmetry in line_symmetries(_index_methods, line_axis) ]
+
+    if dimension > 3:
+        raise NotImplementedError("lattice symmetries in dimension > 3")
+
+def line_symmetries(_index_methods, axis):
+    to_vec, to_idx = _index_methods
+    lattice_shape = tuple(to_vec(-1))
+    def reflect_single(site):
+        new_site = to_vec(site)
+        new_site[axis] = lattice_shape[axis] - new_site[axis]
+        return to_idx(new_site)
+    def reflect_all(sites):
+        return tuple( reflect_single(site) for site in sites )
+    return [ iden, reflect_all ]
+
+def square_symmetries(_index_methods, axes):
+    to_vec, to_idx = _index_methods
+    lattice_shape = tuple(to_vec(-1))
+    lattice_size = lattice_shape[axes[0]]
+    assert(lattice_size == lattice_shape[axes[1]])
+    def rotate_single(site):
+        pos = to_vec(site)
+        new_pos = [ pos[axes[1]], lattice_size - pos[axes[0]] ]
+        return to_idx(new_pos)
+    def rotate_all(sites):
+        return tuple( rotate_single(site) for site in sites )
+    rotations = [ compose(*[rotate_all]*num) for num in range(4) ]
+    reflections = line_symmetries(_index_methods, axes[0])
+    return [ compose(rotation, reflection)
+             for rotation in rotations
+             for reflection in reflections ]
+
+def cube_symmetries(_index_methods):
+    to_vec, to_idx = _index_methods
+    lattice_shape = tuple(to_vec(-1))
+    raise NotImplementedError("construction of cube symmetries")
 
 ##########################################################################################
 # methods for building tensors
@@ -133,24 +205,20 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
         spin_shift = spin_shift_method(lattice_shape)
 
         # return the equivalence class of a choice of spins, as either a set or a label
-        if not isotropic:
-            def equivalence_class(choice):
-                return set( spin_shift(choice,shift) for shift in range(spin_num) )
-            def class_label(choice):
-                return sorted( spin_shift(choice,shift,neg=True) for shift in choice )[0]
+        if isotropic:
+            _lattice_symmetries = lattice_symmetries(lattice_shape)
         else:
-            spin_reflect = spin_reflect_method(lattice_shape)
-            def reflections():
-                return it.product([True,False], repeat = len(lattice_shape))
-            def equivalence_class(choice):
-                return set( spin_shift(spin_reflect(choice,reflection),shift)
-                            for reflection in reflections()
-                            for shift in range(spin_num) )
-            def class_label(choice):
-                return sorted( spin_shift(reflected_choice,shift,neg=True)
-                               for reflection in reflections()
-                               if ( reflected_choice := spin_reflect(choice,reflection) )
-                               for shift in reflected_choice )[0]
+            _lattice_symmetries = [ iden ]
+
+        def equivalence_class(choice):
+            return set( spin_shift(symmetry(choice),shift)
+                        for symmetry in _lattice_symmetries
+                        for shift in range(spin_num) )
+        def class_label(choice):
+            return sorted( spin_shift(symmetry_choice,shift,neg=True)
+                           for symmetry in _lattice_symmetries
+                           if ( symmetry_choice := symmetry(choice) )
+                           for shift in symmetry_choice )[0]
 
         # construct all equivalence classes of choices of spins
         classes = {}
