@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import os, itertools, functools
+import os, sys, itertools, functools
 import matplotlib.pyplot as plt
 
 from squeezing_methods import spin_squeezing
@@ -12,7 +12,7 @@ from operator_product_methods import compute_overlap, build_shell_operator
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (2,4)
+lattice_shape = (3,4)
 shell_dims = [ 0, 2, 4 ]
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
@@ -66,6 +66,7 @@ for dimension in shell_dims:
     excitation_mat, vector_to_tensor, tensor_to_vector \
         = multibody_problem(lattice_shape, sunc["mat"], dimension)
     print(excitation_mat.shape[0])
+    sys.stdout.flush()
 
     eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
     for idx in np.argsort(eig_vals):
@@ -88,6 +89,7 @@ for dimension in shell_dims:
         sunc[shell_num] = tensor
         shell_num += 1
         print("  shells:", shell_num)
+        sys.stdout.flush()
 
     sunc["shells"][dimension] = np.array(range(old_shell_num,shell_num), dtype = int)
 
@@ -97,6 +99,7 @@ excitation_energies = np.array(list(excitation_energies.values()))
 # compute states and operators in the shell / Z-projection basis
 ##########################################################################################
 print("building operators in the shell / Z-projection basis")
+sys.stdout.flush()
 
 # 1-local Z, X, Y operators
 local_ops = { "Z" : np.array([[ 1,   0 ], [  0, -1 ]]),
@@ -123,6 +126,7 @@ def _pauli_mat(pauli):
     full_pauli_op.shape = ( shell_num*(spin_num+1), )*2
     return full_pauli_op
 print("building collective spin operators")
+sys.stdout.flush()
 S_op_vec = [ _pauli_mat(pauli)/2 for pauli in [ "Z", "X", "Y" ] ]
 SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
 
@@ -170,6 +174,7 @@ def _states(initial_state, zz_sun_ratio, times):
 def simulate(coupling_zz, sim_time = None, max_tau = 2,
              overshoot_ratio = 1.5, points = 500):
     print("coupling_zz:", coupling_zz)
+    sys.stdout.flush()
     zz_sun_ratio = coupling_zz - 1
 
     # determine how long to simulate
@@ -230,6 +235,7 @@ if not os.path.isdir(fig_dir):
 
 ##########################################################################################
 print("running inspection simulations")
+sys.stdout.flush()
 
 lattice_text = r"\times".join([ str(size) for size in lattice_shape ])
 common_title = f"L={lattice_text},~\\alpha={alpha}"
@@ -271,6 +277,7 @@ for coupling_zz in inspect_coupling_zz:
 ##########################################################################################
 if len(sweep_coupling_zz) == 0: exit()
 print("running sweep simulations")
+sys.stdout.flush()
 
 sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
 sweep_results = [ simulate(coupling_zz) for coupling_zz in sweep_coupling_zz ]
