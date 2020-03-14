@@ -115,17 +115,11 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True, isotropic 
         def tensor_to_vector(tensor): return tensor * np.ones(1)
         return excitation_mat, vector_to_tensor, tensor_to_vector
 
-    # collect basic system info
+    # collect and determine basic system info
     spin_num = sun_coefs.shape[0]
     sun_coef_vec = sum(sun_coefs)
-    sun_coef_0 = sun_coef_vec[0]
-    spin_shift = spin_shift_method(lattice_shape)
     assert( not ( isotropic and not TI ) )
     if isotropic is None: isotropic = TI
-
-    def _diag_val(choice):
-        return sum( sun_coefs[pp,qq] for pp in choice for qq in choice ) \
-             - sum( sun_coef_vec[pp] for pp in choice )
 
     # identify all distinct choices of spins,
     #   modding out by translations and rotations/reflections if appropriate
@@ -133,99 +127,58 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = True, isotropic 
         choices = { choice : idx
                     for idx, choice
                     in enumerate(it.combinations(range(spin_num), dimension)) }
-        choice_num = len(choices)
 
         def get_choice_idx(choice):
-            for perm in it.permutations(choice):
-                idx = choices.get(perm)
-                if idx is not None:
-                    return idx
+            return choices.get(tuple(sorted(choice)))
 
         def choice_tensor(choice):
             return sym_tensor(choice, spin_num)
 
-        # build matrix for many-body eigenvalue problem
-        excitation_mat = np.zeros((choice_num, choice_num))
-        for choice, idx in choices.items():
-            excitation_mat[idx,idx] += _diag_val(choice)
-            for pp, aa in it.product(range(spin_num), range(dimension)):
-                choice_aa = choice[aa]
-                choice_aa_pp = list(choice); choice_aa_pp[aa] = pp
-                if len(set(choice_aa_pp)) != dimension: continue
-                choice_aa_pp_idx = get_choice_idx(choice_aa_pp)
-                excitation_mat[idx,choice_aa_pp_idx] += sun_coefs[choice_aa,pp]
-
     # translationally invariant and maybe isotropic systems
+    # TODO: symmetrize properly for isotropic systems
     else:
-        # given a choice of spins, return all choices in its equivalence class
-        if not isotropic:
-            def get_equivalent(spins):
-                return ( tuple(sorted(spin_shift(spins,shift,neg=True)))
-                         for shift in spins )
-        else:
-            # get all reflections of a spin choice that are distinct up to a translation
-            spin_reflect = spin_reflect_method(lattice_shape)
-            def get_reflections(spins):
-                fixed_spins = spin_shift(spins,spins[0],neg=True)
-                reflections = []
-                for reflection in it.product([1,-1], repeat = len(lattice_shape)):
-                    ref_spins = spin_reflect(fixed_spins, reflection)
-                    add_reflection = True
-                    for shift in ref_spins:
-                        shifted_spins = spin_shift(ref_spins,shift,neg=True)
-                        shifted_spins = tuple(sorted(shifted_spins))
-                        if shifted_spins in reflections:
-                            add_reflection = False
-                            break
-                    if add_reflection:
-                        reflections += [ ref_spins ]
-                return reflections
+        spin_shift = spin_shift_method(lattice_shape)
 
-            # TODO: address remaining symmetries (after TI and reflections)
-            #       in isotropic systems
-            def get_equivalent(spins):
-                return set( tuple(sorted(spin_shift(reflected_choice,shift,neg=True)))
-                            for reflected_choice in get_reflections(spins)
-                            for shift in reflected_choice )
+        # return the equivalence class of a choice of spins
+        def equivalence_class(choice):
+            return set( spin_shift(choice,shift) for shift in range(spin_num) )
+
+        # return the label for the equivalence class of a choice of spins
+        def class_label(choice):
+            return sorted( spin_shift(choice,shift,neg=True) for shift in choice )[0]
 
         # construct all equivalence classes of choices of spins
         choices = {}
-        choice_num = 0
-        for choice in it.combinations(range(1,spin_num), dimension-1):
-            choice = (0,) + choice
-            add_to_choices = True
-            for equivalent_choice in get_equivalent(choice):
-                if equivalent_choice in choices:
-                    add_to_choices = False
-                    break
-            if add_to_choices:
-                choices[choice] = choice_num
-                choice_num += 1
+        class_num = 0
+        for reduced_choice in it.combinations(range(1,spin_num), dimension-1):
+            choice = (0,) + reduced_choice
+            if class_label(choice) not in choices:
+                choices[choice] = class_num
+                class_num += 1
 
-        # get the equivalence class of a choice of spins
+        # get the index of the equivalence class of a choice of spins
         def get_choice_idx(choice):
-            if len(set(choice)) != len(choice): return None
-            for equivalent_choice in get_equivalent(choice):
-                idx = choices.get(equivalent_choice)
-                if idx is not None:
-                    return idx
+            return choices.get(class_label(choice))
 
         # construct an appropriately symmetrized tensor corresponding to a choice of spins
         def choice_tensor(choice):
-            return sym_tensor_symmetrized(choice, spin_num, spin_shift, get_equivalent)
+            return sym_tensor_equivs(choice, spin_num, equivalence_class)
 
-        # build matrix for many-body eigenvalue problem
-        excitation_mat = np.zeros((choice_num, choice_num))
-        for choice, idx in choices.items():
-            excitation_mat[idx,idx] += _diag_val(choice)
-            for pp, aa in it.product(range(spin_num), range(dimension)):
-                choice_aa = choice[aa]
-                choice_aa_pp = list(choice); choice_aa_pp[aa] = pp
-                if len(set(choice_aa_pp)) != dimension: continue
-                choice_aa_pp_idx = get_choice_idx(choice_aa_pp)
-                excitation_mat[idx,choice_aa_pp_idx] += sun_coefs[choice_aa,pp]
+    # build matrix for many-body eigenvalue problem
+    def _diag_val(choice):
+        return sum( sun_coefs[pp,qq] for pp in choice for qq in choice ) \
+             - sum( sun_coef_vec[pp] for pp in choice )
+    excitation_mat = np.diag([ _diag_val(choice) for choice in choices ])
+    for choice, idx in choices.items():
+        for pp, aa in it.product(range(spin_num), range(dimension)):
+            choice_aa = choice[aa]
+            if pp == choice_aa: continue
+            choice_aa_pp = list(choice); choice_aa_pp[aa] = pp
+            if len(set(choice_aa_pp)) != dimension: continue
+            choice_aa_pp_idx = get_choice_idx(choice_aa_pp)
+            excitation_mat[idx,choice_aa_pp_idx] += sun_coefs[choice_aa,pp]
 
-    # build methods to convert between a tensor and a "choice vector"
+    # convert between a tensor and a vector of equivalence class coefficients
     def vector_to_tensor(vector):
         return sum( val * choice_tensor(choice)
                     for val, choice in zip(vector, choices) )
