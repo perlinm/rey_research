@@ -41,19 +41,22 @@ def spin_shift_method(lattice_shape):
     def spin_shift(spins, disp, neg = False, idx = None):
         sign = 1 if not neg else -1
         if idx is None: # shift all spins
-            return tuple( to_idx( to_vec(idx) + sign * to_vec(disp) ) for idx in spins )
+            new_spins = ( to_idx( to_vec(spin) + sign * to_vec(disp) ) for spin in spins )
         else: # only shift spin `idx`
             new_spins = list(spins)
             new_spins[idx] = to_idx( to_vec(spins[idx]) + sign * to_vec(disp) )
-            return tuple(new_spins)
+        return tuple(sorted(new_spins))
     return spin_shift
 
 # method to reflect spins about an axis
 def spin_reflect_method(lattice_shape):
     to_vec, to_idx = index_methods(lattice_shape)
     def spin_reflect(spins, reflection):
-        reflection = np.array(reflection)
-        return tuple( to_idx( reflection * to_vec(idx) ) for idx in spins )
+        def _reflect(vec):
+            return [ pos if not reflect else size - pos
+                     for pos, reflect, size in zip(vec, reflection, lattice_shape) ]
+        new_spins = ( to_idx(_reflect(to_vec(spin))) for spin in spins )
+        return tuple(sorted(new_spins))
     return spin_reflect
 
 ##########################################################################################
@@ -63,29 +66,31 @@ def spin_reflect_method(lattice_shape):
 # unit tensor
 def unit_tensor(idx, size):
     tensor = np.zeros((size,)*len(idx), dtype = int)
-    tensor[tuple(idx)] = 1
+    tensor[idx] = 1
     return tensor
 
 # unit symmetric tensor
-def sym_tensor(idx, size):
-    dimension = len(idx)
+def sym_tensor(choice, size):
+    dimension = len(choice)
     tensor = np.zeros((size,)*dimension, dtype = int)
-    for perm_idx in it.permutations(idx):
-        tensor[perm_idx] = 1
+    for idx in it.permutations(choice):
+        tensor[idx] = 1
     return tensor
 
-# unit symmetric tensor, symmetrized over all translations
-#    and possibly some other equivalence relation
-def sym_tensor_symmetrized(idx, size, spin_shift, get_equivalent = None):
-    if get_equivalent is None:
-        get_equivalent = lambda idx : idx
-    dimension = len(idx)
+# unit symmetric tensor, symmetrized over equivalence classes
+def sym_tensor_equivs(choice, size, equivalence_class):
+    dimension = len(choice)
     tensor = np.zeros((size,)*dimension, dtype = int)
-    for shift, equivalent_idx in it.product(range(size),get_equivalent(idx)):
-        shifted_idx = spin_shift(equivalent_idx,shift)
-        for perm_idx in it.permutations(shifted_idx):
-            tensor[perm_idx] |= 1 # set tensor[perm_idx] to 1 (from either 0 or 1)
+    for equivalent_choice in equivalence_class(choice):
+        for idx in it.permutations(equivalent_choice):
+            tensor[idx] = 1
     return tensor
+
+# unit symmetric tensor, symmetrized over translations
+def sym_tensor_TI(choice, size, spin_shift):
+    def equivalence_class(choice):
+        return set( spin_shift(choice,shift) for shift in range(size) )
+    return sym_tensor_equivs(choice, size, equivalence_class)
 
 def random_tensor(dimension, lattice_shape, TI, seed = None):
     if seed is not None: np.random.seed(seed)
@@ -93,7 +98,7 @@ def random_tensor(dimension, lattice_shape, TI, seed = None):
     if TI:
         spin_shift = spin_shift_method(lattice_shape)
         return sum( np.random.rand() *
-                    sym_tensor_symmetrized((0,)+choice, spin_num, spin_shift)
+                    sym_tensor_TI((0,)+choice, spin_num, spin_shift)
                     for choice in it.combinations(range(1,spin_num), dimension-1) )
     else:
         return sum( np.random.rand() * sym_tensor(choice, spin_num)
