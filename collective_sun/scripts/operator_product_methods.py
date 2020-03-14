@@ -590,8 +590,8 @@ def build_shell_operator(tensors, operators, sunc, TI, shell_diagonal = False,
 
         _tensors = [ sunc[shell_lft].conj() ] + tensors + [ sunc[shell_rht] ]
 
-        product_args = ( _tensors, diags[dim_pair], opers[dim_pair] )
-        product = evaluate_operator_product(*product_args, TI)
+        product_args = ( _tensors, diags[dim_pair], opers[dim_pair], TI )
+        product = evaluate_operator_product(*product_args)
         shell_norms = np.outer(norms[shell_lft,:], norms[shell_rht,:])
 
         product[np.isclose(product,np.zeros(product.shape))] = 0

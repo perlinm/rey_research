@@ -54,6 +54,7 @@ sunc = {}
 sunc["mat"] = np.zeros((spin_num,spin_num))
 for pp, qq in itertools.combinations(range(spin_num),2):
     sunc["mat"][pp,qq] = sunc["mat"][qq,pp] = -1/dist(pp,qq)**alpha
+sunc["TI"] = True
 
 # compute tensors that generate multi-body excitation eigenstates
 shell_num = 0
@@ -76,7 +77,7 @@ for dimension in shell_dims:
         add_shell = True
         for shell in range(old_shell_num):
             if np.allclose(eig_val, excitation_energies[shell]):
-                overlap = compute_overlap(sunc[shell], tensor)
+                overlap = compute_overlap(sunc[shell], tensor, sunc["TI"])
                 if not np.allclose(overlap, np.zeros(overlap.shape)):
                     add_shell = False
                     break
@@ -108,20 +109,22 @@ for op_lft, op_rht in itertools.product(local_ops.keys(), repeat = 2):
     mat_rht = local_ops[op_rht]
     local_ops[op_lft + op_rht] = np.kron(mat_lft,mat_rht).reshape((2,)*4)
 
+# build the ZZ perturbation operator in the shell / Z-projection basis
+print("building perturbation operator")
+shell_coupling_mat \
+    = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]], sunc, sunc["TI"])
+
 # collective spin vector, and its outer product with itself
 def _pauli_mat(pauli):
     tensors = [np.ones(spin_num)]
     operators = [local_ops[pauli]]
-    full_pauli_op = build_shell_operator(tensors, operators, sunc, shell_diagonal = True)
+    full_pauli_op = build_shell_operator(tensors, operators, sunc,
+                                         sunc["TI"], shell_diagonal = True)
     full_pauli_op.shape = ( shell_num*(spin_num+1), )*2
     return full_pauli_op
 print("building collective spin operators")
 S_op_vec = [ _pauli_mat(pauli)/2 for pauli in [ "Z", "X", "Y" ] ]
 SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
-
-# build the ZZ perturbation operator in the shell / Z-projection basis
-print("building perturbation operator")
-shell_coupling_mat = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]], sunc)
 
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):
