@@ -200,7 +200,6 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
     symmetrize_rotations = ( isotropic and len(set(lattice_shape)) == 1 )
 
     # identify all equivalence classes of choices of spins
-    # TODO: symmetrize properly for isotropic systems
     if TI: # translationally invariant and maybe isotropic systems
         spin_shift = spin_shift_method(lattice_shape)
 
@@ -220,10 +219,10 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
         def class_label(choice, labels = {}):
             choice = tuple(choice)
             if not choice in labels:
-                labels[choice] = sorted( spin_shift(symmetry_choice,shift,neg=True)
-                                         for symmetry in _lattice_symmetries
-                                         if ( symmetry_choice := symmetry(choice) )
-                                         for shift in symmetry_choice )[0]
+                labels[choice] = min( spin_shift(symmetry_choice,shift,neg=True)
+                                      for symmetry in _lattice_symmetries
+                                      if ( symmetry_choice := symmetry(choice) )
+                                      for shift in symmetry_choice )
             return labels[choice]
 
         # construct all equivalence classes of choices of spins
