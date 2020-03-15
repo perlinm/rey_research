@@ -314,7 +314,7 @@ def get_multibody_states(lattice_shape, sun_coefs, manifolds, TI, isotropic = No
             print(excitation_mat.shape[0])
             sys.stdout.flush()
 
-        eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
+        eig_vals, eig_vecs = np.linalg.eigh(excitation_mat)
         for idx in np.argsort(eig_vals):
             eig_val = eig_vals[idx]
             tensor = vector_to_tensor(eig_vecs[:,idx])
