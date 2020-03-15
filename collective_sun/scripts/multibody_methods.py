@@ -383,9 +383,10 @@ def embed_operator(op, indices, site_num, site_dim = 2):
     diag = ( np.prod(op.shape) == site_dim**len(indices) )
 
     # embed operator into a larger hilbert space
-    identity = [1,1] if diag else np.eye(site_dim)
     aux_sites = site_num - len(indices)
-    op = functools.reduce(np.kron, [ op ] + [ identity ]*aux_sites)
+    aux_identity = [1]*site_dim**aux_sites if diag else np.eye(site_dim**aux_sites)
+    op = functools.reduce(np.kron, [ op ] + [ aux_identity ])
+    op = np.reshape(op, (site_dim**( 1 if diag else 2 ),)*site_num)
 
     if not diag:
         # collect and flatten tensor factors associated with each spin
@@ -394,7 +395,6 @@ def embed_operator(op, indices, site_num, site_dim = 2):
         perm = np.array(list(zip(list(fst_half),list(snd_half)))).flatten()
         op = np.reshape(op, (site_dim,)*2*site_num)
         op = np.transpose(op, perm)
-        op = np.reshape(op, (site_dim**2,)*site_num)
 
     # rearrange tensor factors according to the desired qubit order
     old_order = list(indices) + [ jj for jj in range(site_num) if jj not in indices ]
