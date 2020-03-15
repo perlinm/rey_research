@@ -16,7 +16,7 @@ def compose(*functions):
     return functools.reduce(lambda ff, gg: lambda xx: ff(gg(xx)), functions, iden)
 
 ##########################################################################################
-# dealing with lattice geometry
+# methods to deal with lattice geometry and symmetries
 ##########################################################################################
 
 # convert between integer and vector indices for a lattice site
@@ -135,6 +135,67 @@ def cube_symmetries(_index_methods):
     lattice_shape = tuple(to_vec(-1))
     raise NotImplementedError("construction of cube symmetries")
 
+# methods to deal with equivalence classes (ECs) of choices of lattice sites
+# returns: (1) `classes`: dictionary mapping an EC label to an EC index
+#          (2) `equivalence_class`: function mapping a choice of sites to an EC (as a set)
+#          (3) `class_label`: function mapping a choice of sites to an EC label
+#          (4) `class_tensor`: function mapping a choice of sites to a unit EC tensor
+def equivalence_class_methods(dimension, lattice_shape, TI, isotropic = None):
+    site_num = np.prod(lattice_shape)
+    if isotropic is None: isotropic = TI
+    assert( not ( isotropic and not TI ) )
+
+    # identify all equivalence classes of choices of lattice sites
+    if TI: # translationally invariant and maybe isotropic systems
+        shift_sites = site_shift_method(lattice_shape)
+
+        if isotropic:
+            _lattice_symmetries = lattice_symmetries(lattice_shape)
+        else:
+            _lattice_symmetries = [ iden ]
+
+        # return the equivalence class of a choice of sites, as either a set or a label
+        def equivalence_class(choice, classes = {}):
+            try: return classes[choice]
+            except:
+                new_class = set( shift_sites(symmetry(choice),shift)
+                                 for symmetry in _lattice_symmetries
+                                 for shift in range(site_num) )
+                classes[choice] = new_class
+                return new_class
+        def class_label(choice, labels = {}):
+            try: return labels[choice]
+            except:
+                new_label = min( shift_sites(symmetry_choice,shift,neg=True)
+                                 for symmetry in _lattice_symmetries
+                                 if ( symmetry_choice := symmetry(choice) )
+                                 for shift in symmetry_choice )
+                labels[choice] = new_label
+                return new_label
+
+        # construct a unit tensor symmetrized over an equivalence class
+        def class_tensor(label):
+            return sym_tensor_equivs(label, site_num, equivalence_class)
+
+        # construct all equivalence classes of choices of sites
+        classes = {}
+        class_num = 0
+        for reduced_choice in it.combinations(range(1,site_num), dimension-1):
+            label = (0,) + reduced_choice
+            if class_label(label) not in classes:
+                classes[label] = class_num
+                class_num += 1
+
+    else: # no translational invariance
+        classes = { choice : idx
+                    for idx, choice
+                    in enumerate(it.combinations(range(site_num), dimension)) }
+        def equivalence_class(choice): return set({choice})
+        def class_label(choice): return choice
+        def class_tensor(choice): return sym_tensor(choice, site_num)
+
+    return classes, equivalence_class, class_label, class_tensor
+
 ##########################################################################################
 # methods for building tensors
 ##########################################################################################
@@ -168,17 +229,16 @@ def sym_tensor_TI(choice, size, shift_sites):
         return set( shift_sites(choice,shift) for shift in range(size) )
     return sym_tensor_equivs(choice, size, equivalence_class)
 
-def random_tensor(dimension, lattice_shape, TI, seed = None):
+def random_tensor(dimension, lattice_shape, TI, isotropic = None, seed = None):
     if seed is not None: np.random.seed(seed)
-    site_num = np.prod(lattice_shape)
-    if TI:
-        shift_sites = site_shift_method(lattice_shape)
-        return sum( np.random.rand() *
-                    sym_tensor_TI((0,)+choice, site_num, shift_sites)
-                    for choice in it.combinations(range(1,site_num), dimension-1) )
-    else:
-        return sum( np.random.rand() * sym_tensor(choice, site_num)
-                    for choice in it.combinations(range(site_num), dimension) )
+    if isotropic is None: isotropic = TI
+    if isotropic and not TI:
+        print("WARNING: a tensor cannot be (1) isotropic but not (2) translationally invariant.")
+        print("         builing a tensor that is neither (1) nor (2).")
+        isotropic = False
+    classes, equivalence_class, class_label, class_tensor \
+        = equivalence_class_methods(dimension, lattice_shape, TI, isotropic)
+    return sum( np.random.rand() * class_tensor(label) for label in classes )
 
 ##########################################################################################
 # setting up the multibody eigenvalue problem
@@ -195,65 +255,16 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
     site_num = np.prod(lattice_shape)
     sun_coef_vec = sum(sun_coefs)
 
-    # identify lattice symmetries
+    # determine whether the SU(n) couplings are translationally invariant (TI)
+    #   by checking whether sun_coef_vec is constant
+    # note: strictly speaking, we are checking a necessary but not sufficient condition
+    #       for TI, but sun_coefs must be very carefully tuned to satisfy
+    #       this condition without actually being TI
     if TI is None:
         TI = np.allclose(sun_coef_vec/sun_coef_vec[0], np.ones(site_num))
-    if isotropic is None:
-        isotropic = TI
-    assert( not ( isotropic and not TI ) )
-    symmetrize_rotations = ( isotropic and len(set(lattice_shape)) == 1 )
 
-    # identify all equivalence classes of choices of lattice sites
-    if TI: # translationally invariant and maybe isotropic systems
-        shift_sites = site_shift_method(lattice_shape)
-
-        # return the equivalence class of a choice of sites, as either a set or a label
-        if isotropic:
-            _lattice_symmetries = lattice_symmetries(lattice_shape)
-        else:
-            _lattice_symmetries = [ iden ]
-
-        def equivalence_class(choice, classes = {}):
-            try: return classes[choice]
-            except:
-                new_class = set( shift_sites(symmetry(choice),shift)
-                                 for symmetry in _lattice_symmetries
-                                 for shift in range(site_num) )
-                classes[choice] = new_class
-                return new_class
-        def class_label(choice, labels = {}):
-            try: return labels[choice]
-            except:
-                new_label = min( shift_sites(symmetry_choice,shift,neg=True)
-                                 for symmetry in _lattice_symmetries
-                                 if ( symmetry_choice := symmetry(choice) )
-                                 for shift in symmetry_choice )
-                labels[choice] = new_label
-                return new_label
-
-        # construct all equivalence classes of choices of sites
-        classes = {}
-        class_num = 0
-        for reduced_choice in it.combinations(range(1,site_num), dimension-1):
-            label = (0,) + reduced_choice
-            if class_label(label) not in classes:
-                classes[label] = class_num
-                class_num += 1
-
-        # construct a unit tensor symmetrized over an equivalence class
-        def class_tensor(label):
-            return sym_tensor_equivs(label, site_num, equivalence_class)
-
-    else: # no translational invariance
-        classes = { choice : idx
-                    for idx, choice
-                    in enumerate(it.combinations(range(site_num), dimension)) }
-
-        def equivalence_class(choice): return set({choice})
-        def class_label(choice): return choice
-
-        def class_tensor(choice):
-            return sym_tensor(choice, site_num)
+    classes, equivalence_class, class_label, class_tensor \
+        = equivalence_class_methods(dimension, lattice_shape, TI, isotropic)
 
     # get the index of the equivalence class of a choice of sites
     def get_class_idx(choice):
@@ -282,8 +293,8 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
 
     # convert between a tensor and a vector of equivalence class coefficients
     def vector_to_tensor(vector):
-        return sum( val * class_tensor(choice)
-                    for val, choice in zip(vector/sqrt_mults, classes) )
+        return sum( val * class_tensor(label)
+                    for val, label in zip(vector/sqrt_mults, classes) )
     def tensor_to_vector(tensor):
         return sqrt_mults * np.array([ tensor[label] for label in classes ])
 

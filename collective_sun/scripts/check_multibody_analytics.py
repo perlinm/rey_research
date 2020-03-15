@@ -8,10 +8,11 @@ from itertools_extension import assignments, set_diagrams
 from multibody_methods import unit_tensor, random_tensor, multibody_problem, \
     sym_state, embed_operator
 
-trans_inv = True
+trans_inv = False
+isotropic = False
 
 min_spins = 4
-max_spins = 8
+max_spins = 5
 max_dim = 2**max_spins
 
 total_dim = max_dim+1 # total dimension of Hilbert space
@@ -58,7 +59,7 @@ sym_proj = sum( to_proj(sym_state(label,spin_num,spin_dim)) for label in sym_lab
 # return a random symmetric tensor with zeros on all diagonal blocks
 _random_tensor = random_tensor
 def random_tensor(dimension):
-    return _random_tensor(dimension, lattice_shape, trans_inv)
+    return _random_tensor(dimension, lattice_shape, trans_inv, isotropic)
 
 # random `dimension`-local operator that obeys permutational symmetry
 def random_op(dimension):
@@ -208,7 +209,7 @@ for tensor, base_op, full_op in zip(tensors, base_ops, full_ops):
 for dimension, base_op, tensor in zip(dimensions, base_ops, tensors):
 
     excitation_mat, vector_to_tensor, tensor_to_vector \
-        = multibody_problem(lattice_shape, sun_coefs, dimension, trans_inv)
+        = multibody_problem(lattice_shape, sun_coefs, dimension, trans_inv, isotropic = False)
 
     vector = tensor_to_vector(tensor)
     coef_act_tensor = vector_to_tensor(excitation_mat @ vector)
