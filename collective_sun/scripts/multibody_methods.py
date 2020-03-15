@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
+import sys
 import numpy as np
 import itertools as it
 import functools
+
+from operator_product_methods import compute_overlap
 
 # identity function
 def iden(xx): return xx
@@ -283,3 +286,55 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
         return sqrt_mults * np.array([ tensor[label] for label in classes ])
 
     return excitation_mat, vector_to_tensor, tensor_to_vector
+
+# get (1) shell indices with each multi-body excitation manifold,
+#     (2) energies of each shell, and
+#     (4) tensors that generate states in that shell
+def get_multibody_states(lattice_shape, sun_coefs, manifolds, TI, isotropic = None,
+                         updates = True):
+    if type(manifolds) is int:
+        _manifolds = range(manifolds+1)
+    else:
+        _manifolds = manifolds
+
+    site_num = sun_coefs.shape[0]
+
+    shell_num = 0
+    manifold_shells = {}
+    energies = {}
+    tensors = {}
+    for manifold in _manifolds:
+        if updates:
+            print(f"manifold, size: {manifold}, ", end = "")
+        old_shell_num = shell_num
+        excitation_mat, vector_to_tensor, tensor_to_vector \
+            = multibody_problem(lattice_shape, sun_coefs, manifold)
+        if updates:
+            print(excitation_mat.shape[0])
+            sys.stdout.flush()
+
+        eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
+        for idx in np.argsort(eig_vals):
+            eig_val = eig_vals[idx]
+            tensor = vector_to_tensor(eig_vecs[:,idx])
+
+            # if this eigenvalue matches an excitation energy of a fewer-body state,
+            #   then check that the corresponding states are orthogonal
+            # if these states are not orthogonal, then ignore this (redundant) state
+            if any( np.allclose(eig_val, energies[shell]) and
+                    not np.allclose(compute_overlap(tensors[shell], tensor, TI),
+                                    np.zeros((site_num+1,)*2))
+                    for shell in range(old_shell_num) ):
+                continue
+
+            energies[shell_num] = eig_val
+            tensors[shell_num] = tensor
+            shell_num += 1
+            if updates:
+                print("  shells:", shell_num)
+                sys.stdout.flush()
+
+        manifold_shells[manifold] = np.array(range(old_shell_num,shell_num), dtype = int)
+
+    energies = np.array(list(energies.values()))
+    return manifold_shells, energies, tensors

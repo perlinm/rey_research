@@ -6,14 +6,14 @@ import matplotlib.pyplot as plt
 
 from squeezing_methods import spin_squeezing
 from dicke_methods import coherent_spin_state as coherent_state_PS
-from multibody_methods import dist_method, multibody_problem
-from operator_product_methods import compute_overlap, build_shell_operator
+from multibody_methods import dist_method, get_multibody_states
+from operator_product_methods import build_shell_operator
 
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
 lattice_shape = (3,4)
-shell_dims = [ 0, 2, 4 ]
+manifolds = [ 0, 2, 4 ]
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -56,41 +56,11 @@ for pp, qq in itertools.combinations(range(spin_num),2):
     sunc["mat"][pp,qq] = sunc["mat"][qq,pp] = -1/dist(pp,qq)**alpha
 sunc["TI"] = True
 
-# compute tensors that generate multi-body excitation eigenstates
-shell_num = 0
-sunc["shells"] = {}
-excitation_energies = {}
-for dimension in shell_dims:
-    print(f"dimension, size: {dimension}, ", end = "")
-    old_shell_num = shell_num
-    excitation_mat, vector_to_tensor, tensor_to_vector \
-        = multibody_problem(lattice_shape, sunc["mat"], dimension)
-    print(excitation_mat.shape[0])
-    sys.stdout.flush()
-
-    eig_vals, eig_vecs = np.linalg.eig(excitation_mat)
-    for idx in np.argsort(eig_vals):
-        eig_val = eig_vals[idx]
-        tensor = vector_to_tensor(eig_vecs[:,idx])
-
-        # if this eigenvalue matches an excitation energy of a fewer-body state,
-        #   then check that the corresponding states are orthogonal
-        # if these states are not orthogonal, then ignore this (redundant) state
-        if any( np.allclose(eig_val, excitation_energies[shell]) and
-                not np.allclose(compute_overlap(sunc[shell], tensor, sunc["TI"]),
-                                np.zeros((spin_num+1,)*2))
-                for shell in range(old_shell_num) ):
-            continue
-
-        excitation_energies[shell_num] = eig_val
-        sunc[shell_num] = tensor
-        shell_num += 1
-        print("  shells:", shell_num)
-        sys.stdout.flush()
-
-    sunc["shells"][dimension] = np.array(range(old_shell_num,shell_num), dtype = int)
-
-excitation_energies = np.array(list(excitation_energies.values()))
+# build generators of interaction eigenstates, compute energies, etc.
+sunc["shells"], sunc["energies"], sunc_tensors \
+    = get_multibody_states(lattice_shape, sunc["mat"], manifolds, sunc["TI"])
+sunc.update(sunc_tensors)
+shell_num = len(sunc["energies"])
 
 ##########################################################################################
 # compute states and operators in the shell / Z-projection basis
@@ -134,7 +104,7 @@ def energies_states(zz_sun_ratio):
 
     for spins_up in range(spin_num+1):
         # construct the Hamiltonian at this Z projection, from SU(n) + ZZ couplings
-        _proj_hamiltonian = np.diag(excitation_energies) \
+        _proj_hamiltonian = np.diag(sunc["energies"]) \
                           + zz_sun_ratio * shell_coupling_mat[:,spins_up,:,spins_up]
 
         # diagonalize the net Hamiltonian at this Z projection
