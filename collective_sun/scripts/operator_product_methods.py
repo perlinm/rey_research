@@ -395,11 +395,14 @@ def evaluate_operator_product(tensors, diagrams, diagram_ops, TI):
     return np.tensordot(coefficients, diagram_ops, axes = 1)
 
 # Z-type multi-local operator
-def multi_Z_op(tensor_power):
+def multi_Z_op(tensor_power, diag = False):
+    if diag:
+        Z_op = np.array([ +1, -1 ])
+    else:
+        Z_op = np.array([ [ +1, 0 ], [ 0, -1 ] ])
     empty_op = np.ones(())
-    Z = np.array([[1,0],[0,-1]])
-    operator = functools.reduce(np.kron, [ Z ]*tensor_power + [ empty_op ])
-    operator.shape = (2,)*2*tensor_power
+    operator = functools.reduce(np.kron, [ Z_op ]*tensor_power + [ empty_op ])
+    operator.shape = (2,)*tensor_power*Z_op.ndim
     return operator
 
 def _conj_op(operator):

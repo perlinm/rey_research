@@ -5,6 +5,7 @@ import numpy as np
 import itertools as it
 import functools
 
+from itertools_extension import unique_permutations
 from operator_product_methods import compute_overlap
 
 # identity function
@@ -339,3 +340,64 @@ def get_multibody_states(lattice_shape, sun_coefs, manifolds, TI, isotropic = No
 
     energies = np.array(list(energies.values()))
     return manifold_shells, energies, tensors
+
+##########################################################################################
+# methods for building "full" multibody states and operators
+##########################################################################################
+
+# build a fully symmetric state labelled by occupation number
+def sym_state(occupations, site_num, site_dim = 2, normalize = True, sparse = False):
+    if type(occupations) is int:
+        occupations = (occupations,site_num-occupations)
+    labels = [ [mm]*pop for mm, pop in enumerate(occupations) ]
+    labels = np.concatenate(labels).astype(int)
+    def _base_state(label):
+        return unit_tensor((label,), site_dim)
+    vec = sum( functools.reduce(np.kron, map(_base_state, perm))
+               for perm in unique_permutations(labels) )
+    if normalize:
+        vec = vec / np.sqrt(vec @ vec)
+    if not sparse:
+        return vec
+    else:
+        from scipy import sparse
+        return sparse.csr_matrix(vec).T
+
+# act with the multi-local operator `op` on the spins indexed by `indices`
+def embed_operator(op, indices, site_num, site_dim = 2):
+    if not hasattr(indices, "__getitem__"):
+        indices = list(indices)
+
+    op = np.array(op)
+    diag = ( np.prod(op.shape) == site_dim**len(indices) )
+
+    # embed operator into a larger hilbert space
+    identity = [1,1] if diag else np.eye(site_dim)
+    aux_sites = site_num - len(indices)
+    op = functools.reduce(np.kron, [ op ] + [ identity ]*aux_sites)
+
+    if not diag:
+        # collect and flatten tensor factors associated with each spin
+        fst_half = range(site_num)
+        snd_half = range(site_num,2*site_num)
+        perm = np.array(list(zip(list(fst_half),list(snd_half)))).flatten()
+        op = np.reshape(op, (site_dim,)*2*site_num)
+        op = np.transpose(op, perm)
+        op = np.reshape(op, (site_dim**2,)*site_num)
+
+    # rearrange tensor factors according to the desired qubit order
+    old_order = list(indices) + [ jj for jj in range(site_num) if jj not in indices ]
+    new_order = np.arange(site_num)[np.argsort(old_order)]
+    op = np.transpose(op, new_order)
+
+    if not diag:
+        # un-flatten the tensor factors, and flatten the tensor into
+        #   a matrix that acts on the joint Hilbert space of all qubits
+        op_shape = (site_dim,)*site_num*( 1 if diag else 2 )
+        op = np.reshape(op, op_shape)
+        evens = range(0,2*site_num,2)
+        odds = range(1,2*site_num,2)
+        op = np.transpose(op, list(evens)+list(odds))
+
+    mat_shape = (site_dim**site_num,)*( 1 if diag else 2 )
+    return np.reshape(op, mat_shape)
