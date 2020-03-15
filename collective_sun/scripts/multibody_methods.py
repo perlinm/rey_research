@@ -15,22 +15,22 @@ def compose(*functions):
 # dealing with lattice geometry
 ##########################################################################################
 
-# convert between integer and vector indices for a spin
+# convert between integer and vector indices for a lattice site
 def index_methods(lattice_shape):
-    spin_num = np.prod(lattice_shape)
+    site_num = np.prod(lattice_shape)
     _to_vec = { idx : tuple(vec) for idx, vec in enumerate(np.ndindex(lattice_shape)) }
     _to_idx = { vec : idx for idx, vec in _to_vec.items() }
     def to_vec(idx):
         if hasattr(idx, "__getitem__"):
             return np.array(idx) % np.array(lattice_shape)
-        return np.array(_to_vec[ idx % spin_num ])
+        return np.array(_to_vec[ idx % site_num ])
     def to_idx(vec):
         if type(vec) is int:
-            return vec % spin_num
+            return vec % site_num
         return _to_idx[ tuple( np.array(vec) % np.array(lattice_shape) ) ]
     return to_vec, to_idx
 
-# method to compute the distance between two spins
+# method to compute the distance between two lattice sites
 def dist_method(lattice_shape, _index_methods = None):
     if _index_methods is None:
         _index_methods = index_methods(lattice_shape)
@@ -46,21 +46,21 @@ def dist_method(lattice_shape, _index_methods = None):
                             for aa, pp_qq in enumerate(zip(pp,qq)) ))
     return dist
 
-# method to shift spins by a displacement
-def spin_shift_method(lattice_shape, _index_methods = None):
+# method to shift sites by a displacement
+def site_shift_method(lattice_shape, _index_methods = None):
     if _index_methods is None:
         _index_methods = index_methods(lattice_shape)
     to_vec, to_idx = _index_methods
 
-    def spin_shift(spins, disp, neg = False, idx = None):
+    def shift_sites(sites, disp, neg = False, idx = None):
         sign = 1 if not neg else -1
-        if idx is None: # shift all spins
-            new_spins = ( to_idx( to_vec(spin) + sign * to_vec(disp) ) for spin in spins )
-        else: # only shift spin `idx`
-            new_spins = list(spins)
-            new_spins[idx] = to_idx( to_vec(spins[idx]) + sign * to_vec(disp) )
-        return tuple(sorted(new_spins))
-    return spin_shift
+        if idx is None: # shift all sites
+            new_sites = ( to_idx( to_vec(site) + sign * to_vec(disp) ) for site in sites )
+        else: # only shift site `idx`
+            new_sites = list(sites)
+            new_sites[idx] = to_idx( to_vec(sites[idx]) + sign * to_vec(disp) )
+        return tuple(sorted(new_sites))
+    return shift_sites
 
 # get generators of all lattice symmetries
 # each generator acts on a choice of lattice sites
@@ -159,22 +159,22 @@ def sym_tensor_equivs(choice, size, equivalence_class):
     return tensor
 
 # unit symmetric tensor, symmetrized over translations
-def sym_tensor_TI(choice, size, spin_shift):
+def sym_tensor_TI(choice, size, shift_sites):
     def equivalence_class(choice):
-        return set( spin_shift(choice,shift) for shift in range(size) )
+        return set( shift_sites(choice,shift) for shift in range(size) )
     return sym_tensor_equivs(choice, size, equivalence_class)
 
 def random_tensor(dimension, lattice_shape, TI, seed = None):
     if seed is not None: np.random.seed(seed)
-    spin_num = np.prod(lattice_shape)
+    site_num = np.prod(lattice_shape)
     if TI:
-        spin_shift = spin_shift_method(lattice_shape)
+        shift_sites = site_shift_method(lattice_shape)
         return sum( np.random.rand() *
-                    sym_tensor_TI((0,)+choice, spin_num, spin_shift)
-                    for choice in it.combinations(range(1,spin_num), dimension-1) )
+                    sym_tensor_TI((0,)+choice, site_num, shift_sites)
+                    for choice in it.combinations(range(1,site_num), dimension-1) )
     else:
-        return sum( np.random.rand() * sym_tensor(choice, spin_num)
-                    for choice in it.combinations(range(spin_num), dimension) )
+        return sum( np.random.rand() * sym_tensor(choice, site_num)
+                    for choice in it.combinations(range(site_num), dimension) )
 
 ##########################################################################################
 # setting up the multibody eigenvalue problem
@@ -187,23 +187,23 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
         def tensor_to_vector(tensor): return tensor * np.ones(1)
         return excitation_mat, vector_to_tensor, tensor_to_vector
 
-    # compute total spin numder and SU(n) coupling vector
-    spin_num = np.prod(lattice_shape)
+    # compute total site numder and SU(n) coupling vector
+    site_num = np.prod(lattice_shape)
     sun_coef_vec = sum(sun_coefs)
 
     # identify lattice symmetries
     if TI is None:
-        TI = np.allclose(sun_coef_vec/sun_coef_vec[0], np.ones(spin_num))
+        TI = np.allclose(sun_coef_vec/sun_coef_vec[0], np.ones(site_num))
     if isotropic is None:
         isotropic = TI
     assert( not ( isotropic and not TI ) )
     symmetrize_rotations = ( isotropic and len(set(lattice_shape)) == 1 )
 
-    # identify all equivalence classes of choices of spins
+    # identify all equivalence classes of choices of lattice sites
     if TI: # translationally invariant and maybe isotropic systems
-        spin_shift = spin_shift_method(lattice_shape)
+        shift_sites = site_shift_method(lattice_shape)
 
-        # return the equivalence class of a choice of spins, as either a set or a label
+        # return the equivalence class of a choice of sites, as either a set or a label
         if isotropic:
             _lattice_symmetries = lattice_symmetries(lattice_shape)
         else:
@@ -212,25 +212,25 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
         def equivalence_class(choice, classes = {}):
             try: return classes[choice]
             except:
-                new_class = set( spin_shift(symmetry(choice),shift)
+                new_class = set( shift_sites(symmetry(choice),shift)
                                  for symmetry in _lattice_symmetries
-                                 for shift in range(spin_num) )
+                                 for shift in range(site_num) )
                 classes[choice] = new_class
                 return new_class
         def class_label(choice, labels = {}):
             try: return labels[choice]
             except:
-                new_label = min( spin_shift(symmetry_choice,shift,neg=True)
+                new_label = min( shift_sites(symmetry_choice,shift,neg=True)
                                  for symmetry in _lattice_symmetries
                                  if ( symmetry_choice := symmetry(choice) )
                                  for shift in symmetry_choice )
                 labels[choice] = new_label
                 return new_label
 
-        # construct all equivalence classes of choices of spins
+        # construct all equivalence classes of choices of sites
         classes = {}
         class_num = 0
-        for reduced_choice in it.combinations(range(1,spin_num), dimension-1):
+        for reduced_choice in it.combinations(range(1,site_num), dimension-1):
             label = (0,) + reduced_choice
             if class_label(label) not in classes:
                 classes[label] = class_num
@@ -238,19 +238,19 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
 
         # construct a unit tensor symmetrized over an equivalence class
         def class_tensor(label):
-            return sym_tensor_equivs(label, spin_num, equivalence_class)
+            return sym_tensor_equivs(label, site_num, equivalence_class)
 
     else: # no translational invariance
         classes = { choice : idx
                     for idx, choice
-                    in enumerate(it.combinations(range(spin_num), dimension)) }
+                    in enumerate(it.combinations(range(site_num), dimension)) }
 
         def class_label(choice): return choice
 
         def class_tensor(choice):
-            return sym_tensor(choice, spin_num)
+            return sym_tensor(choice, site_num)
 
-    # get the index of the equivalence class of a choice of spins
+    # get the index of the equivalence class of a choice of sites
     def get_class_idx(choice):
         return classes.get(class_label(tuple(sorted(choice))))
 
@@ -266,7 +266,7 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
                                for choice, mult in zip(classes, mults) ])
     for label, idx in classes.items():
         for choice in equivalence_class(label):
-            for pp in range(spin_num):
+            for pp in range(site_num):
                 if pp in choice: continue
                 for aa in range(dimension):
                     choice_aa = choice[aa]
