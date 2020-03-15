@@ -248,6 +248,7 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
                     for idx, choice
                     in enumerate(it.combinations(range(site_num), dimension)) }
 
+        def equivalence_class(choice): return set({choice})
         def class_label(choice): return choice
 
         def class_tensor(choice):
@@ -308,7 +309,7 @@ def get_multibody_states(lattice_shape, sun_coefs, manifolds, TI, isotropic = No
             print(f"manifold, size: {manifold}, ", end = "")
         old_shell_num = shell_num
         excitation_mat, vector_to_tensor, tensor_to_vector \
-            = multibody_problem(lattice_shape, sun_coefs, manifold)
+            = multibody_problem(lattice_shape, sun_coefs, manifold, TI)
         if updates:
             print(excitation_mat.shape[0])
             sys.stdout.flush()
