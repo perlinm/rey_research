@@ -13,7 +13,7 @@ np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
 lattice_shape = (3,4)
-manifolds = [ 0, 2, 4 ]
+max_manifold = 4
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
@@ -39,8 +39,11 @@ params = { "font.size" : 16,
                                      r"\usepackage{braket}" ]}
 plt.rcParams.update(params)
 
+##################################################
+
 lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
+manifolds = list(range(max_manifold+1))
 
 print("lattice shape:",lattice_shape)
 ##########################################################################################
@@ -229,10 +232,12 @@ for coupling_zz in inspect_coupling_zz:
     plt.figure(figsize = figsize)
     plt.title(title_text)
     for manifold, shells in sunc["shells"].items():
+        manifold_pops = pops[:,shells].sum(axis = 1)
+        if np.allclose(max(manifold_pops),0): continue
         if plot_all_shells:
             for shell in shells:
                 plt.plot(times, pops[:,shell], color = "gray", linestyle = "--")
-        plt.plot(times, pops[:,shells].sum(axis = 1), label = pop_label(manifold))
+        plt.plot(times, manifold_pops, label = pop_label(manifold))
     plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel("population")
@@ -276,6 +281,7 @@ plt.plot(sweep_coupling_zz, sweep_min_pops[:,0], "o",
          label = pop_label(0,"min"))
 for idx, manifold in enumerate(sunc["shells"].keys()):
     if manifold == 0: continue
+    if np.allclose(sweep_max_pops[:,idx], np.zeros(sweep_max_pops.shape[0])): continue
     plt.plot(sweep_coupling_zz, sweep_max_pops[:,idx], "o",
              label = pop_label(manifold,"max"))
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")

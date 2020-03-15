@@ -14,9 +14,9 @@ from multibody_methods import dist_method
 
 np.set_printoptions(linewidth = 200)
 
-lattice_shape = (2,4)
-alpha = 3 # power-law couplings ~ 1 / r^\alpha
+lattice_shape = (3,4)
 max_manifold = 4
+alpha = 3 # power-law couplings ~ 1 / r^\alpha
 
 # values of the ZZ coupling to simulate in an XXZ model
 sweep_coupling_zz = np.linspace(-1,3,41)
@@ -28,8 +28,7 @@ inspect_sim_time = 2
 max_time = 10 # in units of J_\perp
 
 periodic = True # use periodic boundary conditions?
-project_hamiltonian = False
-manifolds = range(max_manifold+1)
+project = False # project operators onto the relevant manifolds?
 
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
@@ -49,8 +48,9 @@ if type(lattice_shape) is int:
     lattice_shape = (lattice_shape,)
 lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
-assert(spin_num <= 12)
+manifolds = [ manifold for manifold in range(max_manifold+1) if manifold <= spin_num/2 ]
 
+assert(spin_num <= 12)
 print("lattice shape:",lattice_shape)
 ##########################################################################################
 print("reading in projectors onto manifolds of fixed net spin")
@@ -182,7 +182,7 @@ Sy = col_op("Y") / 2
 S_op_vec = [ Sz, Sx, Sy ]
 SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
 
-if project_hamiltonian:
+if project:
     P_0 = sum( proj for proj in projs.values() )
     H_0 = P_0 @ H_0 @ P_0
     ZZ = P_0 @ ZZ @ P_0
@@ -260,7 +260,7 @@ def to_dB(sqz):
 
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
-if project_hamiltonian: fig_dir += "proj_"
+if project: fig_dir += "proj_"
 
 ##########################################################################################
 print("running inspection simulations")
@@ -340,6 +340,7 @@ plt.title(title_text)
 plt.plot(sweep_coupling_zz, sweep_min_pops[0], "o", label = pop_label(0,"min"))
 for manifold, max_pops in sweep_max_pops.items():
     if manifold == 0: continue
+    if np.allclose(max_pops, np.zeros(len(max_pops))): continue
     plt.plot(sweep_coupling_zz, max_pops, "o", label = pop_label(manifold,"max"))
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel("population")
