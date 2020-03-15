@@ -16,6 +16,7 @@ np.set_printoptions(linewidth = 200)
 
 lattice_shape = (2,4)
 alpha = 3 # power-law couplings ~ 1 / r^\alpha
+max_manifold = 4
 
 # values of the ZZ coupling to simulate in an XXZ model
 sweep_coupling_zz = np.linspace(-1,3,41)
@@ -28,6 +29,7 @@ max_time = 10 # in units of J_\perp
 
 periodic = True # use periodic boundary conditions?
 project_hamiltonian = False
+manifolds = range(max_manifold+1)
 
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
@@ -54,7 +56,7 @@ print("lattice shape:",lattice_shape)
 print("reading in projectors onto manifolds of fixed net spin")
 
 projs = {}
-for manifold in range(3):
+for manifold in manifolds:
     proj_path = data_dir + f"projector_N{spin_num}_M{manifold}.txt"
     if not os.path.isfile(proj_path):
         print(f"projector not found: {proj_path}")
