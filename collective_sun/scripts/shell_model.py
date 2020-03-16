@@ -12,9 +12,13 @@ from operator_product_methods import build_shell_operator
 np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
-lattice_shape = (3,4)
-max_manifold = 4
-alpha = 3 # power-law couplings ~ 1 / r^\alpha
+if len(sys.argv) < 4:
+    print(f"usage: {sys.argv[0]} [alpha] [max_manifold] [lattice_shape]")
+    exit()
+
+alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
+max_manifold = int(sys.argv[2])
+lattice_shape = tuple(map(int, sys.argv[3:]))
 
 # values of the ZZ coupling to simulate in an XXZ model
 sweep_coupling_zz = np.linspace(-1,3,41)
