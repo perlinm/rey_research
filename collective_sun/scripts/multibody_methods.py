@@ -319,6 +319,7 @@ def get_multibody_states(lattice_shape, sun_coefs, manifolds, TI, isotropic = No
     for manifold in _manifolds:
         if updates:
             print(f"manifold, size: {manifold}, ", end = "")
+            sys.stdout.flush()
         old_shell_num = shell_num
         excitation_mat, vector_to_tensor, tensor_to_vector \
             = multibody_problem(lattice_shape, sun_coefs, manifold, TI)

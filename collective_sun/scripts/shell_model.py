@@ -49,7 +49,7 @@ print("lattice shape:",lattice_shape)
 ##########################################################################################
 # build SU(n) interaction matrix, and build generators of interaction eigenstates
 ##########################################################################################
-print("builing generators of interaction eigenstates")
+print("builing generators of interaction energy eigenstates")
 
 dist = dist_method(lattice_shape)
 
