@@ -38,7 +38,7 @@ class diagram_vec:
             print("diagram cannot be initialized with type:", type(diagrams))
 
         if coefficients is None:
-            self.coefs = np.ones(len(self.diags)).astype(int)
+            self.coefs = np.ones(len(self.diags), dtype = int)
         elif hasattr(coefficients, "__getitem__"):
             assert(len(coefficients) == len(self.diags))
             self.coefs = np.array(coefficients)
@@ -182,6 +182,10 @@ def reduce_diagram(diagram):
 # methods to multiply multi-body operators
 ##########################################################################################
 
+# get appropriate data type to use, given a list of operators
+def _get_dtype(operators):
+    return type( np.product([ operator.ravel()[0] for operator in operators ]) )
+
 # symmetrize a tensor operator under all permutations of its target spaces
 def symmetrize_operator(oper):
     subsystems = oper.ndim//2
@@ -217,8 +221,9 @@ def contract_ops(base_ops, diagram):
     final_indices = final_out_indices + final_inp_indices
 
     # cast all base operators into the appropriate data type
-    dtype = type(np.product([ op.flatten()[0] for op in base_ops ]))
-    base_ops = [ op.astype(dtype) for op in base_ops ]
+    dtype = _get_dtype(base_ops)
+    base_ops = [ op if op.dtype == dtype else op.astype(dtype)
+                 for op in base_ops ]
 
     contraction = start_indices + "->" + final_indices
     return np.array( tf.einsum(contraction, *base_ops).numpy() )
@@ -229,8 +234,9 @@ def contract_tensors(tensors, diagram, TI):
     if len(diagram) == 0: return 1
 
     # cast all tensors into the appropriate data type
-    dtype = type(np.product([ tensor[(0,)*tensor.ndim] for tensor in tensors ]))
-    tensors = [ tensor.astype(dtype) for tensor in tensors ]
+    dtype = _get_dtype(tensors)
+    tensors = [ tensor if tensor.dtype == dtype else tensor.astype(dtype)
+                for tensor in tensors ]
 
     # assign contraction indices to each tensor
     indices_used = [ 0 ] * len(tensors)
@@ -408,10 +414,6 @@ def multi_Z_op(tensor_power, diag = False):
 def _conj_op(operator):
     dim = operator.ndim//2
     return operator.transpose(list(range(dim,2*dim)) + list(range(dim))).conj()
-
-# get appropriate data type to use, given a list of operators
-def _get_dtype(operators):
-    return type( np.product([ operator[(0,)*operator.ndim] for operator in operators ]) )
 
 # get the diagrams and operators (for each diagram) necessary
 #   to evaluate products of ZZ operators
