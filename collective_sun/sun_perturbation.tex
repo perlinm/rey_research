@@ -871,21 +871,13 @@ projection of $\check{\m h}$ onto the symmetric subspace:
 \begin{align}
   \check{\m h}_{\S_M}
   \equiv \P_{\S_M} \check{\m h} \P_{\S_M}
-  = \sum_{r,s\in\S_M} h_{rs} \op{r}{s},
+  = \sum_{s\in\S_M} \ket{s} \sp{
+    \sum_{k\in s} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{a\in\ZZ_M}
+    \f{h_{p k_a}}{\sqrt{\abs{s}\abs{\sp{k_{a:p}}}}} \bra{\sp{k_{a:p}}}
+    - \tilde h_s \bra{s}},
 \end{align}
-where
-\begin{align}
-  h_{rs} \equiv \sum_{k,\ell\in\C_N} h_{k\ell} \bk{r|k} \bk{\ell|s}
-  = \f1{\sqrt{\abs{r}\abs{s}}}
-  \sum_{\substack{k\in r\\\ell\in s}} h_{k\ell}.
-\end{align}
-In practice, it can be computationally cheaper to construct
-\begin{align}
-  \check{\m h}_{\S_M} = \sum_{s\in\S_M} \ket{s} \f1{\sqrt{\abs{s}}}
-  \sum_{k\in s} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{a\in\ZZ_M}
-  \f{h_{p k_a}}{\sqrt{\abs{\sp{k_{a:p}}}}} \bra{\sp{k_{a:p}}},
-\end{align}
-where $k_a$ is the $a$-th element of $k$;
+where $\tilde h_s\equiv \tilde h_k$ for any $k\in s$; $k_a$ is the
+$a$-th element of $k$;
 $k_{a:p}\equiv\p{k_1,k_2,\cdots,k_{a-1},p,k_{a+1},\cdots,k_M}$ is $k$,
 but with the $a$-th number $k_a$ replaced by $p$; and $\sp{k_{a:p}}$
 is the equivalence class of $k_{a:p}$.  The reduced multi-body
