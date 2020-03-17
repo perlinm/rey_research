@@ -838,10 +838,10 @@ and $\V_M$ to simplify the eigenvalue problem in
 \eqref{eq:H_VM_psi_eig}.
 
 Symmetries of $H_0$ and $\V_M$ essentially break the set of choices
-$\C_N\p{M}$ into equivalence classes $\S\p{M}$\footnote{For brevity,
-  we will suppress the explicit dependence of $\S\p{M}$ on $N$, as
-  well as the dependence of $\S\p{M}$ on any other factors such as
-  lattice geometry.}, where elements $s\in\S\p{M}$ are subsets
+$\C_N\p{M}$ into equivalence classes $\S_M$\footnote{For brevity, we
+  will suppress the explicit dependence of $\S_M$ on $N$, as well as
+  the dependence of $\S_M$ on any other factors such as lattice
+  geometry.}, where elements $s\in\S_M$ are subsets
 $s\subset\C_N\p{M}$ that are invariant under the appropriate symmetry
 group action.  In the case of a translationally invariant and
 isotropic system with two-body perturbations, for example, each
@@ -851,14 +851,14 @@ i.e.~$s=\set{\p{p,q}\in\C_N\p{2}:\abs{p-q}=d_s}$.
 
 Our task is essentially to express the multi-body eigenvalue problem
 in \eqref{eq:H_VM_psi_eig} in a basis that obeys the symmetries under
-consideration.  To this end, for any equivalence class $s\in\S\p{M}$
-we define a uniform superposition $\ket{s}$ over all choices $k\in s$,
-as well as the projector $\P_\S$ onto the space of uniform
+consideration.  To this end, for any equivalence class $s\in\S_M$ we
+define a uniform superposition $\ket{s}$ over all choices $k\in s$, as
+well as the projector $\P_\S$ onto the space of uniform
 superpositions:
 \begin{align}
   \ket{s} \equiv \f1{\sqrt{\abs{s}}} \sum_{k\in s} \ket{k},
   &&
-  \P_{\S_M} \equiv \sum_{s\in\S\p{M}} \op{s},
+  \P_{\S_M} \equiv \sum_{s\in\S_M} \op{s},
 \end{align}
 where $\abs{s}$ is the number of elements in $s$.  We then expand the
 coefficient vector $\v{\m w}$ in this symmetrized basis:
