@@ -34,6 +34,15 @@ def index_methods(lattice_shape):
         return _to_idx[ tuple( np.array(vec) % np.array(lattice_shape) ) ]
     return to_vec, to_idx
 
+# convert a choice of lattice sites into a human-readable array
+# useful for debugging purposes
+def markers(lattice_shape, lattice_sites):
+    to_vec, to_idx = index_methods(lattice_shape)
+    markers = np.full(lattice_shape, ".")
+    for site in lattice_sites:
+        markers[tuple(to_vec(site))] = "o"
+    return markers
+
 # method to compute the distance between two lattice sites
 def dist_method(lattice_shape, _index_methods = None):
     if _index_methods is None:
