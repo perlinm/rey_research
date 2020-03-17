@@ -98,6 +98,9 @@
 \newcommand{\diagram}[1]
 {\,\includegraphics[valign=c]{diagrams/#1.pdf}\,}
 
+% alphanumeric footnotes
+\renewcommand*{\thefootnote}{\alph{footnote}}
+
 %%% text markup
 \usepackage{color} % text color
 \newcommand{\red}[1]{{\color{red} #1}}
@@ -367,19 +370,22 @@ where
   \check{\m h}_2
   \equiv \sum_{p<q} \ket{\set{p,q}} \sp{\sum_{k\notin\set{p,q}}
     \p{h_{pk} \bra{\set{k,q}} + h_{qk} \bra{\set{p,k}}}
-    - \tilde h_{pq} \bra{\set{p,q}}}.
+    - \tilde h_{pq} \bra{\set{p,q}}},
+  &&
+  \v{\m w} \equiv \sum_{p<q} w_{pq} \ket{\set{p,q}}.
   \label{eq:V2_eig_mat}
 \end{align}
 We explicitly exclude $k\in\set{p,q}$ in \eqref{eq:V2_eig_mat} because
 these terms vanish in \eqref{eq:H_V2_psi} from the fact that
 $h_{kk}=w_{Okk}=0$.  Solving the general eigenvalue problem in
-\eqref{eq:V2_eig} requires diagonalizing the
+\eqref{eq:V2_eig} nominally requires diagonalizing the
 ${N \choose 2}\times{N \choose 2}\sim N^2\times N^2$ matrix
 $\check{\m h}_2$.  When the interaction Hamiltonian $H_0$ and
 perturbation $\V_M$ are translationally invariant, however, this
 eigenvalue problem can be reduced to that of diagonalizing a matrix of
-dimensions $\sim N\times N$; we perform this reduction in Section
-\ref{sec:trans_inv}.
+dimensions $\sim N\times N$, and isotropy can reduce this problem even
+further.  We discuss these reductions in Section
+\ref{sec:multi_body_symmetries}.
 
 If we {\it construct} a perturbation $\V_2^\Delta$ with coefficients
 $\v{\m w}_O^\Delta$ that satisfy \eqref{eq:V2_eig} with eigenvalue
@@ -558,7 +564,7 @@ It follows that the spectral gap
 which vanishes as $\epsilon\to0$ for all $\alpha>D$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Constructing multi-body excitation energy eigenstates}
+\section{Constructing excitation energy eigenstates}
 \label{sec:eigenstates}
 
 In this section, we simplify the products of the form
@@ -573,8 +579,8 @@ $\V_M$ is an $M$-body perturbation of the form
 \end{align}
 where $O$ is an $M$-spin operator that is invariant under arbitrary
 permutation of its tensor factors; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
-a choice of $M$ distinct spins that $O$ acts on; and $\C_N\p{n}$ is
-the set of all distinct choices of $n$ elements from a set of size
+a choice of $M$ distinct spins that $O$ acts on; and $\C_N\p{M}$ is
+the set of all distinct choices of $M$ elements from a set of size
 $N$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -663,7 +669,7 @@ where the imaginary terms vanish because $h_{0,d}=h_{0,-d}$.  The
 remainder of \eqref{eq:H_V1_psi_eig} that we need to sort out is
 $\diag\v h$, where all $h_p=\sum_qh_{pq}=\sum_dh_{0,d}$ are equal,
 which implies that $\diag\v h=\sum_dh_{0,d}$ is a scalar.  We thus
-find that,
+find that
 \begin{align}
   \p{\m h - \diag\v h}\c\v v_k = \Delta_k \v v_k,
   &&
@@ -723,24 +729,23 @@ $\m y$, with entries $x_ky_k$.  The remaining terms in
   \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{q\in k}
   h_{pq} w_k \Pi_{pq} O_k \ket\psi
   = \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
-  \sum_{a=1}^M h_{p k_a} w_k \Pi_{p k_a} O_k \ket\psi.
+  \sum_{a\in\ZZ_M} h_{p k_a} w_k \Pi_{p k_a} O_k \ket\psi.
 \end{align}
 where $k\equiv\p{k_1,k_2,\cdots,k_M}$, with $k_a$ the $a$-th entry in
 $k$.  Defining
-$k_{ap}\equiv\p{k_1,k_2,\cdots,k_{a-1},p,k_{a+1},\cdots,k_M}$, i.e.~an
-element of $\C_N\p{M}$ in which the $a$-th number $k_a$ has been
-replaced by $p$, we can simplify
+$k_{a:p}\equiv\p{k_1,k_2,\cdots,k_{a-1},p,k_{a+1},\cdots,k_M}$,
+i.e.~$k$ with the $a$-th number $k_a$ replaced by $p$, we can simplify
 \begin{align}
   \Pi_{p k_a} O_k \ket\psi
   = \Pi_{p k_a} O_k \Pi_{p k_a} \ket\psi
-  = O_{k_{ap}}\ket\psi,
+  = O_{k_{a:p}}\ket\psi,
 \end{align}
 and switch the labels for $p$ and $k_a$ to find that
 \begin{align}
   \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{q\in k}
   h_{pq} w_k  \Pi_{pq} O_k \ket\psi
   = \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
-  \sum_{a=1}^M h_{pk_a} w_{k_{ap}} O_k \ket\psi.
+  \sum_{a\in\ZZ_M} h_{pk_a} w_{k_{a:p}} O_k \ket\psi.
 \end{align}
 For each fixed $a$, the sum over $p$ above is essentially a
 contraction of the matrix $\m h$ with the $a$-th index of the tensor
@@ -749,13 +754,13 @@ therefore write this result as
 \begin{align}
   \sum_{k\in\C_N\p{M}} \p{\m h\circ \m w}_k O_k \ket\psi,
   &&
-  \m h\circ\m w \equiv \sum_{a=1}^M \m h\c_a\m w,
+  \m h\circ\m w \equiv \sum_{a\in\ZZ_M} \m h\c_a\m w,
 \end{align}
 where, for clarity, the matrix elements of $\m h\circ\m w$ are
 \begin{align}
   \p{\m h\circ\m w}_k
-  \equiv \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{a=1}^M
-  h_{pk_a} w_{k_{ap}}
+  \equiv \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{a\in\ZZ_M}
+  h_{pk_a} w_{k_{a:p}}
   = \sum_{\substack{p\in\ZZ_N\\p\notin k}}
   \p{h_{k_1 p} w_{pk_2k_3\cdots k_M}
     + h_{k_2 p} w_{k_1pk_3\cdots k_M}
@@ -773,8 +778,21 @@ state therefore generates an eigenstate of $H_0$ with energy
 $E_0+\Delta$ if the coefficient tensor $\m w$ satisfies the
 generalized eigenvalue equation
 \begin{align}
-  \m h\circ\m w - \tilde{\m h} * \m w = \Delta \m w.
+  \m h\circ\m w - \tilde{\m h} * \m w = \Delta \m w,
+\end{align}
+which can be written in the form
+\begin{align}
+  \check{\m h} \c \v{\m w} = \Delta \v{\m w},
   \label{eq:H_VM_psi_eig}
+\end{align}
+where
+\begin{align}
+  \check{\m h} \equiv \sum_{k\in\C_N\p{M}}
+  \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{a\in\ZZ_M}
+  h_{pk_a} \op{k}{k_{a:p}}
+  - \sum_{k\in\C_N\p{M}} \tilde h_k \op{k},
+  &&
+  \v{\m w} \equiv \sum_{k\in\C_N\p{M}} w_k \ket{k}.
 \end{align}
 If $M=1$, then $\p{\m h\circ\m w}_k=\sum_\ell h_{k\ell}w_\ell$ and
 $\tilde h_k=h_k$, so
@@ -796,90 +814,85 @@ $\p{\m h\circ\m w}_{pq}=\sum_k\p{h_{pk}w_{kq}+h_{qk}w_{pk}}$, so
 where $\tilde h_{pq}=h_p+h_q-2h_{pq}$ with $h_p\equiv\sum_qh_{pq}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Translational invariance}
-\label{sec:trans_inv}
+\subsection{Translational invariance, isotropy, and other symmetries}
+\label{sec:multi_body_symmetries}
 
 Solving the eigenvalue problem in \eqref{eq:H_VM_psi_eig} to find
 $M$-body perturbations $\V_M$ that generate states of definite
-interaction energy nominally requires diagonalizing a matrix with
-dimensions ${N\choose M}\times{N\choose M}\sim N^M\times N^M$.  Here,
-we simplify this problem to that of diagonalizing a matrix with
-dimensions
-$\sim{N-1\choose M-1}\times{N-1\choose M-1}\sim N^{M-1}\times N^{M-1}$
-when both the interaction Hamiltonian $H_0$ and the perturbation
-$\V_M$ are translationally invariant.  This simplification reduces the
-computational cost of solving the $M$-body eigenvalue problem by a
-factor of $\O\p{N^3}$.
+interaction energy nominally requires diagonalizing the matrix
+$\check{\m h}$ with dimensions
+${N\choose M}\times{N\choose M}\sim N^M\times N^M$.  If the
+interaction Hamiltonian $H_0$ and multi-body perturbation $\V_M$ have
+any symmetries, such as translational invariance isotropy, then we can
+use these symmetry to reduce the eigenvalue problem in
+\eqref{eq:H_VM_psi_eig}.  Translational invariance, for example, can
+reduce this problem to diagonalizing a matrix with dimensions
+$\sim{N-1\choose M-1}\times{N-1\choose M-1}\sim N^{M-1}\times
+N^{M-1}$, and isotropy can further reduce the problem size by factors
+that depend on the lattice geometry.  The complexity of diagonalizing
+a matrix with dimensions $d\times d$ is $\O\p{d^3}$, so even a
+reduction of $d$ by a factor of 2 yields practically significant gains
+(a factor of $2^3=8$) in the runtime of diagonalization.  Here, we
+provide a general prescription for exploiting the symmetries of $H_0$
+and $\V_M$ to simplify the eigenvalue problem in
+\eqref{eq:H_VM_psi_eig}.
+
+Symmetries of $H_0$ and $\V_M$ essentially break the set of choices
+$\C_N\p{M}$ into equivalence classes $\S\p{M}$\footnote{For brevity,
+  we will suppress the explicit dependence of $\S\p{M}$ on $N$, as
+  well as the dependence of $\S\p{M}$ on any other factors such as
+  lattice geometry.}, where elements $s\in\S\p{M}$ are subsets
+$s\subset\C_N\p{M}$ that are invariant under the appropriate symmetry
+group action.  In the case of a translationally invariant and
+isotropic system with two-body perturbations, for example, each
+equivalence class $s\in\S_2$ would consist of all pairs
+$\p{p,q}\in\C_N\p{2}$ that are a fixed distance $\abs{p-q}=d_s$ apart,
+i.e.~$s=\set{\p{p,q}\in\C_N\p{2}:\abs{p-q}=d_s}$.
 
 Our task is essentially to express the multi-body eigenvalue problem
-in \eqref{eq:H_VM_psi_eig} in a basis that obeys both permutational
-symmetry and translational invariance.  To this end, we first expand
-the coupling tensor $\m w$ in a complete basis for symmetric tensors:
+in \eqref{eq:H_VM_psi_eig} in a basis that obeys the symmetries under
+consideration.  To this end, for any equivalence class $s\in\S\p{M}$
+we define a uniform superposition $\ket{s}$ over all choices $k\in s$,
+as well as the projector $\P_\S$ onto the space of uniform
+superpositions:
 \begin{align}
-  \m w = \sum_{k\in\C_N\p{M}} w_k \m m_k,
+  \ket{s} \equiv \f1{\sqrt{\abs{s}}} \sum_{k\in s} \ket{k},
   &&
-  \m m_k \equiv \sum_{\sigma\in P_M} \m e_{\sigma\p{k}},
-  \label{eq:sym_tensor}
+  \P_{\S_M} \equiv \sum_{s\in\S\p{M}} \op{s},
 \end{align}
-where $P_M$ is the set of all permutations of $M$ symbols, and
-$\m e_\ell$ is a unit tensor with one in the entry indexed by $\ell$
-and zeros everywhere else.  On a $D$-dimensional lattice of linear
-size $L$, translational invariance implies that the coefficients $w_k$
-remain the same if all spins indexed by $k$ are shifted by the same
-displacement $d\in\ZZ_L^D$.  To account for this invariance, we denote
-a translation of all spins in $k$ by a displacement $d\in\ZZ_L^D$ by
-$k_d$, and define the translation-symmetrized basis tensors
+where $\abs{s}$ is the number of elements in $s$.  We then expand the
+coefficient vector $\v{\m w}$ in this symmetrized basis:
 \begin{align}
-  \m m_k^{\t{TS}}
-  \equiv \f1{\N_k^{\t{TS}}} \sum_{d\in\ZZ_L^D} \m m_{k_d}
-  = \f1{\N_k^{\t{TS}}} \sum_{d\in\ZZ_L^D} \sum_{\sigma\in P_M}
-  \m e_{\sigma(k_d)},
+  \v{\m w} = \sum_{k\in\C_N\p{M}} w_k \ket{k}
+  = \sum_{s\in\S_M} w_s \sqrt{\abs{s}} \ket{s},
 \end{align}
-where the normalization factor $\N_k^{\t{TS}}$ enforces that the
-entries of $\m m_k^{\t{TS}}$ are all either zero or one, which
-otherwise might not occur if some translations of $k$ results in the
-same choice of spins.  We then define the set $\T_{LD}\p{M}$ of
-equivalence classes in $\C_N\p{M}$ under arbitrary translations on
-$D$-dimensional lattice of linear size $L$, and expand
+where $w_s\equiv w_k$ for any $k\in s$.  Finally, we define the
+projection of $\check{\m h}$ onto the symmetric subspace:
 \begin{align}
-  \m w = \sum_{k\in\T_{LD}\p{M}} w_k \m m_k^{\t{TS}}.
-  \label{eq:sym_shift_tensor}
-\end{align}
-Having expanded $\m w$ in a basis that respects permutational symmetry
-and translational invariance, we need to express the eigenvalue
-equation \eqref{eq:H_VM_psi_eig} in the same basis.  We therefore
-expand
-\begin{align}
-  \m h\circ\m w
-  = \sum_{k\in\T_{LD}\p{M}} \sum_{p\in\ZZ_L^D} \sum_{a=1}^M
-  h_{pk_a} w_{k_{ap}} \m m_k^{\t{TS}},
-  &&
-  \tilde{\m h} * \m w = \sum_{k\in\T_{LD}\p{M}}
-  \tilde h_k w_k \m m_k^{\t{TS}},
-\end{align}
-which allows us to write the generalized eigenvalue problem in
-\eqref{eq:H_VM_psi_eig} as
-\begin{align}
-  \check{\m h}\c\v{\m w} = \Delta\v{\m w},
+  \check{\m h}_{\S_M}
+  \equiv \P_{\S_M} \check{\m h} \P_{\S_M}
+  = \sum_{r,s\in\S_M} h_{rs} \op{r}{s},
 \end{align}
 where
 \begin{align}
-  \check{\m h}
-  \equiv \sum_{k\in\T_{LD}\p{M}} \sum_{p\in\ZZ_L^D} \sum_{a=1}^M
-  h_{pk_a} \op{k}{k_{ap}}
-  - \sum_{k\in\T_{LD}\p{M}} \tilde h_k \op{k},
-  &&
-  \v{\m w} \equiv \sum_{k\in\T_{LD}\p{M}} w_k \ket{k}.
+  h_{rs} \equiv \sum_{k,\ell\in\C_N} h_{k\ell} \bk{r|k} \bk{\ell|s}
+  = \f1{\sqrt{\abs{r}\abs{s}}}
+  \sum_{\substack{k\in r\\\ell\in s}} h_{k\ell}.
 \end{align}
-In order to make sense of $\check{\m h}$ as written above, for each
-$k\in\T_{LD}\p{M}$ we enforce a canonical choice of spins
-$\tilde k\in k\subset\C_N\p{M}$; we define $k_{ap}$ to be the
-equivalence class of $\tilde k_{ap}$ (where $\tilde k_{ap}$ is equal
-to $\tilde k$ with the $a$-th spin $k_a$ replaced by $p$); and we
-define $\ket{k}=0$ if $\tilde k$ has any repeated values.  The matrix
-$\check{\m h}$ has dimensions
-$\abs{\T_{LD}\p{M}}\times\abs{\T_{LD}\p{M}}$, where
-$\abs{\T_{LD}\p{M}} \approx { N-1 \choose M-1 }/M \sim N^{M-1}$.
+In practice, it can be computationally cheaper to construct
+\begin{align}
+  \check{\m h}_{\S_M} = \sum_{s\in\S_M} \ket{s} \f1{\sqrt{\abs{s}}}
+  \sum_{k\in s} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{a\in\ZZ_M}
+  \f{h_{p k_a}}{\sqrt{\abs{\sp{k_{a:p}}}}} \bra{\sp{k_{a:p}}},
+\end{align}
+where $k_a$ is the $a$-th element of $k$;
+$k_{a:p}\equiv\p{k_1,k_2,\cdots,k_{a-1},p,k_{a+1},\cdots,k_M}$ is $k$,
+but with the $a$-th number $k_a$ replaced by $p$; and $\sp{k_{a:p}}$
+is the equivalence class of $k_{a:p}$.  The reduced multi-body
+eigenvalue problem is then
+\begin{align}
+  \check{\m h}_{\S_M} \c \v{\m w} = \Delta \v{\m w}.
+\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Operator products restricted to the permutationally symmetric
