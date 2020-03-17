@@ -222,8 +222,7 @@ def contract_ops(base_ops, diagram):
 
     # cast all base operators into the appropriate data type
     dtype = _get_dtype(base_ops)
-    base_ops = [ op if op.dtype == dtype else op.astype(dtype)
-                 for op in base_ops ]
+    base_ops = [ base_op.astype(dtype, copy = False) for base_op in base_ops ]
 
     contraction = start_indices + "->" + final_indices
     return np.array( tf.einsum(contraction, *base_ops).numpy() )
@@ -235,8 +234,7 @@ def contract_tensors(tensors, diagram, TI):
 
     # cast all tensors into the appropriate data type
     dtype = _get_dtype(tensors)
-    tensors = [ tensor if tensor.dtype == dtype else tensor.astype(dtype)
-                for tensor in tensors ]
+    tensors = [ tensor.astype(dtype, copy = False) for tensor in tensors ]
 
     # assign contraction indices to each tensor
     indices_used = [ 0 ] * len(tensors)
