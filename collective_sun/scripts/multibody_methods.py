@@ -385,9 +385,10 @@ def sym_state(occupations, site_num, site_dim = 2, normalize = True, sparse = Fa
         return sparse.csr_matrix(vec).T
 
 # act with the multi-local operator `op` on the spins indexed by `indices`
-def embed_operator(op, indices, site_num, site_dim = 2):
+def embed_operator(op, indices, site_num = None, site_dim = 2):
     if not hasattr(indices, "__getitem__"):
         indices = list(indices)
+    if site_num is None: site_num = len(indices)
 
     op = np.array(op)
     diag = ( np.prod(op.shape) == site_dim**len(indices) )
@@ -396,15 +397,17 @@ def embed_operator(op, indices, site_num, site_dim = 2):
     aux_sites = site_num - len(indices)
     aux_identity = [1]*site_dim**aux_sites if diag else np.eye(site_dim**aux_sites)
     op = functools.reduce(np.kron, [ op ] + [ aux_identity ])
-    op = np.reshape(op, (site_dim**( 1 if diag else 2 ),)*site_num)
 
     if not diag:
-        # collect and flatten tensor factors associated with each spin
+        # collect tensor factors associated with each spin
         fst_half = range(site_num)
         snd_half = range(site_num,2*site_num)
         perm = np.array(list(zip(list(fst_half),list(snd_half)))).flatten()
         op = np.reshape(op, (site_dim,)*2*site_num)
         op = np.transpose(op, perm)
+
+    # flatten tensor factors associated with each spin
+    op = np.reshape(op, (site_dim**( 1 if diag else 2 ),)*site_num)
 
     # rearrange tensor factors according to the desired qubit order
     old_order = list(indices) + [ jj for jj in range(site_num) if jj not in indices ]
