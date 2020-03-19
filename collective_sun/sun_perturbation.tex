@@ -294,12 +294,13 @@ entries $\tilde h_k w_k$.  These definitions allow us to expand
 \begin{align}
   \hat{\m h}\p{\m w}
   \equiv \sum_{a\in\ZZ_M} \m h \circ_a \m w - \tilde{\m h} * \m w.
+  \label{eq:multi_body_eig_op}
 \end{align}
 Viewed an operator on the vector space of dimension-$M$ tensors, the
 map $\hat{\m h}$ is real and symmetric under transposition, and is
 therefore diagonalizable.  Diagonalizing this operator yields
 eigenvalues $\Delta$ and eigenvectors $\m m_\Delta$ for which
-$\check{\m h}\p{\m m_\Delta}=\Delta\m m_\Delta$.  Finding eigenvalues
+$\hat{\m h}\p{\m m_\Delta}=\Delta\m m_\Delta$.  Finding eigenvalues
 and eigenvectors of $\hat{\m h}$ nominally requires diagonalizing a
 matrix of dimensions
 ${N\choose M}\times{N\choose M}\sim N^M\times N^M$, but spatial
@@ -308,7 +309,7 @@ drastically reduce the complexity of this eigenvalue problem.  We
 discuss this reduction in Appendix \ref{sec:symmetries}.
 
 Defining $\m w_\Delta$ as the projection of the tensor $\m w$ onto the
-$\Delta$-eigenspace of $\check{\m h}$, we can expand
+$\Delta$-eigenspace of $\hat{\m h}$, we can expand
 \begin{align}
   \m w = \sum_\Delta \m w_\Delta,
   &&
@@ -407,8 +408,32 @@ one should expect such simulations to faithfully capture (at least
 qualitatively) the dynamical behavior of the spin system under
 consideration.
 
-In order to project operators onto $\ul{\M}_{r_{\t{max}}}$, we need to
-construct a basis for each $\M_r$ with $r\le r_{\t{max}}$.
+In order to project an operator $X_{\m w}$ onto
+$\ul{\M}_{r_{\t{max}}}$, we first need to construct a basis for
+$\ul{\M}_{r_{\t{max}}}$, and then compute all matrix elements of
+$X_{\m w}$ in the constructed basis.  Our strategy will be to first
+identify a basis for $\M_0$, and then find, for each
+$r=1,\cdots,r_{\t{max}}$, a suitable set of $r$-body operators
+$\set{O}$ and dimension-$r$ tensors $\set{\m u}$ for which the states
+$\ket{O,\m u,m}\propto O_{\m u}\ket{m}$ form an orthonormal basis for
+$\M_r$.  Matrix elements of $X_{\m w}$ with respect to this basis for
+$\ul{\M}_{r_{\t{max}}}$ then take the form
+\begin{align}
+  \bk{O,\m u,\ell|X_{\m w}|Q,\m v,m}
+  = \f{\bk{\ell|O_{\m u}^\dag X_{\m w} Q_{\m v}|m}}
+  {\sqrt{\bk{\ell|O_{\m u}^\dag O_{\m u}|\ell}
+      \bk{m|Q_{\m v}^\dag Q_{\m v}|m}}}.
+\end{align}
+In order to compute these matrix elements, we simplify products of the
+form $\P_0 O_{\m u}^\dag X_{\m w} Q_{\m v} \P_0$ and
+$\P_0 O_{\m u}^\dag O_{\m u} \P_0$, with $\P_0$ a projector onto
+$\M_0$, in Appendix \ref{sec:operator_product}.
+
+A suitable basis for $\M_0$ is the set of PS states
+$\ket{m}=\ket{m_1,m_2,\cdots,m_n}$ with a definite occupation number
+$m_\mu$ of the single-spin state $\mu$.
+
+
 \red{[TODO: finish section]}
 
 
@@ -728,7 +753,7 @@ Altogether, we thus find that
   \hat{\m h}\p{\m w}_k X_k \ket\psi,
   &&
   \hat{\m h}\p{\m w}
-  \equiv \p{\sum_a \m h \circ_a \m w - \tilde{\m h} * \m w}.
+  \equiv \sum_{a\in\ZZ_M} \m h \circ_a \m w - \tilde{\m h} * \m w.
   \label{eq:diagnosis_end}
 \end{align}
 The action of the $M$-body perturbation $X_{\m w}$ on a
@@ -738,7 +763,7 @@ satisfies the generalized eigenvalue equation
 $\hat{\m h}\p{\m w} = \Delta \m w$, which can be written in the form
 \begin{align}
   \hat{\m h} \c \v{\m w} = \Delta \v{\m w},
-  \label{eq:multi_body_eig}
+  \label{eq:multi_body_eig_mat}
 \end{align}
 where
 \begin{align}
@@ -774,10 +799,10 @@ where $\tilde h_{pq}=h_p+h_q-2h_{pq}$.
 \subsection{Exploiting spatial symmetries}
 \label{sec:symmetries}
 
-Solving the eigenvalue problem in \eqref{eq:multi_body_eig} to find
-$M$-body perturbations $X_{\m w}$ that generate states of definite
-interaction energy nominally requires diagonalizing the matrix
-$\hat{\m h}$ with dimensions
+Solving the eigenvalue problem in \eqref{eq:multi_body_eig_mat} to
+find $M$-body perturbations $X_{\m w}$ that generate states of
+definite interaction energy nominally requires diagonalizing the
+matrix $\hat{\m h}$ with dimensions
 ${N\choose M}\times{N\choose M}\sim N^M\times N^M$.  If the
 interaction Hamiltonian $H_0$ has any spatial symmetries, however,
 then we can use these symmetries to reduce the complexity of this
@@ -790,10 +815,10 @@ matrix with dimensions $d\times d$ is $O\p{d^3}$, so even a reduction
 of $d$ by a factor of 2 yields practically significant gains (a factor
 of $2^3=8$) in the runtime of diagonalization.  Here, we provide a
 general prescription for exploiting the spatial symmetries of $H_0$ to
-simplify the eigenvalue problem in \eqref{eq:multi_body_eig}.
+simplify the eigenvalue problem in \eqref{eq:multi_body_eig_mat}.
 
 Our task is essentially to express the multi-body eigenvalue problem
-in \eqref{eq:multi_body_eig} in a basis that respects the spatial
+in \eqref{eq:multi_body_eig_mat} in a basis that respects the spatial
 symmetries of $H_0$.  These symmetries essentially break the set of
 choices $\C_N\p{M}$ into equivalence classes $\S_M$\footnote{For
   brevity, we will suppress the explicit dependence of $\S_M$ on $N$,
@@ -842,9 +867,9 @@ eigenvalue problem is then
   \hat{\m h}_{\S_M} \c \v{\m w} = \Delta \v{\m w}.
 \end{align}
 More generally, even if the couplings $\v{\m w}$ of $X_{\m w}$ do not
-obey the same spatial symmetries as $H_0$, these symmetries generally
-endow $\check{\m h}$ with a block-diagonal structure. \red{[TODO:
-  finish discussion/derivation]}
+obey the spatial symmetries as $H_0$, these symmetries generally endow
+$\hat{\m h}$ with a block-diagonal structure. \red{[TODO: finish
+  discussion/derivation]}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Projecting products of multi-body operators onto the
@@ -1206,9 +1231,10 @@ $\sum_\mu a_\mu=N$.  Written out explicitly,
 where the multinomial coefficient $\C\p{a}$ counts the number of
 distinct ways to permute the tensor factors of $\ket{\tilde a}$, and
 enforces $\bk{a|a}=1$.  We denote the set of all valid assignments of
-$N$ spins to $n$ states by $\A_n\p{N}$, such that the basis
-$\set{\ket{a}:a\in\A_n\p{N}}$ spans permutationally symmetric manifold
-of $N$ spins.  Identifying this basis allows us to expand
+$N$ (identical) spins to $n$ (distinguishable) states by $\A_n\p{N}$,
+such that the basis $\set{\ket{a}:a\in\A_n\p{N}}$ spans
+permutationally symmetric manifold of $N$ spins.  Identifying this
+basis allows us to expand
 \begin{align}
   \bk{a|X|b}
   = \sum_{\substack{\alpha,\beta\in\A_n\p{M}\\\alpha\le a,\,\beta\le b}}
