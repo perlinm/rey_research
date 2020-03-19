@@ -44,6 +44,7 @@
 \newcommand{\z}{\text{z}}
 
 \newcommand{\A}{\mathcal{A}}
+\newcommand{\B}{\mathcal{B}}
 \newcommand{\C}{\mathcal{C}}
 \newcommand{\E}{\mathcal{E}}
 \newcommand{\G}{\mathcal{G}}
@@ -301,8 +302,8 @@ eigenvalues $\Delta$ and eigenvectors $\m m_\Delta$ for which
 $\check{\m h}\p{\m m_\Delta}=\Delta\m m_\Delta$.  Finding eigenvalues
 and eigenvectors of $\hat{\m h}$ nominally requires diagonalizing a
 matrix of dimensions
-${N\choose M}\times{N\choose M}\sim N^M\times N^M$, but symmetries of
-$\hat{\m h}$ such as translational invariance or isotropy can
+${N\choose M}\times{N\choose M}\sim N^M\times N^M$, but spatial
+symmetries of $H_0$ such as translational invariance or isotropy can
 drastically reduce the complexity of this eigenvalue problem.  We
 discuss this reduction in Appendix \ref{sec:symmetries}.
 
@@ -395,11 +396,20 @@ truncating the Hilbert space of a spin system past
 $\ul{\M}_{r_{\t{max}}}$ is not clear a priori.  Nonetheless,
 simulations restricted to $\ul{\M}_{r_{\t{max}}}$ can be benchmarked
 by examining the maximum populations within all $\M_r$ for
-$r\le r_{\t{max}}$ throughout simulation.  As long as these
-populations fall off with increasing $r$ and the maximal population
-within large-$r$ manifolds $\M_r$ is small, one should expect such
-simulations to faithfully capture (at least qualitatively) the
-dynamical behavior of the spin system under consideration.
+$r\le r_{\t{max}}$ throughout simulation.  As long as
+\begin{enumerate*}
+\item these
+populations fall off with increasing $r$,
+\item and the maximal population within large-$r$ manifolds $\M_r$ is
+  small,
+\end{enumerate*}
+one should expect such simulations to faithfully capture (at least
+qualitatively) the dynamical behavior of the spin system under
+consideration.
+
+In order to project operators onto $\ul{\M}_{r_{\t{max}}}$, we need to
+construct a basis for each $\M_r$ with $r\le r_{\t{max}}$.
+\red{[TODO: finish section]}
 
 
 
@@ -761,7 +771,7 @@ $\p{\m h\circ\m w}_{pq} = \sum_{k\in\ZZ_N}
 where $\tilde h_{pq}=h_p+h_q-2h_{pq}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Translational invariance, isotropy, and other symmetries}
+\subsection{Exploiting spatial symmetries}
 \label{sec:symmetries}
 
 Solving the eigenvalue problem in \eqref{eq:multi_body_eig} to find
@@ -769,22 +779,22 @@ $M$-body perturbations $X_{\m w}$ that generate states of definite
 interaction energy nominally requires diagonalizing the matrix
 $\hat{\m h}$ with dimensions
 ${N\choose M}\times{N\choose M}\sim N^M\times N^M$.  If the
-interaction Hamiltonian $H_0$ and multi-body perturbation $X_{\m w}$
-have any symmetries, such as translational invariance isotropy, then
-we can use these symmetries to reduce the complexity of this
+interaction Hamiltonian $H_0$ has any spatial symmetries, however,
+then we can use these symmetries to reduce the complexity of this
 eigenvalue problem.  Translational invariance, for example, can reduce
 this problem to that of diagonalizing a matrix with dimensions
-$\sim{N-1\choose M-1}\times{N-1\choose M-1}\sim N^{M-1}\times
-N^{M-1}$, and isotropy can further reduce the problem size by factors
-that depend on the lattice geometry.  The complexity of diagonalizing
-a matrix with dimensions $d\times d$ is $O\p{d^3}$, so even a
-reduction of $d$ by a factor of 2 yields practically significant gains
-(a factor of $2^3=8$) in the runtime of diagonalization.  Here, we
-provide a general prescription for exploiting the symmetries of $H_0$
-and $X_{\m w}$ to simplify the eigenvalue problem in
-\eqref{eq:multi_body_eig}.
+$\le{N-1\choose M-1}\times{N-1\choose M-1}\sim N^{M-1}\times N^{M-1}$,
+and isotropy can further reduce the problem size by factors that
+depend on the lattice geometry.  The complexity of diagonalizing a
+matrix with dimensions $d\times d$ is $O\p{d^3}$, so even a reduction
+of $d$ by a factor of 2 yields practically significant gains (a factor
+of $2^3=8$) in the runtime of diagonalization.  Here, we provide a
+general prescription for exploiting the spatial symmetries of $H_0$ to
+simplify the eigenvalue problem in \eqref{eq:multi_body_eig}.
 
-Symmetries of $H_0$ and $X_{\m w}$ essentially break the set of
+Our task is essentially to express the multi-body eigenvalue problem
+in \eqref{eq:multi_body_eig} in a basis that respects the spatial
+symmetries of $H_0$.  These symmetries essentially break the set of
 choices $\C_N\p{M}$ into equivalence classes $\S_M$\footnote{For
   brevity, we will suppress the explicit dependence of $\S_M$ on $N$,
   as well as the dependence of $\S_M$ on any other factors such as
@@ -796,10 +806,9 @@ equivalence class $s\in\S_2$ would consist of all pairs
 $\p{p,q}\in\C_N\p{2}$ that are a fixed distance $\abs{p-q}=d_s$ apart,
 i.e.~$s=\set{\p{p,q}\in\C_N\p{2}:\abs{p-q}=d_s}$.
 
-Our task is essentially to express the multi-body eigenvalue problem
-in \eqref{eq:multi_body_eig} in a basis that obeys the symmetries
-under consideration.  To this end, for any equivalence class
-$s\in\S_M$ we define a uniform superposition $\ket{s}$ over all
+For simplicity, we first assume that the $M$-body operator $X_{\m w}$
+obeys the same spatial symmetries as $H_0$.  For any equivalence class
+$s\in\S_M$, we then define a uniform superposition $\ket{s}$ over all
 choices $k\in s$, as well as the projector $\P_\S$ onto the space of
 uniform superpositions:
 \begin{align}
@@ -832,6 +841,10 @@ eigenvalue problem is then
 \begin{align}
   \hat{\m h}_{\S_M} \c \v{\m w} = \Delta \v{\m w}.
 \end{align}
+More generally, even if the couplings $\v{\m w}$ of $X_{\m w}$ do not
+obey the same spatial symmetries as $H_0$, these symmetries generally
+endow $\check{\m h}$ with a block-diagonal structure. \red{[TODO:
+  finish discussion/derivation]}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Projecting products of multi-body operators onto the
@@ -1160,7 +1173,7 @@ that accounts for the number of ways to move a dot from the old region
 to the new one.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Matrix elements of individual multi-spin operators}
+\subsection{Matrix elements of individual multi-spin operators}
 
 The process of constructing and simplifying diagrams to compute the
 coefficients $w\p{g}$ of the diagrammatic operator product expansion
@@ -1173,30 +1186,29 @@ single permutationally symmetric $M$-spin operator $X$; our task is
 essentially to find coefficients of the expansion
 \begin{align}
   \P_0 X \P_0
-  = \sum_{a,b} \bk{a|X|b} \op{a}{b},
+  = \sum_{a,b\in\B_0} \bk{a|X|b} \op{a}{b},
 \end{align}
-where $\set{\ket{a}},\set{\ket{b}}$ are complete bases for $\M_0$, and
-the choice of $M$ spins on which $X$ acts is arbitrary.  In a system
-of $N$ spins with $n$ states each, a suitable basis for $\M_0$ can be
+where $\set{\ket{a}:a\in\B_0}$ is complete bases for $\M_0$, and the
+choice of $M$ spins on which $X$ acts is arbitrary.  In a system of
+$N$ spins with $n$ states each, a suitable basis for $\M_0$ can be
 labeled by the occupation number of each single-spin state, namely
-$a=\p{a_1,a_2,\cdots,a_n}$ with each $a_j\ge 0$ and $\sum_ja_j=N$.
-Written out explicitly,
+$a=\p{a_1,a_2,\cdots,a_n}$ with each $a_\mu\ge 0$ and
+$\sum_\mu a_\mu=N$.  Written out explicitly,
 \begin{align}
   \ket{a} = \f1{\sqrt{\C\p{a}}}
   \sum_{\substack{\t{distinct}\\\t{permutations}\\\Pi~\t{of}~\tilde a}}
   \Pi \ket{\tilde a},
   &&
-  \ket{\tilde a} \equiv \bigotimes_{j=1}^n \ket{j}^{\otimes a_j},
+  \ket{\tilde a} \equiv \bigotimes_\mu \ket{\mu}^{\otimes a_\mu},
   &&
-  \C\p{a} \equiv \f{\p{\sum_j a_j}!}{\prod_ja_j!},
+  \C\p{a} \equiv \f{\p{\sum_\mu a_\mu}!}{\prod_\mu a_\mu!},
 \end{align}
 where the multinomial coefficient $\C\p{a}$ counts the number of
 distinct ways to permute the tensor factors of $\ket{\tilde a}$, and
 enforces $\bk{a|a}=1$.  We denote the set of all valid assignments of
-$S$ spins to $n$ states by $\A_n\p{S}$, such that the standard basis
-for the permutationally symmetric manifold of $S$ spins is
-$\set{\ket{a}:a\in\A_n\p{S}}$.  Identifying this standard basis allows
-us to expand
+$N$ spins to $n$ states by $\A_n\p{N}$, such that the basis
+$\set{\ket{a}:a\in\A_n\p{N}}$ spans permutationally symmetric manifold
+of $N$ spins.  Identifying this basis allows us to expand
 \begin{align}
   \bk{a|X|b}
   = \sum_{\substack{\alpha,\beta\in\A_n\p{M}\\\alpha\le a,\,\beta\le b}}
@@ -1207,17 +1219,18 @@ us to expand
   \label{eq:multi_body_eval}
 \end{align}
 where the restriction $\alpha\le a$ and difference $a-\alpha$ are
-evaluated element-wise, i.e.~$\alpha<a\implies \alpha_j\le a_j$ and
-$\p{a-\alpha}_j=a_j-\alpha_j$ for all $j$; and $\delta_{cd}=1$ if
-$c=d$ and zero otherwise.  We sum over both $\alpha$ and $\beta$ above
-merely to keep the expression symmetric with respect to transposition;
-in practice, one can simply sum over $\alpha\in\A_n\p{M}$ and set
-$\beta=b-a+\alpha$.  Note that, by slight abuse of notation, the
-operator $X$ on the left of \eqref{eq:multi_body_eval} acts on an
-arbitrary choice of $M$ spins (out of $N$), whereas the operator $X$
-on the right of \eqref{eq:multi_body_eval} is simply an $M$-spin
-operator, with matrix elements $\bk{\alpha|X|\beta}$ evaluated with
-respect to the $M$-spin states $\ket\alpha,\ket\beta$.
+evaluated element-wise, i.e.~$\alpha<a\implies \alpha_\mu\le a_\mu$
+and $\p{a-\alpha}_\mu=a_\mu-\alpha_\mu$ for all $\mu$; and
+$\delta_{cd}=1$ if $c=d$ and zero otherwise.  We sum over both
+$\alpha$ and $\beta$ above merely to keep the expression symmetric
+with respect to transposition; in practice, one can simply sum over
+$\alpha\in\A_n\p{M}$ and set $\beta=b-a+\alpha$.  Note that, by slight
+abuse of notation, the operator $X$ on the left of
+\eqref{eq:multi_body_eval} acts on an arbitrary choice of $M$ spins
+(out of $N$), whereas the operator $X$ on the right of
+\eqref{eq:multi_body_eval} is simply an $M$-spin operator, with matrix
+elements $\bk{\alpha|X|\beta}$ evaluated with respect to the $M$-spin
+states $\ket\alpha,\ket\beta$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Two single-body operators}
