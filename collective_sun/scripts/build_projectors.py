@@ -12,14 +12,14 @@ np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
 if len(sys.argv) < 3:
-    print(f"usage: {sys.argv[0]} [site_num] [manifolds]")
+    print(f"usage: {sys.argv[0]} [max_manifold] [site_num]")
     exit()
 
-site_num = int(sys.argv[1])
-manifolds = [ int(mm) for mm in sys.argv[2:] ]
+max_manifold = int(sys.argv[1])
+site_num = int(sys.argv[2])
 
+assert(max_manifold <= 4)
 assert(site_num <= 16)
-assert(max(manifolds) <= 4)
 
 data_dir = "../data/projectors/"
 
@@ -27,10 +27,7 @@ lattice_shape = (site_num,)
 sunc_mat = -np.ones((site_num,site_num))
 sunc_mat -= np.diag(np.diag(sunc_mat))
 
-if len(manifolds) == 1:
-    manifolds = range(manifolds[0]+1)
-
-manifolds = [ manifold for manifold in manifolds if manifold <= site_num/2 ]
+manifolds = [ manifold for manifold in range(max_manifold+1) if manifold <= site_num/2 ]
 
 print("site_num:",site_num)
 print("manifolds:",manifolds)
