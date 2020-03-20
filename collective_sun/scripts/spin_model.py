@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
-import os
+import os, sys
 import numpy as np
 import tensorflow as tf
 import functools, itertools, scipy
-import matplotlib.pyplot as plt
 
 from scipy import sparse
 from scipy.integrate import solve_ivp
@@ -22,46 +21,45 @@ alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
 max_manifold = int(sys.argv[2])
 lattice_shape = tuple(map(int, sys.argv[3:]))
 
+# values of the ZZ coupling to inspect more closely
+inspect_coupling_zz = [ -1, 0, 0.5, 1.5 ]
+inspect_sim_time = 2
+
 # values of the ZZ coupling to simulate in an XXZ model
 sweep_coupling_zz = np.linspace(-1,3,41)
-
-# values of the ZZ coupling to inspect more closely
-inspect_coupling_zz = [ -1 ]
-inspect_sim_time = 2
 
 max_time = 10 # in units of J_\perp
 
 periodic = True # use periodic boundary conditions?
-project = False # project operators onto the relevant manifolds?
+project = True # project operators onto the relevant manifolds?
 
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
-data_dir = "../data/projectors/"
-fig_dir = "../figures/spins/"
+data_dir = "../data/spins/"
+proj_dir = "../data/projectors/"
 
-figsize = (5,4)
-params = { "font.size" : 16,
-           "text.usetex" : True,
-           "text.latex.preamble" : [ r"\usepackage{amsmath}",
-                                     r"\usepackage{braket}" ]}
-plt.rcParams.update(params)
+def name_tag(coupling_zz = None):
+    lattice_name = "_".join([ str(size) for size in lattice_shape ])
+    base_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
+    if coupling_zz == None: return base_tag
+    else: return base_tag + f"_z{coupling_zz}"
 
 ##################################################
 
-if type(lattice_shape) is int:
-    lattice_shape = (lattice_shape,)
 lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
 manifolds = [ manifold for manifold in range(max_manifold+1) if manifold <= spin_num/2 ]
+if np.allclose(alpha, int(alpha)): alpha = int(alpha)
 
 assert(spin_num <= 12)
 print("lattice shape:",lattice_shape)
 ##########################################################################################
 print("reading in projectors onto manifolds of fixed net spin")
+sys.stdout.flush()
 
 projs = {}
 for manifold in manifolds:
-    proj_path = data_dir + f"projector_N{spin_num}_M{manifold}.txt"
+    proj_path = proj_dir + f"projector_N{spin_num}_M{manifold}.txt"
     if not os.path.isfile(proj_path):
         print(f"projector not found: {proj_path}")
         exit(1)
@@ -75,8 +73,6 @@ for manifold in manifolds:
 
 ##########################################################################################
 # define basic objects / operators
-
-dist = dist_method(lattice_shape)
 
 # qubit states and operators
 up = np.array([1,0])
@@ -162,7 +158,9 @@ def spin_op(op, indices = None):
 
 ##########################################################################################
 print("building operators")
+sys.stdout.flush()
 
+dist = dist_method(lattice_shape)
 couplings_sun = { (pp,qq) : -1/dist(pp,qq)**alpha
                   for qq in range(spin_num) for pp in range(qq) }
 
@@ -197,9 +195,11 @@ if project:
 chi_eff_bare = 1/4 * np.mean(list(couplings_sun.values()))
 state_X = functools.reduce(np.kron, [up_x]*spin_num).astype(complex)
 
-def simulate(coupling_zz, sim_time = None, max_tau = 2, overshoot_ratio = 1.5):
+def simulate(coupling_zz, sim_time = None, max_tau = 2):
     print("coupling_zz:", coupling_zz)
+    sys.stdout.flush()
     zz_sun_ratio = coupling_zz - 1
+    assert(zz_sun_ratio != 0)
 
     H = H_0 + zz_sun_ratio * ZZ
     def _time_derivative(time, state):
@@ -207,14 +207,8 @@ def simulate(coupling_zz, sim_time = None, max_tau = 2, overshoot_ratio = 1.5):
 
     # determine how long to simulate
     if sim_time is None:
-        max_tt = None
-        if zz_sun_ratio != 0:
-            chi_eff = abs(zz_sun_ratio * chi_eff_bare)
-            sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
-        else:
-            sim_time = max_time
-    else:
-        max_tt = 0
+        chi_eff = abs(zz_sun_ratio * chi_eff_bare)
+        sim_time = min(max_time, max_tau * spin_num**(-2/3) / chi_eff)
 
     # simulate!
     ivp_solution = solve_ivp(_time_derivative, (0, sim_time), state_X,
@@ -225,131 +219,61 @@ def simulate(coupling_zz, sim_time = None, max_tau = 2, overshoot_ratio = 1.5):
     sqz = np.array([ spin_squeezing(spin_num, state, S_op_vec, SS_op_mat)
                      for state in states.T ])
 
-    # don't look too far beyond the maximum squeezing time
-    if max_tt is None:
-        max_tt = int( np.argmin(sqz) * overshoot_ratio )
-        if max_tt == 0:
-            max_tt = len(times)
-        else:
-            max_tt = min(max_tt, len(times))
-    else:
-        max_tt = len(times)
-
-    times = times[:max_tt]
-    sqz = sqz[:max_tt]
-
     # compute populations
-    pops = { manifold : np.array([ abs(states[:,tt].conj() @ proj @ states[:,tt])
-                               for tt in range(len(times)) ])
-             for manifold, proj in projs.items() }
-    pops["\mathrm{ext}"] = 1 - sum( pop for pop in pops.values() )
+    pops = np.array([ [ abs(states[:,tt].conj() @ proj @ states[:,tt])
+                        for proj in projs.values() ]
+                      for tt in range(len(times))])
 
     return times, sqz, pops
 
-def name_tag(coupling_zz = None):
-    lattice_name = "_".join([ str(size) for size in lattice_shape ])
-    base_tag = f"L{lattice_name}_a{alpha}"
-    if coupling_zz == None: return base_tag
-    else: return base_tag + f"_z{coupling_zz}"
+if not os.path.isdir(data_dir):
+    os.makedirs(data_dir)
 
-def pop_label(manifold, prefix = None):
-    label = r"$\braket{\mathcal{P}_{" + str(manifold) + r"}}$"
-    if prefix == None:
-        return label
-    else:
-        return prefix + " " + label
-
-def to_dB(sqz):
-    return 10*np.log10(np.array(sqz))
-
-if not os.path.isdir(fig_dir):
-    os.makedirs(fig_dir)
-if project: fig_dir += "proj_"
+if project: data_dir += "proj_"
 
 ##########################################################################################
 print("running inspection simulations")
-
-lattice_text = r"\times".join([ str(size) for size in lattice_shape ])
-common_title = f"L={lattice_text},~\\alpha={alpha}"
+sys.stdout.flush()
 
 for coupling_zz in inspect_coupling_zz:
-    title_text = f"${common_title},~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
     times, sqz, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
 
-    try:
-        sqz_end = np.where(sqz[1:] > 1)[0][0] + 2
-    except:
-        sqz_end = len(times)
-
-    plt.figure(figsize = figsize)
-    plt.title(title_text)
-    plt.plot(times[:sqz_end], to_dB(sqz)[:sqz_end], "k")
-    plt.ylim(plt.gca().get_ylim()[0], 0)
-    plt.xlabel(r"time ($J_\perp t$)")
-    plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
-    plt.tight_layout()
-
-    plt.savefig(fig_dir + f"squeezing_{name_tag(coupling_zz)}.pdf")
-
-    plt.figure(figsize = figsize)
-    plt.title(title_text)
-    for manifold, pops in pops.items():
-        if np.allclose(max(pops),0): continue
-        plt.plot(times, pops, label = pop_label(manifold))
-    plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
-    plt.xlabel(r"time ($J_\perp t$)")
-    plt.ylabel("population")
-    plt.legend(loc = "best")
-    plt.tight_layout()
-
-    plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
+    with open(data_dir + f"inspect_{name_tag(coupling_zz)}.txt", "w") as file:
+        file.write("# times, squeezing, populations (within each manifold)\n")
+        for tt in range(len(times)):
+            file.write(f"{times[tt]} {sqz[tt]} ")
+            file.write(" ".join([ str(pop) for pop in pops[tt,:] ]))
+            file.write("\n")
 
 ##########################################################################################
 if len(sweep_coupling_zz) == 0: exit()
 print("running sweep simulations")
+sys.stdout.flush()
 
 sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
 sweep_results = [ simulate(coupling_zz) for coupling_zz in sweep_coupling_zz ]
 sweep_times, sweep_sqz, sweep_pops = zip(*sweep_results)
 
 sweep_min_sqz = [ min(sqz) for sqz in sweep_sqz ]
-min_sqz_idx = [ np.argmin(sqz) for sqz in sweep_sqz ]
+min_sqz_idx = [ max(1,np.argmin(sqz)) for sqz in sweep_sqz ]
 
-title_text = f"${common_title}$"
+sweep_pops = [ pops[:min_idx,:] for pops, min_idx in zip(sweep_pops, min_sqz_idx) ]
+sweep_min_pops = np.array([ pops.min(axis = 0) for pops in sweep_pops ])
+sweep_max_pops = np.array([ pops.max(axis = 0) for pops in sweep_pops ])
 
-plt.figure(figsize = figsize)
-plt.title(title_text)
-plt.plot(sweep_coupling_zz, to_dB(sweep_min_sqz), "ko")
-plt.ylim(plt.gca().get_ylim()[0], 0)
-plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
-plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
-plt.tight_layout()
-plt.savefig(fig_dir + f"squeezing_{name_tag()}.pdf")
+manifolds = [ manifold for manifold in manifolds
+              if not np.allclose(sweep_max_pops[:,manifold],
+                                 np.zeros(sweep_max_pops[:,manifold].size)) ]
 
-manifolds = sweep_pops[0].keys()
-sweep_points = len(sweep_coupling_zz)
-
-sweep_pops = { manifold : [ pops[manifold][:min_idx]
-                            for pops, min_idx in zip(sweep_pops, min_sqz_idx) ]
-               for manifold in manifolds }
-sweep_min_pops = { manifold : [ min(sweep_pops[manifold][jj])
-                                for jj in range(sweep_points) ]
-                   for manifold in manifolds }
-sweep_max_pops = { manifold : [ max(sweep_pops[manifold][jj])
-                                for jj in range(sweep_points) ]
-                   for manifold in manifolds }
-
-plt.figure(figsize = figsize)
-plt.title(title_text)
-plt.plot(sweep_coupling_zz, sweep_min_pops[0], "o", label = pop_label(0,"min"))
-for manifold, max_pops in sweep_max_pops.items():
-    if manifold == 0: continue
-    if np.allclose(max_pops, np.zeros(len(max_pops))): continue
-    plt.plot(sweep_coupling_zz, max_pops, "o", label = pop_label(manifold,"max"))
-plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
-plt.ylabel("population")
-plt.legend(loc = "best")
-plt.tight_layout()
-plt.savefig(fig_dir + f"populations_{name_tag()}.pdf")
+with open(data_dir + f"sweep_{name_tag()}.txt", "w") as file:
+    file.write("# coupling_zz, sqz_min, min_pop_0, max_pop (for manifolds > 0)\n")
+    file.write("# manifolds : ")
+    file.write(" ".join([ str(manifold) for manifold in manifolds ]))
+    file.write("\n")
+    for zz in range(len(sweep_coupling_zz)):
+        file.write(f"{sweep_coupling_zz[zz]} {sweep_min_sqz[zz]} {sweep_min_pops[zz,0]} ")
+        file.write(" ".join([ str(sweep_max_pops[zz,manifold])
+                              for manifold in manifolds[1:] ]))
+        file.write("\n")
 
 print("completed")

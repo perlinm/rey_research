@@ -44,19 +44,24 @@ def markers(lattice_shape, lattice_sites):
     return markers
 
 # method to compute the distance between two lattice sites
-def dist_method(lattice_shape, _index_methods = None):
+def dist_method(lattice_shape, periodic = True, _index_methods = None):
     if _index_methods is None:
         _index_methods = index_methods(lattice_shape)
     to_vec, to_idx = _index_methods
 
-    def dist_1D(pp, qq, axis):
-        diff = ( pp - qq ) % lattice_shape[axis]
-        return min(diff, lattice_shape[axis] - diff)
+    if periodic:
+        def dist_1D(pp, qq, length):
+            diff = ( pp - qq ) % length
+            return min(diff, length - diff)
+    else:
+        def dist_1D(pp, qq, _):
+            return abs(pp-qq)
+
     def dist(pp, qq):
         pp = to_vec(pp)
         qq = to_vec(qq)
-        return np.sqrt(sum( dist_1D(*pp_qq,aa)**2
-                            for aa, pp_qq in enumerate(zip(pp,qq)) ))
+        return np.sqrt(sum( dist_1D(pp_aa, qq_aa, length)**2
+                            for pp_aa, qq_aa, length in zip(pp, qq, lattice_shape) ))
     return dist
 
 # method to shift sites by a displacement
@@ -314,12 +319,13 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
 #     (4) tensors that generate states in that shell
 def get_multibody_states(lattice_shape, sun_coefs, manifolds, TI, isotropic = None,
                          updates = True):
+    site_num = sun_coefs.shape[0]
+
     if type(manifolds) is int:
         _manifolds = range(manifolds+1)
     else:
         _manifolds = manifolds
-
-    site_num = sun_coefs.shape[0]
+    _manifolds = [ manifold for manifold in _manifolds if manifold <= site_num/2 ]
 
     shell_num = 0
     manifold_shells = {}
