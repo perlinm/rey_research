@@ -10,12 +10,14 @@ if len(sys.argv) < 4:
     print(f"usage: {sys.argv[0]} [shells/spins] [alpha] [max_manifold] [lattice_shape]")
     exit()
 
-sim_type = sys.argv[1]
-alpha = float(sys.argv[2]) # power-law couplings ~ 1 / r^\alpha
-max_manifold = int(sys.argv[3])
-lattice_shape = tuple(map(int, sys.argv[4:]))
+alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
+max_manifold = int(sys.argv[2])
+lattice_shape = tuple(map(int, sys.argv[3:-1]))
+sim_type = sys.argv[-1]
 
-project = False # use data from projected simulations?
+assert(sim_type in [ "shells", "spins" ])
+
+project = True # use data from "projected" simulations?
 plot_all_shells = False # plot the population for each shell?
 squeezing_refline = True # mark optimal squeezing time in population time-series plots?
 
@@ -70,18 +72,14 @@ for data_file in glob.glob(data_dir + "inspect_" + name_tag() + "_z*.txt"):
     sqz = data[:,1]
     pops = data[:,2:]
 
-    if sim_type == "shells":
-        manifold_shells = {}
-        with open(data_file, "r") as file:
-            for line in file:
-                if "# manifold " in line:
-                    manifold = line.split()[2]
-                    shells = np.array([ int(shell) for shell in line.split()[4:] ])
-                    manifold_shells[manifold] = shells
-                if line[0] != "#": break
-    else:
-        manifold_shells = { manifold : np.array([manifold])
-                            for manifold in range(pops.shape[1]) }
+    manifold_shells = {}
+    with open(data_file, "r") as file:
+        for line in file:
+            if "# manifold " in line:
+                manifold = line.split()[2]
+                shells = np.array([ int(shell) for shell in line.split()[4:] ])
+                manifold_shells[manifold] = shells
+            if line[0] != "#": break
 
     try:
         sqz_end = np.where(sqz[1:] > 1)[0][0] + 2
@@ -121,6 +119,8 @@ print("plotting sweep data")
 title_text = f"${common_title}$"
 
 sweep_file = data_dir + "sweep_" + name_tag() + ".txt"
+if not os.path.isfile(sweep_file): exit()
+
 sweep_data = np.loadtxt(sweep_file)
 with open(sweep_file, "r") as file:
     for line in file:

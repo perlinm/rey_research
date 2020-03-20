@@ -27,9 +27,6 @@ inspect_sim_time = 2
 sweep_coupling_zz = np.linspace(-1,3,41)
 
 max_time = 10 # in units of J_\perp
-
-plot_all_shells = False # plot the population for each shell?
-
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
 data_dir = "../data/shells/"

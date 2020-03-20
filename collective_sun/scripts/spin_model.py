@@ -28,11 +28,10 @@ inspect_sim_time = 2
 # values of the ZZ coupling to simulate in an XXZ model
 sweep_coupling_zz = np.linspace(-1,3,41)
 
-max_time = 10 # in units of J_\perp
-
-periodic = True # use periodic boundary conditions?
 project = True # project operators onto the relevant manifolds?
+periodic = True # use periodic boundary conditions?
 
+max_time = 10 # in units of J_\perp
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
 data_dir = "../data/spins/"
@@ -84,7 +83,7 @@ up_y = ( up + 1j * dn ) / np.sqrt(2)
 dn_y = ( up - 1j * dn ) / np.sqrt(2)
 
 base_ops = {}
-base_ops["I"] = np.outer(up_z,up_z) + np.outer(dn_z,dn_z)
+base_ops["I"] = np.outer(up_z,up_z.conj()) + np.outer(dn_z,dn_z.conj())
 base_ops["Z"] = np.outer(up_z,up_z.conj()) - np.outer(dn_z,dn_z.conj())
 base_ops["X"] = np.outer(up_x,up_x.conj()) - np.outer(dn_x,dn_x.conj())
 base_ops["Y"] = np.outer(up_y,up_y.conj()) - np.outer(dn_y,dn_y.conj())
@@ -203,7 +202,7 @@ def simulate(coupling_zz, sim_time = None, max_tau = 2):
 
     H = H_0 + zz_sun_ratio * ZZ
     def _time_derivative(time, state):
-        return -1j * ( H @ state )
+        return -1j * ( H @ state.T )
 
     # determine how long to simulate
     if sim_time is None:
@@ -235,14 +234,22 @@ if project: data_dir += "proj_"
 print("running inspection simulations")
 sys.stdout.flush()
 
+def _is_zero(array):
+    return np.allclose(array, np.zeros(array.shape))
+
 for coupling_zz in inspect_coupling_zz:
     times, sqz, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
 
+    _manifolds = [ manifold for manifold in manifolds
+                   if not _is_zero(pops[:,manifold]) ]
+
     with open(data_dir + f"inspect_{name_tag(coupling_zz)}.txt", "w") as file:
         file.write("# times, squeezing, populations (within each manifold)\n")
+        for idx, manifold in enumerate(_manifolds):
+            file.write(f"# manifold {manifold} : {idx}\n")
         for tt in range(len(times)):
             file.write(f"{times[tt]} {sqz[tt]} ")
-            file.write(" ".join([ str(pop) for pop in pops[tt,:] ]))
+            file.write(" ".join([ str(pops[tt,manifold]) for manifold in _manifolds ]))
             file.write("\n")
 
 ##########################################################################################
@@ -261,9 +268,8 @@ sweep_pops = [ pops[:min_idx,:] for pops, min_idx in zip(sweep_pops, min_sqz_idx
 sweep_min_pops = np.array([ pops.min(axis = 0) for pops in sweep_pops ])
 sweep_max_pops = np.array([ pops.max(axis = 0) for pops in sweep_pops ])
 
-manifolds = [ manifold for manifold in manifolds
-              if not np.allclose(sweep_max_pops[:,manifold],
-                                 np.zeros(sweep_max_pops[:,manifold].size)) ]
+_manifolds = [ manifold for manifold in manifolds
+               if not _is_zero(sweep_max_pops[:,manifold]) ]
 
 with open(data_dir + f"sweep_{name_tag()}.txt", "w") as file:
     file.write("# coupling_zz, sqz_min, min_pop_0, max_pop (for manifolds > 0)\n")
@@ -273,7 +279,7 @@ with open(data_dir + f"sweep_{name_tag()}.txt", "w") as file:
     for zz in range(len(sweep_coupling_zz)):
         file.write(f"{sweep_coupling_zz[zz]} {sweep_min_sqz[zz]} {sweep_min_pops[zz,0]} ")
         file.write(" ".join([ str(sweep_max_pops[zz,manifold])
-                              for manifold in manifolds[1:] ]))
+                              for manifold in _manifolds[1:] ]))
         file.write("\n")
 
 print("completed")
