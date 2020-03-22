@@ -689,8 +689,8 @@ We thus find that
 \subsection{Multi-body excitations}
 \label{sec:multi_body_eigenstates}
 
-\red{[TODO: fix derivation below to account for operators $X$ that are
-  not permutationally symmetric]}
+\red{[TODO: verify that the derivation below properly accounts for
+  operators $X$ that are not permutationally symmetric]}
 
 We now consider the full $M$-body case
 \begin{align}
@@ -702,19 +702,30 @@ We now consider the full $M$-body case
 The sum in \eqref{eq:diagnosis_start} has terms with $p,q\in k$, terms
 with $p,q\notin k$, and terms with only one of $p$ or $q\in k$.  The
 permutation operator $\Pi_{pq}$ acts trivially on $X_k\ket\psi$ when
-$p,q\in k$ or $p,q\notin k$, leaving terms at each fixed $k$ of the
-form
+$p,q\notin k$.  When $p,q\in k$, this permutation operator swaps the
+positions of $p$ and $q$ in $X_k$, but we can simply relabel
+$\p{p,q}\leftrightarrow\p{q,p}$ with no consequence for $w_k$, so
+\begin{align}
+  \sum_{\substack{k\in\C_N\p{M}\\\p{p,q}\in\C_N\p{2}\\
+      p,q\notin k~\t{or}~p,q\in k}}
+  h_{pq} w_k \Pi_{pq} X_k \ket\psi
+  = \sum_{k\in\C_N\p{M}}
+  \sum_{\substack{\p{p,q}\in\C_N\p{2}\\p,q\notin k~\t{or}~p,q\in k}}
+  h_{pq} w_k X_k \ket\psi.
+\end{align}
+For fixed $k\in\C_N\p{M}$, we can simplify
 \begin{align}
   \sum_{\substack{\p{p,q}\in\C_N\p{2}\\p,q\in k~\t{or}~p,q\notin k}} h_{pq}
   = \sum_{\p{p,q}\in\C_N\p{2}} h_{pq}
-  - \sum_{\substack{p\in k\\q\notin k}} h_{pq}
+  - \sum_{\substack{p\in k\\q\in\ZZ_N\setminus k}} h_{pq}
   = E_0 - \tilde h_k,
   &&
   \tilde h_k \equiv \sum_{\substack{p\in k\\q\in\ZZ_N\setminus k}} h_{pq},
 \end{align}
 where we split a sum over $\p{p,q}\in\C_N\p{2}$ with the restriction
 that $p,q\in k$ or $p,q\notin k$ into an unrestricted sum minus a
-remainder with the complementary restriction.  The terms in
+remainder with the complementary restriction; and $E_0$ is the
+interaction energy of PS states $\ket\psi\in\M_0$.  The terms in
 \eqref{eq:diagnosis_start} with $p,q\in k$ or $p,q\notin k$ are then
 \begin{align}
   \sum_{k\in\C_N\p{M}} \p{E_0 - \tilde h_k} w_k X_k \ket\psi
