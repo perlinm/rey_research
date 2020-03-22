@@ -49,8 +49,10 @@
 \newcommand{\E}{\mathcal{E}}
 \newcommand{\G}{\mathcal{G}}
 \newcommand{\I}{\mathcal{I}}
+\renewcommand{\L}{\mathcal{L}}
 \newcommand{\M}{\mathcal{M}}
 \newcommand{\N}{\mathcal{N}}
+\renewcommand{\O}{\mathcal{O}}
 \renewcommand{\P}{\mathcal{P}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\T}{\mathcal{T}}
@@ -184,18 +186,20 @@ Hamiltonian an operator of the general form \red{[TODO: consider more
   X_{\m w} \equiv \sum_{k\in\C_N\p{M}} w_k X_k,
   \label{eq:pert}
 \end{align}
-where $X$ is an $M$-spin operator that is invariant under arbitrary
-permutation of its tensor factors; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
-a choice of $M$ distinct spins that $X_k$ acts on; $\C_N\p{M}$ is the
-set of all choices of $M$ elements from a set of size $N$; and $\m w$
-is a dimension-$M$ tensor with scalar entries $w_k$.  Even though only
-${N\choose M}$ entries of $\m w$ are used to define $X_{\m w}$ in
-\eqref{eq:pert}, for later convenience we define $w_k$ for all indices
-$k\in\ZZ_N^M$ by enforcing that $\m w$ is symmetric with respect to
-any permutation of its indices, and that $w_k=0$ for any $k$ with
-repeated values. \red{[TODO: relax the restrictions on $X$ and $\m w$
-  to allow for more general perturbations, e.g.~of the form
-  $s_\x\otimes s_\y-s_\y\otimes s_\x$]}
+where $X$ is an $M$-spin operator; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
+an ordered choice of $M$ spins that $X_k$ acts on; $\C_N\p{M}$ is the
+set of all such choices of $M$ elements from a set of size $N$; and
+$\m w$ is a dimension-$M$ tensor with scalar entries $w_k$.  Even
+though only ${N\choose M}$ entries of $\m w$ are used to define
+$X_{\m w}$ in \eqref{eq:pert}, for later convenience we define $w_k$
+for all indices $k\in\ZZ_N^M$ by enforcing that $\m w$ is symmetric
+with respect to any permutation of its indices, and that $w_k=0$ for
+any $k$ with repeated values.  In contrast, $X_k$ generally need not
+be symmetric with respect to permutations of $k$, although we will
+still define $X_k=0$ for any $k$ with repeated values.  A chiral spin
+model, for example, may have two-body interactions of the form
+$X_{pq}=s_\x^{(p)}s_\y^{(q)}-s_\y^{(p)}s_\x^{(q)}$, which are not
+invariant under exchange of spins $p$ and $q$.
 
 Single-body ($M=1$) operators correspond to classical external fields,
 e.g.~$s_\z$ for a magnetic field, and two-body ($M=2$) operators
@@ -308,8 +312,8 @@ symmetries of $H_0$ such as translational invariance or isotropy can
 drastically reduce the complexity of this eigenvalue problem.  We
 discuss this reduction in Appendix \ref{sec:symmetries}.
 
-Defining $\m w_\Delta$ as the projection of the tensor $\m w$ onto the
-$\Delta$-eigenspace of $\hat{\m h}$, we can expand
+Defining $\m w_\Delta$ to be the projection of the tensor $\m w$ onto
+the $\Delta$-eigenspace of $\hat{\m h}$, we can expand
 \begin{align}
   \m w = \sum_\Delta \m w_\Delta,
   &&
@@ -423,6 +427,7 @@ $\ul{\M}_{r_{\t{max}}}$ then take the form
   = \f{\bk{\ell|O_{\m u}^\dag X_{\m w} Q_{\m v}|m}}
   {\sqrt{\bk{\ell|O_{\m u}^\dag O_{\m u}|\ell}
       \bk{m|Q_{\m v}^\dag Q_{\m v}|m}}}.
+  \label{eq:matrix_element}
 \end{align}
 In order to compute these matrix elements, we simplify products of the
 form $\P_0 O_{\m u}^\dag X_{\m w} Q_{\m v} \P_0$ and
@@ -432,6 +437,16 @@ $\M_0$, in Appendix \ref{sec:operator_product}.
 A suitable basis for $\M_0$ is the set of PS states
 $\ket{m}=\ket{m_1,m_2,\cdots,m_n}$ with a definite occupation number
 $m_\mu$ of the single-spin state $\mu$.
+
+
+
+
+\vspace{3cm}
+
+% For consistency with \eqref{eq:matrix_element}, for each state
+% $\ket{m}$ in this basis for $\M_0$ we define
+% $\ket{\1,1,m}\equiv\ket{m}$, with $\1$ the identity operator, and we
+% define $\1_1\equiv\1$.
 
 
 \red{[TODO: finish section]}
@@ -560,18 +575,18 @@ $X_{\m w}$ is an $M$-body perturbation defined by
   X_{\m w} \equiv \sum_{k\in\C_N\p{M}} w_k X_k,
   \label{eq:pert_copy}
 \end{align}
-where $X$ is an $M$-spin operator that is invariant under arbitrary
-permutation of its tensor factors; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
-a choice of $M$ distinct spins that $X_k$ acts on; $\C_N\p{M}$ is the
-set of all choices of $M$ elements from a set of size $N$; and $\m w$
-is a dimension-$M$ tensor with scalar entries $w_k$.  Even though only
-${N\choose M}$ entries of $\m w$ are used to define $X_{\m w}$ in
-\eqref{eq:pert_copy}, for later convenience we define $w_k$ for all
-indices $k\in\ZZ_N^M$ by enforcing that $\m w$ is symmetric with
-respect to any permutation of its indices, and that $w_k=0$ for any
-$k$ with repeated values. \red{[TODO: relax the restrictions on $X$
-  and $\m w$ to allow for more general perturbations, e.g.~of the form
-  $s_\x\otimes s_\y-s_\y\otimes s_\x$]}
+where $X$ is an $M$-spin operator; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
+an ordered choice of $M$ spins that $X_k$ acts on; $\C_N\p{M}$ is the
+set of all such choices of $M$ elements from a set of size $N$; and
+$\m w$ is a dimension-$M$ (i.e.~$M$-index) tensor with scalar entries
+$w_k$.  Even though only ${N\choose M}$ entries of $\m w$ are used to
+define $X_{\m w}$ in \eqref{eq:pert_copy}, for later convenience we
+define $w_k$ for all indices $k\in\ZZ_N^M$ by enforcing that $\m w$ is
+symmetric with respect to any permutation of its indices, and that
+$w_k=0$ for any $k$ with repeated values.  In contrast, $X_k$
+generally need not be symmetric with respect to permutations of $k$,
+although we will still define $X_k=0$ for any $k$ with repeated
+values.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body excitations}
@@ -673,6 +688,9 @@ We thus find that
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Multi-body excitations}
 \label{sec:multi_body_eigenstates}
+
+\red{[TODO: fix derivation below to account for operators $X$ that are
+  not permutationally symmetric]}
 
 We now consider the full $M$-body case
 \begin{align}
@@ -872,8 +890,7 @@ $\hat{\m h}$ with a block-diagonal structure. \red{[TODO: finish
   discussion/derivation]}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Projecting products of multi-body operators onto the
-  permutationally symmetric manifold}
+\section{Permutation-symmetrized products of multi-body operators}
 \label{sec:operator_product}
 
 \red{[TODO: write introductory text for this section]}
@@ -882,41 +899,58 @@ $\hat{\m h}$ with a block-diagonal structure. \red{[TODO: finish
 \subsection{The general case: a diagrammatic expansion}
 
 Given a system of $N$ spins, we wish to project a product of
-multi-body operators onto the permutationally symmetric manifold
-$\M_0$.  For $p$ multi-body operators, the projection of such a
-product takes the form
+multi-body operators onto the permutationally symmetric manifold (PS)
+$\M_0$.  For $p$ multi-body operators, such a product takes the form
 \begin{align}
-  \P_0 \sp{\prod_{j\in\ZZ_p}
-    \sum_{k\in\C_N\p{M_j}} w_j\p{k} X_j\p{k}} \P_0,
-  \label{eq:sym_prod_proj}
+  \m X_{\m w}
+  \equiv \prod_{\alpha\in\ZZ_p} \sum_{k_\alpha\in\C_N\p{M_\alpha}}
+  w_\alpha\p{k_\alpha} X_\alpha\p{k_\alpha},
+  \label{eq:sym_prod_start}
 \end{align}
-where $\P_0$ is a projector onto the PS manifold $\M_0$; $j$ indexes
-one of the $p$ multi-body operators; $X_j$ is an $M_j$-spin operator
-that is invariant under arbitrary permutation of its tensor factors;
-$k\in\C_N\p{M_j}$ is a choice of $M_j$ spins that $X_j\p{k}$ acts on;
-$\C_N\p{M_j}$ is the set of all choices of $M_j$ elements from a set
-of size $N$; and $\m w_j$ are dimension-$M_j$ tensors with scalar
-entries $w_j\p{k}$. \red{[TODO: relax the restrictions on $X_j$ and
-  $\m w_j$ to allow for more general perturbations, e.g.~of the form
-  $s_\x\otimes s_\y-s_\y\otimes s_\x$]}
+where $\m X\equiv\p{X_1,X_2,\cdots,X_p}$ is a vector of
+$M_\alpha$-spin operators $X_\alpha$;
+$\m w\equiv\p{w_1,w_2,\cdots,w_p}$ is a vector of dimension-$M_\alpha$
+tensors $w_\alpha$;
+$k_\alpha\equiv\p{k_{\alpha,1},k_{\alpha,2},\cdots,k_{\alpha,M_\alpha}}$
+is an ordered choice of $M_\alpha$ spins that $X_\alpha\p{k_\alpha}$
+acts on; $\C_N\p{M_\alpha}$ is the set of all such choices of
+$M_\alpha$ elements from a set of size $N$; and $w_\alpha\p{k_\alpha}$
+is a scalar entry of $w_\alpha$.  Although only ${N \choose M_\alpha}$
+entries of $w_\alpha$ are used in \eqref{eq:sym_prod_start}, we define
+$w_\alpha\p{k_\alpha}$ for all $k_\alpha\in\ZZ_N^{M_\alpha}$ by
+enforcing that $w_\alpha\p{k_\alpha}$ is symmetric with respect to
+permutations of $k_\alpha$, and that $w_\alpha\p{k_\alpha}=0$ if
+$k_\alpha$ has any repeated values.  In contrast,
+$X_\alpha\p{k_\alpha}$ generally need not be symmetric with respect to
+permutations of $k_\alpha$, although we still enforce that
+$X_\alpha\p{k_\alpha}=0$ if $k_\alpha$ has any repeated values.
 
-To simplify the product in \eqref{eq:sym_prod_proj}, we first write
+To simplify the product in \eqref{eq:sym_prod_start}, we rewrite the
+product of sums as a sum of products, and symmetrize over all
+permutations of $k_\alpha\in\C_N\p{M_\alpha}$ in order to make all
+individual sums independent:
 \begin{align}
-  \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} X_j\p{k}
-  = \prod_{j\in\ZZ_p} \f1{M_j!} \sum_{k\in\ZZ_N^{M_j}}
-  w_j\p{k} X_j\p{k},
-  \label{eq:sym_prod_vec}
+  \m X_{\m w}
+  &= \f1{M_1!} \sum_{k_1\in\ZZ_N^{M_1}}
+  \f1{M_2!} \sum_{k_2\in\ZZ_N^{M_2}} \cdots
+  \f1{M_p!} \sum_{k_p\in\ZZ_N^{M_p}}
+  \prod_{\alpha\in\ZZ_p} w_\alpha\p{k_\alpha} X_\alpha\p{k_\alpha} \\
+  &= \f1{\m M!} \sum_{k\in\ZZ_N^{\m M}} \prod_{\alpha\in\ZZ_p}
+  w_\alpha\p{k_\alpha} X_\alpha\p{k_\alpha},
+  \label{eq:sum_of_products}
 \end{align}
-where we extend the definitions of $w_j\p{k}$ and $X_j\p{k}$ to all
-vectors $k\in\ZZ_N^{M_j}$ by enforcing that these objects are
-symmetric with respect to permutations of the entries in $k$, and that
-$w_j\p{k}=X_j\p{k}=0$ if $k$ contains any repeated entries.  We then
-collect terms whose operator content is equivalent up to a permutation
-of spins.  To this end, we classify terms in \eqref{eq:sym_prod_vec}
-by the numbers $g_S$ of indices shared by all tensors $w_j$ with
-$j\in S\subset\ZZ_p$.  For example, a term of the form
+where $\m M\equiv\p{M_1,M_2,\cdots,M_p}$ is a vector of the
+dimensions $M_\alpha$; $\m M!\equiv\prod_{M_\alpha\in\m M}M_\alpha!$
+for shorthand; and
+$\ZZ_N^{\m M}\equiv\bigotimes_{\alpha\in\ZZ_p}\ZZ_N^{M_\alpha}$, such
+that each $k\in\ZZ_N^{\m M}$ has the decomposition
+$k=\p{k_1,k_2,\cdots,k_p}$ with $k_\alpha\in\ZZ_N^{M_\alpha}$.
+
+We now classify terms in \eqref{eq:sum_of_products} by the numbers
+$g_S$ of indices shared by all tensors $w_\alpha$ with
+$\alpha\in S\subset\ZZ_p$.  For example, a term of the form
 $w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}$ with distinct indices
-$\p{a,b,c,d,e}\in\C_N\p{5}$ would have
+$a,b,c,d,e$ would have
 \begin{align}
   g_{\set{1}} = 1,
   &&
@@ -927,119 +961,189 @@ $\p{a,b,c,d,e}\in\C_N\p{5}$ would have
   g_{\set{2,3}} = 2,
 \end{align}
 and $g_S=0$ for all other subsets $S\subset\ZZ_3$.  This index
-assignment can be represented by the Venn diagram
+assignment can be associated with the Venn diagram
 \begin{align}
   \diagram{example_123},
   \label{eq:venn_diagram}
 \end{align}
 where $g_S$ is determined the number of dots at the intersection of
-circles $\set{w_j:j\in S}$.  Denoting the set of all nonempty subsets
-of $\ZZ_p$ by $\PP^*\p{\ZZ_p}$, we denote an assignment of distinct
-indices according to choices of $g_S$ for all $S\in\PP^*\p{\ZZ_p}$ by
-$g$.  Given a vector $\m M$ of the dimensions $M_j$, we then denote
-the set of all valid index assignments $g$ by $\G\p{\m M}$.  For
-consistency, all valid index assignments $g\in\G\p{\m M}$ must assign
-exactly $M_j$ indices to the dimension-$M_j$ tensor $w_j$, i.e.~
+circles $\alpha\in S$.  We denote the set of all nonempty subsets of
+$\ZZ_p$ by $\PP^*\p{\ZZ_p}$, and denote a choice of $g_S$ for all
+$S\in\PP^*\p{\ZZ_p}$ by $g$.  With representations such as
+\eqref{eq:venn_diagram} in mind, we will loosely refer to $g$ as
+simply a ``diagram''.  We define
+$\abs{g}\equiv\sum_{S\in\PP^*\p{\ZZ_p}}g_S$ to be the number of
+indices considered in $g$ (or equivalently the number of dots in the
+diagram $g$), and we denote the set of all diagrams for
+$p\equiv\dim\p{\m M}$ tensors with dimensions $\m M$ by $\G\p{\m M}$.
+For consistency, all diagrams $g\in\G\p{\m M}$ must associate exactly
+$M_\alpha$ indices with the dimension-$M_\alpha$ tensor $w_\alpha$,
+i.e.
 \begin{align}
-  \sum_{S\in\PP^*\p{\ZZ_p}\,:\,j\in S} g_S
-  = \sum_{R\in\PP^*\p{\ZZ_p\setminus\set{j}}} g_{\set{j}\cup R}
-  = M_j
+  \sum_{S\in\PP^*\p{\ZZ_p}\,:\,\alpha\in S} g_S
+  = \sum_{R\in\PP^*\p{\ZZ_p\setminus\set{\alpha}}} g_{\set{\alpha}\cup R}
+  = M_\alpha
 \end{align}
-for all $j\in\ZZ_p$.  The set of valid index assignments $\G\p{\m M}$
-is then essentially the set of all Venn diagrams of the form in
-\eqref{eq:venn_diagram} with $p=\dim\p{\m M}$ circles and a total of
-$M_j$ dots within circle $w_j$.
+for all $\alpha\in\ZZ_p$.  Schematically, a classification of the
+terms in \eqref{eq:sum_of_products} by diagrams $g\in\G\p{\m M}$ will
+allow us to expand
+\begin{align}
+  \m X_{\m w} \EQPS \sum_{g\in\G\p{\m M}} \m w\p{g} \m X\p{g},
+  \label{eq:sym_prod_teaser}
+\end{align}
+where $\EQPS$ denotes equality up to a restriction to the PS manifold
+$\M_0$; $\m w\p{g}$ is a scalar acquired by assigning $\abs{g}$
+indices to $\m w$ according to $g$, and summing over those indices in
+some appropriate manner; and $\m X\p{g}$ is a $\abs{g}$-spin operator
+acquired by averaging over all of the distinct ways to assign
+$\abs{g}$ indices to $\m X$ according to $g$ (clarified below).
 
-A classification of terms in \eqref{eq:sym_prod_vec} by index
-assignments $g\in\G\p{\m M}$ allows us to expand
-\begin{align}
-  \prod_{j\in\ZZ_p} \sum_{k\in\ZZ_N^{M_j}} w_j\p{k} X_j\p{k}
-  \EQPS \sum_{g\in\G\p{\m M}} \S\p{g} w\p{g} X\p{g},
-  \label{eq:sym_prod_group_start}
-\end{align}
-where $\EQPS$ denotes equality up to a restriction to the
-permutationally symmetric manifold; $X\p{g}$ is an operator acquired
-by assigning indices (choices of spins) to all $X_j$ in a manner
-consistent with $g$; $w\p{g}$ is a scalar acquired by summing over all
-indices assigned to the tensors $w_j$ according to $g$; and $\S\p{g}$
-is a symmetry factor accounting for the number of ways to assign
-indices according to $g$.
+In order to derive the expansion in \eqref{eq:sym_prod_teaser} and
+find the explicit forms of $\m w\p{g}$ and $\m X\p{g}$, we need to
+collect all terms in \eqref{eq:sum_of_products} that are associated
+with the diagram $g$.  To this end, we first consider all distinct
+ways to assign $\abs{g}$ indices to specific tensor factors of $\m w$
+and $\m X$ in a manner consistent with $g$.  For example, if
+$\m X=\p{X_1,X_2}$ with dimensions $\p{M_1,M_2}=\p{2,1}$ and
+$\abs{g}=2$ with $g_{\set{1,2}}=g_{\set{2}}=1$, then
+$X_1\p{a,b} X_2\p{b}$ and $X_1\p{b,a} X_2\p{b}$ are distinct
+assignments of $\abs{g}$ indices to $\m X$ in a manner consistent with
+$g$, provided that $a\ne b$.  After assigning $\abs{g}$ indices to
+$\m w$ and $\m X$ in a manner consistent with $g$, one needs to sum
+over all values that these indices can take, which amounts to a sum
+over all $k=\p{k_1,k_2,\cdots,k_{\abs{g}}}\in\ZZ_N^{\abs{g}}$ with the
+restriction that $k_\mu\ne k_\nu$ for all $\mu\ne\nu$.
 
-In order to write out the factors in \eqref{eq:sym_prod_group_start}
-explicitly, we identify the set of values that the distinct indices
-assigned according to $g$ can take:
+A specific assignment of indices can be thought of as a choice, for
+each dot in a region $S$ of a diagram $g$, of which tensor factor of
+$w_\alpha$ and $X_\alpha$ (for all $\alpha\in S$) that dot is
+associated with.  The only catch is that such choices treat all dots
+in $g$ as distinct, whereas the $g_S$ dots within region $S$ of $g$
+are actually indistinguishable.  The assignment
+$X_1\p{a,b,c} X_2\p{a,b}$, for example, is the same as
+$X_1\p{b,a,c} X_2\p{b,a}$.  We denote the set of all distinct index
+assignments according to $g$ by $\L\p{g}$.  The number of such
+assignments is
 \begin{align}
-  \C_N\p{g}
-  \equiv \set{ k \in \bigotimes_{S\in\PP^*\p{\ZZ_p}} \C_N\p{g_S}
-    : \t{all elements of $k$ are distinct} },
-  \label{eq:index_values}
+  \abs{\L\p{g}}
+  = \sp{\prod_{\alpha\in\ZZ_p} \C\p{ g_S : \alpha\in S }}
+  \sp{\prod_{S\in\PP^*\p{\ZZ_p}} \p{g_S!}^{\abs{S}}}
+  \sp{\prod_{S\in\PP^*\p{\ZZ_p}} g_S!}^{-1}
+  = \m M! \sp{\prod_{S\in\PP^*\p{\ZZ_p}} g_S!}^{-1},
+  \label{eq:index_assignment_num}
 \end{align}
-where each $k\in\C_N\p{g}$ has the natural decomposition
-$k=\p{k_S:S\in\PP^*\p{\ZZ_p}}$ with $k_S\in\C_N\p{g_S}$.  In words,
-$\C_N\p{g}$ consists of all the ways to choose, for each subset $S$ of
-the tensors $\set{w_j}$, a set $k_S$ of $g_S$ distinct spins, with the
-restriction that all $k_S$ are orthogonal: if $z\in k_S$, then
-$z\notin k_R$ for $R\ne S$.  Having defined the set $\C_N\p{g}$ of
-index values, we define the restriction of $k\in\C_N\p{g}$ to values
-associated with $w_j$ and $X_j$:
-\begin{align}
-  k_j \equiv \bigcup_{S\in\PP^*\p{\ZZ_p} : j\in S} k_S
-  = \bigcup_{R\in\PP^*\p{\ZZ_p\setminus\set{j}}} k_{\set{j}\cup R},
-\end{align}
-where the union of lists $k_S$ denotes a concatenation of those lists.
-These definitions allow us to expand
-\begin{align}
-  w\p{g} \equiv \sum_{k\in\C_N\p{g}} \prod_{j\in\ZZ_p} w_j\p{k_j},
-  &&
-  X\p{g} \equiv \prod_{j\in\ZZ_p}
-  X_j\p{\ell_j}~\t{for some}~\ell\in\C_N\p{g},
-  \label{eq:diagram_factors}
-\end{align}
-where the choice of $\ell\in\C_N\p{g}$ does not matter after
-projection onto permutationally symmetric manifold.  Finally, we can
-work out that
-\begin{align}
-  \S\p{g} \equiv \sp{\prod_{j\in\ZZ_p} \C\p{ g_S : j\in S }}
-  \sp{\prod_{S\in\PP^*\p{\ZZ_p}} \p{g_S!}^\abs{S}}
-  = \prod_{j\in\ZZ_p} M_j!,
-  \label{eq:sym_prod_symmetry}
-\end{align}
-where the first product in \eqref{eq:sym_prod_symmetry} contains
+where the first product in \eqref{eq:index_assignment_num} contains
 multinomial coefficients
 \begin{align}
   \C\p{a_1,a_2,\cdots,a_m}
   \equiv \f{\p{a_1+a_2+\cdots+a_m}!}{a_1!a_2!\cdots a_m!}
 \end{align}
-that account for the number of ways to partition the indices of each
-$w_j$ into sets of shared indices as specified by $g$, and the second
-product in \eqref{eq:sym_prod_symmetry} accounts for the number of
-ways to permute each set of shared indices on every tensor.
-Altogether, the symmetry factors $\S\p{g}$ cancel out with the
-$\sim M_j!$ prefactors in \eqref{eq:sym_prod_vec}, so
+that account for the number of ways to partition the $M_\alpha$
+indices of each $w_\alpha$ and $X_\alpha$ into sets of shared indices
+as specified by $g$, the second product in
+\eqref{eq:index_assignment_num} accounts for the number of ways to
+permute each set of shared indices on each $w_\alpha$ and $X_\alpha$,
+and the third product in \eqref{eq:index_assignment_num} accounts for
+the treatment of the dots within each region $S$ of $g$ as
+distinguishable, when in fact they are not.  Altogether, we have
 \begin{align}
-  \prod_{j\in\ZZ_p} \sum_{k\in\C_N\p{M_j}} w_j\p{k} X_j\p{k}
-  \EQPS \sum_{g\in\G\p{\m M}} w\p{g} X\p{g}.
-  \label{eq:sym_prod_group}
+  \m X_{\m w}
+  = \f1{\m M!} \sum_{g\in\G\p{\m M}} \sum_{\ell\in\L\p{g}}
+  \sum_{\substack{k\in\ZZ_N^{\abs{g}}\\
+      k_\mu\ne k_\nu\forall \mu\ne\nu}}
+  \m w\p{k,\ell} \m X\p{k,\ell},
 \end{align}
-This result essentially gives us a diagrammatic expansion for the
-product of multi-body operators, projected onto the permutationally
-symmetric manifold.
+where $\m w\p{k,\ell}$ and $\m X\p{k,\ell}$ denote the assignment of
+indices $k$ to all $w_\alpha$ and $X_\alpha$ according to $\ell$.  The
+invariance of each tensor $w_\alpha$ under arbitrary permutations of
+its indices means that all assignments of $\abs{g}$ indices to $\m w$
+consistent with $g$ are equivalent,
+e.g.~$w_1\p{a,b} w_2\p{b} = w_1\p{b,a} w_2\p{b}$.  The value of
+$\m w\p{k,\ell}$ therefore depends on $g$, but not the specific choice
+of $\ell\in\L\p{g}$.  Furthermore, the specific choice of spins $k$ in
+$\m X\p{k,\ell}$ does not matter after projection onto the PS manifold
+$\M_0$, so the dependence of $\m X\p{k,\ell}$ on $k$ is similarly
+superfluous, which is to say that we can write
+\begin{align}
+  \m X_{\m w}
+  \EQPS \f1{\m M!} \sum_{g\in\G\p{\m M}}
+  \sum_{\substack{k\in\ZZ_N^{\abs{g}}\\
+      k_\mu\ne k_\nu\forall \mu\ne\nu}}
+  \m w\p{k,g} \sum_{\ell\in\L\p{g}} \m X\p{\ell}.
+\end{align}
+Defining the average of $\m X\p{\ell}$ over all $\ell\in\L\p{g}$,
+\begin{align}
+  \m X\p{g} \equiv \f1{\abs{\L\p{g}}}
+  \sum_{\ell\in\L\p{g}} \m X\p{\ell},
+\end{align}
+we can more simply write
+\begin{align}
+  \m X_{\m w}
+  \EQPS \f1{\m M!} \sum_{g\in\G\p{\m M}} \abs{\L\p{g}}
+  \sum_{\substack{k\in\ZZ_N^{\abs{g}}\\
+      k_\mu\ne k_\nu\forall \mu\ne\nu}}
+  \m w\p{k,g} \m X\p{g}.
+\end{align}
+We now examine the sum over all $k\in\ZZ_N^{\abs{g}}$ with
+$k_\mu\ne k_\nu\forall \mu\ne\nu$.  For any given instance of
+$\m w\p{k,g}$, each entry $k_\mu\in k$ is associated with tensors
+$\set{w_\alpha:\alpha\in S}$ for some subset $S\in\PP^*\p{\ZZ_p}$.
+Identifying the indices associated with $S\in\PP^*\p{\ZZ_p}$ by
+$k_S\in\ZZ_N^{g_S}$ and enforcing the decomposition
+$k=\p{k_S:S\in\PP^*\p{\ZZ_p}}$, we can write
+\begin{align}
+  \sum_{\substack{k\in\ZZ_N^{\abs{g}}\\
+      k_\mu\ne k_\nu\forall \mu\ne\nu}} \m w\p{k,g}
+  = \sum_{k\in\ZZ_N\p{g}} \m w\p{k},
+\end{align}
+where
+\begin{align}
+  \ZZ_N\p{g} \equiv
+  \set{ k \in \bigotimes_{S\in\PP^*\p{\ZZ_p}} \ZZ_N^{g_S}
+    : \t{all elements of $k$ are distinct} }.
+\end{align}
+The domain $\ZZ_N\p{g}$ is redundant, however, in the sense that
+$\m w\p{k}$ for any $k\in\ZZ_N\p{g}$ is invariant under permutations
+of each $k_S\in\ZZ_N\p{g_S}$, so
+\begin{align}
+  \sum_{k\in\ZZ_N\p{g}} \m w\p{k}
+  = \sp{\prod_{S\in\PP^*\p{\ZZ_p}}g_S!} \sum_{k\in\C_N\p{g}} \m w\p{k},
+\end{align}
+where
+\begin{align}
+  \C_N\p{g} \equiv
+  \set{ k \in \bigotimes_{S\in\PP^*\p{\ZZ_p}} \C_N\p{g_S}
+    : \t{all elements of $k$ are distinct} }.
+\end{align}
+Defining
+\begin{align}
+  \m w\p{g} \equiv \sum_{k\in\C_N\p{g}} \m w\p{k},
+  \label{eq:diagram_factors}
+\end{align}
+we thus find that
+\begin{align}
+  \m X_{\m w} \EQPS \sum_{g\in\G\p{\m M}} \m w\p{g} \m X\p{g},
+  \label{eq:sym_prod_diagrams}
+\end{align}
+where all combinatorial factors such as $\m M!$ and $\abs{\L\p{g}}$
+cancel each other out.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Formalizing diagrams and reducing computational costs}
 \label{sec:diagrams}
 
 Diagrams such as \eqref{eq:venn_diagram} will play a major role in the
-calculations in this section.  Here, we define these diagrams as
-formal objects that we can use in mathematical expressions, enabling
-us to systematically perform calculations that are otherwise
-intractable.  We then derive rules to ``simplify'' these diagrams in
-such a way as to reduce the computational cost of their numerical
-evaluation.
+expansion in \eqref{eq:sym_prod_diagrams}, as well as the remainder of
+this appendix.  Here, we define these diagrams as formal objects that
+we can use in mathematical expressions, enabling us to systematically
+perform calculations that are otherwise intractable.  We then derive
+rules to ``simplify'' these diagrams in such a way as to reduce the
+computational cost of their numerical evaluation.
 
 The simplest diagrams have $g_S$ filled dots (``$\bullet$'') at the
 intersection of the circles $j\in S$, and are simply equal to the
-associated scalar $w\p{g}$ defined in \eqref{eq:diagram_factors}, e.g.
+associated scalar $\m w\p{g}$ defined in \eqref{eq:diagram_factors},
+e.g.
 \begin{align}
   \diagram{example_123}
   \equiv \sum_{\substack{a,b,c,\in\ZZ_N\\\p{d,e}\in\C_N\p{2}\\
@@ -1201,14 +1305,15 @@ to the new one.
 \subsection{Matrix elements of individual multi-spin operators}
 
 The process of constructing and simplifying diagrams to compute the
-coefficients $w\p{g}$ of the diagrammatic operator product expansion
-in \eqref{eq:sym_prod_group} is systematic enough to be converted into
-an algorithm for execution on a computer.  The last step necessary to
-automate the evaluation of \eqref{eq:sym_prod_group} is expansion of
-the multi-spin operators $X\p{g}$ in a basis for the permutationally
-symmetric manifold $\M_0$.  Without loss of generality, we consider a
-single permutationally symmetric $M$-spin operator $X$; our task is
-essentially to find coefficients of the expansion
+coefficients $\m w\p{g}$ of the diagrammatic operator product
+expansion in \eqref{eq:sym_prod_diagrams} is systematic enough to be
+converted into an algorithm for execution on a computer.  The last
+step necessary to automate the evaluation of
+\eqref{eq:sym_prod_diagrams} is expansion of the multi-spin operators
+$\m X\p{g}$ in a basis for the PS manifold $\M_0$.  Without loss of
+generality, we consider a single permutationally symmetric $M$-spin
+operator $X$; our task is essentially to find coefficients of the
+expansion
 \begin{align}
   \P_0 X \P_0
   = \sum_{a,b\in\B_0} \bk{a|X|b} \op{a}{b},
@@ -1264,17 +1369,17 @@ states $\ket\alpha,\ket\beta$.
 
 Here we simplify the single-body product
 \begin{align}
-  \P_0 X_{\m v} Y_{\m w} \P_0
-  = \P_0 \sp{\sum_{p,q\in\ZZ_N} v_p w_q X_p Y_q} \P_0
+  X_{\m v} Y_{\m w}
+  = \sp{\sum_{p,q\in\ZZ_N} v_p w_q X_p Y_q}
   \EQPS \diagram{single_body_0} X_1 Y_2
   + \diagram{single_body_1} X_1 Y_1,
 \end{align}
-where $\P_0$ is a projector onto the permutationally symmetric
-manifold $\M_0$; $p,q$ index individual spins; $v_p,w_p$ are scalars;
-and $X,Y$ are single-spin operators.  This product appears, for
-example, in the calculation of the second-order effective Hamiltonian
-$H_1^{(2)}$ induced on the permutationally symmetric manifold $\M_0$
-by a single-body perturbation.  Defining
+where $\P_0$ is a projector onto the PS manifold $\M_0$; $p,q$ index
+individual spins; $v_p,w_p$ are scalars; and $X,Y$ are single-spin
+operators.  This product appears, for example, in the calculation of
+the second-order effective Hamiltonian $H_1^{(2)}$ induced on the
+permutationally symmetric manifold $\M_0$ by a single-body
+perturbation.  Defining
 \begin{align}
   \v{\m m} \equiv \sum_{p\in\ZZ_N} m_p \ket{p},
   &&
@@ -1319,21 +1424,27 @@ which implies that
 
 Here we simplify the two-body product
 \begin{multline}
-  \P_0 X_{\m v} Y_{\m w} \P_0
-  = \P_0 \sp{\sum_{\p{k,\ell},\p{p,q}\in\C_N\p{2}}
-    v_{k\ell} w_{pq} X_{k\ell} Y_{pq}} \P_0 \\
+  X_{\m v} Y_{\m w}
+  = \sp{\sum_{\p{k,\ell},\p{p,q}\in\C_N\p{2}}
+    v_{k\ell} w_{pq} X_{k\ell} Y_{pq}} \\
   \EQPS \diagram{two_body_0} X_{1,2} Y_{3,4}
-  + \diagram{two_body_1} X_{1,2} Y_{1,3}
-  + \diagram{two_body_2} X_{1,2} Y_{1,2},
+  + \diagram{two_body_1} \sp{X,Y}_{1,2,3}
+  + \diagram{two_body_2} \sp{X,Y}_{1,2},
 \end{multline}
-where $\P_0$ is a projector onto the permutationally symmetric
-manifold $\M_0$; $k,\ell,p,q$ index individual spins;
-$v_{k\ell},w_{pq}$ are scalar coefficients with $m_{pq}=m_{qp}$ and
-$m_{pp}=0$ for both $\m m\in\set{\m v,\m w}$; and $X,Y$ are
-permutationally symmetric two-spin operators.  This product appears,
-for example, in the calculation of the second-order effective
-Hamiltonian $H_2^{(2)}$ induced on the permutationally symmetric
-manifold $\M_0$ by a two-body perturbation.  Defining
+where $\P_0$ is a projector onto the PS manifold $\M_0$; $k,\ell,p,q$
+index individual spins; $v_{k\ell},w_{pq}$ are scalar coefficients
+with $m_{pq}=m_{qp}$ and $m_{pp}=0$ for both $\m m\in\set{\m v,\m w}$;
+and $X,Y$ are permutationally symmetric two-spin operators; and
+\begin{align}
+  \sp{X,Y}_{1,2,3}
+  \equiv \f14 X_{1,2}\p{Y_{1,3} + Y_{2,3} + Y_{3,1} + Y_{3,2}},
+  &&
+  \sp{X,Y}_{1,2} \equiv \f12 X_{1,2} \p{Y_{1,2} + Y_{2,1}}.
+\end{align}
+This product appears, for example, in the calculation of the
+second-order effective Hamiltonian $H_2^{(2)}$ induced on the
+permutationally symmetric manifold $\M_0$ by a two-body perturbation.
+Defining
 \begin{align}
   \v{\m m} \equiv \sum_{\p{p,q}\in\C_N\p{2}} m_{pq} \ket{\set{p,q}},
   &&
@@ -1367,8 +1478,8 @@ Altogether,
   X_{\m v} Y_{\m w}
   \EQPS \p{\col{v}\,\col{w} -\v v\c\v w + \v{\m v}\c\v{\m w}}
   X_{1,2} Y_{3,4}
-  + \p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}} X_{1,2} Y_{1,3}
-  + \v{\m v} \c \v{\m w}\, X_{1,2} Y_{1,2}.
+  + \p{\v v\c\v w - 2 \v{\m v} \c \v{\m w}} \sp{X,Y}_{1,2,3}
+  + \v{\m v} \c \v{\m w}\, \sp{X,Y}_{1,2}.
 \end{align}
 In the special case that $X=Y=Z\otimes Z$ with a single-spin operator
 $Z$ for which $Z^2=1$, we can further simplify
@@ -1402,20 +1513,22 @@ denotes a falling factorial.
 
 Here we simplify the product
 \begin{align}
-  \Z \equiv \P_0 \sp{\sum_{\p{k,\ell},\p{p,q},\p{r,s}\in\C_N\p{2}}
-    u_{k\ell} v_{pq} w_{rs} Z_k Z_\ell Z_p Z_q Z_r Z_s} \P_0,
+  Z_{\m u\m v\m w}
+  \equiv \sum_{\p{k,\ell},\p{p,q},\p{r,s}\in\C_N\p{2}}
+    u_{k\ell} v_{pq} w_{rs} Z_k Z_\ell Z_p Z_q Z_r Z_s,
   &&
   Z^2 = 1,
 \end{align}
-where $\P_0$ is a projector onto the permutationally symmetric
-manifold $\M_0$; $k,\ell,p,q,r,s$ index individual spins; $Z$ is a
-single-spin operator; and $u_{k\ell},v_{pq},w_{rs}$ are scalar
-coefficients with $m_{pq}=m_{qp}$ and $m_{pp}=0$ for each of
-$\m m\in\set{\m u,\m v,\m w}$.  \red{[TODO: give example of when this
-  product appears.]} Collecting terms according to the number of $Z$
+projected onto the PS manifold $\M_0$, where $k,\ell,p,q,r,s$ index
+individual spins; $Z$ is a single-spin operator; and
+$u_{k\ell},v_{pq},w_{rs}$ are scalar coefficients with $m_{pq}=m_{qp}$
+and $m_{pp}=0$ for each of $\m m\in\set{\m u,\m v,\m w}$.  This
+product appears, for example, in the projection of Ising-type
+($s_\z\otimes s_\z$) interactions onto the two-body excitation
+manifold $\M_2$.  Collecting terms according to the number of $Z$
 operators that remain after accounting for $Z^2=1$, we find that
 \begin{align}
-  \Z \EQPS A_6 Z^{\otimes 6} + A_4 Z^{\otimes 4}
+  Z_{\m u\m v\m w} \EQPS A_6 Z^{\otimes 6} + A_4 Z^{\otimes 4}
   + A_2 Z^{\otimes 2} + A_0,
   \label{eq:triple_multi}
 \end{align}
@@ -1506,11 +1619,11 @@ we can expand
     + v_p w_{pq} u_{pq} + w_p u_{pq} v_{pq}}
   + 4 \sum_{\p{p,q}\in\C_N\p{2}} u_{pq} v_{pq} w_{pq}.
 \end{multline}
-Finally, we can also write the product $\Z$ in \eqref{eq:triple_multi}
-in terms of the collective operator
+Finally, we can also write the product $Z_{\m u\m v\m w}$ in
+\eqref{eq:triple_multi} in terms of the collective operator
 $\col{Z} \equiv \sum_{p\in\ZZ_N} Z_p$:
 \begin{align}
-  \Z \EQPS
+  Z_{\m u\m v\m w} \EQPS
   \tilde A_6 \col{Z}^6 + \tilde A_4 \col{Z}^4
   + \tilde A_2 \col{Z}^2 + \tilde A_0,
   \label{eq:triple_col}
