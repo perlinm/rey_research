@@ -1026,37 +1026,24 @@ over all $k=\p{k_1,k_2,\cdots,k_{\abs{g}}}\in\ZZ_N^{\abs{g}}$ with the
 restriction that $k_\mu\ne k_\nu$ for all $\mu\ne\nu$.
 
 A specific assignment of indices can be thought of as a choice, for
-each dot in a region $S$ of a diagram $g$, of which tensor factor of
-$w_\alpha$ and $X_\alpha$ (for all $\alpha\in S$) that dot is
-associated with.  The only catch is that such choices treat all dots
-in $g$ as distinct, whereas the $g_S$ dots within region $S$ of $g$
-are actually indistinguishable.  The assignment
-$X_1\p{a,b,c} X_2\p{a,b}$, for example, is the same as
-$X_1\p{b,a,c} X_2\p{b,a}$.  We denote the set of all distinct index
-assignments according to $g$ by $\L\p{g}$.  The number of such
-assignments is
+each of the $M_\alpha$ tensor factors of $w_\alpha$ and $X_\alpha$, of
+which dot in the diagram $g$ that tensor factor is associated with
+(i.e.~out of the $M_\alpha$ dots within circle $\alpha$).  There are
+nominally $M_\alpha!$ such choices for a given $\alpha$, and therefore
+$\prod_{\alpha\in\ZZ_p}M_\alpha!=\m M!$ choices total.  The only catch
+is that these choices treat all dots in $g$ as distinct, whereas the
+$g_S$ dots within region $S$ of $g$ are actually indistinguishable.
+The assignment $X_1\p{a,b,c} X_2\p{a,b}$, for example, is the same as
+$X_1\p{b,a,c} X_2\p{b,a}$.  In general, the treatment of the $g_S$
+indistinguishable dots within region $S\in\PP^*\p{\ZZ_p}$ of $g$ as
+distinguishable results in over-counting distinct index assignments by
+a factor of $g_S!$.  Denoting the set of all distinct index
+assignments according to $g$ by $\L\p{g}$, the number of such
+assignments is therefore
 \begin{align}
-  \abs{\L\p{g}}
-  = \sp{\prod_{\alpha\in\ZZ_p} \C\p{ g_S : \alpha\in S }}
-  \sp{\prod_{S\in\PP^*\p{\ZZ_p}} \p{g_S!}^{\abs{S}}}
-  \sp{\prod_{S\in\PP^*\p{\ZZ_p}} g_S!}^{-1}
-  = \m M! \sp{\prod_{S\in\PP^*\p{\ZZ_p}} g_S!}^{-1},
-  \label{eq:index_assignment_num}
+  \abs{\L\p{g}} = \m M! \sp{\prod_{S\in\PP^*\p{\ZZ_p}} g_S!}^{-1}.
 \end{align}
-where the first product in \eqref{eq:index_assignment_num} contains
-multinomial coefficients
-\begin{align}
-  \C\p{a_1,a_2,\cdots,a_m}
-  \equiv \f{\p{a_1+a_2+\cdots+a_m}!}{a_1!a_2!\cdots a_m!}
-\end{align}
-that account for the number of ways to partition the $M_\alpha$
-indices of each $w_\alpha$ and $X_\alpha$ into sets of shared indices
-as specified by $g$, the second product in
-\eqref{eq:index_assignment_num} accounts for the number of ways to
-permute each set of shared indices on each $w_\alpha$ and $X_\alpha$,
-and the third product in \eqref{eq:index_assignment_num} accounts for
-the treatment of the dots within each region $S$ of $g$ as
-distinguishable, when in fact they are not.  Altogether, we have
+Altogether, we have
 \begin{align}
   \m X_{\m w}
   = \f1{\m M!} \sum_{g\in\G\p{\m M}} \sum_{\ell\in\L\p{g}}
