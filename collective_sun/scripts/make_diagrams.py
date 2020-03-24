@@ -70,9 +70,16 @@ region_mids["ac"] = rotate("b") @ region_mids["bc"]
 ##################################################
 # define constructor for diagram
 
-def place_dots(region, num, markers = None, dot_sep = None,
+def place_dots(region, num_colors, markers = None, dot_sep = None,
                region_mids = region_mids, markersize = 3,
                default_marker = None):
+    if type(num_colors) is int:
+        num = num_colors
+        colors = [ "k" for _ in range(num) ]
+    else:
+        num, colors = num_colors
+        assert(len(colors) >= num)
+
     if default_marker is None:
         default_marker = "."
     if dot_sep == None:
@@ -107,7 +114,7 @@ def place_dots(region, num, markers = None, dot_sep = None,
         exit()
 
     point = region_mids[region]
-    for vec, marker in zip(vecs, markers):
+    for vec, marker, color in zip(vecs, markers, colors):
         size = markersize
         markerfacecolor = "k"
 
@@ -122,7 +129,7 @@ def place_dots(region, num, markers = None, dot_sep = None,
             size += 1
 
         pos = np.array(point) + np.array(vec)
-        plt.plot(*pos, "k"+marker, markersize = size, fillstyle = fill_style)
+        plt.plot(*pos, marker, color = color, markersize = size, fillstyle = fill_style)
 
 def make_triple_diagram(region_dots, markers = {}, figsize = figsize,
                         dot_sep = None, pad = radius/20,
@@ -198,13 +205,15 @@ def make_double_diagram(region_dots, markers = {}, size_x = figsize[1],
     plt.tight_layout(pad = 0)
     return fig
 
-def add_triple_labels(labels, pads = [ 0.3, 0.4, 0.4 ]):
+def add_triple_labels(labels = None, pads = [ 0.3, 0.4, 0.4 ]):
+    if labels is None: labels = [ "u", "v", "w" ]
     for circle, label, pad in zip(circles, labels, pads):
         pos = vec(circle) * ( dist + radius * ( 1 + pad ) )
         plt.text(*pos, f"${label}$",
                  horizontalalignment = "center", verticalalignment = "center")
 
-def add_double_labels(labels, pads = [ 0.3, 0.3 ]):
+def add_double_labels(labels = None, pads = [ 0.3, 0.3 ]):
+    if labels is None: labels = [ "v", "w" ]
     for label, pad, direction in zip(labels, pads, [-1,+1]):
         plt.text(direction * dist, radius + pad, f"${label}$",
                  horizontalalignment = "center", verticalalignment = "center")
@@ -216,12 +225,6 @@ def add_double_labels(labels, pads = [ 0.3, 0.3 ]):
 
 dots = { "a" : 1, "abc" : 1, "ac" : 1, "bc" : 2 }
 make_triple_diagram(dots, figsize = (1,1))
-add_triple_labels(["u","v","w"])
-plt.tight_layout(pad = 0)
-plt.savefig(fig_dir + "example.pdf")
-
-dots = { "a" : 1, "abc" : 1, "ac" : 1, "bc" : 2 }
-make_triple_diagram(dots, figsize = (1,1))
 add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
 plt.tight_layout(pad = 0)
 plt.savefig(fig_dir + "example_123.pdf")
@@ -229,14 +232,14 @@ plt.savefig(fig_dir + "example_123.pdf")
 dots = { "a" : 4, "ab" : 1, "b" : 1 }
 markers = { "a" : "..oo", "b" : "o" }
 make_double_diagram(dots, markers)
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_o.pdf")
 
 dots = { "a" : 1, "abc" : 1, "ac" : 1, "b" : 1, "bc" : 1 }
 markers = { "abc" : "x", "ac" : "x", "b" : "o" }
 make_triple_diagram(dots, markers, figsize = (1,1))
-add_triple_labels(["u","v","w"])
+add_triple_labels()
 plt.tight_layout(pad = 0)
 plt.savefig(fig_dir + "example_x.pdf")
 
@@ -246,28 +249,28 @@ plt.close("all")
 
 dots = { "a" : 1, "ab" : 1, "b" : 1 }
 make_double_diagram(dots)
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_elim.pdf")
 
 make_double_diagram(dots, { "a" : "o" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_elim_o.pdf")
 
 make_double_diagram(dots, { "a" : "x" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_elim_x.pdf")
 
 make_double_diagram(dots, { "a" : "x" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_elim_x.pdf")
 
 dots = { "ab" : 2 }
 make_double_diagram(dots)
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_elim_x_full.pdf")
 
@@ -277,36 +280,65 @@ plt.close("all")
 
 dots = { "a" : 4, "b" : 4, "ab" : 1 }
 make_double_diagram(dots)
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_sym.pdf")
 
 make_double_diagram(dots, { "a" : "o" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_sym_o.pdf")
 
 make_double_diagram(dots, { "a" : "x" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_sym_x.pdf")
 
 make_double_diagram(dots, { "a" : "oo" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_sym_oo.pdf")
 
 make_double_diagram(dots, { "a" : "ox" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_sym_ox.pdf")
 
-
 dots = { "a" : 3, "b" : 3, "ab" : 2 }
 make_double_diagram(dots)
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_sym_x_elim.pdf")
+
+dots = { "a" : 2, "b" : 3 }
+make_double_diagram(dots, { "a" : "x" })
+add_double_labels()
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym_x_color.pdf")
+
+dots = { "a" : 2, "b" : ( 3, [ "r", "m", "b" ]) }
+make_double_diagram(dots, { "a" : "x" })
+add_double_labels()
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym_x_color.pdf")
+
+dots = { "a" : 1, "b" : ( 2, [ "m", "b" ]), "ab" : ( 1, ["r"] ) }
+make_double_diagram(dots)
+add_double_labels()
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym_x_color_r.pdf")
+
+dots = { "a" : 1, "b" : ( 2, [ "r", "b" ]), "ab" : ( 1, ["m"] ) }
+make_double_diagram(dots)
+add_double_labels()
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym_x_color_m.pdf")
+
+dots = { "a" : 1, "b" : ( 2, [ "r", "m" ]), "ab" : ( 1, ["b"] ) }
+make_double_diagram(dots)
+add_double_labels()
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_sym_x_color_b.pdf")
 
 plt.close("all")
 
@@ -315,7 +347,7 @@ plt.close("all")
 for assignment in [ { "a" : 1, "b" : 1, "ab" : 0 },
                     { "ab" : 1 } ]:
     make_double_diagram(assignment)
-    add_double_labels(["v","w"])
+    add_double_labels()
     plt.tight_layout(pad = 0.05)
     tag = assignment["ab"]
     plt.savefig(fig_dir + f"single_body_{tag}.pdf")
@@ -324,17 +356,17 @@ plt.close("all")
 
 dots = { "a" : 1, "b" : 1 }
 make_double_diagram(dots, { "a" : "o" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"single_body_0_o.pdf")
 
 make_double_diagram(dots, { "a" : "x" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"single_body_0_x.pdf")
 
 make_double_diagram(dots, { "a" : "o", "b" : "o" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"single_body_0_oo.pdf")
 
@@ -346,56 +378,56 @@ for assignment in [ { "a" : 2, "b" : 2, "ab" : 0 },
                     { "a" : 1, "b" : 1, "ab" : 1 },
                     { "ab" : 2 } ]:
     make_double_diagram(assignment)
-    add_double_labels(["v","w"])
+    add_double_labels()
     plt.tight_layout(pad = 0.05)
     tag = assignment["ab"]
     plt.savefig(fig_dir + f"two_body_{tag}.pdf")
 
 dots = { "ab" : 2 }
 make_double_diagram(dots, { "ab" : "oo" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_2_oo.pdf")
 
 dots = { "a" : 1, "b" : 1, "ab" : 1 }
 make_double_diagram(dots, { "a" : "o" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_1_o.pdf")
 
 make_double_diagram(dots, { "a" : "x" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_1_x.pdf")
 
 make_double_diagram(dots, { "a" : "o", "b" : "o" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_1_oo.pdf")
 
 make_double_diagram(dots, { "a" : "o", "b" : "x" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_1_ox.pdf")
 
 make_double_diagram(dots, { "a" : "o", "b" : "o", "ab" : "o" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_1_ooo.pdf")
 
 dots = { "a" : 2, "b" : 2 }
 make_double_diagram(dots, { "a" : "o" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_0_o.pdf")
 
 make_double_diagram(dots, { "a" : "x" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_0_x.pdf")
 
 make_double_diagram(dots, { "a" : "oo", "b" : "oo" })
-add_double_labels(["v","w"])
+add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_0_oooo.pdf")
 
@@ -442,7 +474,7 @@ for marker, suffix in zip([ ".", "o" ], [ "", "_o" ]):
 ### example label assignments for unlabeled diagrams
 
 make_triple_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 }, figsize = (0.9,0.7))
-add_triple_labels(["u","v","w"])
+add_triple_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + "triple_1_uvw.pdf")
 
