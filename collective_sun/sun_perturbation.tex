@@ -184,7 +184,7 @@ Hamiltonian an operator $\hat\O$ of the general form
 \begin{align}
   \hat\O \equiv \sum_{\p{X,\m w}\in\O} X_{\m w},
   &&
-  X_{\m w} \f1M! \equiv \sum_{k\in\D_N\p{M}} w_k X_k,
+  X_{\m w} \equiv \f1{M!} \sum_{k\in\D_N\p{M}} w_k X_k,
   \label{eq:pert}
 \end{align}
 where $\hat\O$ is constructed from the set $\O\equiv\set{\p{X,\m w}}$
@@ -606,17 +606,17 @@ acting on a permutationally symmetric state $\ket\psi\in\M_0$.  Here
 $X_{\m w}$ is an $M$-body perturbation defined by
 \begin{align}
   X_{\m w}
-  \equiv \sum_{k\in\D_N\p{M}} w_k X_k
-  = \sum_{k\in\C_N\p{M}} \sum_{\sigma\in\pi\p{M}}
+  \equiv \f1{M!} \sum_{k\in\D_N\p{M}} w_k X_k
+  = \f1{M!} \sum_{\sigma\in\pi\p{M}} \sum_{k\in\C_N\p{M}}
   w_{\sigma\p{k}} X_{\sigma\p{k}},
 \end{align}
 where $X$ is an $M$-spin operator; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
 a list of $M$ spins that $X_k$ acts on; $\m w$ is a dimension-$M$
 (i.e.~$M$-index) tensor with scalar entries $w_k$; $\D_N\p{M}$ is the
 strictly off-diagonal part of $\ZZ_N^M$, defined in
-\eqref{eq:off_diags}; $\C_N\p{M}$ is the set of all choices of $M$
-elements from $\ZZ_N$, defined in \eqref{eq:choices}; and $\pi\p{M}$
-is the permutation group of $\ZZ_M$.
+\eqref{eq:off_diags}; $\pi\p{M}$ is the permutation group of $\ZZ_M$;
+and $\C_N\p{M}$ is the set of subsets (``choices'') of $M$ elements
+from $\ZZ_N$, defined in \eqref{eq:choices}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body excitations}
