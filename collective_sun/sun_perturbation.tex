@@ -76,15 +76,13 @@
 \usepackage{accents} % for the undertilde
 \newcommand{\ut}{\undertilde}
 
+\newcommand{\lra}{\leftrightarrow}
 \newcommand{\floor}[1]{\lfloor{#1}\rfloor}
-\newcommand{\ceil}[1]{\lceil{#1}\rceil}
 
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
 \def\obk#1{\mathinner{({#1})}}
 \def\oop#1#2{\oket{#1}\!\obra{#2}}
-
-\usepackage{mathtools} % for coloneqq
 
 \usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
@@ -594,9 +592,6 @@ which vanishes as $\epsilon\to0$ for all $\alpha>D$.
 \section{Constructing excitation energy eigenstates}
 \label{sec:eigenstates}
 
-\red{[TODO: fix section to consider the case without permutational
-  symmetry of $X_{\m w}$]}
-
 In this section, we simplify the products of the form
 $H_0X_{\m w}\ket\psi$ to arrive at the expansion in
 \eqref{eq:diagnosis}, which defines conditions under which a
@@ -616,7 +611,8 @@ a list of $M$ spins that $X_k$ acts on; $\m w$ is a dimension-$M$
 strictly off-diagonal part of $\ZZ_N^M$, defined in
 \eqref{eq:off_diags}; $\pi\p{M}$ is the permutation group of $\ZZ_M$;
 and $\C_N\p{M}$ is the set of subsets (``choices'') of $M$ elements
-from $\ZZ_N$, defined in \eqref{eq:choices}.
+from $\ZZ_N$, defined in \eqref{eq:choices}.  For shorthand, we will
+define $\tilde X_{\m w}\equiv M! X_{\m w}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body excitations}
@@ -625,43 +621,47 @@ from $\ZZ_N$, defined in \eqref{eq:choices}.
 In order to build familiarity with the problem at hand, we first
 consider the simple case of a single-body perturbation and simplify
 \begin{align}
-  H_0 X_{\m w} \ket\psi
-  = \sum_{\substack{\p{p,q}\in\C_N\p{2}\\k\in\ZZ_N}}
+  H_0 \tilde X_{\m w} \ket\psi
+  = \sum_{\substack{k\in\ZZ_N\\\set{p,q}\in\C_N\p{2}}}
   h_{pq} w_k \Pi_{pq} X_k \ket\psi.
   \label{eq:single_body_diagnosis_start}
 \end{align}
 The sum in \eqref{eq:single_body_diagnosis_start} has terms with
-$k\in\set{p,q}$, and terms with $k\notin\set{p,q}$.  In the case of
+$k\notin\set{p,q}$, and terms with $k\in\set{p,q}$.  In the case of
 $k\notin\set{p,q}$, the permutation operator $\Pi_{pq}$ commutes with
-$X_k$ and annihilates on $\ket\psi$, leaving terms at each fixed $k$
-of the form
+$X_k$ and annihilates on $\ket\psi$, so
 \begin{align}
-  \sum_{\substack{\p{p,q}\in\C_N\p{2}\\k\notin\set{p,q}}} h_{pq}
-  = \sum_{\p{p,q}\in\C_N\p{2}} h_{pq}
-  - \sum_{\substack{\p{p,q}\in\C_N\p{2}\\k\in\set{p,q}}} h_{pq}
-  = E_0 - \f12 \sum_{\substack{p,q\in\ZZ_N\\k\in\set{p,q}}} h_{pq}
-  = E_0 - h_k,
+  \sum_{k\in\ZZ_N} \sum_{\substack{\set{p,q}\in\C_N\p{2}\\k\notin\set{p,q}}}
+  h_{pq} w_k X_k \ket\psi
+  = E_0 \tilde X_{\m w} \ket\psi
+  - \sum_{k\in\ZZ_N} \sum_{\substack{\set{p,q}\in\C_N\p{2}\\k\in\set{p,q}}}
+  h_{pq} w_k X_k \ket\psi,
 \end{align}
-where we define $h_{pq}$ for arbitrary $p,q$ by enforcing
-$h_{pq}=h_{qp}$ and $h_{pp}=0$; and $h_k \equiv \sum_\ell h_{k\ell}$.
+where $E_0 = \sum_{\set{p,q}\in\C_N\p{2}} h_{pq}$ is the interaction
+energy of PS states $\ket\psi\in\M_0$.  Simplifying
+\begin{align}
+  \sum_{\substack{\set{p,q}\in\C_N\p{2}\\k\in\set{p,q}}} h_{pq}
+  = \f12 \sum_{\substack{p,q\in\ZZ_N\\k\in\set{p,q}}} h_{pq}
+  = \f12 \sum_{p\in\ZZ_N} h_{pk} + \f12 \sum_{q\in\ZZ_N} h_{kq}
+  = h_k,
+  &&
+  h_k \equiv \sum_{p\in\ZZ_N} h_{pk},
+\end{align}
+we can write
+\begin{align}
+  \sum_{k\in\ZZ_N} \sum_{\substack{\set{p,q}\in\C_N\p{2}\\k\notin\set{p,q}}}
+  h_{pq} w_k X_k \ket\psi
+  = E_0 \tilde X_{\m w} \ket\psi
+  - \sum_{k\in\ZZ_N} h_k w_k X_k \ket\psi.
+\end{align}
 The terms in \eqref{eq:single_body_diagnosis_start} with
-$k\notin\set{p,q}$ are then
+$k\in\set{p,q}$, meanwhile, are
 \begin{align}
-  \sum_{\substack{\p{p,q}\in\C_N\p{2}\\k\notin\set{p,q}}}
+  \sum_{\substack{\set{p,q}\in\C_N\p{2}\\k\in\set{p,q}}}
   h_{pq} w_k \Pi_{pq} X_k \ket\psi
-  = \sum_{k\in\ZZ_N} \p{E_0 - h_k} w_k X_k \ket\psi
-  = E_0 X_{\m w} \ket\psi - \sum_{k\in\ZZ_N} h_k w_k X_k \ket\psi
+  = \sum_{k,q\in\ZZ_N} h_{kq} w_k X_q \ket\psi,
 \end{align}
-while the terms in \eqref{eq:single_body_diagnosis_start} with
-$k\in\set{p,q}$ take the form
-\begin{align}
-  \sum_{\substack{\p{p,q}\in\C_N\p{2}\\k\in\set{p,q}}}
-  h_{pq} v_k \Pi_{pq} X_k \ket\psi
-  = \sum_{\p{k,q}\in\C_N\p{2}} h_{kq} w_k X_q \ket\psi
-  + \sum_{\p{p,k}\in\C_N\p{2}} h_{pk} w_k X_p \ket\psi
-  = \sum_{k,q\in\ZZ_N} h_{kq} w_k X_q \ket\psi
-\end{align}
-which implies
+so in total
 \begin{align}
   H_0 X_{\m w} \ket\psi
   = E_0 X_{\m w} \ket\psi
@@ -680,15 +680,15 @@ equation
 \end{align}
 where $\m h\equiv\sum_{p,q\in\ZZ_N} h_{pq} \op{p}{q}$ is a matrix of
 all couplings $h_{pq}$; the vector
-$\v h\equiv\sum_{p,q\in\ZZ_N} h_{pq} \ket{p}$ is the sum of all
-columns of $\m h$; and $\diag\v h$ is a matrix with $\v h$ on the
-diagonal and zeroes everywhere else.
+$\v h \equiv \sum_{p\in\ZZ_N} h_p \ket{p} = \sum_{p,q\in\ZZ_N} h_{pq}
+\ket{p}$ is the sum of all columns of $\m h$; and $\diag\v h$ is a
+matrix with $\v h$ on the diagonal and zeroes everywhere else.
 
 When the interaction Hamiltonian $H_0$ is translationally invariant,
 the single-body eigenvalue problem in \eqref{eq:single_body_eig} is
 solvable analytically.  In this case, the couplings $h_{pq}$ depend
-only on the separation $\abs{p-q}$, so the eigenvectors of $\m h$ are
-plane waves of the form
+only on the separation $\abs{p-q}$, so eigenvectors of $\m h$ are
+therefore plane waves of the form
 \begin{align}
   \v{\m w}_k \equiv \sum_{p\in\ZZ_L^D} e^{ip\c k} \ket{p},
 \end{align}
@@ -700,7 +700,6 @@ $\m h$ can be determined by expanding
   \m h\c{\m w}_k
   = \sum_{p,q\in\ZZ_L^D} h_{pq} e^{iq\c k} \ket{p}
   = \sum_{p,d\in\ZZ_L^D} h_{p,p+d} e^{i\p{p+d}\c k} \ket{p}
-  = \sum_{d\in\ZZ_L^D} h_{0,d} e^{id\c k} \v{\m w}_k
   = \sum_{d\in\ZZ_L^D} h_{0,d} \cos\p{d\c k} \v{\m w}_k,
 \end{align}
 where the imaginary terms vanish because $h_{0,d}=h_{0,-d}$.  The
@@ -710,7 +709,7 @@ $h_p=\sum_{q\in\ZZ_L^D}h_{pq}=\sum_{d\in\ZZ_L^D}h_{0,d}$ are equal,
 which implies that $\diag\v h=\sum_{d\in\ZZ_L^D}h_{0,d}$ is a scalar.
 We thus find that
 \begin{align}
-  \p{\m h - \diag\v h}\c\v v_k = \Delta_k \v{\m w}_k,
+  \p{\m h - \diag\v h}\c\v{\m w}_k = \Delta_k \v{\m w}_k,
   &&
   \Delta_k \equiv \sum_{d\in\ZZ_L^D} h_{0,d} \sp{\cos\p{d\c k}-1}.
 \end{align}
@@ -719,152 +718,173 @@ We thus find that
 \subsection{Multi-body excitations}
 \label{sec:multi_body_eigenstates}
 
-\red{[TODO: fix section to consider the case without permutational
-  symmetry of $X_{\m w}$]}
-
 We now consider the full $M$-body case
 \begin{align}
-  H_0 X_{\m w} \ket\psi
-  = \sum_{\substack{\p{p,q}\in\C_N\p{2}\\k\in\C_N\p{M}}}
+  H_0 \tilde X_{\m w} \ket\psi
+  = \sum_{\substack{k\in\D_N\p{M}\\\set{p,q}\in\C_N\p{2}}}
   h_{pq} w_k \Pi_{pq} X_k \ket\psi.
   \label{eq:diagnosis_start}
 \end{align}
-The sum in \eqref{eq:diagnosis_start} has terms with $p,q\in k$, terms
-with $p,q\notin k$, and terms with only one of $p$ or $q\in k$.  The
-permutation operator $\Pi_{pq}$ acts trivially on $X_k\ket\psi$ when
-$p,q\in k$ or $p,q\notin k$, so
+The sum in \eqref{eq:diagnosis_start} has terms with $p,q\notin k$,
+terms with $p,q\in k$, and terms with only one of $p$ or $q\in k$.
+The permutation operator $\Pi_{pq}$ acts trivially on $X_k\ket\psi$
+when $p,q\notin k$, so
 \begin{align}
-  \sum_{\substack{k\in\C_N\p{M}\\\p{p,q}\in\C_N\p{2}\\
-      p,q\in k~\t{or}~p,q\notin k}}
+  \sum_{\substack{k\in\D_N\p{M}\\\set{p,q}\in\C_N\p{2}\\p,q\notin k}}
   h_{pq} w_k \Pi_{pq} X_k \ket\psi
-  = \sum_{k\in\C_N\p{M}}
-  \sum_{\substack{\p{p,q}\in\C_N\p{2}\\p,q\in k~\t{or}~p,q\notin k}}
-  h_{pq} w_k X_k \ket\psi.
+  = E_0 \tilde X_{\m w} \ket\psi
+  - \sum_{k\in\D_N\p{M}} h^{\t{D}}_k w_k X_k \ket\psi,
 \end{align}
-For any fixed $k\in\C_N\p{M}$, we can simplify
+where $E_0 = \sum_{\set{p,q}\in\C_N\p{2}} h_{pq}$ is the interaction
+energy of PS states $\ket\psi\in\M_0$, and
 \begin{align}
-  \sum_{\substack{\p{p,q}\in\C_N\p{2}\\p,q\in k~\t{or}~p,q\notin k}} h_{pq}
-  = \sum_{\p{p,q}\in\C_N\p{2}} h_{pq}
-  - \sum_{\substack{p\in k\\q\in\ZZ_N\setminus k}} h_{pq}
-  = E_0 - \tilde h_k,
+  h^{\t{D}}_k \equiv
+  \sum_{\substack{\set{p,q}\in\C_N\p{2}\\p\in k~\t{or}~q\in k}} h_{pq}
+  = \sum_{p\in k} h_p - \sum_{\set{a,b}\in\C_M\p{2}} h_{k_ak_b},
   &&
-  \tilde h_k \equiv \sum_{\substack{p\in k\\q\in\ZZ_N\setminus k}} h_{pq},
+  h_p \equiv \sum_{q\in\ZZ_N} h_{pq}.
 \end{align}
-where we split a sum over $\p{p,q}\in\C_N\p{2}$ with the restriction
-that $p,q\in k$ or $p,q\notin k$ into an unrestricted sum minus a
-remainder with the complementary restriction; and $E_0$ is the
-interaction energy of PS states $\ket\psi\in\M_0$.  The terms in
-\eqref{eq:diagnosis_start} with $p,q\in k$ or $p,q\notin k$ are then
+Defining a linear operator $\m h_{\t{D}}$ on the space of
+dimension-$M$ tensors, whose action on $\m w$ is a new dimension-$M$
+tensor with entries
 \begin{align}
-  \sum_{k\in\C_N\p{M}} \p{E_0 - \tilde h_k} w_k X_k \ket\psi
-  = E_0 X_{\m w} \ket\psi
-  - \sum_{k\in\C_N\p{M}} \p{\tilde{\m h} * \m w}_k X_k \ket\psi,
+  \m h_{\t{D}}\p{\m w}_k \equiv h^{\t{D}}_k w_k,
+  \label{eq:multi_body_op_diag}
 \end{align}
-where $\tilde{\m h}$ is a tensor with entries $\tilde h_k$; and
-$\tilde{\m h} * \m w$ denotes an element-wise (Kronecker) product of
-$\tilde{\m h}$ and $\m w$, with entries $\tilde h_k w_k$.  The
-remaining terms in \eqref{eq:diagnosis_start} with only one of
+we can write the terms in \eqref{eq:diagnosis_start} with
+$p,q\notin k$ as
+\begin{align}
+  \sum_{\substack{k\in\D_N\p{M}\\\set{p,q}\in\C_N\p{2}\\p,q\notin k}}
+  h_{pq} w_k \Pi_{pq} X_k \ket\psi
+  = E_0 \tilde X_{\m w} \ket\psi
+  - \sum_{k\in\D_N\p{M}} \m h_{\t{D}}\p{\m w}_k X_k \ket\psi.
+\end{align}
+The terms in \eqref{eq:diagnosis_start} with $p,q\in k$ are
+\begin{align}
+  \sum_{\substack{k\in\D_N\p{M}\\\set{p,q}\in\C_N\p{2}\\p,q\in k}}
+  h_{pq} w_k \Pi_{pq} X_k \ket\psi
+  = \sum_{k\in\D_N\p{M}} \sum_{\substack{\set{a,b}\in\C_M\p{2}}}
+  h_{k_ak_b} w_{k_{a\lra b}} X_k \ket\psi,
+\end{align}
+where $k_{a\lra b}$ denotes a list that is equal to
+$k=\p{k_1,k_2,\cdots,k_M}$ but with $k_a$ and $k_b$ swapped, and we
+have relabeled $k_a$ and $k_b$ to change $w_k X_{k_{a\lra b}}$ to
+$w_{k_{a\lra b}} X_k$.  To write down these terms succinctly, we
+define a linear operator $\m h_{\t{P}}$ on the space of dimension-$M$
+tensors, whose action on $\m w$ is a new dimension-$M$ tensor with
+entries
+\begin{align}
+  \m h_{\t{P}}\p{\m w}_k
+  \equiv \sum_{\substack{\set{a,b}\in\C_M\p{2}}}
+  h_{k_ak_b} w_{k_{a\lra b}},
+  \label{eq:multi_body_op_perm}
+\end{align}
+such that
+\begin{align}
+  \sum_{\substack{k\in\D_N\p{M}\\\set{p,q}\in\C_N\p{2}\\p,q\in k}}
+  h_{pq} w_k \Pi_{pq} X_k \ket\psi
+  = \sum_{k\in\D_N\p{M}} \m h_{\t{P}}\p{\m w}_k X_k \ket\psi.
+\end{align}
+Finally, the terms in \eqref{eq:diagnosis_start} with only one of
 $p\in k$ or $q\in k$ are
 \begin{align}
-  \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{q\in k}
-  h_{pq} w_k \Pi_{pq} X_k \ket\psi
-  = \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
-  \sum_{a\in\ZZ_M} h_{p k_a} w_k \Pi_{p k_a} X_k \ket\psi.
-\end{align}
-where $k=\p{k_1,k_2,\cdots,k_M}$, with $k_a$ the $a$-th entry in $k$.
-Defining $k_{a:p}$ to be a list that is equal to $k$ but with the
-$a$-th number $k_a$ replaced by $p$,
-$k_{a:p}\equiv\p{k_1,k_2,\cdots,k_{a-1},p,k_{a+1},\cdots,k_M}$, we can
-simplify
-\begin{align}
-  \Pi_{p k_a} X_k \ket\psi
-  = \Pi_{p k_a} X_k \Pi_{p k_a} \ket\psi
-  = X_{k_{a:p}}\ket\psi,
-\end{align}
-and switch the labels for $p$ and $k_a$ to find that
-\begin{align}
-  \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
+  \sum_{k\in\D_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
   \sum_{q\in k} h_{pq} w_k  \Pi_{pq} X_k \ket\psi
-  = \sum_{k\in\C_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
-  \sum_{a\in\ZZ_M} h_{pk_a} w_{k_{a:p}} X_k \ket\psi.
+  = \sum_{k\in\D_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
+  \sum_{a\in\ZZ_M} h_{pk_a} w_{k_{a:p}} X_k \ket\psi,
 \end{align}
-For each fixed $a$, the sum over $p$ above is essentially a
-contraction of the matrix $\m h$ with the $a$-th index of the tensor
-$\m w$.  Denoting such a contraction by $\m h\c_a\m w$, we can
-therefore write this result as
+where $k_{a:p}$ denotes a list that is equal to $k$ but with $k_a$
+replaced by $p$, and we have relabeled $k_a$ and $p$ to change
+$w_k X_{k_{a:p}}$ to $w_{k_{a:p}} X_k$.  For each fixed $a$, the sum
+over $p$ above is essentially a contraction of the matrix $\m h$ with
+the $a$-th index of the tensor $\m w$.  Defining a linear operator
+$\m h_a$ on the space of dimension-$M$ tensors, whose action on $\m w$
+is a new dimension-$M$ tensor with entries
 \begin{align}
-  \sum_{k\in\C_N\p{M}} \sum_{a\in\ZZ_M}
-  \p{\m h \circ_a \m w}_k X_k \ket\psi,
-\end{align}
-where, for clarity, the matrix elements of $\m h\circ\m w$ are
-\begin{align}
-  \p{\m h \circ_a \m w}_k
+  \m h_a\p{\m w}_k
   \equiv \sum_{\substack{p\in\ZZ_N\\p\notin k}} h_{pk_a} w_{k_{a:p}}
   = \sum_{\substack{p\in\ZZ_N\\p\notin k}}
-  h_{pk_a} w_{k_1 k_2 \cdots k_{a-1} p k_{a+1} \cdots k_M}.
+  h_{pk_a} w_{k_1 k_2 \cdots k_{a-1} p k_{a+1} \cdots k_M},
+  \label{eq:multi_body_op_contract}
 \end{align}
-Altogether, we thus find that
+we can expand
+\begin{align}
+  \sum_{k\in\D_N\p{M}} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
+  \sum_{q\in k} h_{pq} w_k  \Pi_{pq} X_k \ket\psi
+  = \sum_{k\in\D_N\p{M}} \sum_{a\in\ZZ_M}
+  \m h_a\p{\m w}_k X_k \ket\psi.
+\end{align}
+Altogether, we find that
 \begin{align}
   H_0 X_{\m w} \ket\psi
-  = E_0 X_{\m w} \ket\psi + \sum_{k\in\C_N\p{M}}
-  \hat{\m h}\p{\m w}_k X_k \ket\psi,
-  &&
-  \hat{\m h}\p{\m w}
-  \equiv \sum_{a\in\ZZ_M} \m h \circ_a \m w - \tilde{\m h} * \m w.
-  \label{eq:diagnosis_end}
+  = E_0 X_{\m w} \ket\psi + X_{\hat{\m h}\p{\m w}} \ket\psi,
 \end{align}
-The action of the $M$-body perturbation $X_{\m w}$ on a
-permutationally symmetric state therefore generates an eigenstate of
-$H_0$ with energy $E_0+\Delta$ if the coefficient tensor $\m w$
-satisfies the generalized eigenvalue equation
-$\hat{\m h}\p{\m w} = \Delta \m w$, which can be written in the form
+where
+\begin{align}
+  \hat{\m h}\p{\m w}
+  \equiv \sum_{a\in\ZZ_M} \m h_a\p{\m w}
+  + \m h_{\t{P}}\p{\m w} - \m h_{\t{D}}\p{\m w},
+\end{align}
+is defined in terms of the tensors $\m h_a\p{\m w}$,
+$\m h_{\t{P}}\p{\m w}$, and $\m h_{\t{D}}\p{\m w}$, whose entries are
+respectively provided in \eqref{eq:multi_body_op_contract},
+\eqref{eq:multi_body_op_perm}, and \eqref{eq:multi_body_op_diag}.  The
+action of the $M$-body perturbation $X_{\m w}$ on a permutationally
+symmetric state therefore generates an eigenstate of $H_0$ with energy
+$E_0+\Delta$ if the coefficient tensor $\m w$ satisfies the
+generalized eigenvalue equation $\hat{\m h}\p{\m w} = \Delta \m w$,
+which can be written in the form
 \begin{align}
   \hat{\m h} \c \v{\m w} = \Delta \v{\m w},
+  &&
+  \v{\m w} \equiv \sum_{k\in\C_N\p{M}} w_k \ket{k},
   \label{eq:multi_body_eig_mat}
 \end{align}
 where
 \begin{align}
-  \hat{\m h} \equiv \sum_{k\in\C_N\p{M}}
-  \sum_{\substack{p\in\ZZ_N\\p\notin k}}
-  \sum_{a\in\ZZ_M} h_{pk_a} \op{k}{k_{a:p}}
-  - \sum_{k\in\C_N\p{M}} \tilde h_k \op{k},
-  &&
-  \v{\m w} \equiv \sum_{k\in\C_N\p{M}} w_k \ket{k}.
+  \hat{\m h} \equiv \sum_{k\in\D_N\p{M}} \ket{k}
+  \sp{\sum_{a\in\ZZ_M} \sum_{\substack{p\in\ZZ_N\\p\notin k}}
+    h_{pk_a} \bra{k_{a:p}}
+    + \sum_{\set{a,b}\in\C_M\p{2}} h_{k_ak_b} \bra{k_{a\lra b}}
+    - h^{\t{D}}_k \bra{k}}.
 \end{align}
-If $M=1$, then
-$\p{\m h\circ\m w}_k=\sum_{\ell\in\ZZ_N} h_{k\ell} w_\ell$ and
-$\tilde h_k = h_k \equiv \sum_{\ell\in\ZZ_N} h_{k\ell}$, so
+If $M=1$, then $h^{\t{D}}_k=h_k$, so
 \begin{align}
-  H_0 X_{\m w} \ket\psi
-  = E_0 X_{\m w} \ket\psi + \sum_{k\in\ZZ_N}
-  \p{\sum_{\ell\in\ZZ_N} h_{k\ell} w_\ell - h_k w_k} X_k \ket\psi,
+  \hat{\m h} \stackrel{M=1}{=} \sum_{k\in\ZZ_N} \ket{k}
+  \sp{\sum_{\substack{p\in\ZZ_N\\p\ne k}} h_{pk} \bra{p} - h_k \bra{k}}
+  = \m h - \diag\v h,
 \end{align}
-which is precisely what we found in
-\eqref{eq:single_body_diagnosis_end}.  If $M=2$, then
-$\p{\m h\circ\m w}_{pq} = \sum_{k\in\ZZ_N}
-\p{h_{pk}w_{kq}+h_{qk}w_{pk}}$, so
+which is precisely what we found in \eqref{eq:single_body_eig}.  If
+$M=2$, then $h_{pq}^{\t{D}}=h_p+h_q-h_{pq}$, so
 \begin{align}
-  H_0 X_{\m w} \ket\psi
-  = E_0 X_{\m w} \ket\psi + \sum_{\p{p,q}\in\C_N\p{2}}
-  \sp{\sum_{k\in\ZZ_N}\p{h_{pk} w_{kq} + h_{qk} w_{pk}}
-    - \tilde h_{pq} w_{pq}}
-  X_k \ket\psi,
+  \hat{\m h} \stackrel{M=2}{=}
+  \sum_{\p{k,\ell}\in\D_N\p{2}} \ket{k,\ell}
+  \sp{\sum_{\substack{p\in\ZZ_N\\p\notin\set{k,\ell}}}
+    \p{ h_{pk} \bra{p,\ell} + h_{p\ell} \bra{k,p} }
+    + h_{k\ell} \bra{\ell,k}
+    - \p{h_k + h_\ell - h_{k\ell}} \bra{k,\ell}}.
 \end{align}
-where $\tilde h_{pq}=h_p+h_q-2h_{pq}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Exploiting spatial symmetries}
 \label{sec:symmetries}
 
+\red{[TODO: fix remainder of this section to account for perturbations
+  that do not obey permutational symmetry]}
+
 Solving the eigenvalue problem in \eqref{eq:multi_body_eig_mat} to
 find $M$-body perturbations $X_{\m w}$ that generate states of
 definite interaction energy nominally requires diagonalizing the
 matrix $\hat{\m h}$ with dimensions
-${N\choose M}\times{N\choose M}\sim N^M\times N^M$.  If the
-interaction Hamiltonian $H_0$ has any spatial symmetries, however,
-then we can use these symmetries to reduce the complexity of this
-eigenvalue problem.  Translational invariance, for example, can reduce
-this problem to that of diagonalizing a matrix with dimensions
+$N!_M\times N!_M\sim N^M\times N^M$, where
+$N!_M\equiv\prod_{j=0}^{M-1}\p{N-j}$ denotes a falling factorial.
+
+\vspace{3cm}
+
+If the interaction Hamiltonian $H_0$ has any spatial symmetries,
+however, then we can use these symmetries to reduce the complexity of
+this eigenvalue problem.  Translational invariance, for example, can
+reduce this problem to that of diagonalizing a matrix with dimensions
 $\le{N-1\choose M-1}\times{N-1\choose M-1}\sim N^{M-1}\times N^{M-1}$,
 and isotropy can further reduce the problem size by factors that
 depend on the lattice geometry.  The complexity of diagonalizing a
@@ -885,8 +905,8 @@ $s\subset\C_N\p{M}$ that are invariant under the appropriate symmetry
 group action.  In the case of a translationally invariant and
 isotropic system with two-body perturbations, for example, each
 equivalence class $s\in\S_2$ would consist of all pairs
-$\p{p,q}\in\C_N\p{2}$ that are a fixed distance $\abs{p-q}=d_s$ apart,
-i.e.~$s=\set{\p{p,q}\in\C_N\p{2}:\abs{p-q}=d_s}$.
+$\set{p,q}\in\C_N\p{2}$ that are a fixed distance $\abs{p-q}=d_s$
+apart, i.e.~$s=\set{\set{p,q}\in\C_N\p{2}:\abs{p-q}=d_s}$.
 
 For simplicity, we first assume that the $M$-body operator $X_{\m w}$
 obeys the same spatial symmetries as $H_0$.  For any equivalence class
@@ -1403,8 +1423,7 @@ which implies that
 
 Here we simplify the two-body product
 \begin{multline}
-  X_{\m v} Y_{\m w}
-  = \sp{\sum_{\p{k,\ell},\p{p,q}\in\D_N\p{2}}
+  X_{\m v} Y_{\m w} = \sp{\sum_{\set{k,\ell},\set{p,q}\in\C_N\p{2}}
     v_{k\ell} w_{pq} X_{k\ell} Y_{pq}} \\
   \EQPS \diagram{two_body_0} X_{1,2} Y_{3,4} + \diagram{two_body_1}
   X_{1,2} Y_{2,3} + \diagram{two_body_2} X_{1,2} Y_{1,2},
@@ -1418,11 +1437,11 @@ second-order effective Hamiltonian $H_2^{(2)}$ induced on the PS
 manifold $\M_0$ by a permutationally symmetric two-body perturbation.
 Defining
 \begin{align}
-  \v{\m m} \equiv \sum_{\p{p,q}\in\C_N\p{2}} m_{pq} \ket{p,q},
+  \v{\m m} \equiv \sum_{\set{p,q}\in\C_N\p{2}} m_{pq} \ket{p,q},
   &&
   \v m \equiv \sum_{p,q\in\ZZ_N} m_{pq} \ket{p},
   &&
-  \col{m} \equiv \sum_{\p{p,q}\in\C_N\p{2}} m_{pq},
+  \col{m} \equiv \sum_{\set{p,q}\in\C_N\p{2}} m_{pq},
 \end{align}
 for both $\m m\in\set{\m v,\m w}$, we can write
 \begin{align}
@@ -1466,7 +1485,7 @@ $Z$ for which $Z^2=1$, we can further simplify
 which we can write in terms of collective operators
 $\col{Z}\equiv\sum_{p\in\ZZ_N}Z_p$ as
 \begin{multline}
-  \sum_{\p{k,\ell},\p{p,q}\in\C_N\p{2}} v_{k\ell} w_{pq}
+  \sum_{\p{k,\ell},\set{p,q}\in\C_N\p{2}} v_{k\ell} w_{pq}
   Z_k Z_\ell Z_p Z_q \\
   \EQPS \f{\col{v}\,\col{w} - \v v\c\v w + \v{\m v}\c\v{\m w}}{N!_4}
   \sp{\col{Z}^4 - 2\p{3N-4} \col{Z}^2}
@@ -1486,7 +1505,7 @@ denotes a falling factorial.
 Here we simplify the product
 \begin{align}
   Z_{\m u\m v\m w}
-  \equiv \sum_{\p{k,\ell},\p{p,q},\p{r,s}\in\C_N\p{2}}
+  \equiv \sum_{\set{k,\ell},\set{p,q},\set{r,s}\in\C_N\p{2}}
     u_{k\ell} v_{pq} w_{rs} Z_k Z_\ell Z_p Z_q Z_r Z_s,
   &&
   Z^2 = 1,
@@ -1566,13 +1585,13 @@ where
 \end{align}
 Defining, for each of $\m m\in\set{\m u,\m v,\m w}$,
 \begin{align}
-  \v{\m m} \equiv \sum_{\p{p,q}\in\C_N\p{2}} m_{pq} \ket{\set{p,q}},
+  \v{\m m} \equiv \sum_{\set{p,q}\in\C_N\p{2}} m_{pq} \ket{\set{p,q}},
   &&
   \v m \equiv \sum_{p\in\ZZ_N} m_p \ket{p},
   &&
   m_p \equiv \sum_{q\in\ZZ_N} m_{pq},
   &&
-  \col{m} \equiv \sum_{\p{p,q}\in\C_N\p{2}} m_{pq},
+  \col{m} \equiv \sum_{\set{p,q}\in\C_N\p{2}} m_{pq},
 \end{align}
 we can expand
 \begin{align}
@@ -1589,7 +1608,7 @@ we can expand
   + \col{w}\,\v{\m u}\c\v{\m v} \\
   - 2 \sum_{p,q\in\ZZ_N} \p{u_p v_{pq} w_{pq}
     + v_p w_{pq} u_{pq} + w_p u_{pq} v_{pq}}
-  + 4 \sum_{\p{p,q}\in\C_N\p{2}} u_{pq} v_{pq} w_{pq}.
+  + 4 \sum_{\set{p,q}\in\C_N\p{2}} u_{pq} v_{pq} w_{pq}.
 \end{multline}
 Finally, we can also write the product $Z_{\m u\m v\m w}$ in
 \eqref{eq:triple_multi} in terms of the collective operator
