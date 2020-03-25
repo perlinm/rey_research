@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 np.set_printoptions(linewidth = 200)
 
 if len(sys.argv) < 4:
-    print(f"usage: {sys.argv[0]} [shells/spins] [alpha] [max_manifold] [lattice_shape]")
+    print(f"usage: {sys.argv[0]} [alpha] [max_manifold] [lattice_shape] [shells/spins]")
     exit()
 
 alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
