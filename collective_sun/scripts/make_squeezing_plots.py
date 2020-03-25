@@ -145,7 +145,7 @@ plt.savefig(fig_dir + f"squeezing_{name_tag()}.pdf")
 plt.figure(figsize = figsize)
 plt.title(title_text)
 plt.plot(sweep_coupling_zz, sweep_min_pops_0, "o", label = pop_label(0,"min"))
-for manifold, max_pops in zip(manifolds, sweep_max_pops.T):
+for manifold, max_pops in zip(manifolds[1:], sweep_max_pops.T):
     plt.plot(sweep_coupling_zz, max_pops, "o", label = pop_label(manifold,"max"))
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel("population")
