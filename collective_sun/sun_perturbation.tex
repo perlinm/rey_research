@@ -123,20 +123,21 @@
 We consider an array of $N$ multilevel spins with SU($n$)-symmetric
 interactions that can be written in the form
 \begin{align}
-  H_0 = \sum_{\substack{p,q\in\ZZ_N\\p<q}} h_{pq} \Pi_{pq},
+  H_0 = \sum_{\set{p,q}\in\C_N\p{2}} h_{pq} \Pi_{pq},
   &&
   \Pi_{pq} \equiv \sum_{\mu,\nu\in\ZZ_n} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)},
   \label{eq:H_0}
 \end{align}
-where $p,q$ index individual spins; $\ZZ_k$ is the set of integers
-modulo $k$; $h_{pq}$ are scalar coupling constants; $\mu,\nu$ index
-states in an orthonormal basis for the $n$-dimensional Hilbert space
-of a single spin; the operator $s_{\mu\nu}^{(p)}\equiv\op{\mu}{\nu}_p$
-flips the state of spin $p$ to $\ket\nu$ from $\ket\mu$; and the
-operator $\Pi_{pq}$ permutes the states of spins $p$ and $q$.  The
-permutation operator $\Pi_{pq}$ is essentially a multilevel
-generalization of the SU(2)-symmetric spin interaction
-$\v s_p\c\v s_q$, with $\v s\equiv\p{\v s_\x,s_\y,s_\z}$,
+where $p,q$ index individual spins; $\C_N\p{2}$ is the set of all
+subsets (``choices'') of two spins out of $N$; $h_{pq}$ are scalar
+coupling constants; $\mu,\nu$ index states in an orthonormal basis for
+the $n$-dimensional Hilbert space of a single spin; $\ZZ_n$ is the set
+of integers modulo $n$; the operator
+$s_{\mu\nu}^{(p)}\equiv\op{\mu}{\nu}_p$ flips the state of spin $p$ to
+$\ket\nu$ from $\ket\mu$; and the operator $\Pi_{pq}$ permutes the
+states of spins $p$ and $q$.  The permutation operator $\Pi_{pq}$ is
+essentially a multilevel generalization of the SU(2)-symmetric spin
+interaction $\v s_p\c\v s_q$, with $\v s\equiv\p{\v s_\x,s_\y,s_\z}$,
 $s_\alpha\equiv\sigma_\alpha/2$, and $\sigma_\alpha$ a single-spin
 Pauli operator.
 
@@ -145,15 +146,15 @@ all negative, then the ground-state manifold $\M_0$ of the interaction
 Hamiltonian $H_0$ consists of permutationally symmetric (PS) states
 that are simultaneous $+1$ eigenstates of all permutation operators
 $\Pi_{pq}$.  We will assume that all $h_{pq}<0$ throughout these
-notes, but comment that this restriction can be relaxed to the
-assumption that the initial state of all spins is permutationally
-symmetric (e.g.~a spin-polarized state).  We will also assume that the
-PS manifold $\M_0$ is gapped away from all orthogonal states by an
+notes, but note that this restriction can be relaxed to the assumption
+that the initial state of all spins is permutationally symmetric
+(e.g.~a spin-polarized state).  We will also assume that the PS
+manifold $\M_0$ is gapped away from all orthogonal states by an
 interaction energy $\Delta_{\t{gap}}>0$.  Power-law couplings of the
-form $h_{pq}\sim-1/\abs{r_p-r_q}^\alpha$ with positions $r_p,r_q$ on a
-$D$-dimensional lattice, for example, always yield a non-vanishing
-spectral gap $\Delta_{\t{gap}}$ for long-range interactions with
-$\alpha\le D$ (see Appendix \ref{sec:spectral_gap}).
+form $h_{pq}\sim-1/\abs{p-q}^\alpha$ on a $D$-dimensional lattice, for
+example, always yield a non-vanishing spectral gap $\Delta_{\t{gap}}$
+for long-range interactions with $\alpha\le D$ (see Appendix
+\ref{sec:spectral_gap}).
 
 The PS manifold $\M_0$ is spanned by a basis of states
 $\ket{m}=\ket{m_1,m_2,\cdots,m_n}$ with a definite occupation number
@@ -168,7 +169,7 @@ which is ${N+n-1 \choose n-1}\sim N^{n-1}$.  The energy of any PS
 state $\ket\psi\in\M_0$ with respect to the interaction Hamiltonian
 $H_0$ in \eqref{eq:H_0} is
 \begin{align}
-  E_0 = \sum_{\substack{p,q\in\ZZ_N\\p<q}} h_{pq}.
+  E_0 = \sum_{\set{p,q}\in\C_N\p{2}} h_{pq}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -204,16 +205,16 @@ $\pi\p{M}$ is the permutation group of $\ZZ_M$, and
   \C_N\p{M} \equiv \set{ k \subset \ZZ_N: \abs{k} = M },
   \label{eq:choices}
 \end{align}
-is the set of subsets (``choices'') of $M$ elements from $\ZZ_N$.  We
-can then expand
+is the set of all subsets (``choices'') of $M$ elements from $\ZZ_N$.
+We can then expand
 \begin{align}
   X_{\m w} = \f1{M!} \sum_{\sigma\in\pi\p{M}} \sum_{k\in\C_N\p{M}}
   w_{\sigma\p{k}} X_{\sigma\p{k}}.
 \end{align}
-For simplicity, we will assume throughout this work that $\hat\O$ is
-homogeneous in the sense that $M$ is the same for all
-$\p{X,\m w}\in\O$, with the understanding that a generalization to
-inhomogeneous operators $\hat\O$ is straightforward.
+To simplify language and notation, we will assume throughout this work
+that $\hat\O$ is homogeneous in the sense that $M$ is the same for all
+$\p{X,\m w}\in\O$.  A generalization to the case of inhomogeneous
+operators $\hat\O$ is straightforward.
 
 Single-body ($M=1$) operators correspond to classical external fields,
 e.g.~$s_\z$ for a magnetic field, and two-body ($M=2$) operators
@@ -262,64 +263,69 @@ operator $\col{X}$ is a permutation-averaged sum of all $X_k$, i.e.
   \col{X} \equiv \f1{\abs{\pi\p{M}}} \sum_{\sigma\in\pi\p{M}}
   \sum_{k\in\C_N\p{M}} X_{\sigma\p{k}},
 \end{align}
-with $\abs{\D_N\p{M}}=M!\times{N\choose M}=\prod_{j=0}^{M-1}\p{N-j}$
-and $\abs{\pi\p{M}}=M!$.  An immediate consequence of
-\eqref{eq:H_eff_1} is the fact that perturbing SU(2)-symmetric
-interactions by two-body $s_\z\otimes s_\z$ interactions yields the
-one-axis twisting (OAT) Hamiltonian\cite{kitagawa1993squeezed,
-  ma2011quantum} $H_{\t{OAT}}=\chi S_\z^2$ at first order in
-perturbation theory, with the OAT strength $\chi$ equal to the mean
-coefficient of the two-body $s_\z\otimes s_\z$ terms.
-
-\red{[TODO: fix remainder of this section to account for perturbations
-  that do not obey permutational symmetry]}
+with $\abs{\D_N\p{M}}=\prod_{j=0}^{M-1}\p{N-j}$ and
+$\abs{\pi\p{M}}=M!$.  An immediate consequence of \eqref{eq:H_eff_1}
+is the fact that perturbing SU(2)-symmetric interactions by two-body
+$s_\z\otimes s_\z$ interactions yields the one-axis twisting (OAT)
+Hamiltonian\cite{kitagawa1993squeezed, ma2011quantum}
+$H_{\t{OAT}}=\chi S_\z^2$ at first order in perturbation theory, with
+the OAT strength $\chi$ equal to the mean coefficient of the two-body
+$s_\z\otimes s_\z$ terms.
 
 The second order effective Hamiltonian $H_{\t{eff}}^{(2)}$ is not as
 straightforward to simplify due to the presence of a projector
 $\P_\Delta$ onto the manifold $\E_\Delta$ of states with excitation
-energy $\Delta$ (with respect to $H_0$).  For each term $X_{\m w}$ of
-$\hat\O$, this projector essentially picks off the part of $X_{\m w}$
-that is strictly off-diagonal with respect to the ground- and
-excited-state manifolds $\E_0$ and $\E_\Delta$.  To decompose
-$X_{\m w}$ into components that generate states of definite excitation
-energy when acting on PS states $\M_0$, we pick an arbitrary state
-$\ket\psi\in\M_0$ and expand (see Appendix \ref{sec:eigenstates})
+energy $\Delta$.  For each term $X_{\m w}$ of $\hat\O$, this projector
+essentially picks off the part of $X_{\m w}$ that is strictly
+off-diagonal with respect to the ground- and excited-state manifolds
+$\E_0$ and $\E_\Delta$.  To decompose $X_{\m w}$ into components that
+generate states of definite excitation energy when acting on PS states
+$\M_0$, we pick an arbitrary state $\ket\psi\in\M_0$ and expand (see
+Appendix \ref{sec:eigenstates})
 \begin{align}
   H_0 X_{\m w} \ket\psi
   = E_0 X_{\m w} \ket\psi + X_{\hat{\m h}\p{\m w}} \ket\psi,
   \label{eq:diagnosis}
 \end{align}
 where $\hat{\m h}$ is a linear map on the space of dimension-$M$
-tensors, determined entirely by the couplings $h_{pq}$ of the
-interaction Hamiltonian $H_0$.  The image $\hat{\m h}\p{\m w}$ of
-$\m w$ under $\hat{\m h}$ is then itself a dimension-$M$ tensor that
-defines the $M$-body operator $X_{\hat{\m h}\p{\m w}}$.  To write out
-$\hat{\m h}\p{\m w}$ explicitly, we first define a matrix
+tensors, determined entirely by the couplings $h_{pq}$ in $H_0$.  The
+image $\hat{\m h}\p{\m w}$ of $\m w$ under $\hat{\m h}$ is then itself
+a dimension-$M$ tensor that defines the $M$-body operator
+$X_{\hat{\m h}\p{\m w}}$.  To write out $\hat{\m h}\p{\m w}$
+explicitly, we first define a matrix
 $\m h\equiv\sum_{p,q\in\ZZ_N} h_{pq} \op{p}{q}$ of all couplings in
 $H_0$ by enforcing that $h_{pq}=h_{qp}$ and $h_{pp}=0$.  We denote a
 contraction of $\m h$ with the $a$-th index of $\m w$ by
-$\m h \circ_a\m w$, such that the $k$-th entry of $\m h \circ_a\m w$
-is
+$\m h_a\p{\m w}$, such that the $k$-th entry of $\m h_a\p{\m w}$ is
 \begin{align}
-  \p{\m h \circ_a \m w}_k
-  = \sum_{p\in\ZZ_N\setminus k} h_{k_a p} w_{k_{a:p}},
+  \m h_a\p{\m w}_k
+  \equiv \sum_{\substack{p\in\ZZ_N\\p\notin k}}
+  h_{pk_a} w_{k_1 k_2 \cdots k_{a-1} p k_{a+1} \cdots k_M}
+  = \sum_{\substack{p\in\ZZ_N\\p\notin k}} h_{pk_a} w_{k_{a:p}},
 \end{align}
-where $k\equiv\p{k_1,k_2,\cdots,k_M}$ is a list of indices;
-$k_{a:p}\equiv\p{k_1,k_2,\cdots,k_{a-1},p,k_{a+1},\cdots,k_M}$ is the
-same list $k$, but with the $a$-th index $k_a$ replaced by $p$; and we
-explicitly exclude terms with $p\in k$ that vanish due to the fact
-that $\m h$ and $\m w$ are strictly off-diagonal.  We then define a
-dimension-$M$ tensor $\tilde{\m h}$ with entries
+where if $k=\p{k_1,k_2,\cdots,k_M}$, then $k_{a:p}$ is the same list
+but with the $a$-th entry $k_a$ replaced by $p$.  We similarly define
+a tensor $\m h_{\t{P}}\p{\m w}$ with entries
 \begin{align}
-  \tilde h_k \equiv \sum_{\substack{p\in k\\q\in\ZZ_N\setminus k}} h_{pq}
+  \m h_{\t{P}}\p{\m w}_k
+  \equiv \sum_{\set{a,b}\in\C_M\p{2}} h_{k_ak_b} w_{k_{a\lra b}},
 \end{align}
-for all $k\in\ZZ_N^M$, and we denote an element-wise (Kronecker)
-product of $\tilde{\m h}$ and $\m w$ by $\tilde{\m h} * \m w$, with
-entries $\tilde h_k w_k$.  These definitions allow us to expand
+where $k_{a\lra b}$ is the same as $k$ but with the placement of $k_a$
+and $k_b$ swapped.  Finally, we define a tensor $\m h_{\t{D}}\p{\m w}$
+with entries
+\begin{align}
+  \m h_{\t{D}}\p{\m w}_k \equiv h^{\t{D}}_k w_k,
+  &&
+  h^{\t{D}}_k \equiv \sum_{p\in k} h_p
+  - \sum_{\set{a,b}\in\C_M\p{2}} h_{k_ak_b},
+  &&
+  h_p \equiv \sum_{q\in\ZZ_N} h_{pq}.
+\end{align}
+These definitions allow us to expand
 \begin{align}
   \hat{\m h}\p{\m w}
-  \equiv \sum_{a\in\ZZ_M} \m h \circ_a \m w - \tilde{\m h} * \m w.
-  \label{eq:multi_body_eig_op}
+  \equiv \sum_{a\in\ZZ_M} \m h_a\p{\m w}
+  + \m h_{\t{P}}\p{\m w} - \m h_{\t{D}}\p{\m w}.
 \end{align}
 Viewed an operator on the vector space of dimension-$M$ tensors, the
 map $\hat{\m h}$ is real and symmetric under transposition, and is
@@ -327,11 +333,11 @@ therefore diagonalizable.  Diagonalizing this operator yields
 eigenvalues $\Delta$ and eigenvectors $\m m_\Delta$ for which
 $\hat{\m h}\p{\m m_\Delta}=\Delta\m m_\Delta$.  Finding eigenvalues
 and eigenvectors of $\hat{\m h}$ nominally requires diagonalizing a
-matrix of dimensions
-${N\choose M}\times{N\choose M}\sim N^M\times N^M$, but spatial
-symmetries of $H_0$ such as translational invariance or isotropy can
-drastically reduce the complexity of this eigenvalue problem.  We
-discuss this reduction in Appendix \ref{sec:symmetries}.
+matrix of dimensions $\abs{\D_N\p{M}}\times\abs{\D_N\p{M}}$, but
+spatial symmetries of $H_0$ and $X_{\m w}$ such as translational
+invariance or isotropy can drastically reduce the complexity of this
+eigenvalue problem.  We discuss these reductions in Appendix
+\ref{sec:symmetries}.
 
 Defining $\m w_\Delta$ to be the projection of the tensor $\m w$ onto
 the $\Delta$-eigenspace of $\hat{\m h}$, we can expand
@@ -352,7 +358,7 @@ Substituting these expansions into \eqref{eq:diagnosis}, we find
   = \sum_\Delta\p{E_0 + \Delta} X_{\m w_\Delta} \ket\psi,
 \end{align}
 which implies that the action of $X_{\m w_\Delta}$ on a PS state
-$\ket\psi\in\M_0$ generates a state of definite interaction energy
+$\ket\psi\in\M_0$ generates a state with definite interaction energy
 $E_0+\Delta$.  It follows that
 $\P_\Delta X_{\m w} \P_0 = \P_\Delta X_{\m w_\Delta} \P_0 =
 X_{\m{w}_\Delta} \P_0$, so
@@ -361,11 +367,11 @@ X_{\m{w}_\Delta} \P_0$, so
   \sum_{\p{X,\m v},\p{Y,\m w}\in\O}
   \P_0 X_{\m v_\Delta} Y_{\m w_\Delta} \P_0.
 \end{align}
-The product $\P_0 X_{\m v_\Delta} Y_{\m w_\Delta} \P_0$ generally
-includes $r$-body operators for all positive integers $r\le2M$.  We
-provide a general prescription for simplifying such products in
-Appendix \ref{sec:operator_product}, and explicitly work out the
-single-body ($M=1$) and two-body ($M=2$) cases in Appendices
+Simplifying product $\P_0 X_{\m v_\Delta} Y_{\m w_\Delta} \P_0$
+generally yields $r$-body operators for all positive integers
+$r\le2M$.  We provide a general prescription for simplifying such
+products in Appendix \ref{sec:operator_product}, and explicitly work
+out single-body ($M=1$) and two-body ($M=2$) cases in Appendices
 \ref{sec:single_pair_prod} and \ref{sec:two_pair_prod}.  If $X$ is a
 single-body operator ($M=1$), then
 \begin{align}
@@ -419,8 +425,8 @@ initial state $\ket\psi\in\M_0$ suppresses the leakage of population
 into manifolds $\M_r$ of increasing $r$.  One might therefore capture
 the dynamics of an initial PS state $\ket\psi\in\M_0$ by projecting
 $X_{\m w}$ onto $\ul{\M}_{r_{\t{max}}}$ for some $r_{\t{max}}\ge M$,
-resulting in a theory analogous to first-order perturbation theory on
-$\ul{\M}_{r_{\t{max}}}$.  In the perturbative regime
+resulting in a theory that resembles first-order perturbation theory
+on $\ul{\M}_{r_{\t{max}}}$.  In the perturbative regime
 $\norm{X_{\m w}}<\Delta_{\t{gap}}/2$, such a theory captures all
 virtual processes through order $2\floor{r_{\t{max}}/M}+1$ in a formal
 perturbation theory on $\M_0$.  In the non-perturbative regime
@@ -501,9 +507,7 @@ Appendix \ref{sec:single_body_eigenstates})
   = h \sum_{\substack{d\in\ZZ_L^D\\\abs{d}\ge1}}
   \f{1-\cos\p{d \c k_{\t{SE}}}}{\abs{d}^\alpha},
 \end{align}
-where the domain of $d$ is defined in terms of integers modulo $L$,
-i.e.~$\ZZ_L\simeq\set{0,1,\cdots,L-1}$ with the relation $\simeq$
-denoting an association that ignores the cyclic structure of $\ZZ_L$;
+where $\ZZ_L$ denotes the integers modulo $L$;
 $k_{\t{SE}}\in\ZZ_L^D\times2\pi/L$ is a wavenumber for a
 singly-excited spin-wave state; and the norm $\abs{d}$ for a vector
 $d$ on a periodic lattice is implicitly understood to mean the
@@ -555,7 +559,7 @@ non-vanishing when $\alpha\le D\le D+\gamma$.
 For the sake of completion, we add that in fact the gap $\Delta$
 always vanishes in the thermodynamic limit when $\alpha>D$.  To see
 this behavior, we note that the asymptotic dependence of the integral
-$I_{D\epsilon}$ on $\epsilon$ is determined by the behavior of its
+$\I_{D\epsilon}$ on $\epsilon$ is determined by the behavior of its
 integrand when $\abs{x}\sim\epsilon$, in which case
 $1-\cos\p{\pi x_1}\sim x_1^2$, so
 \begin{align}
@@ -593,26 +597,20 @@ which vanishes as $\epsilon\to0$ for all $\alpha>D$.
 \label{sec:eigenstates}
 
 In this section, we simplify the products of the form
-$H_0X_{\m w}\ket\psi$ to arrive at the expansion in
-\eqref{eq:diagnosis}, which defines conditions under which a
-multi-body perturbation $X_{\m w_\Delta}$ generates eigenstates of the
-SU($n$)-symmetric interaction Hamiltonian $H_0$ in \eqref{eq:H_0} when
-acting on a permutationally symmetric state $\ket\psi\in\M_0$.  Here
-$X_{\m w}$ is an $M$-body perturbation defined by
+$H_0X_{\m w}\ket\psi$ to find conditions under which a multi-body
+perturbation $X_{\m w}$ generates eigenstates of the SU($n$)-symmetric
+interaction Hamiltonian $H_0$ in \eqref{eq:H_0} when acting on a
+permutationally symmetric state $\ket\psi\in\M_0$.  Here $X_{\m w}$ is
+an $M$-body perturbation defined by
 \begin{align}
   X_{\m w}
-  \equiv \f1{M!} \sum_{k\in\D_N\p{M}} w_k X_k
-  = \f1{M!} \sum_{\sigma\in\pi\p{M}} \sum_{k\in\C_N\p{M}}
-  w_{\sigma\p{k}} X_{\sigma\p{k}},
+  \equiv \f1{M!} \sum_{k\in\D_N\p{M}} w_k X_k,
 \end{align}
 where $X$ is an $M$-spin operator; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is
 a list of $M$ spins that $X_k$ acts on; $\m w$ is a dimension-$M$
-(i.e.~$M$-index) tensor with scalar entries $w_k$; $\D_N\p{M}$ is the
-strictly off-diagonal part of $\ZZ_N^M$, defined in
-\eqref{eq:off_diags}; $\pi\p{M}$ is the permutation group of $\ZZ_M$;
-and $\C_N\p{M}$ is the set of subsets (``choices'') of $M$ elements
-from $\ZZ_N$, defined in \eqref{eq:choices}.  For shorthand, we will
-define $\tilde X_{\m w}\equiv M! X_{\m w}$.
+(i.e.~$M$-index) tensor with scalar entries $w_k$; and $\D_N\p{M}$ is
+the strictly off-diagonal part of $\ZZ_N^M$, defined in
+\eqref{eq:off_diags}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Single-body excitations}
@@ -621,7 +619,7 @@ define $\tilde X_{\m w}\equiv M! X_{\m w}$.
 In order to build familiarity with the problem at hand, we first
 consider the simple case of a single-body perturbation and simplify
 \begin{align}
-  H_0 \tilde X_{\m w} \ket\psi
+  H_0 X_{\m w} \ket\psi
   = \sum_{\substack{k\in\ZZ_N\\\set{p,q}\in\C_N\p{2}}}
   h_{pq} w_k \Pi_{pq} X_k \ket\psi.
   \label{eq:single_body_diagnosis_start}
@@ -629,16 +627,16 @@ consider the simple case of a single-body perturbation and simplify
 The sum in \eqref{eq:single_body_diagnosis_start} has terms with
 $k\notin\set{p,q}$, and terms with $k\in\set{p,q}$.  In the case of
 $k\notin\set{p,q}$, the permutation operator $\Pi_{pq}$ commutes with
-$X_k$ and annihilates on $\ket\psi$, so
+$X_k$ and annihilates on $\ket\psi$, allowing us to simplify
 \begin{align}
   \sum_{k\in\ZZ_N} \sum_{\substack{\set{p,q}\in\C_N\p{2}\\k\notin\set{p,q}}}
-  h_{pq} w_k X_k \ket\psi
-  = E_0 \tilde X_{\m w} \ket\psi
+  h_{pq} w_k \Pi_{pq} X_k \ket\psi
+  = E_0 X_{\m w} \ket\psi
   - \sum_{k\in\ZZ_N} \sum_{\substack{\set{p,q}\in\C_N\p{2}\\k\in\set{p,q}}}
   h_{pq} w_k X_k \ket\psi,
 \end{align}
 where $E_0 = \sum_{\set{p,q}\in\C_N\p{2}} h_{pq}$ is the interaction
-energy of PS states $\ket\psi\in\M_0$.  Simplifying
+energy of PS states $\ket\psi\in\M_0$, and
 \begin{align}
   \sum_{\substack{\set{p,q}\in\C_N\p{2}\\k\in\set{p,q}}} h_{pq}
   = \f12 \sum_{\substack{p,q\in\ZZ_N\\k\in\set{p,q}}} h_{pq}
@@ -647,11 +645,11 @@ energy of PS states $\ket\psi\in\M_0$.  Simplifying
   &&
   h_k \equiv \sum_{p\in\ZZ_N} h_{pk},
 \end{align}
-we can write
+which implies
 \begin{align}
   \sum_{k\in\ZZ_N} \sum_{\substack{\set{p,q}\in\C_N\p{2}\\k\notin\set{p,q}}}
   h_{pq} w_k X_k \ket\psi
-  = E_0 \tilde X_{\m w} \ket\psi
+  = E_0 X_{\m w} \ket\psi
   - \sum_{k\in\ZZ_N} h_k w_k X_k \ket\psi.
 \end{align}
 The terms in \eqref{eq:single_body_diagnosis_start} with
@@ -702,9 +700,9 @@ $\m h$ can be determined by expanding
   = \sum_{p,d\in\ZZ_L^D} h_{p,p+d} e^{i\p{p+d}\c k} \ket{p}
   = \sum_{d\in\ZZ_L^D} h_{0,d} \cos\p{d\c k} \v{\m w}_k,
 \end{align}
-where the imaginary terms vanish because $h_{0,d}=h_{0,-d}$.  The
-remainder of \eqref{eq:single_body_eig} that we need to sort out is
-$\diag\v h$, where all
+where the imaginary contributions vanish because $h_{0,d}=h_{0,-d}$.
+The remainder of \eqref{eq:single_body_eig} that we need to sort out
+is $\diag\v h$, where all
 $h_p=\sum_{q\in\ZZ_L^D}h_{pq}=\sum_{d\in\ZZ_L^D}h_{0,d}$ are equal,
 which implies that $\diag\v h=\sum_{d\in\ZZ_L^D}h_{0,d}$ is a scalar.
 We thus find that
@@ -716,19 +714,20 @@ We thus find that
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Multi-body excitations}
-\label{sec:multi_body_eigenstates}
 
 We now consider the full $M$-body case
 \begin{align}
   H_0 \tilde X_{\m w} \ket\psi
   = \sum_{\substack{k\in\D_N\p{M}\\\set{p,q}\in\C_N\p{2}}}
-  h_{pq} w_k \Pi_{pq} X_k \ket\psi.
+  h_{pq} w_k \Pi_{pq} X_k \ket\psi,
   \label{eq:diagnosis_start}
 \end{align}
-The sum in \eqref{eq:diagnosis_start} has terms with $p,q\notin k$,
-terms with $p,q\in k$, and terms with only one of $p$ or $q\in k$.
-The permutation operator $\Pi_{pq}$ acts trivially on $X_k\ket\psi$
-when $p,q\notin k$, so
+where to avoid factors of $M!$ in this section, we define
+$\tilde X_{\m w}\equiv M! X_{\m w}$.  The sum in
+\eqref{eq:diagnosis_start} has terms with $p,q\notin k$, terms with
+$p,q\in k$, and terms with only one of $p$ or $q\in k$.  The
+permutation operator $\Pi_{pq}$ acts trivially on $X_k\ket\psi$ when
+$p,q\notin k$, allowing us to simplify
 \begin{align}
   \sum_{\substack{k\in\D_N\p{M}\\\set{p,q}\in\C_N\p{2}\\p,q\notin k}}
   h_{pq} w_k \Pi_{pq} X_k \ket\psi
@@ -743,6 +742,7 @@ energy of PS states $\ket\psi\in\M_0$, and
   = \sum_{p\in k} h_p - \sum_{\set{a,b}\in\C_M\p{2}} h_{k_ak_b},
   &&
   h_p \equiv \sum_{q\in\ZZ_N} h_{pq}.
+  \label{eq:multi_body_op_diag_element}
 \end{align}
 Defining a linear operator $\m h_{\t{D}}$ on the space of
 dimension-$M$ tensors, whose action on $\m w$ is a new dimension-$M$
@@ -824,6 +824,7 @@ where
   \hat{\m h}\p{\m w}
   \equiv \sum_{a\in\ZZ_M} \m h_a\p{\m w}
   + \m h_{\t{P}}\p{\m w} - \m h_{\t{D}}\p{\m w},
+  \label{eq:multi_body_op}
 \end{align}
 is defined in terms of the tensors $\m h_a\p{\m w}$,
 $\m h_{\t{P}}\p{\m w}$, and $\m h_{\t{D}}\p{\m w}$, whose entries are
@@ -837,8 +838,8 @@ which can be written in the form
 \begin{align}
   \hat{\m h} \c \v{\m w} = \Delta \v{\m w},
   &&
-  \v{\m w} \equiv \sum_{k\in\C_N\p{M}} w_k \ket{k},
-  \label{eq:multi_body_eig_mat}
+  \v{\m w} \equiv \sum_{k\in\D_N\p{M}} w_k \ket{k},
+  \label{eq:multi_body_problem}
 \end{align}
 where
 \begin{align}
@@ -847,15 +848,31 @@ where
     h_{pk_a} \bra{k_{a:p}}
     + \sum_{\set{a,b}\in\C_M\p{2}} h_{k_ak_b} \bra{k_{a\lra b}}
     - h^{\t{D}}_k \bra{k}}.
+  \label{eq:multi_body_mat}
 \end{align}
-If $M=1$, then $h^{\t{D}}_k=h_k$, so
+If the coefficient tensor $\m w$ is permutationally symmetric, meaning
+that $\m w$ is invariant under arbitrary permutations of its tensor
+factors, then this symmetry is preserved by $\hat{\m h}$.  In this
+case, we can replace sums over $k\in\D_N\p{M}$ in
+\eqref{eq:multi_body_problem} and \eqref{eq:multi_body_mat} by sums
+over $k\in\C_N\p{M}$, and replace vectors
+$\ket{\p{k_1,k_2,\cdots,k_M}}\to\ket{\set{k_1,k_2,\cdots,k_M}}$, such
+that e.g.~$\ket{k_{a\lra b}}=\ket{k}$.  These replacements reduce the
+size of $\hat{\m h}$ from $N!_M\times N!_M$ to
+${N\choose M}\times{N\choose M}$, where
+$N!_M=M!\times{N\choose M}=\prod_{j=0}^{M-1}\p{N-j}$ denotes a falling
+factorial.  We discuss further reduction of the eigenvalue problem in
+\eqref{eq:multi_body_problem} by use of additional symmetries in
+Section \ref{sec:symmetries}.
+
+Some special cases: if $M=1$, then $h^{\t{D}}_k=h_k$, so
 \begin{align}
   \hat{\m h} \stackrel{M=1}{=} \sum_{k\in\ZZ_N} \ket{k}
   \sp{\sum_{\substack{p\in\ZZ_N\\p\ne k}} h_{pk} \bra{p} - h_k \bra{k}}
   = \m h - \diag\v h,
 \end{align}
 which is precisely what we found in \eqref{eq:single_body_eig}.  If
-$M=2$, then $h_{pq}^{\t{D}}=h_p+h_q-h_{pq}$, so
+$M=2$, then $h_{k\ell}^{\t{D}}=h_k+h_\ell-h_{k\ell}$, so
 \begin{align}
   \hat{\m h} \stackrel{M=2}{=}
   \sum_{\p{k,\ell}\in\D_N\p{2}} \ket{k,\ell}
@@ -869,84 +886,85 @@ $M=2$, then $h_{pq}^{\t{D}}=h_p+h_q-h_{pq}$, so
 \subsection{Exploiting spatial symmetries}
 \label{sec:symmetries}
 
-\red{[TODO: fix remainder of this section to account for perturbations
-  that do not obey permutational symmetry]}
-
-Solving the eigenvalue problem in \eqref{eq:multi_body_eig_mat} to
-find $M$-body perturbations $X_{\m w}$ that generate states of
-definite interaction energy nominally requires diagonalizing the
-matrix $\hat{\m h}$ with dimensions
-$N!_M\times N!_M\sim N^M\times N^M$, where
-$N!_M\equiv\prod_{j=0}^{M-1}\p{N-j}$ denotes a falling factorial.
-
-\vspace{3cm}
-
-If the interaction Hamiltonian $H_0$ has any spatial symmetries,
-however, then we can use these symmetries to reduce the complexity of
-this eigenvalue problem.  Translational invariance, for example, can
-reduce this problem to that of diagonalizing a matrix with dimensions
-$\le{N-1\choose M-1}\times{N-1\choose M-1}\sim N^{M-1}\times N^{M-1}$,
-and isotropy can further reduce the problem size by factors that
-depend on the lattice geometry.  The complexity of diagonalizing a
-matrix with dimensions $d\times d$ is $O\p{d^3}$, so even a reduction
-of $d$ by a factor of 2 yields practically significant gains (a factor
-of $2^3=8$) in the runtime of diagonalization.  Here, we provide a
-general prescription for exploiting the spatial symmetries of $H_0$ to
-simplify the eigenvalue problem in \eqref{eq:multi_body_eig_mat}.
+Solving the eigenvalue problem in \eqref{eq:multi_body_problem} to
+find $M$-body operators $X_{\m w}$ that generate states of definite
+interaction energy nominally requires diagonalizing the matrix
+$\hat{\m h}$ with dimensions $N!_M\times N!_M\sim N^M\times N^M$,
+where $N!_M=\prod_{j=0}^{M-1}\p{N-j}$ denotes a falling factorial.
+Spatial symmetries of the interaction Hamiltonian $H_0$, however,
+generally endow $\hat{\m h}$ with a block-diagonal structure that can
+be used to reduce the complexity of this eigenvalue problem.
+Translational invariance, for example, can reduce this problem to that
+of diagonalizing a matrix with dimensions
+$\sim N^{M-1}\times N^{M-1}$, and isotropy can further reduce the
+problem size by factors that depend on the lattice geometry.  The
+complexity of diagonalizing a matrix with dimensions $d\times d$ is
+$O\p{d^3}$, so even a reduction of $d$ by a factor of 2 yields
+practically significant gains (a factor of $2^3=8$) in the runtime of
+diagonalization.  Here, we provide a general prescription for
+exploiting the spatial symmetries of $H_0$ to simplify the eigenvalue
+problem in \eqref{eq:multi_body_problem}.
 
 Our task is essentially to express the multi-body eigenvalue problem
-in \eqref{eq:multi_body_eig_mat} in a basis that respects the spatial
-symmetries of $H_0$.  These symmetries essentially break the set of
-choices $\C_N\p{M}$ into equivalence classes $\S_M$\footnote{For
-  brevity, we will suppress the explicit dependence of $\S_M$ on $N$,
-  as well as the dependence of $\S_M$ on any other factors such as
-  lattice geometry.}, where elements $s\in\S_M$ are subsets
-$s\subset\C_N\p{M}$ that are invariant under the appropriate symmetry
-group action.  In the case of a translationally invariant and
-isotropic system with two-body perturbations, for example, each
-equivalence class $s\in\S_2$ would consist of all pairs
-$\set{p,q}\in\C_N\p{2}$ that are a fixed distance $\abs{p-q}=d_s$
-apart, i.e.~$s=\set{\set{p,q}\in\C_N\p{2}:\abs{p-q}=d_s}$.
+in \eqref{eq:multi_body_problem} in a basis that respects the spatial
+symmetries of $H_0$.  These symmetries essentially break the set
+$\D_N\p{M}$ into equivalence classes $\S_M$\footnote{For brevity, we
+  will suppress the explicit dependence of $\S_M$ on $N$, as well as
+  the dependence of $\S_M$ on any other factors such as lattice
+  geometry.}, where elements $s\in\S_M$ are subsets
+$s\subset\D_N\p{M}$ that are invariant under the appropriate symmetry
+group action.  In the case of $M=2$ in a translationally invariant and
+isotropic system, for example, each equivalence class $s\in\S_2$ would
+consist of all pairs $\p{p,q}\in\D_N\p{2}$ that are a fixed distance
+$\abs{p-q}=d_s$ apart,
+i.e.~$s=\set{\p{p,q}\in\D_N\p{2}:\abs{p-q}=d_s}$.  If the tensor
+$\m w$ is invariant under arbitrary permutations of its tensor
+factors, this symmetry is preserved by $\hat{\m h}$, and we can place
+all $k\in\D_N\p{M}$ that are equal up to permutation into the same
+equivalence class.
 
 For simplicity, we first assume that the $M$-body operator $X_{\m w}$
 obeys the same spatial symmetries as $H_0$.  For any equivalence class
 $s\in\S_M$, we then define a uniform superposition $\ket{s}$ over all
-choices $k\in s$, as well as the projector $\P_\S$ onto the space of
-uniform superpositions:
+$k\in s$, as well as a projector $\P_\S$ onto the space of uniform
+superpositions:
 \begin{align}
   \ket{s} \equiv \f1{\sqrt{\abs{s}}} \sum_{k\in s} \ket{k},
   &&
   \P_{\S_M} \equiv \sum_{s\in\S_M} \op{s},
 \end{align}
-where $\abs{s}$ is the number of elements in $s$.  We then expand the
-coefficient vector $\v{\m w}$ in this symmetrized basis:
+where $\abs{s}$ is the number of elements in $s$.  In turn, we expand
+the coefficient vector $\v{\m w}$ in this symmetrized basis:
 \begin{align}
-  \v{\m w} = \sum_{k\in\C_N\p{M}} w_k \ket{k}
+  \v{\m w} = \P_{\S_M} \v{\m w}
+  = \sum_{s\in\S_M} \sum_{k\in s} w_k \ket{s} \bk{s|k}
   = \sum_{s\in\S_M} w_s \sqrt{\abs{s}} \ket{s},
 \end{align}
-where $w_s\equiv w_k$ for any $k\in s$.  Finally, we define the
+where all $w_k$ with $k\in s$ are equal by assumption, so we can
+define $w_s\equiv w_k$ for any $k\in s$.  Finally, we expand the
 projection of $\hat{\m h}$ onto the symmetric subspace:
 \begin{align}
-  \hat{\m h}_{\S_M}
-  \equiv \P_{\S_M} \hat{\m h} \P_{\S_M}
-  = \sum_{s\in\S_M} \ket{s} \sp{
-    \sum_{k\in s} \sum_{\substack{p\in\ZZ_N\\p\notin k}} \sum_{a\in\ZZ_M}
-    \f{h_{p k_a}}{\sqrt{\abs{s}\abs{\sp{k_{a:p}}}}} \bra{\sp{k_{a:p}}}
-    - \tilde h_s \bra{s}},
+  \P_{\S_M} \hat{\m h} \P_{\S_M}
+  = \sum_{s\in\S_M} \f{\ket{s}}{\sqrt{\abs{s}}} \sp{
+    \sum_{\substack{k\in s\\a\in\ZZ_M}}
+    \sum_{\substack{p\in\ZZ_N\\p\notin k}}
+    h_{p k_a} \f{\bra{\sp{k_{a:p}}}}{\sqrt{\abs{\sp{k_{a:p}}}}}
+    + \sum_{\set{a,b}\in\C_M\p{2}} h_{k_ak_b}
+    \f{\bra{\sp{k_{a\lra b}}}}{\sqrt{\abs{\sp{k_{a\lra b}}}}}
+    - h^{\t{D}}_s \f{\bra{s}}{\sqrt{\abs{s}}}},
 \end{align}
-where $\tilde h_s\equiv \tilde h_k$ for any $k\in s$; $k_a$ is the
-$a$-th element of $k$;
-$k_{a:p}\equiv\p{k_1,k_2,\cdots,k_{a-1},p,k_{a+1},\cdots,k_M}$ is $k$,
-but with the $a$-th number $k_a$ replaced by $p$; and $\sp{k_{a:p}}$
-is the equivalence class of $k_{a:p}$.  The reduced multi-body
+where $h^{\t{D}}_s\equiv h^{\t{D}}_k$ for any $k\in s$, with
+$h^{\t{D}}_k$ defined in \eqref{eq:multi_body_op_diag_element}; and
+$\sp{k}$ denotes the equivalence class of $k$.  The reduced multi-body
 eigenvalue problem is then
 \begin{align}
-  \hat{\m h}_{\S_M} \c \v{\m w} = \Delta \v{\m w}.
+  \P_{\S_M} \hat{\m h} \P_{\S_M} \c \v{\m w} = \Delta \v{\m w}.
 \end{align}
 More generally, even if the couplings $\v{\m w}$ of $X_{\m w}$ do not
 obey the spatial symmetries as $H_0$, these symmetries generally endow
-$\hat{\m h}$ with a block-diagonal structure. \red{[TODO: finish
-  discussion/derivation]}
+$\hat{\m h}$ with a block-diagonal structure that reduces the
+complexity of the multi-body eigenvalue problem.  We leave this
+reduction to future work.  % todo: perform reduction
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Permutation-symmetrized products of multi-body operators}
@@ -1040,7 +1058,7 @@ To find an explicit form of $\m X_{\m w}\p{g}$, we first consider all
 distinct ways to assign $\abs{g}$ indices to specific tensor factors
 of $\m w$ and $\m X$ in a manner consistent with $g$.  For example, if
 $\m X=\p{X_1,X_2}$ with dimensions $\p{M_1,M_2}=\p{2,1}$ and
-$\abs{g}=2$ with $g_{\set{1,2}}=g_{\set{2}}=1$, then
+$\abs{g}=2$ with $g_{\set{1}}=g_{\set{1,2}}=1$, then
 $X_1\p{a,b} X_2\p{b}$ and $X_1\p{b,a} X_2\p{b}$ are distinct
 assignments of $\abs{g}$ indices to $\m X$ in a manner consistent with
 $g$, provided that $a\ne b$.  After assigning $\abs{g}$ indices to
@@ -1116,15 +1134,14 @@ symmetry factor $\S\p{g}$, an average of $\m w\p{\ell} \m X\p{\ell}$
 over all distinct index assignments $\ell\in\L\p{g}$, as in
 \eqref{eq:diagram_terms}.  The scalar $\m w\p{\ell}$ is obtained by
 assigning indices $k=\p{k_1,k_2,\cdots,k_{\abs{g}}}$ to the tensors
-$\m w$ as prescribed by the $\ell$, and summing over all
+$\m w$ as prescribed by $\ell$, and summing over all
 $k\in\D_N\p{\abs{g}}$, while the $\abs{g}$-spin operator
 $\m X\p{\ell}$ is obtained by contracting the operators in $\m X$ in
-accordance with the index assignment $\ell$.  If the tensors $\m w$ or
-operators $\m X$ are all permutationally symmetric, then
-$\m X_{\m w}\p{g}$ factorizes into $\S\p{g} \m w\p{g} \m X\p{g}$,
-where $\m w\p{g}$ and $\m X\p{g}$ are respectively averages of
-$\m w\p{\ell}$ and $\m X\p{\ell}$ over all index assignments
-$\ell\in\L\p{g}$.
+accordance with $\ell$.  If the tensors $\m w$ or operators $\m X$ are
+all permutationally symmetric, then $\m X_{\m w}\p{g}$ factorizes into
+$\S\p{g} \m w\p{g} \m X\p{g}$, where $\m w\p{g}$ and $\m X\p{g}$ are
+respectively averages of $\m w\p{\ell}$ and $\m X\p{\ell}$ over all
+index assignments $\ell\in\L\p{g}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Formalizing diagrams and minimizing computational costs}
@@ -1187,7 +1204,7 @@ constraints, e.g.
   v\p{a,b,c,d,e} w\p{e,f},
 \end{align}
 where the proportionality is up to an appropriate symmetry factor (in
-this case, $1/2!\times1/2!$; clarified in Section
+this case, $1/2!\times1/2!$, as clarified in Section
 \ref{sec:symmetry_factors}).  Crosses, meanwhile, correspond to
 indices that are {\it only} summed over the values of ``filled dot
 indices'', e.g.
@@ -1259,9 +1276,9 @@ re-writing index constraints (i.e.~by eliminating crosses) does not
 affect any numerical prefactors on the tensor contraction represented
 by a diagram.  We can generally repeat the above process of
 sequentially eliminating filled dots and crosses until only empty dots
-remain.  The only complication in carrying out this process is that,
-in the case of permutationally symmetric tensors, we have to manually
-keep track of symmetry factors such as the factor of 2 above.
+remain.  The only complication in carrying out this process is that we
+have to manually keep track of symmetry factors, such as the factor of
+2 above.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Symmetry factors}
@@ -1296,10 +1313,10 @@ $F_{\t{new}}+1$, so
 where the factor of $1/F_{\t{old}}$ that is acquired due to removing a
 dot from the old region is, loosely speaking, canceled out by the
 $F_{\t{old}}$ choices of which dot to move.  More precisely,
-eliminating a cross and moving a dot corresponds to forcing the index
-associated with the cross to be equal to the index associated with the
-filled dot (in the ``old'' region), and there are $F_{\t{old}}$ such
-indices to choose from.
+eliminating a cross and moving a filled dot corresponds to forcing the
+index associated with the cross to be equal to the index associated
+with the filled dot, and there are $F_{\t{old}}$ such indices to
+choose from.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Matrix elements of multi-spin operators}
@@ -1307,12 +1324,12 @@ indices to choose from.
 The process of constructing and simplifying diagrams to compute
 coefficients of the diagrammatic operator product expansion in
 \eqref{eq:sym_prod_diagrams} is systematic enough to be converted into
-an algorithm for execution on a computer.  The last step necessary to
-automate the evaluation of \eqref{eq:sym_prod_diagrams} is the
-expansion of the multi-spin operators $\m X\p{\ell}$ in a basis for
-the PS manifold $\M_0$.  Without loss of generality, we consider a
-single $M$-spin operator $X$; our task is essentially to find
-coefficients of the expansion
+a computer algorithm.  The last step necessary to automate the
+evaluation of \eqref{eq:sym_prod_diagrams} is the expansion of the
+multi-spin operators $\m X\p{\ell}$ in a basis for the PS manifold
+$\M_0$.  Without loss of generality, we consider a single $M$-spin
+operator $X$; our task is essentially to find coefficients of the
+expansion
 \begin{align}
   \P_0 X \P_0
   = \sum_{a,b\in\B_0} \bk{a|X|b} \op{a}{b},
