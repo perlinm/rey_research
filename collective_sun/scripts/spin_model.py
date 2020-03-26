@@ -14,8 +14,15 @@ from multibody_methods import dist_method
 np.set_printoptions(linewidth = 200)
 
 if len(sys.argv) < 4:
-    print(f"usage: {sys.argv[0]} [alpha] [max_manifold] [lattice_shape]")
+    print(f"usage: {sys.argv[0]} [alpha] [max_manifold] [lattice_shape] [proj?]")
     exit()
+
+# determine whether to project operators onto the relevant manifolds
+if "proj" in sys.argv:
+    project = True
+    sys.argv.remove("proj")
+else:
+    project = False
 
 alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
 max_manifold = int(sys.argv[2])
@@ -28,7 +35,6 @@ inspect_sim_time = 2
 # values of the ZZ coupling to simulate in an XXZ model
 sweep_coupling_zz = np.linspace(-1,3,41)
 
-project = True # project operators onto the relevant manifolds?
 periodic = True # use periodic boundary conditions?
 
 max_time = 10 # in units of J_\perp
