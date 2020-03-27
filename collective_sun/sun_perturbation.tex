@@ -177,8 +177,7 @@ Hamiltonian $H_0$ in \eqref{eq:H_0} is
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Breaking SU($n$) symmetry (perturbatively)}
-\label{eq:pert_theory}
+\section{Breaking SU($n$) symmetry}
 
 In order to induce non-trivial dynamics for initially PS states
 $\ket\psi\in\M_0$, which are otherwise stationary eigenstates of the
@@ -339,8 +338,8 @@ eigenvalues $\Delta$ and eigenvectors $\m u_\Delta$ for which
 $\hat{\m h}\p{\m u_\Delta}=\Delta\m u_\Delta$.  Finding eigenvalues
 and eigenvectors of $\hat{\m h}$ nominally requires diagonalizing a
 matrix of dimensions $\abs{\D_N\p{M}}\times\abs{\D_N\p{M}}$, but
-spatial symmetries of $H_0$ and $X_{\m w}$ such as translational
-invariance or isotropy can drastically reduce the complexity of this
+spatial symmetries of $H_0$ and $X_{\m w}$, such as translational
+invariance or isotropy, can drastically reduce the complexity of this
 eigenvalue problem.  We discuss these reductions in Appendix
 \ref{sec:symmetries}.
 
@@ -398,7 +397,6 @@ perturbation theory.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Beyond ground-state perturbation theory}
-\label{eq:excited_states}
 
 In order to find the effective Hamiltonian $H_{\t{eff}}^{(2)}$ induced
 by the multi-body operator $\hat\O$ on the PS manifold $\M_0$ at
@@ -473,15 +471,14 @@ $\M_0$, in Appendix \ref{sec:operator_product}.
 
 Denoting all assignments of $N$ (identical) spins to $n$ (distinct)
 states by $\A_n\p{N}$, a suitable basis for $\M_0$ is the set of PS
-states $\set{\ket{m}:m\in\A_n\p{N}}$, where each
-$m=\p{m_1,m_2,\cdots,m_n}$ specifies the occupation number $m_\mu$ of
-the single-spin state $\mu$.  For consistency with the expression of
-matrix elements in \eqref{eq:matrix_element}, for each
-$\ket{m}\in\M_0$ we define $\ket{\1,1,m}\equiv\ket{m}$, with $\1$ the
-identity operator, and we define $\1_1\equiv\1$.  We now need to
-determine the set of $r$-body operators $\set{O}$ and dimension-$r$
-tensors $\set{\m u}$ that define our basis for $\M_r$ with
-$r=1,2,\cdots,r_{\t{max}}$.  As an initial guess for $\set{\m u}$, we
+states $\set{\ket{m}:m\in\A_n\p{N}}$, where $m=\p{m_1,m_2,\cdots,m_n}$
+specifies the occupation number $m_\mu$ of each single-spin state
+$\mu$.  For consistency with the expression of matrix elements in
+\eqref{eq:matrix_element}, for each $\ket{m}\in\M_0$ we define
+$\ket{\1,1,m}\equiv\ket{m}$, with $\1$ the identity operator, and we
+define $\1_1\equiv\1$.  We now need to determine the set of $r$-body
+operators $\set{O}$ and dimension-$r$ tensors $\set{\m u}$ that define
+our basis for each $\M_r$.  As an initial guess for $\set{\m u}$, we
 can choose the set $\set{\m u_\Delta}_{\m h,r}$ of dimension-$r$
 tensors $\m u_\Delta$ that generate eigenstates of $H_0$, i.e.~for
 which $\hat{\m h}\p{\m u_\Delta} = \Delta \m u_\Delta$, with
@@ -504,7 +501,7 @@ states in $\col\M_r$.  Our last step is therefore to reduce this set
 of states to a minimal basis $\B_r$ for $\M_r$.  To this end, we
 construct each of $\B_1,\B_2,\cdots,\B_{r_{\t{max}}}$ in sequence,
 such that when constructing $\B_r$ we already have a minimal basis
-$\col\B_{r-1}\equiv\bigcup_{s<r-1}\B_s$ for $\col\M_{r-1}$.  To
+$\col\B_{r-1}\equiv\bigcup_{s<r}\B_s$ for $\col\M_{r-1}$.  To
 construct $\B_r$, we then consider each
 $\p{O,\m u_\Delta,m}\in\set{O}_{\O,r}\times\set{\m u_\Delta}_{\m h,r}
 \times\A_n\p{N}$ one at a time.  If $\ket{O,\m u_\Delta,m}$ is
@@ -515,7 +512,7 @@ considerations to keep in mind for this construction: first, one
 should always throw out null states $\ket{O,\m u_\Delta,m}=0$, which
 can be identified by a vanishing self-overlap,
 $\bk{O,\m u_\Delta,m|O,\m u_\Delta,m}=0$.  Second, computing overlaps
-to check orthogonality can be computationally intensive.  When
+to check for orthogonality can be computationally intensive.  When
 considering a candidate state $\ket{O,\m u_\Delta,m}$ to add to
 $\B_r$, one can therefore restrict orthogonality checks to other
 states $\ket{Q,\m v_\epsilon,\ell}$ with $\epsilon=\Delta$; if the
@@ -524,14 +521,11 @@ guaranteed to be orthogonal.  Any two states with different occupation
 numbers of single-spin states $\mu\in\ZZ_n$ are similarly guaranteed
 to be orthogonal.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The XXZ model}
 
 
-\vspace{3cm}
-
-
-
-
-\red{[TODO: finish section]}
+\red{[TODO: write section]}
 
 
 
