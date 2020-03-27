@@ -1,0 +1,156 @@
+\documentclass[aps,notitlepage,nofootinbib,11pt]{revtex4-1}
+
+% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,
+  urlcolor=cyan,
+}
+
+%%% paragraph indentation and spacing
+\setlength{\parindent}{0cm} % don't indent new paragraphs...
+\parskip 6pt % ... place a space between paragraphs instead
+\frenchspacing % only one space after periods
+
+%%% header / footer
+\usepackage{fancyhdr} % easier header and footer management
+\pagestyle{fancy} % page formatting style
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt} % remove horizontal line in header
+\usepackage{lastpage} % for referencing last page
+\cfoot{\thepage~of \pageref{LastPage}} % "x of y" page labeling
+
+% figures
+\usepackage{hyperref} % for linking references
+\usepackage{graphicx,float} % for figures
+\usepackage{grffile} % help latex properly identify figure extensions
+\graphicspath{{./figures/}} % set path for all graphics
+\usepackage[caption=false]{subfig} % subfigures
+\newcommand{\sref}[1]{\protect\subref{#1}}
+
+%%% symbols, notations, etc.
+\usepackage{physics,bm,braket,amssymb} % physics and math packages
+\usepackage{accents} % for resolving some accent (e.g. tilde) issues
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\renewcommand{\v}{\bm} % bold vectors
+\newcommand{\uv}[1]{\hat{\v{#1}}} % unit vectors
+\renewcommand{\d}{\partial} % partial d
+\renewcommand{\c}{\cdot} % inner product
+\newcommand{\bk}{\Braket} % shorthand for braket notation
+
+\usepackage{dsfont}
+\newcommand{\1}{\mathds{1}}
+
+\newcommand{\E}{\mathcal E}
+
+\usepackage{listings}
+
+
+\begin{document}
+
+\title{Efficient calculation of Wannier functions and their overlap
+  integrals}
+
+\author{Michael A. Perlin}
+
+\maketitle
+\thispagestyle{fancy}
+
+Solutions to the Mathieu equation (i.e. spatial eigenfunctions of an
+optical lattice, or Bloch functions) with quasi-momentum $q$ in band
+$n$ take the form
+\begin{align}
+  \tilde\phi_{qn}\p{x}
+  = e^{iqx} \sum_{k=-\infty}^\infty c_{qk}^{(n)}e^{2ikx}
+\end{align}
+where all coefficients $c_{qk}^{(n)}\in\mathbb R$. Without loss of
+generality, we will only consider on-site (Wannier) functions
+$\phi_n\p{x}$ for band $n$ on a lattice site centered at $x=0$, which
+are given by the discrete Fourier transform of the Bloch functions:
+\begin{align}
+  \phi_n\p{x}
+  = \sum_q \tilde\phi_{qn}\p{x}
+  = \sum_{q,k} c_{qk}^{(n)} e^{i\p{2k+q}x}
+  = \sum_{q,k} c_{qk}^{(n)} \E_{qk}\p{x},
+  \label{eq:wannier_first}
+\end{align}
+where $\E_{qk}\p{x} \equiv e^{i\p{2k+q}x}$. In practice, when
+computing \eqref{eq:wannier_first} we must choose a finite number $Q$
+of allowed quasi-momenta $q$ and a finite number $K$ of allowed values
+of $k$ (centered on 0). We can then construct the $Q\times K$ matrices
+$\v c_n\equiv \sum_{q,k}c_{qk}^{(n)}\uv q\otimes\uv k$ and
+$\v\E\p{x}\equiv \sum_{q,k}\E_{qk}\p{x}\uv q\otimes\uv k$, and rewrite
+\eqref{eq:wannier_first} as
+\begin{align}
+  \phi_n\p{x} = \v c_n \c \v\E\p{x}.
+  \label{eq:wannier}
+\end{align}
+Constructing these matrices and computing their scalar product is
+substantially faster to perform numerically than the double sum in
+\eqref{eq:wannier_first}.
+
+The Wannier functions in \eqref{eq:wannier} appear in e.g. the
+(one-dimensional) four-function overlap integral
+\begin{align}
+  F_n
+  \equiv \int dx~ \phi_n\p{x}^*\phi_0\p{x}^*\phi_0\p{x}\phi_0\p{x}.
+  \label{eq:F}
+\end{align}
+As $\phi_n\p{x}$ has the same parity (i.e. even/odd) as $n$, the
+entire integrand in \eqref{eq:F} likewise has the same parity as
+$n$. It follows that $F_n$ vanishes if $n$ is odd. If $n$ is even,
+then the integrand in \eqref{eq:F} is even, which means that we need
+only integrate over half of the lattice. Furthermore, knowing that
+$\phi_0\p{x}$ and $F_n$ are real\footnote{We will not spend time
+  justifying this claim here, but can do so upon request.}, we can
+generally make the replacement
+$\v\E\p{x}\to\Re\sp{\v\E\p{x}}\equiv\v\E^R\p{x}$ for the purposes of
+computing \eqref{eq:F}. For a lattice of length $L$, the integral in
+\eqref{eq:F} then becomes
+\begin{align}
+  F_n
+  = 2\int_0^{L/2} dx~ \Re\sp{\phi_n\p{x}} \phi_0\p{x}^3
+  = 2\int_0^{L/2} dx~
+  \sp{\v c_n\c\v\E^R\p{x}} \sp{\v c_0\c\v\E^R\p{x}}^3.
+  \label{eq:F2}
+\end{align}
+
+In order to reduce the number of operations necessary to compute the
+overlaps $F_n$, we should first numerically solve the Mathieu equation
+to get the coefficients $c_{qn}^{(k)}$ for every quasi-momentum $q$ up
+to some cutoff in band ($n$) and Fourier order ($k$). These
+coefficients should be stored in a three-dimensional array which can
+be sliced to extract the matrix $\v c_n$ from memory. Recycling the
+coefficients $c_{qn}^{(k)}$ in this manner provides an enormous
+speedup in the computation of $F_n$, as we would otherwise need to
+re-compute all of these coefficients for every instance of the
+integrand (as occurs when e.g. using Mathematica's Mathieu function
+methods to compute $F_n$). Computing $\v\E^R\p{x}$ only once for each
+instance of the integrand and recycling it for $\phi_n\p{x}$ and
+$\phi_0\p{x}$ also also saves us an additional factor of $\sim2$ in
+computation time.
+
+Lastly, there is another trick we can use to efficiently compute the
+matrices $\v\E\p{x}$. Rather than looping over all $q$ and $k$
+individually to compute all elements of $\v\E\p{x}$, it is
+substantially faster to compute the array $\sum_q e^{iqx}\uv q$ and
+replicate it $K$ times; and likewise compute $\sum_k e^{2ikx}\uv k$
+and replicate it $Q$ times. We can then multiply these matrices
+element-wise to get $\v\E^R\p{x}$. Implemented in Python using the
+NumPy library, this procedure would look something like:
+\begin{lstlisting}[language=python,basicstyle=\small]
+  q_phases = numpy.matlib.repmat(numpy.exp(i * quasi_momenta * x), K, 1).T
+  k_phases = numpy.matlib.repmat(numpy.exp(i * k_values * x), Q, 1)
+  E_x = q_phases * k_phases
+\end{lstlisting}
+where ``quasi\_momenta'' and ``k\_values'' are respectively the NumPy
+arrays $\sum_q q\uv q$ and $\sum_k k\uv k$.
+
+\end{document}
