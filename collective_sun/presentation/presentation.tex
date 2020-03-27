@@ -1,0 +1,846 @@
+\documentclass[aspectratio=43,usenames,dvipsnames,fleqn]{beamer}
+
+%%% beamer theme
+\usepackage{beamerthemelined}
+\usetheme{default} % theme with outline sidebar on the right
+\setbeamertemplate{headline}{} % clear header
+\setbeamertemplate{navigation symbols}{} % clear navigation symbols
+\setbeamertemplate{footline} % place frame number in footer
+{
+  \hbox{\begin{beamercolorbox}
+      [wd=1\paperwidth,ht=2.25ex,dp=1ex,right]{framenumber}
+      \usebeamercolor[fg]{subtitle}
+      \insertframenumber{} / \inserttotalframenumber
+      \hspace*{2ex}
+    \end{beamercolorbox}}
+}
+
+\usepackage{changepage} % for adjustwidth environment
+
+% remove the "Figure:" prefix from figure captions
+\usepackage{caption}
+\captionsetup[figure]{labelformat=empty}
+
+\usepackage{graphicx} % for figures
+\graphicspath{{../figures/}} % set path for all figures
+\usepackage{grffile} % for figures with a dot in the file name
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,bm,amssymb} % physics and math
+\usefonttheme[onlymath]{serif} % "regular" math font
+
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\newcommand{\bk}{\braket} % shorthand for braket notation
+
+\renewcommand{\c}{\cdot}
+
+\newcommand{\m}{\bm} % bold symbol
+\renewcommand{\v}{\vec} % arrow vector
+
+\usepackage{dsfont}
+\newcommand{\1}{\mathds{1}}
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
+\renewcommand{\d}{\text{d}}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\z}{\text{z}}
+
+\newcommand{\E}{\mathcal{E}}
+\renewcommand{\O}{\mathcal{O}}
+\newcommand{\Q}{\mathcal{Q}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\V}{\mathcal{V}}
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\ZZ}{\mathbb{Z}}
+
+\let\var\relax
+\DeclareMathOperator{\var}{var}
+\newcommand{\ul}{\underline}
+\newcommand{\EQPS}{=_{\text{PS}}}
+\newcommand{\PS}{\text{PS}}
+
+\renewcommand*{\thefootnote}{\alph{footnote}}
+
+%%% figures
+\usepackage{graphicx} % for figures
+\graphicspath{{./figures/}} % set path for all figures
+\usepackage[export]{adjustbox} % for vertical alignment in math
+\newcommand{\diagram}[1]
+{\,\includegraphics[valign=c,scale=0.75]{diagrams/#1.pdf}\,}
+
+% custom colors
+\usepackage{xcolor}
+\definecolor{orange}{RGB}{255,127,14}
+\definecolor{green}{RGB}{44,160,44}
+\newcommand{\mblue}[1]{\textcolor{blue}{#1}}
+\newcommand{\morange}[1]{\textcolor{orange}{#1}}
+\newcommand{\mgreen}[1]{\textcolor{green}{#1}}
+\newcommand{\mred}[1]{\textcolor{red}{#1}}
+
+% for drawing arrows
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes}
+\tikzstyle{every picture}+=[remember picture]
+\newcommand{\tikzmark}[1]{
+  \tikz[remember picture] \node[coordinate] (#1) {#1};
+}
+
+% for uncovering under/over braces
+\newcommand<>{\uubrace}[2]{%
+  \onslide#3 \underbrace{ \onslide<1->%
+  #1%
+  \onslide#3 }_{#2} \onslide<1->%
+}
+\newcommand<>{\uobrace}[2]{%
+  \onslide#3 \overbrace{ \onslide<1->%
+  #1%
+  \onslide#3 }^{#2} \onslide<1->%
+}
+
+% for "not approximately equal" symbol
+\usepackage{accsupp}
+\providecommand*{\napprox}{%
+  \BeginAccSupp{method=hex,unicode,ActualText=2249}%
+  \not\approx
+  \EndAccSupp{}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{SU($n$) ferromagnets near the Heisenberg point}%
+\author{Michael A. Perlin}%
+\date{17 March 2020}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+\begin{frame}
+  \frametitle{Origins and motivation}
+  \begin{itemize}[<+->] \setlength{\itemsep}{1em}
+  \item SU(2) spin squeezing: $\v s\c\v s$ interactions for a
+    many-body gap
+    \vspace{.5em}
+    \begin{itemize}[<+->]
+    \item Single-body $s_\z$ ``perturbation'' $\to$ one-axis twisting
+      ($S_\z^2$)
+    \end{itemize}
+  \item Dipolar and trapped ion systems $\leftrightarrow$ XXZ
+    model\vspace{.5em}
+    \begin{itemize}[<+->]
+    \item SU(2) interactions + two-body (ZZ) terms
+    \end{itemize}
+  \item Nuclear spin degrees of freedom $\to$ SU($n$) interactions
+    \vspace{.5em}
+    \begin{itemize}[<+->] \setlength{\itemsep}{.5em}
+    \item Enhanced symmetry, large ground-state degeneracy
+    \item Metrological / QIP resource (?)
+    \item Simulating SY/SYK-like models (scrambling, holography, etc.)
+    \item + more SU($n$) physics (e.g.~dynamical phases)
+    \end{itemize}
+  \item ``Perturbed'' SU($n$) ferromagnets
+    \vspace{.5em}
+    \begin{itemize}[<+->]
+    \item Neighborhood of the Heisenberg critical point
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{SU($n$) Heisenberg ferromagnets}
+  \begin{itemize} \setlength{\itemsep}{1.5em}
+  \item SU($n$)-symmetric two-body interactions:
+    \vspace{-.5em}
+    \begin{align*}
+      H_{\t{int}} = \sum_{\substack{\t{spin pairs}\\\p{p,q}}}
+      {\color<2>{red} h_{pq}} \uobrace<4->{
+        \sum_{\substack{\t{spin states}\\\mu,\nu}}
+        \color<3>{red} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)}}
+      {\substack{\t{exchange}\\\t{interaction}}}
+      \uncover<5->{
+        = \sum_{\substack{\t{spin pairs}\\\p{p,q}}} h_{pq}
+        \overbrace{\Pi_{pq}}^{\substack{\t{permutation}\\\t{operator}}}
+      }
+    \end{align*}
+    \vspace{-1em}
+  \item<2-> Power-law couplings:
+    ${\color<2>{red} h_{pq}} \sim -\f1{\abs{p-q}^\alpha}$ \hfill
+    ($\alpha\lesssim D$)
+  \item<3-> Spin-flip operators
+    ${\color<3>{red} s_{\mu\nu}} \equiv \op{\mu}{\nu}$ ~ \hfill
+    ($\mu,\nu=1,2,\cdots,n$)
+  \item<6-> Permutationally symmetric states $\leftrightarrow$
+    occupation numbers
+    \vspace{.5em}
+    \begin{itemize} \setlength{\itemsep}{.5em}
+    \item $\ket{m}$ with $m=\p{m_1,m_2,\cdots,m_n}$ and $\sum_j m_j=N$
+      \hfill ($N$ spins)
+    \item<7-> Stars and bars: degeneracy of ${ N+n-1 \choose N }$
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Breaking SU($n$) symmetry}
+  \begin{align*}
+    H_{\t{int}} = \sum_{\substack{\t{spin pairs}\\\p{p,q}}} h_{pq} \Pi_{pq}
+  \end{align*}
+
+  \pause
+
+  $M$-body ``perturbation:''
+  \begin{align*}
+    \V_M = \sum_{\substack{\t{choices of}\\M~\t{spins}~k}} w\p{k} O\p{k}
+  \end{align*}
+  \begin{itemize}[<+->] \setlength{\itemsep}{1em}
+  \item symmetric $M$-spin operator $O$
+    \vspace{.5em}
+    \begin{itemize}
+    \item e.g. Pauli $ZZ$ or $XY+YX$ \hfill ($n=2$, $M=2$)
+    \end{itemize}
+  \item<.-> $M$-index coupling tensor $w$
+  \item External fields ($M=1$), two-body interactions ($M=2$)
+  \item $M>2$: eigenstates of $H_{\t{int}}$
+    \vspace{.5em}
+    \begin{itemize}
+    \item ``Multi-body spin-wave''-like states \hfill
+      \uncover<+->{$\ket{mk}=\sum_je^{ikj}\sigma_+^{(j)}\ket{m}$}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Perturbation theory (1st order)}
+  \begin{overlayarea}{\linewidth}{0.25\textheight}
+    \begin{align*}
+      H_{\t{int}}
+      = \sum_{\substack{\t{spin pairs}\\\p{p,q}}} h_{pq} \Pi_{pq}
+      &&
+      \V_M = \sum_{\substack{\t{choices of}\\M~\t{spins}~k}} w\p{k} O\p{k}
+    \end{align*}
+  \end{overlayarea}
+  \pause
+  \begin{overlayarea}{\linewidth}{0.6\textheight}
+    Effective Hamiltonian:
+    \begin{align*}
+      H_M^{(1)} = \P_0 \V_M \P_0 \uncover<3->{= \bar w\, \ul{O}}
+    \end{align*}
+    $\P_0=$ projector onto ground-state manifold
+
+    \pause
+
+    \begin{align*}
+      \bar w \equiv \bk{w\p{k}}_{\t{choices}~k}
+      &&
+      \ul{O} \equiv \sum_{\t{choices}~k} O\p{k}
+    \end{align*}
+
+    \pause
+
+    SU(2): $\ul{ZZ}\propto S_\z^2+\t{constant}$ \hfill (OAT)
+  \end{overlayarea}
+  \begin{overlayarea}{\linewidth}{0.1\textheight}
+  \end{overlayarea}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Perturbation theory (2nd order)}
+  \begin{overlayarea}{\linewidth}{0.25\textheight}
+    \begin{align*}
+      H_{\t{int}}
+      = \sum_{\substack{\t{spin pairs}\\\p{p,q}}} h_{pq} \Pi_{pq}
+      &&
+      \V_M = \sum_{\substack{\t{choices of}\\M~\t{spins}~k}} w\p{k} O\p{k}
+    \end{align*}
+  \end{overlayarea}
+  \pause
+  \begin{overlayarea}{\linewidth}{0.6\textheight}
+    Effective Hamiltonian:
+    \begin{align*}
+      H_M^{(2)}
+      = -\sum_{\substack{\t{excitation}\\\t{energies}\\\Delta\ne0}}
+      \f1\Delta
+      {\color<.(5)>{red} \P_0 \V_M}
+      {\color<.(4),.(6)>{red} \P_\Delta}
+      {\color<.(3)>{red} \V_M \P_0}
+    \end{align*}
+    $\P_\Delta=$ projector onto manifold with excitation energy
+    $\Delta$
+    \pause
+    \begin{center}
+      \only<+-.(4)>{
+        \begin{tikzpicture}
+          \draw[ultra thick] (0,0) -- (10em,0);
+          \draw (0,3.0em) -- (10em,3.0em);
+          \draw (0,3.6em) -- (10em,3.6em);
+          \draw (0,3.9em) -- (10em,3.9em);
+          \draw (0,4.6em) -- (10em,4.6em);
+          \only<.-.(1)>{
+            \node (GS) at (5em,1em) {ground-state manifold};
+          }
+          \node (ES) at (5em,5.4em) {excited manifolds};
+          \uncover<+->{
+            \draw[->] (-.2em,0em) to [bend left] (-.2em,3.0em);
+            \draw[->] (-.2em,0em) to [bend left] (-.2em,3.6em);
+            \draw[->] (-.2em,0em) to [bend left] (-.2em,3.9em);
+            \draw[->] (-.2em,0em) to [bend left] (-.2em,4.6em);
+            \node (VL) at (-2em,2.3em) {\color<.>{red} $\V_M$};
+          }
+          \uncover<+->{
+            \draw[<->] (1.5em,.2em) -- (1.5em,2.8em);
+            \draw[<->] (3.5em,.2em) -- (3.5em,3.4em);
+            \draw[<->] (5.5em,.2em) -- (5.5em,3.7em);
+            \draw[<->] (7.5em,.2em) -- (7.5em,4.4em);
+            \node (D1) at (2.5em,1.5em) {\color<.>{red} $\Delta_1$};
+            \node (D1) at (4.5em,1.5em) {\color<.>{red} $\Delta_2$};
+            \node (D1) at (6.5em,1.5em) {\color<.>{red} $\Delta_3$};
+            \node (D1) at (8.5em,1.5em) {\color<.>{red} $\Delta_4$};
+          }
+          \uncover<+->{
+            \draw[<-] (10.2em,0em) to [bend right] (10.2em,3.0em);
+            \draw[<-] (10.2em,0em) to [bend right] (10.2em,3.6em);
+            \draw[<-] (10.2em,0em) to [bend right] (10.2em,3.9em);
+            \draw[<-] (10.2em,0em) to [bend right] (10.2em,4.6em);
+            \node (VR) at (12em,2.3em) {\color<.>{red} $\V_M$};
+          }
+        \end{tikzpicture}
+      }%
+      \only<+->{
+        \begin{tikzpicture}
+          \draw[ultra thick] (0,0) -- (10em,0);
+          \node (ES) at (5em,5.4em) {excited manifolds};
+          \draw[->] (-.2em,0em) to [bend left] (-.2em,3.0em);
+          \draw[->] (-.2em,0em) to [bend left] (-.2em,3.6em);
+          \draw[->] (-.2em,0em) to [bend left] (-.2em,3.9em);
+          \draw[->] (-.2em,0em) to [bend left] (-.2em,4.6em);
+          \node (VL) at (-2em,2.3em) {$\V_M$};
+          \draw[<-] (10.2em,0em) to [bend right] (10.2em,3.0em);
+          \draw[<-] (10.2em,0em) to [bend right] (10.2em,3.6em);
+          \draw[<-] (10.2em,0em) to [bend right] (10.2em,3.9em);
+          \draw[<-] (10.2em,0em) to [bend right] (10.2em,4.6em);
+          \node (VR) at (12em,2.3em) {$\V_M$};
+          \draw[dashed] (0,2.8em) -- (10em,2.8em)
+          -- (10em,4.8em) -- (0,4.8em) -- (0,2.8em);
+          \node (VR) at (5em,3.8em) {\color{red} ???};
+        \end{tikzpicture}
+      }
+    \end{center}
+  \end{overlayarea}
+  \begin{overlayarea}{\linewidth}{0.1\textheight}
+  \end{overlayarea}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Constructing eigenstates of $H_{\t{int}}$}
+  \begin{overlayarea}{\linewidth}{0.25\textheight}
+    \begin{align*}
+      H_{\t{int}}
+      = \sum_{\substack{\t{spin pairs}\\\p{p,q}}} h_{pq} \Pi_{pq}
+      &&
+      \V_M = {\color<+(5)>{red}
+        \sum_{\substack{\t{choices of}\\M~\t{spins}~k}} w\p{k} O\p{k}}
+    \end{align*}
+  \end{overlayarea}
+  \begin{overlayarea}{\linewidth}{0.6\textheight}
+    \uncover<+->{
+      ``Diagnosing'' perturbations of ground states
+      $\ket{\psi_\PS}$:
+      \begin{align*}
+        H_{\t{int}} \V_M \ket{\psi_\PS}
+        \uncover<+->{
+          = {\color<+>{red} E_0 \V_M} \ket{\psi_\PS}
+          + {\color<+-.(2)>{red}
+            \sum_{\substack{\t{choices of}\\M~\t{spins}~k}}
+            \check{h}\sp{w}\p{k} O\p{k}}
+          \ket{\psi_\PS}
+        }
+      \end{align*}
+    }
+    \uncover<+->{}
+    \uncover<+->{
+      Eigenvalue problem: find (tensor) eigenvectors $w_\Delta$ of
+      $\check{h}$
+      \begin{align*}
+        \check{h}\sp{w_\Delta} = \Delta w_\Delta
+        &&
+        \uncover<+->{
+          \V_M^\Delta = \sum_{\t{choices}~k} w_\Delta\p{k} O\p{k}
+        }
+      \end{align*}
+    }
+    \vspace{-2em}
+    \uncover<+->{
+      \begin{align*}
+        H_{\t{int}} \V_M^\Delta \ket{\psi_\PS}
+        = \p{E_0 + \Delta} \V_M^\Delta \ket{\psi_\PS}
+      \end{align*}
+    }
+  \end{overlayarea}
+  \begin{overlayarea}{\linewidth}{0.1\textheight}
+    \begin{center}
+      ~ \hfill
+      \begin{tikzpicture}
+        \draw[ultra thick] (0,0) -- (4em,0);
+        \draw[dashed] (0,1em) -- (4em,1em)
+        -- (4em,1.4em) -- (0,1.4em) -- (0,1em);
+        \draw[<->] (-.2em,0em) to [out=135, in=-130]
+        (-.2em,1.05em);
+        \draw[<->] (-.2em,0em) to [out=135, in=-150]
+        (-.2em,1.35em);
+        \node (V) at (-1.3em,.6em) {$\V_M$};
+      \end{tikzpicture}
+      \hfill
+      \uncover<.->{
+        \begin{tikzpicture}
+          \draw[ultra thick] (0,0) -- (4em,0);
+          \draw (0em,1.2em) -- (4em,1.2em);
+          \draw[<->] (-.2em,0em) to [out=135, in=-135] (-.2em,1.2em);
+          \draw[<->] (2em,.2em) -- (2em,1em);
+          \node (D) at (2.75em,.6em) {$\Delta$};
+          \node (V) at (-1.3em,.6em) {$\V_M^\Delta$};
+        \end{tikzpicture}
+      }
+      \hfill ~
+    \end{center}
+  \end{overlayarea}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Perturbation theory (2nd order, cont.)}
+  \begin{overlayarea}{\linewidth}{0.25\textheight}
+    \begin{align*}
+      H_{\t{int}}
+      = \sum_{\substack{\t{spin pairs}\\\p{p,q}}} h_{pq} \Pi_{pq}
+      &&
+      \V_M = \sum_{\substack{\t{choices of}\\M~\t{spins}~k}} w\p{k} O\p{k}
+    \end{align*}
+  \end{overlayarea}
+  \uncover<+->{}
+  \begin{overlayarea}{\linewidth}{0.6\textheight}
+    Effective Hamiltonian:
+    \begin{align*}
+      H_M^{(2)}
+      &= -\sum_{\Delta\ne0} \f1\Delta \P_0
+      {\color<2>{red} \V_M \P_\Delta \V_M} \P_0
+      \uncover<+->{
+        = -\sum_{\Delta\ne0} \f1\Delta \P_0
+        {\color<2>{red} \V_M^\Delta\V_M^\Delta} \P_0
+      } \\
+      \uncover<+->{
+        &= -\sum_{\Delta\ne0} \f1\Delta
+        \uubrace<.(2)->{\sum_{\t{choices}~k,\ell}
+          w_\Delta\p{k} w_\Delta\p{\ell} \P_0 O\p{k} O\p{\ell} \P_0}
+        {\t{$r$-body operators for $r\le 2M$ ($r=\abs{k\cup\ell}$)
+            \uncover<.(3)>{({\color{red} !!!})}}}
+      } \\[.5em]
+      \uncover<+->{
+        H_1^{(2)} &= -\sum_{\Delta\ne0}
+        \f{\var\p{w_\Delta}}{\Delta\p{N-1}}
+        \p{\ul{O}^2 - N\ul{O^2}}
+        }
+    \end{align*}
+  \end{overlayarea}
+  \begin{overlayarea}{\linewidth}{0.1\textheight}
+    \begin{center}
+      ~ \hfill
+      \begin{tikzpicture}
+        \draw[ultra thick] (0,0) -- (4em,0);
+        \draw[dashed] (0,1em) -- (4em,1em)
+        -- (4em,1.4em) -- (0,1.4em) -- (0,1em);
+        \draw[<->] (-.2em,0em) to [out=135, in=-130]
+        (-.2em,1.05em);
+        \draw[<->] (-.2em,0em) to [out=135, in=-150]
+        (-.2em,1.35em);
+        \node (V) at (-1.3em,.6em) {$\V_M$};
+      \end{tikzpicture}
+      \hfill
+      {
+        \begin{tikzpicture}
+          \draw[ultra thick] (0,0) -- (4em,0);
+          \draw (0em,1.2em) -- (4em,1.2em);
+          \draw[<->] (-.2em,0em) to [out=135, in=-135]
+          (-.2em,1.2em);
+          \draw[<->] (2em,.2em) -- (2em,1em);
+          \node (D) at (2.75em,.6em) {$\Delta$};
+          \node (V) at (-1.3em,.6em) {$\V_M^\Delta$};
+        \end{tikzpicture}
+      }
+      \hfill ~
+    \end{center}
+  \end{overlayarea}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Beyond ground-state perturbation theory}
+  \begin{itemize} \setlength{\itemsep}{1.5em}
+  \item PT: effective dynamics in a low-energy subspace
+  \item<2-> Restrict to the permutationally symmetric (Dicke) manifold
+    \uncover<3->{
+      \begin{align*}
+        \P_0 = \sum_m \op{m}
+        &&
+        S_\z \to \P_0 S_\z \P_0 = \sum_m m \op{m}
+      \end{align*}
+    }
+    \vspace{-1.5em}
+  \item<4-> What if $\abs{\V_M}\sim\Delta$?
+    \vspace{.5em}
+    \begin{itemize}
+    \item<6-> Permutation symmetry index $k$ (e.g.~spin-wave
+      wavenumber)
+    \end{itemize}
+    \uncover<6->{
+      \begin{align*}
+        \tilde\P_0 = \sum_{m,k} \op{mk}
+        &&
+        S_\z \to \tilde\P_0 S_\z \tilde\P_0 = \sum_{m,k} m \op{mk}
+      \end{align*}
+    }
+  \end{itemize}
+  ~ \hfill
+  \tikz[overlay,every node/.style={anchor=south}]{
+    \only<1-4>{
+      \begin{tikzpicture}
+        \draw[ultra thick] (0,0) -- (5em,0);
+        \draw[dashed] (0,1em) -- (5em,1em)
+        -- (5em,1.4em) -- (0,1.4em) -- (0,1em);
+        \draw[<->] (-.2em,0em) to [out=135, in=-130] (-.2em,1.05em);
+        \draw[<->] (-.2em,0em) to [out=135, in=-150] (-.2em,1.35em);
+        \node (VL) at (-1.4em,0em) {$\V_M$};
+        \draw[<->] (6em,0) -- node[midway,right]
+        {$\Delta$} (6em,1.2em);
+        \draw (5.8em,0) -- (6.2em,0);
+        \draw (5.8em,1.2em) -- (6.2em,1.2em);
+        \vphantom{
+          \draw[dashed] (0,2.4em) -- (5em,2.4em)
+          -- (5em,2.8em) -- (0,2.8em) -- (0,2.4em);
+          \draw[<->] (5.2em,1.05em) to [out=35, in=-35] (5.2em,2.45em);
+          \draw[<->] (5.2em,1.35em) to [out=35, in=-35] (5.2em,2.75em);
+          \node (VR) at (6.5em,1.1em) {$\V_M$};
+        }
+      \end{tikzpicture}
+    }
+    \only<5->{
+      \begin{tikzpicture}
+        \draw[ultra thick] (0,0) -- (5em,0);
+        \draw (0,1.05em) -- (5em,1.05em);
+        \draw (0,1.35em) -- (5em,1.35em);
+        \draw[<->] (-.2em,0em) to [out=135, in=-130] (-.2em,1.05em);
+        \draw[<->] (-.2em,0em) to [out=135, in=-150] (-.2em,1.35em);
+        \node (VL) at (-1.4em,0em) {$\V_M$};
+        \draw[<->] (6em,0) -- node[midway,right]
+        {$\Delta$} (6em,1.2em);
+        \draw (5.8em,0) -- (6.2em,0); \draw (5.8em,1.2em)
+        -- (6.2em,1.2em);
+        \draw[dashed] (0,2.4em) -- (5em,2.4em) -- (5em,2.8em)
+        -- (0,2.8em) -- (0,2.4em);
+        \draw[<->] (5.2em,1.05em) to [out=35, in=-35] (5.2em,2.45em);
+        \draw[<->] (5.2em,1.35em) to [out=35, in=-35] (5.2em,2.75em);
+        \node (VR) at (6.5em,1.1em) {$\V_M$};
+      \end{tikzpicture}
+    }
+  }
+  \hfill ~
+\end{frame}
+
+\begin{frame}
+  \frametitle{Building operators in the multi-body excitation basis}
+  \begin{itemize}[<+->] \setlength{\itemsep}{1.5em}
+  \item Multi-body operator
+    $\O_v=\displaystyle\sum_{\t{choices}~k} v\p{k} O\p{k}$
+  \item Ground states $\ket{m}=\ket{m_1,m_2,\cdots,m_n}$
+    \vspace{.5em}
+    \begin{itemize}
+    \item $m_j=$ occupation number of single-spin state $j$
+    \end{itemize}
+  \item Excited states
+    $\ket{m,w} = \Q_w \ket{m} = \displaystyle\sum_{\t{choices}~k}
+    w\p{k} Q\p{k} \ket{m}$
+  \item Matrix elements of $\O_v$:
+    $\bk{\ell,u|\O_v|m,w} \uncover<+->{ =\bk{\ell|\Q_u\O_v\Q_w|m} }$
+  \item Projected operator products:
+    $\P_0 \Q_u \O_v \Q_w \P_0$
+    \vspace{.5em}
+    \begin{itemize}[<+->]
+    \item 2nd order perturbation theory: $\P_0 \V_M \V_M \P_0$
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Projected operator products (example)}
+  \vspace{1.5em}
+  Two 2-body operators:
+  \begin{multline*}
+    \sum_{\substack{\t{spin pairs}\\\p{k,\ell},\p{p,q}}}
+    v_{k\ell} w_{pq} O_{k\ell} Q_{pq}
+    \pause \uncover<+->{
+      = \sp{2\t{-body}} + \sp{3\t{-body}} + \sp{4\t{-body}}
+    } \\
+    \uncover<+->{
+      \EQPS \diagram{two_body_2} O_{1,2} Q_{1,2}
+      + \diagram{two_body_1} O_{1,2} Q_{1,3}
+      + \diagram{two_body_0} O_{1,2} Q_{3,4}
+    }
+  \end{multline*}
+  \uncover<.->{
+    ($\EQPS$: equality within permutationally symmetric manifold)
+  }
+  \vspace{.5em}
+  \begin{align*}
+    \uncover<+->{
+      \diagram{two_body_2}
+      = \sum_{\substack{\t{spin pairs}\\\p{p,q}}} v_{pq} w_{pq}
+    }
+    &&
+    \uncover<+->{
+      \diagram{two_body_1}
+      = \sum_{p,q,r~\t{distinct}} v_{pr} w_{qr}
+    }
+  \end{align*}
+  \vspace{-1em}
+  \uncover<+->{
+    \begin{align*}
+      \diagram{two_body_0}
+      = \sum_{\substack{\t{spin pairs}~\p{k,\ell},\p{p,q}\\
+          k,\ell,p,q~\t{distinct}}} v_{k\ell} w_{pq}
+    \end{align*}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Projected operator products (general)}
+  \vspace{1em}
+  \begin{itemize}[<+->] \setlength{\itemsep}{1em}
+  \item Diagram $g:\t{powerset}\p{\ZZ_p}\to\NN_0$ \hfill ($p$
+    operators)
+    \vspace{.5em}
+    \begin{itemize}
+    \item $g_S=$ number of indices shared by tensors
+      $j\in S\subset\ZZ_p$
+    \end{itemize}
+  \end{itemize}
+  \vspace{-1.5em}
+  \uncover<+->{
+    \begin{adjustwidth}{-\leftmargin}{-\rightmargin}
+      \begin{align*}
+        \diagram{example_123}
+        && \leftrightarrow &&
+        \sum_{\substack{\t{spins}~a,b,c\\\t{spin pairs}~\p{c,d}\\
+            a,b,c,d,e~\t{distinct}}}
+        w_1\p{a,b,c} w_2\p{b,d,e} w_3\p{b,c,d,e}
+      \end{align*}
+    \end{adjustwidth}
+  }
+  \vspace{-1em}
+  \uncover<+->{
+    \begin{align*}
+      g_{\set{1}} = 1
+      &&
+      g_{\set{1,2,3}} = 1
+      &&
+      g_{\set{1,3}} = 1
+      &&
+      g_{\set{2,3}} = 2
+    \end{align*}
+  }
+  \vspace{-1em}
+  \begin{itemize}[<+->] \setlength{\itemsep}{1em}
+  \item Product of $p$ operators defined by $\p{w_j,O_j}$ for
+    $j=1,2,\cdots,p$
+  \end{itemize}
+  \uncover<.->{
+    \begin{adjustwidth}{-\leftmargin}{-\rightmargin}
+      \begin{align*}
+        \prod_{j\in\ZZ_p}
+        \sp{\sum_{\substack{\t{choices of}\\M_j~\t{spins}~k_j}}
+          w_j\p{k_j} O_j\p{k_j}}
+        \EQPS \sum_{\t{valid diagrams}~g} w\p{g} O\p{g}
+      \end{align*}
+    \end{adjustwidth}
+    }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Projected operator products (example 2)}
+  Three $ZZ$-type operators: \hfill (matrix elements of one $ZZ$ op.)
+  \begin{align*}
+    \sum_{\substack{\t{spin pairs}\\\p{k,\ell},\p{p,q},\p{r,s}}}
+    &u_{k\ell} v_{pq} w_{rs} Z_k Z_\ell Z_p Z_q Z_r Z_s \\
+    \pause \uncover<+->{
+      &\quad\EQPS A_0  + A_2 Z^{\otimes 2}
+      + A_4 Z^{\otimes 4} + A_6 Z^{\otimes 6}
+    }
+  \end{align*}
+  \uncover<+->{
+    \vspace{-1.5em}
+    \begin{align*}
+      A_0 = \diagram{triple_0111}
+      &&
+      A_4 = \diagram{triple_01} + \diagram{triple_1}
+      &&
+      A_6 = \diagram{triple_0}
+    \end{align*}
+    \vspace{-1.5em}
+    \begin{align*}
+      A_2 = \diagram{triple_011} + \diagram{triple_02}
+      + \diagram{triple_11} + \diagram{triple_2}
+    \end{align*}
+    (Unlabeled diagram $\to$ implicit sum over distinct labels
+    $u,v,w$)}
+
+  \vspace{1em}
+
+  \uncover<+->{In practice: make a computer do it}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize}[<+->] \setlength{\itemsep}{1em}
+  \item SU($n$) ferromagnet with $M$-body perturbation:
+    \begin{align*}
+      H_{\t{int}} = \sum_{\t{pairs}~\p{p,q}} h_{pq} \Pi_{pq}
+      &&
+      \V_M = \sum_{\t{choices}~k} w\p{k} O\p{k}
+    \end{align*}
+  \item Multi-body eigenvalue problem:
+    \begin{align*}
+      \check h\sp{w_\Delta} = \Delta w_\Delta
+      &&
+      \implies
+      &&
+      H_{\t{int}} \V_M^\Delta \ket{\psi_\PS}
+      = \p{E_0+\Delta} \V_M^\Delta \ket{\psi_\PS}
+    \end{align*}
+  \item Perturbation theory, building eigenstates of $H_{\t{int}}$
+  \item Multi-body operator products:
+    \begin{align*}
+      \prod_j \sp{\sum_{\t{choices}~k_j} w_j\p{k_j} O_j\p{k_j}}
+      \EQPS \sum_{\t{diagrams}~g} w\p{g} O\p{g}
+    \end{align*}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example: XXZ model with power-law couplings}
+  \begin{overlayarea}{\linewidth}{0.25\textheight}
+    \begin{adjustwidth}{-0.5\leftmargin}{-\rightmargin}
+      \begin{align*}
+        H_{\t{XXZ}} = - \sum_{j,k} \f1{\abs{r_j-r_k}^\alpha}
+        \sp{J_\perp \p{s_\x^{(j)} s_\x^{(k)} + s_\y^{(j)} s_\y^{(k)}}
+          + J_\z s_\y^{(j)} s_\z^{(k)}}
+      \end{align*}
+    \end{adjustwidth}
+  \end{overlayarea}
+  \pause
+  \begin{overlayarea}{\linewidth}{0.75\textheight}
+    \begin{itemize}[<+->] \setlength{\itemsep}{2em}
+    \item Heisenberg point: $J_\z/J_\perp=1$
+    \item First order perturbation theory at $J_\z\approx J_\perp$:
+      one-axis twisting
+      \begin{align*}
+        H_{\t{eff}} = \chi S_\z^2
+        &&
+        \chi \sim
+        \f{J_\z-J_\perp}{N\p{N-1}} \sum_{j,k} \f1{\abs{r_j-r_k}^\alpha}
+      \end{align*}
+    \item What if $J_\z \napprox J_\z$?
+    \end{itemize}
+  \end{overlayarea}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example: XXZ model with power-law couplings (cont.)}
+  \begin{overlayarea}{\linewidth}{0.25\textheight}
+    \begin{adjustwidth}{-0.5\leftmargin}{-\rightmargin}
+      \begin{align*}
+        H_{\t{XXZ}} = - \sum_{j,k} \f1{\abs{r_j-r_k}^\alpha}
+        \sp{J_\perp \p{s_\x^{(j)} s_\x^{(k)} + s_\y^{(j)} s_\y^{(k)}}
+          + J_\z s_\y^{(j)} s_\z^{(k)}}
+      \end{align*}
+    \end{adjustwidth}
+  \end{overlayarea}
+  \begin{overlayarea}{\linewidth}{0.75\textheight}
+    \begin{itemize} \setlength{\itemsep}{1em}
+    \item $5\times 5$ (periodic) lattice with power law $\alpha=3$
+      \hfill ~ \uncover<2-4>{
+        $J_\z/J_\perp=$
+        \makebox[2em]{%
+          \only<2>{$0.5$}%
+          \only<3>{$0$}%
+          \only<4>{$-1$}%
+        }
+      }
+    \item $\bk{\P_M}$: population in the $M$-body excitation manifold
+    \end{itemize}
+    \begin{center} \only<2>{
+        \includegraphics[width=0.49\linewidth]
+        {{../figures/shells/populations_L5_5_a3_z0.5}.pdf}
+        \hfill
+        \includegraphics[width=0.49\linewidth]
+        {{../figures/shells/squeezing_L5_5_a3_z0.5}.pdf}
+      } \only<3>{
+        \includegraphics[width=0.49\linewidth]
+        {{../figures/shells/populations_L5_5_a3_z0}.pdf}
+        \hfill
+        \includegraphics[width=0.49\linewidth]
+        {{../figures/shells/squeezing_L5_5_a3_z0}.pdf}
+      } \only<4>{
+        \includegraphics[width=0.49\linewidth]
+        {{../figures/shells/populations_L5_5_a3_z-1}.pdf}
+        \hfill
+        \includegraphics[width=0.49\linewidth]
+        {{../figures/shells/squeezing_L5_5_a3_z-1}.pdf}
+      } \only<5>{
+        \includegraphics[width=0.49\linewidth]
+        {{../figures/shells/populations_L5_5_a3}.pdf}
+        \hfill
+        \includegraphics[width=0.49\linewidth]
+        {{../figures/shells/squeezing_L5_5_a3}.pdf}
+      }
+    \end{center}
+  \end{overlayarea}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Addendum}
+  \begin{itemize}[<+->] \setlength{\itemsep}{1.5em}
+    \item Matrix elements of multi-local operators,
+      e.g.~$\bk{\ell|Z_1Z_2|m}$
+  \item Using symmetries to reduce computational costs
+    \vspace{.5em}
+    \begin{itemize}
+    \item Translational invariance, isotropy
+    \end{itemize}
+  \item Multi-body eigenvalue problem
+    \vspace{.5em}
+    \begin{itemize}
+    \item $4$-body, $7 \times 7$ lattice:
+      $\sim 200,000 \stackrel{\t{TI}}{\to} \sim 4,000
+      \stackrel{\t{iso}}{\to} 627$
+    \end{itemize}
+  \item ``Reducing'' diagrams, simplifying tensor contractions
+  \item Outlook: spin squeezing, dynamical phases, SU($n$) physics
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[plain]
+  ~ \vfill
+  \centering
+  \bf fin
+  \vfill ~
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+\end{document}
