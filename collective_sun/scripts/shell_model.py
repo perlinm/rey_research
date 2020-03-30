@@ -15,6 +15,13 @@ if len(sys.argv) < 4:
     print(f"usage: {sys.argv[0]} [alpha] [max_manifold] [lattice_shape]")
     exit()
 
+# determine whether this is a test run
+if "test" in sys.argv:
+    test_run = True
+    sys.argv.remove("test")
+else:
+    test_run = False
+
 alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
 max_manifold = int(sys.argv[2])
 lattice_shape = tuple(map(int, sys.argv[3:]))
@@ -101,6 +108,9 @@ print("building collective spin operators")
 sys.stdout.flush()
 S_op_vec = [ _pauli_mat(pauli)/2 for pauli in [ "Z", "X", "Y" ] ]
 SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
+
+# if this is a test run, we can exit now
+if test_run: exit()
 
 # energies and energy eigenstates within each sector of fixed spin projection
 def energies_states(zz_sun_ratio):
