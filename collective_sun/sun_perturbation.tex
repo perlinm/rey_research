@@ -93,6 +93,11 @@
 % alphanumeric footnotes
 \renewcommand*{\thefootnote}{\alph{footnote}}
 
+% for energy diagrams, etc.
+\usepackage{tikz}
+\usetikzlibrary{arrows,math}
+\tikzstyle{every picture}+=[remember picture]
+
 %%% text markup
 \usepackage{color} % text color
 \newcommand{\red}[1]{{\color{red} #1}}
@@ -405,13 +410,42 @@ $\M_M$; we will refer to $\M_M$ as the $M$-body excitation manifold.
 We then denote the a direct sum of all $\M_r$ for $r\le M$ by
 $\ul\M_M$, i.e.~$\ul\M_M\equiv\bigoplus_{r\le M}\M_r$.  The manifold
 $\ul\M_M$ consists of all states accessible by the action of $r$-body
-operators with $r\le M$ on PS states in $\M_0$.
+operators with $r\le M$ on PS states in $\M_0$.  These definitions are
+sketched out in Figure \ref{fig:manifold_sketch}.
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \draw[ultra thick] (0,0) -- node[above] {$\M_0$} ++(10em,0);
+    \draw[ultra thick] (0,3em) -- node[above] {$\M_1$} ++(10em,0);
+    \draw[ultra thick] (0,2*3em) -- node[above] {$\M_2$} ++(10em,0);
+    \draw[->] (-.2em,0) to [bend left] (-.2em,3em);
+    \node (X) at (.2em,0.5*3em) {$\hat\O_1$};
+    \draw[->] (-.4em,0) to [bend left] (-.2em,2*3em);
+    \node (XY) at (-2em,3em) {$\hat\O_2$};
+    \draw (10em+.2em,-.2em) -- (10em+.4em,-.2em)
+    -- (10em+.4em,3em+.2em) -- (10em+.2em,3em+.2em);
+    \node (cM1) at (10em+1.5em,0.5*3em) {$\col\M_1$};
+    \draw (10em+2.4em+.2em,-.4em) -- (10em+2.4em+.4em,-.4em)
+    -- (10em+2.4em+.4em,6em+.4em) -- (10em+2.4em+.2em,6em+.4em);
+    \node (cM1) at (10em+2.4em+1.5em,3em) {$\col\M_2$};
+  \end{tikzpicture}
+  \caption{Schematic of low-lying multi-body manifolds.  Starting with
+    the permutationally-state manifold $\M_0$, the single-body
+    excitation manifold $\M_1$ consists of states accessible via
+    single-body perturbations $\hat\O_1$.  The two-body excitation
+    manifold $\hat\O_2$ then consists of states accessible via
+    two-body perturbations, but not single-body perturbations.  The
+    joint manifold $\col\M_M$ consists of all states accessible by
+    operators $r$-body operators $\O_r$ with $r\le M$.}
+  \label{fig:manifold_sketch}
+\end{figure}
 
 By construction, the $M$-body operator $X_{\m w}$ generally couples PS
-states in $\M_0$ to asymmetric states in $\ul\M_M\setminus\M_0$.  If
-the coupling between $\M_0$ and its complement is weak compared to the
-spectral gap $\Delta_{\t{gap}}$ of $H_0$, then we can treat the effect
-of $X_{\m w}$ perturbatively and derive an effective Hamiltonian
+states in $\M_0$ to asymmetric states in $\ul\M_M$.  If the coupling
+between $\M_0$ and its complement is weak compared to the spectral gap
+$\Delta_{\t{gap}}$ of $H_0$, then we can treat the effect of
+$X_{\m w}$ perturbatively and derive an effective Hamiltonian
 $H_{\t{eff}}$ on $\M_0$.  This ground-state perturbation theory
 formally breaks down when the operator norm
 $\norm{X_{\m w}}\ge\Delta_{\t{gap}}/2$, in which case the operator
