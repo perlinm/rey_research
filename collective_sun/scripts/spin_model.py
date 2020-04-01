@@ -176,7 +176,7 @@ swap = np.array([[ 1, 0, 0, 0 ],
 H_0 = sum( coupling * spin_op(swap, pp_qq).real
            for pp_qq, coupling in couplings_sun.items() )
 
-# note: factor of 1/2 included for compatibility with Chunlei's work
+# note: factor of 1/2 included for consistency with the normalization of H_0
 ZZ = sum( coupling * spin_op(["Z","Z"], pp_qq).real / 2
           for pp_qq, coupling in couplings_sun.items() )
 
@@ -196,7 +196,7 @@ if project:
 
 ##########################################################################################
 
-# note: factor of 1/2 included for compatibility with Chunlei's work
+# note: extra factor of 1/2 due to normalization convention
 chi_eff_bare = 1/4 * np.mean(list(couplings_sun.values()))
 state_X = functools.reduce(np.kron, [up_x]*spin_num).astype(complex)
 
