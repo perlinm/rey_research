@@ -130,8 +130,9 @@ with open(sweep_file, "r") as file:
 
 sweep_coupling_zz = sweep_data[:,0]
 sweep_min_sqz = sweep_data[:,1]
-sweep_min_pops_0 = sweep_data[:,2]
-sweep_max_pops = sweep_data[:,3:]
+sweep_time_opt = sweep_data[:,2]
+sweep_min_pops_0 = sweep_data[:,3]
+sweep_max_pops = sweep_data[:,4:]
 
 plt.figure(figsize = figsize)
 plt.title(title_text)
@@ -141,6 +142,14 @@ plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
 plt.tight_layout()
 plt.savefig(fig_dir + f"squeezing_{name_tag()}.pdf")
+
+plt.figure(figsize = figsize)
+plt.title(title_text)
+plt.plot(sweep_coupling_zz, sweep_time_opt, "ko")
+plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
+plt.ylabel(r"$t_{\mathrm{opt}} J_\perp$")
+plt.tight_layout()
+plt.savefig(fig_dir + f"time_opt_{name_tag()}.pdf")
 
 plt.figure(figsize = figsize)
 plt.title(title_text)

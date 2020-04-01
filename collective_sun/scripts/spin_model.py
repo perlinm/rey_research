@@ -269,6 +269,7 @@ sweep_times, sweep_sqz, sweep_pops = zip(*sweep_results)
 
 sweep_min_sqz = [ min(sqz) for sqz in sweep_sqz ]
 min_sqz_idx = [ max(1,np.argmin(sqz)) for sqz in sweep_sqz ]
+sweep_time_opt = [ sweep_times[zz][idx] for zz, idx in enumerate(min_sqz_idx) ]
 
 sweep_pops = [ pops[:min_idx,:] for pops, min_idx in zip(sweep_pops, min_sqz_idx) ]
 sweep_min_pops = np.array([ pops.min(axis = 0) for pops in sweep_pops ])
@@ -278,12 +279,13 @@ _manifolds = [ manifold for manifold in manifolds
                if not _is_zero(sweep_max_pops[:,manifold]) ]
 
 with open(data_dir + f"sweep_{name_tag()}.txt", "w") as file:
-    file.write("# coupling_zz, sqz_min, min_pop_0, max_pop (for manifolds > 0)\n")
+    file.write("# coupling_zz, sqz_min, time_opt, min_pop_0, max_pop (for manifolds > 0)\n")
     file.write("# manifolds : ")
     file.write(" ".join([ str(manifold) for manifold in manifolds ]))
     file.write("\n")
     for zz in range(len(sweep_coupling_zz)):
-        file.write(f"{sweep_coupling_zz[zz]} {sweep_min_sqz[zz]} {sweep_min_pops[zz,0]} ")
+        file.write(f"{sweep_coupling_zz[zz]} {sweep_min_sqz[zz]} ")
+        file.write(f"{sweep_time_opt[zz]} {sweep_min_pops[zz,0]} ")
         file.write(" ".join([ str(sweep_max_pops[zz,manifold])
                               for manifold in _manifolds[1:] ]))
         file.write("\n")
