@@ -79,11 +79,6 @@
 \newcommand{\lra}{\leftrightarrow}
 \newcommand{\floor}[1]{\lfloor{#1}\rfloor}
 
-\def\obra#1{\mathinner{({#1}|}}
-\def\oket#1{\mathinner{|{#1})}}
-\def\obk#1{\mathinner{({#1})}}
-\def\oop#1#2{\oket{#1}\!\obra{#2}}
-
 \usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
 \setlist{nolistsep} % more compact spacing between environments
@@ -228,8 +223,8 @@ a physical implementation of multi-body spin interactions with $M>2$,
 considering this case will be necessary to construct low-lying
 eigenstates of $H_0$, which will in turn enable simulating the
 dynamics induced by non-perturbative additions $\hat\O$ to the SU($n$)
-Heisenberg model, with operator norms
-$\norm*{\hat\O}\sim\Delta_{\t{gap}}$.
+Heisenberg model, with operator norms $\norm*{\hat\O}$ comparable to
+the spectral gap $\Delta_{\t{gap}}$ of $H_0$.
 
 When the operator norm of $\hat\O$ is sufficiently small, namely
 $\norm*{\hat\O}<\Delta_{\t{gap}}/2$, we can treat its effect on the PS
@@ -261,7 +256,7 @@ coefficient $\bar w$ is the average of all $w_k$; and the collective
 operator $\col{X}$ is a permutation-averaged sum of all $X_k$, i.e.
 \begin{align}
   \bar w \equiv \f1{\abs{\D_N\p{M}}}
-  \sum_{k\in\D_N\p{M}} w_{\sigma\p{k}},
+  \sum_{k\in\D_N\p{M}} w_k,
   &&
   \col{X} \equiv \f1{\abs{\pi\p{M}}} \sum_{\sigma\in\pi\p{M}}
   \sum_{k\in\C_N\p{M}} X_{\sigma\p{k}},
