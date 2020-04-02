@@ -105,6 +105,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
+% todo: solve collective model; Casmir operators?
+
 \title{SU($n$) spin models near the Heisenberg critical point}%
 \author{Michael A. Perlin}%
 \date{\today}
@@ -115,10 +117,47 @@
 
 \section{Introduction}
 
-\red{TODO: write an introduction}
+SU($n$) symmetries play an important role in contemporary physics.
+Underpinning much of high energy physics, the celebrated SU($n$) gauge
+theory known as Yang-Mills theory is central to our understanding of
+the electroweak and strong forces.  Extensions of Yang-Mills and
+SU($n$) symmetry feature in the most well-studied examples of
+holographic duality\cite{maldacena1999largen} and the connection
+between entanglement and gravity\cite{ryu2006holographic} through the
+anti-de Sitter / conformal field theory (AdS/CFT) correspondence.  In
+a condensed matter setting, SU(2) appears ubiquitously as a symmetry
+of the Hubbard model, with important consequences for the study of
+quantum magnetism and high temperature
+superconductivity\cite{lee2006doping}.  The extension of SU(2) spin
+models to the case of SU($n$) has led to predictions of exotic new
+phases of matter\cite{hermele2009mott, hermele2011topological,
+  chen2016syntheticgaugefield, nataf2016chiral}, as well as the
+potential to perform universal topological quantum
+computation\cite{freedman2004class, nayak2008nonabelian}.
+Furthermore, the introduction of disorder into SU($n$) spin models has
+opened avenues for studying quantum chaos and information
+scrambling\cite{sachdev1993gapless, bentsen2019integrable}.
+
+Last but not least, SU($n$) symmetries appear naturally in the physics
+of atomic, molecular, and optical (AMO)
+systems\cite{beverland2016realizing, cazalilla2014ultracold,
+  gorshkov2010twoorbital, scazza2014observation, taie2012su,
+  zhang2014spectroscopic, goban2018emergence, perlin2019effective},
+enabling their experimental study with an exquisite level of control.
+These symmetries typically appear through the independence of
+inter-atomic interaction parameters on the $n$ nuclear spin states of
+the individual atoms involved, with e.g.~$n=10$ in the case of
+${}^{87}$Sr.
+
+
+\red{[finish introduction]}
+
+\vspace{3cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The SU($n$) Heisenberg model}
+
+% todo: give example of SU(2)
 
 We consider an array of $N$ multilevel spins with SU($n$)-symmetric
 interactions that can be written in the form
@@ -179,6 +218,10 @@ Hamiltonian $H_0$ in \eqref{eq:H_0} is
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Breaking SU($n$) symmetry}
 
+% todo: simplify, give examples at every step
+% todo: consider special case before a general one
+% todo: new symbol for X_w, e.g. O(X,w)
+
 In order to induce non-trivial dynamics for initially PS states
 $\ket\psi\in\M_0$, which are otherwise stationary eigenstates of the
 interaction Hamiltonian $H_0$ in \eqref{eq:H_0}, we will add to the
@@ -200,36 +243,23 @@ that $X_k$ acts on; $w_k$ is a scalar entry of $\m w$; and
 \end{align}
 is the strictly off-diagonal part of $\ZZ_N^M$.  The factor of $1/M!$
 is included in \eqref{eq:pert} by convention to average over the $M!$
-terms addressing any given set of spins.  Due to the permutational
-symmetry enforced by the interaction Hamiltonian $H_0$, we will find
-it convenient to decompose $\D_N\p{M}=\pi\p{M}\times\C_N\p{M}$, where
-$\pi\p{M}$ is the permutation group of $\ZZ_M$, and
-\begin{align}
-  \C_N\p{M} \equiv \set{ k \subset \ZZ_N: \abs{k} = M },
-  \label{eq:choices}
-\end{align}
-is the set of all subsets (``choices'') of $M$ elements from $\ZZ_N$.
-We can then expand
-\begin{align}
-  X_{\m w} = \f1{M!} \sum_{\sigma\in\pi\p{M}} \sum_{k\in\C_N\p{M}}
-  w_{\sigma\p{k}} X_{\sigma\p{k}}.
-\end{align}
-To simplify language and notation, we will assume throughout this work
-that $\hat\O$ is homogeneous in the sense that $M$ is the same for all
+terms addressing any given set of spins.  To simplify language and
+notation, we will assume throughout this work that $\hat\O$ is
+homogeneous in the sense that $M$ is the same for all
 $\p{X,\m w}\in\O$.  A generalization to the case of inhomogeneous
 operators $\hat\O$ is straightforward.
 
 Single-body ($M=1$) operators correspond to classical external fields,
 e.g.~$s_\z$ for a magnetic field, and two-body ($M=2$) operators
 correspond to two-body interactions that deviate from $H_0$, such as
-$s_\z\otimes s_\z$ interactions in an XXZ model\red{[TODO:cite]} near
-the Heisenberg critical point.  While we would be hard-pressed to find
-a physical implementation of multi-body spin interactions with $M>2$,
-considering this case will be necessary to construct low-lying
-eigenstates of $H_0$, which will in turn enable simulating the
-dynamics induced by non-perturbative additions $\hat\O$ to the SU($n$)
-Heisenberg model, with operator norms $\norm*{\hat\O}$ comparable to
-the spectral gap $\Delta_{\t{gap}}$ of $H_0$.
+$s_\z\otimes s_\z$ interactions in an XXZ model near the Heisenberg
+critical point.  While we would be hard-pressed to find a physical
+implementation of multi-body spin interactions with $M>2$, considering
+this case will be necessary to construct low-lying eigenstates of
+$H_0$, which will in turn enable simulating the dynamics induced by
+non-perturbative additions $\hat\O$ to the SU($n$) Heisenberg model,
+with operator norms $\norm*{\hat\O}$ comparable to the spectral gap
+$\Delta_{\t{gap}}$ of $H_0$.
 
 When the operator norm of $\hat\O$ is sufficiently small, namely
 $\norm*{\hat\O}<\Delta_{\t{gap}}/2$, we can treat its effect on the PS
@@ -249,16 +279,25 @@ is\cite{bravyi2011schrieffer, perlin2019effective}
 where $\P_\Delta$ is a projector onto the eigenspace $\E_\Delta$ of
 the interaction Hamiltonian $H_0$ with interaction energy $\Delta$
 above that of PS manifold $\M_0$.  In particular, $\P_0$ is a
-projector onto $\M_0$ itself, and $\E_0=\M_0$.  The first order
-effective Hamiltonian $H_{\t{eff}}^{(1)}$ is straightforward to
-simplify using the permutational symmetry of $\M_0$:
+projector onto $\M_0$ itself, and $\E_0=\M_0$. The first order
+effective Hamiltonian $H_{\t{eff}}^{(1)}$ simply projects the
+perturbation $\hat\O$ onto the permutationally-symmetric manifold
+$\M_0$, and takes the form
 \begin{align}
   H_{\t{eff}}^{(1)} \EQPS \sum_{\p{X,\m w}\in\O} \bar w\,\col{X},
   \label{eq:H_eff_1}
 \end{align}
 where $\EQPS$ denotes equality under a restriction to $\M_0$; the
 coefficient $\bar w$ is the average of all $w_k$; and the collective
-operator $\col{X}$ is a permutation-averaged sum of all $X_k$, i.e.
+operator $\col{X}$ is a sum of all $X_k$ averaged over permutations of
+any particular choice of spins $k\in\D_N\p{M}$.  To write out the
+collective operator $\col{X}$ explicitly, we define the set \begin{align}
+  \C_N\p{M} \equiv \set{ k \subset \ZZ_N: \abs{k} = M },
+  \label{eq:choices}
+\end{align}
+is the set of all subsets (``choices'') of $M$ elements from $\ZZ_N$,
+and the set $\pi\p{M}$ of all permutations of $M$ elements, in terms
+of which
 \begin{align}
   \bar w \equiv \f1{\abs{\D_N\p{M}}}
   \sum_{k\in\D_N\p{M}} w_k,
@@ -266,10 +305,13 @@ operator $\col{X}$ is a permutation-averaged sum of all $X_k$, i.e.
   \col{X} \equiv \f1{\abs{\pi\p{M}}} \sum_{\sigma\in\pi\p{M}}
   \sum_{k\in\C_N\p{M}} X_{\sigma\p{k}},
 \end{align}
-with $\abs{\D_N\p{M}}=\prod_{j=0}^{M-1}\p{N-j}$ and
-$\abs{\pi\p{M}}=M!$.  An immediate consequence of \eqref{eq:H_eff_1}
-is the fact that perturbing SU(2)-symmetric interactions by two-body
-$s_\z\otimes s_\z$ interactions yields the one-axis twisting (OAT)
+where $\abs{\D_N\p{M}}=\prod_{j=0}^{M-1}\p{N-j}$ and
+$\abs{\pi\p{M}}=M!$.  Here $k\in\C_N\p{M}$ defines which spins
+$X_{\sigma\p{k}}$ acts on, while $\sigma\in\pi\p{M}$ determines which
+tensor factor of $X$ each of these spins is associated with.  An
+immediate consequence of \eqref{eq:H_eff_1} is the fact that
+perturbing SU(2)-symmetric interactions by two-body $s_\z\otimes s_\z$
+interactions yields the one-axis twisting (OAT)
 Hamiltonian\cite{kitagawa1993squeezed, ma2011quantum}
 $H_{\t{OAT}}=\chi S_\z^2$ at first order in perturbation theory, with
 the OAT strength $\chi$ equal to the mean coefficient of the two-body
@@ -281,91 +323,29 @@ $\P_\Delta$ onto the manifold $\E_\Delta$ of states with excitation
 energy $\Delta$.  For each term $X_{\m w}$ of $\hat\O$, this projector
 essentially picks off the part of $X_{\m w}$ that is strictly
 off-diagonal with respect to the ground- and excited-state manifolds
-$\E_0$ and $\E_\Delta$.  To decompose $X_{\m w}$ into components that
-generate states of definite excitation energy when acting on PS states
-$\M_0$, we pick an arbitrary state $\ket\psi\in\M_0$ and expand (see
-Appendix \ref{sec:eigenstates})
+$\E_0$ and $\E_\Delta$.  We therefore need to decompose $X_{\m w}$
+into components that generate states of definite excitation energy
+when acting on PS states $\ket\psi\in\M_0$.  The SU($n$) symmetry of
+$H_0$ enables such a decomposition of the form
 \begin{align}
-  H_0 X_{\m w} \ket\psi
-  = E_0 X_{\m w} \ket\psi + X_{\hat{\m h}\p{\m w}} \ket\psi,
-  \label{eq:diagnosis}
+  H_0 X_{\m w}\ket\psi
+  = \sum_\Delta \p{E_0+\Delta} X_{\m w_\Delta} \ket\psi,
 \end{align}
-where $\hat{\m h}$ is a linear map on the space of dimension-$M$
-tensors, determined entirely by the couplings $h_{pq}$ in $H_0$.  The
-image $\hat{\m h}\p{\m w}$ of $\m w$ under $\hat{\m h}$ is then itself
-a dimension-$M$ tensor that defines the $M$-body operator
-$X_{\hat{\m h}\p{\m w}}$.  To write out $\hat{\m h}\p{\m w}$
-explicitly, we first define a matrix
-$\m h\equiv\sum_{p,q\in\ZZ_N} h_{pq} \op{p}{q}$ of all couplings in
-$H_0$ by enforcing that $h_{pq}=h_{qp}$ and $h_{pp}=0$.  We denote a
-contraction of $\m h$ with the $a$-th index of $\m w$ by
-$\m h_a\p{\m w}$, such that the $k$-th entry of $\m h_a\p{\m w}$ is
-\begin{align}
-  \m h_a\p{\m w}_k
-  \equiv \sum_{\substack{p\in\ZZ_N\\p\notin k}}
-  h_{pk_a} w_{k_1 k_2 \cdots k_{a-1} p k_{a+1} \cdots k_M}
-  = \sum_{\substack{p\in\ZZ_N\\p\notin k}} h_{pk_a} w_{k_{a:p}},
-\end{align}
-where if $k=\p{k_1,k_2,\cdots,k_M}$, then $k_{a:p}$ is the same list
-but with the $a$-th entry $k_a$ replaced by $p$.  We similarly define
-a tensor $\m h_{\t{P}}\p{\m w}$ with entries
-\begin{align}
-  \m h_{\t{P}}\p{\m w}_k
-  \equiv \sum_{\set{a,b}\in\C_M\p{2}} h_{k_ak_b} w_{k_{a\lra b}},
-\end{align}
-where $k_{a\lra b}$ is the same as $k$ but with the placement of $k_a$
-and $k_b$ swapped.  Finally, we define a tensor $\m h_{\t{D}}\p{\m w}$
-with entries
-\begin{align}
-  \m h_{\t{D}}\p{\m w}_k \equiv h^{\t{D}}_k w_k,
-  &&
-  h^{\t{D}}_k \equiv \sum_{p\in k} h_p
-  - \sum_{\set{a,b}\in\C_M\p{2}} h_{k_ak_b},
-  &&
-  h_p \equiv \sum_{q\in\ZZ_N} h_{pq}.
-\end{align}
-These definitions allow us to expand
-\begin{align}
-  \hat{\m h}\p{\m w}
-  \equiv \sum_{a\in\ZZ_M} \m h_a\p{\m w}
-  + \m h_{\t{P}}\p{\m w} - \m h_{\t{D}}\p{\m w}.
-  \label{eq:multi_body_op}
-\end{align}
-Viewed an operator on the vector space of dimension-$M$ tensors, the
-map $\hat{\m h}$ is real and symmetric under transposition, and is
-therefore diagonalizable.  Diagonalizing this operator yields
-eigenvalues $\Delta$ and eigenvectors $\m u_\Delta$ for which
-$\hat{\m h}\p{\m u_\Delta}=\Delta\m u_\Delta$.  Finding eigenvalues
-and eigenvectors of $\hat{\m h}$ nominally requires diagonalizing a
-matrix of dimensions $\abs{\D_N\p{M}}\times\abs{\D_N\p{M}}$, but
-spatial symmetries of $H_0$ and $X_{\m w}$, such as translational
-invariance or isotropy, can drastically reduce the complexity of this
-eigenvalue problem.  We discuss these reductions in Appendix
-\ref{sec:symmetries}.
+where, thinking of the tensor $\m w$ as a $\abs{\D_N\p{M}}$-component
+vector, the tensor $\m w_\Delta$ can be found found by diagonalizing a
+matrix $\hat{\m h}$ of dimensions
+$\abs{\D_N\p{M}}\times\abs{\D_N\p{M}}\sim N^M\times N^M$, and
+projecting $\m w$ onto the eigenspace of $\hat{\m h}$ with eigenvalue
+$\Delta$ (see Appendix \ref{sec:eigenstates}).  The matrix
+$\hat{\m h}$ is determined entirely by the couplings couplings
+$h_{pq}$ of $H_0$.  While the computational cost of diagonalizing
+$\hat{\m h}$ is nominally $O\p{N^{3M}}$, spatial symmetries of $H_0$
+and $X_{\m w}$ such as translational invariance or isotropy can
+drastically reduce the complexity of this eigenvalue problem.  We
+discuss this reduction in Appendix \ref{sec:symmetries}.
 
-Defining $\m w_\Delta$ to be the projection of the tensor $\m w$ onto
-the $\Delta$-eigenspace of $\hat{\m h}$, we can expand
-\begin{align}
-  \m w = \sum_\Delta \m w_\Delta,
-  &&
-  \hat{\m h}\p{\m w} = \sum_\Delta \Delta \m w_\Delta,
-\end{align}
-and in turn
-\begin{align}
-  X_{\m w} = \sum_\Delta X_{\m w_\Delta},
-  &&
-  X_{\hat{\m h}\p{\m w}} = \sum_\Delta \Delta X_{\m w_\Delta}.
-\end{align}
-Substituting these expansions into \eqref{eq:diagnosis}, we find
-\begin{align}
-  H_0 X_{\m w} \ket\psi
-  = \sum_\Delta\p{E_0 + \Delta} X_{\m w_\Delta} \ket\psi,
-\end{align}
-which implies that the action of $X_{\m w_\Delta}$ on a PS state
-$\ket\psi\in\M_0$ generates a state with definite interaction energy
-$E_0+\Delta$.  It follows that
-$\P_\Delta X_{\m w} \P_0 = \P_\Delta X_{\m w_\Delta} \P_0 =
-X_{\m{w}_\Delta} \P_0$, so
+Equipped with the decomposition of $X_{\m w}$ into terms that generate
+states of definite excitation energy, we can expand
 \begin{align}
   H_{\t{eff}}^{(2)} = -\sum_{\Delta\ne0} \f1\Delta
   \sum_{\p{X,\m v},\p{Y,\m w}\in\O}
@@ -397,6 +377,8 @@ perturbation theory.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Beyond ground-state perturbation theory}
+
+% give examples of these manifolds in SU(2)
 
 In order to find the effective Hamiltonian $H_{\t{eff}}^{(2)}$ induced
 by the multi-body operator $\hat\O$ on the PS manifold $\M_0$ at
@@ -430,13 +412,13 @@ sketched out in Figure \ref{fig:manifold_sketch}.
     -- (10em+2.4em+.4em,6em+.4em) -- (10em+2.4em+.2em,6em+.4em);
     \node (cM1) at (10em+2.4em+1.5em,3em) {$\col\M_2$};
   \end{tikzpicture}
-  \caption{Schematic of low-lying multi-body manifolds.  Starting with
-    the permutationally-state manifold $\M_0$, the single-body
-    excitation manifold $\M_1$ consists of states accessible via
-    single-body perturbations $\hat\O_1$.  The two-body excitation
-    manifold $\hat\O_2$ then consists of states accessible via
-    two-body perturbations, but not single-body perturbations.  The
-    joint manifold $\col\M_M$ consists of all states accessible by
+  \caption{Schematic of low-lying multi-body excitation manifolds.
+    Starting with the permutationally-state manifold $\M_0$, the
+    single-body excitation manifold $\M_1$ consists of states
+    accessible via single-body perturbations $\hat\O_1$.  The two-body
+    excitation manifold $\hat\O_2$ then consists of states accessible
+    via two-body perturbations, but not single-body perturbations.
+    The joint manifold $\col\M_M$ consists of all states accessible by
     operators $r$-body operators $\O_r$ with $r\le M$.}
   \label{fig:manifold_sketch}
 \end{figure}
@@ -509,19 +491,17 @@ define $\1_1\equiv\1$.  We now need to determine the set of $r$-body
 operators $\set{O}$ and dimension-$r$ tensors $\set{\m u}$ that define
 our basis for each $\M_r$.  As an initial guess for $\set{\m u}$, we
 can choose the set $\set{\m u_\Delta}_{\m h,r}$ of dimension-$r$
-tensors $\m u_\Delta$ that generate eigenstates of $H_0$, i.e.~for
-which $\hat{\m h}\p{\m u_\Delta} = \Delta \m u_\Delta$, with
-$\hat{\m h}$ defined in \eqref{eq:multi_body_op}.  The set of $r$-body
-operators to choose is less obvious, but can be determined by an
-exhaustive search over all $r$-body operators relevant to a particular
-scenario.  Specifically, the purpose of projecting operators onto
-$\col\M_{r_{\t{max}}}$ is to simulate the dynamics induced by some
-operator $\hat\O$ of the form in \eqref{eq:pert}, constructed from a
-set $\O=\set{\p{X,\m w}}$ containing multi-spin operators $X$.  In
-order to find a basis for the {\it relevant} states in $\M_r$, one can
-simply consider the set $\set{O}_{\O,r}$ all $r$-spin operators that
-can be constructed from products of the multi-spin operators $X$ in
-$\O$.
+tensors $\m u_\Delta$ that generate eigenstates of $H_0$.  The set of
+$r$-body operators to choose is less obvious, but can be determined by
+an exhaustive search over all $r$-body operators relevant to a
+particular scenario.  Specifically, the purpose of projecting
+operators onto $\col\M_{r_{\t{max}}}$ is to simulate the dynamics
+induced by some operator $\hat\O$ of the form in \eqref{eq:pert},
+constructed from a set $\O=\set{\p{X,\m w}}$ containing multi-spin
+operators $X$.  In order to find a basis for the {\it relevant} states
+in $\M_r$, one can simply consider the set $\set{O}_{\O,r}$ all
+$r$-spin operators that can be constructed from products of the
+multi-spin operators $X$ in $\O$.
 
 In general, the states $\ket{O,\m u_\Delta,m}$ for all
 $\p{O,\m u_\Delta,m}\in\set{O}_{\O,r}\times\set{\m u_\Delta}_{\m h,r}
@@ -565,6 +545,7 @@ to be orthogonal.
 \section{Existence of a spectral gap with long-range power-law
   interactions}
 \label{sec:spectral_gap}
+% todo: make a sub subsection of B.1
 
 Here we show that power-law SU($n$)-symmetric interactions of the form
 in \eqref{eq:H_0} with $h_{pq}=-h/\abs{p-q}^\alpha$ yield a
@@ -928,14 +909,15 @@ case, we can replace sums over $k\in\D_N\p{M}$ in
 over $k\in\C_N\p{M}$, and replace vectors
 $\ket{\p{k_1,k_2,\cdots,k_M}}\to\ket{\set{k_1,k_2,\cdots,k_M}}$, such
 that e.g.~$\ket{k_{a\lra b}}=\ket{k}$.  These replacements reduce the
-size of $\hat{\m h}$ from $N!_M\times N!_M$ to
-${N\choose M}\times{N\choose M}$, where
-$N!_M=M!\times{N\choose M}=\prod_{j=0}^{M-1}\p{N-j}$ denotes a falling
-factorial.  We discuss further reduction of the eigenvalue problem in
-\eqref{eq:multi_body_problem} by use of additional symmetries in
-Section \ref{sec:symmetries}.
+size of $\hat{\m h}$ from $\abs{\D_N\p{M}}\times\abs{\D_N\p{M}}$ to
+$\abs{\C_N\p{M}}\times\abs{\C_N\p{M}}$, where
+$\abs{\D_N\p{M}}=M!\times{N\choose M}=\prod_{j=0}^{M-1}\p{N-j}$ and
+$\abs{\C_N\p{M}}={N\choose M}$.  We discuss further reduction of the
+eigenvalue problem in \eqref{eq:multi_body_problem} by use of
+additional symmetries in Section \ref{sec:symmetries}.
 
-Some special cases: if $M=1$, then $h^{\t{D}}_k=h_k$, so
+Some special cases of practical interest: if $M=1$, then
+$h^{\t{D}}_k=h_k$, so
 \begin{align}
   \hat{\m h} \stackrel{M=1}{=} \sum_{k\in\ZZ_N} \ket{k}
   \sp{\sum_{\substack{p\in\ZZ_N\\p\ne k}} h_{pk} \bra{p} - h_k \bra{k}}
