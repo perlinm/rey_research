@@ -114,12 +114,10 @@ for data_file in glob.glob(data_dir + "inspect_" + name_tag() + "_z*.txt"):
     plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
 
 ##########################################################################################
-print("plotting sweep data")
-
 title_text = f"${common_title}$"
-
 sweep_file = data_dir + "sweep_" + name_tag() + ".txt"
 if not os.path.isfile(sweep_file): exit()
+print("plotting sweep data")
 
 sweep_data = np.loadtxt(sweep_file)
 with open(sweep_file, "r") as file:
