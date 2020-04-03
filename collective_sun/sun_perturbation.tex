@@ -107,7 +107,7 @@
 
 % todo: solve collective model; Casmir operators?
 
-\title{SU($n$) spin models near the Heisenberg critical point}%
+\title{SU($n$) ferromagnets near the Heisenberg critical point}%
 \author{Michael A. Perlin}%
 \date{\today}
 
@@ -117,16 +117,16 @@
 
 \section{Introduction}
 
-SU($n$) symmetries play an important role in contemporary physics.
-Underpinning much of high energy physics, the celebrated SU($n$) gauge
-theory known as Yang-Mills theory is central to our understanding of
-the electroweak and strong forces.  Extensions of Yang-Mills and
-SU($n$) symmetry feature in the most well-studied examples of
-holographic duality\cite{maldacena1999largen} and the connection
-between entanglement and gravity\cite{ryu2006holographic} through the
-anti-de Sitter / conformal field theory (AdS/CFT) correspondence.  In
-a condensed matter setting, SU(2) appears ubiquitously as a symmetry
-of the Hubbard model, with important consequences for the study of
+SU($n$) symmetries play an important role in physics.  Underpinning
+much of high energy physics, the celebrated SU($n$) gauge theory known
+as Yang-Mills theory is central to our understanding of the
+electroweak and strong forces.  Extensions of Yang-Mills and SU($n$)
+symmetry feature in the most well-studied examples of holographic
+duality\cite{maldacena1999largen} and the connection between
+entanglement and gravity\cite{ryu2006holographic} through the anti-de
+Sitter / conformal field theory (AdS/CFT) correspondence.  In a
+condensed matter setting, SU(2) appears ubiquitously as a symmetry of
+the Hubbard model, with important consequences for the study of
 quantum magnetism and high temperature
 superconductivity\cite{lee2006doping}.  The extension of the SU(2)
 Hubbard model to SU($n$) has led to predictions of exotic phases of
@@ -157,25 +157,62 @@ SU($n$)-symmetric interactions\cite{goban2018emergence,
 SU($n$) symmetries makes it all the more exciting that they appear in
 experimental platforms with exquisite degrees of microscopic control,
 thereby enabling the detailed study of these symmetries' consequences
-for fundamental questions in physics, as well as their use in
-practical technological applications.  SU(2)-symmetric interactions,
-for example, can play an important role in the development of quantum
+for fundamental questions in physics, as well as their practical use
+in technological applications.  SU(2)-symmetric interactions, for
+example, can play an important role in the development of quantum
 sensors that make use of entanglement to surpass classical limits on
 measurement precision\cite{he2019engineering}\red{[cite XXZ squeezing
   paper]}.  The exciting prospect of similarly exploiting larger
 SU($n$) symmetries to achieve a technological advantage is still an
-unexplored avenue with enormous potential.
+unexplored avenue of research with enormous potential.
 
+In this work, we generalize some of the techniques used to harness
+SU(2)-symmetric spin interactions for metrological advantage to the
+case of SU($n$).  In doing so, we develop a low-energy effective
+theory of gapped SU($n$) ferromagnets with weakly broken SU($n$)
+symmetry, e.g.~by the presence of external fields or additional
+interaction terms.  The restriction of our theory to ferromagnetic
+interactions can be relaxed to the assumption of
+\begin{enumerate*}
+\item an initial state in the manifold of permutationally-symmetric
+  states, a multilevel generalization of the Dicke manifold for
+  two-level spins, together with the assumption that
+\item this manifold is gapped away from states that break
+  permutational symmetry.
+\end{enumerate*}
+In addition to working out the effective Hamiltonian induced by weak
+SU($n$) symmetry breaking through second order in perturbation theory,
+we develop a diagrammatic method to systematically compute all matrix
+elements of arbitrary spin operators restricted manifolds of weakly
+broken permutation symmetry, thereby enabling the numerical simulation
+of dynamics induced by larger, non-perturbative modifications to the
+SU($n$) Heisenberg model.  While the latter simulations generally
+accumulate uncontrolled truncation errors, we identify criteria under
+which numerical results correctly capture the qualitative dynamical
+behavior of a system.
 
+In the following section, \ref{sec:bare_sun}, we introduce the SU($n$)
+Heisenberg model, finding a convenient way to express its Hamiltonian
+in terms of permutation operators that are agnostic to the value of
+$n$.  In Section \ref{sec:breaking_sun}, we consider the introduction
+of general spin operators, such as inhomogeneous external fields, that
+weakly break SU($n$) symmetry.  We sketch out a derivation of the
+effective Hamiltonian induced by these terms through second order in
+perturbation theory, deferring more detailed calculations to
+Appendices \ref{sec:eigenstates} and \ref{sec:operator_product}.
+Finally, we discuss a numerical method to simulate dynamics within
+manifolds of weak permutational symmetry breaking in Section
+\ref{sec:shell_model}, before concluding in Section
+\ref{sec:conclusions}.  Wherever possible, we will fall back to the
+broadly familiar case of SU(2) in order to facilitate an understanding
+of the general result for SU($n$).
 
-\red{[finish introduction]}
-
-\vfill
-
-\vspace{3cm}
+\red{[re-visit / revise the introduction after finishing the remaining
+  text]}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The SU($n$) Heisenberg model}
+\label{sec:bare_sun}
 
 % todo: give example of SU(2)
 
@@ -198,7 +235,8 @@ states of spins $p$ and $q$.  The permutation operator $\Pi_{pq}$ is
 essentially a multilevel generalization of the SU(2)-symmetric spin
 interaction $\v s_p\c\v s_q$, with $\v s\equiv\p{\v s_\x,s_\y,s_\z}$,
 $s_\alpha\equiv\sigma_\alpha/2$, and $\sigma_\alpha$ a single-spin
-Pauli operator.
+Pauli operator.  This permutation operator is equivalently the
+multilevel SWAP operation, which merely swaps the state of two spins.
 
 If the coefficients $h_{pq}$ of the interaction Hamiltonian $H_0$ are
 all negative, then the ground-state manifold $\M_0$ of the interaction
@@ -225,18 +263,18 @@ then the number of such assignments, which is straightforward to
 determine with a standard ``stars and bars'' calculation:
 $\abs{\A_n\p{N}} = {N+n-1 \choose n-1} \sim N^{n-1}$.  In the case of
 $n=2$, for example, the PS manifold $\M_0$ is precisely the Dicke
-manifold\cite{dicke1954coherence} of $N$ qubits, spanned by
-${N+2-1\choose2-1}=N+1$ Dicke states $\ket{m_0,m_1}$ for which
-$m_0+m_1=N$ and the integer $m_0$ ($m_1$) indicates the total
-occupation number of qubit state $\ket{0}$ ($\ket{1}$).  The energy of
-any PS state $\ket\psi\in\M_0$ with respect to the interaction
-Hamiltonian $H_0$ in \eqref{eq:H_0} is
+manifold of $N$ qubits, spanned by ${N+2-1\choose2-1}=N+1$ Dicke
+states $\ket{m_0,m_1}$ for which $m_0+m_1=N$ and the integer $m_0$
+($m_1$) indicates the total occupation number of qubit state $\ket{0}$
+($\ket{1}$).  The energy of any PS state $\ket\psi\in\M_0$ with
+respect to the interaction Hamiltonian $H_0$ in \eqref{eq:H_0} is
 \begin{align}
   E_0 = \sum_{\set{p,q}\in\C_N\p{2}} h_{pq}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Breaking SU($n$) symmetry}
+\label{sec:breaking_sun}
 
 % todo: simplify, give examples at every step
 % todo: consider special case before a general one
@@ -395,8 +433,11 @@ is the covariance between $\m v$ and $\m w$.  In the SU(2) case,
 ($X\propto s_\z$) yields an OAT Hamiltonian at second order
 perturbation theory.
 
+% briefly add expression for the third order Hamiltonian
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Beyond ground-state perturbation theory}
+\label{sec:shell_model}
 
 % give examples of these manifolds in SU(2)
 
@@ -551,7 +592,8 @@ numbers of single-spin states $\mu\in\ZZ_n$ are similarly guaranteed
 to be orthogonal.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{The XXZ model}
+\section{Conclusions}
+\label{sec:conclusions}
 
 
 \red{[TODO: write section]}
