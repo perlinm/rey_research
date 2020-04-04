@@ -49,6 +49,7 @@
 \newcommand{\D}{\mathcal{D}}
 \newcommand{\E}{\mathcal{E}}
 \newcommand{\G}{\mathcal{G}}
+\renewcommand{\H}{\mathcal{H}}
 \newcommand{\I}{\mathcal{I}}
 \renewcommand{\L}{\mathcal{L}}
 \newcommand{\M}{\mathcal{M}}
@@ -175,7 +176,7 @@ interaction terms.  The restriction of our theory to ferromagnetic
 interactions can be relaxed to the assumption of
 \begin{enumerate*}
 \item an initial state in the manifold of permutationally-symmetric
-  states, a multilevel generalization of the Dicke manifold for
+  states, a multi-level generalization of the Dicke manifold for
   two-level spins, together with the assumption that
 \item this manifold is gapped away from states that break
   permutational symmetry.
@@ -214,63 +215,90 @@ of the general result for SU($n$).
 \section{The SU($n$) Heisenberg model}
 \label{sec:bare_sun}
 
-% todo: give example of SU(2)
-
-We consider an array of $N$ multilevel spins with SU($n$)-symmetric
-interactions that can be written in the form
+Before getting to the full SU($n$) Heisenberg model, we first revisit
+the more common case of SU(2).  The SU(2) Heisenberg model consists of
+$N$ two-level spins on a lattice, with spin-aligning interactions
 \begin{align}
-  H_0 = \sum_{\set{p,q}\in\C_N\p{2}} h_{pq} \Pi_{pq},
+  H_0 = \sum_{\substack{\t{spin pairs}\\\set{i,j}}}
+  h_{ij} \m s_i \c\m s_j,
+  \label{eq:H_SU2}
+\end{align}
+where
+$\m s_i\equiv\p{\sigma_\x^{(i)},\sigma_\y^{(i)},\sigma_\z^{(i)}}/2$ is
+a spin vector defined with Pauli operators $\sigma_\alpha^{(i)}$
+acting on the spin at lattice site $i$.  In the traditional language
+of spin physics, each term of this Hamiltonian essentially imposes an
+energy penalty of $h_{ij}$ to the formation of a spin 0 singlet state
+$\ket{\up\dn}-\ket{\dn\up}$ between spins $i$ and $j$, favoring spin
+triplet states with total spin 1.  Another interpretation of the
+Hamiltonian in \eqref{eq:H_SU2} is illuminated by the observation that
+the two-spin operator $\m s_i\c\m s_j$ is, up to an overall constant,
+essentially the two-qubit SWAP operation $\Pi_{ij}$.  We will also
+refer to $\Pi_{ij}$ as {\it permutation operator}, because its action
+on the Hilbert space $\H\equiv\bigotimes_{k=1}^N\H_k$ of $N$ spins
+with individual Hilbert spaces $\H_k$ is to permute the tensor factors
+of $\H$ associated with spins $i$ and $j$.  Up to identity terms with
+no physical consequence, we then have
+\begin{align}
+  H_0 = \sum_{\substack{\t{spin pairs}\\\set{i,j}}} h_{ij} \Pi_{ij},
   &&
-  \Pi_{pq} \equiv \sum_{\mu,\nu\in\ZZ_n} s_{\mu\nu}^{(p)} s_{\nu\mu}^{(q)},
+  \Pi_{ij} \equiv \sum_{\substack{\t{spin states}\\\mu,\nu}}
+  s_{\mu\nu}^{(i)} s_{\nu\mu}^{(j)}
+  = \sum_{\substack{\t{spin states}\\\mu,\nu}} \op{\mu\nu}{\nu\mu}_{ij},
   \label{eq:H_0}
 \end{align}
-where $p,q$ index individual spins; $\C_N\p{2}$ is the set of all
-subsets (``choices'') of two spins out of $N$; $h_{pq}$ are scalar
-coupling constants; $\mu,\nu$ index states in an orthonormal basis for
-the $n$-dimensional Hilbert space of a single spin; $\ZZ_n$ is the set
-of integers modulo $n$; the operator
-$s_{\mu\nu}^{(p)}\equiv\op{\mu}{\nu}_p$ flips the state of spin $p$ to
-$\ket\nu$ from $\ket\mu$; and the operator $\Pi_{pq}$ permutes the
-states of spins $p$ and $q$.  The permutation operator $\Pi_{pq}$ is
-essentially a multilevel generalization of the SU(2)-symmetric spin
-interaction $\v s_p\c\v s_q$, with $\v s\equiv\p{\v s_\x,s_\y,s_\z}$,
-$s_\alpha\equiv\sigma_\alpha/2$, and $\sigma_\alpha$ a single-spin
-Pauli operator.  This permutation operator is equivalently the
-multilevel SWAP operation, which merely swaps the state of two spins.
+% todo: insert visualization of SWAP operation
+where $s_{\mu\nu}^{(i)}\equiv\op{\mu}{\nu}_i$ is a spin-transition
+operator for spin $i$, and $\mu,\nu\in\set{\up,\dn}$ index the states
+of a single spin.  In addition to providing a nice interpretation of
+the Hamiltonian $H_0$ as essentially swapping the states of spins $i$
+and $j$ at a rate $h_{ij}$, the definition of the SU(2)-symmetric
+Heisenberg model in in \eqref{eq:H_0} is straightforward to generalize
+to SU($n$) with arbitrary $n$.  That is, rather than having
+$\mu,\nu\in\set{\up,\dn}$, we simply let
+$\mu,\nu\in\set{1,2,\cdots,n}$ index orthogonal states (sometimes
+called {\it colors} or {\it flavors}) of an $n$-level spin.
 
-If the coefficients $h_{pq}$ of the interaction Hamiltonian $H_0$ are
-all negative, then the ground-state manifold $\M_0$ of the interaction
-Hamiltonian $H_0$ consists of permutationally symmetric (PS) states
-that are simultaneous $+1$ eigenstates of all permutation operators
-$\Pi_{pq}$.  We will assume that all $h_{pq}<0$ throughout these
+If the coefficients $h_{ij}$ of the interaction Hamiltonian $H_0$ are
+all negative, then the ground-state manifold $\M_0$ of $H_0$ consists
+of spin-polarized, {\it permutationally symmetric} (PS) states that
+are simultaneous $+1$ eigenstates of all permutation operators
+$\Pi_{ij}$.  We will assume that all $h_{ij}<0$ throughout these
 notes, but note that this restriction can be relaxed to the assumption
-that the initial state of all spins is permutationally symmetric
-(e.g.~a spin-polarized state).  We will also assume that the PS
-manifold $\M_0$ is gapped away from all orthogonal states by an
-interaction energy $\Delta_{\t{gap}}>0$.  Power-law couplings of the
-form $h_{pq}\sim-1/\abs{p-q}^\alpha$ on a $D$-dimensional lattice, for
-example, always yield a non-vanishing spectral gap $\Delta_{\t{gap}}$
-for long-range interactions with $\alpha\le D$ (see Appendix
-\ref{sec:spectral_gap}).
+that the initial state of all spins is a permutationally-symmetric
+state.  We will also assume that the PS manifold $\M_0$ is gapped away
+from all orthogonal states by an interaction energy
+$\Delta_{\t{gap}}>0$.  Power-law couplings of the form
+$h_{ij}\sim-1/\abs{\m r_i-\m r_j}^\alpha$ on a $D$-dimensional
+lattice, for example, always yield a non-vanishing spectral gap
+$\Delta_{\t{gap}}$ for long-range interactions with $\alpha\le D$ (see
+Appendix \ref{sec:spectral_gap}).  Here $\m r_i$ denotes the position
+of lattice site $i$.
 
-The PS manifold $\M_0$ is spanned by a basis of states
+In the case of SU(2), the PS manifold $\M_0$ is precisely the {\it
+  Dicke manifold} spanned by the PS states $\ket{m_\up,m_\dn}$ with a
+definite (integer) number $m_\mu\ge0$ of spins occupying the
+single-spin state $\mu\in\set{\up,\dn}$.  If there are $N$ spins
+total, then Dicke states $\ket{m_\up,m_\dn}$ must have
+$m_\up+m_\dn=N$.  In the case of multi-level spins, the PS manifold
+$\M_0$ is similarly spanned by states
 $\ket{m}=\ket{m_1,m_2,\cdots,m_n}$ with a definite occupation number
-$m_\mu$ of the single-spin state $\mu$, and $\sum_\mu m_\mu=N$.  We
-denote the set of all such assignments of $N$ (identical) spins to $n$
-(distinct) states by $\A_n\p{N}$, such that our standard basis for
-$\M_0$ is $\set{\ket{m}:m\in\A_n\p{N}}$.  The dimension of $\M_0$ is
-then the number of such assignments, which is straightforward to
-determine with a standard ``stars and bars'' calculation:
-$\abs{\A_n\p{N}} = {N+n-1 \choose n-1} \sim N^{n-1}$.  In the case of
-$n=2$, for example, the PS manifold $\M_0$ is precisely the Dicke
-manifold of $N$ qubits, spanned by ${N+2-1\choose2-1}=N+1$ Dicke
-states $\ket{m_0,m_1}$ for which $m_0+m_1=N$ and the integer $m_0$
-($m_1$) indicates the total occupation number of qubit state $\ket{0}$
-($\ket{1}$).  The energy of any PS state $\ket\psi\in\M_0$ with
-respect to the interaction Hamiltonian $H_0$ in \eqref{eq:H_0} is
+$m_\mu\ge0$ of the single-spin state $\mu$, with $\sum_\mu m_\mu=N$.
+These states are essentially labeled by an assignment
+$m=\p{m_1,m_2,\cdots,m_n}$ of $N$ (identical) spins to $n$ (distinct)
+states.  We denote the set of all such assignments by $\A_n\p{N}$,
+such that our standard basis for $\M_0$ is
+$\set{\ket{m}:m\in\A_n\p{N}}$.  The dimension of $\M_0$, or
+equivalently the ground-state degeneracy of $H_0$, is straightforward
+to determine with a standard ``stars and bars'' calculation:
+$\dim\M_0=\abs{\A_n\p{N}} = {N+n-1 \choose n-1} \sim N^{n-1}$.  The
+energy of any PS state $\ket\psi\in\M_0$ with respect to the
+interaction Hamiltonian $H_0$ in \eqref{eq:H_0} is
 \begin{align}
-  E_0 = \sum_{\set{p,q}\in\C_N\p{2}} h_{pq}.
+  E_0 = \sum_{\substack{\t{spin pairs}\\\set{i,j}}} h_{ij}
+  = \sum_{i<j} h_{ij},
 \end{align}
+where $i,j\in\set{1,2,\cdots,N}$ index individual lattice sites.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Breaking SU($n$) symmetry}
@@ -641,6 +669,7 @@ Defining $\epsilon\equiv2/L$ and a rescaled domain symmetrized about
 $0$, $\SS_\epsilon\simeq\ZZ_L/\epsilon$ with
 $\SS_\epsilon\subset\sp{-1,1}$, we substitute $x\simeq\epsilon d$ to
 get
+% todo: define \simeq
 \begin{align}
   \Delta
   = h \sum_{\substack{x\in\SS_\epsilon^D\\\abs{x}\ge\epsilon}}
