@@ -26,7 +26,7 @@ else:
 
 alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
 max_manifold = int(sys.argv[2])
-lattice_shape = tuple(map(int, sys.argv[3:]))
+lattice_shape = tuple(map(int, sys.argv[3].split("x")))
 
 # values of the ZZ coupling to inspect more closely
 inspect_coupling_zz = [ -1, 0, 0.5, 1.5 ]
@@ -43,11 +43,8 @@ ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 data_dir = "../data/spins/"
 proj_dir = "../data/projectors/"
 
-def name_tag(coupling_zz = None):
-    lattice_name = "_".join([ str(size) for size in lattice_shape ])
-    base_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
-    if coupling_zz == None: return base_tag
-    else: return base_tag + f"_z{coupling_zz}"
+lattice_name = "x".join([ str(size) for size in lattice_shape ])
+name_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
 
 ##################################################
 
@@ -249,7 +246,7 @@ for coupling_zz in inspect_coupling_zz:
     _manifolds = [ manifold for manifold in manifolds
                    if not _is_zero(pops[:,manifold]) ]
 
-    with open(data_dir + f"inspect_{name_tag(coupling_zz)}.txt", "w") as file:
+    with open(data_dir + f"inspect_{name_tag}_z{coupling_zz}.txt", "w") as file:
         file.write("# times, squeezing, populations (within each manifold)\n")
         for idx, manifold in enumerate(_manifolds):
             file.write(f"# manifold {manifold} : {idx}\n")
@@ -278,7 +275,7 @@ sweep_max_pops = np.array([ pops.max(axis = 0) for pops in sweep_pops ])
 _manifolds = [ manifold for manifold in manifolds
                if not _is_zero(sweep_max_pops[:,manifold]) ]
 
-with open(data_dir + f"sweep_{name_tag()}.txt", "w") as file:
+with open(data_dir + f"sweep_{name_tag}.txt", "w") as file:
     file.write("# coupling_zz, sqz_min, time_opt, min_pop_0, max_pop (for manifolds > 0)\n")
     file.write("# manifolds : ")
     file.write(" ".join([ str(manifold) for manifold in _manifolds ]))

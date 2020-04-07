@@ -12,8 +12,8 @@ if len(sys.argv) < 4:
 
 alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
 max_manifold = int(sys.argv[2])
-lattice_shape = tuple(map(int, sys.argv[3:-1]))
-sim_type = sys.argv[-1]
+lattice_shape = tuple(map(int, sys.argv[3].split("x")))
+sim_type = sys.argv[4]
 
 assert(sim_type in [ "shells", "spins" ])
 
@@ -38,14 +38,11 @@ if sim_type == "spins" and project:
     data_dir += "proj_"
     fig_dir += "proj_"
 
-##########################################################################################
-
 if np.allclose(alpha, int(alpha)): alpha = int(alpha)
-def name_tag(coupling_zz = None):
-    lattice_name = "_".join([ str(size) for size in lattice_shape ])
-    base_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
-    if coupling_zz == None: return base_tag
-    else: return base_tag + f"_z{coupling_zz}"
+lattice_name = "x".join([ str(size) for size in lattice_shape ])
+name_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
+
+##########################################################################################
 
 def pop_label(manifold, subscript = None):
     label = r"\braket{\mathcal{M}_{" + str(manifold) + r"}}"
@@ -63,7 +60,7 @@ print("plotting inspection data")
 lattice_text = r"\times".join([ str(size) for size in lattice_shape ])
 common_title = f"L={lattice_text},~\\alpha={alpha}"
 
-for data_file in glob.glob(data_dir + "inspect_" + name_tag() + "_z*.txt"):
+for data_file in glob.glob(data_dir + f"inspect_{name_tag}" + "_z*.txt"):
     coupling_zz = data_file.split("_")[-1][1:-4]
     title_text = f"${common_title},~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
 
@@ -94,7 +91,7 @@ for data_file in glob.glob(data_dir + "inspect_" + name_tag() + "_z*.txt"):
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel(r"squeezing ($10\log_{10}\xi^2$)")
     plt.tight_layout()
-    plt.savefig(fig_dir + f"squeezing_{name_tag(coupling_zz)}.pdf")
+    plt.savefig(fig_dir + f"squeezing_{name_tag}_z{coupling_zz}.pdf")
 
     plt.figure(figsize = figsize)
     plt.title(title_text)
@@ -111,11 +108,11 @@ for data_file in glob.glob(data_dir + "inspect_" + name_tag() + "_z*.txt"):
     plt.ylabel("population")
     plt.legend(loc = "best")
     plt.tight_layout()
-    plt.savefig(fig_dir + f"populations_{name_tag(coupling_zz)}.pdf")
+    plt.savefig(fig_dir + f"populations_{name_tag}_z{coupling_zz}.pdf")
 
 ##########################################################################################
 title_text = f"${common_title}$"
-sweep_file = data_dir + "sweep_" + name_tag() + ".txt"
+sweep_file = data_dir + f"sweep_{name_tag}.txt"
 if not os.path.isfile(sweep_file): exit()
 print("plotting sweep data")
 
@@ -139,7 +136,7 @@ plt.ylim(plt.gca().get_ylim()[0], 0)
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
 plt.tight_layout()
-plt.savefig(fig_dir + f"squeezing_{name_tag()}.pdf")
+plt.savefig(fig_dir + f"squeezing_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
 plt.title(title_text)
@@ -147,7 +144,7 @@ plt.plot(sweep_coupling_zz, sweep_time_opt, "ko")
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel(r"$t_{\mathrm{opt}} J_\perp$")
 plt.tight_layout()
-plt.savefig(fig_dir + f"time_opt_{name_tag()}.pdf")
+plt.savefig(fig_dir + f"time_opt_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
 plt.title(title_text)
@@ -158,6 +155,6 @@ plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel("population")
 plt.legend(loc = "best", handletextpad = 0.1)
 plt.tight_layout()
-plt.savefig(fig_dir + f"populations_{name_tag()}.pdf")
+plt.savefig(fig_dir + f"populations_{name_tag}.pdf")
 
 print("completed")

@@ -24,7 +24,7 @@ else:
 
 alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
 max_manifold = int(sys.argv[2])
-lattice_shape = tuple(map(int, sys.argv[3:]))
+lattice_shape = tuple(map(int, sys.argv[3].split("x")))
 
 # values of the ZZ coupling to inspect more closely
 inspect_coupling_zz = [ -1, 0, 0.5, 1.5 ]
@@ -38,11 +38,8 @@ ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
 data_dir = "../data/shells/"
 
-def name_tag(coupling_zz = None):
-    lattice_name = "_".join([ str(size) for size in lattice_shape ])
-    base_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
-    if coupling_zz == None: return base_tag
-    else: return base_tag + f"_z{coupling_zz}"
+lattice_name = "x".join([ str(size) for size in lattice_shape ])
+name_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
 
 ##################################################
 
@@ -189,7 +186,7 @@ sys.stdout.flush()
 for coupling_zz in inspect_coupling_zz:
     times, sqz, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
 
-    with open(data_dir + f"inspect_{name_tag(coupling_zz)}.txt", "w") as file:
+    with open(data_dir + f"inspect_{name_tag}_z{coupling_zz}.txt", "w") as file:
         file.write("# times, squeezing, populations (within each shell)\n")
         for manifold, shells in sunc["shells"].items():
             file.write(f"# manifold {manifold} : ")
@@ -219,7 +216,7 @@ sweep_pops = [ np.array([ pops[:min_idx,shells].sum(axis = 1)
 sweep_min_pops = np.array([ pops.min(axis = 0) for pops in sweep_pops ])
 sweep_max_pops = np.array([ pops.max(axis = 0) for pops in sweep_pops ])
 
-with open(data_dir + f"sweep_{name_tag()}.txt", "w") as file:
+with open(data_dir + f"sweep_{name_tag}.txt", "w") as file:
     file.write("# coupling_zz, sqz_min, time_opt, min_pop_0, max_pop (for manifolds > 0)\n")
     file.write("# manifolds : ")
     file.write(" ".join([ str(manifold) for manifold in sunc["shells"].keys() ]))
