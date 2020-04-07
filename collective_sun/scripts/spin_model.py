@@ -281,7 +281,7 @@ _manifolds = [ manifold for manifold in manifolds
 with open(data_dir + f"sweep_{name_tag()}.txt", "w") as file:
     file.write("# coupling_zz, sqz_min, time_opt, min_pop_0, max_pop (for manifolds > 0)\n")
     file.write("# manifolds : ")
-    file.write(" ".join([ str(manifold) for manifold in manifolds ]))
+    file.write(" ".join([ str(manifold) for manifold in _manifolds ]))
     file.write("\n")
     for zz in range(len(sweep_coupling_zz)):
         file.write(f"{sweep_coupling_zz[zz]} {sweep_min_sqz[zz]} ")
