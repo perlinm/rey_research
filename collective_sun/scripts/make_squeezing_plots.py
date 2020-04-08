@@ -30,9 +30,12 @@ plt.rcParams.update(params)
 
 data_dir = f"../data/{sim_type}/"
 fig_dir = f"../figures/{sim_type}/"
+inspect_dir = fig_dir + "inspect/"
 
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
+if not os.path.isdir(inspect_dir):
+    os.makedirs(inspect_dir)
 
 if sim_type == "spins" and project:
     data_dir += "proj_"
@@ -60,7 +63,8 @@ print("plotting inspection data")
 lattice_text = r"\times".join([ str(size) for size in lattice_shape ])
 common_title = f"L={lattice_text},~\\alpha={alpha}"
 
-for data_file in glob.glob(data_dir + f"inspect_{name_tag}" + "_z*.txt"):
+inspect_files = glob.glob(data_dir + f"inspect_{name_tag}" + "_z*.txt")
+for data_file in inspect_files:
     coupling_zz = data_file.split("_")[-1][1:-4]
     title_text = f"${common_title},~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
 
@@ -83,15 +87,9 @@ for data_file in glob.glob(data_dir + f"inspect_{name_tag}" + "_z*.txt"):
     except:
         sqz_end = len(times)
 
-    plt.figure(figsize = figsize)
+    plt.figure("sqz", figsize = figsize)
     plt.title(title_text)
-    plt.plot(times[:sqz_end], to_dB(sqz[:sqz_end]), "k")
-    plt.xlim(0, plt.gca().get_xlim()[1])
-    plt.ylim(plt.gca().get_ylim()[0], 0)
-    plt.xlabel(r"time ($J_\perp t$)")
-    plt.ylabel(r"squeezing ($10\log_{10}\xi^2$)")
-    plt.tight_layout()
-    plt.savefig(fig_dir + f"squeezing_{name_tag}_z{coupling_zz}.pdf")
+    plt.plot(times[:sqz_end], to_dB(sqz[:sqz_end]), label = f"${coupling_zz}$")
 
     plt.figure(figsize = figsize)
     plt.title(title_text)
@@ -108,7 +106,16 @@ for data_file in glob.glob(data_dir + f"inspect_{name_tag}" + "_z*.txt"):
     plt.ylabel("population")
     plt.legend(loc = "best")
     plt.tight_layout()
-    plt.savefig(fig_dir + f"populations_{name_tag}_z{coupling_zz}.pdf")
+    plt.savefig(inspect_dir + f"populations_{name_tag}_z{coupling_zz}.pdf")
+
+if inspect_files:
+    plt.figure("sqz")
+    plt.gca().set_ylim(top = 0)
+    plt.xlabel(r"time ($J_\perp t$)")
+    plt.ylabel(r"squeezing ($10\log_{10}\xi^2$)")
+    plt.legend(loc = "best")
+    plt.tight_layout()
+    plt.savefig(inspect_dir + f"squeezing_{name_tag}.pdf")
 
 ##########################################################################################
 title_text = f"${common_title}$"
