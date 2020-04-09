@@ -8,12 +8,10 @@ from dicke_methods import spin_op_vec_mat_dicke, coherent_spin_state, plot_dicke
 from squeezing_methods import spin_squeezing
 
 fig_dir = "../figures/"
-params = { "text.usetex" : True }
-plt.rcParams.update(params)
-fig_dpi = 301
-grid_size = 201
+fig_dpi = 600
+grid_size = 1001
 
-N = 50
+N = 40
 max_tau = 2
 time_steps = 1000
 ivp_tolerance = 1e-5
@@ -26,7 +24,7 @@ methods = [ "OAT", "TAT", "TNT" ]
 OAT, TAT, TNT = methods
 
 def save_state(state, file_name):
-    plot_dicke_state(state, grid_size = grid_size, figsize = (2,2), white_sphere = True)
+    plot_dicke_state(state, grid_size = grid_size, figsize = (1,1))
     plt.gca().set_rasterized(True)
     plt.gca().set_rasterization_zorder(1)
     plt.savefig(fig_dir + file_name, rasterized = True, dpi = fig_dpi)

@@ -91,13 +91,21 @@ def coherent_spin_state(vec, N = 10):
 # plotting states on the S = N/2 Bloch sphere
 ##########################################################################################
 
-def plot_dicke_state(state, grid_size = 101, single_sphere = True,
-                     white_sphere = False, figsize = None):
+try:
+    import cmocean
+    def sphere_cmap(color_vals):
+        return cmocean.cm.amp(color_vals)
+except ModuleNotFoundError:
+    def sphere_cmap(color_vals):
+        return plt.cm.get_cmap("inferno")(1-color_vals)
+
+def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = None):
     N = state.size-1
-    if single_sphere:
-        if figsize is None: figsize = plt.figaspect(1)
-    else:
-        if figsize is None: figsize = plt.figaspect(0.5)
+    if figsize is None:
+        if single_sphere:
+            figsize = plt.figaspect(1)
+        else:
+            figsize = plt.figaspect(0.5)
     fig = plt.figure(figsize = figsize)
     ax = Axes3D(fig)
 
@@ -112,12 +120,7 @@ def plot_dicke_state(state, grid_size = 101, single_sphere = True,
     color_vals = np.vectorize(color_val)(theta, phi)
     norm = colors.Normalize(vmin = np.min(color_vals),
                             vmax = np.max(color_vals), clip = False)
-    if not white_sphere:
-        color_map = plt.cm.inferno(norm(color_vals))
-        shape = False
-    else:
-        color_map = plt.cm.get_cmap("gist_heat")(1-norm(color_vals))
-        shade = True
+    color_map = sphere_cmap(norm(color_vals))
 
     ax_lims = np.array([-1,1]) * 0.6
     ax.set_xlim(ax_lims)
@@ -130,15 +133,15 @@ def plot_dicke_state(state, grid_size = 101, single_sphere = True,
     if single_sphere:
         y_vals -= asymmetry
         ax.plot_surface(x_vals, y_vals, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, shade = shade, zorder = 0)
+                        facecolors = color_map, zorder = 0)
     else:
         y_vals -= 2*asymmetry
         y_offset = 1.1
         y_lims = 2*ax_lims
         ax.plot_surface(x_vals, y_vals-y_offset, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, shade = shade, zorder = 0)
+                        facecolors = color_map, zorder = 0)
         ax.plot_surface(-x_vals, y_vals+y_offset, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, shade = shade, zorder = 0)
+                        facecolors = color_map, zorder = 0)
         ax.set_ylim(y_lims)
 
     ax.set_axis_off()
