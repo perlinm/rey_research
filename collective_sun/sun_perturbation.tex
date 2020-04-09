@@ -159,7 +159,7 @@ SU($n$) symmetries makes it all the more exciting that they appear in
 experimental platforms with exquisite degrees of microscopic control,
 thereby enabling the detailed study of these symmetries' consequences
 for fundamental questions in physics, as well as their practical use
-in technological applications.  SU(2)-symmetric interactions, for
+in technological applications.  SU(2)-symmetric spin interactions, for
 example, can play an important role in the development of quantum
 sensors that make use of entanglement to surpass classical limits on
 measurement precision\cite{he2019engineering}\red{[cite XXZ squeezing
@@ -194,9 +194,10 @@ behavior of a system.
 
 In the following section, \ref{sec:bare_sun}, we introduce the SU($n$)
 Heisenberg model, finding a convenient way to express its Hamiltonian
-in terms of permutation operators that are agnostic to the value of
-$n$.  In Section \ref{sec:breaking_sun}, we consider the introduction
-of general spin operators, such as inhomogeneous external fields, that
+in terms of SWAP operations that are agnostic to the value of $n$.  In
+Section \ref{sec:breaking_sun}, we consider modifying the Hamiltonian
+of the bare Heisenberg model by the addition of spin operators,
+corresponding to e.g.~external fields or additional interactions, that
 weakly break SU($n$) symmetry.  We sketch out a derivation of the
 effective Hamiltonian induced by these terms through second order in
 perturbation theory, deferring more detailed calculations to
@@ -206,7 +207,7 @@ manifolds of weak permutational symmetry breaking in Section
 \ref{sec:shell_model}, before concluding in Section
 \ref{sec:conclusions}.  Wherever possible, we will fall back to the
 broadly familiar case of SU(2) in order to facilitate an understanding
-of the general result for SU($n$).
+of the generalizations to SU($n$).
 
 \red{[re-visit / revise the introduction after finishing the remaining
   text]}
@@ -224,21 +225,22 @@ $N$ two-level spins on a lattice, with spin-aligning interactions
   \label{eq:H_SU2}
 \end{align}
 where
-$\m s_i\equiv\p{\sigma_\x^{(i)},\sigma_\y^{(i)},\sigma_\z^{(i)}}/2$ is
-a spin vector defined with Pauli operators $\sigma_\alpha^{(i)}$
-acting on the spin at lattice site $i$.  In the traditional language
-of spin physics, each term of this Hamiltonian essentially imposes an
-energy penalty of $h_{ij}$ to the formation of a spin 0 singlet state
-$\ket{\up\dn}-\ket{\dn\up}$ between spins $i$ and $j$, favoring spin
-triplet states with total spin 1.  Another interpretation of the
-Hamiltonian in \eqref{eq:H_SU2} is illuminated by the observation that
-the two-spin operator $\m s_i\c\m s_j$ is, up to an overall constant,
-essentially the two-qubit SWAP operation $\Pi_{ij}$.  We will also
-refer to $\Pi_{ij}$ as {\it permutation operator}, because its action
-on the Hilbert space $\H\equiv\bigotimes_{k=1}^N\H_k$ of $N$ spins
-with individual Hilbert spaces $\H_k$ is to permute the tensor factors
-of $\H$ associated with spins $i$ and $j$.  Up to identity terms with
-no physical consequence, we then have
+$\m s_i\equiv\f12\p{\sigma_\x^{(i)},\sigma_\y^{(i)},\sigma_\z^{(i)}}$
+is a spin vector defined with Pauli operators $\sigma_\alpha^{(i)}$
+acting on the spin at lattice site $i$.  In the standard language of
+spin physics, each term of this Hamiltonian essentially imposes an
+energy penalty of $-h_{ij}$ to the formation of a spin 0 singlet state
+$\ket{\up\dn}-\ket{\dn\up}$ between spins $i$ and $j$, favoring the
+formation of spin triplet states with total spin 1.  Another
+interpretation of the Hamiltonian in \eqref{eq:H_SU2} is illuminated
+by the observation that the two-spin operator $\m s_i\c\m s_j$ is, up
+to an overall constant, essentially the two-qubit SWAP operation
+$\Pi_{ij}$.  We will also refer to $\Pi_{ij}$ as {\it permutation
+  operator}, because its action on the Hilbert space
+$\H\equiv\bigotimes_{k=1}^N\H_k$ of $N$ spins with individual Hilbert
+spaces $\H_k$ is to permute the tensor factors of $\H$ associated with
+spins $i$ and $j$ (see Figure \ref{fig:sketch_spins}).  Up to identity
+terms with no physical consequence, we then have
 \begin{align}
   H_0 = \sum_{\substack{\t{spin pairs}\\\set{i,j}}} h_{ij} \Pi_{ij},
   &&
@@ -247,7 +249,6 @@ no physical consequence, we then have
   = \sum_{\substack{\t{spin states}\\\mu,\nu}} \op{\mu\nu}{\nu\mu}_{ij},
   \label{eq:H_0}
 \end{align}
-% todo: insert visualization of SWAP operation
 where $s_{\mu\nu}^{(i)}\equiv\op{\mu}{\nu}_i$ is a spin-transition
 operator for spin $i$, and $\mu,\nu\in\set{\up,\dn}$ index the states
 of a single spin.  In addition to providing a nice interpretation of
@@ -255,9 +256,24 @@ the Hamiltonian $H_0$ as essentially swapping the states of spins $i$
 and $j$ at a rate $h_{ij}$, the definition of the SU(2)-symmetric
 Heisenberg model in in \eqref{eq:H_0} is straightforward to generalize
 to SU($n$) with arbitrary $n$.  That is, rather than having
-$\mu,\nu\in\set{\up,\dn}$, we simply let
-$\mu,\nu\in\set{1,2,\cdots,n}$ index orthogonal states (sometimes
+$\mu,\nu\in\set{\up,\dn}$ index two spin states, we simply let
+$\mu,\nu\in\set{1,2,\cdots,n}$ index the orthogonal states (sometimes
 called {\it colors} or {\it flavors}) of an $n$-level spin.
+
+\begin{figure}
+  \centering
+  \includegraphics[valign=m]{sketch_spins.pdf}
+  $\stackrel{\displaystyle\Pi_{ij}}
+  {\displaystyle\longleftrightarrow}$
+  \includegraphics[valign=m]{sketch_spins_swap.pdf}
+  \caption{The permutation operator $\Pi_{ij}$ swaps the states of
+    spins $i$ and $j$, which in the case of SU(2) can be represented
+    by magnetization vectors in 3-dimensional space.  In the case of
+    SU($n$), these vectors live in a higher-dimensional space without
+    a clear geometric interpretation, but the interpretation of the
+    permutation operator $\Pi_{ij}$ remains the same.}
+  \label{fig:sketch_spins}
+\end{figure}
 
 If the coefficients $h_{ij}$ of the interaction Hamiltonian $H_0$ are
 all negative, then the ground-state manifold $\M_0$ of $H_0$ consists
@@ -303,6 +319,9 @@ where $i,j\in\set{1,2,\cdots,N}$ index individual lattice sites.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Breaking SU($n$) symmetry}
 \label{sec:breaking_sun}
+
+
+\vspace{3cm}
 
 % todo: simplify, give examples at every step
 % todo: consider special case before a general one
