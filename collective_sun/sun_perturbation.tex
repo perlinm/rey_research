@@ -131,14 +131,16 @@ the Hubbard model, with important consequences for the study of
 quantum magnetism and high temperature
 superconductivity\cite{lee2006doping}.  The extension of the SU(2)
 Hubbard model to SU($n$) has led to predictions of exotic phases of
-matter such as chiral spin liquids\cite{hermele2009mott,
-  hermele2011topological, chen2016syntheticgaugefield,
-  nataf2016chiral}, as well as the potential to perform universal
-topological quantum computation\cite{freedman2004class,
-  nayak2008nonabelian}.  Furthermore, the consideration of disordered
-SU($n$) spin models has opened analytically tractable avenues for
-studying quantum chaos and information
-scrambling\cite{sachdev1993gapless, bentsen2019integrable}.
+matter such as valence bond solids\cite{read1989valencebond,
+  rokhsar1990quadratic, kaul2012lattice, hermele2011topological} and
+chiral spin liquids\cite{hermele2009mott, hermele2011topological,
+  chen2016syntheticgaugefield, nataf2016chiral}, as well as the
+potential to perform universal topological quantum
+computation\cite{freedman2004class, nayak2008nonabelian}.
+Furthermore, the consideration of disordered SU($n$) spin models has
+opened analytically tractable avenues for studying quantum chaos and
+information scrambling\cite{sachdev1993gapless,
+  bentsen2019integrable}.
 
 Last but not least, SU($n$) symmetries appear naturally in the physics
 of atomic, molecular, and optical (AMO)
@@ -186,11 +188,11 @@ SU($n$) symmetry breaking through second order in perturbation theory,
 we develop a diagrammatic method to systematically compute all matrix
 elements of arbitrary spin operators restricted manifolds of weakly
 broken permutation symmetry, thereby enabling the numerical simulation
-of dynamics induced by larger, non-perturbative modifications to the
-SU($n$) Heisenberg model.  While the latter simulations generally
-accumulate uncontrolled truncation errors, we identify criteria under
-which numerical results correctly capture the qualitative dynamical
-behavior of a system.
+of dynamics induced by non-perturbative modifications to the SU($n$)
+Heisenberg model.  While the latter simulations generally accumulate
+uncontrolled truncation errors, we identify criteria under which
+numerical results correctly capture the qualitative dynamical behavior
+of a system.
 
 In the following section, \ref{sec:bare_sun}, we introduce the SU($n$)
 Heisenberg model, finding a convenient way to express its Hamiltonian
@@ -235,7 +237,7 @@ formation of spin triplet states with total spin 1.  Another
 interpretation of the Hamiltonian in \eqref{eq:H_SU2} is illuminated
 by the observation that the two-spin operator $\m s_i\c\m s_j$ is, up
 to an overall constant, essentially the two-qubit SWAP operation
-$\Pi_{ij}$.  We will also refer to $\Pi_{ij}$ as {\it permutation
+$\Pi_{ij}$.  We will refer to $\Pi_{ij}$ as {\it permutation
   operator}, because its action on the Hilbert space
 $\H\equiv\bigotimes_{k=1}^N\H_k$ of $N$ spins with individual Hilbert
 spaces $\H_k$ is to permute the tensor factors of $\H$ associated with
@@ -282,10 +284,10 @@ are simultaneous $+1$ eigenstates of all permutation operators
 $\Pi_{ij}$.  We will assume that all $h_{ij}<0$ throughout these
 notes, but note that this restriction can be relaxed to the assumption
 that the initial state of all spins is a permutationally-symmetric
-state.  We will also assume that the PS manifold $\M_0$ is gapped away
-from all orthogonal states by an interaction energy
-$\Delta_{\t{gap}}>0$.  Power-law couplings of the form
-$h_{ij}\sim-1/\abs{\m r_i-\m r_j}^\alpha$ on a $D$-dimensional
+state (e.g.~a spin-polarized state).  We will also assume that the PS
+manifold $\M_0$ is gapped away from all orthogonal states by an
+interaction energy $\Delta_{\t{gap}}>0$.  Power-law couplings of the
+form $h_{ij}\sim-1/\abs{\m r_i-\m r_j}^\alpha$ on a $D$-dimensional
 lattice, for example, always yield a non-vanishing spectral gap
 $\Delta_{\t{gap}}$ for long-range interactions with $\alpha\le D$ (see
 Appendix \ref{sec:spectral_gap}).  Here $\m r_i$ denotes the position
@@ -307,8 +309,8 @@ such that our standard basis for $\M_0$ is
 $\set{\ket{m}:m\in\A_n\p{N}}$.  The dimension of $\M_0$, or
 equivalently the ground-state degeneracy of $H_0$, is straightforward
 to determine with a standard ``stars and bars'' calculation:
-$\dim\M_0=\abs{\A_n\p{N}} = {N+n-1 \choose n-1} \sim N^{n-1}$.  The
-energy of any PS state $\ket\psi\in\M_0$ with respect to the
+$\dim\p{\M_0}=\abs{\A_n\p{N}} = {N+n-1 \choose n-1} \sim N^{n-1}$.
+The energy of any PS state $\ket\psi\in\M_0$ with respect to the
 interaction Hamiltonian $H_0$ in \eqref{eq:H_0} is
 \begin{align}
   E_0 = \sum_{\substack{\t{spin pairs}\\\set{i,j}}} h_{ij}
@@ -486,7 +488,9 @@ perturbation theory.
 \section{Beyond ground-state perturbation theory}
 \label{sec:shell_model}
 
-% give examples of these manifolds in SU(2)
+% todo: give examples of these manifolds in SU(2)
+% todo: clarify connection between multi-body excitation manifolds
+%       and manifolds of fixed total spin in the SU(2) case
 
 In order to find the effective Hamiltonian $H_{\t{eff}}^{(2)}$ induced
 by the multi-body operator $\hat\O$ on the PS manifold $\M_0$ at
