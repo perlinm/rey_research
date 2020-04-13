@@ -101,7 +101,7 @@ shell_coupling_mat \
 print("building collective spin operators")
 sys.stdout.flush()
 
-# build a collective spin operator
+# build collective spin operators
 def _pauli_mat(pauli):
     tensors = [np.ones(spin_num)]
     operators = [local_ops[pauli]]

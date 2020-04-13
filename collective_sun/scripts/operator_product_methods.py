@@ -7,7 +7,7 @@ import networkx as nx
 import functools, operator
 
 from itertools_extension import multinomial, unique_permutations, \
-    assignments, set_diagrams
+    assignments, multinomial, set_diagrams
 
 _chars = "abcdefghijklmnopqrstuvwxyz"
 _chars += _chars.upper()
@@ -306,66 +306,12 @@ def _is_diagonal(operator):
     # check whether the matrix is zero in all columns after the first
     return not np.any(diagonal_test[:,1:])
 
-# find matrix element of a multi-local operator in the permutationally symmetric manifold
-# TODO: make faster?
-def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None, diagonal = None):
-    if pops_rht == None:
-        pops_rht = pops_lft
-
-    assert(len(pops_lft) == len(pops_rht))
-    assert(sum(pops_lft) == sum(pops_rht))
-    if local_op.ndim == 0: return pops_lft == pops_rht
-
-    spin_dim = local_op.shape[0]
-    op_spins = local_op.ndim//2
-
-    if diagonal is None:
-        diagonal = _is_diagonal(local_op)
-
-    def _remainder(pops,assignment):
-        return tuple( np.array(pops) - np.array(assignment) )
-
-    def _state_idx(assignment):
-        states = [ (jj,)
-                   for jj in range(len(assignment))
-                   for _ in range(assignment[jj]) ]
-        return functools.reduce(operator.add, states)
-
-    # determine overall normalization factor of the permutationally symmetric states
-    if pops_lft == pops_rht:
-        log_norm = np.log( float(multinomial(pops_lft)) )
-    else:
-        log_norm = 1/2 * ( np.log(float(multinomial(pops_lft))) +
-                           np.log(float(multinomial(pops_rht))) )
-
-    op_val = 0
-    for assignment_lft in assignments(op_spins, spin_dim):
-
-        remainder = _remainder(pops_lft, assignment_lft)
-        if any( pop < 0 for pop in remainder ): continue
-
-        assignment_rht = _remainder(pops_rht, remainder)
-        if any( assignment < 0 for assignment in assignment_rht ): continue
-
-        # TODO: compute remainder_perms in a better way?
-        remainder_perms = np.exp( np.log(float(multinomial(remainder))) - log_norm )
-        base_state_lft = _state_idx(assignment_lft)
-
-        if diagonal:
-            for state in unique_permutations(base_state_lft):
-                op_val += remainder_perms * local_op[ state + state ]
-        else:
-            base_state_rht = _state_idx(assignment_rht)
-            for state_lft, state_rht in it.product(unique_permutations(base_state_lft),
-                                                   unique_permutations(base_state_rht)):
-                op_val += remainder_perms * local_op[ state_lft + state_rht ]
-
-    return op_val
-
 # build a multi-local operator in the permutationally symmetric manifold
 def build_multi_local_op(spin_num, spin_dim, local_op,
                          diagonal = None, diagonal_values = False,
-                         _collective_states = {}):
+                         collective_states = {}):
+
+    dim_PS = np.math.comb(spin_num+spin_dim-1,spin_dim-1)
 
     # determine dimension of each spin, and total number of spins
     if op_spins := int(np.math.log(np.sqrt(local_op.size), spin_dim)):
@@ -373,31 +319,23 @@ def build_multi_local_op(spin_num, spin_dim, local_op,
 
     else: # local_op is a scalar
         if diagonal_values:
-            return local_op * np.ones(np.math.comb(spin_num+spin_dim-1,spin_dim-1))
+            return local_op * np.ones(dim_PS)
         else:
-            return local_op * np.eye(np.math.comb(spin_num+spin_dim-1,spin_dim-1))
+            return local_op * np.eye(dim_PS)
 
-    # identify basis for the permutationally symmetric manifold
-    # collect dictionary in the form { [spin_assignment] : [state_index] }
-    if ( spin_num, spin_dim ) not in _collective_states:
-        _collective_states[( spin_num, spin_dim )] \
-            = { state : idx for idx, state in enumerate(assignments(spin_num, spin_dim)) }
-    collective_states = _collective_states[( spin_num, spin_dim )]
+    if op_spins > spin_num:
+        if diagonal_values:
+            return np.zeros(dim_PS)
+        else:
+            return np.zeros((dim_PS,)*2)
 
     # determine whether this operator is diagonal
     if diagonal is None:
         diagonal = _is_diagonal(local_op)
 
-    # if we were just asked for the diagonal vlaues, return them
-    if diagonal_values:
-        assert(diagonal)
-        return np.array([ evaluate_multi_local_op(local_op, state)
-                          for state in collective_states ])
-
-    # otherwise, determine which matrix elements of the full operator to compute...
+    # determine the population differences (i.e. transitions) induced by this operator
     if diagonal:
-        state_pairs = ( ( state, idx, state, idx )
-                        for state, idx in collective_states.items() )
+        transitions = set([ (0,)*spin_dim ])
 
     else:
         nonzero_indices = local_op.nonzero()
@@ -406,29 +344,81 @@ def build_multi_local_op(spin_num, spin_dim, local_op,
 
         def counts(state):
             return np.array([ np.count_nonzero(state == mu) for mu in range(spin_dim) ])
-        state_changes = set( tuple( counts(state_rht) - counts(state_lft) )
-                             for state_lft, state_rht in zip(states_lft, states_rht) )
+        transitions = set( tuple( counts(state_lft) - counts(state_rht) )
+                           for state_lft, state_rht in zip(states_lft, states_rht) )
 
-        def shift_state(state, pop_diff):
-            new_state = np.array(state) + np.array(pop_diff)
-            if any( new_state < 0 ): return None
-            return tuple(new_state)
+    # shift a permutationally symmetric state by a given transition
+    def shift_state(state, transition):
+        new_state = np.array(state) + np.array(transition)
+        if any( new_state < 0 ): return None
+        return tuple(new_state)
 
-        # todo: this currently includes pairs that we know evaluate to zero.
-        #       eliminate these pairs.
-        state_pairs = ( ( state_lft, idx_lft, state_rht, collective_states[state_rht] )
-                        for state_lft, idx_lft in collective_states.items()
-                        for state_change in state_changes
-                        if ( state_rht := shift_state(state_lft, state_change) ) )
+    # identify bases for the relevant permutationally symmetric manifolds
+    for num in [ spin_num, op_spins ]:
+        if ( num, spin_dim ) not in collective_states:
+            collective_states[num,spin_dim] \
+                = { state : idx for idx, state in enumerate(assignments(num, spin_dim)) }
 
-    # ... and compute those matrix elements
-    dim_PS = len(collective_states)
-    full_op = np.zeros((dim_PS,)*2)
-    for state_lft, idx_lft, state_rht, idx_rht in state_pairs:
-        full_op[idx_lft, idx_rht] \
-            = evaluate_multi_local_op(local_op, state_lft, state_rht, diagonal = diagonal)
+    def state_pairs(num):
+        return ( (state_lft, state_rht)
+                 for state_rht in collective_states[num,spin_dim]
+                 for transition in transitions
+                 if (state_lft := shift_state(state_rht, transition)) )
 
-    return full_op
+    def base_state(assignment):
+        states = [ (jj,)
+                   for jj in range(len(assignment))
+                   for _ in range(assignment[jj]) ]
+        return functools.reduce(operator.add, states)
+
+    # compute matrix elements of the permutation-symmetrized local operator
+    #   multiplied by a multinomial factor
+    local_op_sym_mult = {}
+    for pops_lft, pops_rht in state_pairs(op_spins):
+        base_lft = base_state(pops_lft)
+        base_rht = base_state(pops_rht)
+
+        if diagonal:
+            local_op_sym_mult[pops_lft,pops_rht] \
+                = sum( local_op[ state + state ]
+                       for state in unique_permutations(base_rht) )
+        else:
+            local_op_sym_mult[pops_lft,pops_rht] \
+                = sum( local_op[ state_lft + state_rht ]
+                       for state_lft, state_rht
+                       in it.product(unique_permutations(base_lft),
+                                     unique_permutations(base_rht)) )
+
+    # get a matrix element of the full operator
+    def get_matrix_element(state_full_lft, state_full_rht, elem = {}):
+        val = 0
+        log_coef_full = sum( np.log(float(multinomial(state)))
+                             for state in [ state_full_lft, state_full_rht ] )
+        for state_locl_lft, state_locl_rht in state_pairs(op_spins):
+            state_diff_rht = np.array(state_full_rht) - np.array(state_locl_rht)
+            if any( state_diff_rht < 0 ): continue
+            state_diff_lft = np.array(state_full_lft) - np.array(state_locl_lft)
+            if any( state_diff_lft < 0 ): continue
+
+            log_coef_locl = sum( np.log(float(multinomial(state)))
+                                 for state in [ state_diff_lft, state_diff_rht ] )
+            coef = np.exp( ( log_coef_locl - log_coef_full ) / 2 )
+            val += coef * local_op_sym_mult[state_locl_lft,state_locl_rht]
+
+        return val
+
+    # compute and return the full operator
+    if diagonal_values:
+        assert(diagonal)
+        return np.array([ get_matrix_element(state, state)
+                          for state in collective_states[spin_num,spin_dim] ])
+    else:
+        full_op = np.zeros((dim_PS,)*2)
+        for state_lft, state_rht in state_pairs(spin_num):
+            idx_lft = collective_states[spin_num,spin_dim][state_lft]
+            idx_rht = collective_states[spin_num,spin_dim][state_rht]
+            full_op[idx_lft,idx_rht] = get_matrix_element(state_lft, state_rht)
+        return full_op
 
 # return two lists characterizing the operator content of a multi-local operator product.
 # both lists are organized by "bare" diagrams containing filled dots,
