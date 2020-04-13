@@ -68,12 +68,12 @@ def to_dB(sqz):
 print("plotting inspection data")
 
 lattice_text = r"\times".join([ str(size) for size in lattice_shape ])
-common_title = f"L={lattice_text},~\\alpha={alpha}"
+common_title = f"$L={lattice_text}$, $\\alpha={alpha}$"
 
 inspect_files = glob.glob(data_dir + f"inspect_{name_tag}" + "_z*.txt")
 for data_file in inspect_files:
     coupling_zz = data_file.split("_")[-1][1:-4]
-    title_text = f"${common_title},~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
+    coupling_title = f"{common_title}, $J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
 
     data = np.loadtxt(data_file, dtype = complex)
     times = data[:,0].real
@@ -101,11 +101,10 @@ for data_file in inspect_files:
         sqz_end = len(times)
 
     plt.figure("sqz", figsize = figsize)
-    plt.title(title_text)
     plt.plot(times[:sqz_end], to_dB(sqz[:sqz_end]), label = f"${coupling_zz}$")
 
     plt.figure(figsize = figsize)
-    plt.title(title_text)
+    plt.title(coupling_title)
     for manifold, shells in manifold_shells.items():
         manifold_pops = pops[:,shells].sum(axis = 1)
         if np.allclose(max(manifold_pops),0): continue
@@ -123,6 +122,7 @@ for data_file in inspect_files:
 
 if inspect_files:
     plt.figure("sqz")
+    plt.title(common_title)
     plt.gca().set_ylim(top = 0)
     plt.xlabel(r"time ($J_\perp t$)")
     plt.ylabel(r"squeezing ($10\log_{10}\xi^2$)")
@@ -131,7 +131,6 @@ if inspect_files:
     plt.savefig(inspect_dir + f"squeezing_{name_tag}.pdf")
 
 ##########################################################################################
-title_text = f"${common_title}$"
 sweep_file = data_dir + f"sweep_{name_tag}.txt"
 if not os.path.isfile(sweep_file): exit()
 print("plotting sweep data")
@@ -156,7 +155,7 @@ sweep_min_pops_0 = sweep_data[:,9].real
 sweep_max_pops = sweep_data[:,10:].real
 
 plt.figure(figsize = figsize)
-plt.title(title_text)
+plt.title(common_title)
 plt.plot(sweep_coupling_zz, to_dB(sweep_min_sqz), "ko")
 plt.ylim(plt.gca().get_ylim()[0], 0)
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
@@ -165,7 +164,7 @@ plt.tight_layout()
 plt.savefig(fig_dir + f"squeezing_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
-plt.title(title_text)
+plt.title(common_title)
 plt.plot(sweep_coupling_zz, sweep_time_opt, "ko")
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel(r"$t_{\mathrm{opt}} J_\perp$")
@@ -173,7 +172,7 @@ plt.tight_layout()
 plt.savefig(fig_dir + f"time_opt_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
-plt.title(title_text)
+plt.title(common_title)
 plt.plot(sweep_coupling_zz, sweep_min_pops_0, "o", label = pop_label(0,"min"))
 for manifold, max_pops in zip(manifolds[1:], sweep_max_pops.T):
     plt.plot(sweep_coupling_zz, max_pops, "o", label = pop_label(manifold,"max"))
