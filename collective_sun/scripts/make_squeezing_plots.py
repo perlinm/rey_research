@@ -10,6 +10,14 @@ if len(sys.argv) < 4:
     print(f"usage: {sys.argv[0]} [alpha] [max_manifold] [lattice_shape] [shells/spins]")
     exit()
 
+# determine whether to use data from "projected" simulations
+#   (for the case of exact spin simulations)
+if "proj" in sys.argv:
+    project = True
+    sys.argv.remove("proj")
+else:
+    project = False
+
 alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
 max_manifold = int(sys.argv[2])
 lattice_shape = tuple(map(int, sys.argv[3].split("x")))
@@ -17,7 +25,6 @@ sim_type = sys.argv[4]
 
 assert(sim_type in [ "shells", "spins" ])
 
-project = True # use data from "projected" simulations?
 plot_all_shells = False # plot the population for each shell?
 squeezing_refline = True # mark optimal squeezing time in population time-series plots?
 
@@ -68,10 +75,16 @@ for data_file in inspect_files:
     coupling_zz = data_file.split("_")[-1][1:-4]
     title_text = f"${common_title},~J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
 
-    data = np.loadtxt(data_file)
-    times = data[:,0]
-    sqz = data[:,1]
-    pops = data[:,2:]
+    data = np.loadtxt(data_file, dtype = complex)
+    times = data[:,0].real
+    correlators = { (0,1,0) : data[:,1],
+                    (1,0,0) : data[:,2],
+                    (0,2,0) : data[:,3],
+                    (2,0,0) : data[:,4],
+                    (1,1,0) : data[:,5],
+                    (1,0,1) : data[:,6] }
+    sqz = data[:,7].real
+    pops = data[:,8:].real
 
     manifold_shells = {}
     with open(data_file, "r") as file:
@@ -123,18 +136,24 @@ sweep_file = data_dir + f"sweep_{name_tag}.txt"
 if not os.path.isfile(sweep_file): exit()
 print("plotting sweep data")
 
-sweep_data = np.loadtxt(sweep_file)
+sweep_data = np.loadtxt(sweep_file, dtype = complex)
 with open(sweep_file, "r") as file:
     for line in file:
         if "# manifolds : " in line:
             manifolds = line.split()[3:]
         if line[0] != "#": break
 
-sweep_coupling_zz = sweep_data[:,0]
-sweep_min_sqz = sweep_data[:,1]
-sweep_time_opt = sweep_data[:,2]
-sweep_min_pops_0 = sweep_data[:,3]
-sweep_max_pops = sweep_data[:,4:]
+sweep_coupling_zz = sweep_data[:,0].real
+sweep_time_opt = sweep_data[:,1].real
+sweep_min_sqz = sweep_data[:,2].real
+sweep_correlators_opt = { "Z" : sweep_data[:,3],
+                          "+" : sweep_data[:,4],
+                          "ZZ" : sweep_data[:,5],
+                          "++" : sweep_data[:,6],
+                          "+Z" : sweep_data[:,7],
+                          "+-" : sweep_data[:,8] }
+sweep_min_pops_0 = sweep_data[:,9].real
+sweep_max_pops = sweep_data[:,10:].real
 
 plt.figure(figsize = figsize)
 plt.title(title_text)

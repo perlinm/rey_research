@@ -7,7 +7,7 @@ import functools, itertools, scipy
 
 from scipy import sparse
 from scipy.integrate import solve_ivp
-from squeezing_methods import spin_squeezing
+from squeezing_methods import squeezing_from_correlators
 from tensorflow_extension import tf_outer_product
 from multibody_methods import dist_method
 
@@ -43,6 +43,7 @@ ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 data_dir = "../data/spins/"
 proj_dir = "../data/projectors/"
 
+if np.allclose(alpha, int(alpha)): alpha = int(alpha)
 lattice_name = "x".join([ str(size) for size in lattice_shape ])
 name_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
 
@@ -77,19 +78,13 @@ for manifold in manifolds:
 # define basic objects / operators
 
 # qubit states and operators
-up = np.array([1,0])
-dn = np.array([0,1])
-up_z, dn_z = up, dn
-up_x = ( up + dn ) / np.sqrt(2)
-dn_x = ( up - dn ) / np.sqrt(2)
-up_y = ( up + 1j * dn ) / np.sqrt(2)
-dn_y = ( up - 1j * dn ) / np.sqrt(2)
+dn = np.array([1,0])
+up = np.array([0,1])
 
 base_ops = {}
-base_ops["I"] = np.outer(up_z,up_z.conj()) + np.outer(dn_z,dn_z.conj())
-base_ops["Z"] = np.outer(up_z,up_z.conj()) - np.outer(dn_z,dn_z.conj())
-base_ops["X"] = np.outer(up_x,up_x.conj()) - np.outer(dn_x,dn_x.conj())
-base_ops["Y"] = np.outer(up_y,up_y.conj()) - np.outer(dn_y,dn_y.conj())
+base_ops["I"] = np.outer(up,up.conj()) + np.outer(dn,dn.conj())
+base_ops["Z"] = np.outer(up,up.conj()) - np.outer(dn,dn.conj())
+base_ops["+"] = np.outer(up,dn.conj())
 
 # act with a multi-local operator `op` on the spin specified by `indices`
 def spin_op(op, indices = None):
@@ -156,7 +151,8 @@ def spin_op(op, indices = None):
     op = tf.sparse.reshape(op, (2**total_spins,2**total_spins))
 
     # convert matrix into scipy's sparse matrix format
-    return scipy.sparse.csr_matrix((op.values.numpy(), op.indices.numpy().T))
+    return scipy.sparse.csr_matrix((op.values.numpy(), op.indices.numpy().T),
+                                   shape = (2**spin_num,)*2)
 
 ##########################################################################################
 print("building operators")
@@ -179,12 +175,12 @@ ZZ = sum( coupling * spin_op(["Z","Z"], pp_qq).real / 2
 
 def col_op(op):
     return sum( spin_op(op,idx) for idx in range(spin_num) )
-Sz = col_op("Z") / 2
-Sx = col_op("X") / 2
-Sy = col_op("Y") / 2
-
-S_op_vec = [ Sz, Sx, Sy ]
-SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
+collective_ops = { "Z" : col_op("Z"),
+                   "+" : col_op("+") }
+collective_ops["ZZ"] = collective_ops["Z"] @ collective_ops["Z"]
+collective_ops["++"] = collective_ops["+"] @ collective_ops["+"]
+collective_ops["+Z"] = collective_ops["+"] @ collective_ops["Z"]
+collective_ops["+-"] = collective_ops["+"] @ collective_ops["+"].conj().T
 
 if project:
     P_0 = sum( proj for proj in projs.values() )
@@ -195,7 +191,7 @@ if project:
 
 # note: extra factor of 1/2 due to normalization convention
 chi_eff_bare = 1/4 * np.mean(list(couplings_sun.values()))
-state_X = functools.reduce(np.kron, [up_x]*spin_num).astype(complex)
+state_X = functools.reduce(np.kron, [up+dn]*spin_num).astype(complex) / 2**(spin_num/2)
 
 def simulate(coupling_zz, sim_time = None, max_tau = 2):
     print("coupling_zz:", coupling_zz)
@@ -218,15 +214,19 @@ def simulate(coupling_zz, sim_time = None, max_tau = 2):
 
     times = ivp_solution.t
     states = ivp_solution.y
-    sqz = np.array([ spin_squeezing(spin_num, state, S_op_vec, SS_op_mat)
-                     for state in states.T ])
+
+    # compute collective spin correlators
+    def val(mat, state):
+        return state.conj() @ ( mat @ state ) / ( state.conj() @ state )
+    correlators = { op : np.array([ val(mat,state) for state in states.T ])
+                    for op, mat in collective_ops.items() }
 
     # compute populations
     pops = np.array([ [ abs(states[:,tt].conj() @ proj @ states[:,tt])
                         for proj in projs.values() ]
                       for tt in range(len(times))])
 
-    return times, sqz, pops
+    return times, correlators, pops
 
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
@@ -240,18 +240,30 @@ sys.stdout.flush()
 def _is_zero(array):
     return np.allclose(array, np.zeros(array.shape))
 
+str_ops = [ "Z", "+", "ZZ", "++", "+Z", "+-" ]
+tup_ops = [ (0,1,0), (1,0,0), (0,2,0), (2,0,0), (1,1,0), (1,0,1) ]
+def relabel(correlators):
+    for str_op, tup_op in zip(str_ops, tup_ops):
+        correlators[tup_op] = correlators.pop(str_op)
+    return correlators
+
+str_op_list = ", ".join(str_ops)
+
 for coupling_zz in inspect_coupling_zz:
-    times, sqz, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
+    times, correlators, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
+    sqz = squeezing_from_correlators(spin_num, relabel(correlators), pauli_ops = True)
 
     _manifolds = [ manifold for manifold in manifolds
                    if not _is_zero(pops[:,manifold]) ]
 
     with open(data_dir + f"inspect_{name_tag}_z{coupling_zz}.txt", "w") as file:
-        file.write("# times, squeezing, populations (within each manifold)\n")
+        file.write(f"# times, {str_op_list}, sqz, populations (within each shell)\n")
         for idx, manifold in enumerate(_manifolds):
             file.write(f"# manifold {manifold} : {idx}\n")
         for tt in range(len(times)):
-            file.write(f"{times[tt]} {sqz[tt]} ")
+            file.write(f"{times[tt]} ")
+            file.write(" ".join([ str(correlators[op][tt]) for op in tup_ops ]))
+            file.write(f" {sqz[tt]} ")
             file.write(" ".join([ str(pops[tt,manifold]) for manifold in _manifolds ]))
             file.write("\n")
 
@@ -262,8 +274,13 @@ sys.stdout.flush()
 
 sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
 sweep_results = [ simulate(coupling_zz) for coupling_zz in sweep_coupling_zz ]
-sweep_times, sweep_sqz, sweep_pops = zip(*sweep_results)
+sweep_times, sweep_correlators, sweep_pops = zip(*sweep_results)
 
+print("computing squeezing values")
+sys.stdout.flush()
+
+sweep_sqz = [ squeezing_from_correlators(spin_num, relabel(correlators), pauli_ops = True)
+              for correlators in sweep_correlators ]
 sweep_min_sqz = [ min(sqz) for sqz in sweep_sqz ]
 min_sqz_idx = [ max(1,np.argmin(sqz)) for sqz in sweep_sqz ]
 sweep_time_opt = [ sweep_times[zz][idx] for zz, idx in enumerate(min_sqz_idx) ]
@@ -272,17 +289,26 @@ sweep_pops = [ pops[:min_idx,:] for pops, min_idx in zip(sweep_pops, min_sqz_idx
 sweep_min_pops = np.array([ pops.min(axis = 0) for pops in sweep_pops ])
 sweep_max_pops = np.array([ pops.max(axis = 0) for pops in sweep_pops ])
 
+str_op_opt_list = ", ".join([ op + "_opt" for op in str_ops ])
+correlators_opt = [ { op : correlator[op][min_idx] for op in tup_ops }
+                    for correlator, min_idx in zip(sweep_correlators, min_sqz_idx) ]
+
 _manifolds = [ manifold for manifold in manifolds
                if not _is_zero(sweep_max_pops[:,manifold]) ]
 
+print("saving results")
+sys.stdout.flush()
+
 with open(data_dir + f"sweep_{name_tag}.txt", "w") as file:
-    file.write("# coupling_zz, sqz_min, time_opt, min_pop_0, max_pop (for manifolds > 0)\n")
+    file.write(f"# coupling_zz, time_opt, sqz_min, {str_op_opt_list}, min_pop_0,"
+               + " max_pop (for manifolds > 0)\n")
     file.write("# manifolds : ")
     file.write(" ".join([ str(manifold) for manifold in _manifolds ]))
     file.write("\n")
     for zz in range(len(sweep_coupling_zz)):
-        file.write(f"{sweep_coupling_zz[zz]} {sweep_min_sqz[zz]} ")
-        file.write(f"{sweep_time_opt[zz]} {sweep_min_pops[zz,0]} ")
+        file.write(f"{sweep_coupling_zz[zz]} {sweep_time_opt[zz]} {sweep_min_sqz[zz]} ")
+        file.write(" ".join([ str(correlators_opt[zz][op]) for op in tup_ops ]))
+        file.write(f" {sweep_min_pops[zz,0]} ")
         file.write(" ".join([ str(sweep_max_pops[zz,manifold])
                               for manifold in _manifolds[1:] ]))
         file.write("\n")

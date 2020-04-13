@@ -3,7 +3,7 @@
 import numpy as np
 import os, sys, itertools, functools
 
-from squeezing_methods import spin_squeezing
+from squeezing_methods import squeezing_from_correlators
 from dicke_methods import coherent_spin_state as coherent_state_PS
 from multibody_methods import dist_method, get_multibody_states
 from operator_product_methods import build_shell_operator
@@ -38,6 +38,7 @@ ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
 
 data_dir = "../data/shells/"
 
+if np.allclose(alpha, int(alpha)): alpha = int(alpha)
 lattice_name = "x".join([ str(size) for size in lattice_shape ])
 name_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
 
@@ -77,34 +78,45 @@ for manifold, shells in list(sunc["shells"].items()):
 print("building operators in the shell / Z-projection basis")
 sys.stdout.flush()
 
-# 1-local Z, X, Y operators
-local_ops = { "Z" : np.array([[ 1,   0 ], [  0, -1 ]]),
-              "X" : np.array([[ 0,   1 ], [  1,  0 ]]),
-              "Y" : np.array([[ 0, -1j ], [ 1j,  0 ]]) }
+# spin basis
+dn = np.array([1,0])
+up = np.array([0,1])
 
-# 2-local products of Z, X, Y operators
+# 1-local Pauli operators
+local_ops = { "Z" : np.outer(up,up) - np.outer(dn,dn),
+              "+" : np.outer(up,dn),
+              "-" : np.outer(dn,up) }
+
+# 2-local tensor products of Pauli operators
 for op_lft, op_rht in itertools.product(local_ops.keys(), repeat = 2):
     mat_lft = local_ops[op_lft]
     mat_rht = local_ops[op_rht]
     local_ops[op_lft + op_rht] = np.kron(mat_lft,mat_rht).reshape((2,)*4)
 
-# build the ZZ perturbation operator in the shell / Z-projection basis
+# # build the ZZ perturbation operator in the shell / Z-projection basis
 print("building perturbation operator")
 shell_coupling_mat \
     = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]], sunc, sunc["TI"])
 
-# collective spin vector, and its outer product with itself
+print("building collective spin operators")
+sys.stdout.flush()
+
+# build a collective spin operator
 def _pauli_mat(pauli):
     tensors = [np.ones(spin_num)]
     operators = [local_ops[pauli]]
-    full_pauli_op = build_shell_operator(tensors, operators, sunc,
-                                         sunc["TI"], shell_diagonal = True)
+    diagonal = ( pauli in [ "Z", "ZZ" ] )
+    full_pauli_op = build_shell_operator(tensors, operators, sunc, sunc["TI"],
+                                         shell_diagonal = diagonal)
     full_pauli_op.shape = ( shell_num*(spin_num+1), )*2
     return full_pauli_op
-print("building collective spin operators")
-sys.stdout.flush()
-S_op_vec = [ _pauli_mat(pauli)/2 for pauli in [ "Z", "X", "Y" ] ]
-SS_op_mat = [ [ AA @ BB for BB in S_op_vec ] for AA in S_op_vec ]
+
+collective_ops = { "Z" : _pauli_mat("Z"),
+                   "+" : _pauli_mat("+") }
+collective_ops["ZZ"] = collective_ops["Z"] @ collective_ops["Z"]
+collective_ops["++"] = collective_ops["+"] @ collective_ops["+"]
+collective_ops["+Z"] = collective_ops["+"] @ collective_ops["Z"]
+collective_ops["+-"] = collective_ops["+"] @ collective_ops["+"].conj().T
 
 # if this is a test run, we can exit now
 if test_run: exit()
@@ -167,14 +179,16 @@ def simulate(coupling_zz, sim_time = None, max_tau = 2, points = 500):
     # note: factor of 1/2 included for compatibility with Chunlei's work
     states = _states(state_X, zz_sun_ratio/2, times)
 
-    # compute squeezing
-    sqz = np.array([ spin_squeezing(spin_num, state.flatten(), S_op_vec, SS_op_mat)
-                     for state in states ])
+    # compute collective spin correlators
+    def val(mat, state):
+        return state.conj() @ ( mat @ state ) / ( state.conj() @ state )
+    correlators = { op : np.array([ val(mat,state.flatten()) for state in states ])
+                    for op, mat in collective_ops.items() }
 
     # compute populations
     pops = np.einsum("tsz->ts", abs(states)**2)
 
-    return times, sqz, pops
+    return times, correlators, pops
 
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
@@ -183,17 +197,29 @@ if not os.path.isdir(data_dir):
 print("running inspection simulations")
 sys.stdout.flush()
 
+str_ops = [ "Z", "+", "ZZ", "++", "+Z", "+-" ]
+tup_ops = [ (0,1,0), (1,0,0), (0,2,0), (2,0,0), (1,1,0), (1,0,1) ]
+def relabel(correlators):
+    for str_op, tup_op in zip(str_ops, tup_ops):
+        correlators[tup_op] = correlators.pop(str_op)
+    return correlators
+
+str_op_list = ", ".join(str_ops)
+
 for coupling_zz in inspect_coupling_zz:
-    times, sqz, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
+    times, correlators, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
+    sqz = squeezing_from_correlators(spin_num, relabel(correlators), pauli_ops = True)
 
     with open(data_dir + f"inspect_{name_tag}_z{coupling_zz}.txt", "w") as file:
-        file.write("# times, squeezing, populations (within each shell)\n")
+        file.write(f"# times, {str_op_list}, sqz, populations (within each shell)\n")
         for manifold, shells in sunc["shells"].items():
             file.write(f"# manifold {manifold} : ")
             file.write(" ".join([ str(shell) for shell in shells ]))
             file.write("\n")
         for tt in range(len(times)):
-            file.write(f"{times[tt]} {sqz[tt]} ")
+            file.write(f"{times[tt]} ")
+            file.write(" ".join([ str(correlators[op][tt]) for op in tup_ops ]))
+            file.write(f" {sqz[tt]} ")
             file.write(" ".join([ str(pop) for pop in pops[tt,:] ]))
             file.write("\n")
 
@@ -204,8 +230,13 @@ sys.stdout.flush()
 
 sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
 sweep_results = [ simulate(coupling_zz) for coupling_zz in sweep_coupling_zz ]
-sweep_times, sweep_sqz, sweep_pops = zip(*sweep_results)
+sweep_times, sweep_correlators, sweep_pops = zip(*sweep_results)
 
+print("computing squeezing values")
+sys.stdout.flush()
+
+sweep_sqz = [ squeezing_from_correlators(spin_num, relabel(correlators), pauli_ops = True)
+              for correlators in sweep_correlators ]
 sweep_min_sqz = [ min(sqz) for sqz in sweep_sqz ]
 min_sqz_idx = [ max(1,np.argmin(sqz)) for sqz in sweep_sqz ]
 sweep_time_opt = [ sweep_times[zz][idx] for zz, idx in enumerate(min_sqz_idx) ]
@@ -216,14 +247,23 @@ sweep_pops = [ np.array([ pops[:min_idx,shells].sum(axis = 1)
 sweep_min_pops = np.array([ pops.min(axis = 0) for pops in sweep_pops ])
 sweep_max_pops = np.array([ pops.max(axis = 0) for pops in sweep_pops ])
 
+str_op_opt_list = ", ".join([ op + "_opt" for op in str_ops ])
+correlators_opt = [ { op : correlator[op][min_idx] for op in tup_ops }
+                    for correlator, min_idx in zip(sweep_correlators, min_sqz_idx) ]
+
+print("saving results")
+sys.stdout.flush()
+
 with open(data_dir + f"sweep_{name_tag}.txt", "w") as file:
-    file.write("# coupling_zz, sqz_min, time_opt, min_pop_0, max_pop (for manifolds > 0)\n")
+    file.write(f"# coupling_zz, time_opt, sqz_min, {str_op_opt_list}, min_pop_0,"
+               + " max_pop (for manifolds > 0)\n")
     file.write("# manifolds : ")
     file.write(" ".join([ str(manifold) for manifold in sunc["shells"].keys() ]))
     file.write("\n")
     for zz in range(len(sweep_coupling_zz)):
-        file.write(f"{sweep_coupling_zz[zz]} {sweep_min_sqz[zz]} ")
-        file.write(f"{sweep_time_opt[zz]} {sweep_min_pops[zz,0]} ")
+        file.write(f"{sweep_coupling_zz[zz]} {sweep_time_opt[zz]} {sweep_min_sqz[zz]} ")
+        file.write(" ".join([ str(correlators_opt[zz][op]) for op in tup_ops ]))
+        file.write(f" {sweep_min_pops[zz,0]} ")
         file.write(" ".join([ str(val) for val in sweep_max_pops[zz,1:] ]))
         file.write("\n")
 
