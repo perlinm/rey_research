@@ -306,8 +306,7 @@ def _is_diagonal(operator):
     # check whether the matrix is zero in all columns after the first
     return not np.any(diagonal_test[:,1:])
 
-# find a matrix element of a multi-local operator
-#   in the permutationally symmetric manifold
+# find matrix element of a multi-local operator in the permutationally symmetric manifold
 # TODO: make faster?
 def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None, diagonal = None):
     if pops_rht == None:
@@ -363,6 +362,74 @@ def evaluate_multi_local_op(local_op, pops_lft, pops_rht = None, diagonal = None
 
     return op_val
 
+# build a multi-local operator in the permutationally symmetric manifold
+def build_multi_local_op(spin_num, spin_dim, local_op,
+                         diagonal = None, diagonal_values = False,
+                         _collective_states = {}):
+
+    # determine dimension of each spin, and total number of spins
+    if op_spins := int(np.math.log(np.sqrt(local_op.size), spin_dim)):
+        local_op = local_op.reshape((spin_dim,)*2*op_spins)
+
+    else: # local_op is a scalar
+        if diagonal_values:
+            return local_op * np.ones(np.math.comb(spin_num+spin_dim-1,spin_dim-1))
+        else:
+            return local_op * np.eye(np.math.comb(spin_num+spin_dim-1,spin_dim-1))
+
+    # identify basis for the permutationally symmetric manifold
+    # collect dictionary in the form { [spin_assignment] : [state_index] }
+    if ( spin_num, spin_dim ) not in _collective_states:
+        _collective_states[( spin_num, spin_dim )] \
+            = { state : idx for idx, state in enumerate(assignments(spin_num, spin_dim)) }
+    collective_states = _collective_states[( spin_num, spin_dim )]
+
+    # determine whether this operator is diagonal
+    if diagonal is None:
+        diagonal = _is_diagonal(local_op)
+
+    # if we were just asked for the diagonal vlaues, return them
+    if diagonal_values:
+        assert(diagonal)
+        return np.array([ evaluate_multi_local_op(local_op, state)
+                          for state in collective_states ])
+
+    # otherwise, determine which matrix elements of the full operator to compute...
+    if diagonal:
+        state_pairs = ( ( state, idx, state, idx )
+                        for state, idx in collective_states.items() )
+
+    else:
+        nonzero_indices = local_op.nonzero()
+        states_lft = np.array(nonzero_indices[:op_spins]).T
+        states_rht = np.array(nonzero_indices[op_spins:]).T
+
+        def counts(state):
+            return np.array([ np.count_nonzero(state == mu) for mu in range(spin_dim) ])
+        state_changes = set( tuple( counts(state_rht) - counts(state_lft) )
+                             for state_lft, state_rht in zip(states_lft, states_rht) )
+
+        def shift_state(state, pop_diff):
+            new_state = np.array(state) + np.array(pop_diff)
+            if any( new_state < 0 ): return None
+            return tuple(new_state)
+
+        # todo: this currently includes pairs that we know evaluate to zero.
+        #       eliminate these pairs.
+        state_pairs = ( ( state_lft, idx_lft, state_rht, collective_states[state_rht] )
+                        for state_lft, idx_lft in collective_states.items()
+                        for state_change in state_changes
+                        if ( state_rht := shift_state(state_lft, state_change) ) )
+
+    # ... and compute those matrix elements
+    dim_PS = len(collective_states)
+    full_op = np.zeros((dim_PS,)*2)
+    for state_lft, idx_lft, state_rht, idx_rht in state_pairs:
+        full_op[idx_lft, idx_rht] \
+            = evaluate_multi_local_op(local_op, state_lft, state_rht, diagonal = diagonal)
+
+    return full_op
+
 # return two lists characterizing the operator content of a multi-local operator product.
 # both lists are organized by "bare" diagrams containing filled dots,
 #   i.e. the `dd`-th element of a list is associated with the `dd`-th bare diagram.
@@ -400,10 +467,8 @@ def evaluate_operator_product(tensors, diagrams, diagram_ops, TI):
 
 # Z-type multi-local operator
 def multi_Z_op(tensor_power, diag = False):
-    if diag:
-        Z_op = np.array([ +1, -1 ])
-    else:
-        Z_op = np.array([ [ +1, 0 ], [ 0, -1 ] ])
+    Z_op = np.array([ -1, +1 ])
+    if not diag: Z_op = np.diag(Z_op)
     empty_op = np.ones(())
     operator = functools.reduce(np.kron, [ Z_op ]*tensor_power + [ empty_op ])
     operator.shape = (2,)*tensor_power*Z_op.ndim
@@ -414,44 +479,27 @@ def _conj_op(operator):
     return operator.transpose(list(range(dim,2*dim)) + list(range(dim))).conj()
 
 # get the diagrams and operators (for each diagram) necessary
-#   to evaluate products of ZZ operators
-def get_diags_opers(shell_dims, spin_num, overlap_operators = None, dtype = None):
+#   to evaluate products of multi-local operators
+def get_diags_opers(shell_dims, spin_num, overlap_operators = None, dtype = None,
+                    spin_dim = 2):
     # build operators that generate excited states
     excitation_op = { shell_dim : multi_Z_op(shell_dim)
                       for shell_dim in shell_dims }
 
-    # build diagram vectors and associated operators
     diags, opers = {}, {}
     if overlap_operators is None:
         for shell_dim in shell_dims:
             op = excitation_op[shell_dim]
             diags[shell_dim], diag_ops = diagram_operators([ _conj_op(op), op ])
 
-            opers[shell_dim] = np.zeros((len(diags[shell_dim]), spin_num+1))
-            for spins_up in range(spin_num+1):
-                spins_dn = spin_num - spins_up
-                populations = ( spins_up, spins_dn )
-                opers[shell_dim][:,spins_up] \
-                    = [ evaluate_multi_local_op(local_op, populations, diagonal = True)
-                        for local_op in diag_ops ]
+            opers[shell_dim] \
+                = np.array([ build_multi_local_op(spin_num, spin_dim, local_op,
+                                                  diagonal_values = True)
+                             for local_op in diag_ops ])
+
     else:
-        # determine the appropriate data type to use
         if dtype is None:
             dtype = _get_dtype(overlap_operators)
-
-        # determine the Z-projection matrix elements that we need to compute
-        if all( _is_diagonal(op) for op in overlap_operators ):
-            def spin_up_pairs():
-                return ( ( spins_up, spins_up ) for spins_up in range(spin_num+1) )
-        else:
-            # TODO: determine max_spin_change properly, rather than using a heuristic
-            max_spin_change = max( op.ndim//2 for op in overlap_operators )
-            def _max_rht(spins_up_lft):
-                return min(spins_up_lft + max_spin_change + 1, spin_num + 1)
-            def spin_up_pairs():
-                return ( ( spins_up_lft, spins_up_rht )
-                         for spins_up_lft in range(spin_num+1)
-                         for spins_up_rht in range(spins_up_lft, _max_rht(spins_up_lft)) )
 
         shell_dims = sorted(shell_dims)
         dim_pairs = ( ( dim_min, dim_max )
@@ -464,22 +512,10 @@ def get_diags_opers(shell_dims, spin_num, overlap_operators = None, dtype = None
             op_list = [ _conj_op(op_lft) ] + overlap_operators + [ op_rht ]
             diags[dim_pair], diag_ops = diagram_operators(op_list)
 
-            shape = ( len(diag_ops), spin_num+1, spin_num+1 )
-            opers[dim_pair] = np.zeros(shape, dtype = dtype)
+            opers[dim_pair] \
+                = np.array([ build_multi_local_op(spin_num, spin_dim, local_op)
+                             for local_op in diag_ops ])
 
-            for spins_up_lft, spins_up_rht in spin_up_pairs():
-                spins_dn_lft = spin_num - spins_up_lft
-                spins_dn_rht = spin_num - spins_up_rht
-                pops_lft = ( spins_up_lft, spins_dn_lft )
-                pops_rht = ( spins_up_rht, spins_dn_rht )
-
-                opers[dim_pair][:,spins_up_lft,spins_up_rht] \
-                    = [ evaluate_multi_local_op(local_op, pops_lft, pops_rht)
-                        for local_op in diag_ops ]
-
-                if spins_up_rht != spins_up_lft:
-                    opers[dim_pair][:,spins_up_rht,spins_up_lft] \
-                        = opers[dim_pair][:,spins_up_lft,spins_up_rht].conj()
     return diags, opers
 
 # compute overlap between two states generated by Z-type operators
@@ -543,8 +579,8 @@ def compute_norms(sunc, TI):
     return norms
 
 # construct a product of operators in the shell basis
-def build_shell_operator(tensors, operators, sunc, TI, shell_diagonal = False,
-                         sunc_norms = {}):
+def build_shell_operator(tensors, operators, sunc, TI, sunc_norms = {},
+                         collective = False, shell_diagonal = False):
     # determine number of spins, shells, and dimensions of excitation tensors
     spin_num = sunc["mat"].shape[0]
     shell_num = max( shell for shell in sunc.keys() if type(shell) is int ) + 1
@@ -566,9 +602,14 @@ def build_shell_operator(tensors, operators, sunc, TI, shell_diagonal = False,
     # determine the shell matrix elements that we need to compute
     if shell_diagonal:
         shell_pairs = ( ( shell, shell ) for shell in range(shell_num) )
+
     else:
+        if collective:
+            max_manifold_change = 0
+        else:
+            max_manifold_change = sum( tensor.ndim for tensor in tensors )
+
         manifolds = list(sunc["shells"].keys())
-        max_manifold_change = np.prod([ tensor.ndim for tensor in tensors ])
         def _manifolds_rht(manifold_lft_idx):
             manifold_lft = manifolds[manifold_lft_idx]
             return ( manifold for manifold in manifolds[manifold_lft_idx:]

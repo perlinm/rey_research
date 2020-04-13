@@ -107,7 +107,7 @@ def _pauli_mat(pauli):
     operators = [local_ops[pauli]]
     diagonal = ( pauli in [ "Z", "ZZ" ] )
     full_pauli_op = build_shell_operator(tensors, operators, sunc, sunc["TI"],
-                                         shell_diagonal = diagonal)
+                                         collective = True, shell_diagonal = diagonal)
     full_pauli_op.shape = ( shell_num*(spin_num+1), )*2
     return full_pauli_op
 
