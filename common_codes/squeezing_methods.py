@@ -109,7 +109,7 @@ def spin_squeezing(spin_num, state, S_op_vec, SS_op_mat, in_dB = False):
     if in_dB: squeezing = -10*np.log10(squeezing)
     return squeezing
 
-# return  from a set of spin correlators
+# return squeezing from a set of spin correlators
 def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis = False):
     if not zxy_basis:
         Sz    = correlators[(0,1,0)]
