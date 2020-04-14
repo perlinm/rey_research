@@ -12,7 +12,7 @@ np.set_printoptions(linewidth = 200)
 cutoff = 1e-10
 
 if len(sys.argv) < 4:
-    print(f"usage: {sys.argv[0]} [alpha] [max_manifold] [lattice_shape]")
+    print(f"usage: {sys.argv[0]} [test?] [lattice_shape] [alpha] [max_manifold]")
     exit()
 
 # determine whether this is a test run
@@ -22,9 +22,9 @@ if "test" in sys.argv:
 else:
     test_run = False
 
-alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
-max_manifold = int(sys.argv[2])
-lattice_shape = tuple(map(int, sys.argv[3].split("x")))
+lattice_shape = tuple(map(int, sys.argv[1].split("x")))
+alpha = float(sys.argv[2]) # power-law couplings ~ 1 / r^\alpha
+max_manifold = int(sys.argv[3])
 
 # values of the ZZ coupling to inspect more closely
 inspect_coupling_zz = [ -1, 0, 0.5, 1.5 ]
@@ -40,7 +40,7 @@ data_dir = "../data/shells/"
 
 if np.allclose(alpha, int(alpha)): alpha = int(alpha)
 lattice_name = "x".join([ str(size) for size in lattice_shape ])
-name_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
+name_tag = f"L{lattice_name}_a{alpha}_M{max_manifold}"
 
 ##################################################
 

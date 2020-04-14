@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 np.set_printoptions(linewidth = 200)
 
 if len(sys.argv) < 4:
-    print(f"usage: {sys.argv[0]} [alpha] [max_manifold] [lattice_shape] [shells/spins]")
+    print(f"usage: {sys.argv[0]} [proj?] [lattice_shape] [alpha] [max_manifold] [shells/spins]")
     exit()
 
 # determine whether to use data from "projected" simulations
@@ -18,11 +18,11 @@ if "proj" in sys.argv:
 else:
     project = False
 
-alpha = float(sys.argv[1]) # power-law couplings ~ 1 / r^\alpha
-max_manifold = int(sys.argv[2])
-lattice_shape = tuple(map(int, sys.argv[3].split("x")))
-sim_type = sys.argv[4]
+lattice_shape = tuple(map(int, sys.argv[1].split("x")))
+alpha = float(sys.argv[2]) # power-law couplings ~ 1 / r^\alpha
+max_manifold = int(sys.argv[3])
 
+sim_type = sys.argv[4]
 assert(sim_type in [ "shells", "spins" ])
 
 plot_all_shells = False # plot the population for each shell?
