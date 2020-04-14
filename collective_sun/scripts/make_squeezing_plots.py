@@ -50,7 +50,7 @@ if sim_type == "spins" and project:
 
 if np.allclose(alpha, int(alpha)): alpha = int(alpha)
 lattice_name = "x".join([ str(size) for size in lattice_shape ])
-name_tag = f"L{lattice_name}_M{max_manifold}_a{alpha}"
+name_tag = f"L{lattice_name}_a{alpha}_M{max_manifold}"
 
 ##########################################################################################
 
@@ -77,12 +77,12 @@ for data_file in inspect_files:
 
     data = np.loadtxt(data_file, dtype = complex)
     times = data[:,0].real
-    correlators = { (0,1,0) : data[:,1],
-                    (1,0,0) : data[:,2],
-                    (0,2,0) : data[:,3],
-                    (2,0,0) : data[:,4],
-                    (1,1,0) : data[:,5],
-                    (1,0,1) : data[:,6] }
+    correlators = { "Z" : data[:,1],
+                    "+" : data[:,2],
+                    "ZZ" : data[:,3],
+                    "++" : data[:,4],
+                    "+Z" : data[:,5],
+                    "+-" : data[:,6] }
     sqz = data[:,7].real
     pops = data[:,8:].real
 
@@ -102,6 +102,9 @@ for data_file in inspect_files:
 
     plt.figure("sqz", figsize = figsize)
     plt.plot(times[:sqz_end], to_dB(sqz[:sqz_end]), label = f"${coupling_zz}$")
+
+    plt.figure("sx", figsize = figsize)
+    plt.plot(times, correlators["+"].real/2, label = f"${coupling_zz}$")
 
     plt.figure(figsize = figsize)
     plt.title(coupling_title)
@@ -130,6 +133,14 @@ if inspect_files:
     plt.tight_layout()
     plt.savefig(inspect_dir + f"squeezing_{name_tag}.pdf")
 
+    plt.figure("sx")
+    plt.title(common_title)
+    plt.xlabel(r"$J_\perp t$")
+    plt.ylabel(r"$\braket{S_{\mathrm{x}}}$")
+    plt.legend(loc = "best")
+    plt.tight_layout()
+    plt.savefig(inspect_dir + f"Sx_{name_tag}.pdf")
+
 ##########################################################################################
 sweep_file = data_dir + f"sweep_{name_tag}.txt"
 if not os.path.isfile(sweep_file): exit()
@@ -157,9 +168,9 @@ sweep_max_pops = sweep_data[:,10:].real
 plt.figure(figsize = figsize)
 plt.title(common_title)
 plt.plot(sweep_coupling_zz, to_dB(sweep_min_sqz), "ko")
-plt.ylim(plt.gca().get_ylim()[0], 0)
+plt.gca().set_ylim(top = 0)
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
-plt.ylabel(r"$\xi_{\mathrm{min}}^2$ (dB)")
+plt.ylabel(r"$10\log_{10}\xi_{\mathrm{min}}^2$")
 plt.tight_layout()
 plt.savefig(fig_dir + f"squeezing_{name_tag}.pdf")
 
@@ -173,6 +184,14 @@ plt.savefig(fig_dir + f"time_opt_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
 plt.title(common_title)
+plt.plot(sweep_coupling_zz, sweep_correlators_opt["+"].real/2, "ko")
+plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
+plt.ylabel(r"$\braket{S_{\mathrm{x}}}$")
+plt.tight_layout()
+plt.savefig(fig_dir + f"Sx_{name_tag}.pdf")
+
+plt.figure(figsize = figsize)
+plt.title(common_title)
 plt.plot(sweep_coupling_zz, sweep_min_pops_0, "o", label = pop_label(0,"min"))
 for manifold, max_pops in zip(manifolds[1:], sweep_max_pops.T):
     plt.plot(sweep_coupling_zz, max_pops, "o", label = pop_label(manifold,"max"))
@@ -182,4 +201,5 @@ plt.legend(loc = "best", handletextpad = 0.1)
 plt.tight_layout()
 plt.savefig(fig_dir + f"populations_{name_tag}.pdf")
 
+plt.show()
 print("completed")
