@@ -99,7 +99,8 @@ except ModuleNotFoundError:
     def sphere_cmap(color_vals):
         return plt.cm.get_cmap("inferno")(1-color_vals)
 
-def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = None):
+def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = None,
+                     rasterized = True):
     N = state.size-1
     if figsize is None:
         if single_sphere:
@@ -133,15 +134,15 @@ def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = Non
     if single_sphere:
         y_vals -= asymmetry
         ax.plot_surface(x_vals, y_vals, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, zorder = 0)
+                        facecolors = color_map, rasterized = rasterized)
     else:
         y_vals -= 2*asymmetry
         y_offset = 1.1
         y_lims = 2*ax_lims
         ax.plot_surface(x_vals, y_vals-y_offset, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, zorder = 0)
+                        facecolors = color_map, rasterized = rasterized)
         ax.plot_surface(-x_vals, y_vals+y_offset, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, zorder = 0)
+                        facecolors = color_map, rasterized = rasterized)
         ax.set_ylim(y_lims)
 
     ax.set_axis_off()
