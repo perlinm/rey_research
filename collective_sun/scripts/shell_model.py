@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import os, sys, itertools, functools
+import os, sys, itertools, functools, time
 
 from squeezing_methods import squeezing_from_correlators
 from dicke_methods import coherent_spin_state as coherent_state_PS
@@ -49,11 +49,16 @@ lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
 if np.allclose(alpha, int(alpha)): alpha = int(alpha)
 
+start_time = time.time()
+def runtime():
+    return f"[{int(time.time() - start_time)} sec]"
+
 print("lattice shape:",lattice_shape)
 ##########################################################################################
 # build SU(n) interaction matrix, and build generators of interaction eigenstates
 ##########################################################################################
 print("builing generators of interaction energy eigenstates")
+sys.stdout.flush()
 
 dist = dist_method(lattice_shape)
 
@@ -76,7 +81,7 @@ for manifold, shells in list(sunc["shells"].items()):
 ##########################################################################################
 # compute states and operators in the shell / Z-projection basis
 ##########################################################################################
-print("building operators in the shell / Z-projection basis")
+print("building operators in the shell / Z-projection basis", runtime())
 sys.stdout.flush()
 
 # spin basis
@@ -95,11 +100,13 @@ for op_lft, op_rht in itertools.product(local_ops.keys(), repeat = 2):
     local_ops[op_lft + op_rht] = np.kron(mat_lft,mat_rht).reshape((2,)*4)
 
 # # build the ZZ perturbation operator in the shell / Z-projection basis
-print("building perturbation operator")
+print("building perturbation operator", runtime())
+sys.stdout.flush()
+
 shell_coupling_mat \
     = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]], sunc, sunc["TI"])
 
-print("building collective spin operators")
+print("building collective spin operators", runtime())
 sys.stdout.flush()
 
 # build collective spin operators
@@ -195,7 +202,7 @@ if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
 ##########################################################################################
-print("running inspection simulations")
+print("running inspection simulations", runtime())
 sys.stdout.flush()
 
 str_ops = [ "Z", "+", "ZZ", "++", "+Z", "+-" ]
@@ -226,14 +233,14 @@ for coupling_zz in inspect_coupling_zz:
 
 ##########################################################################################
 if len(sweep_coupling_zz) == 0: exit()
-print("running sweep simulations")
+print("running sweep simulations", runtime())
 sys.stdout.flush()
 
 sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
 sweep_results = [ simulate(coupling_zz) for coupling_zz in sweep_coupling_zz ]
 sweep_times, sweep_correlators, sweep_pops = zip(*sweep_results)
 
-print("computing squeezing values")
+print("computing squeezing values", runtime())
 sys.stdout.flush()
 
 sweep_sqz = [ squeezing_from_correlators(spin_num, relabel(correlators), pauli_ops = True)
@@ -252,7 +259,7 @@ str_op_opt_list = ", ".join([ op + "_opt" for op in str_ops ])
 correlators_opt = [ { op : correlator[op][min_idx] for op in tup_ops }
                     for correlator, min_idx in zip(sweep_correlators, min_sqz_idx) ]
 
-print("saving results")
+print("saving results", runtime())
 sys.stdout.flush()
 
 with open(data_dir + f"sweep_{name_tag}.txt", "w") as file:
@@ -268,4 +275,4 @@ with open(data_dir + f"sweep_{name_tag}.txt", "w") as file:
         file.write(" ".join([ str(val) for val in sweep_max_pops[zz,1:] ]))
         file.write("\n")
 
-print("completed")
+print("completed", runtime())
