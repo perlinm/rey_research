@@ -26,12 +26,13 @@ lattice_shape = tuple(map(int, sys.argv[1].split("x")))
 alpha = float(sys.argv[2]) # power-law couplings ~ 1 / r^\alpha
 max_manifold = int(sys.argv[3])
 
-# values of the ZZ coupling to inspect more closely
-inspect_coupling_zz = [ -1, 0, 0.5, 1.5 ]
-inspect_sim_time = 2
-
 # values of the ZZ coupling to simulate in an XXZ model
-sweep_coupling_zz = np.linspace(-1,3,41)
+sweep_coupling_zz = np.arange(-3, +4.01, 0.1)
+
+# values of the ZZ coupling to inspect more closely: half-integer values
+inspect_coupling_zz = [ coupling for coupling in sweep_coupling_zz
+                        if np.allclose(coupling % 0.5, 0) ]
+inspect_sim_time = 2
 
 max_time = 10 # in units of J_\perp
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
