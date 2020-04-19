@@ -110,8 +110,7 @@ def spin_squeezing(spin_num, state, S_op_vec, SS_op_mat, in_dB = False):
     return squeezing
 
 # return squeezing from a set of spin correlators
-def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis = False,
-                               pauli_ops = True):
+def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis = False):
     if not zxy_basis:
         Sz    = correlators[(0,1,0)]
         Sz_Sz = correlators[(0,2,0)]
@@ -119,11 +118,6 @@ def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis =
         Sp_Sp = correlators[(2,0,0)]
         Sp_Sz = correlators[(1,1,0)]
         Sp_Sm = correlators[(1,0,1)]
-
-        if pauli_ops:
-            Sz /= 2
-            Sz_Sz /= 4
-            Sp_Sz /= 2
 
         Sx = np.real(Sp)
         Sy = np.imag(Sp)
@@ -152,17 +146,6 @@ def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis =
         Sz_Sx = correlators[(1,1,0)]
         Sz_Sy = correlators[(1,0,1)]
         Sx_Sy = correlators[(0,1,1)]
-
-        if pauli_ops:
-            Sz /= 2
-            Sx /= 2
-            Sy /= 2
-            Sz_Sz /= 4
-            Sx_Sx /= 4
-            Sy_Sy /= 4
-            Sz_Sx /= 4
-            Sz_Sy /= 4
-            Sx_Sy /= 4
 
         Sx_Sz = Sz_Sx
         Sy_Sz = Sz_Sy

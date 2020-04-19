@@ -31,8 +31,8 @@ squeezing_refline = True # mark optimal squeezing time in population time-series
 figsize = (5,4)
 params = { "font.size" : 16,
            "text.usetex" : True,
-           "text.latex.preamble" : [ r"\usepackage{amsmath}",
-                                     r"\usepackage{braket}" ]}
+           "text.latex.preamble" : [ r"\usepackage{braket}",
+                                     r"\usepackage{bm}" ]}
 plt.rcParams.update(params)
 
 data_dir = f"../data/{sim_type}/"
@@ -103,8 +103,9 @@ for data_file in inspect_files:
     plt.figure("sqz", figsize = figsize)
     plt.plot(times[:sqz_end], to_dB(sqz[:sqz_end]), label = f"${coupling_zz}$")
 
-    plt.figure("sx", figsize = figsize)
-    plt.plot(times, correlators["+"].real/2, label = f"${coupling_zz}$")
+    plt.figure("SS", figsize = figsize)
+    correlator_SS = correlators["ZZ"].real + correlators["+-"].real
+    plt.plot(times, correlator_SS, label = f"${coupling_zz}$")
 
     plt.figure(figsize = figsize)
     plt.title(coupling_title)
@@ -133,13 +134,13 @@ if inspect_files:
     plt.tight_layout()
     plt.savefig(inspect_dir + f"squeezing_{name_tag}.pdf")
 
-    plt.figure("sx")
+    plt.figure("SS")
     plt.title(common_title)
     plt.xlabel(r"$J_\perp t$")
-    plt.ylabel(r"$\braket{S_{\mathrm{x}}}$")
+    plt.ylabel(r"$\braket{\bm S^2}$")
     plt.legend(loc = "best")
     plt.tight_layout()
-    plt.savefig(inspect_dir + f"Sx_{name_tag}.pdf")
+    plt.savefig(inspect_dir + f"SS_{name_tag}.pdf")
 
 ##########################################################################################
 sweep_file = data_dir + f"sweep_{name_tag}.txt"
@@ -184,11 +185,12 @@ plt.savefig(fig_dir + f"time_opt_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
 plt.title(common_title)
-plt.plot(sweep_coupling_zz, sweep_correlators_opt["+"].real/2, "ko")
+correlators_SS = sweep_correlators_opt["ZZ"].real + sweep_correlators_opt["+-"].real
+plt.plot(sweep_coupling_zz, correlators_SS.real, "ko")
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
-plt.ylabel(r"$\braket{S_{\mathrm{x}}}$")
+plt.ylabel(r"$\braket{\bm S^2}$")
 plt.tight_layout()
-plt.savefig(fig_dir + f"Sx_{name_tag}.pdf")
+plt.savefig(fig_dir + f"SS_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
 plt.title(common_title)

@@ -89,7 +89,7 @@ dn = np.array([1,0])
 up = np.array([0,1])
 
 # 1-local Pauli operators
-local_ops = { "Z" : np.outer(up,up) - np.outer(dn,dn),
+local_ops = { "Z" : ( np.outer(up,up) - np.outer(dn,dn) ) / 2,
               "+" : np.outer(up,dn),
               "-" : np.outer(dn,up) }
 
@@ -216,7 +216,7 @@ str_op_list = ", ".join(str_ops)
 
 for coupling_zz in inspect_coupling_zz:
     times, correlators, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
-    sqz = squeezing_from_correlators(spin_num, relabel(correlators), pauli_ops = True)
+    sqz = squeezing_from_correlators(spin_num, relabel(correlators))
 
     with open(data_dir + f"inspect_{name_tag}_z{coupling_zz}.txt", "w") as file:
         file.write(f"# times, {str_op_list}, sqz, populations (within each shell)\n")
@@ -243,7 +243,7 @@ sweep_times, sweep_correlators, sweep_pops = zip(*sweep_results)
 print("computing squeezing values", runtime())
 sys.stdout.flush()
 
-sweep_sqz = [ squeezing_from_correlators(spin_num, relabel(correlators), pauli_ops = True)
+sweep_sqz = [ squeezing_from_correlators(spin_num, relabel(correlators))
               for correlators in sweep_correlators ]
 sweep_min_sqz = [ min(sqz) for sqz in sweep_sqz ]
 min_sqz_idx = [ max(1,np.argmin(sqz)) for sqz in sweep_sqz ]
