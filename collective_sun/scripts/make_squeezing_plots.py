@@ -201,5 +201,4 @@ plt.legend(loc = "best", handletextpad = 0.1)
 plt.tight_layout()
 plt.savefig(fig_dir + f"populations_{name_tag}.pdf")
 
-plt.show()
 print("completed")
