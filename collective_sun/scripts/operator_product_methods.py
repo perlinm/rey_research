@@ -357,7 +357,8 @@ def build_multi_local_op(spin_num, spin_dim, local_op,
     for num in [ spin_num, op_spins ]:
         if ( num, spin_dim ) not in collective_states:
             collective_states[num,spin_dim] \
-                = { state : idx for idx, state in enumerate(assignments(num, spin_dim)) }
+                = { state : dim_PS - 1 - idx
+                    for idx, state in enumerate(assignments(num, spin_dim)) }
 
     def state_pairs(num):
         return ( (state_lft, state_rht)
@@ -569,6 +570,7 @@ def compute_norms(sunc, TI):
     return norms
 
 # construct a product of operators in the shell basis
+# todo: simplify for operators diagonal in the population index
 def build_shell_operator(tensors, operators, sunc, TI, sunc_norms = {},
                          collective = False, shell_diagonal = False):
     # determine number of spins, shells, and dimensions of excitation tensors

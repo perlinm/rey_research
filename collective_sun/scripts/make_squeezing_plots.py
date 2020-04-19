@@ -70,10 +70,11 @@ print("plotting inspection data")
 lattice_text = r"\times".join([ str(size) for size in lattice_shape ])
 common_title = f"$L={lattice_text}$, $\\alpha={alpha}$"
 
-inspect_files = glob.glob(data_dir + f"inspect_{name_tag}" + "_z*.txt")
+inspect_files = sorted(glob.glob(data_dir + f"inspect_{name_tag}" + "_z*.txt"),
+                       key = lambda name : float(name.split("_")[-1][1:-4]))
 for data_file in inspect_files:
-    coupling_zz = data_file.split("_")[-1][1:-4]
-    coupling_title = f"{common_title}, $J_{{\mathrm{{z}}}}/J_\perp={coupling_zz}$"
+    zz_coupling = data_file.split("_")[-1][1:-4]
+    coupling_title = f"{common_title}, $J_{{\mathrm{{z}}}}/J_\perp={zz_coupling}$"
 
     data = np.loadtxt(data_file, dtype = complex)
     times = data[:,0].real
@@ -101,13 +102,13 @@ for data_file in inspect_files:
         sqz_end = len(times)
 
     plt.figure("sqz", figsize = figsize)
-    plt.plot(times[:sqz_end], to_dB(sqz[:sqz_end]), label = f"${coupling_zz}$")
+    plt.plot(times[:sqz_end], to_dB(sqz[:sqz_end]), label = f"${zz_coupling}$")
 
     plt.figure("SS", figsize = figsize)
-    correlator_SS = correlators["ZZ"].real + correlators["+-"].real
-    plt.plot(times, correlator_SS, label = f"${coupling_zz}$")
+    correlator_SS = correlators["ZZ"].real/4 + correlators["+-"].real
+    plt.plot(times, correlator_SS, label = f"${zz_coupling}$")
 
-    plt.figure(figsize = figsize)
+    plt.figure("pop", figsize = figsize)
     plt.title(coupling_title)
     for manifold, shells in manifold_shells.items():
         manifold_pops = pops[:,shells].sum(axis = 1)
@@ -122,10 +123,13 @@ for data_file in inspect_files:
     plt.ylabel("population")
     plt.legend(loc = "best")
     plt.tight_layout()
-    plt.savefig(inspect_dir + f"populations_{name_tag}_z{coupling_zz}.pdf")
+    plt.savefig(inspect_dir + f"populations_{name_tag}_z{zz_coupling}.pdf")
+    plt.close("pop")
 
 if inspect_files:
     plt.figure("sqz")
+    if squeezing_refline:
+        plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
     plt.title(common_title)
     plt.gca().set_ylim(top = 0)
     plt.xlabel(r"time ($J_\perp t$)")
@@ -133,42 +137,47 @@ if inspect_files:
     plt.legend(loc = "best")
     plt.tight_layout()
     plt.savefig(inspect_dir + f"squeezing_{name_tag}.pdf")
+    plt.close("sqz")
 
     plt.figure("SS")
+    if squeezing_refline:
+        plt.axvline(times[np.argmin(sqz)], color = "gray", linestyle  = "--")
     plt.title(common_title)
     plt.xlabel(r"$J_\perp t$")
     plt.ylabel(r"$\braket{\bm S^2}$")
     plt.legend(loc = "best")
     plt.tight_layout()
     plt.savefig(inspect_dir + f"SS_{name_tag}.pdf")
+    plt.close("SS")
 
 ##########################################################################################
 sweep_file = data_dir + f"sweep_{name_tag}.txt"
 if not os.path.isfile(sweep_file): exit()
 print("plotting sweep data")
 
-sweep_data = np.loadtxt(sweep_file, dtype = complex)
+data = np.loadtxt(sweep_file, dtype = complex)
 with open(sweep_file, "r") as file:
     for line in file:
         if "# manifolds : " in line:
             manifolds = line.split()[3:]
         if line[0] != "#": break
 
-sweep_coupling_zz = sweep_data[:,0].real
-sweep_time_opt = sweep_data[:,1].real
-sweep_min_sqz = sweep_data[:,2].real
-sweep_correlators_opt = { "Z" : sweep_data[:,3],
-                          "+" : sweep_data[:,4],
-                          "ZZ" : sweep_data[:,5],
-                          "++" : sweep_data[:,6],
-                          "+Z" : sweep_data[:,7],
-                          "+-" : sweep_data[:,8] }
-sweep_min_pops_0 = sweep_data[:,9].real
-sweep_max_pops = sweep_data[:,10:].real
+zz_coupling = data[:,0].real
+time_opt = data[:,1].real
+min_sqz = data[:,2].real
+correlators_opt = { "Z" : data[:,3],
+                    "+" : data[:,4],
+                    "ZZ" : data[:,5],
+                    "++" : data[:,6],
+                    "+Z" : data[:,7],
+                    "+-" : data[:,8] }
+min_SS = data[:,9].real
+min_pops_0 = data[:,10].real
+max_pops = data[:,11:].real
 
 plt.figure(figsize = figsize)
 plt.title(common_title)
-plt.plot(sweep_coupling_zz, to_dB(sweep_min_sqz), "ko")
+plt.plot(zz_coupling, to_dB(min_sqz), "ko")
 plt.gca().set_ylim(top = 0)
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel(r"$10\log_{10}\xi_{\mathrm{min}}^2$")
@@ -177,7 +186,7 @@ plt.savefig(fig_dir + f"squeezing_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
 plt.title(common_title)
-plt.plot(sweep_coupling_zz, sweep_time_opt, "ko")
+plt.plot(zz_coupling, time_opt, "ko")
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel(r"$t_{\mathrm{opt}} J_\perp$")
 plt.tight_layout()
@@ -185,18 +194,17 @@ plt.savefig(fig_dir + f"time_opt_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
 plt.title(common_title)
-correlators_SS = sweep_correlators_opt["ZZ"].real + sweep_correlators_opt["+-"].real
-plt.plot(sweep_coupling_zz, correlators_SS.real, "ko")
+plt.plot(zz_coupling, min_SS, "ko")
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
-plt.ylabel(r"$\braket{\bm S^2}$")
+plt.ylabel(r"$\braket{\bm S^2}_{\mathrm{min}}$")
 plt.tight_layout()
 plt.savefig(fig_dir + f"SS_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
 plt.title(common_title)
-plt.plot(sweep_coupling_zz, sweep_min_pops_0, "o", label = pop_label(0,"min"))
-for manifold, max_pops in zip(manifolds[1:], sweep_max_pops.T):
-    plt.plot(sweep_coupling_zz, max_pops, "o", label = pop_label(manifold,"max"))
+plt.plot(zz_coupling, min_pops_0, "o", label = pop_label(0,"min"))
+for manifold, max_pops in zip(manifolds[1:], max_pops.T):
+    plt.plot(zz_coupling, max_pops, "o", label = pop_label(manifold,"max"))
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel("population")
 plt.legend(loc = "best", handletextpad = 0.1)

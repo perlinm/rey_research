@@ -29,11 +29,11 @@ alpha = float(sys.argv[2]) # power-law couplings ~ 1 / r^\alpha
 max_manifold = int(sys.argv[3])
 
 # values of the ZZ coupling to simulate in an XXZ model
-sweep_coupling_zz = np.arange(-3, +4.01, 0.1)
+zz_couplings = np.arange(-3, +4.01, 0.1)
 
 # values of the ZZ coupling to inspect more closely: half-integer values
-inspect_coupling_zz = [ coupling for coupling in sweep_coupling_zz
-                        if np.allclose(coupling % 0.5, 0) ]
+inspect_zz_couplings = [ zz_coupling for zz_coupling in zz_couplings
+                         if np.allclose(zz_coupling % 0.5, 0) ]
 inspect_sim_time = 2
 
 periodic = True # use periodic boundary conditions?
@@ -54,6 +54,9 @@ lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
 manifolds = [ manifold for manifold in range(max_manifold+1) if manifold <= spin_num/2 ]
 if np.allclose(alpha, int(alpha)): alpha = int(alpha)
+
+zz_couplings = [ zz for zz in zz_couplings if not np.allclose(zz,1) ]
+inspect_zz_couplings = [ zz for zz in inspect_zz_couplings if not np.allclose(zz,1) ]
 
 assert(spin_num <= 12)
 print("lattice shape:",lattice_shape)
@@ -194,10 +197,10 @@ if project:
 chi_eff_bare = 1/4 * np.mean(list(couplings_sun.values()))
 state_X = functools.reduce(np.kron, [up+dn]*spin_num).astype(complex) / 2**(spin_num/2)
 
-def simulate(coupling_zz, sim_time = None, max_tau = 2):
-    print("coupling_zz:", coupling_zz)
+def simulate(zz_coupling, sim_time = None, max_tau = 2):
+    print("zz_coupling:", zz_coupling)
     sys.stdout.flush()
-    zz_sun_ratio = coupling_zz - 1
+    zz_sun_ratio = zz_coupling - 1
     assert(zz_sun_ratio != 0)
 
     H = H_0 + zz_sun_ratio * ZZ
@@ -250,14 +253,14 @@ def relabel(correlators):
 
 str_op_list = ", ".join(str_ops)
 
-for coupling_zz in inspect_coupling_zz:
-    times, correlators, pops = simulate(coupling_zz, sim_time = inspect_sim_time)
+for zz_coupling in inspect_zz_couplings:
+    times, correlators, pops = simulate(zz_coupling, sim_time = inspect_sim_time)
     sqz = squeezing_from_correlators(spin_num, relabel(correlators), pauli_ops = True)
 
     _manifolds = [ manifold for manifold in manifolds
                    if not _is_zero(pops[:,manifold]) ]
 
-    with open(data_dir + f"inspect_{name_tag}_z{coupling_zz}.txt", "w") as file:
+    with open(data_dir + f"inspect_{name_tag}_z{zz_coupling:.1f}.txt", "w") as file:
         file.write(f"# times, {str_op_list}, sqz, populations (within each shell)\n")
         for idx, manifold in enumerate(_manifolds):
             file.write(f"# manifold {manifold} : {idx}\n")
@@ -269,48 +272,51 @@ for coupling_zz in inspect_coupling_zz:
             file.write("\n")
 
 ##########################################################################################
-if len(sweep_coupling_zz) == 0: exit()
+if len(zz_couplings) == 0: exit()
 print("running sweep simulations")
 sys.stdout.flush()
 
-sweep_coupling_zz = sweep_coupling_zz[sweep_coupling_zz != 1]
-sweep_results = [ simulate(coupling_zz) for coupling_zz in sweep_coupling_zz ]
-sweep_times, sweep_correlators, sweep_pops = zip(*sweep_results)
+results = [ simulate(zz_coupling) for zz_coupling in zz_couplings ]
+sweep_times, sweep_correlators, sweep_pops = zip(*results)
 
 print("computing squeezing values")
 sys.stdout.flush()
 
 sweep_sqz = [ squeezing_from_correlators(spin_num, relabel(correlators), pauli_ops = True)
               for correlators in sweep_correlators ]
-sweep_min_sqz = [ min(sqz) for sqz in sweep_sqz ]
+min_sqz_vals = [ min(sqz) for sqz in sweep_sqz ]
 min_sqz_idx = [ max(1,np.argmin(sqz)) for sqz in sweep_sqz ]
-sweep_time_opt = [ sweep_times[zz][idx] for zz, idx in enumerate(min_sqz_idx) ]
+opt_time_vals = [ sweep_times[zz][tt] for zz, tt in enumerate(min_sqz_idx) ]
 
-sweep_pops = [ pops[:min_idx,:] for pops, min_idx in zip(sweep_pops, min_sqz_idx) ]
-sweep_min_pops = np.array([ pops.min(axis = 0) for pops in sweep_pops ])
-sweep_max_pops = np.array([ pops.max(axis = 0) for pops in sweep_pops ])
+min_SS_vals = [ min( correlator[(0,2,0)].real/4 + correlator[(1,0,1)].real )
+                for correlator in sweep_correlators ]
+
+pop_vals = [ pops[:tt,:] for pops, tt in zip(sweep_pops, min_sqz_idx) ]
+min_pop_vals = np.array([ pops.min(axis = 0) for pops in pop_vals ])
+max_pop_vals = np.array([ pops.max(axis = 0) for pops in pop_vals ])
 
 str_op_opt_list = ", ".join([ op + "_opt" for op in str_ops ])
-correlators_opt = [ { op : correlator[op][min_idx] for op in tup_ops }
-                    for correlator, min_idx in zip(sweep_correlators, min_sqz_idx) ]
+opt_correlators = [ { op : correlator[op][tt] for op in tup_ops }
+                    for correlator, tt in zip(sweep_correlators, min_sqz_idx) ]
 
 _manifolds = [ manifold for manifold in manifolds
-               if not _is_zero(sweep_max_pops[:,manifold]) ]
+               if not _is_zero(max_pop_vals[:,manifold]) ]
 
 print("saving results")
 sys.stdout.flush()
 
 with open(data_dir + f"sweep_{name_tag}.txt", "w") as file:
-    file.write(f"# coupling_zz, time_opt, sqz_min, {str_op_opt_list}, min_pop_0,"
-               + " max_pop (for manifolds > 0)\n")
+    file.write(f"# zz_coupling, time_opt, sqz_min, {str_op_opt_list}, SS_min, "
+               + "min_pop_0, max_pop (for manifolds > 0)\n")
     file.write("# manifolds : ")
     file.write(" ".join([ str(manifold) for manifold in _manifolds ]))
     file.write("\n")
-    for zz in range(len(sweep_coupling_zz)):
-        file.write(f"{sweep_coupling_zz[zz]} {sweep_time_opt[zz]} {sweep_min_sqz[zz]} ")
-        file.write(" ".join([ str(correlators_opt[zz][op]) for op in tup_ops ]))
-        file.write(f" {sweep_min_pops[zz,0]} ")
-        file.write(" ".join([ str(sweep_max_pops[zz,manifold])
+    for zz in range(len(zz_couplings)):
+        file.write(f"{zz_couplings[zz]} {opt_time_vals[zz]} ")
+        file.write(f"{min_sqz_vals[zz]} {min_SS_vals[zz]} ")
+        file.write(" ".join([ str(opt_correlators[zz][op]) for op in tup_ops ]))
+        file.write(f" {min_pop_vals[zz,0]} ")
+        file.write(" ".join([ str(max_pop_vals[zz,manifold])
                               for manifold in _manifolds[1:] ]))
         file.write("\n")
 
