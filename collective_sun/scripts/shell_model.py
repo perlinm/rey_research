@@ -207,6 +207,7 @@ for op in [ "Z", "+" ]:
                 file.write(f"{idx_lft} {idx_rht} {op_val}\n")
 
         collective_ops[op] = scipy.sparse.csr_matrix(pauli_op)
+        del pauli_op
 
 collective_ops["ZZ"] = collective_ops["Z"] @ collective_ops["Z"]
 collective_ops["++"] = collective_ops["+"] @ collective_ops["+"]
