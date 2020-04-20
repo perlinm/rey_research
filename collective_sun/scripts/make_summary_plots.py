@@ -165,13 +165,13 @@ with open(sweep_file, "r") as file:
 zz_coupling = data[:,0].real
 time_opt = data[:,1].real
 min_sqz = data[:,2].real
-correlators_opt = { "Z" : data[:,3],
-                    "+" : data[:,4],
-                    "ZZ" : data[:,5],
-                    "++" : data[:,6],
-                    "+Z" : data[:,7],
-                    "+-" : data[:,8] }
-min_SS = data[:,9].real
+min_SS = data[:,3].real
+correlators_opt = { "Z" : data[:,4],
+                    "+" : data[:,5],
+                    "ZZ" : data[:,6],
+                    "++" : data[:,7],
+                    "+Z" : data[:,8],
+                    "+-" : data[:,9] }
 min_pops_0 = data[:,10].real
 max_pops = data[:,11:].real
 
@@ -203,8 +203,8 @@ plt.savefig(fig_dir + f"SS_{name_tag}.pdf")
 plt.figure(figsize = figsize)
 plt.title(common_title)
 plt.plot(zz_coupling, min_pops_0, "o", label = pop_label(0,"min"))
-for manifold, max_pops in zip(manifolds[1:], max_pops.T):
-    plt.plot(zz_coupling, max_pops, "o", label = pop_label(manifold,"max"))
+for manifold, manifold_max_pops in zip(manifolds[1:], max_pops.T):
+    plt.plot(zz_coupling, manifold_max_pops, "o", label = pop_label(manifold,"max"))
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel("population")
 plt.legend(loc = "best", handletextpad = 0.1)

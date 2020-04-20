@@ -247,9 +247,7 @@ def _is_zero(array):
 str_ops = [ "Z", "+", "ZZ", "++", "+Z", "+-" ]
 tup_ops = [ (0,1,0), (1,0,0), (0,2,0), (2,0,0), (1,1,0), (1,0,1) ]
 def relabel(correlators):
-    for str_op, tup_op in zip(str_ops, tup_ops):
-        correlators[tup_op] = correlators.pop(str_op)
-    return correlators
+    return { tup_op : correlators[str_op] for tup_op, str_op in zip(tup_ops, str_ops) }
 
 str_op_list = ", ".join(str_ops)
 
@@ -266,7 +264,7 @@ for zz_coupling in inspect_zz_couplings:
             file.write(f"# manifold {manifold} : {idx}\n")
         for tt in range(len(times)):
             file.write(f"{times[tt]} ")
-            file.write(" ".join([ str(correlators[op][tt]) for op in tup_ops ]))
+            file.write(" ".join([ str(correlators[op][tt]) for op in str_ops ]))
             file.write(f" {sqz[tt]} ")
             file.write(" ".join([ str(pops[tt,manifold]) for manifold in _manifolds ]))
             file.write("\n")
@@ -288,15 +286,15 @@ min_sqz_vals = [ min(sqz) for sqz in sweep_sqz ]
 min_sqz_idx = [ max(1,np.argmin(sqz)) for sqz in sweep_sqz ]
 opt_time_vals = [ sweep_times[zz][tt] for zz, tt in enumerate(min_sqz_idx) ]
 
-min_SS_vals = [ min( correlator[(0,2,0)].real/4 + correlator[(1,0,1)].real )
-                for correlator in sweep_correlators ]
+min_SS_vals = [ min( correlators["ZZ"][:tt].real/4 + correlators["+-"][:tt].real )
+                for correlators, tt in zip(sweep_correlators, min_sqz_idx) ]
 
 pop_vals = [ pops[:tt,:] for pops, tt in zip(sweep_pops, min_sqz_idx) ]
 min_pop_vals = np.array([ pops.min(axis = 0) for pops in pop_vals ])
 max_pop_vals = np.array([ pops.max(axis = 0) for pops in pop_vals ])
 
 str_op_opt_list = ", ".join([ op + "_opt" for op in str_ops ])
-opt_correlators = [ { op : correlator[op][tt] for op in tup_ops }
+opt_correlators = [ { op : correlator[op][tt] for op in str_ops }
                     for correlator, tt in zip(sweep_correlators, min_sqz_idx) ]
 
 _manifolds = [ manifold for manifold in manifolds
@@ -314,7 +312,7 @@ with open(data_dir + f"sweep_{name_tag}.txt", "w") as file:
     for zz in range(len(zz_couplings)):
         file.write(f"{zz_couplings[zz]} {opt_time_vals[zz]} ")
         file.write(f"{min_sqz_vals[zz]} {min_SS_vals[zz]} ")
-        file.write(" ".join([ str(opt_correlators[zz][op]) for op in tup_ops ]))
+        file.write(" ".join([ str(opt_correlators[zz][op]) for op in str_ops ]))
         file.write(f" {min_pop_vals[zz,0]} ")
         file.write(" ".join([ str(max_pop_vals[zz,manifold])
                               for manifold in _manifolds[1:] ]))
