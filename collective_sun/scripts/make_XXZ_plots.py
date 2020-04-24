@@ -9,14 +9,19 @@ np.set_printoptions(linewidth = 200)
 data_dir = "../data/"
 fig_dir = "../figures/XXZ/"
 
-params = { "font.size" : 8,
+params = { "font.size" : 9,
            "text.usetex" : True,
            "text.latex.preamble" : [ r"\usepackage{braket}",
                                      r"\usepackage{bm}" ]}
 plt.rcParams.update(params)
 
-def make_name_tag(lattice_text, alpha):
-    return f"L{lattice_text}_a{alpha}_M4"
+def make_name_tag(lattice_text, alpha, data_format = "shell"):
+    if data_format == "shell":
+        return f"L{lattice_text}_a{alpha}_M4"
+    if data_format == "dtwa":
+        return f"{lattice_text}_alpha_{alpha}"
+    else:
+        print(f"data file format unrecognized : {data_format}")
 
 def pop_label(manifold):
     return r"$\braket{\mathcal{P}_{" + str(manifold) + r"}}_{\mathrm{max}}$"
@@ -27,7 +32,7 @@ def to_dB(sqz):
 ##########################################################################################
 # collect shell model data
 
-lattice = (5,5)
+lattice = (6,6)
 alpha = 3
 excess_pop = 0.1
 zz_lims = (-1,3)
@@ -73,8 +78,8 @@ def shade_exclusions(axis = None):
     axis.axvspan(zz_coupling[0], min_zz, alpha = 0.5, color = "grey")
     axis.axvspan(max_zz, zz_coupling[-1], alpha = 0.5, color = "grey")
 
-##########################################################################################
-# make plots
+##################################################
+# make population plot
 
 plt.figure(figsize = (3,1.8))
 for idx, pops in enumerate(max_pops.T):
@@ -82,17 +87,29 @@ for idx, pops in enumerate(max_pops.T):
 shade_exclusions()
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel("population")
-plt.legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.46,0.72))
+plt.legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.48,0.66))
 plt.tight_layout(pad = 0.2)
 plt.savefig(fig_dir + f"populations_{name_tag}.pdf")
 
+##################################################
+# make DTWA benchmarking plot
+
 figure, axes = plt.subplots(2, figsize = (3,3))
-axes[0].plot(zz_coupling, -to_dB(min_sqz), "k.")
-axes[0].set_ylabel(r"$-10\log_{10}\xi_{\mathrm{opt}}^2$")
+axes[0].plot(zz_coupling, -to_dB(min_sqz), "k.", label = "TS$_4$")
 axes[1].plot(zz_coupling, min_SS / (spin_num/2*(spin_num/2+1)), "k.")
+
+# collect DTWA data
+name_tag_dtwa = make_name_tag(lattice_text, alpha, "dtwa")
+zz_coupling, min_sqz_dB, min_SS_normed \
+    = np.loadtxt(data_dir + f"DTWA/dtwa_{name_tag_dtwa}.txt", unpack = True)
+axes[0].plot(zz_coupling, -min_sqz_dB, "r.", label = "DTWA")
+axes[1].plot(zz_coupling, min_SS_normed, "r.")
+
+axes[0].set_ylabel(r"$-10\log_{10}\xi_{\mathrm{min}}^2$")
 axes[1].set_ylabel(r"$\braket{\bm S^2}_{\mathrm{min}} / \braket{\bm S^2}_0$")
 axes[1].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 shade_exclusions(axes[0])
 shade_exclusions(axes[1])
+axes[0].legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.43,0.3))
 plt.tight_layout(pad = 0.8)
 plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")

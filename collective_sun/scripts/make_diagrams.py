@@ -225,9 +225,14 @@ def add_double_labels(labels = None, pads = [ 0.3, 0.3 ]):
 
 dots = { "a" : 1, "abc" : 1, "ac" : 1, "bc" : 2 }
 make_triple_diagram(dots, figsize = (1,1))
-add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
+add_triple_labels(["1","2","3"])
 plt.tight_layout(pad = 0)
 plt.savefig(fig_dir + "example_123.pdf")
+
+make_triple_diagram(dots, figsize = (1,1))
+add_triple_labels(["w_1","w_2","w_3"], pads = [ 0.25, 0.5, 0.55 ])
+plt.tight_layout(pad = 0)
+plt.savefig(fig_dir + "example_w123.pdf")
 
 dots = { "a" : 4, "ab" : 1, "b" : 1 }
 markers = { "a" : "..oo", "b" : "o" }
@@ -247,7 +252,7 @@ plt.close("all")
 
 ### example diagrams for elimination
 
-dots = { "a" : 1, "ab" : 1, "b" : 1 }
+dots = { "a" : 1, "b" : 1, "ab" : 1 }
 make_double_diagram(dots)
 add_double_labels()
 plt.tight_layout(pad = 0.15)
@@ -269,41 +274,41 @@ add_double_labels()
 plt.tight_layout(pad = 0.15)
 plt.savefig(fig_dir + "example_elim_x_full.pdf")
 
-plt.close("all")
-
-### example diagrams for symmetry factors
-
-dots = { "a" : 4, "b" : 4, "ab" : 1 }
-make_double_diagram(dots)
-add_double_labels()
-plt.tight_layout(pad = 0.15)
-plt.savefig(fig_dir + "example_sym.pdf")
-
-make_double_diagram(dots, { "a" : "o" })
-add_double_labels()
-plt.tight_layout(pad = 0.15)
-plt.savefig(fig_dir + "example_sym_o.pdf")
-
+dots = { "a" : 2, "b" : 3 }
 make_double_diagram(dots, { "a" : "x" })
 add_double_labels()
 plt.tight_layout(pad = 0.15)
-plt.savefig(fig_dir + "example_sym_x.pdf")
+plt.savefig(fig_dir + "example_elim_color_start.pdf")
 
-make_double_diagram(dots, { "a" : "oo" })
+dots = { "a" : 2, "b" : ( 3, [ "r", "m", "b" ]) }
+make_double_diagram(dots, { "a" : "x" })
 add_double_labels()
 plt.tight_layout(pad = 0.15)
-plt.savefig(fig_dir + "example_sym_oo.pdf")
+plt.savefig(fig_dir + "example_elim_color_x.pdf")
 
-make_double_diagram(dots, { "a" : "ox" })
-add_double_labels()
-plt.tight_layout(pad = 0.15)
-plt.savefig(fig_dir + "example_sym_ox.pdf")
-
-dots = { "a" : 3, "b" : 3, "ab" : 2 }
+dots = { "a" : 1, "b" : ( 2, [ "m", "b" ]), "ab" : ( 1, ["r"] ) }
 make_double_diagram(dots)
 add_double_labels()
 plt.tight_layout(pad = 0.15)
-plt.savefig(fig_dir + "example_sym_x_elim.pdf")
+plt.savefig(fig_dir + "example_elim_color_x_r.pdf")
+
+dots = { "a" : 1, "b" : ( 2, [ "r", "b" ]), "ab" : ( 1, ["m"] ) }
+make_double_diagram(dots)
+add_double_labels()
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_elim_color_x_m.pdf")
+
+dots = { "a" : 1, "b" : ( 2, [ "m", "r" ]), "ab" : ( 1, ["b"] ) }
+make_double_diagram(dots)
+add_double_labels()
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_elim_color_x_b.pdf")
+
+dots = { "a" : 1, "b" : 2, "ab" : 1 }
+make_double_diagram(dots)
+add_double_labels()
+plt.tight_layout(pad = 0.15)
+plt.savefig(fig_dir + "example_elim_color_end.pdf")
 
 plt.close("all")
 
@@ -385,6 +390,16 @@ make_double_diagram(dots, { "a" : "o" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
 plt.savefig(fig_dir + f"two_body_0_o.pdf")
+
+make_double_diagram(dots, { "a" : "oo" })
+add_double_labels()
+plt.tight_layout(pad = 0.05)
+plt.savefig(fig_dir + f"two_body_0_oo.pdf")
+
+make_double_diagram(dots, { "a" : "ox" })
+add_double_labels()
+plt.tight_layout(pad = 0.05)
+plt.savefig(fig_dir + f"two_body_0_ox.pdf")
 
 make_double_diagram(dots, { "a" : "x" })
 add_double_labels()
