@@ -33,7 +33,8 @@ zz_couplings = np.arange(-3, +4.01, 0.1)
 
 # values of the ZZ coupling to inspect more closely: half-integer values
 inspect_zz_couplings = [ zz_coupling for zz_coupling in zz_couplings
-                         if np.allclose(zz_coupling % 0.5, 0) ]
+                         if np.allclose(zz_coupling % 0.5, 0)
+                         or np.allclose(zz_coupling % 0.5, 0.5) ]
 inspect_sim_time = 2
 
 periodic = True # use periodic boundary conditions?
@@ -163,19 +164,19 @@ print("building operators")
 sys.stdout.flush()
 
 dist = dist_method(lattice_shape)
-couplings_sun = { (pp,qq) : -1/dist(pp,qq)**alpha
-                  for qq in range(spin_num) for pp in range(qq) }
+sunc_mat = np.zeros((spin_num,spin_num))
+for pp, qq in itertools.combinations(range(spin_num),2):
+    sunc_mat[pp,qq] = sunc_mat[qq,pp] = -1/dist(pp,qq)**alpha
 
 swap = np.array([[ 1, 0, 0, 0 ],
                  [ 0, 0, 1, 0 ],
                  [ 0, 1, 0, 0 ],
                  [ 0, 0, 0, 1 ]])
-H_0 = sum( coupling * spin_op(swap, pp_qq).real
-           for pp_qq, coupling in couplings_sun.items() )
+H_0 = sum( sunc_mat[pp_qq] * spin_op(swap, pp_qq).real
+           for pp_qq in itertools.combinations(range(spin_num),2) )
 
-# note: factor of 1/2 included for consistency with the normalization of H_0
-ZZ = sum( coupling * spin_op(["Z","Z"], pp_qq).real / 2
-          for pp_qq, coupling in couplings_sun.items() )
+ZZ = sum( sunc_mat[pp_qq] * spin_op(["Z","Z"], pp_qq).real / 2
+          for pp_qq in itertools.combinations(range(spin_num),2) )
 
 def col_op(op):
     return sum( spin_op(op,idx) for idx in range(spin_num) )
@@ -193,8 +194,7 @@ if project:
 
 ##########################################################################################
 
-# note: extra factor of 1/2 due to normalization convention
-chi_eff_bare = 1/4 * np.mean(list(couplings_sun.values()))
+chi_eff_bare = sunc_mat.sum() / (spin_num * (spin_num-1))
 state_X = functools.reduce(np.kron, [up+dn]*spin_num).astype(complex) / 2**(spin_num/2)
 
 def simulate(zz_coupling, sim_time = None, max_tau = 2):

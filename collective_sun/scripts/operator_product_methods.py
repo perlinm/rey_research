@@ -138,15 +138,13 @@ def reduce_diagram(diagram):
             empty_copy = diagram.copy()
             empty_copy[region] = ( markers[0]-1, markers[1], markers[2]+1 )
             empty_diag = reduce_diagram(empty_copy)
-            empty_sym = ( markers[2]+1 ) / markers[0] # symmetry factor
 
             # convert a filled dot into a cross
             cross_copy = diagram.copy()
             cross_copy[region] = ( markers[0]-1, markers[1]+1, markers[2] )
             cross_diag = reduce_diagram(cross_copy)
-            cross_sym = 1 / markers[0] # symmetry factor
 
-            return empty_sym * empty_diag - cross_sym * cross_diag
+            return empty_diag - cross_diag
 
     # otherwise, eliminate any crosses in a diagram
     else:
@@ -169,8 +167,8 @@ def reduce_diagram(diagram):
                 if joint_markers == None: joint_markers = (0,0,0)
                 new_diagram[joint_region] = ( joint_markers[0]+1, ) + joint_markers[-2:]
 
-                symmetry_factor = new_diagram[joint_region][0]
-                return symmetry_factor * reduce_diagram(new_diagram)
+                multiplicity = diagram[other_region][0]
+                return multiplicity * reduce_diagram(new_diagram)
 
             return sum([ _take_from_region(other_region)
                          for other_region, other_markers in diagram.items()
@@ -185,15 +183,6 @@ def reduce_diagram(diagram):
 # get appropriate data type to use, given a list of operators
 def _get_dtype(operators):
     return type( np.product([ operator.ravel()[0] for operator in operators ]) )
-
-# symmetrize a tensor operator under all permutations of its target spaces
-def symmetrize_operator(oper):
-    subsystems = oper.ndim//2
-    def _permuted_oper(perm):
-        return np.transpose(oper, perm + tuple( np.array(perm) + subsystems ) )
-    perm_sum = sum( _permuted_oper(perm) for perm in it.permutations(range(subsystems)) )
-    num_perms = np.math.factorial(subsystems)
-    return perm_sum / num_perms
 
 # contract operators according to a set diagram
 def contract_ops(base_ops, diagram):
@@ -228,7 +217,7 @@ def contract_ops(base_ops, diagram):
     return np.array( tf.einsum(contraction, *base_ops).numpy() )
 
 # contract tensors according to a set/index diagram
-# note: assumes translational invariance by default
+# note: assumes that all tensors are permutationally symmetric
 def contract_tensors(tensors, diagram, TI):
     if len(diagram) == 0: return 1
 
@@ -290,9 +279,7 @@ def contract_tensors(tensors, diagram, TI):
     contraction_factors = ( _contract(tensors, contraction)
                             for tensors, contraction
                             in zip(group_tensors, group_contractions) )
-    symmetry_factor = np.prod([ np.math.factorial(points)
-                                for points in diagram.values() ])
-    return functools.reduce(operator.mul, contraction_factors) / symmetry_factor
+    return functools.reduce(operator.mul, contraction_factors)
 
 # check whether a multi-local operator is diagonal
 def _is_diagonal(operator):
@@ -430,7 +417,15 @@ def build_multi_local_op(spin_num, spin_dim, local_op,
 #   from a reduced diagram to a multi-local operator.
 def diagram_operators(operators):
     dimensions = [ operator.ndim//2 for operator in operators ]
-    return zip(*[ ( reduce_diagram(diagram), contract_ops(operators, diagram) )
+
+    # number of distinct index assignments consistent with a given diagram
+    def index_assignments(diagram):
+        num = np.prod([ np.math.factorial(dimension) for dimension in dimensions ])
+        den = np.prod([ np.math.factorial(points) for points in diagram.values() ])
+        return num / den
+
+    return zip(*[ ( reduce_diagram(diagram),
+                    index_assignments(diagram) * contract_ops(operators, diagram) )
                   for diagram in set_diagrams(dimensions) ])
 
 # project the product of multi-body operators onto the permutationally symmetric manifold

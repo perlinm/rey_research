@@ -7,34 +7,37 @@ import copy
 from itertools_extension import set_diagrams
 from operator_product_methods import diagram_vec
 
-dimensions = [ 2, 2, 2 ]
+dimensions = [ 2, 2 ]
 
-# construct a random symmetric tensor with zeros on all diagonal blocks
-def random_tensor(dimension):
-    tensor = np.zeros((spins,)*dimension)
-    for comb in it.combinations(range(spins), dimension):
-        num = np.random.rand()
-        for perm in it.permutations(comb):
-            tensor[perm] = num
-    return tensor
+def num_assignments(diagram):
+    factors = set.union(*[ set(subset) for subset in diagram.keys() ])
+    dimensions = { factor : sum( points for subset, points in diagram.items()
+                                 if factor in subset )
+                   for factor in factors }
+    num = np.prod([ np.math.factorial(dimension) for dimension in dimensions.values() ])
+    den = np.prod([ np.math.factorial(points) for points in diagram.values() ])
+    return num / den
+
+def diagram_weight(diagram):
+    return sum( num_indices
+                for ops, num_indices in diagram.items()
+                if len(ops) % 2 == 1 )
 
 # collect diagrams by weight of the multi-body operator they are associated with
 weight_vec = {}
 for diagram in set_diagrams(dimensions):
-    weight = sum( num_indices
-                  for ops, num_indices in diagram.items()
-                  if len(ops) % 2 == 1 )
-    if weight not in weight_vec.keys():
-        weight_vec[weight] = diagram_vec(diagram)
-    else:
-        weight_vec[weight] += diagram_vec(diagram)
+    weight = diagram_weight(diagram)
+    vec = num_assignments(diagram) * diagram_vec(diagram)
+    if weight not in weight_vec:
+        weight_vec[weight] = 0
+    weight_vec[weight] += vec
 
 for weight, vec in weight_vec.items():
     print(weight)
     print("-"*10)
 
     def _name(diag):
-        diag_name = ""
+        diag_name = f"{diagram_weight(diag)}_"
         if (0,1,2) in diag.keys():
             diag_name += str(diag[0,1,2])
         else:
@@ -48,7 +51,7 @@ for weight, vec in weight_vec.items():
     reduced_vec = vec.reduce().join_permutations()
     names_diags_coefs = sorted(zip(map(_name, reduced_vec.diags),
                                    reduced_vec.diags,
-                                   reduced_vec.coefs))[::-1]
+                                   reduced_vec.coefs))
 
     for name, diag, coef in names_diags_coefs:
         if coef == int(coef): coef = int(coef)

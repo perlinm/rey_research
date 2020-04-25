@@ -33,7 +33,8 @@ zz_couplings = np.arange(-3, +4.01, 0.1)
 
 # values of the ZZ coupling to inspect more closely: half-integer values
 inspect_zz_couplings = [ zz_coupling for zz_coupling in zz_couplings
-                         if np.allclose(zz_coupling % 0.5, 0) ]
+                         if np.allclose(zz_coupling % 0.5, 0)
+                         or np.allclose(zz_coupling % 0.5, 0.5) ]
 inspect_sim_time = 2
 
 max_time = 10 # in units of J_\perp
@@ -168,7 +169,7 @@ except:
     print(runtime(), "building perturbation operator")
     sys.stdout.flush()
     shell_coupling_op \
-        = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]], sunc, sunc["TI"])
+        = build_shell_operator([sunc["mat"]], [local_ops["ZZ"]/4], sunc, sunc["TI"])
     shell_coupling_op = np.einsum("ikjk->ijk", shell_coupling_op)
     np.savetxt(coupling_file, shell_coupling_op.flatten())
 
@@ -251,8 +252,7 @@ def coherent_spin_state(vec):
 # simulate!
 ##########################################################################################
 
-# note: extra factor of 1/2 in che_eff_bare for compatibility with Chunlei's work
-chi_eff_bare = 1/4 * sunc["mat"].sum() / np.math.comb(spin_num,2)
+chi_eff_bare = sunc["mat"].sum() / (spin_num * (spin_num-1))
 state_X = coherent_spin_state([0,1,0])
 
 def _states(initial_state, zz_sun_ratio, times):
@@ -276,8 +276,7 @@ def simulate(zz_coupling, sim_time = None, max_tau = 2, points = 500):
     times = np.linspace(0, sim_time, points)
 
     # compute states at all times of interest
-    # note: factor of 1/2 included for compatibility with Chunlei's work
-    states = _states(state_X, zz_sun_ratio/2, times)
+    states = _states(state_X, zz_sun_ratio, times)
 
     # compute collective spin correlators
     def val(mat, state):
