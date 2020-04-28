@@ -16,7 +16,7 @@ from special_functions import *
 
 # exact correlators for OAT with decoherence
 # adapted from results in foss-feig2013nonequilibrium
-def correlators_OAT(spin_num, times, dec_rates):
+def correlators_OAT(spin_num, times, dec_rates = (0,0,0)):
     N = spin_num
     S = N/2
     t = times
