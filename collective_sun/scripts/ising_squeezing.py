@@ -73,10 +73,13 @@ def ising_spin_correlators(times, sunc_mat, TI = False):
 
 def ising_squeezing_function(sunc_mat, TI = False):
     spin_num = sunc_mat.shape[0]
-    def correlators(time):
-        return ising_spin_correlators(time, sunc_mat, TI)
     def squeezing(time):
-        return squeezing_from_correlators(spin_num, correlators(time))
+        correlators = ising_spin_correlators(time, sunc_mat, TI)
+        xx = 2 * correlators[(1,0,0)].real / spin_num
+        bb = 4 * correlators[(1,1,0)].imag / spin_num
+        AA = 2 * correlators[(0,2,0)] + correlators[(2,0,0)].real - correlators[(1,0,1)]
+        aa = AA / spin_num
+        return ( 1 - aa - np.sqrt(aa**2 + bb**2) ) / xx**2
     return np.vectorize(squeezing)
 
 def ising_squeezing_optimum(sunc_mat, TI = False):
