@@ -71,6 +71,7 @@
 \DeclareMathOperator{\cov}{cov}
 \let\var\relax
 \DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\even}{even}
 
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
@@ -272,12 +273,12 @@ Hamiltonians in terms of self-adjoint operators, we define the {\it
   drive operators}
 \begin{align}
   D_{LM} \equiv \f{\eta_M}{\sqrt{2}}
-  \sp{T_{L\abs{M}} + \sign\p{M} T_{L\abs{M}}^\dag},
+  \sp{T_{LM} + \sign\p{M} T_{LM}^\dag},
   &&
   \eta_M \equiv
   \begin{cases}
     \sqrt{2} & M = 0 \\
-    \p{-1}^M \sign\p{M}^{3/2} & M \ne 0
+    \p{-1}^M \sign\p{M}^{M+1/2} & M \ne 0
   \end{cases},
   \label{eq:drive_ops}
 \end{align}
@@ -360,10 +361,10 @@ operators that permute tensor factors (subsystems) of a Hilbert space
 with an $N$-fold tensor product structure (e.g.~an array of nuclear
 spins).  Specifically, we denote the Hilbert space of an $n$-level
 system by $\H_n$, denote its $N$-fold tensor product by
-$\H_n^{\otimes N}$, and identify the set $\Pi\equiv\set{\Pi_\sigma}$
-of operators that permute tensor factors of $\H_n^{\otimes N}$
-according to elements $\sigma\in\SS_N$ of the symmetric group of order
-$N$.  We then expand
+$\H_n^{\otimes N}$, and identify the set $\Pi\equiv\set{\Pi_s}$ of
+operators that permute tensor factors of $\H_n^{\otimes N}$ according
+to elements $s\in\SS_N$ of the symmetric group of order $N$.  We then
+expand
 \begin{align}
   H_{\t{int}}
   = -\f{u}{2} \sum_{p,q,\mu,\nu} S_{\mu\nu}^{(p)} S_{\nu\mu}^{(q)}
@@ -913,14 +914,14 @@ single-particle Hamiltonian in \eqref{eq:H_lat_spin} yields
 Here we derive multiplication rules for transition operators on an $n$-dimensional Hilbert space, which allows us to expand
 \begin{align}
   T_{\ell_1 m_1} T_{\ell_2 m_2}
-  = \sum_{L,M} g_{\ell_1 m_1;\ell_2 m_2}^{LM} T_{LM},
+  = \sum_{L,M} f_{\ell_1 m_1;\ell_2 m_2}^{LM} T_{LM},
 \end{align}
 with structure constants
 \begin{align}
-  g_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
   \equiv \obk{T_{LM} | T_{\ell_1 m_1} T_{\ell_2 m_2}}
   = \tr\p{T_{LM}^\dag T_{\ell_1 m_1} T_{\ell_2 m_2}}.
-  \label{eq:trans_struct}
+  \label{eq:trans_struct_start}
 \end{align}
 For reference, the transition operators $T_{LM}$ are defined for
 integers $L,M$ with $0\le L<n$ and $\abs{M}\le L$ in terms of
@@ -947,8 +948,9 @@ we can find that
   \sum_{\mu,\nu} \p{-1}^M \bk{I\nu;L,-M|I\mu} \op{\mu}{\nu}
   = \p{-1}^M T_{L,-M}.
 \end{align}
-Substituting this result into \eqref{eq:trans_struct} and expanding
-Clebsch-Gordan coefficients in terms of Wigner 3-$j$ symbols as
+Substituting this result into \eqref{eq:trans_struct_start} and
+expanding Clebsch-Gordan coefficients in terms of Wigner 3-$j$ symbols
+as
 \begin{align}
   \bk{\ell_1 m_1; \ell_2 m_2| \ell_3 m_3}
   = \p{-1}^{-\ell_1+\ell_2-m_3} \sqrt{\p{2\ell_3+1}}
@@ -959,7 +961,7 @@ Clebsch-Gordan coefficients in terms of Wigner 3-$j$ symbols as
 \end{align}
 we find that
 \begin{multline}
-  g_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
   = \delta_{M,m_1+m_2}
   \p{-1}^M \sqrt{\p{2L+1}\p{2\ell_1+1}\p{2\ell_2+1}} \\
   \times \sum_{\mu,\nu,\rho} \p{-1}^{-3I+L+\ell_1+\ell_2-\mu-\nu-\rho}
@@ -979,7 +981,7 @@ we find that
 where we can evaluate the sum and introduce Wigner 6-$j$ symbols to
 get
 \begin{align}
-  g_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
   &= \delta_{M,m_1+m_2} \p{-1}^{2I+M}
   \sqrt{\p{2L+1}\p{2\ell_1+1}\p{2\ell_2+1}}
   \begin{pmatrix}
@@ -997,19 +999,22 @@ get
     \ell_1 & \ell_2 & L \\
     I & I & I
   \end{Bmatrix}.
-  \label{eq:trans_prod}
+  \label{eq:trans_struct}
 \end{align}
 The Wigner 6-$j$ symbol is symmetric under any permutation of its
 columns, while Clebsch-Gordan coefficients satisfy
 \begin{align}
   \bk{\ell_1 m_1; \ell_2 m_2| \ell_3 m_3}
-  = \p{-1}^{\ell_1+\ell_2-\ell_3}
+  &= \p{-1}^{\ell_1+\ell_2-\ell_3}
+  \bk{\ell_1,-m_1; \ell_2, -m_2| \ell_3 m_3} \\
+  &= \p{-1}^{\ell_1+\ell_2-\ell_3}
   \bk{\ell_2 m_2; \ell_1 m_1| \ell_3 m_3},
 \end{align}
 which implies that
 \begin{align}
-  g_{\ell_1 m_1;\ell_2 m_2}^{LM}
-  = \p{-1}^{\ell_1+\ell_2-L} g_{\ell_2 m_2;\ell_1 m_1}^{LM}.
+  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  &= \p{-1}^{\ell_1+\ell_2-L} f_{\ell_1,-m_2;\ell_2,-m_2}^{L,-M} \\
+  &= \p{-1}^{\ell_1+\ell_2-L} f_{\ell_2 m_2;\ell_1 m_1}^{LM}.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1019,101 +1024,191 @@ which implies that
 The drive operators are defined by
 \begin{align}
   D_{LM} \equiv \f{\eta_M}{\sqrt{2}}
-  \sp{T_{L\abs{M}} + \sign\p{M} T_{L\abs{M}}^\dag},
-  &&
-  \eta_M \equiv
-  \begin{cases}
-    \sqrt{2} & M = 0 \\
-    \p{-1}^M \sign\p{M}^{3/2} & M \ne 0
-  \end{cases},
-\end{align}
-or, equivalently,
-\begin{align}
-  D_{LM} \equiv \f{\tau_M}{\sqrt{2}}
   \sp{T_{LM} + \sign\p{M} T_{LM}^\dag},
   &&
-  \tau_M \equiv
+  \eta_M \equiv
   \begin{cases}
     \sqrt{2} & M = 0 \\
     \p{-1}^M \sign\p{M}^{M+1/2} & M \ne 0
   \end{cases},
 \end{align}
-which implies that
+or, equivalently,
 \begin{align}
-  T_{LM} = \f{\tilde\tau_M}{\sqrt{2}} \p{D_{LM} + i D_{L,-M}},
+  D_{LM} \equiv \f{\eta_M}{\sqrt{2}}
+  \sum_{s\in\set{\pm1}} \epsilon_{Ms} T_{L,sM},
   &&
-  \tilde\tau_M \equiv
+  \epsilon_{Ms} \equiv
   \begin{cases}
-    \sqrt{2}/\p{1+i} & M = 0 \\
-    \tau_M^* & M \ne 0
+    1 & s = +1 \\
+    \p{-1}^M \sign\p{M} & s = -1
   \end{cases},
 \end{align}
-where $\tau_M^*$ is the complex conjugate of $\tau_M$.  In order to
+which implies that
+\begin{align}
+  T_{LM} = \f{\tau_M}{\sqrt{2}}
+  \sum_{s\in\set{\pm1}} \sqrt{s} D_{L,sM},
+  &&
+  \tau_M \equiv
+  \begin{cases}
+    \sqrt{2}/\p{1+i} & M = 0 \\
+    \eta_M^* & M \ne 0
+  \end{cases},
+\end{align}
+where $\eta_M^*$ is the complex conjugate of $\eta_M$.  In order to
 evaluate the product of two drive operators, we can thus expand them
 in terms of transition operators, evaluate the corresponding products
 of transition operators (see Appendix \ref{sec:trans_prod}), and
-finally expand the result in terms of drive operators.  The general
-product of two drive operators takes the form
+finally expand the result in terms of drive operators.  The product of
+two drive operators is thus
 \begin{align}
   D_{\ell_1 m_1} D_{\ell_2 m_2}
-  = \f{\tau_{m_1}\tau_{m_2}}{\sqrt{2}}
-  \sum_L \p{g_{\ell_1 m_1;\ell_2 m_2}^{L,m_1+m_2}
-    E_{\ell_1 m_1;\ell_2 m_2}^{(L,+)}
-    + g_{\ell_1 m_1;\ell_2,-m_2}^{L,m_1-m_2}
-    E_{\ell_1 m_1;\ell_2 m_2}^{(L,-)}},
+  = \sum_{L,M} g_{\ell_1m_1;\ell_2m_2}^{LM} D_{LM}
+  \label{eq:drive_prod}
 \end{align}
-where in terms of
+where
 \begin{align}
-  \epsilon_M \equiv \p{-1}^M \sign\p{M},
+  g_{\ell_1m_1;\ell_2m_2}^{LM}
+  &\equiv \f{\eta_{m_1}\eta_{m_2}}{2\sqrt2}
+  \sum_{r,s_1,s_2\in\set{\pm1}} \epsilon_{m_1s_1} \epsilon_{m_2s_2}
+  \times f_{\ell_1,s_1m_1;\ell_2,s_2m_2}^{L,rM}
+  \times \tau_{s_1m_1+s_2m_2} \times \sqrt{r}.
 \end{align}
-we have
+Redefining $\p{s_1,s_2}\to\p{rs_1,rs_2}$ and using the facts that
 \begin{align}
-  E_{\ell_1 m_1;\ell_2 m_2}^{(L,+)}
-  &\equiv \sum_{s\in\set{\pm1}}
-  \f12 \sp{\tilde\tau_{m_1+m_2}
-    + i s \p{-1}^{L+\ell_1+\ell_2}
-    \epsilon_{m_1} \epsilon_{m_2} \tilde\tau_{-\p{m_1+m_2}}}
-  \sqrt{s} D_{L,s\p{m_1+m_2}},
-  \\
-  E_{\ell_1 m_1;\ell_2 m_2}^{(L,-)}
-  &\equiv \sum_{s\in\set{\pm1}}
-  \f12 \sp{\epsilon_{m_2} \tilde\tau_{m_1-m_2}
-    + i s \p{-1}^{L+\ell_1+\ell_2}
-    \epsilon_{m_1} \tilde\tau_{-\p{m_1-m_2}}}
-  \sqrt{s} D_{L,s\p{m_1-m_2}}.
+  f_{\ell_1,rs_1m_1;\ell_2,rs_2m_2}^{L,rM}
+  = r^{\ell_1+\ell_2+L} f_{\ell_1,s_1m_1;\ell_2,s_2m_2}^{LM},
+  &&
+  \tau_{rM} \sqrt{r} &= \tau_M \, \sigma_{Mr} \, r^M,
 \end{align}
-If $m_1\pm m_2=0$, these operators simplify to
+with
 \begin{align}
-  E_{\ell_1 m;\ell_2,-m}^{(L,+)}
-  &= \f1{\sqrt{2}} \sp{1 - \p{-1}^{L+\ell_1+\ell_2}
-    \p{1-\delta_{m,0}}} D_{L,0}, \\
-  E_{\ell_1 m;\ell_2 m}^{(L,-)}
-  &= \f{\epsilon_m}{\sqrt{2}}
-  \sp{1 + \p{-1}^{L+\ell_1+\ell_2}} D_{L,0},
+  \sigma_{Mr} \equiv
+  \begin{cases}
+    \sqrt{r} & M = 0 \\
+    \sign\p{M}^{\frac{1-r}{2}} & M \ne 0
+  \end{cases},
+  &&
+  0^0 \equiv 1,
 \end{align}
-and are otherwise
+we can simplify
 \begin{align}
-  E_{\ell_1 m_1;\ell_2 m_2}^{(L,+)}
-  &\stackrel{m_1+m_2\ne0}{=}
-  \tau_{m_1+m_2}^* \sum_{s\in\set{\pm1}}
-  \f12 \sp{1 + s \p{-1}^{L+\ell_1+\ell_2}
-    \epsilon_{m_1} \epsilon_{m_2} \epsilon_{m_1+m_2}}
-  \sqrt{s} D_{L,s\p{m_1+m_2}}, \\
-  E_{\ell_1 m_1;\ell_2 m_2}^{(L,-)}
-  &\stackrel{m_1-m_2\ne0}{=}
-  \tau_{m_1-m_2}^* \sum_{s\in\set{\pm1}}
-  \f12 \sp{\epsilon_{m_2} + s \p{-1}^{L+\ell_1+\ell_2}
-    \epsilon_{m_1} \epsilon_{m_1-m_2}}
-  \sqrt{s} D_{L,s\p{m_1-m_2}}.
+  g_{\ell_1m_1;\ell_2m_2}^{LM}
+  = \f{\eta_{m_1}\eta_{m_2}\tau_M}{\sqrt2}
+  \sum_{s_1,s_2\in\set{\pm1}} f_{\ell_1,s_1m_1;\ell_2,s_2m_2}^{LM}
+  \times \f12 \sum_{r\in\set{\pm1}}
+  \epsilon_{m_1,r s_1} \epsilon_{m_2,r s_2} \,
+  \sigma_{Mr} \, r^{\ell_1+\ell_2+L+M}.
+  \label{eq:drive_struct}
 \end{align}
-If $\p{m_1,m_2}=\p{0,m}$, then we can use the fact that
-$i\tau_m\tau_{-m}^*=\epsilon_m$ for $m\ne0$ to simplify
+In the case that $m_1=0$, we can simplify
 \begin{align}
-  D_{\ell_1,0} D_{\ell_2 m}
-  = \sum_L g_{\ell_1,0,\ell_2,m}^{Lm}
-  \sum_{s\in\set{\pm1}} \f12 \sp{1 + s \p{-1}^{L+\ell_1+\ell_2}}
-  \sqrt{s} D_{L,sm}.
+  g_{\ell_1,0;\ell_2,m}^{LM}
+  \stackrel{m\ne 0}{=} f_{\ell_1,0;\ell_2 m}^{Lm}
+  \times \delta_{\abs{M},\abs{m}} \times
+  \begin{cases}
+    \sp{\sp{\ell_1+\ell_2+L~\t{is even}}} & M = +m, \\
+    i \sp{\sp{\ell_1+\ell_2+L~\t{is odd}}} & M = -m,
+  \end{cases}
 \end{align}
+\begin{align}
+  g_{\ell_1,0;\ell_2,0}^{LM} = f_{\ell_1,0;\ell_2,0}^{LM}.
+\end{align}
+Here $\sp{\sp{X}}\equiv1$ if $X$ is true and $0$ otherwise.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Finding drive operator sub-algebras}
+
+Here we identify conditions under which the drive operator structure
+constants $g_{\ell_1m_1;\ell_2m_2}^{LM}$ vanish, which will help us
+identify subsets of all drive operators that are relevant in a
+particular physical scenario.  First, we note that
+$g_{\ell_1m_1;\ell_2m_2}^{LM}$ is guaranteed to be zero unless
+\begin{align}
+  M = s_1 m_1 + s_2 m_2 ~~ \t{for some} ~~ s_1,s_2\in\set{\pm1}.
+\end{align}
+Even if this condition is satisfied, the structure constant
+$g_{\ell_1m_1;\ell_2m_2}^{LM}$ can still vanish if the two terms in
+the sum over $r$ in \eqref{eq:drive_struct} have opposite sign.  For
+brevity, we define
+\begin{align}
+  z_{\ell_1m_1;\ell_2m_2}^{LM;s_1s_2r}
+  \equiv \epsilon_{m_1,r s_1} \epsilon_{m_2,r s_2} \,
+  \sigma_{Mr} \, r^{\ell_1+\ell_2+L+M}.
+\end{align}
+If $M=0$, then $\p{\sigma_{M,+1},\sigma_{M,-1}}=\p{1,i}$ and the
+remaining factors in $z_{\ell_1m_1;\ell_2m_2}^{LM;s_1s_2r}$ are real,
+so the sum over $r$ cannot vanish.  For the case of $M\ne0$, we can
+write
+\begin{align}
+  \epsilon_{ms} = \p{-1}^{\frac{1-s}{2}m} \sign\p{m}^{\frac{1-s}{2}},
+  &&
+  0^0 \equiv 1,
+\end{align}
+which allows us to expand
+\begin{align}
+  z_{\ell_1m_1;\ell_2m_2}^{LM;s_1s_2r}
+  \stackrel{M\ne0}{=} \p{-1}^{\frac{m_1+m_2}{2}-r\frac{M}{2}}
+  \sign\p{m_1}^{\frac{1-rs_1}{2}} \sign\p{m_2}^{\frac{1-rs_2}{2}}
+  \sign\p{M}^{\frac{1-r}{2}} r^{\ell_1+\ell_2+L+M}.
+\end{align}
+We then consider the dependence of each factor in this expansion on
+$r$:
+\begin{enumerate}
+\item $\p{-1}^{\frac{m_1+m_2}{2}-r\frac{M}{2}}$ changes sign with $r$
+  if and only if $M$ is odd,
+\item $\sign\p{m_1}^{\frac{1-rs_1}{2}}$ changes sign with $r$ if and
+  only if $m_1<0$,
+\item $\sign\p{m_2}^{\frac{1-rs_2}{2}}$ changes sign with $r$ if and
+  only if $m_2<0$,
+\item $\sign\p{M}^{\frac{1-r}{2}}$ changes sign with $r$ if and only
+  if $M<0$, and finally
+\item $r^{\ell_1+\ell_2+L+M}$ changes sign with $r$ if and only if
+  $\ell_1+\ell_2+L+M$ is odd.
+\end{enumerate}
+Altogether, the structure factor $g_{\ell_1m_1;\ell_2m_2}^{LM}$ is
+guaranteed to be zero unless an even number of the following six
+conditions are satisfied:
+\begin{align}
+  \ell_1 ~ \t{odd},
+  &&
+  \ell_2 ~ \t{odd},
+  &&
+  L ~ \t{odd}, \label{eq:L_conds} \\
+  m_1 < 0,
+  &&
+  m_2 < 0,
+  &&
+  M < 0. \label{eq:M_conds}
+\end{align}
+We now consider the structure factors
+$g_{\ell_1m_1;\ell_2m_2}^{LM,\pm}$ for (anti-)commutators of drive
+operators:
+\begin{align}
+  \sp{D_{\ell_1 m_1}, D_{\ell_2 m_2}}_\pm
+  = \sum_{L,M} g_{\ell_1m_1;\ell_2m_2}^{LM,\pm} D_{LM}.
+\end{align}
+The drive operators all self-adjoint, which implies that
+$g_{\ell_1m_1;\ell_2m_2}^{LM,\pm}$ must be purely real ($+$) or
+imaginary ($-$).  As a consequence, $g_{\ell_1m_1;\ell_2m_2}^{LM,\pm}$
+is {\it zero} unless $g_{\ell_1m_1;\ell_2m_2}^{LM}$ is purely real
+($+$) or imaginary ($-$).  These conditions under which
+$g_{\ell_1m_1;\ell_2m_2}^{LM}$ is purely real or imaginary turn out to
+be easy to determine by examination of the general product in
+\eqref{eq:drive_prod}, together with the fact that the drive operator
+$D_{LM}$ is purely real (imaginary) for $M\ge0$ ($M<0$).  It follows
+that $g_{\ell_1m_1;\ell_2m_2}^{LM}$ must be purely real (imaginary) if
+an even (odd) number of $m_1,m_2,M$ are negative.  Altogether,
+$g_{\ell_1m_1;\ell_2m_2}^{LM,\pm}$ can only be nonzero for an even
+($+$) or odd ($-$) number of $m_1,m_2,M$ are negative, which implies
+that an even ($+$) or odd ($-$) number of conditions in {\it each} of
+\eqref{eq:L_conds} and \eqref{eq:M_conds} must be satisfied in order
+to have $g_{\ell_1m_1;\ell_2m_2}^{LM,\pm}\ne0$.
+
+
+
+\red{todo: finish section}
+
+\vspace{2cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Weak SOC in the fully symmetric manifold}
@@ -1150,7 +1245,7 @@ all occupied quasi-momenta $q$;
 \end{align}
 is the covariance of $X_q$ and $Y_q$ over all occupied quasi-momenta
 $q$; and $g_{JKL} \equiv g_{J,0;K,0}^{L,0}$ is a structure constant of
-the transition operator algebra, defined in \eqref{eq:trans_prod}.
+the transition operator algebra, defined in \eqref{eq:trans_struct}.
 Substituting the form of $B_L^{(\phi,q)}$ in \eqref{eq:B_L_phi}, we
 get
 \begin{align}
