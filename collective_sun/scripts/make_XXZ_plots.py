@@ -133,7 +133,7 @@ axes[1].plot(axes[0].get_xlim(), [1]*2, "k--", label = "OAT")
 _, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = True)
 _, min_SS_ising = ising_minimal_SS(sunc_mat, TI = True)
 axes[0].plot(axes[0].get_xlim(), [-to_dB(sqz_ising)]*2, "k:")
-axes[1].plot(axes[0].get_xlim(), [min_SS_ising/max_SS]*2, "k:", label = "Ising")
+axes[1].plot(axes[0].get_xlim(), [min_SS_ising/max_SS]*2, "k:", label = "LOAT")
 
 # tweak axis limits
 axes[0].set_ylim(bottom = np.floor(-to_dB(sqz_ising)))
@@ -165,7 +165,7 @@ for file in glob.glob(data_files):
 
 # collect data for plotting
 alpha_vals = sorted(list(raw_data.keys()))
-zz_couplings = raw_data["nn"][:,0]
+zz_couplings = next(iter(raw_data.values()))[:,0]
 data = {}
 keep = np.where(np.logical_and(np.around(zz_couplings, decimals = 1) >= zz_lims[0],
                                np.around(zz_couplings, decimals = 1) <= zz_lims[1]))[0]
@@ -198,7 +198,7 @@ bar[2] = figure.colorbar(image[2], ax = axes[2], label = label_time)
 for axis in axes:
     axis.set_ylabel(r"$\alpha$")
     axis.set_yticks(range(len(alpha_vals)))
-    axis.set_yticklabels(alpha_vals)
+    axis.set_yticklabels([ alpha.replace("nn",r"$\infty$") for alpha in alpha_vals ])
     axis.set_xticks(np.where(np.isclose(zz_couplings % 1, 0))[0])
 axes[0].set_xticklabels([])
 axes[1].set_xticklabels([])
