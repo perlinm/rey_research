@@ -5,6 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
+from multibody_methods import dist_method
+from ising_squeezing import ising_squeezing_optimum, ising_minimal_SS
+
 np.set_printoptions(linewidth = 200)
 
 data_dir = "../data/"
@@ -41,8 +44,15 @@ lattice = (7,7)
 alpha = 3
 excess_pop = 0.1
 zz_lims = (-1,3)
+periodic = True
 
 spin_num = np.prod(lattice)
+
+dist = dist_method(lattice, periodic)
+sunc_mat = np.zeros((spin_num,spin_num))
+for ii in range(spin_num):
+    for jj in range(ii):
+        sunc_mat[ii,jj] = sunc_mat[jj,ii] = 1/dist(ii,jj)**alpha
 
 lattice_text = "x".join([ str(ll) for ll in lattice ])
 name_tag = make_name_tag(lattice_text, alpha)
@@ -99,11 +109,15 @@ plt.savefig(fig_dir + f"populations_{name_tag}.pdf")
 ##################################################
 # make DTWA benchmarking plot
 
-figure, axes = plt.subplots(2, figsize = (3,3))
-axes[0].plot(zz_coupling, -to_dB(min_sqz), "k.", label = "TS$_4$")
-axes[1].plot(zz_coupling, min_SS / (spin_num/2*(spin_num/2+1)), "k.")
+max_SS = spin_num/2 * (spin_num/2+1)
 
-# collect DTWA data
+figure, axes = plt.subplots(2, figsize = (3,3))
+
+# plot shell model results
+axes[0].plot(zz_coupling, -to_dB(min_sqz), "k.", label = "TS$_4$")
+axes[1].plot(zz_coupling, min_SS / max_SS, "k.")
+
+# plot DTWA results
 name_tag_dtwa = make_name_tag(lattice_text, alpha, "dtwa")
 zz_coupling, min_sqz_dB, min_SS_normed \
     = np.loadtxt(data_dir + f"DTWA/dtwa_{name_tag_dtwa}.txt", unpack = True)
@@ -112,22 +126,29 @@ axes[0].plot(zz_coupling, -min_sqz_dB, "r.", label = "DTWA")
 axes[1].plot(zz_coupling, min_SS_normed, "r.")
 
 # reference: collective and Ising limits
-spin_nums, sqz_vals = np.loadtxt(data_dir + "sqz_OAT.txt", delimiter = ",", unpack = True)
-sqz_OAT_dB = np.interp(np.log(spin_num), np.log(spin_nums), -to_dB(sqz_vals))
-axes[0].plot(axes[0].get_xlim(), [sqz_OAT_dB]*2, "k--")
+_, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
+axes[0].plot(axes[0].get_xlim(), [-to_dB(sqz_OAT)]*2, "k--")
 axes[1].plot(axes[0].get_xlim(), [1]*2, "k--", label = "OAT")
+
+_, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = True)
+_, min_SS_ising = ising_minimal_SS(sunc_mat, TI = True)
+axes[0].plot(axes[0].get_xlim(), [-to_dB(sqz_ising)]*2, "k:")
+axes[1].plot(axes[0].get_xlim(), [min_SS_ising/max_SS]*2, "k:", label = "Ising")
+
+# tweak axis limits
+axes[0].set_ylim(bottom = np.floor(-to_dB(sqz_ising)))
+axes[1].set_ylim(bottom = np.floor(min_SS_ising/max_SS * 10)/10)
 
 axes[0].set_ylabel(label_sqz)
 axes[1].set_ylabel(label_SS)
 axes[1].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 shade_exclusions(axes[0])
 shade_exclusions(axes[1])
-axes[0].legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.45,0.3))
-axes[1].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.45,0.3))
+axes[0].legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.45,0.35))
+axes[1].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.45,0.35))
 plt.tight_layout(pad = 0.8)
 plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
-# plt.show()
-exit()
+
 ##########################################################################################
 # plot primary DTWA results
 
