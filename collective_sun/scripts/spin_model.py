@@ -286,7 +286,9 @@ min_sqz_vals = [ min(sqz) for sqz in sweep_sqz ]
 min_sqz_idx = [ max(1,np.argmin(sqz)) for sqz in sweep_sqz ]
 opt_time_vals = [ sweep_times[zz][tt] for zz, tt in enumerate(min_sqz_idx) ]
 
-min_SS_vals = [ min( correlators["ZZ"][:tt].real/4 + correlators["+-"][:tt].real )
+min_SS_vals = [ min( + correlators["ZZ"][:tt].real/4
+                     + correlators["+-"][:tt].real
+                     - correlators["Z"][:tt].real/2 )
                 for correlators, tt in zip(sweep_correlators, min_sqz_idx) ]
 
 pop_vals = [ pops[:tt,:] for pops, tt in zip(sweep_pops, min_sqz_idx) ]
