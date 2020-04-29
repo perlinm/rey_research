@@ -34,7 +34,7 @@ def to_dB(sqz):
     return 10*np.log10(np.array(sqz))
 
 label_SS = r"$\braket{\bm S^2}_{\mathrm{min}} / \braket{\bm S^2}_0$"
-label_sqz = r"$-10\log_{10}\xi_{\mathrm{min}}^2$"
+label_sqz = r"$-10\log_{10}\xi_{\mathrm{opt}}^2$"
 label_time = r"$t_{\mathrm{opt}}\times J_\perp$"
 
 ##########################################################################################
@@ -43,10 +43,11 @@ label_time = r"$t_{\mathrm{opt}}\times J_\perp$"
 lattice = (7,7)
 alpha = 3
 excess_pop = 0.1
-zz_lims = (-1,3)
+zz_lims = (-1,2)
 periodic = True
 
 spin_num = np.prod(lattice)
+shell_xticks = np.arange(zz_lims[0], zz_lims[1]+1).astype(int)
 
 dist = dist_method(lattice, periodic)
 sunc_mat = np.zeros((spin_num,spin_num))
@@ -100,9 +101,10 @@ plt.figure(figsize = (3,1.8))
 for idx, pops in enumerate(max_pops.T):
     plt.plot(zz_coupling, pops, ".", label = pop_label(idx+1))
 shade_exclusions()
+plt.xticks(shell_xticks)
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel("population")
-plt.legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.47,0.66))
+plt.legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.63,0.67))
 plt.tight_layout(pad = 0.2)
 plt.savefig(fig_dir + f"populations_{name_tag}.pdf")
 
@@ -114,39 +116,44 @@ max_SS = spin_num/2 * (spin_num/2+1)
 figure, axes = plt.subplots(2, figsize = (3,3))
 
 # plot shell model results
-axes[0].plot(zz_coupling, -to_dB(min_sqz), "k.", label = "TS$_4$")
-axes[1].plot(zz_coupling, min_SS / max_SS, "k.")
+axes[0].plot(zz_coupling, min_SS / max_SS, "k.", label = "TS$_4$")
+axes[1].plot(zz_coupling, -to_dB(min_sqz), "k.")
 
 # plot DTWA results
 name_tag_dtwa = make_name_tag(lattice_text, alpha, "dtwa")
 zz_coupling, min_sqz_dB, min_SS_normed \
     = np.loadtxt(data_dir + f"DTWA/dtwa_{name_tag_dtwa}.txt", unpack = True)
 
-axes[0].plot(zz_coupling, -min_sqz_dB, "r.", label = "DTWA")
-axes[1].plot(zz_coupling, min_SS_normed, "r.")
+axes[0].plot(zz_coupling, min_SS_normed, "r.", label = "DTWA")
+axes[1].plot(zz_coupling, -min_sqz_dB, "r.")
 
 # reference: collective and Ising limits
+kwargs = { "color" : "k", "linestyle" : "--", "zorder" : 0 }
 _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
-axes[0].plot(axes[0].get_xlim(), [-to_dB(sqz_OAT)]*2, "k--")
-axes[1].plot(axes[0].get_xlim(), [1]*2, "k--", label = "OAT")
+axes[0].axhline(1, **kwargs)
+axes[1].axhline(-to_dB(sqz_OAT), **kwargs, label = "OAT")
 
+kwargs["linestyle"] = ":"
 _, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = True)
 _, min_SS_ising = ising_minimal_SS(sunc_mat, TI = True)
-axes[0].plot(axes[0].get_xlim(), [-to_dB(sqz_ising)]*2, "k:")
-axes[1].plot(axes[0].get_xlim(), [min_SS_ising/max_SS]*2, "k:", label = "LOAT")
+axes[0].axhline(min_SS_ising/max_SS, **kwargs)
+axes[1].axhline(-to_dB(sqz_ising), **kwargs, label = "LOAT")
 
 # tweak axis limits
-axes[0].set_ylim(bottom = np.floor(-to_dB(sqz_ising)))
-axes[1].set_ylim(bottom = np.floor(min_SS_ising/max_SS * 10)/10)
+axes[0].set_ylim(bottom = np.floor(min_SS_ising/max_SS * 10)/10)
+axes[1].set_ylim(bottom = np.floor(-to_dB(sqz_ising)))
+axes[0].set_xticks(shell_xticks)
+axes[1].set_xticks(shell_xticks)
+axes[0].set_xticklabels([])
 
-axes[0].set_ylabel(label_sqz)
-axes[1].set_ylabel(label_SS)
+axes[0].set_ylabel(label_SS)
+axes[1].set_ylabel(label_sqz)
 axes[1].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 shade_exclusions(axes[0])
 shade_exclusions(axes[1])
-axes[0].legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.45,0.35))
-axes[1].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.45,0.35))
-plt.tight_layout(pad = 0.8)
+axes[0].legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.6,0.4))
+axes[1].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.6,0.4))
+plt.tight_layout(pad = 0.5)
 plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 
 ##########################################################################################
