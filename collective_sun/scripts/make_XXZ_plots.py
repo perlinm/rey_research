@@ -19,7 +19,7 @@ params = { "font.size" : 9,
                                      r"\usepackage{bm}" ]}
 plt.rcParams.update(params)
 
-def make_name_tag(lattice_text, alpha, data_format = "shell"):
+def make_name_tag(lattice_text, alpha, data_format):
     name_tag = f"L{lattice_text}_a{alpha}"
     if data_format == "shell":
         name_tag += "_M4"
@@ -56,7 +56,7 @@ for ii in range(spin_num):
         sunc_mat[ii,jj] = sunc_mat[jj,ii] = 1/dist(ii,jj)**alpha
 
 lattice_text = "x".join([ str(ll) for ll in lattice ])
-name_tag = make_name_tag(lattice_text, alpha)
+name_tag = make_name_tag(lattice_text, alpha, "shell")
 sweep_file = data_dir + f"shells/sweep_{name_tag}.txt"
 data = np.loadtxt(sweep_file, dtype = complex)
 with open(sweep_file, "r") as file:
@@ -137,7 +137,7 @@ kwargs["linestyle"] = ":"
 _, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = True)
 _, min_SS_ising = ising_minimal_SS(sunc_mat, TI = True)
 axes[0].axhline(min_SS_ising/max_SS, **kwargs)
-axes[1].axhline(-to_dB(sqz_ising), **kwargs, label = "LOAT")
+axes[1].axhline(-to_dB(sqz_ising), **kwargs, label = "Ising")
 
 # tweak axis limits
 axes[0].set_ylim(bottom = np.floor(min_SS_ising/max_SS * 10)/10)
@@ -161,6 +161,7 @@ plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 
 lattice_text = "64x64"
 zz_lims = (-3,3)
+max_time = 50
 
 # import all relevant data
 name_tag = make_name_tag(lattice_text, "*", "dtwa")
@@ -182,15 +183,18 @@ data["sqr_len"] = np.array([ raw_data[alpha][keep,3] for alpha in alpha_vals ])
 del raw_data
 zz_couplings = zz_couplings[keep]
 
+data["opt_tim"][data["opt_tim"] > max_time] = None
+
 # insert "empty" data for zz_coupling = 1
 zz_couplings = np.insert(zz_couplings, np.where(zz_couplings > 1)[0][0], 1)
 for key in data.keys():
-    data[key] = np.insert(data[key], np.where(zz_couplings >= 1)[0][0], None, axis = 1)
+    critical_idx = np.where(zz_couplings >= 1)[0][0]
+    data[key] = np.insert(data[key], critical_idx, None, axis = 1)
 
 # plot data
 figure, axes = plt.subplots(3, figsize = (3,4))
 image = {}
-kwargs = { "aspect" : "auto", "origin" : "lower", "cmap" : "viridis" }
+kwargs = { "aspect" : "auto", "origin" : "lower", "cmap" : "inferno" }
 image[0] = axes[0].imshow(+data["sqr_len"], **kwargs)
 image[1] = axes[1].imshow(-data["min_sqz"], **kwargs)
 image[2] = axes[2].imshow(+data["opt_tim"], **kwargs, norm = LogNorm())
@@ -216,5 +220,5 @@ axes[2].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 for axis in axes:
     axis.plot(axis.get_xlim(), [axis.get_ylim()[1]-1]*2, "w")
 
-plt.tight_layout(pad = 0)
+plt.tight_layout(pad = 0.1)
 plt.savefig(fig_dir + f"dtwa_results_L{lattice_text}.pdf")
