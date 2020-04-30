@@ -69,9 +69,6 @@
 \newcommand{\PS}{\text{PS}}
 \newcommand{\EQPS}{=_{\text{PS}}}
 
-\let\var\relax
-\DeclareMathOperator{\var}{var}
-\DeclareMathOperator{\cov}{cov}
 \DeclareMathOperator{\diag}{diag}
 
 \usepackage{accents} % for the undertilde
@@ -188,10 +185,10 @@ interactions can be relaxed to the assumption of
 \end{enumerate*}
 In addition to working out the effective Hamiltonian induced by weak
 SU($n$) symmetry breaking through second order in perturbation theory,
-we develop a diagrammatic method to systematically compute all matrix
-elements of arbitrary spin operators restricted manifolds of weakly
-broken permutation symmetry, thereby enabling the numerical simulation
-of dynamics induced by non-perturbative modifications to the SU($n$)
+we develop a diagrammatic method to systematically compute matrix
+elements of arbitrary spin operators within manifolds of weakly broken
+permutational symmetry, thereby enabling the numerical simulation of
+dynamics induced by non-perturbative modifications to the SU($n$)
 Heisenberg model.  While the latter simulations generally accumulate
 uncontrolled truncation errors, we identify criteria under which
 numerical results correctly capture the qualitative dynamical behavior
@@ -271,11 +268,12 @@ $\mu,\nu\in\set{1,2,\cdots,n}$ index the states (sometimes called {\it
   {\displaystyle\longleftrightarrow}$
   \includegraphics[valign=m]{sketch_spins_swap.pdf}
   \caption{The permutation operator $\Pi_{ij}$ swaps the states of
-    spins $i$ and $j$, which in the case of SU(2) can be represented
-    by magnetization vectors in 3-dimensional space.  In the case of
-    SU($n$), these vectors live in a higher-dimensional space without
-    a clear geometric interpretation, but the interpretation of the
-    permutation operator $\Pi_{ij}$ remains the same.}
+    interacting spins $i$ and $j$, which in the case of SU(2) can be
+    represented by magnetization vectors in 3-dimensional space.  In
+    the case of SU($n$), these vectors live in a higher-dimensional
+    space without a clear geometric interpretation, but the
+    interpretation of the permutation operator $\Pi_{ij}$ remains the
+    same.}
   \label{fig:sketch_spins}
 \end{figure}
 
@@ -360,15 +358,15 @@ effect can be achieved by applying an inhomogeneous magnetic field,
   \label{eq:magnetic}
 \end{align}
 which gives rise to an OAT Hamiltonian at second order in perturbation
-theory, with a squeezing strength $\chi$ that is proportional to the
+theory, with a squeezing strength $\chi$ that is related to the
 variance of the magnetic field strength $B_i$.
 
-In order to go beyond first-order treatment of two-body interactions
-such as \eqref{eq:Ising}, or beyond second order in the treatment of
-single-body terms such as \eqref{eq:magnetic}, it will turn out to be
-necessary to introduce $M$-body operators with $M>2$.  Generalizing
-the above examples to the case of SU($n$) systems, we therefore
-consider a general $M$-body operator of the form
+Similarly to single- and two-body operators such as $H_{\t{B}}$ and
+$H_{\t{Ising}}$ in \eqref{eq:magnetic} and \eqref{eq:Ising}, it will
+be necessary for our purposes to additionally consider the
+introduction of $M$-body operators with $M>2$ \red{[todo: explain why
+  better]}. Generalizing the above examples to the case of SU($n$)
+systems, we therefore consider a general $M$-body operator of the form
 \begin{align}
   \O\p{\m w,X} \equiv \sum_{k\in\D_N\p{M}} w_k X_k,
   \label{eq:multi_body_op}
@@ -386,17 +384,20 @@ $X_k\equiv X_{k_1k_2\cdots k_M}$ acts on; and
 \end{align}
 is the strictly ``off-diagonal'' part of $\ZZ_N^M$, which is necessary
 to identify for a consistent definition of $X_k$ as an $M$-body
-operator.  In this notation, we can write the magnetic field and
+operator.  In this notation, we can write the magnetic field and Ising
 Hamiltonians in \eqref{eq:magnetic} and \eqref{eq:Ising} as
 $H_{\t{B}}=\O\p{\m B,s_\z}$ and
 $H_{\t{Ising}}=\O\p{\m J,s_\z\otimes s_\z}$.
 
 If the addition $\O\p{\m w,X}$ to the SU($n$)-symmetric Hamiltonian
-$H_0$ in \eqref{eq:H_0} is sufficiently small, then we can treat the
-effect of $\O\p{\m w,X}$ on the PS manifold $\M_0$ perturbatively.
-The effective Hamiltonians $H_{\t{eff}}^{(1)}$ and $H_{\t{eff}}^{(2)}$
-induced by $\O\p{\m w,X}$ on $\M_0$ at first and second order in
-perturbation theory are\cite{bravyi2011schrieffer}
+$H_0$ in \eqref{eq:H_0} is sufficiently small, namely with operator
+norm $\norm{\O\p{\m w,X}}$ less than half the spectral gap
+$\Delta_{\t{gap}}$ of $H_0$, $\norm{\O\p{\m w,X}}<\Delta_{\t{gap}}/2$,
+then we can treat the effect of $\O\p{\m w,X}$ on the ground-state PS
+manifold $\M_0$ perturbatively.  The effective Hamiltonians
+$H_{\t{eff}}^{(1)}$ and $H_{\t{eff}}^{(2)}$ induced by $\O\p{\m w,X}$
+on $\M_0$ at first and second order in perturbation theory
+are\cite{bravyi2011schrieffer}
 \begin{align}
   H_{\t{eff}}^{(1)} = \P_0 \O\p{\m w,X} \P_0,
   &&
@@ -448,7 +449,7 @@ decomposition of the form
   = \sum_\Delta \p{E_0+\Delta} \O\p{\m w_\Delta,X} \ket\psi,
 \end{align}
 where, thinking of the tensor $\m w$ as a $\abs{\D_N\p{M}}$-component
-vector, the tensor $\m w_\Delta$ can be found found by diagonalizing a
+vector, the tensor $\m w_\Delta$ can be found by diagonalizing a
 matrix $\hat{\m h}$ of dimensions
 $\abs{\D_N\p{M}}\times\abs{\D_N\p{M}}\sim N^M\times N^M$, and
 projecting $\m w$ onto the eigenspace of $\hat{\m h}$ with eigenvalue
@@ -476,19 +477,13 @@ single-body ($M=1$) and two-body ($M=2$) cases in Appendices
 single-body operator, then
 \begin{align}
   H_{\t{eff}}^{(2)}
-  = \sum_{\Delta\ne0} \f{\var\p{\m w_\Delta}}{\p{N-1}\Delta}
-  \p{\col{X}^2 - N \col{X^2}},
+  = \sum_{\Delta\ne0} \f{\m w_\Delta\c\m w_\Delta}{N\p{N-1}\Delta}
+  \p{\col{X}^2 - N \col{X^2}}.
   \label{eq:H_eff_2_1}
 \end{align}
-where
-\begin{align}
-  \var\p{\m w} \equiv \f1{\abs{\D_N\p{M}}}
-  \sum_{k\in\D_N\p{M}} \p{w_k - \mean w}^2
-\end{align}
-is the variance of $\m w$.  In the SU(2) case, this result implies
-that an inhomogeneous magnetic field ($X=s_\z$) yields the OAT
-Hamiltonian $H_{\t{OAT}}$ in \eqref{eq:OAT} at second order
-perturbation theory.
+In the SU(2) case, this result implies that an inhomogeneous magnetic
+field ($X=s_\z$) yields the OAT Hamiltonian $H_{\t{OAT}}$ in
+\eqref{eq:OAT} at second order perturbation theory.
 
 \newpage
 
@@ -672,7 +667,9 @@ to be orthogonal.
 \section{Existence of a spectral gap with long-range power-law
   interactions}
 \label{sec:spectral_gap}
-% todo: make a sub subsection of B.1
+
+\red{[todo: make this a subsection of Appendix
+  \ref{sec:single_body_eigenstates}]}
 
 Here we show that power-law SU($n$)-symmetric interactions of the form
 in \eqref{eq:H_0} with $h_{ij}=-h/\abs{i-j}^\alpha$ yield a
@@ -1157,7 +1154,7 @@ eigenvalue problem is then
   \P_{\S_M} \hat{\m h} \P_{\S_M} \c \m w = \Delta \m w.
 \end{align}
 More generally, even if the couplings $\m w$ of $\O\p{\m w,X}$ do not
-obey the spatial symmetries as $H_0$, these symmetries generally endow
+obey the spatial symmetries as $H_0$, these symmetries still endow
 $\hat{\m h}$ with a block-diagonal structure that reduces the
 complexity of the multi-body eigenvalue problem.  We leave this
 reduction to future work.  % todo: perform reduction
@@ -1357,9 +1354,10 @@ all index assignments $\ell\in\L\p{g}$.
 As a final point, we note that the choice to sum (average) for the
 scalar (operator) content of $\Q_g\p{\m w,\m X}$ in
 \eqref{eq:sum_assignments} and \eqref{eq:sum_diagrams} was arbitrary,
-and we could just as well have chosen to perform an average (sum) for
-the scalar (operator) content.  For later convenience, we therefore
-define the {\it mixed} sums and averages
+and we could just as well have chosen to interchange sums and
+averages.  To simplify the diagrammatic formalism we develop in the
+following section, we therefore define the {\it mixed} sums and
+averages
 \begin{align}
   \ut{\m w}\p{g} \equiv \f1{\abs{\L\p{g}}}
   \sum_{\ell\in\L\p{g}} \col{\m w}\p{\ell}
@@ -1369,10 +1367,12 @@ define the {\it mixed} sums and averages
 \begin{align}
   \ot{\m X}\p{g} \equiv \sum_{\ell\in\L\p{g}} \mean{\m X}\p{\ell}
   \EQPS \sum_{\ell\in\L\p{g}} \m X\p{k,\ell}
-  ~\t{for any}~ k\in\D_N\p{\abs{g}}.
+  ~\t{for any}~ k\in\D_N\p{\abs{g}},
 \end{align}
-If all tensors $w_\alpha$ in $\m w$ (or all operators $X_\alpha$ in
-$\m X$) are permutationally symmetric, then
+where $\ut{\m w}\p{g}$ sums over index values $k\in\D_N\p{\abs{g}}$,
+but averages over index assignments $\ell\in\L\p{g}$; and vice versa
+for $\ot{\m X}\p{g}$.  If all tensors $w_\alpha$ in $\m w$ (or all
+operators $X_\alpha$ in $\m X$) are permutationally symmetric, then
 \begin{align}
   \Q_g\p{\m w,\m X} \stackrel{\t{sym}}{=}_{\t{PS}}
   \ut{\m w}\p{g} \ot{\m X}\p{g}.
