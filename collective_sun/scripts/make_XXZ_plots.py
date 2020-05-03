@@ -116,38 +116,37 @@ max_SS = spin_num/2 * (spin_num/2+1)
 figure, axes = plt.subplots(2, figsize = (3,3))
 
 # plot shell model results
-axes[0].plot(zz_coupling, min_SS / max_SS, "k.", label = "TS$_4$")
-axes[1].plot(zz_coupling, -to_dB(min_sqz), "k.")
+axes[0].plot(zz_coupling, -to_dB(min_sqz), "k.", label = "TS$_4$")
+axes[1].plot(zz_coupling, min_SS / max_SS, "k.")
 
 # plot DTWA results
 name_tag_dtwa = make_name_tag(lattice_text, alpha, "dtwa")
 zz_coupling, min_sqz_dB, min_SS_normed \
     = np.loadtxt(data_dir + f"DTWA/dtwa_{name_tag_dtwa}.txt", unpack = True)
-
-axes[0].plot(zz_coupling, min_SS_normed, "r.", label = "DTWA")
-axes[1].plot(zz_coupling, -min_sqz_dB, "r.")
+axes[0].plot(zz_coupling, -min_sqz_dB, "r.", label = "DTWA")
+axes[1].plot(zz_coupling, min_SS_normed, "r.")
 
 # reference: collective and Ising limits
 kwargs = { "color" : "k", "linestyle" : "--", "zorder" : 0 }
 _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
-axes[0].axhline(1, **kwargs)
-axes[1].axhline(-to_dB(sqz_OAT), **kwargs, label = "OAT")
+axes[0].axhline(-to_dB(sqz_OAT), **kwargs)
+axes[1].axhline(1, **kwargs, label = "OAT")
 
 kwargs["linestyle"] = ":"
 _, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = True)
 _, min_SS_ising = ising_minimal_SS(sunc_mat, TI = True)
-axes[0].axhline(min_SS_ising/max_SS, **kwargs)
-axes[1].axhline(-to_dB(sqz_ising), **kwargs, label = "Ising")
+axes[0].axhline(-to_dB(sqz_ising), **kwargs)
+axes[1].axhline(min_SS_ising/max_SS, **kwargs, label = "Ising")
 
 # tweak axis limits
-axes[0].set_ylim(bottom = np.floor(min_SS_ising/max_SS * 10)/10)
-axes[1].set_ylim(bottom = np.floor(-to_dB(sqz_ising)))
+axes[0].set_ylim(bottom = np.floor(-to_dB(sqz_ising)))
+axes[1].set_ylim(bottom = np.floor(min_SS_ising/max_SS * 10)/10)
 axes[0].set_xticks(shell_xticks)
 axes[1].set_xticks(shell_xticks)
 axes[0].set_xticklabels([])
 
-axes[0].set_ylabel(label_SS)
-axes[1].set_ylabel(label_sqz)
+axes[0].set_ylabel(label_sqz)
+axes[1].set_ylabel(label_SS)
 axes[1].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 shade_exclusions(axes[0])
 shade_exclusions(axes[1])
@@ -195,14 +194,14 @@ for key in data.keys():
 figure, axes = plt.subplots(3, figsize = (3,4))
 image = {}
 kwargs = { "aspect" : "auto", "origin" : "lower", "cmap" : "inferno" }
-image[0] = axes[0].imshow(+data["sqr_len"], **kwargs)
-image[1] = axes[1].imshow(-data["min_sqz"], **kwargs)
+image[0] = axes[0].imshow(-data["min_sqz"], **kwargs)
+image[1] = axes[1].imshow(+data["sqr_len"], **kwargs)
 image[2] = axes[2].imshow(+data["opt_tim"], **kwargs, norm = LogNorm())
 
 # make colorbars
 bar = {}
-bar[0] = figure.colorbar(image[0], ax = axes[0], label = label_SS)
-bar[1] = figure.colorbar(image[1], ax = axes[1], label = label_sqz, ticks = [ 5, 10, 15, 20 ])
+bar[0] = figure.colorbar(image[0], ax = axes[0], label = label_sqz, ticks = [ 5, 10, 15, 20 ])
+bar[1] = figure.colorbar(image[1], ax = axes[1], label = label_SS)
 bar[2] = figure.colorbar(image[2], ax = axes[2], label = label_time)
 
 # set axis labels
@@ -220,5 +219,5 @@ axes[2].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 for axis in axes:
     axis.plot(axis.get_xlim(), [axis.get_ylim()[1]-1]*2, "w")
 
-plt.tight_layout(pad = 0.1)
+plt.tight_layout(pad = 0.2)
 plt.savefig(fig_dir + f"dtwa_results_L{lattice_text}.pdf")
