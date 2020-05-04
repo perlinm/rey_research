@@ -160,7 +160,6 @@ plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 
 lattice_text = "64x64"
 zz_lims = (-3,3)
-max_time = 50
 
 # import all relevant data
 name_tag = make_name_tag(lattice_text, "*", "dtwa")
@@ -168,6 +167,7 @@ data_files = data_dir + f"DTWA/dtwa_{name_tag}.txt"
 raw_data = {}
 for file in glob.glob(data_files):
     alpha = file.split("_")[-1][1:-4]
+    if alpha == "nn" or float(alpha) < 1: continue # exclude some values of alpha
     raw_data[alpha] = np.loadtxt(file)
 
 # collect data for plotting
@@ -182,21 +182,32 @@ data["sqr_len"] = np.array([ raw_data[alpha][keep,3] for alpha in alpha_vals ])
 del raw_data
 zz_couplings = zz_couplings[keep]
 
-data["opt_tim"][data["opt_tim"] > max_time] = None
+# identify boundary between collective and Ising-dominated squeezing behavior
+boundary_alpha_idx_start = ( data["opt_tim"][:-1,0] / data["opt_tim"][1:,0] ).argmax()
+boundary_alpha_idx = list(range(boundary_alpha_idx_start, len(alpha_vals)))
+boundary_coupling_idx = [ data["sqr_len"][alpha_idx,:].argmin()
+                          for alpha_idx in boundary_alpha_idx ]
 
 # insert "empty" data for zz_coupling = 1
 zz_couplings = np.insert(zz_couplings, np.where(zz_couplings > 1)[0][0], 1)
+critical_idx = np.where(zz_couplings >= 1)[0][0]
 for key in data.keys():
-    critical_idx = np.where(zz_couplings >= 1)[0][0]
     data[key] = np.insert(data[key], critical_idx, None, axis = 1)
 
 # plot data
 figure, axes = plt.subplots(3, figsize = (3,4))
 image = {}
-kwargs = { "aspect" : "auto", "origin" : "lower", "cmap" : "inferno" }
+kwargs = { "aspect" : "auto", "origin" : "lower",
+           "interpolation" : "none", "cmap" : "inferno" }
 image[0] = axes[0].imshow(-data["min_sqz"], **kwargs)
 image[1] = axes[1].imshow(+data["sqr_len"], **kwargs)
 image[2] = axes[2].imshow(+data["opt_tim"], **kwargs, norm = LogNorm())
+
+# mark boundary between collective and Ising-dominated squeezing behavior
+def shift(vals,shift): return [ val + shift for val in vals ]
+for axis in axes:
+    axis.plot(shift(boundary_coupling_idx,-0.5),
+              shift(boundary_alpha_idx,+0.5), "b:")
 
 # make colorbars
 bar = {}
@@ -205,19 +216,19 @@ bar[1] = figure.colorbar(image[1], ax = axes[1], label = label_SS)
 bar[2] = figure.colorbar(image[2], ax = axes[2], label = label_time)
 
 # set axis labels
+numeric_alpha = [ float(alpha) for alpha in alpha_vals ]
+alpha_ticks = [ idx for idx, alpha in enumerate(numeric_alpha)
+                if float(alpha) == int(float(alpha)) ]
+alpha_labels = sorted(set( int(np.ceil(alpha)) for alpha in numeric_alpha ))
 for axis in axes:
     axis.set_ylabel(r"$\alpha$")
-    axis.set_yticks(range(len(alpha_vals)))
-    axis.set_yticklabels([ alpha.replace("nn",r"$\infty$") for alpha in alpha_vals ])
+    axis.set_yticks(alpha_ticks)
+    axis.set_yticklabels(alpha_labels)
     axis.set_xticks(np.where(np.isclose(zz_couplings % 1, 0))[0])
 axes[0].set_xticklabels([])
 axes[1].set_xticklabels([])
 axes[2].set_xticklabels(sorted(set(np.around(zz_couplings).astype(int))))
 axes[2].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
-
-# reference lines to separate nearest neighbor coupling
-for axis in axes:
-    axis.plot(axis.get_xlim(), [axis.get_ylim()[1]-1]*2, "w")
 
 plt.tight_layout(pad = 0.2)
 plt.savefig(fig_dir + f"dtwa_results_L{lattice_text}.pdf")
