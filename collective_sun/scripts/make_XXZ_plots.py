@@ -199,7 +199,7 @@ def plot_dtwa_results(lattice_text, alpha_text = "*",
     figure, axes = plt.subplots(3, figsize = (3,4))
     images = {}
     plot_args = { "aspect" : "auto", "origin" : "lower",
-                  "interpolation" : "none", "cmap" : "inferno" }
+                  "interpolation" : "nearest", "cmap" : "inferno" }
     images[0] = axes[0].imshow(-data["min_sqz"], **plot_args)
     images[1] = axes[1].imshow(+data["sqr_len"], **plot_args)
     images[2] = axes[2].imshow(+data["opt_tim"], **plot_args, norm = LogNorm())
