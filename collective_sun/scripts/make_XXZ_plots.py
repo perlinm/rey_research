@@ -156,112 +156,126 @@ plt.tight_layout(pad = 0.5)
 plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 
 ##########################################################################################
-# plot primary DTWA results
+# plot DTWA results
+
+def plot_dtwa_results(lattice_text, alpha_text = "*",
+                      add_reflines = False, zz_lims = [-3,3]):
+    # import all relevant data
+    raw_data = {}
+    name_tags = [ make_name_tag(lattice_text, alpha_text, "dtwa"),
+                  make_name_tag(lattice_text, "nn", "dtwa") ]
+    for name_tag in name_tags:
+        data_files = data_dir + f"DTWA/dtwa_{name_tag}.txt"
+        for file in glob.glob(data_files):
+            alpha = file.split("_")[-1][1:-4]
+            if alpha == "nn" or float(alpha) >= 1:
+                raw_data[alpha] = np.loadtxt(file)
+
+    # collect data for plotting
+    alpha_vals = sorted(list(raw_data.keys()))
+    zz_couplings = next(iter(raw_data.values()))[:,0]
+    data = {}
+    keep = np.where(np.logical_and(np.around(zz_couplings, decimals = 1) >= zz_lims[0],
+                                   np.around(zz_couplings, decimals = 1) <= zz_lims[1]))[0]
+    data["min_sqz"] = np.array([ raw_data[alpha][keep,1] for alpha in alpha_vals ])
+    data["opt_tim"] = np.array([ raw_data[alpha][keep,2] for alpha in alpha_vals ])
+    data["sqr_len"] = np.array([ raw_data[alpha][keep,3] for alpha in alpha_vals ])
+    del raw_data
+    zz_couplings = zz_couplings[keep]
+
+    # insert "empty" data for zz_coupling = 1
+    zz_couplings = np.insert(zz_couplings, np.where(zz_couplings > 1)[0][0], 1)
+    critical_coupling_idx = np.where(zz_couplings >= 1)[0][0]
+    for key in data.keys():
+        data[key] = np.insert(data[key], critical_coupling_idx, None, axis = 1)
+
+    # make copies of the data at \alpha = \infty
+    nn_bins = len(alpha_vals) // 10 + 1 # number of "nearest neighbor" bins (\alpha = \infty)
+    alpha_vals = alpha_vals[:-1] + [ "nn" ] * nn_bins
+    for key in data.keys():
+        data[key] = np.vstack([ data[key][:-1,:] ] + [ data[key][-1,:] ] * nn_bins )
+
+    # plot data
+    figure, axes = plt.subplots(3, figsize = (3,4))
+    images = {}
+    plot_args = { "aspect" : "auto", "origin" : "lower",
+                  "interpolation" : "none", "cmap" : "inferno" }
+    images[0] = axes[0].imshow(-data["min_sqz"], **plot_args)
+    images[1] = axes[1].imshow(+data["sqr_len"], **plot_args)
+    images[2] = axes[2].imshow(+data["opt_tim"], **plot_args, norm = LogNorm())
+
+    # make colorbars
+    bars = {}
+    sqz_ticks = [ 5, 10, 15, 20 ]
+    bars[0] = figure.colorbar(images[0], ax = axes[0], label = label_sqz, ticks = sqz_ticks)
+    bars[1] = figure.colorbar(images[1], ax = axes[1], label = label_SS)
+    bars[2] = figure.colorbar(images[2], ax = axes[2], label = label_time)
+
+    # set axis labels
+    numeric_alpha = [ float(alpha) for alpha in alpha_vals[:-nn_bins] ]
+    alpha_ticks = [ idx for idx, alpha in enumerate(numeric_alpha)
+                    if float(alpha) == int(float(alpha)) ] + [ len(alpha_vals)-1 ]
+    alpha_labels = sorted(set( int(np.ceil(alpha)) for alpha in numeric_alpha )) + [ r"$\infty$" ]
+    for axis in axes:
+        axis.set_ylabel(r"$\alpha$")
+        axis.set_yticks(alpha_ticks)
+        axis.set_yticklabels(alpha_labels)
+        axis.set_xticks(np.where(np.isclose(zz_couplings % 1, 0))[0])
+    axes[0].set_xticklabels([])
+    axes[1].set_xticklabels([])
+    axes[2].set_xticklabels(sorted(set(np.around(zz_couplings).astype(int))))
+    axes[2].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
+
+    # identify boundaries between collective and Ising-dominated squeezing behavior
+    if add_reflines:
+        # on the left, start at values of alpha where t_opt has the biggest jump
+        boundary_lft_alpha_idx_start \
+            = ( data["opt_tim"][:-1,0] / data["opt_tim"][1:,0] ).argmax()
+        # for each alpha >= [value above], find the ZZ coupling that minimizes S^2
+        boundary_lft_alpha_idx = list(range(boundary_lft_alpha_idx_start, len(alpha_vals)))
+        boundary_lft_coupling_idx \
+            = [ data["sqr_len"][idx,:critical_coupling_idx-1].argmin()
+                for idx in boundary_lft_alpha_idx ]
+
+        # on the right, consider values of the ZZ coupling J_z/J_\perp > 1
+        boundary_rht_coupling_idx = list(range(critical_coupling_idx+1, len(zz_couplings)))
+        # find the first value of \alpha that minimizes S^2(\alpha)
+        def locate_minimum(sqr_len):
+            # to avoid "accidental" minima at S^2 ~ 1,
+            # make sure that S^2 falls to at least this value
+            max_dip = data["sqr_len"][0,-1]
+            return np.where( (sqr_len[:-1] <= max_dip) &
+                             (sqr_len[:-1] < sqr_len[1:]) )[0][0]
+        boundary_rht_alpha_idx = [ locate_minimum(data["sqr_len"][:,idx])
+                                   for idx in boundary_rht_coupling_idx ]
+
+    # boundaries and reference lines
+    for axis in axes:
+        if add_reflines:
+            # mark the boundaries between collective and Ising-dominated squeezing behavior
+            axis.plot([ coupling_idx - 0.5 for coupling_idx in boundary_lft_coupling_idx ],
+                      boundary_lft_alpha_idx, "b:")
+            axis.plot(boundary_rht_coupling_idx,
+                      boundary_rht_alpha_idx, "b:")
+
+            # mark \alpha = D and J_z = 0
+            ref_args = { "color" : "gray",
+                         "linewidth" : 1,
+                         "linestyle" : "--" }
+            axis.axhline(numeric_alpha.index(2), **ref_args)
+            axis.axvline(list(zz_couplings).index(0), **ref_args)
+
+        # separate finite values of \alpha from \alpha = \infty
+        axis.axhline(len(alpha_vals)-nn_bins-0.5, color = "w", linewidth = 1)
+
+    plt.tight_layout(pad = 0.2)
+    return figure, axes
 
 lattice_text = "64x64"
-zz_lims = (-3,3)
+plot_dtwa_results(lattice_text, add_reflines = True)
+plt.savefig(fig_dir + f"dtwa_L{lattice_text}.pdf")
 
-# import all relevant data
-name_tag = make_name_tag(lattice_text, "*", "dtwa")
-data_files = data_dir + f"DTWA/dtwa_{name_tag}.txt"
-raw_data = {}
-for file in glob.glob(data_files):
-    alpha = file.split("_")[-1][1:-4]
-    if alpha == "nn" or float(alpha) >= 1:
-        raw_data[alpha] = np.loadtxt(file)
-
-# collect data for plotting
-alpha_vals = sorted(list(raw_data.keys()))
-zz_couplings = next(iter(raw_data.values()))[:,0]
-data = {}
-keep = np.where(np.logical_and(np.around(zz_couplings, decimals = 1) >= zz_lims[0],
-                               np.around(zz_couplings, decimals = 1) <= zz_lims[1]))[0]
-data["min_sqz"] = np.array([ raw_data[alpha][keep,1] for alpha in alpha_vals ])
-data["opt_tim"] = np.array([ raw_data[alpha][keep,2] for alpha in alpha_vals ])
-data["sqr_len"] = np.array([ raw_data[alpha][keep,3] for alpha in alpha_vals ])
-del raw_data
-zz_couplings = zz_couplings[keep]
-
-# insert "empty" data for zz_coupling = 1
-zz_couplings = np.insert(zz_couplings, np.where(zz_couplings > 1)[0][0], 1)
-critical_coupling_idx = np.where(zz_couplings >= 1)[0][0]
-for key in data.keys():
-    data[key] = np.insert(data[key], critical_coupling_idx, None, axis = 1)
-
-# make copies of the data at \alpha = \infty
-nn_bins = 6 # number of "nearest neighbor" bins (\alpha = \infty)
-alpha_vals = alpha_vals[:-1] + [ "nn" ] * nn_bins
-# none_vec = [ np.nan ] * len(zz_couplings)
-for key in data.keys():
-    data[key] = np.vstack([ data[key][:-1,:] ] + [ data[key][-1,:] ] * nn_bins )
-
-# plot data
-figure, axes = plt.subplots(3, figsize = (3,4))
-image = {}
-plot_args = { "aspect" : "auto", "origin" : "lower",
-              "interpolation" : "none", "cmap" : "inferno" }
-image[0] = axes[0].imshow(-data["min_sqz"], **plot_args)
-image[1] = axes[1].imshow(+data["sqr_len"], **plot_args)
-image[2] = axes[2].imshow(+data["opt_tim"], **plot_args, norm = LogNorm())
-
-# make colorbars
-bar = {}
-bar[0] = figure.colorbar(image[0], ax = axes[0], label = label_sqz, ticks = [ 5, 10, 15, 20 ])
-bar[1] = figure.colorbar(image[1], ax = axes[1], label = label_SS)
-bar[2] = figure.colorbar(image[2], ax = axes[2], label = label_time)
-
-# set axis labels
-numeric_alpha = [ float(alpha) for alpha in alpha_vals[:-nn_bins] ]
-alpha_ticks = [ idx for idx, alpha in enumerate(numeric_alpha)
-                if float(alpha) == int(float(alpha)) ] + [ len(alpha_vals)-1 ]
-alpha_labels = sorted(set( int(np.ceil(alpha)) for alpha in numeric_alpha )) + [ r"$\infty$" ]
-for axis in axes:
-    axis.set_ylabel(r"$\alpha$")
-    axis.set_yticks(alpha_ticks)
-    axis.set_yticklabels(alpha_labels)
-    axis.set_xticks(np.where(np.isclose(zz_couplings % 1, 0))[0])
-axes[0].set_xticklabels([])
-axes[1].set_xticklabels([])
-axes[2].set_xticklabels(sorted(set(np.around(zz_couplings).astype(int))))
-axes[2].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
-
-# identify boundaries between collective and Ising-dominated squeezing behavior
-
-# on the left, start at values of alpha where t_opt has the biggest jump
-boundary_lft_alpha_idx_start \
-    = ( data["opt_tim"][:-1,0] / data["opt_tim"][1:,0] ).argmax()
-# for each alpha >= [value above], find the ZZ coupling that minimizes S^2
-boundary_lft_alpha_idx = list(range(boundary_lft_alpha_idx_start, len(alpha_vals)))
-boundary_lft_coupling_idx = [ data["sqr_len"][idx,:critical_coupling_idx-1].argmin()
-                              for idx in boundary_lft_alpha_idx ]
-
-# on the right, consider values of the ZZ coupling J_z/J_\perp > 1
-boundary_rht_coupling_idx = list(range(critical_coupling_idx+1,len(zz_couplings)))
-# find the first value of \alpha that minimizes S^2(\alpha)
-def locate_minimum(sqr_len):
-    # to avoid "accidental" minima at S^2 ~ 1,
-    # make sure that S^2 falls to at least this value
-    max_dip = data["sqr_len"][0,-1]
-    return np.where( (sqr_len[:-1] <= max_dip) & (sqr_len[:-1] < sqr_len[1:]) )[0][0]
-boundary_rht_alpha_idx = [ locate_minimum(data["sqr_len"][:,idx])
-                           for idx in boundary_rht_coupling_idx ]
-
-# boundaries and reference lines
-for axis in axes:
-    axis.plot([ coupling_idx - 0.5 for coupling_idx in boundary_lft_coupling_idx ],
-              boundary_lft_alpha_idx, "b:")
-    axis.plot(boundary_rht_coupling_idx,
-              boundary_rht_alpha_idx, "b:")
-
-    # separate finite values of \alpha from \alpha = \infty
-    axis.axhline(len(alpha_vals)-nn_bins, color = "w")
-
-    # mark \alpha = D and J_z = 0
-    ref_args = { "color" : "gray",
-               "linewidth" : 1,
-               "linestyle" : "--" }
-    axis.axhline(numeric_alpha.index(2), **ref_args)
-    axis.axvline(list(zz_couplings).index(0), **ref_args)
-
-plt.tight_layout(pad = 0.2)
-plt.savefig(fig_dir + f"dtwa_results_L{lattice_text}.pdf")
+for lattice_text in [ "4096", "64x64", "16x16x16" ]:
+    dim = lattice_text.count("x") + 1
+    plot_dtwa_results(lattice_text, alpha_text = "?.0")
+    plt.savefig(fig_dir + f"dtwa_L{lattice_text}_int.pdf")
