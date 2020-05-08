@@ -319,6 +319,7 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
 
     # set horizontal tick labels
     for axis in axes[-1,:]:
+        axis.set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
         xtick_min = int(np.ceil(zz_lims[0]))
         xtick_max = int(np.floor(zz_lims[1]))
         xticklabels = range(xtick_min,xtick_max+1)
@@ -326,13 +327,14 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
             xticklabels = [ label if label % 2 == 0 else ""
                             for label in xticklabels ]
         axis.set_xticklabels(xticklabels)
-        axis.set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 
     # set vertical tick labels
     for idx, axis in enumerate(axes[:,0]):
+        axis.set_ylabel(r"$\alpha$")
         ytick_num = len(axis.get_yticks())
         axis.set_yticklabels(list(range(1,ytick_num)) + [ r"$\infty$" ])
-        axis.set_ylabel(r"$\alpha$")
+        for label in axis.get_yticklabels():
+            label.set_verticalalignment("center")
 
     labels = [ label_sqz, label_SS, label_time ]
     for row_images, row_axes, label in zip(images, axes, labels):
