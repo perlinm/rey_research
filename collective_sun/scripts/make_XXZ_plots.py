@@ -161,27 +161,6 @@ plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 ##########################################################################################
 # plot DTWA results
 
-def fix_ticks(color_bar, base = 5):
-    min_val, _ = color_bar.ax.xaxis.get_data_interval()
-    locator = mpl.ticker.IndexLocator(base = base, offset = -min_val)
-    color_bar.set_ticks(locator)
-
-def fix_log_ticks(color_bar):
-    if color_bar.orientation == "horizontal":
-        axis = color_bar.ax.xaxis
-    else:
-        axis = color_bar.ax.yaxis
-
-    base, subs = 10, np.arange(0,1.1,0.1)
-    locator = mpl.ticker.LogLocator(base = base, subs = subs)
-
-    min_val, max_val = axis.get_data_interval()
-    tick_values = [ val for val in locator.tick_values(min_val, max_val)
-                    if min_val <= val <= max_val ]
-
-    axis.set_ticks(tick_values, minor = True)
-    color_bar.update_ticks()
-
 # plot DTWA data on a given list of axes
 def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_reflines):
     # import all relevant data
@@ -261,7 +240,8 @@ def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_refl
             ref_args = { "color" : "gray",
                          "linewidth" : 1,
                          "linestyle" : "--" }
-            axis.axhline(numeric_alpha.index(2), **ref_args)
+            dim = lattice_text.count("x") + 1
+            axis.axhline(numeric_alpha.index(dim), **ref_args)
             axis.axvline(list(zz_couplings).index(0), **ref_args)
 
     # separate finite values of \alpha from \alpha = \infty
@@ -279,90 +259,116 @@ def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_refl
 
     return images
 
-# make an individual DTWA figure
-def make_single_dtwa_figure(lattice_text, alpha_text = "*",
-                          zz_lims = (-3,3), alpha_lims = (1,6), add_reflines = True):
-    figure, axes = plt.subplots(3, figsize = (3,4))
-    images = plot_dtwa_data(axes, lattice_text, alpha_text,
-                            zz_lims, alpha_lims, add_reflines)
+# set axis ticks on color bar
+def fix_ticks(color_bar, base):
+    min_val, _ = color_bar.ax.xaxis.get_data_interval()
+    locator = mpl.ticker.IndexLocator(base = base, offset = -min_val)
+    color_bar.set_ticks(locator)
 
-    # set axis labels
-    for axis in axes:
-        axis.set_ylabel(r"$\alpha$")
-        ytick_num = len(axis.get_yticks())
-        axis.set_yticklabels(list(range(1,ytick_num)) + [ r"$\infty$" ])
-    axes[2].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
-    axes[2].set_xticklabels(range(zz_lims[0],zz_lims[1]+1))
+# set logarithmic axis ticks on color bar
+def fix_log_ticks(color_bar):
+    if color_bar.orientation == "horizontal":
+        axis = color_bar.ax.xaxis
+    else:
+        axis = color_bar.ax.yaxis
 
-    # make colorbars
-    bars = [ figure.colorbar(image, ax = axis, label = label)
-             for image, axis, label
-             in zip(images, axes, [ label_sqz, label_SS, label_time ]) ]
-    fix_ticks(bars[0])
-    fix_log_ticks(bars[2])
+    base, subs = 10, np.arange(0,1.1,0.1)
+    major_locator = mpl.ticker.LogLocator(base = base)
+    minor_locator = mpl.ticker.LogLocator(base = base, subs = subs)
 
-    plt.tight_layout(pad = 0.1)
-    return figure
+    min_val, max_val = axis.get_data_interval()
+    def filter(values):
+        return [ val for val in values if min_val <= val <= max_val ]
+    major_tick_values = filter(major_locator.tick_values(min_val, max_val))
+    minor_tick_values = filter(minor_locator.tick_values(min_val, max_val))
 
+    color_bar.set_ticks(major_tick_values)
+    axis.set_ticks(minor_tick_values, minor = True)
+    color_bar.update_ticks()
+
+# make a multi-panel plot of DTWA data
 def make_dtwa_plots(lattice_list, alpha_text = "*",
-                    zz_lims = (-3,3), alpha_lims = (1,6), add_reflines = True):
-    rows = len(lattice_list)
-    figsize = (7, 2*rows)
+                    zz_lims = (-3,3), alpha_lims = (1,6), add_reflines = True,
+                    figsize = None):
+    if type(lattice_list) is str:
+        lattice_list = [ lattice_list ]
+    cols = len(lattice_list)
 
-    figure, axes = plt.subplots(rows, 3, figsize = figsize)
+    if figsize == None:
+        if cols == 1:
+            figsize = (3, 4)
+        elif cols == 2:
+            width = 8.6/2.54 # maximum figure width set by PRL
+            figsize = (width, 3.5)
+        else:
+            figsize = (7, 5)
+
+    figure, axes = plt.subplots(3, cols, figsize = figsize)
+    axes.shape = (3,-1)
     images = np.empty(axes.shape, dtype = mpl.image.AxesImage)
 
-    for row, ( lattice_text, lattice_axes) in enumerate(zip(lattice_list, axes)):
-        images[row,:] \
+    for col, ( lattice_text, lattice_axes) in enumerate(zip(lattice_list, axes.T)):
+        images[:,col] \
             = plot_dtwa_data(lattice_axes, lattice_text, alpha_text,
                              zz_lims, alpha_lims, add_reflines)
 
-    for idx, axis in enumerate(axes[:,0]):
-        ytick_num = len(axis.get_yticks())
-        axis.set_yticklabels(list(range(1,ytick_num)) + [ r"$\infty$" ])
-        axis.set_ylabel(f"$D={idx+1}$" + "\n" + r"$\alpha$")
+        # set titles for each column
+        if cols > 1:
+            dim = lattice_text.count("x") + 1
+            lattice_axes[0].set_title(f"$D={dim}$")
 
+    # set horizontal tick labels
     for axis in axes[-1,:]:
         xtick_min = int(np.ceil(zz_lims[0]))
         xtick_max = int(np.floor(zz_lims[1]))
-        axis.set_xticklabels(range(xtick_min,xtick_max+1))
+        xticklabels = range(xtick_min,xtick_max+1)
+        if cols > 1:
+            xticklabels = [ label if label % 2 == 0 else ""
+                            for label in xticklabels ]
+        axis.set_xticklabels(xticklabels)
         axis.set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 
+    # set vertical tick labels
+    for idx, axis in enumerate(axes[:,0]):
+        ytick_num = len(axis.get_yticks())
+        axis.set_yticklabels(list(range(1,ytick_num)) + [ r"$\infty$" ])
+        axis.set_ylabel(r"$\alpha$")
+
     labels = [ label_sqz, label_SS, label_time ]
-    for col_images, col_axes, label in zip(images.T, axes.T, labels):
-        clim_min = min( image.get_clim()[0] for image in col_images )
-        clim_max = max( image.get_clim()[1] for image in col_images )
+    for row_images, row_axes, label in zip(images, axes, labels):
+        clim_min = min( image.get_clim()[0] for image in row_images )
+        clim_max = max( image.get_clim()[1] for image in row_images )
         clim = (clim_min, clim_max)
-        for image in col_images:
+        for image in row_images:
             image.set_clim(clim)
 
-        axis_divider = make_axes_locatable(col_axes[0])
-        axis = axis_divider.append_axes("top", size="5%", pad="3%")
-        bar = figure.colorbar(col_images[0], cax = axis, label = label,
-                              orientation = "horizontal")
-        axis.xaxis.set_ticks_position("top")
-        axis.xaxis.set_label_position("top")
+        axis_divider = make_axes_locatable(row_axes[-1])
+        axis = axis_divider.append_axes("right", size="3%", pad="3%")
+        bar = figure.colorbar(row_images[0], cax = axis, label = label)
 
         if label == label_sqz:
-            fix_ticks(bar)
+            fix_ticks(bar, 5)
+        if label == label_SS:
+            fix_ticks(bar, 0.2)
         if label == label_time:
             fix_log_ticks(bar)
 
     plt.tight_layout(pad = 0.3)
+    plt.subplots_adjust(wspace = 0.1, hspace = 0.1)
     return figure
 
 lattice_text = "64x64"
-make_single_dtwa_figure(lattice_text, add_reflines = True)
+make_dtwa_plots(lattice_text)
 plt.savefig(fig_dir + f"dtwa_L{lattice_text}.pdf")
+
+# lattice_list = [ "64x64", "16x16x16" ]
+lattice_list = [ "64x64", "64x64" ]
+make_dtwa_plots(lattice_list)
+lattice_label = "_L".join(lattice_list)
+plt.savefig(fig_dir + f"dtwa_L{lattice_label}.pdf")
 
 lattice_list = [ "4096", "64x64", "16x16x16" ]
 alpha_text = "?.0"
-
 make_dtwa_plots(lattice_list, alpha_text, add_reflines = False)
 lattice_label = "_L".join(lattice_list)
 plt.savefig(fig_dir + f"dtwa_L{lattice_label}_int.pdf")
-
-for lattice_text in lattice_list:
-    dim = lattice_text.count("x") + 1
-    make_single_dtwa_figure(lattice_text, alpha_text = alpha_text, add_reflines = False)
-    plt.savefig(fig_dir + f"dtwa_L{lattice_text}_int.pdf")
