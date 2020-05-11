@@ -22,6 +22,8 @@ params = { "font.size" : 8,
                                      r"\usepackage{bm}" ]}
 plt.rcParams.update(params)
 
+max_width = 8.6/2.54 # maximum single-column figure width allowed by PRL
+
 def make_name_tag(lattice_text, alpha, data_format):
     name_tag = f"L{lattice_text}_a{alpha}"
     if data_format == "shell":
@@ -37,8 +39,10 @@ def to_dB(sqz):
     return 10*np.log10(np.array(sqz))
 
 label_SS = r"$\braket{\bm S^2}_{\mathrm{min}} / \braket{\bm S^2}_0$"
-label_sqz = r"$-10\log_{10}\xi_{\mathrm{opt}}^2$"
-label_time = r"$t_{\mathrm{opt}}\times J_\perp$"
+label_sqz = r"$-10\log_{10}\xi^2$"
+label_sqz_opt = r"$-10\log_{10}\xi_{\mathrm{opt}}^2$"
+label_time = r"$t\times J_\perp$"
+label_time_opt = r"$t_{\mathrm{opt}}\times J_\perp$"
 
 ##########################################################################################
 # collect shell model data
@@ -98,7 +102,7 @@ def shade_exclusions(axis = None):
     axis.axvspan(max_zz, zz_coupling[-1], alpha = 0.5, color = "grey")
 
 ##################################################
-# make population plot
+# make TS_4 population plot
 
 plt.figure(figsize = (3,1.8))
 for idx, pops in enumerate(max_pops.T):
@@ -148,19 +152,76 @@ axes[0].set_xticks(shell_xticks)
 axes[1].set_xticks(shell_xticks)
 axes[0].set_xticklabels([])
 
-axes[0].set_ylabel(label_sqz)
+axes[0].set_ylabel(label_sqz_opt)
 axes[1].set_ylabel(label_SS)
 axes[1].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 shade_exclusions(axes[0])
 shade_exclusions(axes[1])
-axes[0].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.6,0.4))
+axes[0].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.6,0.45))
 plt.tight_layout(pad = 0.5)
 plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 
 ##########################################################################################
-# plot DTWA results
+# plot time-series DTWA results
 
-# plot DTWA data on a given list of axes
+zz_lims = (-3,-1)
+max_time = 3
+color_min = 0
+color_max = 0.8
+color_map = "viridis"
+
+fig_aspect = (3,2)
+
+plt.figure(figsize = (3,1.8))
+cmap = mpl.cm.get_cmap(color_map)
+
+lattice_text = "64x64"
+name_tag = make_name_tag(lattice_text, "3", "dtwa")
+name_format = data_dir + "DTWA/time_series/dtwa_" + name_tag + "*.txt"
+def get_zz_coupling(file):
+    return float(file.split("_")[-1][1:-4])
+def in_range(zz_coupling):
+    return zz_lims[0] <= zz_coupling <= zz_lims[1]
+def get_time_sqz(file):
+    all_data = np.loadtxt(file)
+    time = all_data[:,0]
+    sqz = all_data[:,4]
+    return time, sqz
+
+data_files = sorted([ ( zz_coupling, file )
+                      for file in glob.glob(name_format)
+                      if in_range(zz_coupling := get_zz_coupling(file)) ])
+
+last_time_opt = -1
+time_ratios = np.zeros(len(data_files))
+for idx, ( zz_coupling, file ) in enumerate(data_files):
+    time, sqz = get_time_sqz(file)
+    float_idx = idx / ( len(data_files)-1 )
+    plt.plot(time, sqz, color = cmap(1-float_idx))
+
+    time_opt = time[sqz.argmin()]
+    time_ratios[idx] = time_opt / last_time_opt
+    last_time_opt = time_opt
+
+time, sqz = get_time_sqz(data_files[time_ratios.argmax()][1])
+plt.plot(time, sqz, color = "red", linewidth = "2")
+
+plt.xlim(0, max_time)
+time_locator = mpl.ticker.MaxNLocator(integer = True)
+plt.gca().xaxis.set_major_locator(time_locator)
+
+sqz_locator = mpl.ticker.MaxNLocator(4, integer = True)
+plt.gca().yaxis.set_major_locator(sqz_locator)
+
+plt.xlabel(label_time)
+plt.ylabel(label_sqz)
+plt.tight_layout(pad = 0.2)
+plt.savefig(fig_dir + f"crossover_{name_tag}.pdf")
+
+##########################################################################################
+# plot DTWA result summary
+
+# plot DTWA data for a given lattice on a given list of axes
 def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_reflines):
     # import all relevant data
     raw_data = {}
@@ -235,13 +296,12 @@ def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_refl
             axis.plot(boundary_lft_coupling, boundary_lft_alpha, "b:")
             axis.plot(boundary_rht_coupling, boundary_rht_alpha, "b:")
 
-            # mark \alpha = D and J_z = 0
+            # mark \alpha = D
             ref_args = { "color" : "gray",
                          "linewidth" : 1,
                          "linestyle" : "--" }
             dim = lattice_text.count("x") + 1
             axis.axhline(numeric_alpha.index(dim), **ref_args)
-            axis.axvline(list(zz_couplings).index(0), **ref_args)
 
     # separate finite values of \alpha from \alpha = \infty
     for axis in axes:
@@ -258,13 +318,13 @@ def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_refl
 
     return images
 
-# set axis ticks on color bar
+# set axis ticks on a linear-scale color bar
 def fix_ticks(color_bar, base):
     min_val, _ = color_bar.ax.xaxis.get_data_interval()
     locator = mpl.ticker.IndexLocator(base = base, offset = -min_val)
     color_bar.set_ticks(locator)
 
-# set logarithmic axis ticks on color bar
+# set axis ticks on a log-scale color bar
 def fix_log_ticks(color_bar):
     if color_bar.orientation == "horizontal":
         axis = color_bar.ax.xaxis
@@ -285,7 +345,7 @@ def fix_log_ticks(color_bar):
     axis.set_ticks(minor_tick_values, minor = True)
     color_bar.update_ticks()
 
-# make a multi-panel plot of DTWA data
+# make a plot of DTWA data comparing multiple lattice sizes
 def make_dtwa_plots(lattice_list, alpha_text = "*",
                     zz_lims = (-3,3), alpha_lims = (1,6), add_reflines = True,
                     figsize = None):
@@ -297,8 +357,7 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
         if cols == 1:
             figsize = (3, 4)
         elif cols == 2:
-            width = 8.6/2.54 # maximum figure width set by PRL
-            figsize = (width, 3.5)
+            figsize = (max_width, 3.5)
         else:
             figsize = (7, 5)
 
@@ -335,7 +394,7 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
         for label in axis.get_yticklabels():
             label.set_verticalalignment("center")
 
-    labels = [ label_sqz, label_SS, label_time ]
+    labels = [ label_sqz_opt, label_SS, label_time_opt ]
     for row_images, row_axes, label in zip(images, axes, labels):
         clim_min = min( image.get_clim()[0] for image in row_images )
         clim_max = max( image.get_clim()[1] for image in row_images )
@@ -347,11 +406,11 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
         axis = axis_divider.append_axes("right", size="3%", pad="3%")
         bar = figure.colorbar(row_images[0], cax = axis, label = label)
 
-        if label == label_sqz:
+        if label == label_sqz_opt:
             fix_ticks(bar, 5)
         if label == label_SS:
             fix_ticks(bar, 0.2)
-        if label == label_time:
+        if label == label_time_opt:
             fix_log_ticks(bar)
 
     plt.tight_layout(pad = 0.3)
