@@ -16,7 +16,7 @@ np.set_printoptions(linewidth = 200)
 data_dir = "../data/"
 fig_dir = "../figures/XXZ/"
 
-params = { "font.size" : 9,
+params = { "font.size" : 8,
            "text.usetex" : True,
            "text.latex.preamble" : [ r"\usepackage{braket}",
                                      r"\usepackage{bm}" ]}
@@ -132,14 +132,14 @@ axes[1].plot(zz_coupling, min_SS_normed, "r.")
 # reference: collective and Ising limits
 kwargs = { "color" : "k", "linestyle" : "--", "zorder" : 0 }
 _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
-axes[0].axhline(-to_dB(sqz_OAT), **kwargs)
-axes[1].axhline(1, **kwargs, label = "OAT")
+axes[0].axhline(-to_dB(sqz_OAT), **kwargs, label = "OAT")
+axes[1].axhline(1, **kwargs)
 
 kwargs["linestyle"] = ":"
 _, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = True)
 _, min_SS_ising = ising_minimal_SS(sunc_mat, TI = True)
-axes[0].axhline(-to_dB(sqz_ising), **kwargs)
-axes[1].axhline(min_SS_ising/max_SS, **kwargs, label = "Ising")
+axes[0].axhline(-to_dB(sqz_ising), **kwargs, label = "Ising")
+axes[1].axhline(min_SS_ising/max_SS, **kwargs)
 
 # tweak axis limits
 axes[0].set_ylim(bottom = np.floor(-to_dB(sqz_ising)))
@@ -153,8 +153,7 @@ axes[1].set_ylabel(label_SS)
 axes[1].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 shade_exclusions(axes[0])
 shade_exclusions(axes[1])
-axes[0].legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.6,0.4))
-axes[1].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.6,0.4))
+axes[0].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.6,0.4))
 plt.tight_layout(pad = 0.5)
 plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 
