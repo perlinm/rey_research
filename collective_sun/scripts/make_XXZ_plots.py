@@ -5,7 +5,6 @@ import numpy as np
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
 from multibody_methods import dist_method
@@ -164,59 +163,66 @@ plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 ##########################################################################################
 # plot time-series DTWA results
 
-zz_lims = (-3,-1)
-max_time = 3
-color_min = 0
-color_max = 0.8
+lattice_text = "64x64"
 color_map = "viridis"
 
-fig_aspect = (3,2)
+color_map = mpl.cm.get_cmap(color_map)
+for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-20,5] ),
+                                             ( 4, [-2, 0], 5, [-15,5] ) ]:
 
-plt.figure(figsize = (3,1.8))
-cmap = mpl.cm.get_cmap(color_map)
+    # identify info related to data file names
+    name_tag = make_name_tag(lattice_text, alpha, "dtwa")
+    name_format = data_dir + "DTWA/time_series/dtwa_" + name_tag + "*.txt"
+    def get_zz_coupling(file):
+        return float(file.split("_")[-1][1:-4])
+    def in_range(zz_coupling):
+        return zz_lims[0] <= zz_coupling <= zz_lims[1]
+    def get_time_sqz(file):
+        all_data = np.loadtxt(file)
+        time = all_data[:,0]
+        sqz = all_data[:,4]
+        return time, sqz
 
-lattice_text = "64x64"
-name_tag = make_name_tag(lattice_text, "3", "dtwa")
-name_format = data_dir + "DTWA/time_series/dtwa_" + name_tag + "*.txt"
-def get_zz_coupling(file):
-    return float(file.split("_")[-1][1:-4])
-def in_range(zz_coupling):
-    return zz_lims[0] <= zz_coupling <= zz_lims[1]
-def get_time_sqz(file):
-    all_data = np.loadtxt(file)
-    time = all_data[:,0]
-    sqz = all_data[:,4]
-    return time, sqz
+    # collect all data files and the corresponding ZZ couplings
+    data_files = sorted([ ( zz_coupling, file )
+                          for file in glob.glob(name_format)
+                          if in_range(zz_coupling := get_zz_coupling(file)) ])
 
-data_files = sorted([ ( zz_coupling, file )
-                      for file in glob.glob(name_format)
-                      if in_range(zz_coupling := get_zz_coupling(file)) ])
+    # plot squeezing over time for all ZZ couplings
+    plt.figure(figsize = (2.5,1.5))
+    optimal_times = np.zeros(len(data_files)) # keep track of optimal squeezing times
+    for idx, ( zz_coupling, file ) in enumerate(data_files):
+        color_val = 1 - idx / ( len(data_files)-1 ) # color value from 0 to 1
+        time, sqz = get_time_sqz(file)
+        time_scale = abs( zz_coupling - 1 ) # rescale time by | J_z - J_perp |
+        plt.plot(time * time_scale, sqz, color = color_map(color_val))
 
-last_time_opt = -1
-time_ratios = np.zeros(len(data_files))
-for idx, ( zz_coupling, file ) in enumerate(data_files):
+        # keep track of the optimal squeezing time
+        optimal_times[idx] = time[sqz.argmin()]
+
+    # highlight squeezing over time at the collective/Ising crossover
+    optimal_time_ratios = optimal_times[1:] / optimal_times[:-1]
+    zz_coupling, file = data_files[optimal_time_ratios.argmax()+1]
     time, sqz = get_time_sqz(file)
-    float_idx = idx / ( len(data_files)-1 )
-    plt.plot(time, sqz, color = cmap(1-float_idx))
+    time_scale = abs( zz_coupling - 1 )
+    plt.plot(time * time_scale, sqz, color = "red", linewidth = "2")
 
-    time_opt = time[sqz.argmin()]
-    time_ratios[idx] = time_opt / last_time_opt
-    last_time_opt = time_opt
+    # fix time and squeeizng axis ticks
+    time_locator = mpl.ticker.MaxNLocator(5, integer = True)
+    plt.gca().xaxis.set_major_locator(time_locator)
 
-time, sqz = get_time_sqz(data_files[time_ratios.argmax()][1])
-plt.plot(time, sqz, color = "red", linewidth = "2")
+    sqz_locator = mpl.ticker.MaxNLocator(5, integer = True)
+    plt.gca().yaxis.set_major_locator(sqz_locator)
 
-plt.xlim(0, max_time)
-time_locator = mpl.ticker.MaxNLocator(integer = True)
-plt.gca().xaxis.set_major_locator(time_locator)
+    # set horizonal and vertical axis ranges
+    plt.xlim(0, max_time)
+    plt.ylim(sqz_range)
 
-sqz_locator = mpl.ticker.MaxNLocator(4, integer = True)
-plt.gca().yaxis.set_major_locator(sqz_locator)
-
-plt.xlabel(label_time)
-plt.ylabel(label_sqz)
-plt.tight_layout(pad = 0.2)
-plt.savefig(fig_dir + f"crossover_{name_tag}.pdf")
+    # touch-up and save figure
+    plt.xlabel(r"$t\times \left|J_{\mathrm{z}}-J_\perp\right|$")
+    plt.ylabel(label_sqz)
+    plt.tight_layout(pad = 0.3)
+    plt.savefig(fig_dir + f"crossover_{name_tag}.pdf")
 
 ##########################################################################################
 # plot DTWA result summary
@@ -267,7 +273,7 @@ def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_refl
                   "interpolation" : "nearest", "cmap" : "inferno" }
     images = [ axes[0].imshow(-data["min_sqz"], **plot_args),
                axes[1].imshow(+data["sqr_len"], **plot_args),
-               axes[2].imshow(+data["opt_tim"], **plot_args, norm = colors.LogNorm()) ]
+               axes[2].imshow(+data["opt_tim"], **plot_args, norm = mpl.colors.LogNorm()) ]
 
     # identify boundaries between collective and Ising-dominated squeezing behavior
     if add_reflines:
