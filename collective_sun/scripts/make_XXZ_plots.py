@@ -229,6 +229,8 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-20,5] ),
 
 # plot DTWA data for a given lattice on a given list of axes
 def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_reflines):
+    dim = lattice_text.count("x") + 1 # spatial dimensions
+
     # import all relevant data
     raw_data = {}
     name_tags = [ make_name_tag(lattice_text, alpha_text, "dtwa"),
@@ -275,8 +277,12 @@ def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_refl
                axes[1].imshow(+data["sqr_len"], **plot_args),
                axes[2].imshow(+data["opt_tim"], **plot_args, norm = mpl.colors.LogNorm()) ]
 
-    # identify boundaries between collective and Ising-dominated squeezing behavior
+    # separate finite values of \alpha from \alpha = \infty
+    for axis in axes:
+        axis.axhline(len(alpha_vals)-nn_bins-0.5, color = "w", linewidth = 1, zorder = 2)
+
     if add_reflines:
+        # identify boundaries between collective and Ising-dominated squeezing behavior
         # on the left, start at values of alpha (by index) where t_opt has the biggest jump
         boundary_lft_alpha_start \
             = ( data["opt_tim"][:-1,0] / data["opt_tim"][1:,0] ).argmax()
@@ -299,19 +305,55 @@ def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_refl
                                for idx in boundary_rht_coupling ]
 
         for axis in axes:
-            axis.plot(boundary_lft_coupling, boundary_lft_alpha, "b:")
-            axis.plot(boundary_rht_coupling, boundary_rht_alpha, "b:")
+            bounday_args = { "color" : "gray",
+                             "linewidth" : 1,
+                             "linestyle" : ":",
+                             "zorder" : 1 }
+            axis.plot(boundary_lft_coupling, boundary_lft_alpha, **bounday_args)
+            axis.plot(boundary_rht_coupling, boundary_rht_alpha, **bounday_args)
 
             # mark \alpha = D
             ref_args = { "color" : "gray",
                          "linewidth" : 1,
-                         "linestyle" : "--" }
-            dim = lattice_text.count("x") + 1
+                         "linestyle" : "--",
+                         "zorder" : 1 }
             axis.axhline(numeric_alpha.index(dim), **ref_args)
 
-    # separate finite values of \alpha from \alpha = \infty
-    for axis in axes:
-        axis.axhline(len(alpha_vals)-nn_bins-0.5, color = "w", linewidth = 1)
+        # mark the cut for time-series data
+        if dim == 2:
+            cut_alpha = numeric_alpha.index(3)
+            cut_couplings = [ list(zz_couplings).index(-3), list(zz_couplings).index(-1) ]
+            axes[2].plot(cut_couplings, [cut_alpha]*2, "c-", linewidth = 1)
+
+        # mark parameters for neutral atoms
+        if dim in [ 2, 3 ]:
+            alpha = len(alpha_vals) - nn_bins / 2
+            axes[0].plot([ 0, len(zz_couplings)-1 ], [alpha]*2, "y-", linewidth = 1)
+
+        # mark parameters for polar molecules
+        if dim == 2:
+            alpha = numeric_alpha.index(3)
+            axes[0].plot([ 0, len(zz_couplings)-1 ], [alpha]*2, "g-", markersize = 1.5)
+
+        # mark parameters for ions
+        if dim == 2:
+            alpha = [ numeric_alpha.index(1), numeric_alpha.index(3) ]
+            couplings = [ list(zz_couplings).index(0) ] * 2
+            axes[0].plot(couplings, alpha, "b-", linewidth = 1)
+
+        # mark parameters for Rydberg atoms
+        if dim in [ 2, 3 ]:
+            alpha = numeric_alpha.index(6)
+            for zz in [ 0, -3 ]:
+                zz_idx = list(zz_couplings).index(zz)
+                axes[0].plot([zz_idx], [alpha], "ro", markersize = 1.5)
+
+        # mark parameters for magnetic atoms
+        if dim == 2:
+            zz_idx = list(zz_couplings).index(-2)
+            alpha = numeric_alpha.index(3)
+            axes[0].plot([zz_idx], [alpha], marker = "s",
+                         color = "tab:pink", markersize = 1.5)
 
     # set axis ticks
     alpha_ticks = [ idx for idx, alpha in enumerate(numeric_alpha)
@@ -353,8 +395,8 @@ def fix_log_ticks(color_bar):
 
 # make a plot of DTWA data comparing multiple lattice sizes
 def make_dtwa_plots(lattice_list, alpha_text = "*",
-                    zz_lims = (-3,3), alpha_lims = (1,6), add_reflines = True,
-                    figsize = None):
+                    zz_lims = (-3,3), alpha_lims = (1,6),
+                    add_reflines = True, label_panels = True, figsize = None):
     if type(lattice_list) is str:
         lattice_list = [ lattice_list ]
     cols = len(lattice_list)
@@ -367,10 +409,14 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
         else:
             figsize = (7, 5)
 
-    figure, axes = plt.subplots(3, cols, figsize = figsize)
-    axes.shape = (3,-1)
-    images = np.empty(axes.shape, dtype = mpl.image.AxesImage)
+    widths = [35]*cols + [1]
+    figure, all_axes = plt.subplots(3, cols+1, figsize = figsize,
+                                    gridspec_kw = { "width_ratios": widths })
+    all_axes.shape = (3,-1)
+    axes = all_axes[:,:-1]
+    bar_axes = all_axes[:,-1]
 
+    images = np.empty(axes.shape, dtype = mpl.image.AxesImage)
     for col, ( lattice_text, lattice_axes) in enumerate(zip(lattice_list, axes.T)):
         images[:,col] \
             = plot_dtwa_data(lattice_axes, lattice_text, alpha_text,
@@ -401,16 +447,14 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
             label.set_verticalalignment("center")
 
     labels = [ label_sqz_opt, label_SS, label_time_opt ]
-    for row_images, row_axes, label in zip(images, axes, labels):
+    for row_images, bar_axis, label in zip(images, bar_axes, labels):
         clim_min = min( image.get_clim()[0] for image in row_images )
         clim_max = max( image.get_clim()[1] for image in row_images )
         clim = (clim_min, clim_max)
         for image in row_images:
             image.set_clim(clim)
 
-        axis_divider = make_axes_locatable(row_axes[-1])
-        axis = axis_divider.append_axes("right", size="3%", pad="3%")
-        bar = figure.colorbar(row_images[0], cax = axis, label = label)
+        bar = figure.colorbar(row_images[0], cax = bar_axis, label = label)
 
         if label == label_sqz_opt:
             fix_ticks(bar, 5)
