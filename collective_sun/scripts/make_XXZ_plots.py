@@ -167,8 +167,8 @@ lattice_text = "64x64"
 color_map = "viridis"
 
 color_map = mpl.cm.get_cmap(color_map)
-for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-20,5] ),
-                                             ( 4, [-2, 0], 5, [-15,5] ) ]:
+for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
+                                             ( 4, [-2, 0], 5, [-5,15] ) ]:
 
     # identify info related to data file names
     name_tag = make_name_tag(lattice_text, alpha, "dtwa")
@@ -180,7 +180,7 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-20,5] ),
     def get_time_sqz(file):
         all_data = np.loadtxt(file)
         time = all_data[:,0]
-        sqz = all_data[:,4]
+        sqz = -all_data[:,4]
         return time, sqz
 
     # collect all data files and the corresponding ZZ couplings
@@ -198,11 +198,11 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-20,5] ),
         plt.plot(time * time_scale, sqz, color = color_map(color_val))
 
         # keep track of the optimal squeezing time
-        optimal_times[idx] = time[sqz.argmin()]
+        optimal_times[idx] = time[sqz.argmax()]
 
     # highlight squeezing over time at the collective/Ising crossover
     optimal_time_ratios = optimal_times[1:] / optimal_times[:-1]
-    zz_coupling, file = data_files[optimal_time_ratios.argmax()+1]
+    zz_coupling, file = data_files[optimal_time_ratios.argmin()]
     time, sqz = get_time_sqz(file)
     time_scale = abs( zz_coupling - 1 )
     plt.plot(time * time_scale, sqz, color = "red", linewidth = "2")
