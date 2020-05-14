@@ -227,144 +227,144 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
 ##########################################################################################
 # plot DTWA result summary
 
-# plot DTWA data for a given lattice on a given list of axes
-def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_reflines):
+# plot DTWA data for a given lattice on a given set of axes
+def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
+                   zz_lims, alpha_lims, add_reflines):
     dim = lattice_text.count("x") + 1 # spatial dimensions
 
     # import all relevant data
-    raw_data = {}
+    raw_fin_data = {}
     name_tags = [ make_name_tag(lattice_text, alpha_text, "dtwa"),
                   make_name_tag(lattice_text, "nn", "dtwa") ]
     for name_tag in name_tags:
         data_files = data_dir + f"DTWA/dtwa_{name_tag}.txt"
         for file in glob.glob(data_files):
             alpha = file.split("_")[-1][1:-4]
-            if alpha == "nn" or alpha_lims[0] <= float(alpha) <= alpha_lims[1]:
-                raw_data[alpha] = np.loadtxt(file)
+            if alpha == "nn" :
+                raw_inf_data = np.loadtxt(file)
+            elif alpha_lims[0] <= float(alpha) <= alpha_lims[1]:
+                raw_fin_data[float(alpha)] = np.loadtxt(file)
 
-    # collect data for plotting
-    alpha_vals = sorted(list(raw_data.keys()))
-    zz_couplings = next(iter(raw_data.values()))[:,0]
-    data = {}
+    # identify ZZ couplings and values of \alpha
+    alpha_vals = np.sort(list(raw_fin_data.keys()))
+    zz_couplings = next(iter(raw_fin_data.values()))[:,0]
+
+    # pick values of the ZZ coupling to keep
     keep = np.where( ( np.around(zz_couplings, decimals = 1) >= zz_lims[0] ) &
                      ( np.around(zz_couplings, decimals = 1) <= zz_lims[1] ) )[0]
-    data["min_sqz"] = np.array([ raw_data[alpha][keep,1] for alpha in alpha_vals ])
-    data["opt_tim"] = np.array([ raw_data[alpha][keep,2] for alpha in alpha_vals ])
-    data["sqr_len"] = np.array([ raw_data[alpha][keep,3] for alpha in alpha_vals ])
-    del raw_data
     zz_couplings = zz_couplings[keep]
 
-    # collect numeric values of alpha
-    numeric_alpha = [ float(alpha) for alpha in alpha_vals if alpha != "nn" ]
+    # collect data for plotting
+    fin_data, inf_data = {}, {}
+    fin_data["min_sqz"] = np.array([ raw_fin_data[alpha][keep,1] for alpha in alpha_vals ])
+    fin_data["opt_tim"] = np.array([ raw_fin_data[alpha][keep,2] for alpha in alpha_vals ])
+    fin_data["sqr_len"] = np.array([ raw_fin_data[alpha][keep,3] for alpha in alpha_vals ])
+    inf_data["min_sqz"] = raw_inf_data[keep,1]
+    inf_data["opt_tim"] = raw_inf_data[keep,2]
+    inf_data["sqr_len"] = raw_inf_data[keep,3]
+    del raw_fin_data, raw_inf_data
 
     # insert "empty" data for zz_coupling = 1
     zz_couplings = np.insert(zz_couplings, np.where(zz_couplings > 1)[0][0], 1)
     critical_coupling_idx = np.where(zz_couplings >= 1)[0][0]
-    for key in data.keys():
-        data[key] = np.insert(data[key], critical_coupling_idx, None, axis = 1)
-
-    # make copies of the data at \alpha = \infty
-    alpha_range = int( max(numeric_alpha) - min(numeric_alpha) )
-    nn_bins = (len(alpha_vals)-1) // alpha_range // 2 + 1 # number of "nearest neighbor bins"
-    alpha_vals = alpha_vals[:-1] + [ "nn" ] * nn_bins
-    for key in data.keys():
-        data[key] = np.vstack([ data[key][:-1,:] ] + [ data[key][-1,:] ] * nn_bins )
+    for key in fin_data.keys():
+        fin_data[key] = np.insert(fin_data[key], critical_coupling_idx, None, axis = 1)
+        inf_data[key] = np.insert(inf_data[key], critical_coupling_idx, None)
 
     # plot data
-    plot_args = { "aspect" : "auto", "origin" : "lower",
-                  "interpolation" : "nearest", "cmap" : "inferno" }
-    images = [ axes[0].imshow(-data["min_sqz"], **plot_args),
-               axes[1].imshow(+data["sqr_len"], **plot_args),
-               axes[2].imshow(+data["opt_tim"], **plot_args, norm = mpl.colors.LogNorm()) ]
+    axis_lims = [ zz_couplings[0], zz_couplings[-1], alpha_vals[0], alpha_vals[-1] ]
+    plot_args = dict( aspect = "auto", origin = "lower",
+                      interpolation = "nearest", cmap = "inferno",
+                      extent = axis_lims )
+    fin_axes[0].imshow(-fin_data["min_sqz"], **plot_args)
+    fin_axes[1].imshow(+fin_data["sqr_len"], **plot_args)
+    fin_axes[2].imshow(+fin_data["opt_tim"], **plot_args, norm = mpl.colors.LogNorm())
 
-    # separate finite values of \alpha from \alpha = \infty
-    for axis in axes:
-        axis.axhline(len(alpha_vals)-nn_bins-0.5, color = "w", linewidth = 1, zorder = 2)
+    plot_args["extent"] = axis_lims[:2] + [-1,1]
+    inf_axes[0].imshow([-inf_data["min_sqz"]], **plot_args)
+    inf_axes[1].imshow([+inf_data["sqr_len"]], **plot_args)
+    inf_axes[2].imshow([+inf_data["opt_tim"]], **plot_args, norm = mpl.colors.LogNorm())
 
     if add_reflines:
         # identify boundaries between collective and Ising-dominated squeezing behavior
-        # on the left, start at values of alpha (by index) where t_opt has the biggest jump
-        boundary_lft_alpha_start \
-            = ( data["opt_tim"][:-1,0] / data["opt_tim"][1:,0] ).argmax()
+        # on the left, start at values of alpha where t_opt has the biggest jump
+        alpha_start_idx = ( fin_data["opt_tim"][:-1,0] / fin_data["opt_tim"][1:,0] ).argmax()
+        boundary_lft_alpha = alpha_vals[alpha_start_idx:]
         # for each alpha >= [value above], find the ZZ coupling that minimizes S^2
-        boundary_lft_alpha = list(range(boundary_lft_alpha_start, len(alpha_vals)))
-        boundary_lft_coupling \
-            = [ data["sqr_len"][idx,:critical_coupling_idx-1].argmin() - 0.5
-                for idx in boundary_lft_alpha ]
+        region_sqr_len = fin_data["sqr_len"][alpha_start_idx:,:critical_coupling_idx-1]
+        boundary_lft_coupling_idx = region_sqr_len.argmin(axis = 1)
+        boundary_lft_coupling = zz_couplings[boundary_lft_coupling_idx]
 
         # on the right, consider values of the ZZ coupling J_z/J_\perp > 1
-        boundary_rht_coupling = list(range(critical_coupling_idx+1, len(zz_couplings)))
-        # find the first value of \alpha that minimizes S^2(\alpha)
+        boundary_rht_coupling = zz_couplings[critical_coupling_idx+1:]
+        # find the value of \alpha that minimizes S^2(\alpha)
         def locate_minimum(sqr_len, threshold = 0.01):
-            minimum = np.where( (sqr_len[:-1] <= 1 - threshold) &
-                                (sqr_len[:-1] < sqr_len[1:]) )[0][0]
-            points = np.array([-1,0,1]) + minimum
-            polyfit = np.polyfit(points, sqr_len[points], 2)
+            minimum_idx = np.where( (sqr_len[:-1] <= 1 - threshold) &
+                                    (sqr_len[:-1] < sqr_len[1:]) )[0][0]
+            # locate minimum by fitting to a quadratic
+            points = np.array([-1,0,1]) + minimum_idx
+            polyfit = np.polyfit(alpha_vals[points], sqr_len[points], 2)
             return -1/2 * polyfit[1] / polyfit[0]
-        boundary_rht_alpha = [ locate_minimum(data["sqr_len"][:,idx])
-                               for idx in boundary_rht_coupling ]
+        boundary_rht_alpha = [ locate_minimum(fin_data["sqr_len"][:,idx])
+                               for idx in range(critical_coupling_idx+1, len(zz_couplings)) ]
 
-        for axis in axes:
-            bounday_args = { "color" : "gray",
-                             "linewidth" : 1,
-                             "linestyle" : ":",
-                             "zorder" : 1 }
+        for axis in fin_axes:
+            bounday_args = dict( zorder = 1, color = "gray",
+                                 linewidth = 1, linestyle = ":" )
             axis.plot(boundary_lft_coupling, boundary_lft_alpha, **bounday_args)
             axis.plot(boundary_rht_coupling, boundary_rht_alpha, **bounday_args)
 
-            # mark \alpha = D
-            ref_args = { "color" : "gray",
-                         "linewidth" : 1,
-                         "linestyle" : "--",
-                         "zorder" : 1 }
-            axis.axhline(numeric_alpha.index(dim), **ref_args)
+        # plot left boundary at infinite \alpha
+        lft_sqr_len = inf_data["sqr_len"][:critical_coupling_idx-1]
+        boundary_coupling = zz_couplings[lft_sqr_len.argmin()]
+        for axis in inf_axes:
+            axis.plot([boundary_coupling]*2, axis.get_ylim(), **bounday_args)
+
+        # mark \alpha = D
+        ref_args = dict( zorder = 1, color = "gray",
+                         linewidth = 1, linestyle = "--" )
+        for axis in fin_axes:
+            axis.axhline(dim, **ref_args)
 
         # mark the cut for time-series data
         if dim == 2:
-            cut_alpha = numeric_alpha.index(3)
-            cut_couplings = [ list(zz_couplings).index(-3), list(zz_couplings).index(-1) ]
-            axes[2].plot(cut_couplings, [cut_alpha]*2, "c-", linewidth = 1)
+            fin_axes[2].plot([-3,-1], [3,3], "c-", linewidth = 1)
 
         # mark parameters for neutral atoms
         if dim in [ 2, 3 ]:
-            alpha = len(alpha_vals) - nn_bins / 2
-            axes[1].plot([ 0, len(zz_couplings)-1 ], [alpha]*2, "y-", linewidth = 1)
+            inf_axes[1].plot(zz_lims, [0,0], "y-", linewidth = 1)
 
         # mark parameters for polar molecules
         if dim == 2:
-            alpha = numeric_alpha.index(3)
-            axes[1].plot([ 0, len(zz_couplings)-1 ], [alpha]*2, "g-", markersize = 1.5)
+            fin_axes[1].plot(zz_lims, [3,3], "g-", markersize = 1.5)
 
         # mark parameters for ions
         if dim == 2:
-            alpha = [ 0, numeric_alpha.index(3) ]
-            couplings = [ list(zz_couplings).index(0) ] * 2
-            axes[1].plot(couplings, alpha, "b-", linewidth = 1)
+            fin_axes[1].plot([0,0], [ alpha_vals[0], 3 ], "b-", linewidth = 1)
 
         # mark parameters for Rydberg atoms
         if dim in [ 2, 3 ]:
-            alpha = numeric_alpha.index(6)
             for zz in [ 0, -3 ]:
-                zz_idx = list(zz_couplings).index(zz)
-                axes[1].plot([zz_idx], [alpha], "ro", markersize = 1.5)
+                fin_axes[1].plot([zz], [6], "ro", markersize = 1.5,
+                                 clip_on = False, zorder = 4)
 
         # mark parameters for magnetic atoms
         if dim == 2:
-            zz_idx = list(zz_couplings).index(-2)
-            alpha = numeric_alpha.index(3)
-            axes[1].plot([zz_idx], [alpha], marker = "s",
+            fin_axes[1].plot([-2], [3], marker = "s",
                          color = "tab:pink", markersize = 1.5)
 
-    # set axis ticks
-    alpha_ticks = [ idx for idx, alpha in enumerate(numeric_alpha)
-                    if float(alpha) == int(float(alpha)) ] + [ len(alpha_vals)-1 ]
-    for axis in axes:
+    # set axis ticks at integer values
+    alpha_ticks = sorted(set(map(int,map(round, alpha_vals))))
+    zz_ticks = sorted(set(map(int,map(round, zz_couplings))))
+    for axis in fin_axes:
         axis.set_yticks(alpha_ticks)
-        axis.set_xticks(np.where(np.isclose(zz_couplings % 1, 0))[0])
+        axis.set_xticks(zz_ticks)
         axis.set_xticklabels([])
         axis.set_yticklabels([])
-
-    return images
+    for axis in inf_axes:
+        axis.set_xticks([])
+        axis.set_yticks([0])
+        axis.set_yticklabels([])
 
 # set axis ticks on a linear-scale color bar
 def fix_ticks(color_bar, base):
@@ -409,45 +409,50 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
         else:
             figsize = (7, 5)
 
+    # set up figure with "primary" axes for plots and color bars
     widths = [35]*cols + [1]
-    figure, all_axes = plt.subplots(3, cols+1, figsize = figsize,
-                                    gridspec_kw = { "width_ratios": widths })
-    all_axes.shape = (3,-1)
-    axes = all_axes[:,:-1]
-    bar_axes = all_axes[:,-1]
+    figure, init_axes = plt.subplots(3, cols+1, figsize = figsize,
+                                     gridspec_kw = dict( width_ratios = widths ))
+    init_axes.shape = (3,-1)
+    fin_axes = init_axes[:,:-1] # axes for plotting data with finite \alpha
+    bar_axes = init_axes[:,-1] # axes for colorbars
 
-    images = np.empty(axes.shape, dtype = mpl.image.AxesImage)
-    for col, ( lattice_text, lattice_axes) in enumerate(zip(lattice_list, axes.T)):
-        images[:,col] \
-            = plot_dtwa_data(lattice_axes, lattice_text, alpha_text,
-                             zz_lims, alpha_lims, add_reflines)
+    # make axes for plotting data at infinite \alpha
+    inf_axes = np.empty(fin_axes.shape, dtype = fin_axes.dtype)
+    for idx in np.ndindex(fin_axes.shape):
+        divider = make_axes_locatable(fin_axes[idx])
+        inf_axes[idx] = divider.append_axes("top", size = "8%", pad = 0.04)
+
+    # plot all data
+    for col, lattice_text in enumerate(lattice_list):
+        plot_dtwa_data(fin_axes[:,col], inf_axes[:,col], lattice_text, alpha_text,
+                       zz_lims, alpha_lims, add_reflines)
 
         # set titles for each column
         if cols > 1:
             dim = lattice_text.count("x") + 1
-            lattice_axes[0].set_title(f"$D={dim}$")
+            inf_axes[0,col].set_title(f"$D={dim}$", pad = 0.05)
 
     # set horizontal tick labels
-    for axis in axes[-1,:]:
+    for axis in fin_axes[-1,:]:
         axis.set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
-        xtick_min = int(np.ceil(zz_lims[0]))
-        xtick_max = int(np.floor(zz_lims[1]))
-        xticklabels = range(xtick_min,xtick_max+1)
+        labels = axis.get_xticks()
         if cols > 1:
-            xticklabels = [ label if label % 2 == 0 else ""
-                            for label in xticklabels ]
-        axis.set_xticklabels(xticklabels)
+            labels = [ label if label % 2 == 0 else "" for label in labels ]
+        axis.set_xticklabels(labels)
 
     # set vertical tick labels
-    for idx, axis in enumerate(axes[:,0]):
+    for idx, axis in enumerate(fin_axes[:,0]):
         axis.set_ylabel(r"$\alpha$")
-        ytick_num = len(axis.get_yticks())
-        axis.set_yticklabels(list(range(1,ytick_num)) + [ r"$\infty$" ])
-        for label in axis.get_yticklabels():
-            label.set_verticalalignment("center")
+        axis.set_yticklabels(axis.get_yticks())
+    for idx, axis in enumerate(inf_axes[:,0]):
+        axis.set_yticklabels([r"$\infty$"], verticalalignment = "center")
 
+    # set color bar limits and labels
     labels = [ label_sqz_opt, label_SS, label_time_opt ]
-    for row_images, bar_axis, label in zip(images, bar_axes, labels):
+    for row, ( bar_axis, label ) in enumerate(zip(bar_axes, labels)):
+        row_axes = list(fin_axes[row,:]) + list(inf_axes[row,:])
+        row_images = [ axis.get_images()[0] for axis in row_axes ]
         clim_min = min( image.get_clim()[0] for image in row_images )
         clim_max = max( image.get_clim()[1] for image in row_images )
         clim = (clim_min, clim_max)
@@ -463,6 +468,7 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
         if label == label_time_opt:
             fix_log_ticks(bar)
 
+    # "tighten" the plot layout, trimming empty space
     plt.tight_layout(pad = 0.3)
     plt.subplots_adjust(wspace = 0.1, hspace = 0.1)
     return figure
