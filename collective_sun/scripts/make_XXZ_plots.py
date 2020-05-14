@@ -295,12 +295,12 @@ def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_refl
         # on the right, consider values of the ZZ coupling J_z/J_\perp > 1
         boundary_rht_coupling = list(range(critical_coupling_idx+1, len(zz_couplings)))
         # find the first value of \alpha that minimizes S^2(\alpha)
-        def locate_minimum(sqr_len):
-            # to avoid "accidental" minima at S^2 ~ 1,
-            # make sure that S^2 falls to at least this value
-            max_dip = data["sqr_len"][0,-1]
-            return np.where( (sqr_len[:-1] <= max_dip) &
-                             (sqr_len[:-1] < sqr_len[1:]) )[0][0]
+        def locate_minimum(sqr_len, threshold = 0.01):
+            minimum = np.where( (sqr_len[:-1] <= 1 - threshold) &
+                                (sqr_len[:-1] < sqr_len[1:]) )[0][0]
+            points = np.array([-1,0,1]) + minimum
+            polyfit = np.polyfit(points, sqr_len[points], 2)
+            return -1/2 * polyfit[1] / polyfit[0]
         boundary_rht_alpha = [ locate_minimum(data["sqr_len"][:,idx])
                                for idx in boundary_rht_coupling ]
 
@@ -328,31 +328,31 @@ def plot_dtwa_data(axes, lattice_text, alpha_text, zz_lims, alpha_lims, add_refl
         # mark parameters for neutral atoms
         if dim in [ 2, 3 ]:
             alpha = len(alpha_vals) - nn_bins / 2
-            axes[0].plot([ 0, len(zz_couplings)-1 ], [alpha]*2, "y-", linewidth = 1)
+            axes[1].plot([ 0, len(zz_couplings)-1 ], [alpha]*2, "y-", linewidth = 1)
 
         # mark parameters for polar molecules
         if dim == 2:
             alpha = numeric_alpha.index(3)
-            axes[0].plot([ 0, len(zz_couplings)-1 ], [alpha]*2, "g-", markersize = 1.5)
+            axes[1].plot([ 0, len(zz_couplings)-1 ], [alpha]*2, "g-", markersize = 1.5)
 
         # mark parameters for ions
         if dim == 2:
-            alpha = [ numeric_alpha.index(1), numeric_alpha.index(3) ]
+            alpha = [ 0, numeric_alpha.index(3) ]
             couplings = [ list(zz_couplings).index(0) ] * 2
-            axes[0].plot(couplings, alpha, "b-", linewidth = 1)
+            axes[1].plot(couplings, alpha, "b-", linewidth = 1)
 
         # mark parameters for Rydberg atoms
         if dim in [ 2, 3 ]:
             alpha = numeric_alpha.index(6)
             for zz in [ 0, -3 ]:
                 zz_idx = list(zz_couplings).index(zz)
-                axes[0].plot([zz_idx], [alpha], "ro", markersize = 1.5)
+                axes[1].plot([zz_idx], [alpha], "ro", markersize = 1.5)
 
         # mark parameters for magnetic atoms
         if dim == 2:
             zz_idx = list(zz_couplings).index(-2)
             alpha = numeric_alpha.index(3)
-            axes[0].plot([zz_idx], [alpha], marker = "s",
+            axes[1].plot([zz_idx], [alpha], marker = "s",
                          color = "tab:pink", markersize = 1.5)
 
     # set axis ticks
@@ -395,7 +395,7 @@ def fix_log_ticks(color_bar):
 
 # make a plot of DTWA data comparing multiple lattice sizes
 def make_dtwa_plots(lattice_list, alpha_text = "*",
-                    zz_lims = (-3,3), alpha_lims = (1,6),
+                    zz_lims = (-3,3), alpha_lims = (0.6,6),
                     add_reflines = True, label_panels = True, figsize = None):
     if type(lattice_list) is str:
         lattice_list = [ lattice_list ]
