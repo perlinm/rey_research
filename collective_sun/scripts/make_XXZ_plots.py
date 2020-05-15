@@ -229,7 +229,7 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
 
 # plot DTWA data for a given lattice on a given set of axes
 def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
-                   zz_lims, alpha_lims, add_reflines):
+                   zz_lims, alpha_lims, add_markup):
     dim = lattice_text.count("x") + 1 # spatial dimensions
 
     # import all relevant data
@@ -272,7 +272,10 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         inf_data[key] = np.insert(inf_data[key], critical_coupling_idx, None)
 
     # plot data
-    axis_lims = [ zz_couplings[0], zz_couplings[-1], alpha_vals[0], alpha_vals[-1] ]
+    dz = zz_couplings[1] - zz_couplings[0]
+    da = alpha_vals[1] - alpha_vals[0]
+    axis_lims = [ zz_couplings[0] - dz/2, zz_couplings[-1] + dz/2,
+                  alpha_vals[0] - da/2, alpha_vals[-1] + da/2 ]
     plot_args = dict( aspect = "auto", origin = "lower",
                       interpolation = "nearest", cmap = "inferno",
                       extent = axis_lims )
@@ -285,7 +288,13 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
     inf_axes[1].imshow([+inf_data["sqr_len"]], **plot_args)
     inf_axes[2].imshow([+inf_data["opt_tim"]], **plot_args, norm = mpl.colors.LogNorm())
 
-    if add_reflines:
+    if add_markup:
+        # mark \alpha = D
+        ref_args = dict( zorder = 1, color = "gray",
+                         linewidth = 1, linestyle = "--" )
+        for axis in fin_axes:
+            axis.axhline(dim, **ref_args)
+
         # identify boundaries between collective and Ising-dominated squeezing behavior
         # on the left, start at values of alpha where t_opt has the biggest jump
         alpha_start_idx = ( fin_data["opt_tim"][:-1,0] / fin_data["opt_tim"][1:,0] ).argmax()
@@ -320,11 +329,17 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         for axis in inf_axes:
             axis.plot([boundary_coupling]*2, axis.get_ylim(), **bounday_args)
 
-        # mark \alpha = D
-        ref_args = dict( zorder = 1, color = "gray",
-                         linewidth = 1, linestyle = "--" )
-        for axis in fin_axes:
-            axis.axhline(dim, **ref_args)
+        # label the Ising / collective phases
+        text_args = dict( color = "black",
+                          horizontalalignment = "center",
+                          verticalalignment = "center" )
+        fin_axes[0].text(-1, 1.25, "collective", **text_args)
+        text_args["color"] = "white"
+        fin_axes[0].text(2, 5, "Ising", **text_args)
+        if dim == 2:
+            fin_axes[0].text(-2, 5, "Ising", **text_args)
+        if dim == 3:
+            fin_axes[0].text(-2.35, 5.75, "Ising", **text_args)
 
         # mark the cut for time-series data
         if dim == 2:
@@ -354,11 +369,11 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
                          color = "tab:pink", markersize = 1.5)
 
     # set axis ticks at integer values
-    alpha_ticks = sorted(set(map(int,map(round, alpha_vals))))
     zz_ticks = sorted(set(map(int,map(round, zz_couplings))))
+    alpha_ticks = sorted(set(map(int,map(round, alpha_vals))))
     for axis in fin_axes:
-        axis.set_yticks(alpha_ticks)
         axis.set_xticks(zz_ticks)
+        axis.set_yticks(alpha_ticks)
         axis.set_xticklabels([])
         axis.set_yticklabels([])
     for axis in inf_axes:
@@ -396,7 +411,7 @@ def fix_log_ticks(color_bar):
 # make a plot of DTWA data comparing multiple lattice sizes
 def make_dtwa_plots(lattice_list, alpha_text = "*",
                     zz_lims = (-3,3), alpha_lims = (0.6,6),
-                    add_reflines = True, label_panels = True, figsize = None):
+                    add_markup = True, label_panels = True, figsize = None):
     if type(lattice_list) is str:
         lattice_list = [ lattice_list ]
     cols = len(lattice_list)
@@ -426,12 +441,12 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
     # plot all data
     for col, lattice_text in enumerate(lattice_list):
         plot_dtwa_data(fin_axes[:,col], inf_axes[:,col], lattice_text, alpha_text,
-                       zz_lims, alpha_lims, add_reflines)
+                       zz_lims, alpha_lims, add_markup)
 
         # set titles for each column
         if cols > 1:
             dim = lattice_text.count("x") + 1
-            inf_axes[0,col].set_title(f"$D={dim}$", pad = 0.05)
+            inf_axes[0,col].set_title(f"$D={dim}$", pad = 3)
 
     # set horizontal tick labels
     for axis in fin_axes[-1,:]:
@@ -485,6 +500,6 @@ plt.savefig(fig_dir + f"dtwa_L{lattice_label}.pdf")
 
 lattice_list = [ "4096", "64x64", "16x16x16" ]
 alpha_text = "?.0"
-make_dtwa_plots(lattice_list, alpha_text, add_reflines = False)
+make_dtwa_plots(lattice_list, alpha_text, add_markup = False)
 lattice_label = "_L".join(lattice_list)
 plt.savefig(fig_dir + f"dtwa_L{lattice_label}_int.pdf")
