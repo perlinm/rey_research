@@ -308,12 +308,11 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         boundary_rht_coupling = zz_couplings[critical_coupling_idx+1:]
         # find the value of \alpha that minimizes S^2(\alpha)
         def locate_minimum(sqr_len, threshold = 0.01):
-            minimum_idx = np.where( (sqr_len[:-1] <= 1 - threshold) &
-                                    (sqr_len[:-1] < sqr_len[1:]) )[0][0]
-            # locate minimum by fitting to a quadratic
-            points = np.array([-1,0,1]) + minimum_idx
-            polyfit = np.polyfit(alpha_vals[points], sqr_len[points], 2)
-            return -1/2 * polyfit[1] / polyfit[0]
+            first_dip = np.where( (sqr_len[:-1] <= 1 - threshold) &
+                                  (sqr_len[:-1] < sqr_len[1:]) )[0][0]
+            peak = sqr_len[first_dip:].argmax() + first_dip
+            dip = sqr_len[first_dip:peak].argmin() + first_dip
+            return alpha_vals[dip]
         boundary_rht_alpha = [ locate_minimum(fin_data["sqr_len"][:,idx])
                                for idx in range(critical_coupling_idx+1, len(zz_couplings)) ]
 
@@ -339,7 +338,7 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         if dim == 2:
             fin_axes[0].text(-2, 5, "Ising", **text_args)
         if dim == 3:
-            fin_axes[0].text(-2.35, 5.75, "Ising", **text_args)
+            fin_axes[0].text(-2.35, 5.7, "Ising", **text_args)
 
         # mark the cut for time-series data
         if dim == 2:
@@ -359,9 +358,8 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
 
         # mark parameters for Rydberg atoms
         if dim in [ 2, 3 ]:
-            for zz in [ 0, -3 ]:
-                fin_axes[1].plot([zz], [6], "ro", markersize = 1.5,
-                                 clip_on = False, zorder = 4)
+            fin_axes[1].plot([0], [6], "ro", markersize = 1.5,
+                             clip_on = False, zorder = 4)
 
         # mark parameters for magnetic atoms
         if dim == 2:
@@ -492,8 +490,7 @@ lattice_text = "64x64"
 make_dtwa_plots(lattice_text)
 plt.savefig(fig_dir + f"dtwa_L{lattice_text}.pdf")
 
-# lattice_list = [ "64x64", "16x16x16" ]
-lattice_list = [ "64x64", "64x64" ]
+lattice_list = [ "64x64", "16x16x16" ]
 make_dtwa_plots(lattice_list)
 lattice_label = "_L".join(lattice_list)
 plt.savefig(fig_dir + f"dtwa_L{lattice_label}.pdf")
