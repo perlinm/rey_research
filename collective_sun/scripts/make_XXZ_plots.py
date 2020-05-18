@@ -38,10 +38,15 @@ def to_dB(sqz):
     return 10*np.log10(np.array(sqz))
 
 label_SS = r"$\braket{\bm S^2}_{\mathrm{min}} / \braket{\bm S^2}_0$"
+
 label_sqz = r"$-10\log_{10}\xi^2$"
 label_sqz_opt = r"$-10\log_{10}\xi_{\mathrm{opt}}^2$"
+
 label_time = r"$t\times J_\perp$"
 label_time_opt = r"$t_{\mathrm{opt}}\times J_\perp$"
+label_time_rescaled = r"$t\times \left|J_{\mathrm{z}}-J_\perp\right|$"
+
+label_zz = r"$J_{\mathrm{z}}/J_\perp$"
 
 ##########################################################################################
 # collect shell model data
@@ -108,7 +113,7 @@ for idx, pops in enumerate(max_pops.T):
     plt.plot(zz_coupling, pops, ".", label = pop_label(idx+1))
 shade_exclusions()
 plt.xticks(shell_xticks)
-plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
+plt.xlabel(label_zz)
 plt.ylabel("population")
 plt.legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.63,0.67))
 plt.tight_layout(pad = 0.2)
@@ -128,7 +133,7 @@ axes[1].plot(zz_coupling, min_SS / max_SS, "k.")
 # plot DTWA results
 name_tag_dtwa = make_name_tag(lattice_text, alpha, "dtwa")
 zz_coupling, min_sqz_dB, min_SS_normed \
-    = np.loadtxt(data_dir + f"DTWA/dtwa_{name_tag_dtwa}.txt", unpack = True)
+    = np.loadtxt(data_dir + f"DTWA/optima/dtwa_{name_tag_dtwa}.txt", unpack = True)
 axes[0].plot(zz_coupling, -min_sqz_dB, "r.", label = "DTWA")
 axes[1].plot(zz_coupling, min_SS_normed, "r.")
 
@@ -153,7 +158,7 @@ axes[0].set_xticklabels([])
 
 axes[0].set_ylabel(label_sqz_opt)
 axes[1].set_ylabel(label_SS)
-axes[1].set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
+axes[1].set_xlabel(label_zz)
 shade_exclusions(axes[0])
 shade_exclusions(axes[1])
 axes[0].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.6,0.45))
@@ -161,10 +166,12 @@ plt.tight_layout(pad = 0.5)
 plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 
 ##########################################################################################
-# plot time-series DTWA results
+# plot squeezing over time (DTWA)
 
 lattice_text = "64x64"
 color_map = "viridis"
+def get_zz_coupling(file):
+    return float(file.split("_")[-1][1:-4])
 
 color_map = mpl.cm.get_cmap(color_map)
 for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
@@ -173,8 +180,6 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
     # identify info related to data file names
     name_tag = make_name_tag(lattice_text, alpha, "dtwa")
     name_format = data_dir + "DTWA/time_series/dtwa_" + name_tag + "*.txt"
-    def get_zz_coupling(file):
-        return float(file.split("_")[-1][1:-4])
     def in_range(zz_coupling):
         return zz_lims[0] <= zz_coupling <= zz_lims[1]
     def get_time_sqz(file):
@@ -219,13 +224,40 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
     plt.ylim(sqz_range)
 
     # touch-up and save figure
-    plt.xlabel(r"$t\times \left|J_{\mathrm{z}}-J_\perp\right|$")
+    plt.xlabel(label_time_rescaled)
     plt.ylabel(label_sqz)
     plt.tight_layout(pad = 0.3)
     plt.savefig(fig_dir + f"crossover_{name_tag}.pdf")
 
 ##########################################################################################
-# plot DTWA result summary
+# plot summary of DTWA results
+
+# set axis ticks on a linear-scale color bar
+def fix_ticks(color_bar, base):
+    min_val, _ = color_bar.ax.xaxis.get_data_interval()
+    locator = mpl.ticker.IndexLocator(base = base, offset = -min_val)
+    color_bar.set_ticks(locator)
+
+# set axis ticks on a log-scale color bar
+def fix_log_ticks(color_bar):
+    if color_bar.orientation == "horizontal":
+        axis = color_bar.ax.xaxis
+    else:
+        axis = color_bar.ax.yaxis
+
+    base, subs = 10, np.arange(0,1.1,0.1)
+    major_locator = mpl.ticker.LogLocator(base = base)
+    minor_locator = mpl.ticker.LogLocator(base = base, subs = subs)
+
+    min_val, max_val = axis.get_data_interval()
+    def filter(values):
+        return [ val for val in values if min_val <= val <= max_val ]
+    major_tick_values = filter(major_locator.tick_values(min_val, max_val))
+    minor_tick_values = filter(minor_locator.tick_values(min_val, max_val))
+
+    color_bar.set_ticks(major_tick_values)
+    axis.set_ticks(minor_tick_values, minor = True)
+    color_bar.update_ticks()
 
 # plot DTWA data for a given lattice on a given set of axes
 def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
@@ -237,7 +269,7 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
     name_tags = [ make_name_tag(lattice_text, alpha_text, "dtwa"),
                   make_name_tag(lattice_text, "nn", "dtwa") ]
     for name_tag in name_tags:
-        data_files = data_dir + f"DTWA/dtwa_{name_tag}.txt"
+        data_files = data_dir + f"DTWA/optima/dtwa_{name_tag}.txt"
         for file in glob.glob(data_files):
             alpha = file.split("_")[-1][1:-4]
             if alpha == "nn" :
@@ -379,33 +411,6 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         axis.set_yticks([0])
         axis.set_yticklabels([])
 
-# set axis ticks on a linear-scale color bar
-def fix_ticks(color_bar, base):
-    min_val, _ = color_bar.ax.xaxis.get_data_interval()
-    locator = mpl.ticker.IndexLocator(base = base, offset = -min_val)
-    color_bar.set_ticks(locator)
-
-# set axis ticks on a log-scale color bar
-def fix_log_ticks(color_bar):
-    if color_bar.orientation == "horizontal":
-        axis = color_bar.ax.xaxis
-    else:
-        axis = color_bar.ax.yaxis
-
-    base, subs = 10, np.arange(0,1.1,0.1)
-    major_locator = mpl.ticker.LogLocator(base = base)
-    minor_locator = mpl.ticker.LogLocator(base = base, subs = subs)
-
-    min_val, max_val = axis.get_data_interval()
-    def filter(values):
-        return [ val for val in values if min_val <= val <= max_val ]
-    major_tick_values = filter(major_locator.tick_values(min_val, max_val))
-    minor_tick_values = filter(minor_locator.tick_values(min_val, max_val))
-
-    color_bar.set_ticks(major_tick_values)
-    axis.set_ticks(minor_tick_values, minor = True)
-    color_bar.update_ticks()
-
 # make a plot of DTWA data comparing multiple lattice sizes
 def make_dtwa_plots(lattice_list, alpha_text = "*",
                     zz_lims = (-3,3), alpha_lims = (0.6,6),
@@ -448,7 +453,7 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
 
     # set horizontal tick labels
     for axis in fin_axes[-1,:]:
-        axis.set_xlabel(r"$J_{\mathrm{z}}/J_\perp$")
+        axis.set_xlabel(label_zz)
         labels = axis.get_xticks()
         if cols > 1:
             labels = [ label if label % 2 == 0 else "" for label in labels ]
@@ -487,16 +492,77 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
     return figure
 
 lattice_text = "64x64"
-make_dtwa_plots(lattice_text)
+make_dtwa_plots(lattice_text, add_markup = False)
 plt.savefig(fig_dir + f"dtwa_L{lattice_text}.pdf")
-
-lattice_list = [ "64x64", "16x16x16" ]
-make_dtwa_plots(lattice_list)
-lattice_label = "_L".join(lattice_list)
-plt.savefig(fig_dir + f"dtwa_L{lattice_label}.pdf")
 
 lattice_list = [ "4096", "64x64", "16x16x16" ]
 alpha_text = "?.0"
 make_dtwa_plots(lattice_list, alpha_text, add_markup = False)
 lattice_label = "_L".join(lattice_list)
 plt.savefig(fig_dir + f"dtwa_L{lattice_label}_int.pdf")
+
+lattice_list = [ "64x64", "16x16x16" ]
+make_dtwa_plots(lattice_list)
+lattice_label = "_L".join(lattice_list)
+plt.savefig(fig_dir + f"dtwa_L{lattice_label}.pdf")
+
+##########################################################################################
+# plot system size scaling (DTWA)
+
+dim = 2
+alpha = 3
+
+zz_lims = (-2.5,2.2)
+dz = 0.1
+
+size_lims = (10,55)
+dL = 5
+
+figsize = (3,1.8)
+
+lattice_lengths = np.arange(size_lims[0], size_lims[1] + dL/2, dL, dtype = int)
+zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
+
+sqz_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
+for zz_idx, zz_coupling in enumerate(zz_couplings):
+    # skip the critical point at J_z = 1
+    if np.allclose(zz_coupling,1):
+        sqz_data[zz_idx,:] = None
+        continue
+
+    zz_text = f"z{zz_coupling:.1f}"
+    for ll_idx, lattice_length in enumerate(lattice_lengths):
+        lattice_text = "x".join([str(lattice_length)]*dim)
+
+        name_tag = make_name_tag(lattice_text, alpha, "dtwa")
+        name_format = data_dir + "DTWA/system_size/dtwa_" + name_tag + f"_{zz_text}.txt"
+        candidate_files = glob.glob(name_format)
+
+        assert(len(candidate_files) == 1)
+        file = candidate_files[0]
+        sqz = max(-np.loadtxt(file)[:,4])
+        sqz_data[zz_idx,ll_idx] = sqz
+
+figure = plt.figure(figsize = figsize)
+
+axis_lims = [ zz_lims[0] - dz/2, zz_lims[1] + dz/2,
+              size_lims[0] - dL/2, size_lims[1] + dL/2, ]
+plot_args = dict( aspect = "auto", origin = "lower",
+                  interpolation = "nearest", cmap = "inferno",
+                  extent = axis_lims )
+image = plt.imshow(sqz_data.T, **plot_args)
+
+color_bar = figure.colorbar(image, label = label_sqz)
+fix_ticks(color_bar, 5)
+
+plt.xlabel(label_zz)
+plt.ylabel(r"$L$")
+
+zz_ticks = sorted(set([ int(zz) for zz in zz_couplings ]))
+zz_labels = [ zz if zz % 2 == 0 else "" for zz in zz_ticks ]
+LL_labels = [ LL if LL % 10 == 0 else "" for LL in lattice_lengths ]
+plt.xticks(zz_ticks, zz_labels)
+plt.yticks(lattice_lengths, LL_labels)
+
+plt.tight_layout(pad = 0.1)
+plt.savefig(fig_dir + f"size_scaling_a{alpha}.pdf")
