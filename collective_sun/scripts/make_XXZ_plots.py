@@ -202,7 +202,7 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
 
     # highlight squeezing over time at the collective/Ising crossover
     optimal_time_ratios = optimal_times[1:] / optimal_times[:-1]
-    zz_coupling, file = data_files[optimal_time_ratios.argmin()]
+    zz_coupling, file = data_files[optimal_time_ratios.argmax()]
     time, sqz = get_time_sqz(file)
     time_scale = abs( zz_coupling - 1 )
     plt.plot(time * time_scale, sqz, color = "red", linewidth = "2")
