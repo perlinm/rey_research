@@ -183,9 +183,9 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
     def in_range(zz_coupling):
         return zz_lims[0] <= zz_coupling <= zz_lims[1]
     def get_time_sqz(file):
-        all_data = np.loadtxt(file)
-        time = all_data[:,0]
-        sqz = -all_data[:,4]
+        file_data = np.loadtxt(file)
+        time = file_data[:,0]
+        sqz = -file_data[:,4]
         return time, sqz
 
     # collect all data files and the corresponding ZZ couplings
@@ -372,31 +372,34 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         if dim == 3:
             fin_axes[0].text(-2.35, 5.7, "Ising", **text_args)
 
-        # mark the cut for time-series data
+
+        marker_args = dict( linewidth = 1, markersize = 1.5, clip_on = False )
+
+        # mark the cut for time-series and size-scaling data
         if dim == 2:
-            fin_axes[2].plot([-3,-1], [3,3], "c-", linewidth = 1)
+            fin_axes[2].plot([-3,-1], [3,3], "c-", **marker_args)
+        if dim == 3:
+            fin_axes[2].plot([-2.5,2.2], [3,3], "c-", **marker_args)
 
         # mark parameters for neutral atoms
         if dim in [ 2, 3 ]:
-            inf_axes[1].plot(zz_lims, [0,0], "y-", linewidth = 1)
+            inf_axes[1].plot(zz_lims, [0,0], "y-", **marker_args)
 
         # mark parameters for polar molecules
         if dim == 2:
-            fin_axes[1].plot(zz_lims, [3,3], "g-", markersize = 1.5)
+            fin_axes[1].plot(zz_lims, [3,3], "g-", **marker_args)
 
         # mark parameters for ions
         if dim == 2:
-            fin_axes[1].plot([0,0], [ alpha_vals[0], 3 ], "b-", linewidth = 1)
+            fin_axes[1].plot([0,0], [ alpha_vals[0], 3 ], "b-", **marker_args)
 
         # mark parameters for Rydberg atoms
         if dim in [ 2, 3 ]:
-            fin_axes[1].plot([0], [6], "ro", markersize = 1.5,
-                             clip_on = False, zorder = 4)
+            fin_axes[1].plot([0], [6], "ro", zorder = 4, **marker_args)
 
         # mark parameters for magnetic atoms
         if dim == 2:
-            fin_axes[1].plot([-2], [3], marker = "s",
-                         color = "tab:pink", markersize = 1.5)
+            fin_axes[1].plot([-2], [3], marker = "s", color = "tab:pink", **marker_args)
 
     # set axis ticks at integer values
     zz_ticks = sorted(set(map(int,map(round, zz_couplings))))
@@ -563,6 +566,12 @@ zz_labels = [ zz if zz % 2 == 0 else "" for zz in zz_ticks ]
 LL_labels = [ LL if LL % 10 == 0 else "" for LL in lattice_lengths ]
 plt.xticks(zz_ticks, zz_labels)
 plt.yticks(lattice_lengths, LL_labels)
+
+text_args = dict( horizontalalignment = "center",
+                  verticalalignment = "center" )
+plt.text(0, 30, "collective", color = "black", **text_args)
+plt.text(-2, 20, "Ising", color = "white", **text_args)
+plt.text(1.8, 30, "Ising", color = "white", **text_args)
 
 plt.tight_layout(pad = 0.1)
 plt.savefig(fig_dir + f"size_scaling_a{alpha}.pdf")
