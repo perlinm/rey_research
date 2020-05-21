@@ -513,65 +513,63 @@ plt.savefig(fig_dir + f"dtwa_L{lattice_label}.pdf")
 # plot system size scaling (DTWA)
 
 dim = 2
-alpha = 3
-
-zz_lims = (-2.5,2.2)
 dz = 0.1
-
-size_lims = (10,55)
 dL = 5
-
 figsize = (3,1.8)
 
-lattice_lengths = np.arange(size_lims[0], size_lims[1] + dL/2, dL, dtype = int)
-zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
+for alpha, zz_lims, size_lims in [ ( 3, [-2.5,2.2], [10,55] ),
+                                         ( "nn", [-1.5,2.2], [15,55] ) ]:
 
-sqz_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
-for zz_idx, zz_coupling in enumerate(zz_couplings):
-    # skip the critical point at J_z = 1
-    if np.allclose(zz_coupling,1):
-        sqz_data[zz_idx,:] = None
-        continue
+    lattice_lengths = np.arange(size_lims[0], size_lims[1] + dL/2, dL, dtype = int)
+    zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
 
-    zz_text = f"z{zz_coupling:.1f}"
-    for ll_idx, lattice_length in enumerate(lattice_lengths):
-        lattice_text = "x".join([str(lattice_length)]*dim)
+    sqz_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
+    for zz_idx, zz_coupling in enumerate(zz_couplings):
+        # skip the critical point at J_z = 1
+        if np.allclose(zz_coupling,1):
+            sqz_data[zz_idx,:] = None
+            continue
 
-        name_tag = make_name_tag(lattice_text, alpha, "dtwa")
-        name_format = data_dir + "DTWA/system_size/dtwa_" + name_tag + f"_{zz_text}.txt"
-        candidate_files = glob.glob(name_format)
+        zz_text = f"z{zz_coupling:.1f}"
+        for ll_idx, lattice_length in enumerate(lattice_lengths):
+            lattice_text = "x".join([str(lattice_length)]*dim)
 
-        assert(len(candidate_files) == 1)
-        file = candidate_files[0]
-        sqz = max(-np.loadtxt(file)[:,4])
-        sqz_data[zz_idx,ll_idx] = sqz
+            name_tag = make_name_tag(lattice_text, alpha, "dtwa")
+            name_format = data_dir + "DTWA/system_size/dtwa_" + name_tag + f"_{zz_text}.txt"
+            candidate_files = glob.glob(name_format)
 
-figure = plt.figure(figsize = figsize)
+            assert(len(candidate_files) == 1)
+            file = candidate_files[0]
+            sqz = max(-np.loadtxt(file)[:,4])
+            sqz_data[zz_idx,ll_idx] = sqz
 
-axis_lims = [ zz_lims[0] - dz/2, zz_lims[1] + dz/2,
-              size_lims[0] - dL/2, size_lims[1] + dL/2, ]
-plot_args = dict( aspect = "auto", origin = "lower",
-                  interpolation = "nearest", cmap = "inferno",
-                  extent = axis_lims )
-image = plt.imshow(sqz_data.T, **plot_args)
+    figure = plt.figure(figsize = figsize)
 
-color_bar = figure.colorbar(image, label = label_sqz)
-fix_ticks(color_bar, 5)
+    axis_lims = [ zz_lims[0] - dz/2, zz_lims[1] + dz/2,
+                  size_lims[0] - dL/2, size_lims[1] + dL/2, ]
+    plot_args = dict( aspect = "auto", origin = "lower",
+                      interpolation = "nearest", cmap = "inferno",
+                      extent = axis_lims )
+    image = plt.imshow(sqz_data.T, **plot_args)
 
-plt.xlabel(label_zz)
-plt.ylabel(r"$L$")
+    color_bar = figure.colorbar(image, label = label_sqz)
+    fix_ticks(color_bar, 5)
 
-zz_ticks = sorted(set([ int(zz) for zz in zz_couplings ]))
-zz_labels = [ zz if zz % 2 == 0 else "" for zz in zz_ticks ]
-LL_labels = [ LL if LL % 10 == 0 else "" for LL in lattice_lengths ]
-plt.xticks(zz_ticks, zz_labels)
-plt.yticks(lattice_lengths, LL_labels)
+    plt.xlabel(label_zz)
+    plt.ylabel(r"$L$")
 
-text_args = dict( horizontalalignment = "center",
-                  verticalalignment = "center" )
-plt.text(0, 30, "collective", color = "black", **text_args)
-plt.text(-2, 20, "Ising", color = "white", **text_args)
-plt.text(1.8, 30, "Ising", color = "white", **text_args)
+    zz_ticks = sorted(set([ int(zz) for zz in zz_couplings ]))
+    zz_labels = [ zz if zz % 2 == 0 else "" for zz in zz_ticks ]
+    LL_labels = [ LL if LL % 10 == 0 else "" for LL in lattice_lengths ]
+    plt.xticks(zz_ticks, zz_labels)
+    plt.yticks(lattice_lengths, LL_labels)
 
-plt.tight_layout(pad = 0.1)
-plt.savefig(fig_dir + f"size_scaling_a{alpha}.pdf")
+    if alpha == 3:
+        text_args = dict( horizontalalignment = "center",
+                          verticalalignment = "center" )
+        plt.text(0, 30, "collective", color = "black", **text_args)
+        plt.text(-2, 20, "Ising", color = "white", **text_args)
+        plt.text(1.8, 30, "Ising", color = "white", **text_args)
+
+    plt.tight_layout(pad = 0.1)
+    plt.savefig(fig_dir + f"size_scaling_a{alpha}.pdf")
