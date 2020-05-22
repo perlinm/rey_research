@@ -37,7 +37,8 @@ def pop_label(manifold):
 def to_dB(sqz):
     return 10*np.log10(np.array(sqz))
 
-label_SS = r"$\braket{\bm S^2}_{\mathrm{min}} / \braket{\bm S^2}_0$"
+label_SS = r"$\braket{\bm S^2} / \braket{\bm S^2}_0$"
+label_SS_min = r"$\braket{\bm S^2}_{\mathrm{min}} / \braket{\bm S^2}_0$"
 
 label_sqz = r"$-10\log_{10}\xi^2$"
 label_sqz_opt = r"$-10\log_{10}\xi_{\mathrm{opt}}^2$"
@@ -158,7 +159,7 @@ axes[1].set_xticks(shell_xticks)
 axes[0].set_xticklabels([])
 
 axes[0].set_ylabel(label_sqz_opt)
-axes[1].set_ylabel(label_SS)
+axes[1].set_ylabel(label_SS_min)
 axes[1].set_xlabel(label_zz)
 shade_exclusions(axes[0])
 shade_exclusions(axes[1])
@@ -168,12 +169,14 @@ plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 
 plt.close("all")
 ##########################################################################################
-# plot squeezing over time (DTWA)
+# plot time-series data (DTWA)
 
 lattice_text = "64x64"
 color_map = "viridis"
 def get_zz_coupling(file):
     return float(file.split("_")[-1][1:-4])
+
+spin_num = np.prod(list(map(int,lattice_text.split("x"))))
 
 color_map = mpl.cm.get_cmap(color_map)
 for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
@@ -184,52 +187,58 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
     name_format = data_dir + "DTWA/time_series/dtwa_" + name_tag + "*.txt"
     def in_range(zz_coupling):
         return zz_lims[0] <= zz_coupling <= zz_lims[1]
-    def get_time_sqz(file):
+    def get_time_sqz_SS(file):
         file_data = np.loadtxt(file)
         time = file_data[:,0]
         sqz = -file_data[:,4]
-        return time, sqz
+        norm_SS = ( file_data[:,11] * spin_num )**2 / ( spin_num/2 * (spin_num/2+1) )
+        return time, sqz, norm_SS
 
     # collect all data files and the corresponding ZZ couplings
     data_files = sorted([ ( zz_coupling, file )
                           for file in glob.glob(name_format)
                           if in_range(zz_coupling := get_zz_coupling(file)) ])
+    zz_couplings = list(zip(*data_files))[0]
+
+    # keep track of minimal squared spin length
+    min_norm_SS = np.zeros(len(data_files))
 
     # plot squeezing over time for all ZZ couplings
-    plt.figure(figsize = (2.5,1.5))
-    optimal_times = np.zeros(len(data_files)) # keep track of optimal squeezing times
+    figure, axes = plt.subplots(2, figsize = (2.5,2.5), sharex = True, sharey = False)
     for idx, ( zz_coupling, file ) in enumerate(data_files):
         color_val = 1 - idx / ( len(data_files)-1 ) # color value from 0 to 1
-        time, sqz = get_time_sqz(file)
+        time, sqz, norm_SS = get_time_sqz_SS(file)
         time_scale = abs( zz_coupling - 1 ) # rescale time by | J_z - J_perp |
-        plt.plot(time * time_scale, sqz, color = color_map(color_val))
+        axes[0].plot(time * time_scale, sqz, color = color_map(color_val))
+        axes[1].plot(time * time_scale, norm_SS, color = color_map(color_val))
 
-        # keep track of the optimal squeezing time
-        optimal_times[idx] = time[sqz.argmax()]
+        min_norm_SS[idx] = min(norm_SS[:sqz.argmax()+1])
 
-    # highlight squeezing over time at the collective/Ising crossover
-    optimal_time_ratios = optimal_times[1:] / optimal_times[:-1]
-    zz_coupling, file = data_files[optimal_time_ratios.argmax()]
-    time, sqz = get_time_sqz(file)
+    # highlight squeezing over time right *before* the Ising-to-collective transition
+    zz_coupling, file = data_files[min_norm_SS.argmin()-1]
+    time, sqz, norm_SS = get_time_sqz_SS(file)
     time_scale = abs( zz_coupling - 1 )
-    plt.plot(time * time_scale, sqz, color = "red", linewidth = "2")
+    axes[0].plot(time * time_scale, sqz, color = "red", linewidth = "2")
+    axes[1].plot(time * time_scale, norm_SS, color = "red", linewidth = "2")
 
     # fix time and squeeizng axis ticks
     time_locator = mpl.ticker.MaxNLocator(5, integer = True)
-    plt.gca().xaxis.set_major_locator(time_locator)
+    axes[0].xaxis.set_major_locator(time_locator)
 
     sqz_locator = mpl.ticker.MaxNLocator(5, integer = True)
-    plt.gca().yaxis.set_major_locator(sqz_locator)
+    axes[0].yaxis.set_major_locator(sqz_locator)
 
     # set horizonal and vertical axis ranges
-    plt.xlim(0, max_time)
-    plt.ylim(sqz_range)
+    axes[0].set_xlim(0, max_time)
+    axes[0].set_ylim(sqz_range)
+    axes[1].set_ylim(0,1)
 
     # touch-up and save figure
-    plt.xlabel(label_time_rescaled)
-    plt.ylabel(label_sqz)
-    plt.tight_layout(pad = 0.3)
-    plt.savefig(fig_dir + f"crossover_{name_tag}.pdf")
+    axes[0].set_ylabel(label_sqz)
+    axes[1].set_ylabel(label_SS)
+    axes[1].set_xlabel(label_time_rescaled)
+    plt.tight_layout(pad = 0.7)
+    plt.savefig(fig_dir + f"time_series_{name_tag}.pdf")
 
 plt.close("all")
 ##########################################################################################
@@ -469,7 +478,7 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
         axis.set_yticklabels([r"$\infty$"], verticalalignment = "center")
 
     # set color bar limits and labels
-    labels = [ label_sqz_opt, label_SS, label_time_opt ]
+    labels = [ label_sqz_opt, label_SS_min, label_time_opt ]
     for row, ( bar_axis, label ) in enumerate(zip(bar_axes, labels)):
         row_axes = list(fin_axes[row,:]) + list(inf_axes[row,:])
         row_images = [ axis.get_images()[0] for axis in row_axes ]
@@ -483,7 +492,7 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
 
         if label == label_sqz_opt:
             fix_ticks(bar, 5)
-        if label == label_SS:
+        if label == label_SS_min:
             fix_ticks(bar, 0.2)
         if label == label_time_opt:
             fix_log_ticks(bar)
@@ -558,7 +567,7 @@ for alpha, zz_lims, size_lims in [ ( 3, [-2.5,2.2], [10,55] ),
     image = plt.imshow(sqz_data.T, **plot_args)
 
     # add color bar
-    color_bar = figure.colorbar(image, label = label_sqz)
+    color_bar = figure.colorbar(image, label = label_sqz_opt)
     fix_ticks(color_bar, 5)
 
     # add reference line for dynamical phase boundary
