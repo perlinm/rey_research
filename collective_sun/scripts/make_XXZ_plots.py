@@ -562,8 +562,15 @@ for alpha, zz_lims, size_lims in [ ( 3, [-2.5,2.2], [10,55] ),
     fix_ticks(color_bar, 5)
 
     # add reference line for dynamical phase boundary
-    boundaries = zz_couplings[ ss_min_data[zz_couplings < 1, :].argmin(axis = 0) ]
-    plt.plot(boundaries, lattice_lengths, ":", color = "gray", linewidth = 1)
+    zz_boundaries = zz_couplings[ ss_min_data[zz_couplings < 1, :].argmin(axis = 0) ]
+    def alternate(values, other_values):
+        return np.array(list(zip(values, other_values))).flatten()
+    def double(values):
+        return alternate(values,values)
+    LL_offsets = dL/2 * alternate(- np.ones(len(lattice_lengths)),
+                                  + np.ones(len(lattice_lengths)))
+    plt.plot(double(zz_boundaries), double(lattice_lengths) + LL_offsets,
+             ":", color = "gray", linewidth = 1)
 
     # label axes
     plt.xlabel(label_zz)
