@@ -175,20 +175,38 @@ correlators_opt = { "Z" : data[:,4],
 min_pops_0 = data[:,10].real
 max_pops = data[:,11:].real
 
+def shade_exclusions(axis = None, cutoff = 0.1, fixed_lims = (-2,3)):
+    if axis is None:
+        axis = plt.gca()
+    min_idx, max_idx = np.where( max_pops[:,-1] + max_pops[:,-2] < cutoff )[0][[0,-1]]
+    min_zz = zz_coupling[min_idx]
+    max_zz = zz_coupling[max_idx]
+    dz = zz_coupling[1] - zz_coupling[0]
+    axis.axvspan(zz_coupling[0], min_zz - dz/2, alpha = 0.5, color = "grey")
+    axis.axvspan(max_zz + dz/2, zz_coupling[-1], alpha = 0.5, color = "grey")
+
+    if fixed_lims is not None:
+        axis.set_xlim(*fixed_lims)
+    else:
+        zz_lim = [ max( min_zz - ( max_zz - min_zz ) / 3, zz_coupling[0]),
+                   min( max_zz + ( max_zz - min_zz ) / 3, zz_coupling[-1]) ]
+        axis.set_xlim(*zz_lim)
+
 plt.figure(figsize = figsize)
 plt.title(common_title)
-plt.plot(zz_coupling, to_dB(min_sqz), "ko")
-plt.gca().set_ylim(top = 0)
+plt.plot(zz_coupling, -to_dB(min_sqz), "ko")
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
-plt.ylabel(r"$10\log_{10}\xi_{\mathrm{min}}^2$")
+plt.ylabel(r"$-10\log_{10}\xi_{\mathrm{min}}^2$")
+shade_exclusions()
 plt.tight_layout()
 plt.savefig(fig_dir + f"squeezing_{name_tag}.pdf")
 
 plt.figure(figsize = figsize)
 plt.title(common_title)
-plt.plot(zz_coupling, time_opt, "ko")
+plt.semilogy(zz_coupling, time_opt, "ko")
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel(r"$t_{\mathrm{opt}} J_\perp$")
+shade_exclusions()
 plt.tight_layout()
 plt.savefig(fig_dir + f"time_opt_{name_tag}.pdf")
 
@@ -197,6 +215,7 @@ plt.title(common_title)
 plt.plot(zz_coupling, min_SS, "ko")
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel(r"$\braket{\bm S^2}_{\mathrm{min}}$")
+shade_exclusions()
 plt.tight_layout()
 plt.savefig(fig_dir + f"SS_{name_tag}.pdf")
 
@@ -208,6 +227,7 @@ for manifold, manifold_max_pops in zip(manifolds[1:], max_pops.T):
 plt.xlabel(r"$J_{\mathrm{z}}/J_\perp$")
 plt.ylabel("population")
 plt.legend(loc = "best", handletextpad = 0.1)
+shade_exclusions()
 plt.tight_layout()
 plt.savefig(fig_dir + f"populations_{name_tag}.pdf")
 
