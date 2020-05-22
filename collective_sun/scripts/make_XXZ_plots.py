@@ -119,6 +119,7 @@ plt.legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.63,0.67))
 plt.tight_layout(pad = 0.2)
 plt.savefig(fig_dir + f"populations_{name_tag}.pdf")
 
+plt.close("all")
 ##################################################
 # make DTWA benchmarking plot
 
@@ -165,6 +166,7 @@ axes[0].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.6,0.45))
 plt.tight_layout(pad = 0.5)
 plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 
+plt.close("all")
 ##########################################################################################
 # plot squeezing over time (DTWA)
 
@@ -229,6 +231,7 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
     plt.tight_layout(pad = 0.3)
     plt.savefig(fig_dir + f"crossover_{name_tag}.pdf")
 
+plt.close("all")
 ##########################################################################################
 # plot summary of DTWA results
 
@@ -375,12 +378,6 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
 
         marker_args = dict( linewidth = 1, markersize = 1.5, clip_on = False )
 
-        # mark the cut for time-series and size-scaling data
-        if dim == 2:
-            fin_axes[2].plot([-3,-1], [3,3], "c-", **marker_args)
-        if dim == 3:
-            fin_axes[2].plot([-2.5,2.2], [3,3], "c-", **marker_args)
-
         # mark parameters for neutral atoms
         if dim in [ 2, 3 ]:
             inf_axes[1].plot(zz_lims, [0,0], "y-", **marker_args)
@@ -396,6 +393,8 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         # mark parameters for Rydberg atoms
         if dim in [ 2, 3 ]:
             fin_axes[1].plot([0], [6], "ro", zorder = 4, **marker_args)
+        if dim == 2:
+            fin_axes[1].plot([0], [3], "ro", zorder = 4, **marker_args)
 
         # mark parameters for magnetic atoms
         if dim == 2:
@@ -509,6 +508,7 @@ make_dtwa_plots(lattice_list)
 lattice_label = "_L".join(lattice_list)
 plt.savefig(fig_dir + f"dtwa_L{lattice_label}.pdf")
 
+plt.close("all")
 ##########################################################################################
 # plot system size scaling (DTWA)
 
@@ -524,6 +524,7 @@ for alpha, zz_lims, size_lims in [ ( 3, [-2.5,2.2], [10,55] ),
     zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
 
     sqz_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
+    ss_min_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
     for zz_idx, zz_coupling in enumerate(zz_couplings):
         # skip the critical point at J_z = 1
         if np.allclose(zz_coupling,1):
@@ -540,11 +541,15 @@ for alpha, zz_lims, size_lims in [ ( 3, [-2.5,2.2], [10,55] ),
 
             assert(len(candidate_files) == 1)
             file = candidate_files[0]
-            sqz = max(-np.loadtxt(file)[:,4])
-            sqz_data[zz_idx,ll_idx] = sqz
+            file_data = np.loadtxt(file)
+            sqz_min_idx = file_data[:,4].argmin()
+            sqz_data[zz_idx,ll_idx] = -file_data[sqz_min_idx,4]
+            ss_min_data[zz_idx,ll_idx] = min(file_data[:sqz_min_idx+1,11])
+            del file_data
 
     figure = plt.figure(figsize = figsize)
 
+    # plot squeezing data
     axis_lims = [ zz_lims[0] - dz/2, zz_lims[1] + dz/2,
                   size_lims[0] - dL/2, size_lims[1] + dL/2, ]
     plot_args = dict( aspect = "auto", origin = "lower",
@@ -552,18 +557,26 @@ for alpha, zz_lims, size_lims in [ ( 3, [-2.5,2.2], [10,55] ),
                       extent = axis_lims )
     image = plt.imshow(sqz_data.T, **plot_args)
 
+    # add color bar
     color_bar = figure.colorbar(image, label = label_sqz)
     fix_ticks(color_bar, 5)
 
+    # add reference line for dynamical phase boundary
+    boundaries = zz_couplings[ ss_min_data[zz_couplings < 1, :].argmin(axis = 0) ]
+    plt.plot(boundaries, lattice_lengths, ":", color = "gray", linewidth = 1)
+
+    # label axes
     plt.xlabel(label_zz)
     plt.ylabel(r"$L$")
 
+    # set axis ticks
     zz_ticks = sorted(set([ int(zz) for zz in zz_couplings ]))
     zz_labels = [ zz if zz % 2 == 0 else "" for zz in zz_ticks ]
     LL_labels = [ LL if LL % 10 == 0 else "" for LL in lattice_lengths ]
     plt.xticks(zz_ticks, zz_labels)
     plt.yticks(lattice_lengths, LL_labels)
 
+    # label each dynamical phase
     if alpha == 3:
         text_args = dict( horizontalalignment = "center",
                           verticalalignment = "center" )
@@ -573,3 +586,5 @@ for alpha, zz_lims, size_lims in [ ( 3, [-2.5,2.2], [10,55] ),
 
     plt.tight_layout(pad = 0.1)
     plt.savefig(fig_dir + f"size_scaling_a{alpha}.pdf")
+
+plt.close("all")
