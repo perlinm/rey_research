@@ -2,6 +2,7 @@
 
 import os, sys, glob
 import numpy as np
+import scipy.optimize
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -214,8 +215,8 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
 
         min_norm_SS[idx] = min(norm_SS[:sqz.argmax()+1])
 
-    # highlight squeezing over time right *before* the Ising-to-collective transition
-    zz_coupling, file = data_files[min_norm_SS.argmin()-1]
+    # highlight squeezing over time right *before* the collective-to-Ising transition
+    zz_coupling, file = data_files[min_norm_SS.argmin()]
     time, sqz, norm_SS = get_time_sqz_SS(file)
     time_scale = abs( zz_coupling - 1 )
     axes[0].plot(time * time_scale, sqz, color = "red", linewidth = "2")
@@ -384,7 +385,6 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         if dim == 3:
             fin_axes[0].text(-2.35, 5.7, "Ising", **text_args)
 
-
         marker_args = dict( linewidth = 1, markersize = 1.5, clip_on = False )
 
         # mark parameters for neutral atoms
@@ -404,6 +404,7 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
             fin_axes[1].plot([0], [6], "ro", zorder = 4, **marker_args)
         if dim == 2:
             fin_axes[1].plot([0], [3], "ro", zorder = 4, **marker_args)
+            fin_axes[1].plot([-0.73], [3], "ro", zorder = 4, **marker_args)
 
         # mark parameters for magnetic atoms
         if dim == 2:
@@ -523,13 +524,15 @@ plt.close("all")
 
 dim = 2
 dz = 0.1
+
+size_lims = (10,60)
 dL = 5
+lattice_lengths = np.arange(size_lims[0], size_lims[1] + dL/2, dL, dtype = int)
+
 figsize = (3,1.8)
 
-for alpha, zz_lims, size_lims in [ ( 3, [-2.5,2.2], [10,55] ),
-                                         ( "nn", [-1.5,2.2], [15,55] ) ]:
-
-    lattice_lengths = np.arange(size_lims[0], size_lims[1] + dL/2, dL, dtype = int)
+for alpha, zz_lims, add_markup in [ ( 3, [-2.5,2.2], True ),
+                                    ( "nn", [-1.5,2.2], False ) ]:
     zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
 
     sqz_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
@@ -572,14 +575,15 @@ for alpha, zz_lims, size_lims in [ ( 3, [-2.5,2.2], [10,55] ),
 
     # add reference line for dynamical phase boundary
     zz_boundaries = zz_couplings[ ss_min_data[zz_couplings < 1, :].argmin(axis = 0) ]
-    def alternate(values, other_values):
-        return np.array(list(zip(values, other_values))).flatten()
-    def double(values):
-        return alternate(values,values)
-    LL_offsets = dL/2 * alternate(- np.ones(len(lattice_lengths)),
-                                  + np.ones(len(lattice_lengths)))
-    plt.plot(double(zz_boundaries), double(lattice_lengths) + LL_offsets,
-             ":", color = "gray", linewidth = 1)
+    if add_markup:
+        def alternate(values, other_values):
+            return np.array(list(zip(values, other_values))).flatten()
+        def double(values):
+            return alternate(values,values)
+        LL_offsets = dL/2 * alternate(- np.ones(len(lattice_lengths)),
+                                      + np.ones(len(lattice_lengths)))
+        plt.plot(double(zz_boundaries), double(lattice_lengths) + LL_offsets,
+                 ":", color = "gray", linewidth = 1)
 
     # label axes
     plt.xlabel(label_zz)
@@ -602,5 +606,31 @@ for alpha, zz_lims, size_lims in [ ( 3, [-2.5,2.2], [10,55] ),
 
     plt.tight_layout(pad = 0.1)
     plt.savefig(fig_dir + f"size_scaling_a{alpha}.pdf")
+
+    if alpha == "nn": continue
+
+    ### show logarithmic divergence of critical coupling
+
+    # get system sizes
+    system_sizes = lattice_lengths**2
+
+    # find the best log fit of critical coupling as a function of system size
+    def log_fit(x, a, b):
+        return a * np.log(x) + b
+    fit_params, _ = scipy.optimize.curve_fit(log_fit, system_sizes, zz_boundaries)
+    def fit_val(x):
+        return np.vectorize(log_fit)(x, *fit_params)
+
+    # plot DTWA results and the log fit
+    plt.figure(figsize = figsize)
+    plt.semilogx(system_sizes, zz_boundaries, "ko", label = "DTWA")
+    plt.semilogx(system_sizes, fit_val(system_sizes), "k--", label = "log fit")
+
+    plt.xlabel(r"$N$")
+    plt.ylabel(r"$J_{\mathrm{z}}^{\mathrm{crit}}/J_\perp$")
+    plt.legend(loc = "best", handlelength = 1.7)
+
+    plt.tight_layout()
+    plt.savefig(fig_dir + f"size_divergence_a{alpha}.pdf")
 
 plt.close("all")
