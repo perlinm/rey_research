@@ -670,3 +670,27 @@ for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
     plt.savefig(fig_dir + f"power_law_a{alpha}.pdf")
 
 plt.close("all")
+##########################################################################################
+# plot dependence on filling fraction (DTWA)
+
+figsize = (3,2)
+
+data = np.loadtxt(data_dir + "DTWA/filling_fraction.txt")
+markers = [ "o", "s", "^" ]
+labels = [ f"${zz}$" for zz in [ 0.9, 0, -1 ] ]
+
+plt.figure(figsize = figsize)
+for zz_idx, marker, label in zip(reversed(range(1,4)), markers, labels):
+    plt.plot(data[:,0], -data[:,zz_idx], marker, label = label)
+
+plt.gca().set_xlim(-0.05, 1.05)
+plt.gca().set_ylim(bottom = 0)
+
+plt.xlabel("$f$")
+plt.ylabel(label_sqz_opt)
+
+plt.legend(loc = "best")
+plt.tight_layout()
+plt.savefig(fig_dir + "filling_fraction_a3.pdf")
+
+plt.close("all")
