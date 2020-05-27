@@ -27,6 +27,8 @@ max_width = 8.6/2.54 # maximum single-column figure width allowed by PRL
 color_map = "viridis_r"
 color_map = mpl.cm.get_cmap(color_map)
 
+### name tags and axis labels
+
 def make_name_tag(lattice_text, alpha, data_format):
     name_tag = f"L{lattice_text}_a{alpha}"
     if data_format == "shell":
@@ -37,9 +39,6 @@ def make_name_tag(lattice_text, alpha, data_format):
 
 def pop_label(manifold):
     return r"$\braket{\mathcal{P}_{" + str(manifold) + r"}}_{\mathrm{max}}$"
-
-def to_dB(sqz):
-    return 10*np.log10(np.array(sqz))
 
 label_SS = r"$\braket{\bm S^2} / \braket{\bm S^2}_0$"
 label_SS_min = r"$\braket{\bm S^2}_{\mathrm{min}} / \braket{\bm S^2}_0$"
@@ -52,6 +51,21 @@ label_time_opt = r"$t_{\mathrm{opt}}\times J_\perp$"
 label_time_rescaled = r"$t\times \left|J_{\mathrm{z}}-J_\perp\right|$"
 
 label_zz = r"$J_{\mathrm{z}}/J_\perp$"
+
+### general fitting / squeezing methods
+
+def to_dB(sqz):
+    return -10*np.log10(np.array(sqz))
+
+def log_form(x, a, b):
+    return a * np.log(x) + b
+def log_fit(x, fit_params):
+    return np.vectorize(log_form)(x, *fit_params)
+
+sizes, sqz_OAT = np.loadtxt(data_dir + "sqz_OAT.txt", delimiter = ",", unpack = True)
+fit_params_OAT, _ = scipy.optimize.curve_fit(log_form, sizes, to_dB(sqz_OAT))
+def fit_sqz_OAT(N): return log_fit(N, fit_params_OAT)
+fit_sqz_OAT = np.vectorize(fit_sqz_OAT)
 
 ##########################################################################################
 # collect shell model data
@@ -133,7 +147,7 @@ max_SS = spin_num/2 * (spin_num/2+1)
 figure, axes = plt.subplots(2, figsize = (3,3))
 
 # plot shell model results
-axes[0].plot(zz_coupling, -to_dB(min_sqz), "k.", label = "TS$_4$")
+axes[0].plot(zz_coupling, to_dB(min_sqz), "k.", label = "TS$_4$")
 axes[1].plot(zz_coupling, min_SS / max_SS, "k.")
 
 # plot DTWA results
@@ -146,17 +160,17 @@ axes[1].plot(zz_coupling, min_SS_normed, "r.")
 # reference: collective and Ising limits
 kwargs = { "color" : "k", "linestyle" : "--", "zorder" : 0 }
 _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = periodic)
-axes[0].axhline(-to_dB(sqz_OAT), **kwargs, label = "OAT")
+axes[0].axhline(to_dB(sqz_OAT), **kwargs, label = "OAT")
 axes[1].axhline(1, **kwargs)
 
 kwargs["linestyle"] = ":"
 _, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = periodic)
 _, min_SS_ising = ising_minimal_SS(sunc_mat, TI = periodic)
-axes[0].axhline(-to_dB(sqz_ising), **kwargs, label = "Ising")
+axes[0].axhline(to_dB(sqz_ising), **kwargs, label = "Ising")
 axes[1].axhline(min_SS_ising/max_SS, **kwargs)
 
 # tweak axis limits
-axes[0].set_ylim(bottom = np.floor(-to_dB(sqz_ising)))
+axes[0].set_ylim(bottom = np.floor(to_dB(sqz_ising)))
 axes[1].set_ylim(bottom = np.floor(min_SS_ising/max_SS * 10)/10)
 axes[0].set_xticks(shell_xticks)
 axes[1].set_xticks(shell_xticks)
@@ -523,25 +537,30 @@ plt.close("all")
 ##########################################################################################
 # plot system size scaling (DTWA)
 
-def log_form(x, a, b):
-    return a * np.log(x) + b
-def log_fit(x, fit_params):
-    return np.vectorize(log_form)(x, *fit_params)
-
 dim = 2
+dL_2D = 5
+
 dz = 0.1
 inspect_dz = 0.5
-
-size_lims = (10,60)
-dL = 5
-lattice_lengths = np.arange(size_lims[0], size_lims[1] + dL/2, dL, dtype = int)
-
 
 figsize = (3,1.8)
 
 for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
     zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
 
+    # identify all relevant files
+    def get_file(lattice_text, zz_coupling):
+        name_tag = make_name_tag(lattice_text, alpha, "dtwa")
+        return data_dir + "DTWA/system_size/dtwa_" + name_tag + f"_z{zz_coupling:.1f}.txt"
+    file_tags = [ get_file("*", zz_coupling) for zz_coupling in zz_couplings ]
+    files = [ file for file_tag in file_tags for file in glob.glob(file_tag) ]
+
+    # determine lattice lengths
+    lattice_lengths = [ int(text_parts[-1]) for file in files
+                        if len( text_parts := file.split("_")[-3].split("x") ) == dim ]
+    lattice_lengths = np.array(sorted(set(lattice_lengths)))
+
+    # extract simulation data
     sqz_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
     ss_min_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
     for zz_idx, zz_coupling in enumerate(zz_couplings):
@@ -550,33 +569,30 @@ for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
             sqz_data[zz_idx,:] = None
             continue
 
-        zz_text = f"z{zz_coupling:.1f}"
         for ll_idx, lattice_length in enumerate(lattice_lengths):
             lattice_text = "x".join([str(lattice_length)]*dim)
-
-            name_tag = make_name_tag(lattice_text, alpha, "dtwa")
-            name_format = data_dir + "DTWA/system_size/dtwa_" + name_tag + f"_{zz_text}.txt"
-            candidate_files = glob.glob(name_format)
-
-            assert(len(candidate_files) == 1)
-            file = candidate_files[0]
-            file_data = np.loadtxt(file)
-            sqz_min_idx = file_data[:,4].argmin()
-            sqz_data[zz_idx,ll_idx] = -file_data[sqz_min_idx,4]
-            ss_min_data[zz_idx,ll_idx] = min(file_data[:sqz_min_idx+1,11])
-            del file_data
+            data = np.loadtxt(get_file(lattice_text, zz_coupling))
+            sqz_min_idx = data[:,4].argmin()
+            sqz_data[zz_idx,ll_idx] = -data[sqz_min_idx,4]
+            ss_min_data[zz_idx,ll_idx] = min(data[:sqz_min_idx+1,11])
+            del data
 
     # identify the dynamical phase boundary
     zz_boundaries = zz_couplings[ ss_min_data[zz_couplings < 1, :].argmin(axis = 0) ]
 
+    # identify lattice lengths to plot
+    LL_keep = np.isclose(lattice_lengths % dL_2D, 0)
+    LL_2D = lattice_lengths[LL_keep]
+    size_lims = LL_2D[0], LL_2D[-1]
+
     # plot squeezing data
     figure = plt.figure(figsize = figsize)
     axis_lims = [ zz_lims[0] - dz/2, zz_lims[1] + dz/2,
-                  size_lims[0] - dL/2, size_lims[1] + dL/2, ]
+                  size_lims[0] - dL_2D/2, size_lims[1] + dL_2D/2, ]
     plot_args = dict( aspect = "auto", origin = "lower",
                       interpolation = "nearest", cmap = "inferno",
                       extent = axis_lims )
-    image = plt.imshow(sqz_data.T, **plot_args)
+    image = plt.imshow(sqz_data.T[LL_keep,:], **plot_args)
 
     # add color bar
     color_bar = figure.colorbar(image, label = label_sqz_opt)
@@ -588,9 +604,8 @@ for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
             return np.array(list(zip(values, other_values))).flatten()
         def double(values):
             return alternate(values,values)
-        LL_offsets = dL/2 * alternate(- np.ones(len(lattice_lengths)),
-                                      + np.ones(len(lattice_lengths)))
-        plt.plot(double(zz_boundaries), double(lattice_lengths) + LL_offsets,
+        LL_offsets = dL_2D/2 * alternate(-np.ones(len(LL_2D)), +np.ones(len(LL_2D)))
+        plt.plot(double(zz_boundaries[LL_keep]), double(LL_2D) + LL_offsets,
                  ":", color = "gray", linewidth = 1)
 
     # label axes
@@ -600,9 +615,9 @@ for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
     # set axis ticks
     zz_ticks = sorted(set([ int(zz) for zz in zz_couplings ]))
     zz_labels = [ zz if zz % 2 == 0 else "" for zz in zz_ticks ]
-    LL_labels = [ LL if LL % 10 == 0 else "" for LL in lattice_lengths ]
+    LL_labels = [ LL if LL % 10 == 0 else "" for LL in LL_2D ]
     plt.xticks(zz_ticks, zz_labels)
-    plt.yticks(lattice_lengths, LL_labels)
+    plt.yticks(LL_2D, LL_labels)
 
     # label each dynamical phase
     if alpha == 3:
@@ -623,12 +638,15 @@ for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
     system_sizes = lattice_lengths**2
 
     # find the best log fit of critical coupling as a function of system size
-    fit_params, _ = scipy.optimize.curve_fit(log_form, system_sizes, zz_boundaries)
+    div_log_offset = 1
+    def div_log_form(x, a): return log_form(x, a, div_log_offset)
+    def div_log_fit(x, fit_slope): return log_fit(x, [ fit_slope, div_log_offset ])
+    fit_slope, _ = scipy.optimize.curve_fit(div_log_form, system_sizes, zz_boundaries)
 
     # plot DTWA results and the log fit
     plt.figure(figsize = figsize)
     plt.semilogx(system_sizes, zz_boundaries, "ko", label = "DTWA")
-    plt.semilogx(system_sizes, log_fit(system_sizes, fit_params), "k--", label = "log fit")
+    plt.semilogx(system_sizes, div_log_fit(system_sizes, fit_slope), "k--", label = "fit")
 
     plt.xlabel(r"$N$")
     plt.ylabel(r"$J_{\mathrm{z}}^{\mathrm{crit}}/J_\perp$")
@@ -662,6 +680,11 @@ for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
         plt.semilogx(_system_sizes, sqz_vals, "o", color = color)
         plt.semilogx(_system_sizes, log_fit(_system_sizes, fit_params), "--", color = color)
 
+    plt.semilogx(system_sizes, fit_sqz_OAT(system_sizes), "r:", label = "OAT")
+    handles, labels = plt.gca().get_legend_handles_labels()
+    fit_handles += handles
+    fit_labels += labels
+
     plt.xlabel(r"$N$")
     plt.ylabel(label_sqz_opt)
     plt.legend(fit_handles, fit_labels, loc = "best", handlelength = 1.7)
@@ -678,10 +701,12 @@ figsize = (3,2)
 data = np.loadtxt(data_dir + "DTWA/filling_fraction.txt")
 markers = [ "o", "s", "^" ]
 labels = [ f"${zz}$" for zz in [ 0.9, 0, -1 ] ]
+spin_num = 50**2
 
 plt.figure(figsize = figsize)
 for zz_idx, marker, label in zip(reversed(range(1,4)), markers, labels):
     plt.plot(data[:,0], -data[:,zz_idx], marker, label = label)
+plt.plot(data[:,0], fit_sqz_OAT(data[:,0] * spin_num), "k:", label = "OAT")
 
 plt.gca().set_xlim(-0.05, 1.05)
 plt.gca().set_ylim(bottom = 0)
@@ -689,7 +714,7 @@ plt.gca().set_ylim(bottom = 0)
 plt.xlabel("$f$")
 plt.ylabel(label_sqz_opt)
 
-plt.legend(loc = "best")
+plt.legend(loc = "best", handlelength = 1.7)
 plt.tight_layout()
 plt.savefig(fig_dir + "filling_fraction_a3.pdf")
 
