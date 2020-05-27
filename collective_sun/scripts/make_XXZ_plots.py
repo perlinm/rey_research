@@ -145,13 +145,13 @@ axes[1].plot(zz_coupling, min_SS_normed, "r.")
 
 # reference: collective and Ising limits
 kwargs = { "color" : "k", "linestyle" : "--", "zorder" : 0 }
-_, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
+_, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = periodic)
 axes[0].axhline(-to_dB(sqz_OAT), **kwargs, label = "OAT")
 axes[1].axhline(1, **kwargs)
 
 kwargs["linestyle"] = ":"
-_, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = True)
-_, min_SS_ising = ising_minimal_SS(sunc_mat, TI = True)
+_, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = periodic)
+_, min_SS_ising = ising_minimal_SS(sunc_mat, TI = periodic)
 axes[0].axhline(-to_dB(sqz_ising), **kwargs, label = "Ising")
 axes[1].axhline(min_SS_ising/max_SS, **kwargs)
 
