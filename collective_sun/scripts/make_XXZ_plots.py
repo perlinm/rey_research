@@ -258,6 +258,76 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
 
 plt.close("all")
 ##########################################################################################
+# plot squeezing from exact simulations
+
+lattices = [ "16", "4x4" ]
+figsize = (max_width, 1.8)
+zz_lims = (-3,3)
+
+def exact_file(lattice, alpha):
+    return data_dir + f"exact/sqz_L{lattice}_a{alpha}.txt"
+
+widths = [30]*len(lattices) + [1]
+figure, axes = plt.subplots(1, len(lattices)+1, figsize = figsize,
+                            gridspec_kw = dict( width_ratios = widths ) )
+
+for lattice, axis in zip(lattices, axes.flatten()):
+    dim = len(lattice.split("x"))
+
+    # identify values of the power-law exponent \alpha
+    alpha_vals = sorted([ int(file.split("_")[-1][1:-4])
+                          for file in glob.glob(exact_file(lattice, "?")) ])
+
+    # import all squeezing data
+    sqz_data = []
+    for alpha in alpha_vals:
+        zz_couplings, sqz_vals = np.loadtxt(exact_file(lattice,alpha), unpack = True)
+        sqz_data.append(-sqz_vals)
+    sqz_data = np.array(sqz_data)
+
+    # pick values of the ZZ coupling to keep
+    keep = np.where( ( np.around(zz_couplings, decimals = 1) >= zz_lims[0] ) &
+                     ( np.around(zz_couplings, decimals = 1) <= zz_lims[1] ) )[0]
+    zz_couplings = zz_couplings[keep]
+    sqz_data = sqz_data[:,keep]
+
+    # insert "empty" data for zz_coupling = 1
+    zz_couplings = np.insert(zz_couplings, np.where(zz_couplings > 1)[0][0], 1)
+    critical_coupling_idx = np.where(zz_couplings >= 1)[0][0]
+    sqz_data = np.insert(sqz_data, critical_coupling_idx, None, axis = 1)
+
+    # plot data
+    dz = zz_couplings[1] - zz_couplings[0]
+    axis_lims = [ zz_couplings[0] - dz/2, zz_couplings[-1] + dz/2,
+                  alpha_vals[0] - 1/2, alpha_vals[-1] + 1/2 ]
+    plot_args = dict( aspect = "auto", origin = "lower",
+                      interpolation = "nearest", cmap = "inferno",
+                      extent = axis_lims )
+    axis.imshow(sqz_data, **plot_args)
+
+    axis.set_title(f"$D={dim}$")
+    axis.set_yticks(alpha_vals)
+
+    zz_ticks = sorted(set(map(int,map(round, zz_couplings))))
+    zz_labels = [ tick if tick % 2 == 0 else "" for tick in zz_ticks ]
+    axis.set_xticks(zz_ticks)
+    axis.set_xticklabels(zz_labels)
+    axis.set_xlabel(label_zz)
+
+# add color bar
+image = axes[0].get_images()[0]
+bar = figure.colorbar(image, cax = axes[-1], label = label_sqz_opt)
+
+# set vertical axis labels / ticks
+axes[0].set_ylabel(r"$\alpha$")
+axes[1].set_yticklabels([])
+
+plt.tight_layout(pad = 0.2)
+lattice_label = "_L".join(lattices)
+plt.savefig(fig_dir + f"exact_L{lattice_label}.pdf")
+
+plt.close("all")
+##########################################################################################
 # plot summary of DTWA results
 
 # set axis ticks on a linear-scale color bar
