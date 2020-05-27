@@ -24,6 +24,9 @@ plt.rcParams.update(params)
 
 max_width = 8.6/2.54 # maximum single-column figure width allowed by PRL
 
+color_map = "viridis_r"
+color_map = mpl.cm.get_cmap(color_map)
+
 def make_name_tag(lattice_text, alpha, data_format):
     name_tag = f"L{lattice_text}_a{alpha}"
     if data_format == "shell":
@@ -173,13 +176,11 @@ plt.close("all")
 # plot time-series data (DTWA)
 
 lattice_text = "64x64"
-color_map = "viridis"
 def get_zz_coupling(file):
     return float(file.split("_")[-1][1:-4])
 
 spin_num = np.prod(list(map(int,lattice_text.split("x"))))
 
-color_map = mpl.cm.get_cmap(color_map)
 for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
                                              ( 4, [-2, 0], 5, [-5,15] ) ]:
 
@@ -207,7 +208,7 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
     # plot squeezing over time for all ZZ couplings
     figure, axes = plt.subplots(2, figsize = (2.5,2.5), sharex = True, sharey = False)
     for idx, ( zz_coupling, file ) in enumerate(data_files):
-        color_val = 1 - idx / ( len(data_files)-1 ) # color value from 0 to 1
+        color_val = idx / ( len(data_files)-1 ) # color value from 0 to 1
         time, sqz, norm_SS = get_time_sqz_SS(file)
         time_scale = abs( zz_coupling - 1 ) # rescale time by | J_z - J_perp |
         axes[0].plot(time * time_scale, sqz, color = color_map(color_val))
@@ -522,17 +523,23 @@ plt.close("all")
 ##########################################################################################
 # plot system size scaling (DTWA)
 
+def log_form(x, a, b):
+    return a * np.log(x) + b
+def log_fit(x, fit_params):
+    return np.vectorize(log_form)(x, *fit_params)
+
 dim = 2
 dz = 0.1
+inspect_dz = 0.5
 
 size_lims = (10,60)
 dL = 5
 lattice_lengths = np.arange(size_lims[0], size_lims[1] + dL/2, dL, dtype = int)
 
+
 figsize = (3,1.8)
 
-for alpha, zz_lims, add_markup in [ ( 3, [-2.5,2.2], True ),
-                                    ( "nn", [-1.5,2.2], False ) ]:
+for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
     zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
 
     sqz_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
@@ -559,9 +566,11 @@ for alpha, zz_lims, add_markup in [ ( 3, [-2.5,2.2], True ),
             ss_min_data[zz_idx,ll_idx] = min(file_data[:sqz_min_idx+1,11])
             del file_data
 
-    figure = plt.figure(figsize = figsize)
+    # identify the dynamical phase boundary
+    zz_boundaries = zz_couplings[ ss_min_data[zz_couplings < 1, :].argmin(axis = 0) ]
 
     # plot squeezing data
+    figure = plt.figure(figsize = figsize)
     axis_lims = [ zz_lims[0] - dz/2, zz_lims[1] + dz/2,
                   size_lims[0] - dL/2, size_lims[1] + dL/2, ]
     plot_args = dict( aspect = "auto", origin = "lower",
@@ -574,8 +583,7 @@ for alpha, zz_lims, add_markup in [ ( 3, [-2.5,2.2], True ),
     fix_ticks(color_bar, 5)
 
     # add reference line for dynamical phase boundary
-    zz_boundaries = zz_couplings[ ss_min_data[zz_couplings < 1, :].argmin(axis = 0) ]
-    if add_markup:
+    if alpha != "nn":
         def alternate(values, other_values):
             return np.array(list(zip(values, other_values))).flatten()
         def double(values):
@@ -615,22 +623,50 @@ for alpha, zz_lims, add_markup in [ ( 3, [-2.5,2.2], True ),
     system_sizes = lattice_lengths**2
 
     # find the best log fit of critical coupling as a function of system size
-    def log_fit(x, a, b):
-        return a * np.log(x) + b
-    fit_params, _ = scipy.optimize.curve_fit(log_fit, system_sizes, zz_boundaries)
-    def fit_val(x):
-        return np.vectorize(log_fit)(x, *fit_params)
+    fit_params, _ = scipy.optimize.curve_fit(log_form, system_sizes, zz_boundaries)
 
     # plot DTWA results and the log fit
     plt.figure(figsize = figsize)
     plt.semilogx(system_sizes, zz_boundaries, "ko", label = "DTWA")
-    plt.semilogx(system_sizes, fit_val(system_sizes), "k--", label = "log fit")
+    plt.semilogx(system_sizes, log_fit(system_sizes, fit_params), "k--", label = "log fit")
 
     plt.xlabel(r"$N$")
     plt.ylabel(r"$J_{\mathrm{z}}^{\mathrm{crit}}/J_\perp$")
     plt.legend(loc = "best", handlelength = 1.7)
+    fit_handles, fit_labels = plt.gca().get_legend_handles_labels()
 
     plt.tight_layout()
     plt.savefig(fig_dir + f"size_divergence_a{alpha}.pdf")
+
+    ### show power-law scaling of optimal squeezing
+
+    plt.figure(figsize = figsize)
+
+    # determine the values of zz couplings to plot
+    inspect_zz_start = min(zz_boundaries)
+    while np.sum(zz_boundaries < inspect_zz_start) < 4:
+        inspect_zz_start += inspect_dz
+    inspect_zz_min = np.ceil( inspect_zz_start / inspect_dz ) * inspect_dz
+    inspect_zz = np.arange(inspect_zz_min, 1-inspect_dz/2, inspect_dz)
+
+    for idx, zz_coupling in enumerate(inspect_zz):
+        zz_idx = np.isclose(zz_couplings,zz_coupling)
+        ll_idx = zz_boundaries < zz_coupling
+
+        _system_sizes = system_sizes[ll_idx]
+        sqz_vals = sqz_data[zz_idx, ll_idx]
+        fit_params, _ = scipy.optimize.curve_fit(log_form, _system_sizes, sqz_vals)
+
+        color_val = idx / ( len(inspect_zz) - 1 )
+        color = color_map(color_val)
+        plt.semilogx(_system_sizes, sqz_vals, "o", color = color)
+        plt.semilogx(_system_sizes, log_fit(_system_sizes, fit_params), "--", color = color)
+
+    plt.xlabel(r"$N$")
+    plt.ylabel(label_sqz_opt)
+    plt.legend(fit_handles, fit_labels, loc = "best", handlelength = 1.7)
+
+    plt.tight_layout()
+    plt.savefig(fig_dir + f"power_law_a{alpha}.pdf")
 
 plt.close("all")
