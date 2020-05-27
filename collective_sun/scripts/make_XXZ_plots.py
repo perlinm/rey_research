@@ -267,9 +267,8 @@ zz_lims = (-3,3)
 def exact_file(lattice, alpha):
     return data_dir + f"exact/sqz_L{lattice}_a{alpha}.txt"
 
-widths = [30]*len(lattices) + [1]
-figure, axes = plt.subplots(1, len(lattices)+1, figsize = figsize,
-                            gridspec_kw = dict( width_ratios = widths ) )
+figure, axes = plt.subplots(1, len(lattices), figsize = figsize,
+                            sharex = True, sharey = True)
 
 for lattice, axis in zip(lattices, axes.flatten()):
     dim = len(lattice.split("x"))
@@ -278,51 +277,30 @@ for lattice, axis in zip(lattices, axes.flatten()):
     alpha_vals = sorted([ int(file.split("_")[-1][1:-4])
                           for file in glob.glob(exact_file(lattice, "?")) ])
 
-    # import all squeezing data
-    sqz_data = []
+    # plot all squeezing data
     for alpha in alpha_vals:
-        zz_couplings, sqz_vals = np.loadtxt(exact_file(lattice,alpha), unpack = True)
-        sqz_data.append(-sqz_vals)
-    sqz_data = np.array(sqz_data)
+        zz_couplings, sqz = np.loadtxt(exact_file(lattice,alpha), unpack = True)
 
-    # pick values of the ZZ coupling to keep
-    keep = np.where( ( np.around(zz_couplings, decimals = 1) >= zz_lims[0] ) &
-                     ( np.around(zz_couplings, decimals = 1) <= zz_lims[1] ) )[0]
-    zz_couplings = zz_couplings[keep]
-    sqz_data = sqz_data[:,keep]
+        # pick values of the ZZ coupling to keep
+        keep = np.where( ( np.around(zz_couplings, decimals = 1) >= zz_lims[0] ) &
+                         ( np.around(zz_couplings, decimals = 1) <= zz_lims[1] ) )[0]
 
-    # insert "empty" data for zz_coupling = 1
-    zz_couplings = np.insert(zz_couplings, np.where(zz_couplings > 1)[0][0], 1)
-    critical_coupling_idx = np.where(zz_couplings >= 1)[0][0]
-    sqz_data = np.insert(sqz_data, critical_coupling_idx, None, axis = 1)
+        axis.plot(zz_couplings[keep], -sqz[keep], ".", label = alpha)
 
-    # plot data
-    dz = zz_couplings[1] - zz_couplings[0]
-    axis_lims = [ zz_couplings[0] - dz/2, zz_couplings[-1] + dz/2,
-                  alpha_vals[0] - 1/2, alpha_vals[-1] + 1/2 ]
-    plot_args = dict( aspect = "auto", origin = "lower",
-                      interpolation = "nearest", cmap = "inferno",
-                      extent = axis_lims )
-    axis.imshow(sqz_data, **plot_args)
+    # add a reference line for the OAT limit
+    spin_num = np.prod([ int(size) for size in lattice.split("x") ])
+    _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
+    axis.axhline(to_dB(sqz_OAT), color = "k", linestyle = "--", label = "OAT")
 
     axis.set_title(f"$D={dim}$")
-    axis.set_yticks(alpha_vals)
-
-    zz_ticks = sorted(set(map(int,map(round, zz_couplings))))
-    zz_labels = [ tick if tick % 2 == 0 else "" for tick in zz_ticks ]
-    axis.set_xticks(zz_ticks)
-    axis.set_xticklabels(zz_labels)
     axis.set_xlabel(label_zz)
 
-# add color bar
-image = axes[0].get_images()[0]
-bar = figure.colorbar(image, cax = axes[-1], label = label_sqz_opt)
+    axis.set_ylim((0,7))
 
-# set vertical axis labels / ticks
-axes[0].set_ylabel(r"$\alpha$")
-axes[1].set_yticklabels([])
-
+axes[0].set_ylabel(label_sqz_opt)
+axes[1].legend(loc = "best", handlelength = 1.7, framealpha = 1, ncol = 2)
 plt.tight_layout(pad = 0.2)
+
 lattice_label = "_L".join(lattices)
 plt.savefig(fig_dir + f"exact_L{lattice_label}.pdf")
 
