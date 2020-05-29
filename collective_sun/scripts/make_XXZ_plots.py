@@ -452,7 +452,7 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
 
         # mark parameters for neutral atoms
         if dim in [ 2, 3 ]:
-            inf_axes[1].plot(zz_lims, [0,0], "y-", **marker_args)
+            inf_axes[1].plot(zz_lims, [0,0], "c-", **marker_args)
 
         # mark parameters for polar molecules
         if dim == 2:
