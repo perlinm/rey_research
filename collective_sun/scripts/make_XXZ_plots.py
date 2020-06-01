@@ -67,6 +67,35 @@ fit_params_OAT, _ = scipy.optimize.curve_fit(log_form, sizes, to_dB(sqz_OAT))
 def fit_sqz_OAT(N): return log_fit(N, fit_params_OAT)
 fit_sqz_OAT = np.vectorize(fit_sqz_OAT)
 
+### methods for setting axis ticks
+
+# set axis ticks on a linear-scale color bar
+def fix_ticks(color_bar, base):
+    min_val, _ = color_bar.ax.xaxis.get_data_interval()
+    locator = mpl.ticker.IndexLocator(base = base, offset = -min_val)
+    color_bar.set_ticks(locator)
+
+# set axis ticks on a log-scale color bar
+def fix_log_ticks(color_bar):
+    if color_bar.orientation == "horizontal":
+        axis = color_bar.ax.xaxis
+    else:
+        axis = color_bar.ax.yaxis
+
+    base, subs = 10, np.arange(0,1.1,0.1)
+    major_locator = mpl.ticker.LogLocator(base = base)
+    minor_locator = mpl.ticker.LogLocator(base = base, subs = subs)
+
+    min_val, max_val = axis.get_data_interval()
+    def filter(values):
+        return [ val for val in values if min_val <= val <= max_val ]
+    major_tick_values = filter(major_locator.tick_values(min_val, max_val))
+    minor_tick_values = filter(minor_locator.tick_values(min_val, max_val))
+
+    color_bar.set_ticks(major_tick_values)
+    axis.set_ticks(minor_tick_values, minor = True)
+    color_bar.update_ticks()
+
 ##########################################################################################
 # collect shell model data
 
@@ -307,33 +336,6 @@ plt.savefig(fig_dir + f"exact_L{lattice_label}.pdf")
 plt.close("all")
 ##########################################################################################
 # plot summary of DTWA results
-
-# set axis ticks on a linear-scale color bar
-def fix_ticks(color_bar, base):
-    min_val, _ = color_bar.ax.xaxis.get_data_interval()
-    locator = mpl.ticker.IndexLocator(base = base, offset = -min_val)
-    color_bar.set_ticks(locator)
-
-# set axis ticks on a log-scale color bar
-def fix_log_ticks(color_bar):
-    if color_bar.orientation == "horizontal":
-        axis = color_bar.ax.xaxis
-    else:
-        axis = color_bar.ax.yaxis
-
-    base, subs = 10, np.arange(0,1.1,0.1)
-    major_locator = mpl.ticker.LogLocator(base = base)
-    minor_locator = mpl.ticker.LogLocator(base = base, subs = subs)
-
-    min_val, max_val = axis.get_data_interval()
-    def filter(values):
-        return [ val for val in values if min_val <= val <= max_val ]
-    major_tick_values = filter(major_locator.tick_values(min_val, max_val))
-    minor_tick_values = filter(minor_locator.tick_values(min_val, max_val))
-
-    color_bar.set_ticks(major_tick_values)
-    axis.set_ticks(minor_tick_values, minor = True)
-    color_bar.update_ticks()
 
 # plot DTWA data for a given lattice on a given set of axes
 def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
@@ -590,10 +592,14 @@ dL_2D = 5
 
 dz = 0.1
 inspect_dz = 0.5
+zz_lims = ( -2.5, 2.2 )
+
+label_alpha = [ 3 ]
+fit_div_alpha = [ 3, 4 ]
 
 figsize = (3,1.8)
 
-for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
+for alpha in [ 3, 4, 5, 6, "nn" ]:
     zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
 
     # identify all relevant files
@@ -647,14 +653,13 @@ for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
     fix_ticks(color_bar, 5)
 
     # add reference line for dynamical phase boundary
-    if alpha != "nn":
-        def alternate(values, other_values):
-            return np.array(list(zip(values, other_values))).flatten()
-        def double(values):
-            return alternate(values,values)
-        LL_offsets = dL_2D/2 * alternate(-np.ones(len(LL_2D)), +np.ones(len(LL_2D)))
-        plt.plot(double(zz_boundaries[LL_keep]), double(LL_2D) + LL_offsets,
-                 ":", color = "gray", linewidth = 1)
+    def alternate(values, other_values):
+        return np.array(list(zip(values, other_values))).flatten()
+    def double(values):
+        return alternate(values,values)
+    LL_offsets = dL_2D/2 * alternate(-np.ones(len(LL_2D)), +np.ones(len(LL_2D)))
+    plt.plot(double(zz_boundaries[LL_keep]), double(LL_2D) + LL_offsets,
+             ":", color = "gray", linewidth = 1)
 
     # label axes
     plt.xlabel(label_zz)
@@ -668,7 +673,7 @@ for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
     plt.yticks(LL_2D, LL_labels)
 
     # label each dynamical phase
-    if alpha == 3:
+    if alpha in label_alpha:
         text_args = dict( horizontalalignment = "center",
                           verticalalignment = "center" )
         plt.text(0, 30, "collective", color = "black", **text_args)
@@ -678,42 +683,34 @@ for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
     plt.tight_layout(pad = 0.1)
     plt.savefig(fig_dir + f"size_scaling_a{alpha}.pdf")
 
-    if alpha == "nn": continue
-
     ### show logarithmic divergence of critical coupling
 
     # get system sizes
     system_sizes = lattice_lengths**2
 
-    # find the best log fit of critical coupling as a function of system size
-    div_log_offset = 1
-    def div_log_form(x, a): return log_form(x, a, div_log_offset)
-    def div_log_fit(x, fit_slope): return log_fit(x, [ fit_slope, div_log_offset ])
-    fit_slope, _ = scipy.optimize.curve_fit(div_log_form, system_sizes, zz_boundaries)
-
-    # plot DTWA results and the log fit
+    # DTWA results
     plt.figure(figsize = figsize)
     plt.semilogx(system_sizes, zz_boundaries, "ko", label = "DTWA")
-    plt.semilogx(system_sizes, div_log_fit(system_sizes, fit_slope), "k--", label = "fit")
+
+    # find the best log fit of critical coupling as a function of system size
+    if alpha in fit_div_alpha:
+        fit_slope, _ = scipy.optimize.curve_fit(log_form, system_sizes, zz_boundaries)
+        plt.semilogx(system_sizes, log_fit(system_sizes, fit_slope), "k--", label = "fit")
+        plt.legend(loc = "best", handlelength = 1.7)
 
     plt.xlabel(r"$N$")
     plt.ylabel(r"$J_{\mathrm{z}}^{\mathrm{crit}}/J_\perp$")
-    plt.legend(loc = "best", handlelength = 1.7)
-    fit_handles, fit_labels = plt.gca().get_legend_handles_labels()
-
     plt.tight_layout()
     plt.savefig(fig_dir + f"size_divergence_a{alpha}.pdf")
 
     ### show power-law scaling of optimal squeezing
 
-    plt.figure(figsize = figsize)
-
     # determine the values of zz couplings to plot
-    inspect_zz_start = min(zz_boundaries)
-    while np.sum(zz_boundaries < inspect_zz_start) < 4:
-        inspect_zz_start += inspect_dz
-    inspect_zz_min = np.ceil( inspect_zz_start / inspect_dz ) * inspect_dz
-    inspect_zz = np.arange(inspect_zz_min, 1-inspect_dz/2, inspect_dz)
+    inspect_zz = np.arange(1-inspect_dz, min(zz_boundaries)-dz/2, -inspect_dz)
+    inspect_zz = sorted([ zz_coupling for zz_coupling in inspect_zz
+                          if np.sum(zz_boundaries < zz_coupling) >= 4 ])
+
+    plt.figure(figsize = figsize)
 
     for idx, zz_coupling in enumerate(inspect_zz):
         zz_idx = np.isclose(zz_couplings,zz_coupling)
@@ -723,11 +720,19 @@ for alpha, zz_lims in [ ( 3, [-2.5,2.2] ), ( "nn", [-1.5,2.2] ) ]:
         sqz_vals = sqz_data[zz_idx, ll_idx]
         fit_params, _ = scipy.optimize.curve_fit(log_form, _system_sizes, sqz_vals)
 
-        color_val = idx / ( len(inspect_zz) - 1 )
-        color = color_map(color_val)
+        if len(inspect_zz) == 1:
+            color = "black"
+        else:
+            color_val = idx / ( len(inspect_zz) - 1 )
+            color = color_map(color_val)
         plt.semilogx(_system_sizes, sqz_vals, "o", color = color)
         plt.semilogx(_system_sizes, log_fit(_system_sizes, fit_params), "--", color = color)
 
+    fit_handles = [ mpl.lines.Line2D([0], [0], color = "k", linestyle = "none", marker = "o"),
+                    mpl.lines.Line2D([0], [0], color = "k", linestyle = "--") ]
+    fit_labels = [ "DTWA", "fit" ]
+
+    # add the OAT limit as a reference
     plt.semilogx(system_sizes, fit_sqz_OAT(system_sizes), "r:", label = "OAT")
     handles, labels = plt.gca().get_legend_handles_labels()
     fit_handles += handles
