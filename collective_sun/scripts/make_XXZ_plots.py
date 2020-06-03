@@ -290,7 +290,7 @@ plt.close("all")
 # plot squeezing from exact simulations
 
 lattices = [ "16", "4x4" ]
-figsize = (max_width, 1.8)
+figsize = (4,2)
 zz_lims = (-3,3)
 
 def exact_file(lattice, alpha):
@@ -696,6 +696,7 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
     if alpha in fit_div_alpha:
         fit_slope, _ = scipy.optimize.curve_fit(log_form, system_sizes, zz_boundaries)
         plt.semilogx(system_sizes, log_fit(system_sizes, fit_slope), "k--", label = "fit")
+    if alpha in label_alpha:
         plt.legend(loc = "best", handlelength = 1.7)
 
     plt.xlabel(r"$N$")
@@ -720,6 +721,9 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
         sqz_vals = sqz_data[zz_idx, ll_idx]
         fit_params, _ = scipy.optimize.curve_fit(log_form, _system_sizes, sqz_vals)
 
+        nu = fit_params[0]/10 * np.log(10)
+        nu_err = np.sqrt(_[0,0])/10 * np.log(10)
+
         if len(inspect_zz) == 1:
             color = "black"
         else:
@@ -740,7 +744,8 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
 
     plt.xlabel(r"$N$")
     plt.ylabel(label_sqz_opt)
-    plt.legend(fit_handles, fit_labels, loc = "best", handlelength = 1.7)
+    if alpha in label_alpha:
+        plt.legend(fit_handles, fit_labels, loc = "best", handlelength = 1.7)
 
     plt.tight_layout()
     plt.savefig(fig_dir + f"power_law_a{alpha}.pdf")
