@@ -596,6 +596,7 @@ zz_lims = ( -2.5, 2.2 )
 
 label_alpha = [ 3 ]
 fit_div_alpha = [ 3, 4 ]
+colors = 5
 
 figsize = (3,1.8)
 
@@ -713,7 +714,7 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
 
     plt.figure(figsize = figsize)
 
-    for idx, zz_coupling in enumerate(inspect_zz):
+    for idx, zz_coupling in enumerate(inspect_zz[::-1]):
         zz_idx = np.isclose(zz_couplings,zz_coupling)
         ll_idx = zz_boundaries < zz_coupling
 
@@ -724,11 +725,8 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
         nu = fit_params[0]/10 * np.log(10)
         nu_err = np.sqrt(_[0,0])/10 * np.log(10)
 
-        if len(inspect_zz) == 1:
-            color = "black"
-        else:
-            color_val = idx / ( len(inspect_zz) - 1 )
-            color = color_map(color_val)
+        color_val = idx / ( colors - 1 )
+        color = color_map(1-color_val)
         plt.semilogx(_system_sizes, sqz_vals, "o", color = color)
         plt.semilogx(_system_sizes, log_fit(_system_sizes, fit_params), "--", color = color)
 
