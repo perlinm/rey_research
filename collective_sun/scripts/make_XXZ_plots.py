@@ -587,20 +587,13 @@ plt.close("all")
 ##########################################################################################
 # plot system size scaling (DTWA)
 
-dim = 2
-dL_2D = 5
-
 dz = 0.1
 inspect_dz = 0.5
-zz_lims = ( -2.5, 2.2 )
-
 label_alpha = [ 3 ]
-fit_div_alpha = [ 3, 4 ]
-colors = 5
 
 figsize = (3,1.8)
 
-for alpha in [ 3, 4, 5, 6, "nn" ]:
+def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha = []):
     zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
 
     # identify all relevant files
@@ -636,14 +629,14 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
     zz_boundaries = zz_couplings[ ss_min_data[zz_couplings < 1, :].argmin(axis = 0) ]
 
     # identify lattice lengths to plot
-    LL_keep = np.isclose(lattice_lengths % dL_2D, 0)
-    LL_2D = lattice_lengths[LL_keep]
-    size_lims = LL_2D[0], LL_2D[-1]
+    LL_keep = np.isclose(lattice_lengths % lattice_res, 0)
+    LL_image = lattice_lengths[LL_keep]
+    size_lims = LL_image[0], LL_image[-1]
 
     # plot squeezing data
     figure = plt.figure(figsize = figsize)
     axis_lims = [ zz_lims[0] - dz/2, zz_lims[1] + dz/2,
-                  size_lims[0] - dL_2D/2, size_lims[1] + dL_2D/2, ]
+                  size_lims[0] - lattice_res/2, size_lims[1] + lattice_res/2 ]
     plot_args = dict( aspect = "auto", origin = "lower",
                       interpolation = "nearest", cmap = "inferno",
                       extent = axis_lims )
@@ -658,8 +651,9 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
         return np.array(list(zip(values, other_values))).flatten()
     def double(values):
         return alternate(values,values)
-    LL_offsets = dL_2D/2 * alternate(-np.ones(len(LL_2D)), +np.ones(len(LL_2D)))
-    plt.plot(double(zz_boundaries[LL_keep]), double(LL_2D) + LL_offsets,
+    LL_offsets = lattice_res/2 * alternate(- np.ones(len(LL_image)),
+                                           + np.ones(len(LL_image)))
+    plt.plot(double(zz_boundaries[LL_keep]), double(LL_image) + LL_offsets,
              ":", color = "gray", linewidth = 1)
 
     # label axes
@@ -669,9 +663,9 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
     # set axis ticks
     zz_ticks = sorted(set([ int(zz) for zz in zz_couplings ]))
     zz_labels = [ zz if zz % 2 == 0 else "" for zz in zz_ticks ]
-    LL_labels = [ LL if LL % 10 == 0 else "" for LL in LL_2D ]
+    LL_labels = [ LL if LL % 10 == 0 else "" for LL in LL_image ]
     plt.xticks(zz_ticks, zz_labels)
-    plt.yticks(LL_2D, LL_labels)
+    plt.yticks(LL_image, LL_labels)
 
     # label each dynamical phase
     if alpha in label_alpha:
@@ -682,12 +676,12 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
         plt.text(1.8, 30, "Ising", color = "white", **text_args)
 
     plt.tight_layout(pad = 0.1)
-    plt.savefig(fig_dir + f"size_scaling_a{alpha}.pdf")
+    plt.savefig(fig_dir + f"size_scaling_D{dim}_a{alpha}.pdf")
 
     ### show logarithmic divergence of critical coupling
 
     # get system sizes
-    system_sizes = lattice_lengths**2
+    system_sizes = lattice_lengths**dim
 
     # DTWA results
     plt.figure(figsize = figsize)
@@ -703,7 +697,7 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
     plt.xlabel(r"$N$")
     plt.ylabel(r"$J_{\mathrm{z}}^{\mathrm{crit}}/J_\perp$")
     plt.tight_layout()
-    plt.savefig(fig_dir + f"size_divergence_a{alpha}.pdf")
+    plt.savefig(fig_dir + f"size_divergence_D{dim}_a{alpha}.pdf")
 
     ### show power-law scaling of optimal squeezing
 
@@ -711,6 +705,7 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
     inspect_zz = np.arange(1-inspect_dz, min(zz_boundaries)-dz/2, -inspect_dz)
     inspect_zz = sorted([ zz_coupling for zz_coupling in inspect_zz
                           if np.sum(zz_boundaries < zz_coupling) >= 4 ])
+    if colors is None: colors = len(inspect_zz)
 
     plt.figure(figsize = figsize)
 
@@ -721,9 +716,6 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
         _system_sizes = system_sizes[ll_idx]
         sqz_vals = sqz_data[zz_idx, ll_idx]
         fit_params, _ = scipy.optimize.curve_fit(log_form, _system_sizes, sqz_vals)
-
-        nu = fit_params[0]/10 * np.log(10)
-        nu_err = np.sqrt(_[0,0])/10 * np.log(10)
 
         color_val = idx / ( colors - 1 )
         color = color_map(1-color_val)
@@ -746,9 +738,26 @@ for alpha in [ 3, 4, 5, 6, "nn" ]:
         plt.legend(fit_handles, fit_labels, loc = "best", handlelength = 1.7)
 
     plt.tight_layout()
-    plt.savefig(fig_dir + f"power_law_a{alpha}.pdf")
+    plt.savefig(fig_dir + f"power_law_D{dim}_a{alpha}.pdf")
 
-plt.close("all")
+    plt.close("all")
+
+    return colors
+
+dim = 2
+lattice_res = 5
+zz_lims = ( -2.5, 2 )
+colors = None
+for alpha in [ 3, 4, 5, 6, "nn" ]:
+    colors = plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha = [ 3, 4 ])
+
+dim = 3
+lattice_res = 1
+zz_lims = ( -3, 2 )
+colors = None
+for alpha in [ 4, 5, 6 ]:
+    colors = plot_scaling(dim, lattice_res, zz_lims, alpha, colors)
+
 ##########################################################################################
 # plot dependence on filling fraction (DTWA)
 
