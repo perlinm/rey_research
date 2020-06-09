@@ -69,7 +69,7 @@
 \newcommand{\PS}{\text{PS}}
 \newcommand{\EQPS}{=_{\text{PS}}}
 
-\DeclareMathOperator{\diag}{diag}
+\newcommand{\oper}{\operatorname}
 
 \usepackage{accents} % for the undertilde
 \newcommand{\ut}{\undertilde}
@@ -158,24 +158,27 @@ two-orbital SU($n$) magnetism\cite{cappellini2014direct,
 SU($n$)-symmetric interactions\cite{goban2018emergence,
   perlin2019effective}.  The tremendous theoretical significance of
 SU($n$) symmetries makes it all the more exciting that they appear in
-experimental platforms with exquisite degrees of microscopic control,
-thereby enabling the detailed study of these symmetries' consequences
-for fundamental questions in physics, as well as their practical use
-in technological applications.  SU(2)-symmetric spin interactions, for
-example, can play an important role in the development of quantum
-sensors that make use of entanglement to surpass classical limits on
-measurement precision\cite{he2019engineering}\red{[cite XXZ squeezing
-  paper]}.  The exciting prospect of similarly exploiting larger
-SU($n$) symmetries to achieve a technological advantage is still an
-unexplored avenue of research with enormous potential.
+experimental platforms with exquisite degrees of microscopic control.
+This control enables detailed studies of these symmetries'
+consequences for fundamental questions in physics, as well as their
+practical use in technological applications.  SU(2)-symmetric spin
+interactions, for example, can play an important role in the
+development of quantum sensors that make use of entanglement to
+surpass classical limits on measurement
+precision\cite{he2019engineering, perlin2020spin}.
+The exciting prospect of similarly exploiting larger SU($n$)
+symmetries to achieve a technological advantage is still an unexplored
+avenue of research with enormous potential.
+
+\red{[Paragraph on collective spin systems]}
 
 In this work, we generalize some of the techniques used to harness
 SU(2)-symmetric spin interactions for metrological advantage to the
 case of SU($n$).  In doing so, we develop a low-energy effective
 theory of gapped SU($n$) ferromagnets with weakly broken SU($n$)
-symmetry, e.g.~by the presence of external fields or additional
-interaction terms.  The restriction of our theory to ferromagnetic
-interactions can be relaxed to the assumption of
+symmetry (e.g.~due to external fields or additional interaction
+terms).  The restriction of our theory to ferromagnetic interactions
+can be relaxed to the assumption of
 \begin{enumerate*}
 \item an initial state in the manifold of permutationally-symmetric
   states, a multi-level generalization of the Dicke manifold for
@@ -189,27 +192,26 @@ we develop a diagrammatic method to systematically compute matrix
 elements of arbitrary spin operators within manifolds of weakly broken
 permutational symmetry, thereby enabling the numerical simulation of
 dynamics induced by non-perturbative modifications to the SU($n$)
-Heisenberg model.  While the latter simulations generally accumulate
-uncontrolled truncation errors, we identify criteria under which
-numerical results correctly capture the qualitative dynamical behavior
-of a system.
+Heisenberg model.  While these simulations generally accumulate
+uncontrolled errors from the truncation of Hilbert space, we identify
+criteria under which numerical results correctly capture the
+qualitative dynamical behavior of a system.
 
 In the following section, \ref{sec:bare_sun}, we introduce the SU($n$)
 Heisenberg model, finding a convenient way to express its Hamiltonian
-in terms of SWAP operations that are agnostic to the value of $n$.  In
-Section \ref{sec:breaking_sun}, we consider modifying the Hamiltonian
-of the bare Heisenberg model by the addition of spin operators,
-corresponding to e.g.~external fields or additional interactions, that
-weakly break SU($n$) symmetry.  We sketch out a derivation of the
-effective Hamiltonian induced by these terms through second order in
-perturbation theory, deferring more detailed calculations to
-Appendices \ref{sec:eigenstates} and \ref{sec:operator_product}.
-Finally, we discuss a numerical method to simulate dynamics within
-manifolds of weak permutational symmetry breaking in Section
-\ref{sec:shell_model}, before concluding in Section
-\ref{sec:conclusions}.  Wherever possible, we will fall back to the
-broadly familiar case of SU(2) in order to facilitate an understanding
-of the generalizations to SU($n$).
+in terms of permutation (or SWAP) operations that are agnostic to the
+value of $n$.  In Section \ref{sec:breaking_sun}, we consider
+modifying the Hamiltonian of the bare Heisenberg model by the addition
+of spin operators, corresponding to e.g.~external fields or additional
+interactions, that weakly break SU($n$) symmetry.  We sketch out a
+derivation of the effective Hamiltonian induced by these terms through
+second order in perturbation theory, deferring more detailed
+calculations to appendices.  Finally, we discuss a numerical method to
+simulate dynamics within manifolds of weak permutational symmetry
+breaking in Section \ref{sec:shell_model}, before concluding in
+Section \ref{sec:conclusions}.  Wherever possible, we will fall back
+to the broadly familiar case of SU(2) in order to facilitate an
+understanding of the generalizations to SU($n$).
 
 \red{[re-visit / revise the introduction after finishing the remaining
   text]}
@@ -332,7 +334,7 @@ terms to the Hamiltonian that break its SU($n$) symmetry.
 As a concrete example, this sort of scenario can be used in the SU(2)
 case to generate spin squeezed states that harness entanglement to
 surpass classical limits on measurement
-precision\cite{he2019engineering}\red{[cite XXZ squeezing paper]}.
+precision\cite{he2019engineering, perlin2020spin}.
 Starting with a general (gapped) SU(2)-symmetric Hamiltonian of the
 form in \eqref{eq:H_SU2} we can consider the addition of Ising
 interactions
@@ -364,9 +366,9 @@ variance of the magnetic field strength $B_i$.
 Similarly to single- and two-body operators such as $H_{\t{B}}$ and
 $H_{\t{Ising}}$ in \eqref{eq:magnetic} and \eqref{eq:Ising}, it will
 be necessary for our purposes to additionally consider the
-introduction of $M$-body operators with $M>2$ \red{[todo: explain why
-  better]}. Generalizing the above examples to the case of SU($n$)
-systems, we therefore consider a general $M$-body operator of the form
+introduction of $M$-body operators with $M>2$. Generalizing the above
+examples to the case of SU($n$) systems, we therefore consider a
+general $M$-body operator of the form
 \begin{align}
   \O\p{\m w,X} \equiv \sum_{k\in\D_N\p{M}} w_k X_k,
   \label{eq:multi_body_op}
@@ -379,7 +381,7 @@ individual spins $k_i\in\ZZ_N$ that the operator
 $X_k\equiv X_{k_1k_2\cdots k_M}$ acts on; and
 \begin{align}
   \D_N\p{M} \equiv
-  \set{ k \in \ZZ_N^M : \t{all entries $k_i$ of $k$ are distinct } },
+  \set{ k \in \ZZ_N^M : \t{all entries $k_i$ of $k$ are distinct} },
   \label{eq:off_diags}
 \end{align}
 is the strictly ``off-diagonal'' part of $\ZZ_N^M$, which is necessary
@@ -423,6 +425,7 @@ collective version of $X$:
   \sum_{k\in\D_N\p{M}} w_k,
   &&
   \col X \equiv \sum_{k\in\D_N\p{M}} X_k,
+  \label{eq:mean_col}
 \end{align}
 with $\abs{\D_N\p{M}}=\prod_{j=0}^{M-1}\p{N-j}$.  In the case of a
 magnetic field $s_\z$ or Ising interactions $s_\z\otimes s_\z$, for
@@ -443,7 +446,7 @@ the ground- and excited-state manifolds $\E_0$ and $\E_\Delta$.  We
 therefore need to decompose $\O\p{\m w,X}$ into components that
 generate states of definite excitation energy when acting on PS states
 $\ket\psi\in\M_0$.  The SU($n$) symmetry of $H_0$ enables such a
-decomposition of the form
+decomposition to take the form
 \begin{align}
   H_0 \O\p{\m w,X} \ket\psi
   = \sum_\Delta \p{E_0+\Delta} \O\p{\m w_\Delta,X} \ket\psi,
@@ -477,40 +480,117 @@ single-body ($M=1$) and two-body ($M=2$) cases in Appendices
 single-body operator, then
 \begin{align}
   H_{\t{eff}}^{(2)}
+  = \sum_{\Delta\ne0} \f{\m w_\Delta\c\m w_\Delta}{\Delta} \,
+  \mean{X\otimes X}
   = \sum_{\Delta\ne0} \f{\m w_\Delta\c\m w_\Delta}{N\p{N-1}\Delta}
-  \p{\col{X}^2 - N \col{X^2}}.
+  \p{\col{X}^2 - N \col{X^2}},
   \label{eq:H_eff_2_1}
 \end{align}
-In the SU(2) case, this result implies that an inhomogeneous magnetic
-field ($X=s_\z$) yields the OAT Hamiltonian $H_{\t{OAT}}$ in
-\eqref{eq:OAT} at second order perturbation theory.
-
-\newpage
+where $\mean{X\otimes X}$ is the average of
+$\p{X\otimes X}_{ij}=X_iX_j$ over all $i\ne j$, similarly to the
+definition of $\mean{w}$ in Eq.~\eqref{eq:mean_col}.  In the SU(2)
+case, this result implies that an inhomogeneous magnetic field
+($X=s_\z$) yields the OAT Hamiltonian $H_{\t{OAT}}$ in \eqref{eq:OAT}
+at second order perturbation theory.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Beyond ground-state perturbation theory}
 \label{sec:shell_model}
 
-\red{[note: this section is not yet finished or simplified]}
+In order to find the effective Hamiltonian $H_{\t{eff}}^{(2)}$ induced
+by the $M$-body operator $\O\p{\m w,X}$ on the PS manifold $\M_0$ at
+second order in perturbation theory, we constructed states with
+definite excitation energy $\Delta>0$ with respect to $H_0$.  Rather
+than treating these excited states as ``intermediate'' or ``virtual''
+in the derivation of an effective ground-state Hamiltonian, we can
+perform numerical simulations in the joint Hilbert space of both
+ground and excited states.  When the perturbation $\O\p{\m w,X}$ is
+small, namely with operator norm
+$\norm{\O\p{\m w,X}}<\Delta_{\t{gap}}/2$, performing such simulations
+with an appropriate choice of excited states is equivalent to
+high-order ground-state perturbation theory.  The corresponding order
+of perturbation theory is determined by the choice of excited states
+in a manner that will be clarified below.  Moreover, the first-class
+treatment of excited states enables simulating the dynamics induced by
+{\it non-perturbative} additions $\O\p{\m w,X}$ to the base
+Hamiltonian $H_0$ in finite systems.
+
+In order to simulate dynamics within excited-state manifolds, we first
+need to classify the set of excited states in order to construct a
+suitable basis.  In the case of SU(2), a good starting point is to
+identify states with definite (non-negative) spin length
+$S=\set{N/2,N/2-1,\cdots}$, and spin projection
+$m_\z\in\set{S,S-1,\cdots,-S}$ onto a quantization axis.  To
+generalize this classification to SU($n$), we denote the manifold of
+states with definite fixed spin length $S$ by $\M_{N/2-S}$.  The PS
+manifold of Dicke states with $S=N/2$ is then $\M_0$, the manifold of
+single-magnon spin-wave states with $S=N/2-1$ is $\M_1$, and more
+generally the manifold of $r$-magnon states with $S=N/2-r$ is $\M_r$.
+Similarly, rather than the spin projection $m_\z$ we identify states
+by labels $m=\p{m_\up,m_\dn}$ in which $m_\mu$ denotes the occupation
+number of the single-spin state $\mu$, with $m_\up-m_\dn=m_\z$ and
+$m_\up+m_\dn=N$.
+
+The label $m$ suffices to identify the PS (Dicke) manifold
+$\M_0=\oper{span}\set{\ket{m}}$, but we need additional labels to
+uniquely identify states in the $r$-magnon manifold $\M_r$ with $r>0$.
+Single-magnon ($r=1$) spin-wave states of SU(2) spin systems can be
+written in the form $\ket{m,\m v}\equiv\O\p{\m v,\sigma_\z}\ket{m}$,
+where $\m v=\p{v_1,v_2,\cdots,v_N}$ and $\sigma_\z$ is a Pauli-$z$
+operator.  If an SU(2) spin system is translationally invariant, then
+its spin-wave eigenstates have $v_j=e^{\i k_{\m v}\c j}/\sqrt{N}$ with
+wavenumber $k_{\m v}\ne0$.  Similarly, $r$-magnon states for SU(2)
+take the form
+$\ket{m,\m v}\equiv\O\p{\m v,\sigma_\z^{\otimes r}}\ket{m}$, where now
+$\m v$ is an $r$-index tensor that encodes spatial structure and
+correlations in the excited state $\ket{m,\m v}$ (see Figure
+\ref{fig:pair_structure}).
+
+\begin{figure}
+  \centering
+  \includegraphics{pair_structure/pair_L16_A3_s1.pdf}
+  \includegraphics{pair_structure/pair_L16_A3_s2.pdf}
+  \includegraphics{pair_structure/pair_L16_A3_s3.pdf} \\[1em]
+  \includegraphics{pair_structure/pair_L16_A3_s4.pdf}
+  \includegraphics{pair_structure/pair_L16_A3_s5.pdf}
+  \includegraphics{pair_structure/pair_L16_A3_s6.pdf}
+  \includegraphics{pair_structure/pair_L16_A3_s7.pdf}
+  \caption{Matrices $\m v_\Delta=\sum_{i,j}v^{(\Delta)}_{ij}\op{i}{j}$
+    that generate two-magnon states
+    $\ket{\m v_\Delta,m} \equiv \O\p{\m v_\Delta,
+      \sigma_\z\otimes\sigma_\z} \ket{m}$ with definite excitation
+    energy $\Delta$ in a periodic 1D chain of $N=16$ spins with
+    power-law SU(2) couplings $h_{ij}=-1/\oper{dist}\p{i,j}^3$, where
+    $\oper{dist}\p{i,j}\equiv\min\p{\abs{i-j},N-\abs{i-j}}$.  Darker
+    colors correspond to larger values of $\abs*{v^{(\Delta)}_{ij}}$,
+    and a blue (red) color corresponds to a positive (negative) sign
+    of $v^{(\Delta)}_{ij}$.  In the case of SU($n$) with $n>2$, the
+    ``two-magnon'' excitation energies $\Delta$ and matrices
+    $\m v_\Delta$ remain identical, but now correspond to a degenerate
+    set of states that generated by different choice of two-body
+    operators in place of $\sigma_\z\otimes\sigma_\z$.}
+  \label{fig:pair_structure}
+\end{figure}
+
+
+\red{[note: this section is not yet finished]}
 
 % todo: give examples of these manifolds in SU(2)
 % todo: clarify connection between multi-body excitation manifolds
 %       and manifolds of fixed total spin in the SU(2) case
 
-In order to find the effective Hamiltonian $H_{\t{eff}}^{(2)}$ induced
-by the multi-body operator $\hat\O$ on the PS manifold $\M_0$ at
-second order in perturbation theory, we constructed states with
-definite excitation energy $\Delta$ with respect to $H_0$.  These
-states are generated by the action of an $M$-body operator
-$X_{\m w_\Delta}$ on a PS state $\ket\psi\in\M_0$.  We denote the
-manifold of all states that can be generated by the action of some
-$M$-body operator, but not any $r$-body operator with $r<M$, by
-$\M_M$; we will refer to $\M_M$ as the $M$-body excitation manifold.
-We then denote the a direct sum of all $\M_r$ for $r\le M$ by
-$\col\M_M$, i.e.~$\col\M_M\equiv\bigoplus_{r\le M}\M_r$.  The manifold
-$\col\M_M$ consists of all states accessible by the action of $r$-body
-operators with $r\le M$ on PS states in $\M_0$.  These definitions are
-sketched out in Figure \ref{fig:manifold_sketch}.
+\newpage
+
+\red{[note: text below is old and unsimplified]}
+
+We denote the manifold of all states that can be generated by the
+action of some $M$-body operator, but not any $r$-body operator with
+$r<M$, by $\M_M$; we will refer to $\M_M$ as the $M$-body excitation
+manifold.  We then denote the a direct sum of all $\M_r$ for $r\le M$
+by $\col\M_M$, i.e.~$\col\M_M\equiv\bigoplus_{r\le M}\M_r$.  The
+manifold $\col\M_M$ consists of all states accessible by the action of
+$r$-body operators with $r\le M$ on PS states in $\M_0$.  These
+definitions are sketched out in Figure \ref{fig:manifold_sketch}.
 
 \begin{figure}
   \centering
@@ -792,7 +872,7 @@ spins $k_i\in\ZZ_N$ that the operator $X_k\equiv X_{k_1k_2\cdots k_M}$
 acts on; and
 \begin{align}
   \D_N\p{M} \equiv
-  \set{ k \in \ZZ_N^M: \t{all entries $k_i$ of $k$ are distinct } },
+  \set{ k \in \ZZ_N^M: \t{all entries $k_i$ of $k$ are distinct} },
 \end{align}
 is the strictly ``off-diagonal'' part of $\ZZ_N^M$.
 
@@ -861,19 +941,19 @@ permutationally symmetric state therefore generates an eigenstate of
 $H_0$ with energy $E_0+\Delta$ if the vector $\m w=\sum_k w_k \ket{k}$
 satisfies the eigenvalue equation
 \begin{align}
-  \p{\m h - \diag\v h} \c \m w = \Delta \m w,
+  \p{\m h - \oper{diag}\v h} \c \m w = \Delta \m w,
   \label{eq:single_body_eig}
 \end{align}
 where $\m h\equiv\sum_{i,j} h_{ij} \op{i}{j}$ is a matrix of all
 couplings $h_{ij}$; the vector
 $\v h \equiv \sum_{i,j} h_{ij} \ket{i} = \sum_i h_i \ket{i}$ is the
-sum of all columns of $\m h$; and $\diag\v h$ is a matrix with $\v h$
+sum of all columns of $\m h$; and $\oper{diag}\v h$ is a matrix with $\v h$
 on the diagonal and zeroes everywhere else.  When the interaction
 Hamiltonian $H_0$ is translationally invariant, the single-body
 eigenvalue problem in \eqref{eq:single_body_eig} is solvable
 analytically.  In this case, the couplings $h_{ij}$ depend only on the
-separation $\abs{i-j}$, so eigenvectors of $\m h$ are therefore plane
-waves of the form
+separation $\abs{i-j}$, so eigenvectors of $\m h$ are plane waves of
+the form
 \begin{align}
   \m w_k \equiv \sum_{d\in\ZZ_L^D} e^{\i d\c k} \ket{d},
 \end{align}
@@ -889,11 +969,11 @@ $\m h$ can be determined by expanding
 \end{align}
 where the imaginary contributions vanish in the sum over $d$ because
 $h_{0,d}=h_{0,-d}$.  The remainder of \eqref{eq:single_body_eig} that
-we need to sort out is $\diag\v h$, where all
+we need to sort out is $\oper{diag}\v h$, where all
 $h_i = \sum_{i,j}h_{ij} = \sum_d h_{0,d}$ are equal, which implies
-that $\diag\v h = \sum_d h_{0,d}$ is a scalar.  We thus find that
+that $\oper{diag}\v h = \sum_d h_{0,d}$ is a scalar.  We thus find that
 \begin{align}
-  \p{\m h - \diag\v h} \c \m w_k = \Delta_k \m w_k,
+  \p{\m h - \oper{diag}\v h} \c \m w_k = \Delta_k \m w_k,
   &&
   \Delta_k \equiv \sum_{d\in\ZZ_L^D} h_{0,d} \sp{\cos\p{d\c k}-1}.
 \end{align}
@@ -1063,7 +1143,7 @@ $h^{\t{D}}_k=h_k$, so
 \begin{align}
   \hat{\m h} \stackrel{M=1}{=} \sum_{k\in\ZZ_N} \ket{k}
   \sp{\sum_{i\in\ZZ_N} h_{ik} \bra{i} - h_k \bra{k}}
-  = \m h - \diag\v h,
+  = \m h - \oper{diag}\v h,
 \end{align}
 which is precisely what we found in \eqref{eq:single_body_eig}.  If
 $M=2$, then $h_{k\ell}^{\t{D}}=h_k+h_\ell-h_{k\ell}$, so
@@ -1882,3 +1962,8 @@ is a falling factorial.
 \bibliography{\jobname.bib}
 
 \end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
