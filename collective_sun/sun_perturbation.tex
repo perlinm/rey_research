@@ -96,8 +96,11 @@
 
 % for energy diagrams, etc.
 \usepackage{tikz}
-\usetikzlibrary{arrows,math}
+\usetikzlibrary{arrows,math,calc}
 \tikzstyle{every picture}+=[remember picture]
+\tikzset{
+    thickest/.style={line width=3pt}
+}
 
 %%% text markup
 \usepackage{color} % text color
@@ -506,119 +509,124 @@ in the derivation of an effective ground-state Hamiltonian, we can
 perform numerical simulations in the joint Hilbert space of both
 ground and excited states.  When the perturbation $\O\p{\m w,X}$ is
 small, namely with operator norm
-$\norm{\O\p{\m w,X}}<\Delta_{\t{gap}}/2$, performing such simulations
-with an appropriate choice of excited states is equivalent to
-high-order ground-state perturbation theory.  The corresponding order
-of perturbation theory is determined by the choice of excited states
-in a manner that will be clarified below.  Moreover, the first-class
-treatment of excited states enables simulating the dynamics induced by
+$\norm{\O\p{\m w,X}}<\Delta_{\t{gap}}/2$, such simulations are
+equivalent (up to perturbative corrections) to a higher-order
+perturbation theory.  Moreover, the first-class treatment of excited
+states in finite systems enables simulating the dynamics induced by
 {\it non-perturbative} additions $\O\p{\m w,X}$ to the base
-Hamiltonian $H_0$ in finite systems.
+Hamiltonian $H_0$.
 
 In order to simulate dynamics within excited-state manifolds, we first
 need to classify the set of excited states in order to construct a
-suitable basis.  In the case of SU(2), a good starting point is to
-identify states with definite (non-negative) spin length
-$S=\set{N/2,N/2-1,\cdots}$, and spin projection
+suitable basis.  In the case of SU(2), a common starting point is to
+identify states with a definite (non-negative) spin length
+$S=\set{N/2,N/2-1,\cdots}$, and a spin projection
 $m_\z\in\set{S,S-1,\cdots,-S}$ onto a quantization axis.  To
 generalize this classification to SU($n$), we denote the manifold of
 states with definite fixed spin length $S$ by $\M_{N/2-S}$.  The PS
 manifold of Dicke states with $S=N/2$ is then $\M_0$, the manifold of
 single-magnon spin-wave states with $S=N/2-1$ is $\M_1$, and more
 generally the manifold of $r$-magnon states with $S=N/2-r$ is $\M_r$.
-Similarly, rather than the spin projection $m_\z$ we identify states
-by labels $m=\p{m_\up,m_\dn}$ in which $m_\mu$ denotes the occupation
-number of the single-spin state $\mu$, with $m_\up-m_\dn=m_\z$ and
-$m_\up+m_\dn=N$.
+Rather than the spin projection $m_\z$ we then identify states by
+labels $m=\p{m_\up,m_\dn}\in\A_2\p{N}$ in which $m_\mu$ denotes the
+occupation number of the single-spin state $\mu$, with
+$m_\up-m_\dn=m_\z$ and $m_\up+m_\dn=N$.
 
 The label $m$ suffices to identify the PS (Dicke) manifold
-$\M_0=\oper{span}\set{\ket{m}}$, but we need additional labels to
-uniquely identify states in the $r$-magnon manifold $\M_r$ with $r>0$.
-Single-magnon ($r=1$) spin-wave states of SU(2) spin systems can be
-written in the form $\ket{m,\m v}\equiv\O\p{\m v,\sigma_\z}\ket{m}$,
-where $\m v=\p{v_1,v_2,\cdots,v_N}$ and $\sigma_\z$ is a Pauli-$z$
-operator.  If an SU(2) spin system is translationally invariant, then
-its spin-wave eigenstates have $v_j=e^{\i k_{\m v}\c j}/\sqrt{N}$ with
+$\M_0=\oper{span}\set{\ket{m}:m\in\A_2\p{N}}$, but we need additional
+labels to uniquely identify states in the $r$-magnon manifold $\M_r$
+with $r>0$.  Single-magnon ($r=1$) spin-wave states of SU(2) spin
+systems can be written in the form
+\begin{align}
+  \ket{m,\m v} \equiv \O\p{\m v,\sigma_\z} \ket{m}
+  = \sum_j v_j \sigma_\z^{(j)} \ket{m},
+\end{align}
+where each $v_j$ is a scalar and $\sigma_\z$ is a Pauli-$z$ operator.
+If an SU(2) spin system is translationally invariant, then these
+spin-wave eigenstates have $v_j=e^{\i k_{\m v}\c j}/\sqrt{N}$ with
 wavenumber $k_{\m v}\ne0$.  Similarly, $r$-magnon states for SU(2)
 take the form
 $\ket{m,\m v}\equiv\O\p{\m v,\sigma_\z^{\otimes r}}\ket{m}$, where now
-$\m v$ is an $r$-index tensor that encodes spatial structure and
+$\m v$ is an $r$-index tensor that encodes the structure of
 correlations in the excited state $\ket{m,\m v}$ (see Figure
-\ref{fig:pair_structure}).
+\ref{fig:structure}).  Note that $M$-body operators will generally
+couple the PS manifold $\M_0$ to all $r$-magnon manifolds $\M_r$ with
+$r\le M$ (see Figure \ref{fig:manifold_sketch}).  To generalize the
+notion of $r$-magnon manifolds $\M_r$ to the case of SU($n$), where
+there is no obvious notion of a spin length $S$, we therefore define
+$\M_r$ for $r>0$ as the manifold of states that (i) can be generated
+by the action of $r$-body operators on $\M_0$, and (ii) are orthogonal
+to all states in $\bigoplus_{s<r}\M_s$.
 
 \begin{figure}
   \centering
-  \includegraphics{pair_structure/pair_L16_A3_s1.pdf}
-  \includegraphics{pair_structure/pair_L16_A3_s2.pdf}
-  \includegraphics{pair_structure/pair_L16_A3_s3.pdf} \\[1em]
-  \includegraphics{pair_structure/pair_L16_A3_s4.pdf}
-  \includegraphics{pair_structure/pair_L16_A3_s5.pdf}
-  \includegraphics{pair_structure/pair_L16_A3_s6.pdf}
-  \includegraphics{pair_structure/pair_L16_A3_s7.pdf}
-  \caption{Matrices $\m v_\Delta=\sum_{i,j}v^{(\Delta)}_{ij}\op{i}{j}$
-    that generate two-magnon states
-    $\ket{\m v_\Delta,m} \equiv \O\p{\m v_\Delta,
-      \sigma_\z\otimes\sigma_\z} \ket{m}$ with definite excitation
-    energy $\Delta$ in a periodic 1D chain of $N=16$ spins with
-    power-law SU(2) couplings $h_{ij}=-1/\oper{dist}\p{i,j}^3$, where
-    $\oper{dist}\p{i,j}\equiv\min\p{\abs{i-j},N-\abs{i-j}}$.  Darker
-    colors correspond to larger values of $\abs*{v^{(\Delta)}_{ij}}$,
-    and a blue (red) color corresponds to a positive (negative) sign
-    of $v^{(\Delta)}_{ij}$.  In the case of SU($n$) with $n>2$, the
-    ``two-magnon'' excitation energies $\Delta$ and matrices
-    $\m v_\Delta$ remain identical, but now correspond to a degenerate
-    set of states that generated by different choice of two-body
-    operators in place of $\sigma_\z\otimes\sigma_\z$.}
-  \label{fig:pair_structure}
+  \includegraphics{structure/mat_L101_a2.pdf}
+  \caption{Visualizations of dimension-$r$ tensors $\m v$ that
+    generate the lowest-lying $r$-magnon states
+    $\ket{\m v,m} \equiv \O\p{\m v, \sigma_\z^{\otimes{r}}} \ket{m}$
+    with definite excitation energy $\Delta$ above the PS manifold
+    $\M_0$ of a periodic 1D lattice of $N=101$ spins interacting via
+    the SU(2)-symmetric Hamiltonian in \eqref{eq:H_SU2} with power-law
+    couplings $h_{ij}=-1/\oper{dist}\p{i,j}^2$.  Here
+    $\oper{dist}\p{i,j}\equiv\min\p{\abs{i-j},N-\abs{i-j}}$ is the
+    minimal distance between spins $i,j$ on a periodic 1D lattice.
+    Top row ($r=2$) shows the full 2D matrix
+    $\m v = \sum_{i,j}v_{ij}\op{i}{j}$, and bottom row ($r=3$) shows a
+    single 2D slice of the full 3D tensor,
+    $\tilde{\m v}_0 = \sum_{i,j}v_{ij,0}\op{i}{j}$.  Blue (red) pixels
+    correspond to matrix elements with a positive (negative) sign, and
+    darker colors indicate larger absolute values.  In the case of
+    $r=2$, translational invariance enforces $v_{ij}=v_{i-d,j-d}$ for
+    all displacements $d$, so every row of $\m v$ is some translation
+    of a single (arbitrary) row.  Similarly, when $r=3$ every 2D slice
+    of the full 3D tensor can be obtained by appropriately translating
+    the 2D slice $\tilde{\m v}_0$ shown above.  In the case of SU($n$)
+    with $n>2$, the ``$r$-magnon'' excitation energies $\Delta$ and
+    tensors $\m v$ remain identical, but now correspond to a
+    degenerate set of states that are generated by different choices
+    of $r$-body operators in place of $\sigma_\z^{\otimes r}$.}
+  \label{fig:structure}
 \end{figure}
-
-
-\red{[note: this section is not yet finished]}
-
-% todo: give examples of these manifolds in SU(2)
-% todo: clarify connection between multi-body excitation manifolds
-%       and manifolds of fixed total spin in the SU(2) case
-
-\newpage
-
-\red{[note: text below is old and unsimplified]}
-
-We denote the manifold of all states that can be generated by the
-action of some $M$-body operator, but not any $r$-body operator with
-$r<M$, by $\M_M$; we will refer to $\M_M$ as the $M$-body excitation
-manifold.  We then denote the a direct sum of all $\M_r$ for $r\le M$
-by $\col\M_M$, i.e.~$\col\M_M\equiv\bigoplus_{r\le M}\M_r$.  The
-manifold $\col\M_M$ consists of all states accessible by the action of
-$r$-body operators with $r\le M$ on PS states in $\M_0$.  These
-definitions are sketched out in Figure \ref{fig:manifold_sketch}.
 
 \begin{figure}
   \centering
   \begin{tikzpicture}
-    \draw[ultra thick] (0,0) -- node[above] {$\M_0$} ++(10em,0);
-    \draw[ultra thick] (0,3em) -- node[above] {$\M_1$} ++(10em,0);
-    \draw[ultra thick] (0,2*3em) -- node[above] {$\M_2$} ++(10em,0);
-    \draw[->] (-.2em,0) to [bend left] (-.2em,3em);
-    \node (X) at (.2em,0.5*3em) {$\hat\O_1$};
-    \draw[->] (-.4em,0) to [bend left] (-.2em,2*3em);
-    \node (XY) at (-2em,3em) {$\hat\O_2$};
-    \draw (10em+.2em,-.2em) -- (10em+.4em,-.2em)
-    -- (10em+.4em,3em+.2em) -- (10em+.2em,3em+.2em);
-    \node (cM1) at (10em+1.5em,0.5*3em) {$\col\M_1$};
-    \draw (10em+2.4em+.2em,-.4em) -- (10em+2.4em+.4em,-.4em)
-    -- (10em+2.4em+.4em,6em+.4em) -- (10em+2.4em+.2em,6em+.4em);
-    \node (cM1) at (10em+2.4em+1.5em,3em) {$\col\M_2$};
+    \draw[thickest] (0,0) -- ++(10em,0);
+    \foreach \hh in {0.15em,0.05em,-0.05em,-0.15em} {
+      \draw (0,3em+\hh) -- ++(10em,0);
+    }
+    \draw[->] (7em,.25em) arc (220:0:.4em);
+    \draw[->] (7em,.25em) to [bend left]
+    node[left] {$\O\p{\m v,\sigma_\z}$} (7em,2.7em);
+    \node () at (5em,4.7em) {$\vdots$};
+    \foreach \hh in {0.25em,0.15em,0.05em,-0.05em,-0.15em,-0.25em} {
+      \draw (0,6em+\hh) -- ++(10em,0);
+    }
+    \draw[->] (-.4em,0em) arc (220:0:.4em);
+    \draw[->] (-.4em,0) to [bend left, in=130] (-.2em,3em);
+    \draw[->] (-.4em,0) to [bend left, in=130] (-.2em,4.3em);
+    \draw[->] (-.4em,0) to [bend left, in=130]
+    node[left] {$\O\p{\m w,\sigma_\z^{\otimes M}}$} (-.2em,6em);
+    \node[right] () at (10em,0) {$\M_0,S=\frac{N}{2}$};
+    \node[right] () at (10em,3em) {$\M_1,S=\frac{N}{2}-1$};
+    \node[right] () at (10em,6em) {$\M_M,S=\frac{N}{2}-M$};
   \end{tikzpicture}
-  \caption{Schematic of low-lying multi-body excitation manifolds.
-    Starting with the permutationally-state manifold $\M_0$, the
-    single-body excitation manifold $\M_1$ consists of states
-    accessible via single-body perturbations $\hat\O_1$.  The two-body
-    excitation manifold $\hat\O_2$ then consists of states accessible
-    via two-body perturbations, but not single-body perturbations.
-    The joint manifold $\col\M_M$ consists of all states accessible by
-    operators $r$-body operators $\O_r$ with $r\le M$.}
+  \caption{Schematic of relationships between $r$-magnon manifolds
+    $\M_r$ with total spin $S=N/2-r$ in an SU(2) spin system.
+    Single-body operators $\O\p{\m v,\sigma_\z}$ generally couple the
+    ground-state manifold $\M_0$ to the single-magnon manifold $\M_1$
+    as well as $\M_0$ itself, while $M$-body operators
+    $\O\p{\m w,\sigma_\z^{\otimes M}}$ couple $\M_0$ to all $r$-magnon
+    manifolds $\M_r$ with $r\le M$.}
   \label{fig:manifold_sketch}
 \end{figure}
+
+\red{[note: this section is not yet finished]}
+
+\newpage
+
+\red{[note: the remainder of this section is old, and will be replaced
+  entirely]}
 
 By construction, the $M$-body operator $X_{\m w}$ generally couples PS
 states in $\M_0$ to asymmetric states in $\col\M_M$.  If the coupling
@@ -751,65 +759,64 @@ to be orthogonal.
 \red{[todo: make this a subsection of Appendix
   \ref{sec:single_body_eigenstates}]}
 
-Here we show that power-law SU($n$)-symmetric interactions of the form
-in \eqref{eq:H_0} with $h_{ij}=-h/\abs{i-j}^\alpha$ yield a
-non-vanishing many-body interaction energy gap when $\alpha\le D$,
-where $D$ is the dimension of the lattice.  On a periodic lattice of
-$N=L^D$ spins, the spectral gap of the interaction Hamiltonian is (see
-Appendix \ref{sec:single_body_eigenstates})
+Here we show that in $D$ spatial dimensions, power-law
+SU($n$)-symmetric interactions of the form in \eqref{eq:H_0} with
+$h_{ij}=-1/\abs{i-j}^\alpha$ yield a non-vanishing spectral gap when
+$\alpha\le D$.  For definiteness, we will consider a periodic
+hypercubic lattice of $N=L^D$ spins.  The spectral gap of the
+interaction Hamiltonian is then (see Appendix
+\ref{sec:single_body_eigenstates})
 \begin{align}
   \Delta
   = \sum_{d\in\ZZ_L^D} h_{0,d} \sp{\cos\p{d \c k_{\t{SE}}}-1}
-  = h \sum_{\substack{d\in\ZZ_L^D\\\abs{d}\ge1}}
+  = \sum_{\substack{d\in\ZZ_L^D\\\abs{d}\ge1}}
   \f{1-\cos\p{d \c k_{\t{SE}}}}{\abs{d}^\alpha},
 \end{align}
-where $\ZZ_L$ denotes the integers modulo $L$;
-$k_{\t{SE}}\in\ZZ_L^D\times2\pi/L$ is a wavenumber for a
-singly-excited spin-wave state; and the norm $\abs{d}$ for a vector
-$d$ on a periodic lattice is implicitly understood to mean the
-smallest Euclidean distance of $d$ from a fixed origin.  In order to
-yield the smallest excitation energy $\Delta$, the wavenumber
-$k_{\t{SE}}$ should maximize the contribution of the cosine term
-above, which is achieved by a wavenumber that minimizes the
-oscillations of this term when integrated over the entire lattice.  A
-suitable candidate for a minimal wavenumber is
-$k_{\t{SE}}=\p{2\pi/L,0,0,\cdots}$, which corresponds to an excitation
-energy
+where $\ZZ_L$ denotes the set of integers modulo $L$;
+$k_{\t{SE}}\in\ZZ_L^D\times2\pi/L$ is a wavenumber for a single-magnon
+spin-wave state; and the norm $\abs{d}$ for a vector $d$ on a periodic
+lattice is implicitly understood to mean the smallest Euclidean
+distance of $d$ from a fixed origin.  In order to yield the smallest
+excitation energy $\Delta$, the wavenumber $k_{\t{SE}}$ should
+maximize the contribution of the cosine term above, which is achieved
+by a wavenumber that minimizes the oscillations of this term when
+integrated over the entire lattice.  A suitable candidate for a
+minimal wavenumber is $k_{\t{SE}}=\p{2\pi/L,0,0,\cdots}$, which
+corresponds to an excitation energy
 \begin{align}
-  \Delta = h \sum_{\substack{d\in\ZZ_L^D\\\abs{d}\ge1}}
+  \Delta = \sum_{\substack{d\in\ZZ_L^D\\\abs{d}\ge1}}
   \f{1-\cos\p{d_12\pi/L}}{\abs{d}^\alpha}.
 \end{align}
 Defining $\epsilon\equiv2/L$ and a rescaled domain symmetrized about
 $0$, $\SS_\epsilon\simeq\ZZ_L/\epsilon$ with
 $\SS_\epsilon\subset\sp{-1,1}$, we substitute $x\simeq\epsilon d$ to
 get
-% todo: define \simeq ?
 \begin{align}
   \Delta
-  = h \sum_{\substack{x\in\SS_\epsilon^D\\\abs{x}\ge\epsilon}}
+  = \sum_{\substack{x\in\SS_\epsilon^D\\\abs{x}\ge\epsilon}}
   \f{1-\cos\p{\pi x_1}}{\abs{x/\epsilon}^\alpha}
-  = h \epsilon^{\alpha-D} \sum_{\substack{x\in\SS_L^D\\\abs{x}\ge\epsilon}}
+  = \epsilon^{\alpha-D} \sum_{\substack{x\in\SS_L^D\\\abs{x}\ge\epsilon}}
   \epsilon^D \f{1-\cos\p{\pi x_1}}{\abs{x}^\alpha}.
 \end{align}
 As $\epsilon\to0$ the discrete sum over $x$ is well approximated by an
 integral that avoids an infinitesimal region about the origin, i.e.
 \begin{align}
-  \Delta = h \epsilon^{\alpha-D} \I_D\p{\epsilon},
+  \Delta = \epsilon^{\alpha-D} \I_D\p{\epsilon},
   &&
   \I_D\p{\epsilon}
   \equiv \int_{\TT_1^D\setminus\TT_\epsilon^D} \d^Dx\,
   \f{1-\cos\p{\pi x_1}}{\abs{x}^\alpha},
 \end{align}
-where the integral $\I_D\p{\epsilon}$ is defined using the interval
-$\TT_a\equiv\p{-a,a}$.  The integrand of $\I_D\p{\epsilon}$ is
-strictly positive and well-behaved on the entirety of its domain
-except for the origin, where depending on the value of $\alpha$ the
-integrand may vanish or diverge as $\abs{x}\to0$.  Together, these
-facts mean that
+where the integral $\I_D\p{\epsilon}$ is defined using the symmetric
+interval $\TT_a\equiv\p{-a/2,a/2}$.  The integrand of
+$\I_D\p{\epsilon}$ is strictly positive and well-behaved on the
+entirety of its domain except for the origin, where depending on the
+value of $\alpha$ the integrand may vanish or diverge as
+$\abs{x}\to0$.  Together, these facts mean that
 \begin{align}
   \I_D\p{\epsilon} \stackrel{\epsilon\to0}{\sim} \epsilon^{-\gamma},
   &&
-  \Delta \stackrel{\epsilon\to0}{\sim} h \epsilon^{\alpha-D-\gamma},
+  \Delta \stackrel{\epsilon\to0}{\sim} \epsilon^{\alpha-D-\gamma},
 \end{align}
 for some $\gamma\ge0$, which implies that gap $\Delta$ is
 non-vanishing when $\alpha\le D\le D+\gamma$.
@@ -988,12 +995,12 @@ We now consider the full $M$-body case
   h_{ij} w_k \Pi_{ij} X_k \ket\psi,
   \label{eq:diagnosis_start}
 \end{align}
-where
+where for convenience we define
 \begin{align}
   \C_N\p{q} \equiv \set{ s \subset \ZZ_N : \abs{s} = q }
   \label{eq:choices}
 \end{align}
-is the set of all subsets (``choices'') of $q$ elements from $\ZZ_N$.
+as the set of all subsets (``choices'') of $q$ elements from $\ZZ_N$.
 The sum in \eqref{eq:diagnosis_start} has terms with $i,j\notin k$,
 terms with $i,j\in k$, and terms with only one of $i$ or $j\in k$.
 The permutation operator $\Pi_{ij}$ acts trivially on $X_k\ket\psi$
@@ -1182,13 +1189,12 @@ in \eqref{eq:multi_body_problem} in a basis that respects the spatial
 symmetries of $H_0$.  These symmetries essentially break the set
 $\D_N\p{M}$ into equivalence classes $\S_M$\footnote{For brevity, we
   will suppress the explicit dependence of $\S_M$ on $N$, as well as
-  the dependence of $\S_M$ on any other factors such as lattice
-  geometry.}, where elements $s\in\S_M$ are subsets
-$s\subset\D_N\p{M}$ that are invariant under the appropriate symmetry
-group action.  In the case of $M=2$ in a translationally invariant and
-isotropic system, for example, each equivalence class $s\in\S_2$ would
-consist of all pairs $\p{i,j}\in\D_N\p{2}$ that are a fixed distance
-$\abs{i-j}=d_s$ apart,
+  other factors such as lattice geometry.}, where elements $s\in\S_M$
+are subsets $s\subset\D_N\p{M}$ that are invariant under the
+appropriate symmetry group action.  In the case of $M=2$ in a
+translationally invariant and isotropic system, for example, each
+equivalence class $s\in\S_2$ would consist of all pairs
+$\p{i,j}\in\D_N\p{2}$ that are a fixed distance $\abs{i-j}=d_s$ apart,
 i.e.~$s=\set{\p{i,j}\in\D_N\p{2}:\abs{i-j}=d_s}$.  If the tensor
 $\m w$ is invariant under arbitrary permutations of its tensor
 factors, this symmetry is preserved by $\hat{\m h}$, and we can place
@@ -1213,9 +1219,10 @@ $\m w=\sum_{k\in\D_N\p{M}}w_k\ket{k}$ in this symmetrized basis:
   = \sum_{s\in\S_M} \sum_{k\in s} w_k \ket{s} \bk{s|k}
   = \sum_{s\in\S_M} w_s \sqrt{\abs{s}} \ket{s},
 \end{align}
-where all $w_k$ with $k\in s$ are equal by assumption, so we can
-define $w_s\equiv w_k$ for any $k\in s$.  Finally, we expand the
-projection of $\hat{\m h}$ onto the symmetric subspace:
+where all $w_k$ with $k\in s$ are equal by assumption, so
+$w_s\equiv\sum_{k\in s}w_k/\abs{s}=w_\ell$ for any $\ell\in s$.
+Finally, we expand the projection of $\hat{\m h}$ onto the symmetric
+subspace:
 \begin{align}
   \P_{\S_M} \hat{\m h} \P_{\S_M}
   = \sum_{s\in\S_M} \f{\ket{s}}{\sqrt{\abs{s}}} \sp{
@@ -1246,7 +1253,7 @@ reduction to future work.  % todo: perform reduction
 \red{[TODO: write introductory text for this section]}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{The general case: a diagrammatic expansion}
+\subsection{A diagrammatic expansion}
 
 Given a system of $N$ spins, we wish to project a product of
 multi-body operators onto the permutationally symmetric (PS) manifold

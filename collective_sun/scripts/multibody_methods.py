@@ -318,7 +318,7 @@ def multibody_problem(lattice_shape, sun_coefs, dimension, TI = None, isotropic 
 #     (2) energies of each shell, and
 #     (4) tensors that generate states in that shell
 def get_multibody_states(lattice_shape, sun_coefs, manifolds, TI, isotropic = None,
-                         updates = True):
+                         updates = True, shell_cutoff = None):
     site_num = sun_coefs.shape[0]
 
     if type(manifolds) is int:
@@ -362,6 +362,8 @@ def get_multibody_states(lattice_shape, sun_coefs, manifolds, TI, isotropic = No
             if updates:
                 print("  shells:", shell_num)
                 sys.stdout.flush()
+            if shell_cutoff and shell_num - old_shell_num == shell_cutoff:
+                break
 
         manifold_shells[manifold] = np.array(range(old_shell_num,shell_num), dtype = int)
 
