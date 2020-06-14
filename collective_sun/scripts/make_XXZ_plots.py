@@ -673,7 +673,7 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha 
                           verticalalignment = "center" )
         plt.text(0, 30, "collective", color = "black", **text_args)
         plt.text(-2, 20, "Ising", color = "white", **text_args)
-        plt.text(1.8, 30, "Ising", color = "white", **text_args)
+        plt.text(1.6, 20, "Ising", color = "white", **text_args)
 
     plt.tight_layout(pad = 0.1)
     plt.savefig(fig_dir + f"size_scaling_D{dim}_a{alpha}.pdf")
