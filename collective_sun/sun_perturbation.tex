@@ -652,18 +652,17 @@ $\sum_\mu z_\mu=r$ to define the $r$-spin operator
   \underbrace{Z_n \otimes \cdots \otimes Z_n}_{z_n~\t{times}}.
 \end{align}
 Our starting basis for $\M_r$ then consists of states
-$\ket{m,\m w,z}\equiv\O\p{\m w,X_z}\ket{m}$, where we enforce that
+$\ket{m,\m w,X_z}\equiv\O\p{\m w,X_z}\ket{m}$, where we enforce that
 $z_\nu\le m_\nu$ for all $\nu$ (where $m_\nu$ is the occupation number
 of the single-spin state $\nu$), and that $z$ is zero in an entry
 where $m$ is maximal: $z_\nu=0$ for
 $\nu=\min\set{\mu:m_\mu=\max\p{m}}$.  This second restriction is
 equivalent to removing an operator from $\set{Z_\nu:\nu\in\ZZ_n}$,
 making the remaining set linearly independent of the identity
-operator.  The basis $\set{\ket{m,\m w,z}}$ for $\M_r$ is generally
-complete, but {\it not} orthonormal, so as a final step we construct
-an orthonormal basis $\set{\ket{m,\m w,X}}$, where for operators $X$
-we define $\ket{m,\m w,X}\equiv\O\p{\m w,X}\ket{m}$ (see Appendix
-\ref{sec:operator_content}).
+operator.  The basis $\set{\ket{m,\m w,X_z}}$ for $\M_r$ is generally
+complete, but not orthonormal, so as a final step we use the states
+$\ket{m,\m w,X_z}$ to (numerically) construct an orthonormal basis
+$\B_r$ for $\M_r$ (see Appendix \ref{sec:operator_content}).
 
 
 
@@ -1416,18 +1415,20 @@ that $z_\nu\le m_\nu$ for all $\nu$, enforcing that $z$ is zero at an
 entry where $m$ is maximal maximizes the number of candidate values of
 $z$ that we eliminate from consideration.
 
-The above restrictions on $z$ do not {\it guarantee} that
-$\ket{m,\m w,z}\ne0$, or that the restricted basis
-$\set{\ket{m,\m w,z}}$ for $\M_r$ will not be overcomplete.
-Furthermore, this restricted basis is not orthogonal, which is to say
-that generally $\bk{m,\m v,y|m,\m w,z}\ne0$ even when $y\ne z$.  In
-order to construct an orthonormal basis for $\M_r$, we therefore need
-to build a matrix $B_m$ with matrix elements
+While the above restrictions on $z$ eliminate some trivial and
+redundant states from the basis $\set{\ket{m,\m w,z}}$ for $\M_r$,
+they do not guarantee that there will be {\it no} trivial states or
+redundancies left over.  Furthermore, even after restrictions the
+remaining basis is not orthogonal, which is to say that generally
+$\bk{m,\m v,y|m,\m w,z}\ne0$ even when $y\ne z$.  In order to
+construct an orthonormal basis for $\M_r$, we therefore need to build
+a matrix $B_m$ with matrix elements
 \begin{align}
-  B_m\p{\m v,y;\m w,z} \equiv \bk{m,\m v,y|m,\m w,z},
+  B_m\p{\m v,y;\m w,z} \equiv \bk{m,\m v,y|m,\m w,z}
+  = \bk{m| \O\p{\m v,X_y}^\dag \O\p{\m w,X_z} |m},
 \end{align}
-where $y,z$ satisfy the restrictions outlined above, and $\m v,\m w$
-are chosen from the set of tensors that generate eigenstates of $H_0$.
+where $y,z$ satisfy appropriate restrictions, and $\m v,\m w$ are
+chosen from the set of tensors that generate eigenstates of $H_0$.
 Eigenvectors of $B_m$ are then mutually orthogonal vectors of the form
 $\sum_{\m w,z}c_{\m w z}\ket{m,\m w,z}$, whose squared norms are equal
 to their corresponding eigenvalues.  Note that the matrix $B_m$ has a
