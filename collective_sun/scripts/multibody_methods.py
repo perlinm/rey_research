@@ -375,9 +375,10 @@ def get_multibody_states(lattice_shape, sun_coefs, manifolds, TI, isotropic = No
 ##########################################################################################
 
 # build a fully symmetric state labelled by occupation number
-def sym_state(occupations, site_num, site_dim = 2, normalize = True, sparse = False):
+def sym_state(occupations, site_num, normalize = True, sparse = False):
     if type(occupations) is int:
         occupations = (occupations,site_num-occupations)
+    site_dim = len(occupations)
     labels = [ [mm]*pop for mm, pop in enumerate(occupations) ]
     labels = np.concatenate(labels).astype(int)
     def _base_state(label):
