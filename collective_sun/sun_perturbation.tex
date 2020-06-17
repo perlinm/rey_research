@@ -58,8 +58,10 @@
 \renewcommand{\O}{\mathcal{O}}
 \renewcommand{\P}{\mathcal{P}}
 \newcommand{\Q}{\mathcal{Q}}
+\newcommand{\R}{\mathcal{R}}
 \renewcommand{\S}{\mathcal{S}}
 \newcommand{\T}{\mathcal{T}}
+\newcommand{\Z}{\mathcal{Z}}
 
 \newcommand{\PP}{\mathbb{P}}
 \renewcommand{\SS}{\mathbb{S}}
@@ -184,7 +186,7 @@ terms).  The restriction of our theory to ferromagnetic interactions
 can be relaxed to the assumption of
 \begin{enumerate*}
 \item an initial state in the manifold of permutationally-symmetric
-  states, a multi-level generalization of the Dicke manifold for
+  states, a multilevel generalization of the Dicke manifold for
   two-level spins, together with the assumption that
 \item this manifold is gapped away from states that break
   permutational symmetry.
@@ -302,7 +304,7 @@ In the case of SU(2), the PS manifold $\M_0$ is precisely the {\it
 definite (integer) number $m_\mu\ge0$ of spins occupying the
 single-spin state $\mu\in\set{\up,\dn}$.  If there are $N$ spins
 total, then Dicke states $\ket{m_\up,m_\dn}$ must have
-$m_\up+m_\dn=N$.  In the case of multi-level spins, the PS manifold
+$m_\up+m_\dn=N$.  In the case of multilevel spins, the PS manifold
 $\M_0$ is similarly spanned by states
 $\ket{m}=\ket{m_1,m_2,\cdots,m_n}$ with a definite occupation number
 $m_\mu\ge0$ of the single-spin state $\mu$, and $\sum_\mu m_\mu=N$.
@@ -539,7 +541,7 @@ $m_\up+m_\dn=N$ and $m_\up-m_\dn=m_\z$.
     generate the lowest-lying (unnormalized) $r$-magnon states
     $\ket{\m w,m} \equiv \O\p{\m w, \sigma_\z^{\otimes{r}}} \ket{m}$
     with definite excitation energy $\Delta$ above the PS manifold
-    $\M_0$ of a periodic 1D lattice of $N=101$ spins interacting via
+    $\M_0$ in a periodic 1D lattice of $N=101$ spins interacting via
     the SU(2)-symmetric Hamiltonian in \eqref{eq:H_SU2} with power-law
     couplings $h_{ij}=-1/\oper{dist}\p{i,j}^2$.  Here
     $\oper{dist}\p{i,j}\equiv\min\p{\abs{i-j},N-\abs{i-j}}$ is the
@@ -633,27 +635,38 @@ complication of having to choose $r$-spin operators, $X$.  As with the
 choice of $\sigma_\z^{\otimes r}$ for SU(2), it suffices to choose
 tensor products of {\it diagonal} single-spin operators (that is,
 diagonal in a fixed single-particle basis), but there will now be
-$\sim\p{n-1}^r$ distinct choices that generate degenerate, orthogonal
-states: one of $n-1$ diagonal operators (that are linearly independent
-of each other and the identity) for each of $r$ tensor factors.  We
-discuss the exact choice of operators in more detail in Appendix
-\ref{sec:operator_content}.  To summarize, for each PS state
-$\ket{m}$, we identify a basis $\set{Z_{m\nu}:\nu\in\ZZ_{n-1}}$ of
-single-spin operators that are diagonal and linearly independent of
-the identity, and choose a list of integers
-$z\equiv\p{z_1,z_2,\cdots,z_{n-1}}\in\A_{n-1}\p{r}$ to define the
-$r$-spin operator
+$\sim\p{n-1}^r$ choices: one of $n-1$ diagonal operators (that are
+linearly independent of the identity) for each of $r$ tensor factors.
+We discuss the exact choice of operators in more detail in Appendix
+\ref{sec:operator_content}.  To summarize, we define $n$ single-spin
+operators $Z_\nu\equiv1-2\op\nu=\sum_{\mu\ne\nu}\op\mu-\op\nu$, for
+which $Z_\nu=\pm\sigma_\z$ in the case of SU(2), and we choose a list
+of non-negative integers $z\equiv\p{z_1,z_2,\cdots,z_n}$ with
+$\sum_\mu z_\mu=r$ to define the $r$-spin operator
 \begin{align}
-  X_{mz} \equiv \bigotimes_{\nu=1}^{n-1} Z_{m\nu}^{\otimes z_\nu}
-  = \underbrace{Z_{m,1} \otimes \cdots \otimes Z_{m,1}}_{z_1~\t{times}}
+  X_z \equiv \bigotimes_{\nu=1}^n Z_\nu^{\otimes z_\nu}
+  = \underbrace{Z_1 \otimes \cdots \otimes Z_1}_{z_1~\t{times}}
   \otimes
-  \underbrace{Z_{m,2} \otimes \cdots \otimes Z_{m,2}}_{z_2~\t{times}}
+  \underbrace{Z_2 \otimes \cdots \otimes Z_2}_{z_2~\t{times}}
   \otimes \cdots \otimes
-  \underbrace{Z_{m,n-1} \otimes \cdots
-    \otimes Z_{m,n-1}}_{z_{n-1}~\t{times}}.
+  \underbrace{Z_n \otimes \cdots \otimes Z_n}_{z_n~\t{times}}.
 \end{align}
-Our basis for $\M_r$ then consists of the states
-$\ket{m,\m w,z}\equiv\O\p{\m w,X_{mz}}\ket{m}$.
+Our starting basis for $\M_r$ then consists of states
+$\ket{m,\m w,z}\equiv\O\p{\m w,X_z}\ket{m}$, where we enforce that
+$z_\nu\le m_\nu$ for all $\nu$ (where $m_\nu$ is the occupation number
+of the single-spin state $\nu$), and that $z$ is zero in an entry
+where $m$ is maximal: $z_\nu=0$ for
+$\nu=\min\set{\mu:m_\mu=\max\p{m}}$.  This second restriction is
+equivalent to removing an operator from $\set{Z_\nu:\nu\in\ZZ_n}$,
+making the remaining set linearly independent of the identity
+operator.  The basis $\set{\ket{m,\m w,z}}$ for $\M_r$ is generally
+complete, but {\it not} orthonormal, so as a final step we construct
+an orthonormal basis $\set{\ket{m,\m w,X}}$, where for operators $X$
+we define $\ket{m,\m w,X}\equiv\O\p{\m w,X}\ket{m}$ (see Appendix
+\ref{sec:operator_content}).
+
+
+
 
 \red{[todo: discuss the use of this basis in numerical simulations]}
 
@@ -1290,10 +1303,141 @@ reduction to future work.  % todo: perform reduction
 \subsection{Choosing the operator content}
 \label{sec:operator_content}
 
-\red{[todo: write section]}
+Throughout our construction of excitation energy eigenstates of the
+form $\O\p{\m w,X}\ket\psi$, where $\ket\psi\in\M_0$ is a PS state, we
+have thus far primarily considered the choice of scalar coefficients,
+$\m w$.  Here, we discuss the choice of operators, $X$, which allows
+us to construct a complete and convenient basis for the set of all
+excited states.  Our construction of a basis for the set of excited
+states begins with the standard basis $\set{\ket{m}:m\in\A_n\p{N}}$
+for the PS manifold $\M_0$, where $m\equiv\p{m_1,m_2,\cdots,m_n}$ and
+$m_\mu$ is the (integer) occupation number of the single-spin state
+$\mu$.  Written in the ``computational basis'' of $N$ multilevel
+spins, these states are
+\begin{align}
+  \ket{m} =
+  \f1{\sqrt{\C\p{m}}}
+  \sum_{\substack{\t{distinct}\\\t{permutations}\\\Pi~\t{of}~\tilde m}}
+  \Pi \ket{\tilde m},
+  &&
+  \ket{\tilde m} \equiv \bigotimes_\mu \ket{\mu}^{\otimes m_\mu},
+  \label{eq:pops_expansion}
+\end{align}
+where $\C\p{m}$ is a normalization factor equal to the number of terms
+in the sum.  The basic idea in constructing a basis for the set of
+excited states is to find a set of operators that give us control over
+the signs of the terms in the expansion above, which is sufficient
+control to generate {\it any} state that is consistent with the
+populations $m$.  Framing the problem of generating excited states as
+one of controlling signs in \eqref{eq:pops_expansion} makes it clear
+that we can freely restrict ourselves to considering only operators
+that are $\pm1$ on the diagonal (and zero elsewhere) in the
+computational basis.
+
+The set of all operators that are $\pm1$ on the diagonal (in the
+computational basis) is spanned by sums and tensor products of the
+single-spin operators
+$Z_\nu\equiv1-2\op\nu=\sum_{\mu\ne\nu}\op\mu-\op\nu$.  Given a list of
+non-negative integers $z\equiv\p{z_1,z_2,\cdots,z_n}$ with
+$\sum_\mu z_\mu=r$, we thus define the $r$-spin operator
+\begin{align}
+  X_z \equiv \bigotimes_\mu Z_\mu^{z_\mu},
+\end{align}
+and nominally use states of the form
+$\ket{m,\m w,z}=\O\p{\m w,X_z}\ket{m}$ as our basis for the $r$-magnon
+manifold $\M_r$.  There are three points to address concerning the
+states $\ket{m,\m w,z}$:
+\begin{enumerate*}
+\item depending on the value of $m$, some choices of $z$ result in
+  trivial states, $\ket{m,\m w,z}=0$;
+  \label{pt:trivial}
+\item the set of nontrivial states is generally overcomplete, in that
+  any given state can be written as a nontrivial linear combination of
+  others, and finally
+  \label{pt:dependent}
+\item even after identifying a linearly independent set of nontrivial
+  states, any given pair of states $\ket{m,\m w,y},\ket{m,\m w,z}$
+  with $y\ne z$ generally have a non-zero overlap, which is to say
+  that they are not orthogonal.
+  \label{pt:orthogonal}
+\end{enumerate*}
+To address the first two points, \ref{pt:trivial} and
+\ref{pt:dependent}, we will place restrictions on the values of $z$
+that we allow for any given $m$.  The last point, \ref{pt:orthogonal},
+will require us to construct a basis of orthonormal states numerically
+for any given values of $m,\m w$.
+
+First, we identify criteria under which we are guaranteed that
+$\ket{m,\m w,z}=0$.  We begin by assuming that $\ket{m,\m w,z}\in\M_r$
+with $\sum_\nu z_\nu=r$.  We then observe that if $z_\nu>m_\nu$, then
+$m_\nu-z_\nu$ factors of $Z_\nu$ in $X_z$ are ``wasted,'' in the sense
+that they never yield relative signs in different terms of $\ket{m}$
+when expressed in the computational basis, as in
+\eqref{eq:pops_expansion}.  More concretely, consider the individual
+terms of the expansion
+\begin{align}
+  \ket{m,\m w,z}
+  = \f1{\sqrt{\C\p{m}}}
+  \sum_{\substack{\t{distinct}\\\t{permutations}\\\Pi~\t{of}~\tilde m}}
+  \sum_{k\in\D_N\p{r}} w_k \sp{X_z}_k \Pi \ket{\tilde m},
+  \label{eq:excited_state_expansion}
+\end{align}
+where $\sp{X_z}_k$ denotes the action of $X_z$ on spins
+$k=\p{k_1,k_2,\cdots,k_r}$.  All terms in
+\eqref{eq:excited_state_expansion} have exactly $m_\nu$ spins in the
+state $\nu$.  For any fixed $k$, at least $m_\nu-z_\nu$ factors of
+$Z_\nu$ in $\sp{X_z}_k$ must therefore evaluate to $+1$.  We can
+eliminate these ``extra'' factors of $Z_\nu$ by replacing
+$m_\nu-z_\nu$ of the factors that evaluate to $+1$ by the identity
+operator.  Performing this replacement for all $\nu\in\ZZ_n$ yields a
+state $\ket{m,\m w_{mz},{\floor{z}_m}}=\ket{m,\m w,z}$, where
+$\floor{z}_m\equiv\p{\min\set{z_\nu,m_\nu}:\nu\in\ZZ_n}$ indexes the
+$q$-spin operator $X_{\floor{z}_m}$, and $\m w_{mz}$ is some new
+tensor of coefficients.  If $q<r$ (because $z_\nu>m_\nu$ for some
+$\nu$), then our initial assumption that $\ket{m,\m w,z}\in\M_r$
+implies that $\ket{m,\m w,z}=0$.  In other words, a nontrivial basis
+$\set{\ket{m,\m w,z}}$ for $\M_r$ must have $z_\nu\le m_\nu$ for all
+$\nu$.
+
+Next, we address the fact that the basis $\set{\ket{m,\m w,z}}$ for
+$\M_r$ is overcomplete.  This fact is a simple consequence of our
+choice of single-spin operators for the construction of
+$\ket{m,\m w,z}$, namely $\set{Z_\nu:\nu\in\ZZ_n}$.  In essence, our
+problem is the fact that $Z_\nu=\p{n-2}-\sum_{\mu\ne\nu}Z_\mu$, which
+implies that any state $\ket{m,\m w,z}\in\M_r$ can be written as a
+linear combination of states in which $z_\nu\to z_\nu-1$, and possibly
+$z_\mu\to z_\mu+1$ for some $\mu$.  We can eliminate this redundancy
+by removing an operator from the $\set{Z_\nu}$, or equivalently
+enforcing that $z_\nu=0$ for some $\nu$.  As a matter of choice, we
+therefore consider only states $\ket{m,\m w,z}$ for which $z$ is zero
+at the first entry where $m$ is maximal: $z_\nu=0$ for
+$\nu=\min\set{\mu:m_\mu=\max\p{m}}$.  Given our previous restriction
+that $z_\nu\le m_\nu$ for all $\nu$, enforcing that $z$ is zero at an
+entry where $m$ is maximal maximizes the number of candidate values of
+$z$ that we eliminate from consideration.
+
+The above restrictions on $z$ do not {\it guarantee} that
+$\ket{m,\m w,z}\ne0$, or that the restricted basis
+$\set{\ket{m,\m w,z}}$ for $\M_r$ will not be overcomplete.
+Furthermore, this restricted basis is not orthogonal, which is to say
+that generally $\bk{m,\m v,y|m,\m w,z}\ne0$ even when $y\ne z$.  In
+order to construct an orthonormal basis for $\M_r$, we therefore need
+to build a matrix $B_m$ with matrix elements
+\begin{align}
+  B_m\p{\m v,y;\m w,z} \equiv \bk{m,\m v,y|m,\m w,z},
+\end{align}
+where $y,z$ satisfy the restrictions outlined above, and $\m v,\m w$
+are chosen from the set of tensors that generate eigenstates of $H_0$.
+Eigenvectors of $B_m$ are then mutually orthogonal vectors of the form
+$\sum_{\m w,z}c_{\m w z}\ket{m,\m w,z}$, whose squared norms are equal
+to their corresponding eigenvalues.  Note that the matrix $B_m$ has a
+block-diagonal structure, as it cannot (for example) couple states
+$\ket{m,\m v,y},\ket{m,\m w,z}$ whose tensors $\m v,\m w$ generate
+states with different interaction energies.  We therefore only need to
+build and diagonalize this matrix independently within each block.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Permutation-symmetrized products of multi-body operators}
+\section{Products of multi-body operators}
 \label{sec:operator_product}
 
 \red{[TODO: write introductory text for this section]}
