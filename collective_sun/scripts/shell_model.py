@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import numpy as np
+import itertools as it
 import scipy.sparse
-import os, sys, itertools, functools
+import os, sys, functools
 import time, glob
 
 from squeezing_methods import squeezing_from_correlators
@@ -49,6 +50,7 @@ name_tag = f"L{lattice_name}_a{alpha}_M{max_manifold}"
 
 ##################################################
 
+
 lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
 if np.allclose(alpha, int(alpha)): alpha = int(alpha)
@@ -73,7 +75,7 @@ dist = dist_method(lattice_shape)
 
 sunc = {}
 sunc["mat"] = np.zeros((spin_num,spin_num))
-for pp, qq in itertools.combinations(range(spin_num),2):
+for pp, qq in it.combinations(range(spin_num),2):
     sunc["mat"][pp,qq] = sunc["mat"][qq,pp] = -1/dist(pp,qq)**alpha
 sunc["TI"] = True
 
@@ -95,12 +97,29 @@ try:
             else:
                 sunc["energies"] = np.array(values, dtype = float)
 
-    for idx in range(len(sunc["energies"])):
-        sunc[idx] = np.loadtxt(tensor_file(idx))
+    for shell in range(len(sunc["energies"])):
+        sunc[shell] = np.loadtxt(tensor_file(shell))
 
     for manifold, shells in sunc["shells"].items():
         for shell in shells:
-            sunc[shell].shape = (spin_num,) * manifold
+            # if we imported the entire tensor, reshape it accordingly
+            if sunc[shell].size == spin_num**manifold:
+                sunc[shell].shape = (spin_num,) * manifold
+
+            # if we only imported an "off-diagonal symmetric block" of the tensor,
+            #   then construct the full tensor appropriately
+            elif sunc[shell].size == np.math.comb(spin_num,manifold):
+                tensor = np.zeros( (spin_num,) * manifold )
+                for idx, comb in enumerate(it.combinations(range(spin_num),manifold)):
+                    for perm in it.permutations(comb):
+                        tensor[perm] = sunc[shell][idx]
+                sunc[shell] = tensor
+
+            else:
+                print()
+                print(f"could not make sense of a tensor with size {sunc[shell].size}")
+                print(f"manifold, spin_num: {manifold,spin_num}")
+                exit()
 
     print("success!")
 
@@ -125,15 +144,24 @@ except:
         energy_text = " ".join([ str(energy) for energy in sunc["energies"] ])
         file.write(f"{energy_text}")
 
-    for idx, tensor in sunc_tensors.items():
-        np.savetxt(tensor_file(idx), tensor.flatten())
+    for manifold, shells in sunc["shells"].items():
+        for shell in shells:
+            tensor = np.array(sunc_tensors[shell])
+            if TI: # save the full tensor
+                np.savetxt(tensor_file(shell), tensor.flatten())
+            else: # save only an "off-diagonal symmetric block" of the tensor
+                with open(tensor_file(shell), "w") as file:
+                    for comb in it.combinations(range(spin_num),manifold):
+                        file.write(f"{tensor[comb]}" + "\n")
 
 shell_num = len(sunc["energies"])
 
 for manifold, shells in list(sunc["shells"].items()):
     if len(shells) == 0:
         del sunc["shells"][manifold]
-
+for shell in range(len(sunc["energies"])):
+    for idx in np.ndindex(sunc[shell].shape):
+        print(sunc[shell][idx])
 ##########################################################################################
 # compute states and operators in the shell / Z-projection basis
 ##########################################################################################
@@ -150,7 +178,7 @@ local_ops = { "Z" : np.outer(up,up) - np.outer(dn,dn),
               "-" : np.outer(dn,up) }
 
 # 2-local tensor products of Pauli operators
-for op_lft, op_rht in itertools.product(local_ops.keys(), repeat = 2):
+for op_lft, op_rht in it.product(local_ops.keys(), repeat = 2):
     mat_lft = local_ops[op_lft]
     mat_rht = local_ops[op_rht]
     local_ops[op_lft + op_rht] = np.kron(mat_lft,mat_rht).reshape((2,)*4)
