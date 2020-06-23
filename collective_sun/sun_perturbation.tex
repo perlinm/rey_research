@@ -111,8 +111,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
-% todo: solve collective model; Casmir operators?
-
 \title{SU($n$) ferromagnets near the Heisenberg point}
 \author{Michael A. Perlin}
 \date{\today}
@@ -185,7 +183,7 @@ symmetry (e.g.~due to external fields or additional interaction
 terms).  The restriction of our theory to ferromagnetic interactions
 can be relaxed to the assumption of
 \begin{enumerate*}
-\item an initial state in the manifold of permutationally-symmetric
+\item an initial state in the manifold of permutationally symmetric
   states, a multilevel generalization of the Dicke manifold for
   two-level spins, together with the assumption that
 \item this manifold is gapped away from states that break
@@ -290,7 +288,7 @@ of spin-polarized, {\it permutationally symmetric} (PS) states that
 are simultaneous $+1$ eigenstates of all permutation operators
 $\Pi_{ij}$.  We will assume that all $h_{ij}<0$ throughout these
 notes, but note that this restriction can be relaxed to the assumption
-that the initial state of all spins is a permutationally-symmetric
+that the initial state of all spins is a permutationally symmetric
 state (e.g.~a spin-polarized state).  We will also assume that the PS
 manifold $\M_0$ is gapped away from all orthogonal states by an
 interaction energy $\Delta_{\t{gap}}>0$.  Power-law couplings of the
@@ -455,6 +453,7 @@ decomposition to take the form
 \begin{align}
   H_0 \O\p{\m w,X} \ket\psi
   = \sum_\Delta \p{E_0+\Delta} \O\p{\m w_\Delta,X} \ket\psi,
+  \label{eq:excitation}
 \end{align}
 where, thinking of the tensor $\m w$ as a $\abs{\D_N\p{M}}$-component
 vector, the tensor $\m w_\Delta$ can be found by diagonalizing a
@@ -507,65 +506,56 @@ by the $M$-body operator $\O\p{\m w,X}$ on the PS manifold $\M_0$ at
 second order in perturbation theory, we constructed states with
 definite excitation energy $\Delta>0$ with respect to $H_0$.  Rather
 than treating these excited states as ``intermediate'' or ``virtual''
-in the derivation of an effective ground-state Hamiltonian, we can
+for the derivation of an effective ground-state Hamiltonian, we can
 perform numerical simulations in the joint Hilbert space of both
 ground and excited states.  When the perturbation $\O\p{\m w,X}$ is
 small, namely with operator norm
 $\norm{\O\p{\m w,X}}<\Delta_{\t{gap}}/2$, such simulations are
-equivalent (up to vanishing perturbative corrections) to a
-higher-order perturbation theory.  Moreover, the first-class treatment
-of excited states in finite systems enables simulating the dynamics
-induced by {\it non-perturbative} additions $\O\p{\m w,X}$ to the base
+equivalent (up to perturbative corrections) to a higher-order
+perturbation theory.  Moreover, the first-class treatment of excited
+states in finite systems enables simulating the dynamics induced by
+{\it non-perturbative} additions $\O\p{\m w,X}$ to the base
 Hamiltonian $H_0$.
 
-In order to simulate dynamics within excited-state manifolds, we first
-need to classify the set of excited states, and construct a suitable
-basis.  In the case of SU(2), a common starting point is to identify
-states with a definite (non-negative) spin length
-$S=\set{N/2,N/2-1,\cdots}$, and a spin projection
-$m_\z\in\set{S,S-1,\cdots,-S}$ onto a quantization axis.  To
-generalize this classification to SU($n$), we denote the manifold of
-states with definite fixed spin length $S$ by $\M_{N/2-S}$.  The PS
-manifold of Dicke states with $S=N/2$ is then $\M_0$, the manifold of
-single-magnon spin-wave states with $S=N/2-1$ is $\M_1$, and more
+The basic idea will be to identify the set of states (manifolds)
+$\M_r$ with a definite number ($r$) of spin-wave excitations, or {\it
+  magnons}.  The ground-state manifold of PS states is simply the
+zero-magnon manifold $\M_0$.  If we construct a basis for all $\M_r$
+with $r\le r_{\t{max}}$, we can perform numerical simulations in the
+combined manifold of all states with at most $r_{\t{max}}$ magnons; we
+refer to such simulations as {\it order-}$r_{\t{max}}$ {\it truncated
+  shell} (TS$_{r_{\t{max}}}$) simulations.  An $M$-spin operator
+$\O\p{\m w,X}$ can only couple $r$-magnon states (in $\M_r$) to
+$q$-magnon states (in $\M_q$) with $\abs{q-r}\le M$.  For initially PS
+states, TS$_{r_{\t{max}}}$ simulations thus capture all virtual
+processes through order $2\floor{r_{\t{max}}/M}+1$ in perturbation
+theory, when $\norm{\O\p{\m w,X}}<\Delta_{\t{gap}}/2$.  When
+$\norm{\O\p{\m w,X}}\ge\Delta_{\t{gap}}/2$, perturbation theory
+formally breaks down, and the error incurred by neglecting all
+$s$-magnon states with $s>r_{\t{max}}$ is not clear a priori.
+Nonetheless, TS$_{r_{\t{max}}}$ simulations can be benchmarked by
+examining the populations of all $r$-magnon manifolds $\M_r$ with
+$r\le r_{\t{max}}$.  As long as the maximal populations within
+large-$r$ manifolds $\M_r$ are small, one should expect
+TS$_{r_{\t{max}}}$ simulations to faithfully capture (at least
+qualitatively) the dynamical behavior of the spin system under
+consideration.
+
+The remainder of this section is devoted to the construction of a
+basis for the $r$-magnon manifolds $\M_r$, and to the expansion of
+general spin operators $\O\p{\m w,X}$ in this basis.  We begin with a
+classification of excited states in the case of SU(2).  A common
+starting point is to first classify states by a definite
+(non-negative) spin length $S=\set{N/2,N/2-1,\cdots}$, and a spin
+projection $m_\z\in\set{S,S-1,\cdots,-S}$ onto a fixed quantization
+axis.  In fact, the manifold of states with definite fixed spin length
+$S$ is precisely the $\p{N/2-S}$-magnon manifold $\M_{N/2-S}$.  The PS
+manifold of Dicke states with $S=N/2$ is then $\M_0$, and more
 generally the manifold of $r$-magnon states with $S=N/2-r$ is $\M_r$.
-Rather than the spin projection $m_\z$, we then identify states by
-labels $m=\p{m_\up,m_\dn}\in\A_2\p{N}$ in which $m_\mu$ denotes the
-occupation number of the single-spin state $\mu$, with $m_\up+m_\dn=N$
-and $m_\up-m_\dn=m_\z$.
-
-% \begin{figure}
-%   \centering
-%   \includegraphics{structure/mat_L101_a2.pdf}
-%   \caption{Visualizations of dimension-$r$ tensors $\m w$ that
-%     generate the lowest-lying (unnormalized) $r$-magnon states
-%     $\ket{\m w,m} \equiv \O\p{\m w, \sigma_\z^{\otimes{r}}} \ket{m}$
-%     with definite excitation energy $\Delta$ above the PS manifold
-%     $\M_0$ in a periodic 1D lattice of $N=101$ spins interacting via
-%     the SU(2)-symmetric Hamiltonian in \eqref{eq:H_SU2} with power-law
-%     couplings $h_{ij}=-1/\oper{dist}\p{i,j}^2$.  Here
-%     $\oper{dist}\p{i,j}\equiv\min\p{\abs{i-j},N-\abs{i-j}}$ is the
-%     minimal distance between spins $i,j$.  Top row ($r=2$) shows the
-%     full 2D matrix $\m w = \sum_{i,j}w_{ij}\op{i}{j}$, and bottom row
-%     ($r=3$) shows a single 2D slice of the full 3D tensor,
-%     $\tilde{\m w}_0 = \sum_{i,j}w_{ij,0}\op{i}{j}$.  Blue (red) pixels
-%     correspond to matrix elements with a positive (negative) sign, and
-%     darker colors indicate larger absolute values.  In the case of
-%     $r=2$, translational invariance enforces $w_{ij}=w_{i-d,j-d}$ for
-%     all displacements $d$, so every row of $\m w$ is some translation
-%     of a single (arbitrary) row.  Similarly, when $r=3$ every 2D slice
-%     of the full 3D tensor can be obtained by appropriately translating
-%     the 2D slice $\tilde{\m w}_0$ shown above.  In the case of SU($n$)
-%     with $n>2$, the ``$r$-magnon'' excitation energies $\Delta$ and
-%     tensors $\m w$ remain identical, but now correspond to a
-%     degenerate set of states that are generated by different choices
-%     of $r$-body operators in place of $\sigma_\z^{\otimes r}$.}
-%   \label{fig:structure}
-% \end{figure}
-
-% focus on energy -- how different from non-interacting magnons?
-% plot dispersion relation
-% lax formulation for single-particle terms
+Rather than the spin projection $m_\z$, we then identify states by the
+occupation numbers $m=\p{m_\up,m_\dn}\in\A_2\p{N}$, where $m_\mu$
+denotes the total number of individual spins in state $\mu$, with
+$m_\up+m_\dn=N$ and $m_\up-m_\dn=m_\z$.
 
 The label $m$ suffices to identify the PS (Dicke) manifold
 $\M_0=\oper{span}\set{\ket{m}:m\in\A_2\p{N}}$, but we need additional
@@ -578,25 +568,27 @@ systems can be written in the form
   = \sum_{j=1}^N v_j \sigma_\z^{(j)} \ket{m},
 \end{align}
 where each $v_j$ is a scalar and $\sigma_\z$ is a Pauli-$z$ operator.
-If an SU(2) spin system is translationally invariant, then these
-spin-wave eigenstates have $v_j=e^{\i k_{\m v}\c j}$ with wavenumber
+If an SU(2) spin system is translationally invariant, then spin-wave
+eigenstates have $v_j=e^{\i k_{\m v}\c j}$ with wavenumber
 $k_{\m v}\ne0$.  Similarly, $r$-magnon states for SU(2) take the form
 $\ket{m,\m w,\sigma_\z^{\otimes r}} \equiv \O\p{\m
   w,\sigma_\z^{\otimes r}}\ket{m}$, where now $\m w$ is an $r$-index
 tensor that encodes the structure of correlations in the excited state
-$\ket{m,\m w,\sigma_\z^{\otimes r}}$.  Considering states of this
-form, built using tensor products of Pauli-$z$ ($\sigma_\z$)
-operators, suffices to construct a basis for all excited states of an
-SU(2) spin system (see Appendix \ref{sec:operator_content}).  Note
-that $r$-body operators with arbitrary coefficients $\m w$ will
-generally couple the PS manifold $\M_0$ to all $q$-magnon manifolds
-$\M_q$ with $q\le r$ (see Figure \ref{fig:manifold_sketch}).  In order
-to generalize the notion of $r$-magnon manifolds $\M_r$ to the case of
-SU($n$) with $n>2$, where the analogous notion of a spin length $S$ is
-less intuitive, we can define $\M_r$ for $r>0$ as the manifold of
-states that (i) can be generated by the action of $r$-body operators
-on $\M_0$, and (ii) are orthogonal to all states in
-$\bigoplus_{q<r}\M_q$.
+$\ket{m,\m w,\sigma_\z^{\otimes r}}$.  The coefficient tensor $\m w$
+determines the energy of the excited state
+$\ket{m,\m w,\sigma_\z^{\otimes r}}$ through the expansion in
+\eqref{eq:excitation}.  Considering states of this form, built using
+tensor products of Pauli-$z$ ($\sigma_\z$) operators, suffices to
+construct a basis for all excited states of an SU(2) spin system (see
+Appendix \ref{sec:operator_content}).  Note that $r$-body operators
+with arbitrary coefficients $\m w$ will generally couple the PS
+manifold $\M_0$ to all $q$-magnon manifolds $\M_q$ with $q\le r$ (see
+Figure \ref{fig:manifold_sketch}).  In order to generalize the notion
+of $r$-magnon manifolds $\M_r$ to the case of SU($n$) with $n>2$,
+where the analogous notion of a spin length $S$ is less intuitive, we
+can define $\M_r$ for $r>0$ as the manifold of states that (i) can be
+generated by the action of $r$-body operators on $\M_0$, and (ii) are
+orthogonal to all states in $\bigoplus_{q<r}\M_q$.
 
 \begin{figure}
   \centering
@@ -675,42 +667,25 @@ By repeating the above process incrementally for all
 $r\le r_{\t{max}}$ (starting with $r=1$), we can construct an
 orthonormal basis
 $\col\B_{r_{\t{max}}}\equiv\bigotimes_{r\le r_{\t{max}}}\B_r$ for the
-combined manifold of all states with at most $r_{\t{max}}$ magnons,
-$\col\M_{r_{\t{max}}}\equiv\bigotimes_{r\le r_{\t{max}}}\M_r$.  The
-purpose of constructing the basis $\col\B_{r_{\t{max}}}$ is to
-simulate the dynamics induced by the addition of a spin operator
-$\O\p{\m v,Y}$ to the base Hamilonian $H_0$, such that the total
-Hamiltonian is $H = H_0 + \O\p{\m v,Y}$.  Throughout the construction
-of $\col\B_s$, an appropriate choice of tensors $\m w$ ensures that
-all states $\ket{m,\m w,X}\in\col\B_s$ are eigenstates of the base
-Hamiltonian $H_0$ (see Appendix \ref{sec:eigenstates}), which is to
-say that $H_0$ is diagonal with respect to $\col\B_s$.  Matrix
-elements of $\O\p{\m v,Y}$, meanwhile, take the form
+combined manifold of all states with at most $r_{\t{max}}$ magnons.
+During the construction of $\col\B_s$, an appropriate choice of
+tensors $\m w$ ensures that all states $\ket{m,\m w,X}\in\col\B_s$ are
+eigenstates of the base Hamiltonian $H_0$ (see Appendix
+\ref{sec:eigenstates}), which is to say that $H_0$ is diagonal with
+respect to $\col\B_s$.  Matrix elements of general spin operators
+$\O\p{\m v,Y}$, meanwhile, take the form
 \begin{align}
   \bk{\ell,\m u,X|\O\p{\m v,Y}|m,\m w,Z}
   = \bk{\ell|\O\p{\m u,X}\O\p{\m v,Y}\O\p{\m w,Z}|m}.
+  \label{eq:matrix_element}
 \end{align}
 In order to compute these matrix elements, we simplify general
 products of multi-body operators in Appendix
-\ref{sec:operator_product}.  For brevity, we will refer to numerical
-simulations restricted to $\col\M_{r_{\t{max}}}$ as {\it
-  order-$r_{\t{max}}$ truncated shell} (TS$_{r_{\t{max}}}$)
-simulations.
+\ref{sec:operator_product}.
 
-An $M$-spin operator $\O\p{\m v,Y}$ can only couple $r$-magnon states
-to $q$-magnon states with $\abs{q-r}\le M$.  In the perturbative
-regime, $\norm{\O\p{\m v,Y}}<\Delta_{\t{gap}}/2$, TS$_{r_{\t{max}}}$
-simulations of initially PS (zero-magnon) states therefore capture all
-virtual processes through order $2\floor{r_{\t{max}}/M}+1$ in
-perturbation theory.  When $\norm{\O\p{\m v,Y}}\ge\Delta_{\t{gap}}/2$,
-perturbation theory formally breaks down, and the error incurred by
-neglecting all $s$-magnon states with $s>r_{\t{max}}$ is not clear a
-priori.  Nonetheless, TS$_{r_{\t{max}}}$ simulations can be
-benchmarked by examining the populations of all $r$-magnon manifolds
-$\M_r$ with $r\le r_{\t{max}}$.  As long as the maximal populations
-within large-$r$ manifolds $\M_r$ are small, one should expect these
-simulations to faithfully capture (at least qualitatively) the
-dynamical behavior of the spin system under consideration.
+% dispersion relation? magnon interactions?
+% lax formulation for single-particle terms
+% solve collective model? Casmir operators?
 
 \newpage
 
@@ -1353,6 +1328,7 @@ a matrix $B_m$ with matrix elements
 \begin{align}
   B_m\p{\m v,y;\m w,z} \equiv \bk{m,\m v,y|m,\m w,z}
   = \bk{m| \O\p{\m v,X_y}^\dag \O\p{\m w,X_z} |m},
+  \label{eq:basis_matrix}
 \end{align}
 where $y,z$ satisfy appropriate restrictions, and $\m v,\m w$ are
 chosen from the set of tensors that generate eigenstates of $H_0$.
@@ -1368,14 +1344,24 @@ build and diagonalize this matrix independently within each block.
 \section{Products of multi-body operators}
 \label{sec:operator_product}
 
-\red{[TODO: write introductory text for this section]}
+The construction of a basis $\B_r$ for the $r$-magnon manifold $\M_r$
+requires multiplying two multi-body operators
+$\O\p{\m v,X_y}^\dag, \O\p{\m w,X_z}$, and projecting the result onto
+the permutationally symmetric (PS) manifold $\M_0$, as in
+\eqref{eq:basis_matrix}.  Similarly, computing matrix elements of
+operators $\O\p{\m v,Y}$ with respect to the basis
+$\col\B_{r_{\t{max}}}\equiv\bigotimes_{r\le r_{\t{max}}}\B_r$ requires
+multiplying three multi-body operators and projecting the result onto
+$\M_0$, as in \eqref{eq:matrix_element}.  In this section, we develop
+a diagrammatic technique for the sorts of calculations, and work out
+some special cases of common interest.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{A diagrammatic expansion}
 
 Given a system of $N$ spins, we wish to project a product of
-multi-body operators onto the permutationally symmetric (PS) manifold
-$\M_0$.  For $p$ multi-body operators, such a product takes the form
+multi-body operators onto the PS manifold.  For $p$ multi-body
+operators, such a product takes the form
 \begin{align}
   \Q\p{\m w,\m X}
   \equiv \prod_{\alpha\in\ZZ_p} \O\p{w_\alpha,X_\alpha}
