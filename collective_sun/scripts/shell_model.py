@@ -159,9 +159,7 @@ shell_num = len(sunc["energies"])
 for manifold, shells in list(sunc["shells"].items()):
     if len(shells) == 0:
         del sunc["shells"][manifold]
-for shell in range(len(sunc["energies"])):
-    for idx in np.ndindex(sunc[shell].shape):
-        print(sunc[shell][idx])
+
 ##########################################################################################
 # compute states and operators in the shell / Z-projection basis
 ##########################################################################################
