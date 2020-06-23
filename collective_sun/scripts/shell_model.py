@@ -147,7 +147,7 @@ except:
     for manifold, shells in sunc["shells"].items():
         for shell in shells:
             tensor = np.array(sunc_tensors[shell])
-            if TI: # save the full tensor
+            if sunc["TI"]: # save the full tensor
                 np.savetxt(tensor_file(shell), tensor.flatten())
             else: # save only an "off-diagonal symmetric block" of the tensor
                 with open(tensor_file(shell), "w") as file:
