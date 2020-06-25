@@ -554,7 +554,7 @@ manifold of Dicke states with $S=N/2$ is then $\M_0$, and more
 generally the manifold of $r$-magnon states with $S=N/2-r$ is $\M_r$.
 Rather than the spin projection $m_\z$, we then identify states by the
 occupation numbers $m=\p{m_\up,m_\dn}\in\A_2\p{N}$, where $m_\mu$
-denotes the total number of individual spins in state $\mu$, with
+denotes the total number of spins in the state $\mu$, with
 $m_\up+m_\dn=N$ and $m_\up-m_\dn=m_\z$.
 
 The label $m$ suffices to identify the PS (Dicke) manifold
@@ -682,6 +682,7 @@ $\O\p{\m v,Y}$, meanwhile, take the form
 In order to compute these matrix elements, we simplify general
 products of multi-body operators in Appendix
 \ref{sec:operator_product}.
+
 
 % dispersion relation? magnon interactions?
 % lax formulation for single-particle terms
@@ -1225,19 +1226,26 @@ spins, these states are
   \label{eq:pops_expansion}
 \end{align}
 where $\C\p{m}$ is a normalization factor equal to the number of terms
-in the sum.  The basic idea in constructing a basis for the set of
-excited states is to find a set of operators that give us control over
-the signs of the terms in the expansion above, which is sufficient
-control to generate {\it any} state that is consistent with the
-populations $m$.  Framing the problem of generating excited states as
-one of controlling signs in \eqref{eq:pops_expansion} makes it clear
-that we can freely restrict ourselves to considering only operators
-that are $\pm1$ on the diagonal (and zero elsewhere) in the
-computational basis.
+in the sum.  While $\ket{m}$ is the only PS state with occupation
+numbers $m$, the set of {\it all} states with occupation numbers $m$
+is spanned by states of the form
+\begin{align}
+  \ket{m,s} = \f1{\sqrt{\C\p{m}}}
+  \sum_{\substack{\t{distinct}\\\t{permutations}\\\Pi~\t{of}~\tilde m}}
+  s\p{\Pi} \Pi \ket{\tilde m},
+  \label{eq:pops_states}
+\end{align}
+where $s\p{\Pi}\in\set{\pm1}$ for all permutations $\Pi$.  As a
+consequence, when generating excited states of the form
+$\O\p{\m w,X}\ket{m}$, we can freely restrict ourselves to operators
+$X$ that only change the signs of individual terms (associated with
+permutations $\Pi$) in \eqref{eq:pops_expansion}, which suffices to
+construct any state $\ket{m,s}$ in \eqref{eq:pops_states}.  We
+therefore consider single-operators $X$ that have $\pm1$ on the
+diagonal (in the computational basis), and zero everywhere else.
 
-The set of all operators that are $\pm1$ on the diagonal (in the
-computational basis) is spanned by sums and tensor products of the
-single-spin operators
+The set of all operators that are $\pm1$ on the diagonal is spanned by
+sums and tensor products of the single-spin operators
 $Z_\nu\equiv1-2\op\nu=\sum_{\mu\ne\nu}\op\mu-\op\nu$.  Given a list of
 non-negative integers $z\equiv\p{z_1,z_2,\cdots,z_n}$ with
 $\sum_\mu z_\mu=r$, we thus define the $r$-spin operator
