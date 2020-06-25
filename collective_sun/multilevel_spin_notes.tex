@@ -65,7 +65,8 @@
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\ZZ}{\mathbb{Z}}
 
-\newcommand{\FS}{\text{FS}}
+\newcommand{\PS}{\text{PS}}
+\newcommand{\col}{\underline}
 
 \DeclareMathOperator{\sign}{sign}
 \DeclareMathOperator{\cov}{cov}
@@ -140,7 +141,7 @@ the $\sim N^2$ term and simply write
 \end{align}
 In the case of SU(2), at this point we would expand the spin operators
 $S_{\mu\nu}^{(p)}$ in terms of Pauli operators in order to convert
-$H_{\t{int}}$ into an SU(2) spin Hamiltonian\cite{he2019engineering}.
+$H_{\t{int}}$ into an SU(2) spin Hamiltonian \cite{he2019engineering}.
 To generalize this procedure to the case of SU($n$), we first define a
 vector $\v S^{(p)}$ of all spin operators $S_{\mu\nu}^{(p)}$, and
 write
@@ -176,8 +177,8 @@ for $\B\p{\H_n}$.
 \label{sec:ggm_ops}
 
 The most obvious generalization of Pauli operators to the case of
-SU($n$) are the {\it generalized Gell-Mann (GGM)
-  operators}\cite{hioe1981level, bertlmann2008bloch}, defined for
+SU($n$) are the {\it generalized Gell-Mann (GGM) operators}
+\cite{hioe1981level, bertlmann2008bloch}, defined for
 $j,k,\ell\in\set{0,1,\cdots,n-1}$ with $j<k$ and $\ell>0$ by
 \begin{align}
   \lambda_0 \equiv \sqrt{\f{2}{n}}~ \1,
@@ -223,7 +224,7 @@ provide a convenient operator basis to describe dynamics obeying
 SU($n$) symmetry.  An external driving field addressing $n$-level
 nuclear spins, however, will generally violate SU($n$) symmetry, and
 instead obeys the symmetries of the {\it polarization} or {\it
-  transition operators} defined by\cite{kryszewski2006alternative,
+  transition operators} defined by \cite{kryszewski2006alternative,
   bertlmann2008bloch}
 \begin{align}
   T_{LM}
@@ -309,7 +310,7 @@ field and a classical spin-polarized driving laser; loosely speaking,
 one can associate
 $\p{D_{1,0},D_{1,1},D_{1,-1}}\sim\p{S_\z,S_\x,S_\y}$, where $S_\alpha$
 is a collective SU(2) spin-$\alpha$ operator for $\p{n-1}$ 2-level
-spins\cite{perlin2020shorttime}.  More concretely, we can embed the
+spins \cite{perlin2020shorttime}.  More concretely, we can embed the
 Hilbert space of a single $n$-level spin into the
 permutationally-symmetric (Dicke) manifold of states for $\p{n-1}$
 2-level spins via
@@ -335,13 +336,24 @@ where
   \label{eq:scale_fac}
 \end{align}
 is a scale factor that will appear frequently in the theory of drive
-operators.
+operators.  Some other useful relations between drive and spin
+operators are
+\begin{align}
+  \xi_2 D_{2,0} \to -\f12\p{S_\x^2 + S_\y^2} + \f{n^2-1}{12},
+  \label{eq:spin_ops_2_0}
+\end{align}
+\begin{align}
+  \sqrt{3}\, \xi_2 D_{2,2} \to \f12\p{S_\x^2 - S_\y^2},
+  &&
+  \sqrt{3}\, \xi_2 D_{2,1} \to \f12\p{S_\z S_\x + S_\x S_\z}.
+  \label{eq:spin_ops_2_12}
+\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Weyl operators}
 
-Weyl operators\cite{bertlmann2008bloch} and self-adjoint linear
-combinations thereof\cite{asadian2016heisenbergweyl} also provide an
+Weyl operators \cite{bertlmann2008bloch} and self-adjoint linear
+combinations thereof \cite{asadian2016heisenbergweyl} also provide an
 interesting basis of operators for finite-dimensional Hilbert spaces.
 These operators are related to the notions of position, momentum, and
 phase-space displacement in a discrete space.  As our present work is
@@ -351,7 +363,8 @@ drive operators are more natural to use than the Weyl operators, so we
 will not discuss Weyl operators any further.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Subsystem permutations and the fully symmetric manifold}
+\subsection{Subsystem permutations and the permutationally symmetric
+  manifold}
 \label{sec:perm_ops}
 
 For our final re-expression of collective SU($n$)-symmetric
@@ -400,30 +413,28 @@ is merely a constant.  Substituting \eqref{eq:spin_perm} and
 where $\simeq$ denotes equality up to an overall constant with no
 physical consequence.  The form of the interaction Hamiltonian
 $H_{\t{int}}$ makes it evident that its ground-state manifold
-$\M_{\FS}$ is the set of {\it fully symmetric} (FS) states that have
-eigenvalue 1 with respect to all pairwise permutation operators
-$\Pi_{pq}$.  The fully symmetric manifold $\M_\FS$ is spanned by a
-basis $\set{\ket{\v m}}$ of fully symmetric states that can be
-uniquely identified by a list of integers
-$\v m\equiv\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$, where $m_s$
-indicates the total occupation number of subsystem state $s$, and
-$\sum_sm_s=N$.  In the case of $n=2$, the fully symmetric manifold
-$\M_\FS$ is precisely the Dicke manifold\cite{dicke1954coherence} of
+$\M_{\PS}$ is the set of {\it permutationally symmetric} (PS) states
+that have eigenvalue 1 with respect to all pairwise permutation
+operators $\Pi_{pq}$.  The PS manifold $\M_\PS$ is spanned by a basis
+$\set{\ket{\v m}}$ of PS states that can be uniquely identified by a
+list of integers $\v m\equiv\p{m_0,m_1,\cdots,m_{n-1}}\in\ZZ_{N+1}^n$,
+where $m_s$ indicates the total occupation number of subsystem state
+$s$, and $\sum_sm_s=N$.  In the case of $n=2$, the PS manifold
+$\M_\PS$ is precisely the Dicke manifold \cite{dicke1954coherence} of
 $N$ qubits, spanned by Dicke states $\set{\ket{m_0,m_1}}$ for which
 $m_0+m_1=N$ and the integer $m_0$ ($m_1$) indicates the total
 occupation number of qubit state $\ket{0}$ ($\ket{1}$).  The dimension
-of fully symmetric manifold $\M_\FS$ is determined by the number of
-ways to assign $N$ subsystems to $n$ states, which is
-${N+n-1 \choose n-1}$.  The energy of any fully symmetric state
-$\ket{\psi_\FS}\in\M_\FS$ with respect to the interaction Hamiltonian
-$H_{\t{int}}$ in \eqref{eq:H_int_perm} is
+of PS manifold $\M_\PS$ is determined by the number of ways to assign
+$N$ subsystems to $n$ states, which is ${N+n-1 \choose n-1}$.  The
+energy of any PS state $\ket{\psi_\PS}\in\M_\PS$ with respect to the
+interaction Hamiltonian $H_{\t{int}}$ in \eqref{eq:H_int_perm} is
 $-u{N \choose 2}=-\p{1/2}N\p{N-1}u$.
 
-In addition to the fact that the fully symmetric manifold $\M_\FS$ is
-ground-state manifold of the interaction Hamltonian $H_{\t{int}}$, an
-important feature of $\M_\FS$ is its closure under the action of
-collective operators of the form $\Q=\sum_pQ^{(p)}$, as well as linear
-combinations and products thereof.  Closure of $\M_\FS$ under
+In addition to the fact that the PS manifold $\M_\PS$ is ground-state
+manifold of the interaction Hamltonian $H_{\t{int}}$, an important
+feature of $\M_\PS$ is its closure under the action of collective
+operators of the form $\Q=\sum_pQ^{(p)}$, as well as linear
+combinations and products thereof.  Closure of $\M_\PS$ under
 collective the action of collective operators, and in particular under
 collective dynamics, is a straightforward consequence of the
 permutational symmetry obeyed by these operators.
@@ -511,12 +522,12 @@ simulate synthetic large-spin fields with non-zero spin projection
 \label{sec:pert_SOC}
 
 The single-particle Hamiltonian $H_{\t{lat}}^{(\phi)}$ breaks
-permutational symmetry, thereby coupling states within the fully
-symmetric manifold $\M_\FS$ to states outsides it.  If SOC is
-sufficiently weak, however, transitions outside the fully symmetric
-manifold $\M_\FS$ are energetically suppressed by interactions, and we
-can account for the effect of SOC perturbatively.  In the regime of
-weak SOC with $\abs{\phi}\ll1$, by considering
+permutational symmetry, thereby coupling states within the PS manifold
+$\M_\PS$ to states outsides it.  If SOC is sufficiently weak, however,
+transitions outside the PS manifold $\M_\PS$ are energetically
+suppressed by interactions, and we can account for the effect of SOC
+perturbatively.  In the regime of weak SOC with $\abs{\phi}\ll1$, by
+considering
 \begin{enumerate*}
 \item all $L\le12$ for arbitrary $n$, and
 \item all $L<n$ for all $n\le25$
@@ -533,7 +544,7 @@ find that
 where $\xi_L$ is a scale factor defined in \eqref{eq:scale_fac}.  A
 perturbative treatment of SOC through second order in the SOC angle
 $\phi$ yields the following effective Hamiltonian in the fully
-symmetric manifold $\M_\FS$ (see Appendix \ref{sec:SOC_pert}):
+symmetric manifold $\M_\PS$ (see Appendix \ref{sec:SOC_pert}):
 \begin{align}
   H_{\t{eff}} = H_{\t{eff}}^{(1)} + H_{\t{eff}}^{(2)},
 \end{align}
@@ -641,7 +652,7 @@ provided in Appendix \ref{sec:drive_raman_coeff}.  Similarly to the
 case of a direct drive considered in Section \ref{sec:drive_SOC}, the
 Raman drive $H_{\t{Raman}}^{(\phi)}$ in \eqref{eq:drive_raman_matched}
 can be made homogenous through the gauge transformation
-$c_{j\mu}^\dag \to e^{i\mu\phi j} c_{j\mu}^\dag$, which takes
+$c_{j\mu}^\dag \to e^{-i\mu\phi j} c_{j\mu}^\dag$, which takes
 \begin{align}
   \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_m=m\phi}
   \to H_{\t{Raman}}
@@ -664,12 +675,23 @@ the bare driving amplitudes $\Omega_m$, and satisfy
 \end{align}
 In particular, the amplitudes $\Omega_{1,0}$, $\Omega_{2,0}$, and
 $\Omega_{2,1}$ can be simultaneously tuned to zero by setting
-$\Omega_0=\Omega_+=\Omega_-$, at which point the only remaining
-effective drives in $H_{\t{Raman}}$ are $\sim\D_{1,1}$ and
-$\sim\D_{2,2}$ (as $\D_{0,0}\propto\1$ is just constant shift in
-energy).  If instead $\Omega_0=\pm\Omega_\pm$, then the amplitudes
-$\Omega_{1,0}$, $\Omega_{2,0}$ and $\Omega_{1,1}$ vanish, leaving only
-the drives $\D_{2,1}$ and $\D_{2,2}$.
+$\Omega_0=\Omega_+=\Omega_-=\xi_1\Omega$, at which point the Raman
+drive becomes (up to an overall constant)
+\begin{align}
+  H_{\t{Raman}}^{(+)} \equiv \f{\Omega^2}{\Delta}
+  \p{\sqrt{2}\, \col{S_\x} + \col{S_\x^2 - S_\y^2}},
+\end{align}
+where the single-spin operators $S_\alpha$ are related to the drive
+operators $D_{LM}$ through the relations in \eqref{eq:spin_ops},
+\eqref{eq:spin_ops_2_0}, and \eqref{eq:spin_ops_2_12}; and $\col{X}$
+is the collective version of $X$.  If instead
+$\Omega_0=\pm\Omega_\pm=\xi_1\Omega$, then up to a scalar term the
+drive becomes
+\begin{align}
+  H_{\t{Raman}}^{(-)} \equiv \f{\Omega^2}{\Delta}
+  \p{\sqrt{2}\, \sp{\col{S_\z S_\x+ S_\x S_\z}}
+    - \sp{\col{S_\x^2 - S_\y^2}}}.
+\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Periodic drive}
@@ -1211,12 +1233,12 @@ to have $g_{\ell_1m_1;\ell_2m_2}^{LM,\pm}\ne0$.
 \vspace{2cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Weak SOC in the fully symmetric manifold}
+\section{Weak SOC in the PS manifold}
 \label{sec:SOC_pert}
 
 Here we derive the first- and second-order effective Hamiltonians
-induced on the fully symmetric manifold $\M_\FS$ by the
-single-particle weak-SOC Hamiltonian
+induced on the PS manifold $\M_\PS$ by the single-particle weak-SOC
+Hamiltonian
 \begin{align}
   H_{\t{lat}}^{(\phi)}
   = \sum_{q,L} B_L^{(\phi,q)} D_{L,0}^{(q)},
@@ -1409,3 +1431,8 @@ and uniform coefficients determined by \eqref{eq:O_X0} and
 % - Different sites
 % - Two-time correlators
 % TWA dynamics
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
