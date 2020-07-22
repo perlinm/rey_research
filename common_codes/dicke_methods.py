@@ -74,6 +74,9 @@ def coherent_spin_state_angles(theta, phi, N = 10):
         state[0] = 1
         return state
     theta -= int(theta/np.pi) * np.pi
+    if theta < 0:
+        theta = -theta
+        phi += np.pi
     m_vals = np.array(range(N+1))
     ln_magnitudes = ( 1/2 * ln_binom(N,m_vals)
                       + (N-m_vals) * np.log(np.sin(theta/2))
