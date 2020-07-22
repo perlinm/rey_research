@@ -7,7 +7,7 @@ import copy
 from itertools_extension import set_diagrams
 from operator_product_methods import diagram_vec
 
-dimensions = [ 2, 2 ]
+dimensions = [ 2, 2, 2 ]
 
 def num_assignments(diagram):
     factors = set.union(*[ set(subset) for subset in diagram.keys() ])

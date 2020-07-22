@@ -529,14 +529,13 @@ $\O\p{\m w,X}$ can only couple $r$-magnon states (in $\M_r$) to
 $q$-magnon states (in $\M_q$) with $\abs{q-r}\le M$.  For initially PS
 states, TS$_{r_{\t{max}}}$ simulations thus capture all virtual
 processes through order $2\floor{r_{\t{max}}/M}+1$ in perturbation
-theory, when $\norm{\O\p{\m w,X}}<\Delta_{\t{gap}}/2$.  When
-$\norm{\O\p{\m w,X}}\ge\Delta_{\t{gap}}/2$, perturbation theory
-formally breaks down, and the error incurred by neglecting all
-$s$-magnon states with $s>r_{\t{max}}$ is not clear a priori.
-Nonetheless, TS$_{r_{\t{max}}}$ simulations can be benchmarked by
-examining the populations of all $r$-magnon manifolds $\M_r$ with
-$r\le r_{\t{max}}$.  As long as the maximal populations within
-large-$r$ manifolds $\M_r$ are small, one should expect
+theory.  When $\norm{\O\p{\m w,X}}\ge\Delta_{\t{gap}}/2$, however,
+perturbation theory formally breaks down, and the error incurred by
+neglecting all $s$-magnon states with $s>r_{\t{max}}$ is not clear a
+priori.  Nonetheless, TS$_{r_{\t{max}}}$ simulations can be
+benchmarked by examining the populations of all $r$-magnon manifolds
+$\M_r$ with $r\le r_{\t{max}}$.  As long as the maximal populations
+within large-$r$ manifolds $\M_r$ are small, one should expect
 TS$_{r_{\t{max}}}$ simulations to faithfully capture (at least
 qualitatively) the dynamical behavior of the spin system under
 consideration.
@@ -1779,8 +1778,8 @@ Here we simplify the single-body product
 \begin{align}
   \O\p{\m v,X} \O\p{\m w,Y}
   = \sum_{i,j} v_i w_j X_i Y_j
-  \EQPS \diagram{single_body_0} X_1 Y_2
-  + \diagram{single_body_1} X_1 Y_1,
+  \EQPS \diagram{prod_b11_c0} X_1 Y_2
+  + \diagram{prod_b11_c1} X_1 Y_1,
 \end{align}
 where $i,j$ index individual spins that the single-spin operators
 $X,Y$ act on; and $\m m\equiv\sum_i m_i\ket{i}$ for
@@ -1791,9 +1790,9 @@ symmetric manifold $\M_0$ by a single-body perturbation.  Using the
 rules that we worked out in Appendix \ref{sec:diagrams} for reducing
 diagrams, we can simplify
 \begin{align}
-  \diagram{single_body_0}
-  = \diagram{single_body_0_o} - \diagram{single_body_0_x}
-  = \diagram{single_body_0_oo} - \diagram{single_body_1}
+  \diagram{prod_b11_c0}
+  = \diagram{prod_b11_c0_o} - \diagram{prod_b11_c0_x}
+  = \diagram{prod_b11_c0_oo} - \diagram{prod_b11_c1}
   = \col{v}\,\col{w} - \m v \c \m w,
 \end{align}
 where $\col{m} \equiv \sum_i m_i$ for both $\m m\in\set{\m v,\m w}$,
@@ -1841,8 +1840,8 @@ permutationally symmetric manifold $\M_0$ by a two-body perturbation.
 The diagrammatic expansion of this operator is
 \begin{align}
   \O\p{\m v,X} \O\p{\m w,Y}
-  \EQPS \diagram{two_body_0} \spp{X,Y}_4 + \diagram{two_body_1}
-  \spp{X,Y}_3 + \diagram{two_body_2} \spp{X,Y}_2,
+  \EQPS \diagram{prod_b22_c0} \spp{X,Y}_4 + \diagram{prod_b22_c1}
+  \spp{X,Y}_3 + \diagram{prod_b22_c2} \spp{X,Y}_2,
   \label{eq:two_prod_pair}
 \end{align}
 where $\spp{X,Y}_q$ denotes a sum over all $q$-spin operators that can
@@ -1858,23 +1857,23 @@ be constructed from $X$ and $Y$, i.e.
 To minimize the computational cost of the diagrams in
 \eqref{eq:two_prod_pair}, we reduce
 \begin{align}
-  \diagram{two_body_1}
-  &= \sp{\diagram{two_body_1_o}} - \sp{\diagram{two_body_1_x}} \\
-  &= \sp{\diagram{two_body_1_oo} - \diagram{two_body_1_ox}}
-  - \sp{\diagram{two_body_2}} \label{eq:mid_zero} \\
-  &= \diagram{two_body_1_ooo} - \diagram{two_body_2_oo}
+  \diagram{prod_b22_c1}
+  &= \sp{\diagram{prod_b22_c1_o}} - \sp{\diagram{prod_b22_c1_x}} \\
+  &= \sp{\diagram{prod_b22_c1_oo} - \diagram{prod_b22_c1_ox}}
+  - \sp{\diagram{prod_b22_c2}} \label{eq:mid_zero} \\
+  &= \diagram{prod_b22_c1_ooo} - \diagram{prod_b22_c2_oo}
 \end{align}
 where the middle diagram in \eqref{eq:mid_zero} is zero from the fact
 that $w_{ii}=0$, and
 \begin{align}
-  \diagram{two_body_0}
-  &= \sp{\diagram{two_body_0_o}} - \sp{\diagram{two_body_0_x}} \\
-  &= \sp{\diagram{two_body_0_oo} - \diagram{two_body_0_ox}}
-  - \sp{2 \diagram{two_body_1}} \\
-  &= \sp{\diagram{two_body_0_oooo} - 2 \diagram{two_body_1_o}}
-  - \sp{2 \diagram{two_body_1_ooo} - 2 \diagram{two_body_2_oo}} \\
-  &= \diagram{two_body_0_oooo} - 4 \diagram{two_body_1_ooo}
-  + 2 \diagram{two_body_2_oo}.
+  \diagram{prod_b22_c0}
+  &= \sp{\diagram{prod_b22_c0_o}} - \sp{\diagram{prod_b22_c0_x}} \\
+  &= \sp{\diagram{prod_b22_c0_oo} - \diagram{prod_b22_c0_ox}}
+  - \sp{2 \diagram{prod_b22_c1}} \\
+  &= \sp{\diagram{prod_b22_c0_oooo} - 2 \diagram{prod_b22_c1_o}}
+  - \sp{2 \diagram{prod_b22_c1_ooo} - 2 \diagram{prod_b22_c2_oo}} \\
+  &= \diagram{prod_b22_c0_oooo} - 4 \diagram{prod_b22_c1_ooo}
+  + 2 \diagram{prod_b22_c2_oo}.
 \end{align}
 If the matrices $\m v,\m w$ are symmetric, then we can define
 \begin{align}
@@ -1886,12 +1885,12 @@ If the matrices $\m v,\m w$ are symmetric, then we can define
 \end{align}
 for both $\m m\in\set{\m v,\m w}$, and expand
 \begin{align}
-  \diagram{two_body_2} = \v{\m v} \c\v{\m w},
+  \diagram{prod_b22_c2} = \v{\m v} \c\v{\m w},
   &&
-  \diagram{two_body_1} =
+  \diagram{prod_b22_c1} =
   \v v \c \v w - \v{\m v} \c \v{\m w},
   &&
-  \diagram{two_body_0}
+  \diagram{prod_b22_c0}
   = \col{v}\,\col{w} - 4 \v v\c\v w + 2 \v{\m v}\c\v{\m w}.
 \end{align}
 In the special case that $X=Y=Z\otimes Z$ with a single-spin operator
@@ -1910,14 +1909,14 @@ which implies that
 \end{align}
 with
 \begin{align}
-  A_4 \equiv \diagram{two_body_0}
+  A_4 \equiv \diagram{prod_b22_c0}
   = \col{v}\,\col{w} - 4 \v v\c\v w + 2 \v{\m v}\c\v{\m w},
   &&
-  A_2 \equiv 4 \diagram{two_body_1}
+  A_2 \equiv 4 \diagram{prod_b22_c1}
   = 4 \v v \c \v w - 4 \v{\m v} \c \v{\m w}
 \end{align}
 \begin{align}
-  A_0 \equiv 2 \diagram{two_body_2} = 2 \v{\m v} \c\v{\m w}.
+  A_0 \equiv 2 \diagram{prod_b22_c2} = 2 \v{\m v} \c\v{\m w}.
 \end{align}
 In terms of collective operators $\col{Z}\equiv\sum_iZ_i$, we have
 \begin{align}
@@ -1937,6 +1936,31 @@ and
   N!_q \equiv \sum_{j=0}^{q-1} \p{N-j}
 \end{align}
 is a falling factorial.
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Three single-body operators}
+% \label{sec:single_trip_prod}
+
+% Here we simplify the single-body product
+% \begin{align}
+%   \O\p{\m u,X} \O\p{\m v,Y} \O\p{\m w,Z}
+%   = \sum_{i,j,k} u_i v_j w_k X_i Y_j Z_k,
+% \end{align}
+% where $i,j,k$ index individual spins that the single-spin operators
+% $X,Y,K$ act on; and $\m m\equiv\sum_i m_i\ket{i}$ for
+% $\m m\in\set{\m u,\m v,\m w}$ are vectors of scalar coefficients.
+% This product appears, for example, in the calculation of matrix
+% elements of the operator $\O\p{\m v,Y}$ within the single-magnon
+% manifold.  The diagrammatic expansion of this operator is
+% \begin{multline}
+%   \O\p{\m u,X} \O\p{\m v,Y} \O\p{\m w,Z}
+%   \EQPS \diagram{prod_b111_c0} X_1 Y_2 Z_3
+%   + \diagram{prod_b111_c10} X_1 Y_1 Z_1 \\
+%   + \diagram{prod_b111_c11_u} X_1 Y_2 Z_2
+%   + \diagram{prod_b111_c11_v} X_2 Y_1 Z_2
+%   + \diagram{prod_b111_c11_w} X_2 Y_2 Z_1,
+% \end{multline}
+% where we can reduce (by hand or with a computer)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Three two-body Ising-like operators}
@@ -1964,28 +1988,28 @@ accounting for $Z^2=1$, we find that
 \end{align}
 with
 \begin{align}
-  A_6 \equiv \diagram{triple_0},
+  A_6 \equiv \diagram{prod_b222_c0},
   &&
-  A_4 \equiv 4 \diagram{triple_01} + 8 \diagram{triple_1},
+  A_4 \equiv 4 \diagram{prod_b222_c01} + 8 \diagram{prod_b222_c1},
   &&
-  A_0 \equiv 8 \diagram{triple_0111},
+  A_0 \equiv 8 \diagram{prod_b222_c0111},
   \label{eq:triple_64}
 \end{align}
 \begin{align}
-  A_2 \equiv 8 \diagram{triple_011} + 2 \diagram{triple_02}
-  + 8 \diagram{triple_11} + 4 \diagram{triple_2},
+  A_2 \equiv 8 \diagram{prod_b222_c011} + 2 \diagram{prod_b222_c02}
+  + 8 \diagram{prod_b222_c11} + 4 \diagram{prod_b222_c2},
   \label{eq:triple_2}
 \end{align}
 where a diagram with unlabeled circles denotes a sum over all distinct
 label assignments, e.g.
 \begin{align}
-  \diagram{triple_1} \equiv \diagram{triple_1_uvw},
+  \diagram{prod_b222_c1} \equiv \diagram{prod_b222_c1_uvw},
   \label{eq:triple_uvw}
 \end{align}
 \begin{align}
-  \diagram{triple_011}
-  \equiv \diagram{triple_011_uvw}
-  + \diagram{triple_011_vwu} + \diagram{triple_011_wuv}.
+  \diagram{prod_b222_c011}
+  \equiv \diagram{prod_b222_c011_uvw}
+  + \diagram{prod_b222_c011_vwu} + \diagram{prod_b222_c011_wuv}.
   \label{eq:triple_uvw_3}
 \end{align}
 The last diagram in each of $A_6,A_4,A_2,A_0$ as written in
@@ -2010,17 +2034,17 @@ doing which we find
 \end{align}
 where
 \begin{align}
-  D_6 \equiv \diagram{triple_0_o},
+  D_6 \equiv \diagram{prod_b222_c0_o},
   &&
-  D_4 \equiv 4 \diagram{triple_01_o} - 16 \diagram{triple_1_o},
+  D_4 \equiv 4 \diagram{prod_b222_c01_o} - 16 \diagram{prod_b222_c1_o},
   &&
-  D_0 \equiv 8 \diagram{triple_0111_o},
+  D_0 \equiv 8 \diagram{prod_b222_c0111_o},
 \end{align}
 \begin{align}
-  D_2 \equiv 8 \diagram{triple_011_o}
-  + 2 \diagram{triple_02_o}
-  - 16 \diagram{triple_11_o}
-  + 16 \diagram{triple_2_o}.
+  D_2 \equiv 8 \diagram{prod_b222_c011_o}
+  + 2 \diagram{prod_b222_c02_o}
+  - 16 \diagram{prod_b222_c11_o}
+  + 16 \diagram{prod_b222_c2_o}.
 \end{align}
 If $m_{ij}=m_{ji}$ for all $\m m\in\set{\m u,\m v,\m w}$, then we can
 define

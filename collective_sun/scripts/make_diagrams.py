@@ -312,7 +312,7 @@ plt.savefig(fig_dir + "example_elim_color_end.pdf")
 
 plt.close("all")
 
-### single-body product
+### product of two single-body operators
 
 for assignment in [ { "a" : 1, "b" : 1, "ab" : 0 },
                     { "ab" : 1 } ]:
@@ -320,7 +320,7 @@ for assignment in [ { "a" : 1, "b" : 1, "ab" : 0 },
     add_double_labels()
     plt.tight_layout(pad = 0.05)
     tag = assignment["ab"]
-    plt.savefig(fig_dir + f"single_body_{tag}.pdf")
+    plt.savefig(fig_dir + f"prod_b11_c{tag}.pdf")
 
 plt.close("all")
 
@@ -328,21 +328,55 @@ dots = { "a" : 1, "b" : 1 }
 make_double_diagram(dots, { "a" : "o" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"single_body_0_o.pdf")
+plt.savefig(fig_dir + f"prod_b11_c0_o.pdf")
 
 make_double_diagram(dots, { "a" : "x" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"single_body_0_x.pdf")
+plt.savefig(fig_dir + f"prod_b11_c0_x.pdf")
 
 make_double_diagram(dots, { "a" : "o", "b" : "o" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"single_body_0_oo.pdf")
+plt.savefig(fig_dir + f"prod_b11_c0_oo.pdf")
 
 plt.close("all")
 
-### two-body product
+### product of three single-body operators
+
+dots = { "a" : 1, "b" : 1, "c" : 1 }
+make_triple_diagram(dots)
+add_triple_labels()
+plt.tight_layout(pad = 0.05)
+plt.savefig(fig_dir + f"prod_b111_c0.pdf")
+
+dots = { "a" : 1, "bc" : 1 }
+make_triple_diagram(dots)
+add_triple_labels()
+plt.tight_layout(pad = 0.05)
+plt.savefig(fig_dir + f"prod_b111_c11_u.pdf")
+
+dots = { "b" : 1, "ac" : 1 }
+make_triple_diagram(dots)
+add_triple_labels()
+plt.tight_layout(pad = 0.05)
+plt.savefig(fig_dir + f"prod_b111_c11_v.pdf")
+
+dots = { "c" : 1, "ab" : 1 }
+make_triple_diagram(dots)
+add_triple_labels()
+plt.tight_layout(pad = 0.05)
+plt.savefig(fig_dir + f"prod_b111_c11_w.pdf")
+
+dots = { "abc" : 1 }
+make_triple_diagram(dots)
+add_triple_labels()
+plt.tight_layout(pad = 0.05)
+plt.savefig(fig_dir + f"prod_b111_c10.pdf")
+
+plt.close("all")
+
+### product of two two-body operators
 
 for assignment in [ { "a" : 2, "b" : 2, "ab" : 0 },
                     { "a" : 1, "b" : 1, "ab" : 1 },
@@ -351,103 +385,103 @@ for assignment in [ { "a" : 2, "b" : 2, "ab" : 0 },
     add_double_labels()
     plt.tight_layout(pad = 0.05)
     tag = assignment["ab"]
-    plt.savefig(fig_dir + f"two_body_{tag}.pdf")
+    plt.savefig(fig_dir + f"prod_b22_c{tag}.pdf")
 
 dots = { "ab" : 2 }
 make_double_diagram(dots, { "ab" : "oo" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_2_oo.pdf")
+plt.savefig(fig_dir + f"prod_b22_c2_oo.pdf")
 
 dots = { "a" : 1, "b" : 1, "ab" : 1 }
 make_double_diagram(dots, { "a" : "o" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_1_o.pdf")
+plt.savefig(fig_dir + f"prod_b22_c1_o.pdf")
 
 make_double_diagram(dots, { "a" : "x" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_1_x.pdf")
+plt.savefig(fig_dir + f"prod_b22_c1_x.pdf")
 
 make_double_diagram(dots, { "a" : "o", "b" : "o" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_1_oo.pdf")
+plt.savefig(fig_dir + f"prod_b22_c1_oo.pdf")
 
 make_double_diagram(dots, { "a" : "o", "b" : "x" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_1_ox.pdf")
+plt.savefig(fig_dir + f"prod_b22_c1_ox.pdf")
 
 make_double_diagram(dots, { "a" : "o", "b" : "o", "ab" : "o" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_1_ooo.pdf")
+plt.savefig(fig_dir + f"prod_b22_c1_ooo.pdf")
 
 dots = { "a" : 2, "b" : 2 }
 make_double_diagram(dots, { "a" : "o" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_0_o.pdf")
+plt.savefig(fig_dir + f"prod_b22_c0_o.pdf")
 
 make_double_diagram(dots, { "a" : "oo" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_0_oo.pdf")
+plt.savefig(fig_dir + f"prod_b22_c0_oo.pdf")
 
 make_double_diagram(dots, { "a" : "ox" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_0_ox.pdf")
+plt.savefig(fig_dir + f"prod_b22_c0_ox.pdf")
 
 make_double_diagram(dots, { "a" : "x" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_0_x.pdf")
+plt.savefig(fig_dir + f"prod_b22_c0_x.pdf")
 
 make_double_diagram(dots, { "a" : "oo", "b" : "oo" })
 add_double_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + f"two_body_0_oooo.pdf")
+plt.savefig(fig_dir + f"prod_b22_c0_oooo.pdf")
 
 plt.close("all")
 
-### triple two-body product
+### product of three two-body operators
 
 for marker, suffix in zip([ ".", "o" ], [ "", "_o" ]):
 
     # 6-point diagram
     make_triple_diagram({ "a" : 2, "b" : 2, "c" : 2 }, default_marker = marker)
-    plt.savefig(fig_dir + "triple_0" + suffix + ".pdf")
+    plt.savefig(fig_dir + "prod_b222_c0" + suffix + ".pdf")
 
     plt.close("all")
 
     # 4-point diagrams
     make_triple_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 }, default_marker = marker)
-    plt.savefig(fig_dir + "triple_1" + suffix + ".pdf")
+    plt.savefig(fig_dir + "prod_b222_c1" + suffix + ".pdf")
 
     make_triple_diagram({ "a" : 2, "b" : 1, "c" : 1, "bc" : 1 }, default_marker = marker)
-    plt.savefig(fig_dir + "triple_01" + suffix + ".pdf")
+    plt.savefig(fig_dir + "prod_b222_c01" + suffix + ".pdf")
 
     plt.close("all")
 
     # 2-point diagrams
     make_triple_diagram({ "abc" : 2 }, default_marker = marker)
-    plt.savefig(fig_dir + "triple_2" + suffix + ".pdf")
+    plt.savefig(fig_dir + "prod_b222_c2" + suffix + ".pdf")
 
     make_triple_diagram({ "a" : 1, "bc" : 1, "abc" : 1 }, default_marker = marker)
-    plt.savefig(fig_dir + "triple_11" + suffix + ".pdf")
+    plt.savefig(fig_dir + "prod_b222_c11" + suffix + ".pdf")
 
     make_triple_diagram({ "a" : 2, "bc" : 2 }, default_marker = marker)
-    plt.savefig(fig_dir + "triple_02" + suffix + ".pdf")
+    plt.savefig(fig_dir + "prod_b222_c02" + suffix + ".pdf")
 
     make_triple_diagram({ "ab" : 1, "ac" : 1, "b" : 1, "c" : 1 }, default_marker = marker)
-    plt.savefig(fig_dir + "triple_011" + suffix + ".pdf")
+    plt.savefig(fig_dir + "prod_b222_c011" + suffix + ".pdf")
 
     # trace diagram
     make_triple_diagram({ "ab" : 1, "ac" : 1, "bc" : 1 }, default_marker = marker)
-    plt.savefig(fig_dir + "triple_0111" + suffix + ".pdf")
+    plt.savefig(fig_dir + "prod_b222_c0111" + suffix + ".pdf")
 
     plt.close("all")
 
@@ -456,11 +490,11 @@ for marker, suffix in zip([ ".", "o" ], [ "", "_o" ]):
 make_triple_diagram({ "a" : 1, "b" : 1, "c" : 1, "abc" : 1 }, figsize = (0.9,0.7))
 add_triple_labels()
 plt.tight_layout(pad = 0.05)
-plt.savefig(fig_dir + "triple_1_uvw.pdf")
+plt.savefig(fig_dir + "prod_b222_c1_uvw.pdf")
 
 for labels in [ ["u","v","w"], ["v","w","u"], ["w","u","v"] ]:
     make_triple_diagram({ "ab" : 1, "ac" : 1, "b" : 1, "c" : 1 }, figsize = (0.9,0.7))
     add_triple_labels(labels)
     plt.tight_layout(pad = 0)
     tag = "".join(labels)
-    plt.savefig(fig_dir + f"triple_011_{tag}.pdf")
+    plt.savefig(fig_dir + f"prod_b222_c011_{tag}.pdf")
