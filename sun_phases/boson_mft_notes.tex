@@ -37,6 +37,8 @@
 \usepackage{dsfont} % for identity operator
 \newcommand{\1}{\mathds{1}}
 
+\usepackage{mathtools} % for \coloneqq
+
 \newcommand{\up}{\uparrow}
 \newcommand{\dn}{\downarrow}
 
@@ -87,53 +89,64 @@
 
 \maketitle
 
-Suppose we have a spin Hamiltonian of the form
+Suppose we have a general quadratic spin Hamiltonian of the form
 \begin{align}
-  H_{\t{spin}} = \f1N \v S^\dag\c\v S
-  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} \op{\mu}{\nu}_i
+  H_{\t{spin}} = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  h^{\mu\nu i}_{\rho\sigma j} s_{\mu\nu i} s_{\rho\sigma j}
+  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
 \end{align}
-where $\v S$ is a vector of collective SU($n$) operators;
-$\mu,\nu\in\ZZ_n$ index orthogonal states of an individual spin;
-$i\in\ZZ_N$ indexes one of $N$ spins; $\epsilon_{\mu\nu i}$ is a
-scalar; and $\op{\mu}{\nu}_i$ is a transition operator for spin $i$.
-We can write this Hamiltonian in terms of Schwinger bosons as
+where $\mu,\nu\in\ZZ_n$ index orthogonal states of a single spin;
+$i,j\in\ZZ_N$ index one of $N$ spins; $h^{\mu\nu i}_{\rho\sigma j}$
+and $\epsilon_{\mu\nu i}$ are scalars; and
+$s_{\mu\nu i}\coloneqq\op{\mu}{\nu}_i$ is a transition operator for
+spin $i$.  We can write this Hamiltonian in terms of Schwinger bosons
+as
 \begin{align}
-  H = \f1N \sum_{\substack{\mu,\nu\\i<j}}
-  a_{\mu i}^\dag a_{\nu i} a_{\nu j}^\dag a_{\mu j}
-  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} a_{\mu i}^\dag a_{\nu i},
+  H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  h^{\mu\nu i}_{\rho\sigma j}
+  b_{\mu i}^\dag b_{\nu i} b_{\rho j}^\dag b_{\sigma j}
+  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} b_{\mu i}^\dag b_{\nu i},
 \end{align}
-where $a_{\mu i}$ annihilates a boson of type $\mu$ on site $i$.  The
+where $b_{\mu i}$ annihilates a boson of type $\mu$ on site $i$.  The
 Heisenberg equations of motion for these operators are
 \begin{align}
-  \i \d_t a_{\mu i}
-  = \sp{a_{\mu i},H}
-  &= \f1N \sum_{\substack{\rho,\sigma\\j<k}}
-  \sp{a_{\mu i}, a_{\rho j}^\dag a_{\sigma j}
-    a_{\sigma k}^\dag a_{\rho k}}
-  + \sum_{\rho,\sigma,j} \epsilon_{\rho\sigma j}
-  \sp{a_{\mu i}, a_{\rho j}^\dag a_{\sigma j}} \\
-  &= \f1N \sum_{\rho,\sigma}
-  \sp{a_{\mu i}, a_{\rho i}^\dag a_{\sigma i}} \sum_{k\ne i}
-  a_{\sigma k}^\dag a_{\rho k}
-  + \sum_{\rho,\sigma} \epsilon_{\rho\sigma i}
-  \sp{a_{\mu i}, a_{\rho i}^\dag a_{\sigma i}} \\
-  &= \sum_{\rho,\sigma}
-  \p{\f1N \sum_{k\ne i} a_{\sigma k}^\dag a_{\rho k}
-    + \epsilon_{\rho\sigma i}}
-  \sp{a_{\mu i}, a_{\rho i}^\dag a_{\sigma i}}
+  \i \d_t b_{\alpha i} = \sp{b_{\alpha i}, H}
+  &= \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
+  h^{\mu\nu j}_{\rho\sigma k}
+  \sp{b_{\alpha i}, b_{\mu j}^\dag b_{\nu j} b_{\rho k}^\dag b_{\sigma k}}
+  + \sum_{\mu,\nu,j} \epsilon_{\mu\nu j}
+  \sp{b_{\alpha i}, b_{\mu j}^\dag b_{\nu j}} \\
+  &= \f1N \sum_{\mu,\nu,\rho,\sigma} \sum_{k\ne i}
+  h^{\mu\nu j}_{\rho\sigma k}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}} b_{\rho k}^\dag b_{\sigma k}
+  + \sum_{\mu,\nu} \epsilon_{\mu\nu i}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}} \\
+  &= \sum_{\mu,\nu} \p{\f1N \sum_{\rho,\sigma} \sum_{k\ne i}
+    h^{\mu\nu i}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
+    + \epsilon_{\mu\nu i}}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}}
 \end{align}
 where
 \begin{align}
-  \sp{a_{\mu i}, a_{\rho i}^\dag a_{\sigma i}}
-  = \delta_{\rho\mu} \delta_{\sigma\mu} a_{\mu i}
-  + \delta_{\rho\mu} \p{1-\delta_{\sigma\mu}} a_{\sigma i}
-  = \delta_{\rho\mu} a_{\sigma i},
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}}
+  = \delta_{\mu\alpha} \delta_{\nu\alpha} b_{\alpha i}
+  + \delta_{\mu\alpha} \p{1-\delta_{\nu\alpha}} b_{\nu i}
+  = \delta_{\mu\alpha} b_{\nu i},
 \end{align}
 so
 \begin{align}
-  \i \d_t a_{\mu i}
-  = \sum_\nu \p{\f1N \sum_{k\ne i} a_{\nu k}^\dag a_{\mu k}
-    + \epsilon_{\mu\nu i}} a_{\nu i}
+  \i \d_t b_{\alpha i}
+  = \sum_\nu \p{\f1N \sum_{\rho,\sigma} \sum_{k\ne i}
+    h^{\alpha\nu i}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
+    + \epsilon_{\alpha\nu i}} b_{\nu i}.
+\end{align}
+If interactions are SU($n$) symmetric, then
+$h^{\alpha\nu i}_{\rho\sigma k} = h_{ik}
+\delta_{\alpha\sigma}\delta_{\nu\rho}$, so
+\begin{align}
+  \i \d_t b_{\alpha i}
+  = \sum_\nu \p{\f1N \sum_{k\ne i} h_{ik} b_{\nu k}^\dag b_{\alpha k}
+    + \epsilon_{\alpha\nu i}} b_{\nu i}.
 \end{align}
 
 
