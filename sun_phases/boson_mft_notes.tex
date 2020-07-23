@@ -89,7 +89,7 @@
 
 Suppose we have a spin Hamiltonian of the form
 \begin{align}
-  H_{\t{spin}} = \v S^\dag\c\v S
+  H_{\t{spin}} = \f1N \v S^\dag\c\v S
   + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} \op{\mu}{\nu}_i
 \end{align}
 where $\v S$ is a vector of collective SU($n$) operators;
@@ -98,55 +98,42 @@ $i\in\ZZ_N$ indexes one of $N$ spins; $\epsilon_{\mu\nu i}$ is a
 scalar; and $\op{\mu}{\nu}_i$ is a transition operator for spin $i$.
 We can write this Hamiltonian in terms of Schwinger bosons as
 \begin{align}
-  H = \sum_{\substack{\mu,\nu\\i<j}}
+  H = \f1N \sum_{\substack{\mu,\nu\\i<j}}
   a_{\mu i}^\dag a_{\nu i} a_{\nu j}^\dag a_{\mu j}
   + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} a_{\mu i}^\dag a_{\nu i},
 \end{align}
-where $a_{\mu i}$ is a bosonic annihilation operator that satisfies
-$a_{\mu i}^2=0$.  The Heisenberg equations of motion for these
-operators are
+where $a_{\mu i}$ annihilates a boson of type $\mu$ on site $i$.  The
+Heisenberg equations of motion for these operators are
 \begin{align}
   \i \d_t a_{\mu i}
   = \sp{a_{\mu i},H}
-  &= \sum_{\substack{\rho,\sigma\\j<k}}
+  &= \f1N \sum_{\substack{\rho,\sigma\\j<k}}
   \sp{a_{\mu i}, a_{\rho j}^\dag a_{\sigma j}
     a_{\sigma k}^\dag a_{\rho k}}
   + \sum_{\rho,\sigma,j} \epsilon_{\rho\sigma j}
   \sp{a_{\mu i}, a_{\rho j}^\dag a_{\sigma j}} \\
-  &= \sum_{\substack{\rho,\sigma\\j\ne i}} a_{\rho j}^\dag a_{\sigma j}
-  \sp{a_{\mu i}, a_{\sigma i}^\dag a_{\rho i}}
+  &= \f1N \sum_{\rho,\sigma}
+  \sp{a_{\mu i}, a_{\rho i}^\dag a_{\sigma i}} \sum_{k\ne i}
+  a_{\sigma k}^\dag a_{\rho k}
   + \sum_{\rho,\sigma} \epsilon_{\rho\sigma i}
-  \sp{a_{\mu i}, a_{\rho i}^\dag a_{\sigma i}},
-\end{align}
-where, for $j\ne i$,
-\begin{align}
-  \sum_{\rho,\sigma} a_{\rho j}^\dag a_{\sigma j}
-  \sp{a_{\mu i}, a_{\sigma i}^\dag a_{\rho i}}
-  = a_{\mu j}^\dag a_{\mu j}
-  \sp{a_{\mu i}, a_{\mu i}^\dag a_{\mu i}}
-  + \sum_{\rho\ne\sigma} a_{\rho j}^\dag a_{\sigma j}
-  \sp{a_{\mu i}, a_{\sigma i}^\dag a_{\rho i}}
-  = a_{\mu j}^\dag a_{\mu j}
-  + \sum_{\rho\ne\mu} a_{\rho j}^\dag a_{\mu j} a_{\rho i},
-\end{align}
-and
-\begin{align}
-  \sum_{\rho,\sigma} \epsilon_{\rho\sigma i}
+  \sp{a_{\mu i}, a_{\rho i}^\dag a_{\sigma i}} \\
+  &= \sum_{\rho,\sigma}
+  \p{\f1N \sum_{k\ne i} a_{\sigma k}^\dag a_{\rho k}
+    + \epsilon_{\rho\sigma i}}
   \sp{a_{\mu i}, a_{\rho i}^\dag a_{\sigma i}}
-  = \epsilon_{\mu\mu i}
-  \sp{a_{\mu i}, a_{\mu i}^\dag a_{\mu i}}
-  + \sum_{\rho\ne\sigma} \epsilon_{\rho\sigma i}
+\end{align}
+where
+\begin{align}
   \sp{a_{\mu i}, a_{\rho i}^\dag a_{\sigma i}}
-  = \epsilon_{\mu\mu i}
-  + \sum_{\sigma\ne\mu} \epsilon_{\mu\sigma i} a_{\sigma i},
+  = \delta_{\rho\mu} \delta_{\sigma\mu} a_{\mu i}
+  + \delta_{\rho\mu} \p{1-\delta_{\sigma\mu}} a_{\sigma i}
+  = \delta_{\rho\mu} a_{\sigma i},
 \end{align}
 so
 \begin{align}
   \i \d_t a_{\mu i}
-  = \sum_{j\ne i} \p{a_{\mu j}^\dag a_{\mu j}
-  + \sum_{\nu\ne\mu} a_{\nu j}^\dag a_{\mu j} a_{\nu i}}
-  + \epsilon_{\mu\mu i}
-  + \sum_{\nu\ne\mu} \epsilon_{\mu\nu i} a_{\nu i}.
+  = \sum_\nu \p{\f1N \sum_{k\ne i} a_{\nu k}^\dag a_{\mu k}
+    + \epsilon_{\mu\nu i}} a_{\nu i}
 \end{align}
 
 
