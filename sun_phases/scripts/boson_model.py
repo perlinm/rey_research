@@ -79,23 +79,20 @@ def field_tensor(bare_field_data):
 
 # method computing the time derivative of a mean-field bosonic state
 def boson_time_deriv(state, field, coupling_op = None):
+    state_triplet = ( state.conj(), state, state )
     if coupling_op is None:
-        vals = [ sum( ( sum( state[nu,kk].conjugate() * state[mu,kk]
-                             for kk in range(spin_num) if kk != ii ) / spin_num
-                        + field[mu,nu,ii] )
-                      * state[nu,ii]
-                      for nu in range(spin_dim) )
-                 for mu in range(spin_dim) for ii in range(spin_num) ]
-    else:
-        vals = [ sum( ( sum( coupling_op[rr,ss] *
-                             sum( state[rr,kk].conjugate() * state[ss,kk]
-                                  for kk in range(spin_num) if kk != ii )
-                             for rr in range(spin_dim) for ss in range(spin_dim) ) / spin_num
-                        + field[mu,nu,ii] )
-                      * state[nu,ii]
-                      for nu in range(spin_dim) )
-                 for mu in range(spin_dim) for ii in range(spin_num) ]
-    return -1j * np.array(vals)
+        vec = np.einsum("nk,ak,ni->ai", *state_triplet) / spin_num \
+            - np.einsum("ni,ai,ni->ai", *state_triplet) / spin_num \
+            + np.einsum("ani,ni->ai", field, state)
+    elif coupling_op.ndim == 4:
+        vec = np.einsum("anrs,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
+            - np.einsum("anrs,ri,si,ni->ai", coupling_op, *state_triplet) / spin_num \
+            + np.einsum("ani,ni->ai", field, state)
+    elif coupling_op.ndim == 6:
+        vec = np.einsum("anrsik,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
+            - np.einsum("anrsii,ri,si,ni->ai", coupling_op, *state_triplet) / spin_num \
+            + np.einsum("ani,ni->ai", field, state)
+    return -1j * vec
 
 # wrapper for the numerical integrator, for dealing with multi-spin_dimensional state
 def evolve(initial_state, field, coupling_op = None,
@@ -105,7 +102,7 @@ def evolve(initial_state, field, coupling_op = None,
 
     def time_deriv_flat(time, state):
         state.shape = state_shape
-        vec = boson_time_deriv(state, field, coupling_op)
+        vec = boson_time_deriv(state, field, coupling_op).ravel()
         state.shape = state.size
         return vec
 
@@ -141,7 +138,7 @@ field_Z = field_tensor(Sz)
 state_X_alt = boson_mft_state([ spin_state([0,sign,0]) for sign in alt_signs ])
 field_alt = field_tensor([ sign * Sz for sign in alt_signs ])
 
-init_state = state_X_alt
+init_state = state_X
 bare_field = field_alt
 
 scales = np.logspace(-2,0.5,21)
@@ -149,7 +146,7 @@ all_extrema = np.empty((4,scales.size))
 
 for idx, scale in enumerate(scales):
     field = scale * bare_field
-    time_step = 2*np.pi / np.sqrt(1 + scale**2)
+    time_step = np.pi / np.sqrt(1 + scale**2)
 
     state = init_state
 
