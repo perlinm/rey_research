@@ -15,10 +15,13 @@ spin_num = 10
 sim_time = 2 * np.pi
 ivp_tolerance = 1e-10
 
+color_map = "inferno"
+
 figsize = (4,3)
 params = { "font.size" : 12,
            "text.usetex" : True,
-           "text.latex.preamble" : [ r"\usepackage{braket}" ]}
+           "text.latex.preamble" : [ r"\usepackage{physics}",
+                                     r"\usepackage{braket}" ]}
 plt.rcParams.update(params)
 
 ##########################################################################################
@@ -72,16 +75,29 @@ def field_tensor(bare_field_data):
 def boson_time_deriv(state, field, coupling_op = None):
     state_triplet = ( state.conj(), state, state )
     if coupling_op is None:
+        # uniform SU(n)-symmetric couplings
         vec = np.einsum("nk,ak,ni->ai", *state_triplet) / spin_num \
             - np.einsum("ni,ai,ni->ai", *state_triplet) / spin_num \
             + np.einsum("ani,ni->ai", field, state)
-    elif coupling_op.ndim == 4:
+    elif type(coupling_op) is np.ndarray and coupling_op.ndim == 2:
+        # inhomogeneous SU(n)-symmetric couplings
+        vec = np.einsum("ik,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
+            - np.einsum("ii,ri,si,ni->ai", coupling_op, *state_triplet) / spin_num \
+            + np.einsum("ani,ni->ai", field, state)
+    elif type(coupling_op) is np.ndarray and coupling_op.ndim == 4:
+        # uniform asymmetric couplings
         vec = np.einsum("anrs,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
             - np.einsum("anrs,ri,si,ni->ai", coupling_op, *state_triplet) / spin_num \
             + np.einsum("ani,ni->ai", field, state)
-    elif coupling_op.ndim == 6:
-        vec = np.einsum("anrsik,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
-            - np.einsum("anrsii,ri,si,ni->ai", coupling_op, *state_triplet) / spin_num \
+    elif type(coupling_op) is np.ndarray and coupling_op.ndim == 6:
+        # inhomogeneous asymmetric couplings
+        vec = np.einsum("anirsk,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
+            - np.einsum("anirsi,ri,si,ni->ai", coupling_op, *state_triplet) / spin_num \
+            + np.einsum("ani,ni->ai", field, state)
+    else:
+        # couplings that factorize into an "operator" part and a "spatial" part
+        vec = np.einsum("anrs,ik,rk,sk,ni->ai", *coupling_op, *state_triplet) / spin_num \
+            - np.einsum("anrs,ii,ri,si,ni->ai", *coupling_op, *state_triplet) / spin_num \
             + np.einsum("ani,ni->ai", field, state)
     return -1j * vec
 
@@ -140,7 +156,8 @@ def double_state(elevation, opening_angle):
 # simulation method
 ##########################################################################################
 
-def get_op_vals(field_scale, operator, end_cond, time_step = None, debug = False):
+def get_op_vals(init_state, field_scale, operator, end_cond,
+                coupling_op = None, time_step = None, debug = False):
     field = field_scale * bare_field
     if time_step is None:
         time_step = np.pi / np.sqrt(1 + field_scale**2)
@@ -151,7 +168,8 @@ def get_op_vals(field_scale, operator, end_cond, time_step = None, debug = False
 
     # simulate until the given terminal condition is satisfied
     while not end_cond(op_vals):
-        new_times, new_states = evolve(states[-1,:,:], field, sim_time = time_step)
+        new_times, new_states = evolve(states[-1,:,:], field,
+                                       coupling_op = coupling_op, sim_time = time_step)
         new_op_vals = collective_vals(operator, new_states) / max_spin
 
         times = np.concatenate([ times, times[-1] + new_times[1:] ])
@@ -161,10 +179,13 @@ def get_op_vals(field_scale, operator, end_cond, time_step = None, debug = False
     if debug:
         plt.figure(figsize = figsize)
         plt.title(debug)
-        plt.plot(times/(2*np.pi), op_vals.real, label = r"$\mathrm{X}$")
-        plt.plot(times/(2*np.pi), op_vals.imag, label = r"$\mathrm{Y}$")
+
+        op_mags = abs(op_vals)
+        op_phases = np.angle(op_vals)
+        plt.plot(times/(2*np.pi), op_mags, label = r"$\abs{\Delta}$")
+        plt.plot(times/(2*np.pi), op_phases/np.pi, label = r"$\arg(\Delta)/\pi$")
         plt.xlabel("$t/2\pi$")
-        plt.legend(loc = "best")
+        plt.legend(loc = "best", framealpha = 1)
         plt.tight_layout()
         plt.show()
 
@@ -180,25 +201,25 @@ def end_cond(vals):
         imag_end = num_peaks(vals.imag) > 1 or np.allclose(vals.imag, vals.imag[0])
         return real_end and imag_end
 
-def get_all_extrema(field_scales, debug = False):
+def get_all_extrema(init_state, field_scales, coupling_op = None, debug = False):
     all_extrema = np.empty((4,field_scales.size))
 
     for idx, field_scale in enumerate(field_scales):
         debug_title = f"${idx}/{len(field_scales)}$" if debug else None
-        vals = get_op_vals(field_scale, Sp, end_cond, debug = debug_title)
+        vals = get_op_vals(init_state, field_scale, Sp, end_cond,
+                           coupling_op = coupling_op, debug = debug_title)
         all_extrema[:,idx] = max(vals.real), min(vals.real), max(vals.imag), min(vals.imag)
 
     return all_extrema
 
-def get_amplitudes(field_scales, debug = False):
+def get_amplitudes(init_state, field_scales, coupling_op = None, debug = False):
     amplitudes = np.empty(field_scales.size)
 
     for idx, field_scale in enumerate(field_scales):
         debug_title = f"${idx}/{len(field_scales)}$" if debug else None
-        vals = get_op_vals(field_scale, Sp, end_cond, debug = debug_title)
-        real_amp = ( max(vals.real) - min(vals.real) ) / 2
-        imag_amp = ( max(vals.imag) - min(vals.imag) ) / 2
-        amplitudes[idx] = max(real_amp, imag_amp)
+        vals = get_op_vals(init_state, field_scale, Sp, end_cond,
+                           coupling_op = coupling_op, debug = debug_title)
+        amplitudes[idx] = max(abs(vals)) - min(abs(vals))
 
     return amplitudes
 
@@ -206,26 +227,49 @@ def get_amplitudes(field_scales, debug = False):
 # simulate!
 ##########################################################################################
 
-elevation, opening_angle = 0, np.pi
-init_state = double_state(elevation, opening_angle)
+field_fac = 1/2
+field_scales = np.logspace(-2,1,51)
+elevations = np.linspace(-np.pi/2,np.pi/2,51)
 
-field_scales = np.logspace(-2,1,21)
-all_extrema = get_all_extrema(field_scales)
+for opening_angle in [ 0, np.pi ]:
+    print(round(opening_angle/np.pi))
 
-labels = [ r"$\braket{S_{\mathrm{x}}}_{\mathrm{max}}/S$",
-           r"$\braket{S_{\mathrm{x}}}_{\mathrm{min}}/S$",
-           r"$\braket{S_{\mathrm{y}}}_{\mathrm{max}}/S$",
-           r"$\braket{S_{\mathrm{y}}}_{\mathrm{min}}/S$" ]
+    amplitudes = np.zeros((field_scales.size,elevations.size))
+    for idx in range((elevations.size+1)//2):
+        print(f" {idx}/{(elevations.size+1)//2}")
+        init_state = double_state(elevations[idx], opening_angle)
+        amplitudes[:,+idx] = get_amplitudes(init_state, field_scales * field_fac)
+        amplitudes[:,-(idx+1)] = amplitudes[:,+idx]
 
-plt.figure(figsize = figsize)
-plt.title(f"$n={spin_dim}$")
-for extrema, label in zip(all_extrema, labels):
-    if np.isclose(max(abs(extrema)), 0): continue
-    plt.semilogx(field_scales, extrema, ".", label = label)
+    figure, axis = plt.subplots(figsize = figsize)
+    if opening_angle == 0:
+        axis.set_title(r"$\theta_0=0$")
+    if opening_angle == np.pi:
+        axis.set_title(r"$\theta_0=\pi$")
 
-plt.xlim(field_scales[0], field_scales[-1])
-plt.xlabel(r"$\epsilon_0$")
-plt.legend(loc = "best", handlelength = 0.5, framealpha = 1)
-plt.tight_layout()
+    dy = elevations[1] - elevations[0]
+    elev_grid = np.concatenate([ elevations, [ elevations[-1] + dy ] ]) - dy/2
 
-plt.show()
+    log_scales = np.log(field_scales)
+    dx = log_scales[1] - log_scales[0]
+    log_scale_grid = np.concatenate([ log_scales, [ log_scales[-1] + dx ] ]) - dx/2
+    scale_grid = np.exp(log_scale_grid)
+
+    image = axis.pcolormesh(scale_grid, elev_grid/np.pi, amplitudes.T,
+                            cmap = color_map, vmin = 0, vmax = 1)
+
+    axis.set_xlabel(r"$\delta_E$")
+    axis.set_ylabel(r"$\phi/\pi$")
+
+    axis.set_xscale("log")
+    axis.set_yticks([-1/2,-1/4,0,1/4,1/2])
+    axis.set_yticklabels(["$-1/2$","$-1/4$","$0$","$1/4$","$1/2$"])
+
+    figure.colorbar(image)
+
+    figure.tight_layout(pad = 0.2)
+
+    image.set_rasterized(True)
+    fig_name = f"../figures/BCS_osc_{round(opening_angle/np.pi)}.pdf"
+    figure.savefig(fig_name, dpi = 300)
+    plt.close(figure)
