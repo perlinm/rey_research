@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import scipy.integrate
 
 from dicke_methods import coherent_spin_state_angles, coherent_spin_state, \
-    spin_op_vec_mat_dicke
+    spin_op_p_dicke, spin_op_z_dicke
 
 np.set_printoptions(linewidth = 200)
 
@@ -23,6 +23,8 @@ params = { "font.size" : 12,
            "text.latex.preamble" : [ r"\usepackage{physics}",
                                      r"\usepackage{braket}" ]}
 plt.rcParams.update(params)
+
+assert( spin_dim % 2 == 0 )
 
 ##########################################################################################
 # basic simulation objects and methods
@@ -129,19 +131,16 @@ def evolve(initial_state, field, coupling_op = None,
 # set up objects for simulation
 ##########################################################################################
 
-S_op_vec, _ = spin_op_vec_mat_dicke(spin_dim-1)
-op_labels = [ "z", "x", "y" ]
-spin_ops = { label : spin_op.todense() for label, spin_op in zip(op_labels, S_op_vec) }
-Sz, Sx, Sy = spin_ops.values()
-Sp = ( Sx + 1j * Sy ).real
+Sz = spin_op_z_dicke(spin_dim-1).todense()
+Sp = spin_op_p_dicke(spin_dim-1).todense()
 max_spin = np.max(Sz) * spin_num
 
-def collective_val(op, state):
-    vals = np.einsum("mn,mj,nj->", op, state.conj(), state)
-    if np.allclose(vals.imag, 0): vals = vals.real
-    return vals
-def collective_vals(op, states):
-    return np.array([ collective_val(op, state) for state in states ])
+def state_polarization(state):
+    Sz_val = np.einsum("mn,mj,nj->", Sz, state.conj(), state)
+    Sp_val = np.einsum("mn,mj,nj->", Sp, state.conj(), state)
+    return np.sqrt( abs(Sz_val)**2 + abs(Sp_val)**2 ) / max_spin
+def state_polarizations(states):
+    return np.array([ state_polarization(state) for state in states ])
 
 alt_signs = np.ones(spin_num)
 alt_signs[spin_num//2:] = -1
@@ -156,21 +155,23 @@ def double_state(elevation, opening_angle):
 # simulation method
 ##########################################################################################
 
-def get_op_vals(init_state, field_scale, operator, end_cond,
-                coupling_op = None, time_step = None, debug = False):
+def get_polarizations(init_state, field_scale, end_cond,
+                      coupling_op = None, time_step = None, debug = False):
     field = field_scale * bare_field
     if time_step is None:
-        time_step = np.pi / np.sqrt(1 + field_scale**2)
+        if spin_dim == 2:
+            time_step = np.pi / np.sqrt(1 + field_scale**2)
+        else:
+            time_step = 2*np.pi / min(field_scale, 1) * spin_num
 
     times = np.zeros(1)
     states = np.reshape(init_state, (1,) + init_state.shape)
-    op_vals = collective_vals(operator, states) / max_spin
+    op_vals = state_polarizations(states)
 
-    # simulate until the given terminal condition is satisfied
     while not end_cond(op_vals):
         new_times, new_states = evolve(states[-1,:,:], field,
                                        coupling_op = coupling_op, sim_time = time_step)
-        new_op_vals = collective_vals(operator, new_states) / max_spin
+        new_op_vals = state_polarizations(new_states)
 
         times = np.concatenate([ times, times[-1] + new_times[1:] ])
         states = np.concatenate([ states, new_states[1:] ])
@@ -179,13 +180,8 @@ def get_op_vals(init_state, field_scale, operator, end_cond,
     if debug:
         plt.figure(figsize = figsize)
         plt.title(debug)
-
-        op_mags = abs(op_vals)
-        op_phases = np.angle(op_vals)
-        plt.plot(times/(2*np.pi), op_mags, label = r"$\abs{\Delta}$")
-        plt.plot(times/(2*np.pi), op_phases/np.pi, label = r"$\arg(\Delta)/\pi$")
+        plt.plot(times/(2*np.pi), op_vals)
         plt.xlabel("$t/2\pi$")
-        plt.legend(loc = "best", framealpha = 1)
         plt.tight_layout()
         plt.show()
 
@@ -196,31 +192,17 @@ def num_peaks(vals):
                 ( vals[1:-1] > vals[+2:] ) )
 def end_cond(vals):
     if len(vals) < 3: return False
-    if spin_dim == 2 or True:
-        real_end = num_peaks(vals.real) > 1 or np.allclose(vals.real, vals.real[0])
-        imag_end = num_peaks(vals.imag) > 1 or np.allclose(vals.imag, vals.imag[0])
-        return real_end and imag_end
+    return num_peaks(vals) > 1 or np.allclose(vals, vals.real[0])
 
-def get_all_extrema(init_state, field_scales, coupling_op = None, debug = False):
-    all_extrema = np.empty((4,field_scales.size))
-
-    for idx, field_scale in enumerate(field_scales):
-        debug_title = f"${idx}/{len(field_scales)}$" if debug else None
-        vals = get_op_vals(init_state, field_scale, Sp, end_cond,
-                           coupling_op = coupling_op, debug = debug_title)
-        all_extrema[:,idx] = max(vals.real), min(vals.real), max(vals.imag), min(vals.imag)
-
-    return all_extrema
-
-def get_amplitudes(init_state, field_scales, coupling_op = None, debug = False):
+def get_amplitudes(init_state, field_scales, coupling_op = None,
+                   time_step = None, debug = False):
     amplitudes = np.empty(field_scales.size)
-
     for idx, field_scale in enumerate(field_scales):
         debug_title = f"${idx}/{len(field_scales)}$" if debug else None
-        vals = get_op_vals(init_state, field_scale, Sp, end_cond,
-                           coupling_op = coupling_op, debug = debug_title)
-        amplitudes[idx] = max(abs(vals)) - min(abs(vals))
-
+        vals = get_polarizations(init_state, field_scale, end_cond,
+                                 coupling_op = coupling_op, time_step = time_step,
+                                 debug = debug_title)
+        amplitudes[idx] = max(vals) - min(vals)
     return amplitudes
 
 ##########################################################################################
@@ -229,7 +211,7 @@ def get_amplitudes(init_state, field_scales, coupling_op = None, debug = False):
 
 field_fac = 1/2
 field_scales = np.logspace(-2,1,51)
-elevations = np.linspace(-np.pi/2,np.pi/2,51)
+elevations = np.pi/2 * np.linspace(-1,1,51)
 
 for opening_angle in [ 0, np.pi ]:
     print(round(opening_angle/np.pi))
@@ -266,10 +248,9 @@ for opening_angle in [ 0, np.pi ]:
     axis.set_yticklabels(["$-1/2$","$-1/4$","$0$","$1/4$","$1/2$"])
 
     figure.colorbar(image)
-
-    figure.tight_layout(pad = 0.2)
-
     image.set_rasterized(True)
     fig_name = f"../figures/BCS_osc_{round(opening_angle/np.pi)}.pdf"
+    plt.tight_layout(pad = 0.1)
     figure.savefig(fig_name, dpi = 300)
+
     plt.close(figure)
