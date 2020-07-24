@@ -5,14 +5,13 @@ import matplotlib.pyplot as plt
 import scipy.integrate
 
 from dicke_methods import coherent_spin_state_angles, coherent_spin_state, \
-    spin_op_p_dicke, spin_op_z_dicke
+    spin_op_z_dicke
 
 np.set_printoptions(linewidth = 200)
 
 spin_dim = 2
 spin_num = 10
 
-sim_time = 2 * np.pi
 ivp_tolerance = 1e-10
 
 color_map = "inferno"
@@ -23,8 +22,6 @@ params = { "font.size" : 12,
            "text.latex.preamble" : [ r"\usepackage{physics}",
                                      r"\usepackage{braket}" ]}
 plt.rcParams.update(params)
-
-assert( spin_dim % 2 == 0 )
 
 ##########################################################################################
 # basic simulation objects and methods
@@ -105,7 +102,7 @@ def boson_time_deriv(state, field, coupling_op = None):
 
 # wrapper for the numerical integrator, for dealing with multi-spin_dimensional state
 def evolve(initial_state, field, coupling_op = None,
-           sim_time = sim_time, ivp_tolerance = ivp_tolerance):
+           sim_time = 2*np.pi, ivp_tolerance = ivp_tolerance):
     state_shape = initial_state.shape
     initial_state.shape = initial_state.size
 
@@ -131,19 +128,25 @@ def evolve(initial_state, field, coupling_op = None,
 # set up objects for simulation
 ##########################################################################################
 
-Sz = spin_op_z_dicke(spin_dim-1).todense()
-Sp = spin_op_p_dicke(spin_dim-1).todense()
-max_spin = np.max(Sz) * spin_num
 
-def state_polarization(state):
-    Sz_val = np.einsum("mn,mj,nj->", Sz, state.conj(), state)
-    Sp_val = np.einsum("mn,mj,nj->", Sp, state.conj(), state)
-    return np.sqrt( abs(Sz_val)**2 + abs(Sp_val)**2 ) / max_spin
-def state_polarizations(states):
-    return np.array([ state_polarization(state) for state in states ])
+def transition(mu,nu):
+    op = np.zeros((spin_dim,)*2)
+    op[mu,nu] = 1
+    return op
+swap = sum( np.kron(transition(mu,nu).T, transition(mu,nu))
+            for mu in range(spin_dim) for nu in range(spin_dim) )
+swap.shape = (spin_dim,)*4
+
+def state_param(state):
+    state_quad = ( state.conj(), state, state.conj(), state )
+    SS = np.einsum("mnrs,mj,nj,rk,sk->", swap, *state_quad).real
+    return SS / spin_num**2
+def state_params(states):
+    return np.array([ state_param(state) for state in states ])
 
 alt_signs = np.ones(spin_num)
 alt_signs[spin_num//2:] = -1
+Sz = spin_op_z_dicke(spin_dim-1).todense()
 bare_field = field_tensor([ sign * Sz for sign in alt_signs ])
 
 def double_state(elevation, opening_angle):
@@ -155,7 +158,7 @@ def double_state(elevation, opening_angle):
 # simulation method
 ##########################################################################################
 
-def get_polarizations(init_state, field_scale, end_cond,
+def get_params(init_state, field_scale, end_cond,
                       coupling_op = None, time_step = None, debug = False):
     field = field_scale * bare_field
     if time_step is None:
@@ -166,43 +169,43 @@ def get_polarizations(init_state, field_scale, end_cond,
 
     times = np.zeros(1)
     states = np.reshape(init_state, (1,) + init_state.shape)
-    op_vals = state_polarizations(states)
+    params = state_params(states)
 
-    while not end_cond(op_vals):
+    while not end_cond(params):
         new_times, new_states = evolve(states[-1,:,:], field,
                                        coupling_op = coupling_op, sim_time = time_step)
-        new_op_vals = state_polarizations(new_states)
+        new_params = state_params(new_states)
 
         times = np.concatenate([ times, times[-1] + new_times[1:] ])
         states = np.concatenate([ states, new_states[1:] ])
-        op_vals = np.concatenate([ op_vals, new_op_vals[1:] ])
+        params = np.concatenate([ params, new_params[1:] ])
 
     if debug:
         plt.figure(figsize = figsize)
         plt.title(debug)
-        plt.plot(times/(2*np.pi), op_vals)
+        plt.plot(times/(2*np.pi), params)
         plt.xlabel("$t/2\pi$")
         plt.tight_layout()
         plt.show()
 
-    return op_vals
+    return params
 
 def num_peaks(vals):
     return sum( ( vals[1:-1] > vals[:-2] ) &
                 ( vals[1:-1] > vals[+2:] ) )
 def end_cond(vals):
     if len(vals) < 3: return False
-    return num_peaks(vals) > 1 or np.allclose(vals, vals.real[0])
+    return num_peaks(vals) > 1 or np.allclose(vals, vals[0])
 
 def get_amplitudes(init_state, field_scales, coupling_op = None,
                    time_step = None, debug = False):
     amplitudes = np.empty(field_scales.size)
     for idx, field_scale in enumerate(field_scales):
         debug_title = f"${idx}/{len(field_scales)}$" if debug else None
-        vals = get_polarizations(init_state, field_scale, end_cond,
+        params = get_params(init_state, field_scale, end_cond,
                                  coupling_op = coupling_op, time_step = time_step,
                                  debug = debug_title)
-        amplitudes[idx] = max(vals) - min(vals)
+        amplitudes[idx] = 2 * ( max(params) - min(params) )
     return amplitudes
 
 ##########################################################################################
