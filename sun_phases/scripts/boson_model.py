@@ -21,8 +21,6 @@ params = { "font.size" : 12,
            "text.latex.preamble" : [ r"\usepackage{braket}" ]}
 plt.rcParams.update(params)
 
-linestyles = [ "-", "--", ":", "-." ]
-
 ##########################################################################################
 # basic simulation objects and methods
 ##########################################################################################
@@ -33,6 +31,7 @@ op_labels = [ "z", "x", "y" ]
 spin_ops = { label : spin_op.todense() for label, spin_op in zip(op_labels, S_op_vec) }
 Sz, Sx, Sy = spin_ops.values()
 Sp = ( Sx + 1j * Sy ).real
+max_spin = np.max(Sz) * spin_num
 
 # construct a boson MFT state from a quantum state
 def boson_mft_state(bare_quantum_state):
@@ -138,7 +137,7 @@ field_Z = field_tensor(Sz)
 state_X_alt = boson_mft_state([ spin_state([0,sign,0]) for sign in alt_signs ])
 field_alt = field_tensor([ sign * Sz for sign in alt_signs ])
 
-init_state = state_X
+init_state = state_X_alt
 bare_field = field_alt
 
 scales = np.logspace(-2,0.5,21)
@@ -153,15 +152,15 @@ for idx, scale in enumerate(scales):
     finished = False
     times = np.zeros(1)
     states = np.reshape(init_state, (1,) + init_state.shape)
-    vals = collective_vals(Sp, states) / (spin_num/2)
+    vals = collective_vals(Sp, states) / max_spin
 
     # simulate for one oscillation of the order parameter
     while True:
         new_times, new_states = evolve(states[-1,:,:], field, sim_time = time_step)
-        new_vals = collective_vals(Sp, new_states) / (spin_num/2)
+        new_vals = collective_vals(Sp, new_states) / max_spin
         times = np.concatenate([ times, times[-1] + new_times[1:] ])
         states = np.concatenate([ states, new_states[1:] ])
-        vals = np.concatenate([ vals, new_vals ])
+        vals = np.concatenate([ vals, new_vals[1:] ])
 
         def _num_peaks(values):
             return sum( ( values[1:-1] > values[:-2] ) &
@@ -176,6 +175,7 @@ labels = [ r"$\max\mathrm{Re}(\Delta)$", r"$\min\mathrm{Re}(\Delta)$",
            r"$\max\mathrm{Im}(\Delta)$", r"$\min\mathrm{Im}(\Delta)$" ]
 
 plt.figure(figsize = figsize)
+plt.title(f"$n={spin_dim}$")
 for extrema, label in zip(all_extrema, labels):
     if np.isclose(max(abs(extrema)), 0): continue
     plt.semilogx(scales, extrema, ".", label = label)
@@ -183,4 +183,4 @@ plt.xlabel(r"$\epsilon_0$")
 plt.legend(loc = "best", handlelength = 0.5, framealpha = 1)
 plt.tight_layout()
 
-# plt.show()
+plt.show()
