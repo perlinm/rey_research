@@ -25,14 +25,6 @@ plt.rcParams.update(params)
 # basic simulation objects and methods
 ##########################################################################################
 
-S_op_vec, _ = spin_op_vec_mat_dicke(spin_dim-1)
-
-op_labels = [ "z", "x", "y" ]
-spin_ops = { label : spin_op.todense() for label, spin_op in zip(op_labels, S_op_vec) }
-Sz, Sx, Sy = spin_ops.values()
-Sp = ( Sx + 1j * Sy ).real
-max_spin = np.max(Sz) * spin_num
-
 # construct a boson MFT state from a quantum state
 def boson_mft_state(bare_quantum_state):
     quantum_state = np.array(bare_quantum_state).T.copy().astype(complex)
@@ -118,8 +110,15 @@ def evolve(initial_state, field, coupling_op = None,
     return times, states
 
 ##########################################################################################
-# simulate and plot results
+# set up objects for simulation
 ##########################################################################################
+
+S_op_vec, _ = spin_op_vec_mat_dicke(spin_dim-1)
+op_labels = [ "z", "x", "y" ]
+spin_ops = { label : spin_op.todense() for label, spin_op in zip(op_labels, S_op_vec) }
+Sz, Sx, Sy = spin_ops.values()
+Sp = ( Sx + 1j * Sy ).real
+max_spin = np.max(Sz) * spin_num
 
 def collective_val(op, state):
     vals = np.einsum("mn,mj,nj->", op, state.conj(), state)
@@ -129,56 +128,102 @@ def collective_vals(op, states):
     return np.array([ collective_val(op, state) for state in states ])
 
 alt_signs = np.ones(spin_num)
-alt_signs[1::2] = -1
+alt_signs[spin_num//2:] = -1
+bare_field = field_tensor([ sign * Sz for sign in alt_signs ])
 
-state_X = polarized_state([0,1,0])
-field_Z = field_tensor(Sz)
+def double_state(elevation, opening_angle):
+    assert( spin_num % 2 == 0 )
+    return boson_mft_state([ spin_state(np.pi/2-elevation, sign/2 * opening_angle)
+                             for sign in alt_signs ])
 
-state_X_alt = boson_mft_state([ spin_state([0,sign,0]) for sign in alt_signs ])
-field_alt = field_tensor([ sign * Sz for sign in alt_signs ])
+##########################################################################################
+# simulation method
+##########################################################################################
 
-init_state = state_X_alt
-bare_field = field_alt
+def get_op_vals(field_scale, operator, end_cond, time_step = None, debug = False):
+    field = field_scale * bare_field
+    if time_step is None:
+        time_step = np.pi / np.sqrt(1 + field_scale**2)
 
-scales = np.logspace(-2,0.5,21)
-all_extrema = np.empty((4,scales.size))
-
-for idx, scale in enumerate(scales):
-    field = scale * bare_field
-    time_step = np.pi / np.sqrt(1 + scale**2)
-
-    state = init_state
-
-    finished = False
     times = np.zeros(1)
     states = np.reshape(init_state, (1,) + init_state.shape)
-    vals = collective_vals(Sp, states) / max_spin
+    op_vals = collective_vals(operator, states) / max_spin
 
-    # simulate for one oscillation of the order parameter
-    while True:
+    # simulate until the given terminal condition is satisfied
+    while not end_cond(op_vals):
         new_times, new_states = evolve(states[-1,:,:], field, sim_time = time_step)
-        new_vals = collective_vals(Sp, new_states) / max_spin
+        new_op_vals = collective_vals(operator, new_states) / max_spin
+
         times = np.concatenate([ times, times[-1] + new_times[1:] ])
         states = np.concatenate([ states, new_states[1:] ])
-        vals = np.concatenate([ vals, new_vals[1:] ])
+        op_vals = np.concatenate([ op_vals, new_op_vals[1:] ])
 
-        def _num_peaks(values):
-            return sum( ( values[1:-1] > values[:-2] ) &
-                        ( values[1:-1] > values[+2:] ) )
-        real_end = _num_peaks(vals.real) > 1 or np.allclose(vals.real, vals.real[0])
-        imag_end = _num_peaks(vals.imag) > 1 or np.allclose(vals.imag, vals.imag[0])
-        if real_end and imag_end: break
+    if debug:
+        plt.figure(figsize = figsize)
+        plt.title(debug)
+        plt.plot(times/(2*np.pi), op_vals.real, label = r"$\mathrm{X}$")
+        plt.plot(times/(2*np.pi), op_vals.imag, label = r"$\mathrm{Y}$")
+        plt.xlabel("$t/2\pi$")
+        plt.legend(loc = "best")
+        plt.tight_layout()
+        plt.show()
 
-    all_extrema[:,idx] = max(vals.real), min(vals.real), max(vals.imag), min(vals.imag)
+    return op_vals
 
-labels = [ r"$\max\mathrm{Re}(\Delta)$", r"$\min\mathrm{Re}(\Delta)$",
-           r"$\max\mathrm{Im}(\Delta)$", r"$\min\mathrm{Im}(\Delta)$" ]
+def num_peaks(vals):
+    return sum( ( vals[1:-1] > vals[:-2] ) &
+                ( vals[1:-1] > vals[+2:] ) )
+def end_cond(vals):
+    if len(vals) < 3: return False
+    if spin_dim == 2 or True:
+        real_end = num_peaks(vals.real) > 1 or np.allclose(vals.real, vals.real[0])
+        imag_end = num_peaks(vals.imag) > 1 or np.allclose(vals.imag, vals.imag[0])
+        return real_end and imag_end
+
+def get_all_extrema(field_scales, debug = False):
+    all_extrema = np.empty((4,field_scales.size))
+
+    for idx, field_scale in enumerate(field_scales):
+        debug_title = f"${idx}/{len(field_scales)}$" if debug else None
+        vals = get_op_vals(field_scale, Sp, end_cond, debug = debug_title)
+        all_extrema[:,idx] = max(vals.real), min(vals.real), max(vals.imag), min(vals.imag)
+
+    return all_extrema
+
+def get_amplitudes(field_scales, debug = False):
+    amplitudes = np.empty(field_scales.size)
+
+    for idx, field_scale in enumerate(field_scales):
+        debug_title = f"${idx}/{len(field_scales)}$" if debug else None
+        vals = get_op_vals(field_scale, Sp, end_cond, debug = debug_title)
+        real_amp = ( max(vals.real) - min(vals.real) ) / 2
+        imag_amp = ( max(vals.imag) - min(vals.imag) ) / 2
+        amplitudes[idx] = max(real_amp, imag_amp)
+
+    return amplitudes
+
+##########################################################################################
+# simulate!
+##########################################################################################
+
+elevation, opening_angle = 0, np.pi
+init_state = double_state(elevation, opening_angle)
+
+field_scales = np.logspace(-2,1,21)
+all_extrema = get_all_extrema(field_scales)
+
+labels = [ r"$\braket{S_{\mathrm{x}}}_{\mathrm{max}}/S$",
+           r"$\braket{S_{\mathrm{x}}}_{\mathrm{min}}/S$",
+           r"$\braket{S_{\mathrm{y}}}_{\mathrm{max}}/S$",
+           r"$\braket{S_{\mathrm{y}}}_{\mathrm{min}}/S$" ]
 
 plt.figure(figsize = figsize)
 plt.title(f"$n={spin_dim}$")
 for extrema, label in zip(all_extrema, labels):
     if np.isclose(max(abs(extrema)), 0): continue
-    plt.semilogx(scales, extrema, ".", label = label)
+    plt.semilogx(field_scales, extrema, ".", label = label)
+
+plt.xlim(field_scales[0], field_scales[-1])
 plt.xlabel(r"$\epsilon_0$")
 plt.legend(loc = "best", handlelength = 0.5, framealpha = 1)
 plt.tight_layout()
