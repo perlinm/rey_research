@@ -2,10 +2,10 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.integrate
+import scipy.integrate, scipy.signal
 
 from dicke_methods import coherent_spin_state_angles, coherent_spin_state, \
-    spin_op_z_dicke
+    spin_op_z_dicke, spin_op_p_dicke
 
 np.set_printoptions(linewidth = 200)
 
@@ -128,6 +128,8 @@ def evolve(initial_state, field, coupling_op = None,
 # set up objects for simulation
 ##########################################################################################
 
+Sz = spin_op_z_dicke(spin_dim-1).todense()
+Sp = spin_op_p_dicke(spin_dim-1).todense()
 
 def transition(mu,nu):
     op = np.zeros((spin_dim,)*2)
@@ -146,8 +148,7 @@ def state_params(states):
 
 alt_signs = np.ones(spin_num)
 alt_signs[spin_num//2:] = -1
-Sz = spin_op_z_dicke(spin_dim-1).todense()
-bare_field = field_tensor([ sign * Sz for sign in alt_signs ])
+alt_field = field_tensor([ sign * Sz for sign in alt_signs ])
 
 def double_state(elevation, opening_angle):
     assert( spin_num % 2 == 0 )
@@ -159,10 +160,10 @@ def double_state(elevation, opening_angle):
 ##########################################################################################
 
 def get_params(init_state, field_scale, end_cond,
-                      coupling_op = None, time_step = None, debug = False):
-    field = field_scale * bare_field
+               coupling_op = None, time_step = None, debug = False):
+    field = field_scale * alt_field
     if time_step is None:
-        if spin_dim == 2:
+        if spin_dim == 2: # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             time_step = np.pi / np.sqrt(1 + field_scale**2)
         else:
             time_step = 2*np.pi / min(field_scale, 1) * spin_num
@@ -186,6 +187,16 @@ def get_params(init_state, field_scale, end_cond,
         plt.plot(times/(2*np.pi), params)
         plt.xlabel("$t/2\pi$")
         plt.tight_layout()
+
+        plt.figure(figsize = figsize)
+        plt.title(debug)
+        freqs = np.linspace(1e-2,2,10**3)
+        signal_power = scipy.signal.lombscargle(times, params, freqs, precenter = True)
+        plt.plot(freqs, signal_power)
+        plt.xlabel(r"$\omega$")
+        plt.ylabel(r"power")
+
+        plt.tight_layout()
         plt.show()
 
     return params
@@ -203,9 +214,9 @@ def get_amplitudes(init_state, field_scales, coupling_op = None,
     for idx, field_scale in enumerate(field_scales):
         debug_title = f"${idx}/{len(field_scales)}$" if debug else None
         params = get_params(init_state, field_scale, end_cond,
-                                 coupling_op = coupling_op, time_step = time_step,
-                                 debug = debug_title)
-        amplitudes[idx] = 2 * ( max(params) - min(params) )
+                            coupling_op = coupling_op, time_step = time_step,
+                            debug = debug_title)
+        amplitudes[idx] = max(params) - min(params)
     return amplitudes
 
 ##########################################################################################
@@ -223,7 +234,7 @@ for opening_angle in [ 0, np.pi ]:
     for idx in range((elevations.size+1)//2):
         print(f" {idx}/{(elevations.size+1)//2}")
         init_state = double_state(elevations[idx], opening_angle)
-        amplitudes[:,+idx] = get_amplitudes(init_state, field_scales * field_fac)
+        amplitudes[:,+idx] = get_amplitudes(init_state, field_scales * field_fac) * 2
         amplitudes[:,-(idx+1)] = amplitudes[:,+idx]
 
     figure, axis = plt.subplots(figsize = figsize)
