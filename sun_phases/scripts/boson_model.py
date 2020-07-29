@@ -191,9 +191,10 @@ freq_scale = 2
 plot_peaks = 100
 
 # construct "bare" external field
-bare_field = field_tensor([ np.diag([ np.cos(2*np.pi*qq/spin_num + mu * soc_angle)
-                                      for mu in spin_vals ])
-                            for qq in range(spin_num) ])
+def bare_lattice_field(qq):
+    return np.diag([ np.cos(2*np.pi*qq/spin_num + mu * soc_angle)
+                     for mu in spin_vals ])
+bare_field = field_tensor([ bare_lattice_field(qq) for qq in range(spin_num) ])
 
 # construct initial state
 assert( spin_num % 2 == 0 )
@@ -243,8 +244,7 @@ for idx, ( log10_tun, tunneling ) in enumerate(zip(log10_tun_vals, tunneling_val
 
     # plot time-series data
     axes[0].plot(times/(2*np.pi), SS_vals)
-    axes[0].set_xlim(0, max_plot_time/(2*np.pi))
-    axes[0].set_xlabel("$t/2\pi$")
+    axes[0].set_xlabel(r"$t \times U/2\pi$")
     axes[0].set_ylabel(r"$\braket{S^2}$")
 
     # plot power spectrum
@@ -252,11 +252,11 @@ for idx, ( log10_tun, tunneling ) in enumerate(zip(log10_tun_vals, tunneling_val
     freqs = 2*np.pi * np.fft.rfftfreq(times.size, times[1])
     SS_amps = np.fft.rfft(SS_vals-np.mean(SS_vals)) / times.size
     axes[1].plot(freqs, abs(SS_amps)**2)
-    axes[1].set_xlabel(r"$\omega$")
+    axes[1].set_xlabel(r"$\omega/U$")
     axes[1].set_ylabel(r"$P(\omega)$")
     axes[1].set_yticks([])
 
-    axes[0].set_xlim(0, max_plot_time)
+    axes[0].set_xlim(0, max_plot_time/(2*np.pi))
     axes[1].set_xlim(0, max_plot_freq)
     figure.tight_layout()
     figure.savefig(fig_dir + f"time_series/series_{sys_tag}_J{tun_tag}.pdf")
