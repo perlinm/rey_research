@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate, scipy.signal
@@ -9,12 +10,16 @@ from dicke_methods import coherent_spin_state_angles, coherent_spin_state, \
 
 np.set_printoptions(linewidth = 200)
 
-spin_dim = 2
-spin_num = 10
+spin_dim = int(sys.argv[1])
+spin_num = int(sys.argv[2])
 
 ivp_tolerance = 1e-10
 
 color_map = "inferno"
+
+data_dir = "../data/oscillations/"
+fig_dir = "../figures/oscillations/"
+sys_tag = f"n{spin_dim}_N{spin_num}"
 
 figsize = (4,3)
 params = { "font.size" : 12,
@@ -101,8 +106,8 @@ def boson_time_deriv(state, field, coupling_op = None):
     return -1j * vec
 
 # wrapper for the numerical integrator, for dealing with multi-spin_dimensional state
-def evolve(initial_state, field, coupling_op = None,
-           sim_time = 2*np.pi, ivp_tolerance = ivp_tolerance):
+def evolve(initial_state, sim_time, field, coupling_op = None,
+           ivp_tolerance = ivp_tolerance):
     state_shape = initial_state.shape
     initial_state.shape = initial_state.size
 
@@ -124,12 +129,32 @@ def evolve(initial_state, field, coupling_op = None,
     initial_state.shape = state_shape
     return times, states
 
+def get_params(param_method, initial_state, field, coupling_op = None,
+               time_step = 2*np.pi, end_cond = None,
+               ivp_tolerance = ivp_tolerance):
+
+    evolve_args = [ time_step, field, coupling_op, ivp_tolerance ]
+    times, states = evolve(initial_state, *evolve_args)
+    params = param_method(states)
+    if end_cond is None:
+        return times, params
+
+    while not end_cond(params):
+        new_times, states = evolve(states[-1], *evolve_args)
+        new_params = param_method(states)
+
+        times = np.concatenate([ times, times[-1] + new_times[1:] ])
+        params = np.concatenate([ params, new_params[1:] ])
+
+    return times, params
+
 ##########################################################################################
 # set up objects for simulation
 ##########################################################################################
 
 Sz = spin_op_z_dicke(spin_dim-1).todense()
 Sp = spin_op_p_dicke(spin_dim-1).todense()
+spin_vals = np.diag(Sz)
 
 def transition(mu,nu):
     op = np.zeros((spin_dim,)*2)
@@ -139,132 +164,108 @@ swap = sum( np.kron(transition(mu,nu).T, transition(mu,nu))
             for mu in range(spin_dim) for nu in range(spin_dim) )
 swap.shape = (spin_dim,)*4
 
-def state_param(state):
+def compute_SS_val(state):
     state_quad = ( state.conj(), state, state.conj(), state )
     SS = np.einsum("mnrs,mj,nj,rk,sk->", swap, *state_quad).real
     return SS / spin_num**2
-def state_params(states):
-    return np.array([ state_param(state) for state in states ])
+def compute_SS_vals(states):
+    return np.array([ compute_SS_val(state) for state in states ])
 
-alt_signs = np.ones(spin_num)
-alt_signs[spin_num//2:] = -1
-alt_field = field_tensor([ sign * Sz for sign in alt_signs ])
-
-def double_state(elevation, opening_angle):
-    assert( spin_num % 2 == 0 )
-    return boson_mft_state([ spin_state(np.pi/2-elevation, sign/2 * opening_angle)
-                             for sign in alt_signs ])
-
-##########################################################################################
-# simulation method
-##########################################################################################
-
-def get_params(init_state, field_scale, end_cond,
-               coupling_op = None, time_step = None, debug = False):
-    field = field_scale * alt_field
-    if time_step is None:
-        if spin_dim == 2: # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            time_step = np.pi / np.sqrt(1 + field_scale**2)
-        else:
-            time_step = 2*np.pi / min(field_scale, 1) * spin_num
-
-    times = np.zeros(1)
-    states = np.reshape(init_state, (1,) + init_state.shape)
-    params = state_params(states)
-
-    while not end_cond(params):
-        new_times, new_states = evolve(states[-1,:,:], field,
-                                       coupling_op = coupling_op, sim_time = time_step)
-        new_params = state_params(new_states)
-
-        times = np.concatenate([ times, times[-1] + new_times[1:] ])
-        states = np.concatenate([ states, new_states[1:] ])
-        params = np.concatenate([ params, new_params[1:] ])
-
-    if debug:
-        plt.figure(figsize = figsize)
-        plt.title(debug)
-        plt.plot(times/(2*np.pi), params)
-        plt.xlabel("$t/2\pi$")
-        plt.tight_layout()
-
-        plt.figure(figsize = figsize)
-        plt.title(debug)
-        freqs = np.linspace(1e-2,2,10**3)
-        signal_power = scipy.signal.lombscargle(times, params, freqs, precenter = True)
-        plt.plot(freqs, signal_power)
-        plt.xlabel(r"$\omega$")
-        plt.ylabel(r"power")
-
-        plt.tight_layout()
-        plt.show()
-
-    return params
-
-def num_peaks(vals):
-    return sum( ( vals[1:-1] > vals[:-2] ) &
-                ( vals[1:-1] > vals[+2:] ) )
-def end_cond(vals):
-    if len(vals) < 3: return False
-    return num_peaks(vals) > 1 or np.allclose(vals, vals[0])
-
-def get_amplitudes(init_state, field_scales, coupling_op = None,
-                   time_step = None, debug = False):
-    amplitudes = np.empty(field_scales.size)
-    for idx, field_scale in enumerate(field_scales):
-        debug_title = f"${idx}/{len(field_scales)}$" if debug else None
-        params = get_params(init_state, field_scale, end_cond,
-                            coupling_op = coupling_op, time_step = time_step,
-                            debug = debug_title)
-        amplitudes[idx] = max(params) - min(params)
-    return amplitudes
+def get_interp_vals(xs, ys, kind = "cubic"):
+    interp = scipy.interpolate.interp1d(xs, ys, kind = kind)
+    new_xs = np.linspace(xs[0], xs[-1], xs.size)
+    new_ys = interp(new_xs)
+    return new_xs, new_ys
 
 ##########################################################################################
 # simulate!
 ##########################################################################################
 
-field_fac = 1/2
-field_scales = np.logspace(-2,1,51)
-elevations = np.pi/2 * np.linspace(-1,1,51)
+# simulation parameters
+soc_angle = np.pi/2
+log10_tun_vals = np.linspace(-2,1,11)
 
-for opening_angle in [ 0, np.pi ]:
-    print(round(opening_angle/np.pi))
+periods = 1000
+freq_num = 1000
+freq_scale = 2
+plot_peaks = 100
 
-    amplitudes = np.zeros((field_scales.size,elevations.size))
-    for idx in range((elevations.size+1)//2):
-        print(f" {idx}/{(elevations.size+1)//2}")
-        init_state = double_state(elevations[idx], opening_angle)
-        amplitudes[:,+idx] = get_amplitudes(init_state, field_scales * field_fac) * 2
-        amplitudes[:,-(idx+1)] = amplitudes[:,+idx]
+# construct "bare" external field
+bare_field = field_tensor([ np.diag([ np.cos(2*np.pi*qq/spin_num + mu * soc_angle)
+                                      for mu in spin_vals ])
+                            for qq in range(spin_num) ])
 
-    figure, axis = plt.subplots(figsize = figsize)
-    if opening_angle == 0:
-        axis.set_title(r"$\theta_0=0$")
-    if opening_angle == np.pi:
-        axis.set_title(r"$\theta_0=\pi$")
+# construct initial state
+assert( spin_num % 2 == 0 )
+theta_1, phi_1 = np.pi/2 + np.arcsin(1/3), + np.pi/3
+theta_2, phi_2 = np.pi/2 + np.arcsin(1/3), - np.pi/3
+eta = -(spin_dim-1)/3 * np.pi % (2*np.pi)
+quantum_init_state = spin_state(theta_1, phi_1) * np.exp(+1j*eta) \
+                   + spin_state(theta_2, phi_2) * np.exp(-1j*eta)
+init_state = boson_mft_state(quantum_init_state)
 
-    dy = elevations[1] - elevations[0]
-    elev_grid = np.concatenate([ elevations, [ elevations[-1] + dy ] ]) - dy/2
+# !!!!!!!!!!!!!!!!!!!!
+if spin_dim == 2:
+    alt_signs = np.ones(spin_num)
+    alt_signs[spin_num//2:] = -1
+    bare_field = field_tensor([ sign * Sz for sign in alt_signs ])
+    init_state = polarized_state([0,1,0])
+# !!!!!!!!!!!!!!!!!!!!
 
-    log_scales = np.log(field_scales)
-    dx = log_scales[1] - log_scales[0]
-    log_scale_grid = np.concatenate([ log_scales, [ log_scales[-1] + dx ] ]) - dx/2
-    scale_grid = np.exp(log_scale_grid)
+SS_ranges = np.zeros(log10_tun_vals.size)
+tunneling_vals = 10**log10_tun_vals
+for idx, ( log10_tun, tunneling ) in enumerate(zip(log10_tun_vals, tunneling_vals)):
+    tun_tag = f"{log10_tun:.2f}"
+    tun_title = r"$\log_{10}(J/U)=" + tun_tag + "$"
+    print(f"{idx}/{log10_tun_vals.size} (log10_tun = {tun_tag})", end = "")
+    sys.stdout.flush()
 
-    image = axis.pcolormesh(scale_grid, elev_grid/np.pi, amplitudes.T,
-                            cmap = color_map, vmin = 0, vmax = 1)
+    field = -tunneling * bare_field
+    sim_time = 2*np.pi / np.sqrt(1 + tunneling)**2 * periods
+    try:
+        times = np.loadtxt(data_dir + f"times_{sys_tag}_J{tun_tag}.txt")
+        SS_vals = np.loadtxt(data_dir + f"SS_vals_{sys_tag}_J{tun_tag}.txt")
+    except:
+        times, states = evolve(init_state, sim_time, field)
+        SS_vals = compute_SS_vals(states)
+        np.savetxt(data_dir + f"times_{sys_tag}_J{tun_tag}.txt", times)
+        np.savetxt(data_dir + f"SS_vals_{sys_tag}_J{tun_tag}.txt", SS_vals)
+    SS_ranges[idx] = max(SS_vals) - min(SS_vals)
 
-    axis.set_xlabel(r"$\delta_E$")
-    axis.set_ylabel(r"$\phi/\pi$")
+    peaks, _ = scipy.signal.find_peaks(SS_vals)
+    print(f" {peaks.size} peaks")
 
-    axis.set_xscale("log")
-    axis.set_yticks([-1/2,-1/4,0,1/4,1/2])
-    axis.set_yticklabels(["$-1/2$","$-1/4$","$0$","$1/4$","$1/2$"])
+    max_plot_time = times[peaks[plot_peaks]]
+    max_plot_freq = np.sqrt(1 + tunneling)**2 * peaks.size / periods * freq_scale
 
-    figure.colorbar(image)
-    image.set_rasterized(True)
-    fig_name = f"../figures/BCS_osc_{round(opening_angle/np.pi)}.pdf"
-    plt.tight_layout(pad = 0.1)
-    figure.savefig(fig_name, dpi = 300)
+    figure, axes = plt.subplots(2)
+    axes[0].set_title(tun_title)
 
+    # plot time-series data
+    axes[0].plot(times/(2*np.pi), SS_vals)
+    axes[0].set_xlim(0, max_plot_time/(2*np.pi))
+    axes[0].set_xlabel("$t/2\pi$")
+    axes[0].set_ylabel(r"$\braket{S^2}$")
+
+    # plot power spectrum
+    times, SS_vals = get_interp_vals(times, SS_vals)
+    freqs = 2*np.pi * np.fft.rfftfreq(times.size, times[1])
+    SS_amps = np.fft.rfft(SS_vals-np.mean(SS_vals)) / times.size
+    axes[1].plot(freqs, abs(SS_amps)**2)
+    axes[1].set_xlabel(r"$\omega$")
+    axes[1].set_ylabel(r"$P(\omega)$")
+    axes[1].set_yticks([])
+
+    axes[0].set_xlim(0, max_plot_time)
+    axes[1].set_xlim(0, max_plot_freq)
+    figure.tight_layout()
+    figure.savefig(fig_dir + f"time_series/series_{sys_tag}_J{tun_tag}.pdf")
     plt.close(figure)
+
+plt.figure(figsize = figsize)
+plt.semilogx(tunneling_vals, SS_ranges, "k.")
+plt.xlabel(r"$J/U$")
+if spin_dim == 2: plt.xlabel(r"$\delta_E$")
+plt.ylabel(r"$\Delta$")
+plt.tight_layout(pad = 0.1)
+plt.savefig(fig_dir + f"osc_{sys_tag}_cut.pdf")
