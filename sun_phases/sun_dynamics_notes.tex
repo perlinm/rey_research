@@ -242,6 +242,7 @@ inconsequential choice of gauge, we can prepare a state of the form
     + e^{-i\beta} \ket{\theta,-\alpha}},
   &&
   \ket{\theta,\alpha} \equiv e^{i\alpha s_\z} e^{i\theta s_\y} \ket\up,
+  \label{eq:double_state}
 \end{align}
 where $\theta,\alpha$ are respectively polar and azimuthal angles of
 the polarized state $\ket{\theta,\alpha}$ of a single spin; the spin
@@ -275,15 +276,6 @@ which implies that
 \end{align}
 Figure \ref{fig:limiting_vals} shows several values of $r$ for different $n$.
 
-\begin{figure}
-  \centering
-  \includegraphics{figures/oscillations/const_vals.pdf}
-  \includegraphics{figures/oscillations/var_z_vals.pdf}
-  \caption{Several values of $r$ and $\var\p{s_\z/I}$ for different
-    $n$.}
-  \label{fig:limiting_vals}
-\end{figure}
-
 \subsection{Small-angle limit}
 
 In the limit of a small spin-orbit coupling angle, $\phi I\ll1$, as
@@ -298,6 +290,16 @@ simplify the resulting expression to get
 \end{align}
 Figure \ref{fig:limiting_vals} shows several values of
 $\var\p{s_\z/I}$ for different $n$.
+
+\begin{figure}
+  \centering
+  \includegraphics{figures/oscillations/const_vals.pdf}
+  \includegraphics{figures/oscillations/var_sz_vals.pdf}
+  \caption{Several values of $r$ and $\var\p{s_\z/I}$ for different
+    $n$.  Computed with respect to the state $\ket\psi$ in
+    \eqref{eq:double_state}.}
+  \label{fig:limiting_vals}
+\end{figure}
 
 
 \end{document}
