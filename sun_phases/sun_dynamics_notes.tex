@@ -96,7 +96,7 @@
 
 We first consider a general quadratic spin Hamiltonian of the form
 \begin{align}
-  H_{\t{spin}} = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
   h^{\mu\nu i}_{\rho\sigma j} s_{\mu\nu i} s_{\rho\sigma j}
   + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
   \label{eq:spin}
@@ -109,7 +109,7 @@ spin $i$.  If interactions are SU($n$) symmetric then
 $h^{\mu\nu i}_{\rho\sigma k} = h_{ik}
 \delta_{\mu\sigma}\delta_{\nu\rho}$, in which case
 \begin{align}
-  H_{\t{spin}} = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
   h_{ij} \Pi_{ij}
   + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
   &&
@@ -123,7 +123,7 @@ $h^{\mu\nu i}_{\rho\sigma k} = h_{ik}
 We can write the Hamiltonian in \eqref{eq:spin} using Schwinger bosons
 as
 \begin{align}
-  H_{\t{boson}} = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
   h^{\mu\nu i}_{\rho\sigma j}
   b_{\mu i}^\dag b_{\nu i} b_{\rho j}^\dag b_{\sigma j}
   + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} b_{\mu i}^\dag b_{\nu i},
@@ -136,7 +136,7 @@ Heisenberg equations of motion for these operators are\footnote{The
   $h^{\mu\nu k}_{\rho\sigma j}=h^{\rho\sigma j}_{\mu\nu k}$ and
   $h^{\mu\nu i}_{\rho\sigma i}=0$.}
 \begin{align}
-  \i \d_t b_{\alpha i} = \sp{b_{\alpha i}, H_{\t{boson}}}
+  \i \d_t b_{\alpha i} = \sp{b_{\alpha i}, H}
   &= \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
   h^{\mu\nu j}_{\rho\sigma k}
   \sp{b_{\alpha i}, b_{\mu j}^\dag b_{\nu j} b_{\rho k}^\dag b_{\sigma k}}
@@ -182,9 +182,9 @@ bandwidth (proportional to the tunneling rate, $J/4$).  We wish to
 compute an expectation value of the operator
 \begin{align}
   \O\p{t}
-  \equiv e^{it H} \p{\f{\v S^\dag \c\v S}{N^2}} e^{-it H}
+  \equiv e^{\i t H} \p{\f{\v S^\dag \c\v S}{N^2}} e^{-\i t H}
   = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q} \times
-  e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}},
+  e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}},
 \end{align}
 where
 \begin{align}
@@ -198,21 +198,19 @@ If $\ket\Psi=\ket\psi^{\otimes N}$, then
 \begin{align}
   \bk{\Psi|\O\p{t}|\Psi}
   &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \sum_{p\ne q} e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \f{n}{N} \\
-  &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \sum_{p,q} e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \f{n-1}{N} \\
+  \sum_{p\ne q} e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \f{n}{N} \\
   &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
   \abs{\xi_{\mu\nu}\p{\phi}}^2 + \f{n-1}{N},
 \end{align}
 where
 \begin{align}
-  \xi_{\mu\nu}\p{\phi} \equiv \f1N \sum_q e^{itJ\eta_{\mu\nu q}}
-  = \f1N \sum_q e^{itJ\sin\p{\phi_{\mu\nu}^-} \sin\p{q+\phi_{\mu\nu}^+}}.
+  \xi_{\mu\nu}\p{\phi} \equiv \f1N \sum_q e^{\i tJ\eta_{\mu\nu q}}
+  = \f1N \sum_q e^{\i tJ\sin\p{\phi_{\mu\nu}^-} \sin\p{q+\phi_{\mu\nu}^+}}.
 \end{align}
 As $N\to\infty$, this sum is well approximated by an integral:
 \begin{align}
   \xi_{\mu\nu}\p{\phi} \approx \f1{2\pi} \int_{-\pi}^\pi \dd\theta\,
-  e^{itJ\sin\p{\phi_{\mu\nu}^-} \sin\p{\theta+\phi_{\mu\nu}^+}}
+  e^{\i tJ\sin\p{\phi_{\mu\nu}^-} \sin\p{\theta+\phi_{\mu\nu}^+}}
   = \J_0\sp{tJ\sin\p{\phi_{\mu\nu}^-}},
 \end{align}
 where $\J_0$ is the zero-order Bessel function of the first kind.  To
@@ -224,22 +222,15 @@ leading order in $N\gg1$, we thus find that
   \label{eq:O_time}
 \end{align}
 
-\subsection{Long-time average}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Initial state}
 
-The time-independent terms in the sum have $\mu=\nu$ (in which case
-$\phi_{\mu\nu}^-=0$), so
-\begin{align}
-  \bk{\Psi|\O_{\t{const}}|\Psi}
-  \approx r \equiv \sum_\mu \abs{\bk{\mu|\psi}}^4.
-  \label{eq:O_const}
-\end{align}
-where $r$ is sometimes called the inverse participation ratio of
-$\ket\psi$ with respect to the basis $\set{\ket\mu}$.  Up to an
-inconsequential choice of gauge, we can prepare a state of the form
+Up to an inconsequential choice of gauge, the initial state that we
+can prepare has the form
 \begin{align}
   \ket\psi = \f1{\sqrt{2}}
-  \p{e^{i\beta} \ket{\theta,\alpha}
-    + e^{-i\beta} \ket{\theta,-\alpha}},
+  \p{e^{\i\beta} \ket{\theta,\alpha}
+    + e^{-\i\beta} \ket{\theta,-\alpha}},
   &&
   \ket{\theta,\alpha} \equiv e^{i\alpha s_\z} e^{i\theta s_\y} \ket\up,
   \label{eq:double_state}
@@ -257,12 +248,12 @@ can prepare has
   &&
   \beta = -\f{2\pi}{3}\, I.
 \end{align}
-In order to evaluate \eqref{eq:O_const}, we therefore
+In order to compute expectation values with respect to $\ket\psi$, we
 expand\footnote{The expansion in \eqref{eq:polarized_proj} is acquired
   by representing an $n$-level spin by $n-1$ qubits restricted to the
   (Dicke) manifold of permutationally symmetric states.}
 \begin{align}
-  \bk{\mu|\theta,\alpha} = \chi_\mu e^{-i\mu\alpha},
+  \ket{\theta,\alpha} = \sum_\mu \chi_\mu e^{-\i\mu\alpha} \ket\mu,
   &&
   \chi_\mu \equiv { 2I \choose I+\mu }^{1/2}
   \cos\p{\f{\theta}{2}}^{I+\mu} \sin\p{\f{\theta}{2}}^{I-\mu},
@@ -270,26 +261,47 @@ expand\footnote{The expansion in \eqref{eq:polarized_proj} is acquired
 \end{align}
 which implies that
 \begin{align}
-  \bk{\mu|\psi} = \chi_\mu \times \sqrt{2}\, \cos\p{\mu\alpha-\beta},
-  &&
-  r = \sum_\mu \chi_\mu^4 \times 4 \cos\p{\mu\alpha-\beta}^4.
+  \ket\psi = \sum_\mu \chi_\mu \times \sqrt{2}\,
+  \cos\p{\mu\alpha-\beta} \ket\mu.
 \end{align}
-Figure \ref{fig:limiting_vals} shows several values of $r$ for different $n$.
 
-\subsection{Small-angle limit}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Limiting cases}
 
-In the limit of a small spin-orbit coupling angle, $\phi I\ll1$, as
-long as $tJ\ll\p{\phi I}^{-1}$ we can expand the Bessel function in
-\eqref{eq:O_time} as $\J_0\p{\tau}^2\approx1-\tau^2/2+O\p{\tau^4}$ and
-simplify the resulting expression to get
+We now return to the order parameter $\O\p{t}$ in \eqref{eq:O_time}.
+The constant (time independent) terms in this expression have
+$\mu=\nu$ (in which case all $\phi_{\mu\nu}^-=0$), so up to $O(1/N)$
+corrections
+\begin{align}
+  \bk{\Psi|\O_{\t{const}}|\Psi}
+  \approx r \equiv \sum_\mu \abs{\bk{\mu|\psi}}^4,
+  \label{eq:O_const}
+\end{align}
+which is sometimes called the inverse participation ratio of
+$\ket\psi$ with respect to the basis $\set{\ket\mu}$.  Figure
+\ref{fig:limiting_vals} shows several values of $r$ for different $n$.
+
+At ``short'' times $t$ for which $tJ\sin\p{I\phi}\ll1$, we can expand
+the Bessel function in \eqref{eq:O_time} as
+$\J_0\p{\tau}^2\approx1-\tau^2/2+O\p{\tau^4}$ to get
+\begin{align}
+  \bk{\Psi|\O\p{t}|\Psi}
+  \approx 1 - \f12 \p{tJ}^2 \sum_{\mu,\nu}
+  \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2 \sin\p{\phi_{\mu\nu}^-}^2.
+\end{align}
+In the limit of a small angle $\phi$ for which $I\phi\ll1$, we can
+further simplify
 \begin{align}
   \bk{\Psi|\O\p{t}|\Psi}
   \approx 1 - \f14 \var\p{s_\z} \p{tJ\phi}^2,
   &&
   \var\p{X} \equiv \bk{\psi|X^2|\psi} - \bk{\psi|X|\psi}^2.
+  \label{eq:small_time_angle}
 \end{align}
-Figure \ref{fig:limiting_vals} shows several values of
-$\var\p{s_\z/I}$ for different $n$.
+Note that the result in \eqref{eq:small_time_angle} is valid for all
+$tJ\ll\p{I\phi}^{-1}$, which may be a long time given the small-angle
+assumption $I\phi\ll1$.  Figure \ref{fig:limiting_vals} shows several
+values of $\var\p{s_\z}$ for different $n$.
 
 \begin{figure}
   \centering

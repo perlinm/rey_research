@@ -74,7 +74,7 @@ plt.figure(figsize = figsize)
 plt.plot(n_vals, var_sz_vals/S_vals**2, "k.")
 plt.gca().set_ylim(bottom = 0)
 plt.xlabel("$n$")
-plt.ylabel(r"$\mathrm{var}(s_{\mathrm{z}}/I)$")
+plt.ylabel(r"$\mathrm{var}(s_{\mathrm{z}})/I^2$")
 plt.tight_layout()
 plt.savefig("../figures/oscillations/var_sz_vals.pdf")
 
