@@ -71,6 +71,9 @@
 \newcommand{\PS}{\text{PS}}
 \newcommand{\col}{\underline}
 
+\let\var\relax
+\DeclareMathOperator{\var}{var}
+
 \usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
 \setlist{nolistsep} % more compact spacing between environments
@@ -178,9 +181,9 @@ $\phi$ is a spin-orbit-coupling angle, and $J$ is the single-particle
 bandwidth (proportional to the tunneling rate, $J/4$).  We wish to
 compute an expectation value of the operator
 \begin{align}
-  S^2\p{t}
-  \equiv e^{it H} \p{\v S^\dag \c\v S} e^{-it H}
-  = \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q} \times
+  \O\p{t}
+  \equiv e^{it H} \p{\f{\v S^\dag \c\v S}{N^2}} e^{-it H}
+  = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q} \times
   e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}},
 \end{align}
 where
@@ -193,13 +196,13 @@ where
 \end{align}
 If $\ket\Psi=\ket\psi^{\otimes N}$, then
 \begin{align}
-  \bk{\Psi|S^2\p{t}|\Psi}
+  \bk{\Psi|\O\p{t}|\Psi}
+  &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \sum_{p\ne q} e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \f{n}{N} \\
+  &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \sum_{p,q} e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \f{n-1}{N} \\
   &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \sum_{p\ne q} e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + n N \\
-  &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \sum_{p,q} e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \p{n-1} N \\
-  &= N^2 \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \abs{\xi_{\mu\nu}\p{\phi}}^2 + \p{n-1} N,
+  \abs{\xi_{\mu\nu}\p{\phi}}^2 + \f{n-1}{N},
 \end{align}
 where
 \begin{align}
@@ -215,22 +218,24 @@ As $N\to\infty$, this sum is well approximated by an integral:
 where $\J_0$ is the zero-order Bessel function of the first kind.  To
 leading order in $N\gg1$, we thus find that
 \begin{align}
-  \bk{\Psi|S^2\p{t}|\Psi}
-  \approx N^2 \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \bk{\Psi|\O\p{t}|\Psi}
+  \approx \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
   \J_0\sp{tJ\sin\p{\phi_{\mu\nu}^-}}^2.
+  \label{eq:O_time}
 \end{align}
+
+\subsection{Long-time average}
+
 The time-independent terms in the sum have $\mu=\nu$ (in which case
 $\phi_{\mu\nu}^-=0$), so
 \begin{align}
-  \bk{\Psi|S^2_{\t{const}}|\Psi}
-  \approx N^2 \sum_{\mu,\mu} \abs{\bk{\psi\op{\mu}{\mu}\psi}}^2
-  = N^2 r,
-  &&
-  r \equiv \sum_\mu \abs{\bk{\mu|\psi}}^4.
-  \label{eq:S^2_const}
+  \bk{\Psi|\O_{\t{const}}|\Psi}
+  \approx r \equiv \sum_\mu \abs{\bk{\mu|\psi}}^4.
+  \label{eq:O_const}
 \end{align}
-Up to an inconsequential choice of gauge, we can prepare a state of
-the form
+where $r$ is sometimes called the inverse participation ratio of
+$\ket\psi$ with respect to the basis $\set{\ket\mu}$.  Up to an
+inconsequential choice of gauge, we can prepare a state of the form
 \begin{align}
   \ket\psi = \f1{\sqrt{2}}
   \p{e^{i\beta} \ket{\theta,\alpha}
@@ -251,34 +256,49 @@ can prepare has
   &&
   \beta = -\f{2\pi}{3}\, I.
 \end{align}
-In order to evaluate \eqref{eq:S^2_const}, we therefore
+In order to evaluate \eqref{eq:O_const}, we therefore
 expand\footnote{The expansion in \eqref{eq:polarized_proj} is acquired
   by representing an $n$-level spin by $n-1$ qubits restricted to the
   (Dicke) manifold of permutationally symmetric states.}
 \begin{align}
-  \bk{\mu|\theta,\alpha} = { 2I \choose I+\mu }^{1/2}
-  \cos\p{\f{\theta}{2}}^{I+\mu} \sin\p{\f{\theta}{2}}^{I-\mu}
-  e^{-i\mu\alpha},
+  \bk{\mu|\theta,\alpha} = \chi_\mu e^{-i\mu\alpha},
+  &&
+  \chi_\mu \equiv { 2I \choose I+\mu }^{1/2}
+  \cos\p{\f{\theta}{2}}^{I+\mu} \sin\p{\f{\theta}{2}}^{I-\mu},
   \label{eq:polarized_proj}
 \end{align}
 which implies that
 \begin{align}
-  r = \sum_\mu { 2I \choose I+\mu }^2
-  \sp{\cos\p{\f{\theta}{2}}^{I+\mu} \sin\p{\f{\theta}{2}}^{I-\mu}}^4
-  \times 4 \cos\p{\mu\alpha-\beta}^4.
+  \bk{\mu|\psi} = \chi_\mu \times \sqrt{2}\, \cos\p{\mu\alpha-\beta},
+  &&
+  r = \sum_\mu \chi_\mu^4 \times 4 \cos\p{\mu\alpha-\beta}^4.
 \end{align}
-Figure \ref{fig:const_vals} shows several values of $r$ for different
-$n$.
+Figure \ref{fig:limiting_vals} shows several values of $r$ for different $n$.
 
 \begin{figure}
   \centering
   \includegraphics{figures/oscillations/const_vals.pdf}
-  \caption{Several values of
-    $r \equiv\sum_\mu\abs{\bk{\mu|\psi}}^4 =
-    \lim_{N\to\infty}\bk{\Psi|S^2_{\t{const}}|\Psi}/N^2$ for different
+  \includegraphics{figures/oscillations/var_z_vals.pdf}
+  \caption{Several values of $r$ and $\var\p{s_\z/I}$ for different
     $n$.}
-  \label{fig:const_vals}
+  \label{fig:limiting_vals}
 \end{figure}
+
+\subsection{Small-angle limit}
+
+In the limit of a small spin-orbit coupling angle, $\phi I\ll1$, as
+long as $tJ\ll\p{\phi I}^{-1}$ we can expand the Bessel function in
+\eqref{eq:O_time} as $\J_0\p{\tau}^2\approx1-\tau^2/2+O\p{\tau^4}$ and
+simplify the resulting expression to get
+\begin{align}
+  \bk{\Psi|\O\p{t}|\Psi}
+  \approx 1 - \f14 \var\p{s_\z} \p{tJ\phi}^2,
+  &&
+  \var\p{X} \equiv \bk{\psi|X^2|\psi} - \bk{\psi|X|\psi}^2.
+\end{align}
+Figure \ref{fig:limiting_vals} shows several values of
+$\var\p{s_\z/I}$ for different $n$.
+
 
 \end{document}
 
