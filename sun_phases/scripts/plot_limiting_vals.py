@@ -16,7 +16,6 @@ plt.rcParams.update(params)
 ##############################
 
 n_vals = np.arange(2,21,2)
-S_vals = (n_vals-1)/2
 def spin_vals(n):
     S = (n-1)/2
     return np.linspace(-S,S,n)
@@ -58,7 +57,6 @@ plt.xlabel("$n$")
 plt.ylabel("$r$")
 plt.tight_layout()
 plt.savefig("../figures/oscillations/const_vals.pdf")
-plt.close("all")
 
 ##############################
 
@@ -71,10 +69,9 @@ def var_sz(n):
 var_sz_vals = [ var_sz(n) for n in n_vals ]
 
 plt.figure(figsize = figsize)
-plt.plot(n_vals, var_sz_vals/S_vals**2, "k.")
-plt.gca().set_ylim(bottom = 0)
+plt.plot(n_vals, var_sz_vals, "k.")
 plt.xlabel("$n$")
-plt.ylabel(r"$\mathrm{var}(s_{\mathrm{z}})/I^2$")
+plt.ylabel(r"$\mathrm{var}(s_{\mathrm{z}})$")
 plt.tight_layout()
 plt.savefig("../figures/oscillations/var_sz_vals.pdf")
 
