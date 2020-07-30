@@ -1,0 +1,288 @@
+\documentclass[nofootinbib,notitlepage,11pt]{revtex4-2}
+
+%%% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,
+  urlcolor=cyan,
+}
+
+%%% header / footer
+\usepackage{fancyhdr} % easier header and footer management
+\pagestyle{fancy} % page formatting style
+\fancyhf{} % clear all header and footer text
+\renewcommand{\headrulewidth}{0pt} % remove horizontal line in header
+\usepackage{lastpage} % for referencing last page
+\cfoot{\thepage~of \pageref{LastPage}} % "x of y" page labeling
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,bm,amssymb} % physics and math
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\newcommand{\bk}{\Braket} % shorthand for braket notation
+\renewcommand{\v}{\bm} % bold vectors
+\newcommand{\uv}[1]{\bm{\hat{#1}}} % unit vectors
+\newcommand{\av}{\vec} % arrow vectors
+\renewcommand{\c}{\cdot} % inner product
+\renewcommand{\d}{\partial} % partial derivative
+\renewcommand{\dd}{\text{d}} % for infinitesimals
+\renewcommand{\i}{\mathrm{i}\mkern1mu} % imaginary unit
+
+\usepackage{dsfont} % for identity operator
+\newcommand{\1}{\mathds{1}}
+
+\usepackage{mathtools} % for \coloneqq
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\z}{\text{z}}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\J}{\mathcal{J}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\N}{\mathcal{N}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\newcommand{\R}{\mathcal{R}}
+\newcommand{\T}{\mathcal{T}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\V}{\mathcal{V}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\Z}{\mathcal{Z}}
+
+\newcommand{\EE}{\mathbb{E}}
+\renewcommand{\SS}{\mathbb{S}}
+\newcommand{\ZZ}{\mathbb{Z}}
+
+\newcommand{\PS}{\text{PS}}
+\newcommand{\col}{\underline}
+
+\usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
+\setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
+\setlist{nolistsep} % more compact spacing between environments
+
+%%% text markup
+\usepackage{color} % text color
+\newcommand{\red}[1]{{\color{red} #1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\thispagestyle{fancy}
+
+% todo: find roots of lax vector
+
+\title{Collective SU($n$) spin model dynamics}%
+\author{Michael A. Perlin}%
+\date{\today}
+
+\maketitle
+
+We first consider a general quadratic spin Hamiltonian of the form
+\begin{align}
+  H_{\t{spin}} = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  h^{\mu\nu i}_{\rho\sigma j} s_{\mu\nu i} s_{\rho\sigma j}
+  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
+  \label{eq:spin}
+\end{align}
+where $\mu,\nu\in\ZZ_n$ index orthogonal states of a single spin;
+$i,j\in\ZZ_N$ index one of $N$ spins; $h^{\mu\nu i}_{\rho\sigma j}$
+and $\epsilon_{\mu\nu i}$ are scalars; and
+$s_{\mu\nu i}\coloneqq\op{\mu}{\nu}_i$ is a transition operator for
+spin $i$.  If interactions are SU($n$) symmetric then
+$h^{\mu\nu i}_{\rho\sigma k} = h_{ik}
+\delta_{\mu\sigma}\delta_{\nu\rho}$, in which case
+\begin{align}
+  H_{\t{spin}} = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  h_{ij} \Pi_{ij}
+  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
+  &&
+  \Pi_{ij} \equiv \sum_{\mu,\nu} s_{\mu\nu i} s_{\rho\sigma j}.
+  \label{eq:spin_sun}
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\section{Schwinger boson representation}
+
+We can write the Hamiltonian in \eqref{eq:spin} using Schwinger bosons
+as
+\begin{align}
+  H_{\t{boson}} = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  h^{\mu\nu i}_{\rho\sigma j}
+  b_{\mu i}^\dag b_{\nu i} b_{\rho j}^\dag b_{\sigma j}
+  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} b_{\mu i}^\dag b_{\nu i},
+\end{align}
+where $b_{\mu i}$ annihilates a boson of type $\mu$ on site $i$.  The
+Heisenberg equations of motion for these operators are\footnote{The
+  Hamiltonian in \eqref{eq:spin} only defines
+  $h^{\mu\nu j}_{\rho\sigma k}$ for $j<k$.  To simplify expressions in
+  the remainder of this work, we therefore additionally define
+  $h^{\mu\nu k}_{\rho\sigma j}=h^{\rho\sigma j}_{\mu\nu k}$ and
+  $h^{\mu\nu i}_{\rho\sigma i}=0$.}
+\begin{align}
+  \i \d_t b_{\alpha i} = \sp{b_{\alpha i}, H_{\t{boson}}}
+  &= \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
+  h^{\mu\nu j}_{\rho\sigma k}
+  \sp{b_{\alpha i}, b_{\mu j}^\dag b_{\nu j} b_{\rho k}^\dag b_{\sigma k}}
+  + \sum_{\mu,\nu,j} \epsilon_{\mu\nu j}
+  \sp{b_{\alpha i}, b_{\mu j}^\dag b_{\nu j}} \\
+  &= \f1N \sum_{\mu,\nu,\rho,\sigma,k}
+  h^{\mu\nu j}_{\rho\sigma k}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}} b_{\rho k}^\dag b_{\sigma k}
+  + \sum_{\mu,\nu} \epsilon_{\mu\nu i}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}} \\
+  &= \sum_{\mu,\nu} \p{\f1N \sum_{\rho,\sigma,k}
+    h^{\mu\nu i}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
+    + \epsilon_{\mu\nu i}}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}}
+\end{align}
+where
+\begin{align}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}}
+  = \delta_{\mu\alpha} \delta_{\nu\alpha} b_{\alpha i}
+  + \delta_{\mu\alpha} \p{1-\delta_{\nu\alpha}} b_{\nu i}
+  = \delta_{\mu\alpha} b_{\nu i},
+\end{align}
+so
+\begin{align}
+  \i \d_t b_{\alpha i}
+  = \sum_\nu \p{\f1N \sum_{\rho,\sigma,k}
+    h^{\alpha\nu i}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
+    + \epsilon_{\alpha\nu i}} b_{\nu i}.
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Non-interacting limit of a realistic 1D model}
+
+Consider the single-particle Hamiltonian
+\begin{align}
+  H = -\f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\phi} s_{\mu\mu q},
+\end{align}
+where $q$ is a quasi-momentum (in units with lattice spacing $a=1$);
+$\mu\in\set{-I,-I+1,\cdots,I}$ is a nuclear spin projection onto a
+quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin;
+$\phi$ is a spin-orbit-coupling angle, and $J$ is the single-particle
+bandwidth (proportional to the tunneling rate, $J/4$).  We wish to
+compute an expectation value of the operator
+\begin{align}
+  S^2\p{t}
+  \equiv e^{it H} \p{\v S^\dag \c\v S} e^{-it H}
+  = \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q} \times
+  e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}},
+\end{align}
+where
+\begin{align}
+  \eta_{\mu\nu p}
+  \equiv -\f12 \sp{\cos\p{p+\mu\phi} - \cos\p{p+\nu\phi}}
+  = \sin\p{\phi_{\mu\nu}^-} \sin\p{p+\phi_{\mu\nu}^+},
+  &&
+  \phi_{\mu\nu}^\pm \equiv \f{\mu\pm\nu}{2}\,\phi.
+\end{align}
+If $\ket\Psi=\ket\psi^{\otimes N}$, then
+\begin{align}
+  \bk{\Psi|S^2\p{t}|\Psi}
+  &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \sum_{p\ne q} e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + n N \\
+  &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \sum_{p,q} e^{itJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \p{n-1} N \\
+  &= N^2 \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \abs{\xi_{\mu\nu}\p{\phi}}^2 + \p{n-1} N,
+\end{align}
+where
+\begin{align}
+  \xi_{\mu\nu}\p{\phi} \equiv \f1N \sum_q e^{itJ\eta_{\mu\nu q}}
+  = \f1N \sum_q e^{itJ\sin\p{\phi_{\mu\nu}^-} \sin\p{q+\phi_{\mu\nu}^+}}.
+\end{align}
+As $N\to\infty$, this sum is well approximated by an integral:
+\begin{align}
+  \xi_{\mu\nu}\p{\phi} \approx \f1{2\pi} \int_{-\pi}^\pi \dd\theta\,
+  e^{itJ\sin\p{\phi_{\mu\nu}^-} \sin\p{\theta+\phi_{\mu\nu}^+}}
+  = \J_0\sp{tJ\sin\p{\phi_{\mu\nu}^-}},
+\end{align}
+where $\J_0$ is the zero-order Bessel function of the first kind.  To
+leading order in $N\gg1$, we thus find that
+\begin{align}
+  \bk{\Psi|S^2\p{t}|\Psi}
+  \approx N^2 \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \J_0\sp{tJ\sin\p{\phi_{\mu\nu}^-}}^2.
+\end{align}
+The time-independent terms in the sum have $\mu=\nu$ (in which case
+$\phi_{\mu\nu}^-=0$), so
+\begin{align}
+  \bk{\Psi|S^2_{\t{const}}|\Psi}
+  \approx N^2 \sum_{\mu,\mu} \abs{\bk{\psi\op{\mu}{\mu}\psi}}^2
+  = N^2 r,
+  &&
+  r \equiv \sum_\mu \abs{\bk{\mu|\psi}}^4.
+  \label{eq:S^2_const}
+\end{align}
+Up to an inconsequential choice of gauge, we can prepare a state of
+the form
+\begin{align}
+  \ket\psi = \f1{\sqrt{2}}
+  \p{e^{i\beta} \ket{\theta,\alpha}
+    + e^{-i\beta} \ket{\theta,-\alpha}},
+  &&
+  \ket{\theta,\alpha} \equiv e^{i\alpha s_\z} e^{i\theta s_\y} \ket\up,
+\end{align}
+where $\theta,\alpha$ are respectively polar and azimuthal angles of
+the polarized state $\ket{\theta,\alpha}$ of a single spin; the spin
+operators $s_\z,s_\y$ generate rotations about the $z,y$ axes, with
+e.g.~$s_\z\equiv\sum_\mu \mu\op\mu$; and $\ket\up$ is a state
+polarized along the $z$ axis.  More specifically, the state that we
+can prepare has
+\begin{align}
+  \theta = \f{\pi}{2} + \arcsin\p{\f13},
+  &&
+  \alpha = \f{\pi}{3},
+  &&
+  \beta = -\f{2\pi}{3}\, I.
+\end{align}
+In order to evaluate \eqref{eq:S^2_const}, we therefore
+expand\footnote{The expansion in \eqref{eq:polarized_proj} is acquired
+  by representing an $n$-level spin by $n-1$ qubits restricted to the
+  (Dicke) manifold of permutationally symmetric states.}
+\begin{align}
+  \bk{\mu|\theta,\alpha} = { 2I \choose I+\mu }^{1/2}
+  \cos\p{\f{\theta}{2}}^{I+\mu} \sin\p{\f{\theta}{2}}^{I-\mu}
+  e^{-i\mu\alpha},
+  \label{eq:polarized_proj}
+\end{align}
+which implies that
+\begin{align}
+  r = \sum_\mu { 2I \choose I+\mu }^2
+  \sp{\cos\p{\f{\theta}{2}}^{I+\mu} \sin\p{\f{\theta}{2}}^{I-\mu}}^4
+  \times 4 \cos\p{\mu\alpha-\beta}^4.
+\end{align}
+Figure \ref{fig:const_vals} shows several values of $r$ for different
+$n$.
+
+\begin{figure}
+  \centering
+  \includegraphics{figures/oscillations/const_vals.pdf}
+  \caption{Several values of
+    $r \equiv\sum_\mu\abs{\bk{\mu|\psi}}^4 =
+    \lim_{N\to\infty}\bk{\Psi|S^2_{\t{const}}|\Psi}/N^2$ for different
+    $n$.}
+  \label{fig:const_vals}
+\end{figure}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
