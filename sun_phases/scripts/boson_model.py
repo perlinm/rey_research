@@ -198,11 +198,11 @@ bare_field = field_tensor([ bare_lattice_field(qq) for qq in range(spin_num) ])
 
 # construct initial state
 assert( spin_num % 2 == 0 )
-theta_1, phi_1 = np.pi/2 + np.arcsin(1/3), + np.pi/3
-theta_2, phi_2 = np.pi/2 + np.arcsin(1/3), - np.pi/3
-eta = -(spin_dim-1)/3 * np.pi % (2*np.pi)
-quantum_init_state = spin_state(theta_1, phi_1) * np.exp(+1j*eta) \
-                   + spin_state(theta_2, phi_2) * np.exp(-1j*eta)
+theta = np.pi/2 + np.arcsin(1/3)
+alpha = np.pi/3
+beta = -(spin_dim-1)/3 * np.pi
+quantum_init_state = spin_state(theta, +alpha) * np.exp(+1j*beta) \
+                   + spin_state(theta, -alpha) * np.exp(-1j*beta)
 init_state = boson_mft_state(quantum_init_state)
 
 # !!!!!!!!!!!!!!!!!!!!

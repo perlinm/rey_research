@@ -81,18 +81,20 @@ if any( np.isclose(tau % 1, [0,1/2,1]) ):
 
 if any( np.isclose(tau % 1, [1/4,3/4]) ):
     if dim % 2 == 0:
-        theta_1, phi_1 = np.pi/2 + np.arcsin(1/3), + np.pi/3
-        theta_2, phi_2 = np.pi/2 + np.arcsin(1/3), - np.pi/3
-        eta = -(dim-1)/3 * np.pi % (2*np.pi)
+        theta_1 = np.pi/2 + np.arcsin(1/3)
+        theta_2 = np.pi/2 + np.arcsin(1/3)
+        alpha = np.pi/3
+        beta = -(dim-1)/3 * np.pi
 
     else:
-        theta_1, phi_1 = np.pi, 0
-        theta_2, phi_2 = np.pi/2 - np.arcsin(1/3), 0
-        eta = (dim-2)/4 * np.pi % (2*np.pi)
-        if np.isclose(tau,3/4): eta *= -1
+        theta_1 = np.pi
+        theta_2 = np.pi/2 - np.arcsin(1/3)
+        alpha = 0
+        beta = (dim-2)/4 * np.pi
+        if np.isclose(tau,3/4): beta *= -1
 
-    guess = ( polarized_state(theta_1, phi_1) * np.exp(+1j*eta) +
-              polarized_state(theta_2, phi_2) * np.exp(-1j*eta) )
+    guess = ( polarized_state(theta_1, +alpha) * np.exp(+1j*beta) +
+              polarized_state(theta_2, -alpha) * np.exp(-1j*beta) )
 
 badness = infidelity(guess)
 
