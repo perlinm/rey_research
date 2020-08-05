@@ -659,41 +659,48 @@ $c_{j\mu}^\dag \to e^{-i\mu\phi j} c_{j\mu}^\dag$, which takes
   \to H_{\t{Raman}}
   = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}.
 \end{align}
-The effective driving amplitudes $\Omega_{LM}$ can be tuned through
-the bare driving amplitudes $\Omega_m$, and satisfy
+Writing $H_{\t{Raman}} = \sum_j H_{\t{Raman}}^{\t{single},j}$, where
+$H_{\t{Raman}}^{\t{single},j}$ denotes the action of
+$H_{\t{Raman}}^{\t{single}}$ on spin $j$, we can expand
 \begin{align}
-  \Omega_{0,0} &\propto \Omega_+^2 + \Omega_-^2 + \Omega_0^2,
-  &
-  \Omega_{1,0} &\propto \Omega_+^2 - \Omega_-^2,
-  &
-  \Omega_{2,0} &\propto \Omega_+^2 + \Omega_-^2 - 2\Omega_0^2,
-  \\
-  \Omega_{1,1} &\propto \Omega_0 \p{\Omega_+ + \Omega_-},
-  &
-  \Omega_{2,1} &\propto \Omega_0 \p{\Omega_+ - \Omega_-},
-  &
-  \Omega_{2,2} &\propto \Omega_+ \Omega_-.
+  H_{\t{Raman}}^{\t{single}} \times \Delta
+  = h_+ h_- S_\z + h_0 h_+ S_\x
+  + h_0 h_- \p{S_\z S_\x  + S_\x S_\z}
+  + \p{h_0^2 - h_-^2} S_\x^2 + \p{h_0^2 - h_+^2} S_\y^2,
 \end{align}
-Note that $\D_{0,0}$ is proportional to the identity operator, so the
-amplitude $\Omega_{0,0}$ can be neglected without consequence.  If
-$\Omega_0=\Omega_+=\Omega_-=\xi_1\Omega$, then all remaining
-amplitudes except $\Omega_{1,1}$ and $\Omega_{2,2}$ vanish, and the
-Raman drive becomes
+where
+$\p{S_\z,S_\x,S_\y} \equiv \xi_1\times\p{D_{1,0},D_{1,1},D_{1,-1}}$ is
+the standard SU(2) subalgebra of the operators on a single $n$-level
+spin, and
 \begin{align}
-  H_{\t{Raman}}^{(+)} \equiv \f{\Omega^2}{\Delta}
-  \p{\sqrt{2}\, \col{S_\x} + \col{S_\x^2 - S_\y^2}},
+  h_0 \equiv \xi_1^{-1}\, \Omega_0,
+  &&
+  h_\pm \equiv \xi_1^{-1}\, \f{\Omega_+\pm\Omega_-}{\sqrt{2}}.
 \end{align}
-where the single-spin operators $S_\alpha$ are related to the drive
-operators $D_{LM}$ through the relations in \eqref{eq:spin_ops},
-\eqref{eq:spin_ops_2_0}, and \eqref{eq:spin_ops_2_12}; and $\col{X}$
-is the collective version of $X$.  If instead
-$\Omega_0=\pm\Omega_\pm=\xi_1\Omega$, then all amplitudes except
-$\Omega_{2,1}$ and $\Omega_{2,2}$ vanish, and the drive becomes
-\begin{align}
-  H_{\t{Raman}}^{(-)} \equiv \f{\Omega^2}{\Delta}
-  \p{\sqrt{2}\, \sp{\col{S_\z S_\x+ S_\x S_\z}}
-    - \sp{\col{S_\x^2 - S_\y^2}}}.
-\end{align}
+Tuning the amplitudes $\Omega_0,\Omega_+,\Omega_-$, or equivalently
+$h_0,h_+,h_-$, enables us to implement various drive Hamiltonians,
+several of which are shown in Table \ref{tab:drives}.
+
+\begin{table}
+  \centering
+  \caption{Drive Hamiltonians that can be implemented with various
+    amplitude-matching conditions.}
+  \begin{tabular}{c|c|c}
+    Condition & $\p{h_0,h_+,h_-}/h$
+    & $H_{\t{Raman}}^{\t{single}}/\p{h^2/\Delta}$ \\ \hline\hline
+    $\Omega_0=\Omega_+=+\Omega_-$ & $\p{1,\sqrt{2},0}$
+    & $\sqrt{2} S_\x + S_\x^2 - S_\y^2$ \\ \hline
+    $\Omega_0=\Omega_+=-\Omega_-$ & $\p{1,0,\sqrt{2}}$
+    & $\sqrt{2}\p{S_\z S_\x + S_\x S_\z} - \p{S_\x^2-S_\y^2}$ \\ \hline
+    $\Omega_+=\Omega_-=0$ & $\p{1,0,0}$
+    & $S_\x^2 + S_\y^2$ \\ \hline
+    $\Omega_0=\Omega_-=0$ & $\p{0,1,+1}$
+    & $+S_\z - \p{S_\x^2 + S_\y^2}$ \\ \hline
+    $\Omega_0=\Omega_+=0$ & $\p{0,1,-1}$
+    & $-S_\z - \p{S_\x^2 + S_\y^2}$
+  \end{tabular}
+  \label{tab:drives}
+\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Periodic drive}
