@@ -100,7 +100,7 @@ try:
         return cmocean.cm.amp(color_vals)
 except ModuleNotFoundError:
     def sphere_cmap(color_vals):
-        return plt.cm.get_cmap("inferno")(1-color_vals)
+        return plt.cm.get_cmap("inferno")(color_vals)
 
 def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = None,
                      rasterized = True):
