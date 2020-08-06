@@ -6,9 +6,9 @@ import scipy.special
 
 from dicke_methods import coherent_spin_state_angles
 
-figsize = (3,2)
+figsize = (4,1.5)
 
-params = { "font.size" : 12,
+params = { "font.size" : 10,
            "text.usetex" : True,
            "text.latex.preamble" : [ r"\usepackage{physics}" ]}
 plt.rcParams.update(params)
@@ -16,70 +16,58 @@ plt.rcParams.update(params)
 ##############################
 
 n_vals = np.arange(2,21,2)
+n_ticks = np.arange(4,21,4)
+
+I_vals = (n_vals-1)/2
 def spin_vals(n):
-    S = (n-1)/2
-    return np.linspace(-S,S,n)
+    I = (n-1)/2
+    return np.linspace(-I,I,n)
 
-theta = np.pi/2 + np.arcsin(1/3)
-alpha = np.pi/3
-def beta(n):
-    return -(n-1)/3 * np.pi
-def state(n):
-    return ( coherent_spin_state_angles(theta, +alpha, n-1) * np.exp(+1j*beta(n)) +
-             coherent_spin_state_angles(theta, -alpha, n-1) * np.exp(-1j*beta(n)) ) / np.sqrt(2)
+alpha = np.pi/2 + np.arcsin(1/3)
+beta = np.pi/3
+def gamma(n): return -(n-1)/3 * np.pi
 
-##############################
-
-def chi(m,n):
-    S = (n-1)/2
-    return ( np.sqrt(scipy.special.binom(2*S,S+m)) *
-             np.cos(theta/2)**(S+m) * np.sin(theta/2)**(S-m) )
-def proj(m,n):
-    return chi(m,n) * np.sqrt(2) * np.cos(m*alpha-beta(n))
-
-for n in n_vals:
-    assert(np.allclose( state(n), [ proj(m,n) for m in spin_vals(n) ] ))
+states = [ "X", "DS" ]
+def state_vec(n, state):
+    if state == "X":
+        return coherent_spin_state_angles(np.pi/2, 0, n-1)
+    elif state == "DS":
+        state_p = coherent_spin_state_angles(alpha, +beta, n-1) * np.exp(+1j*gamma(n))
+        state_m = coherent_spin_state_angles(alpha, -beta, n-1) * np.exp(-1j*gamma(n))
+        return ( state_p + state_m ) / np.sqrt(2)
 
 ##############################
 
-def r_val(n):
-    return sum( chi(m,n)**4 * 4 * np.cos(m*alpha-beta(n))**4
-                for m in spin_vals(n) )
-
-r_vals = [ sum(abs(state(n))**4) for n in n_vals ]
-r_vals_alt = [ r_val(n) for n in n_vals ]
-assert(np.allclose(r_vals, r_vals_alt))
-
-plt.figure(figsize = figsize)
-plt.plot(n_vals, r_vals, "k.")
-plt.gca().set_ylim(bottom = 0)
-plt.xlabel("$n$")
-plt.ylabel("$r$")
-plt.tight_layout()
-plt.savefig("../figures/oscillations/const_vals.pdf")
-
-##############################
-
-def var_Z(n):
-    _state = state(n)
-    S = (n-1)/2
-    Z = spin_vals(n) / S
-    val_Z_Z = _state.conj() @ ( Z**2 * _state )
-    val_Z = _state.conj() @ ( Z * _state )
+def r_val(n, state):
+    return sum( abs(state_vec(n, state))**4 )
+def var_Z(n, state):
+    _state_vec = state_vec(n, state)
+    I = (n-1)/2
+    Z = spin_vals(n) / I
+    val_Z_Z = _state_vec.conj() @ ( Z**2 * _state_vec )
+    val_Z = _state_vec.conj() @ ( Z * _state_vec )
     return ( val_Z_Z - val_Z**2 ).real
-var_Z_vals = np.array([ var_Z(n) for n in n_vals ])
 
-plt.figure(figsize = figsize)
-plt.plot(n_vals, var_Z_vals, "k.")
-plt.xlabel("$n$")
-plt.ylabel(r"$\mathrm{var}(Z)$")
-plt.tight_layout()
-plt.savefig("../figures/oscillations/var_z_vals.pdf")
+def r_vals(state):
+    return np.array([ r_val(n,state) for n in n_vals ])
+def var_Z_vals(state):
+    return np.array([ var_Z(n,state) for n in n_vals ])
 
+figure, axes = plt.subplots(1, 2, figsize = figsize, sharex = True)
 
-plt.figure(figsize = figsize)
-plt.plot(n_vals, np.sqrt(var_Z_vals), "k.")
-plt.xlabel("$n$")
-plt.ylabel(r"$\mathrm{std}(Z)$")
-plt.tight_layout()
-plt.savefig("../figures/oscillations/std_z_vals.pdf")
+for state in states:
+    label = r"$\mathrm{" + state + "}$"
+    axes[0].plot(n_vals, np.sqrt(n_vals) * r_vals(state), ".", label = label)
+    axes[1].plot(n_vals, 2*I_vals * var_Z_vals(state), ".", label = label)
+
+axes[0].set_xticks(n_ticks)
+axes[0].set_xlabel(r"$n$")
+axes[1].set_xlabel(r"$n$")
+
+axes[0].set_ylim(bottom = 0)
+axes[0].set_ylabel(r"$r_\psi\times\sqrt{n}$")
+axes[1].set_ylabel(r"$\mathrm{var}_\psi(Z)\times 2I$")
+axes[1].legend(loc = "best")
+
+plt.tight_layout(pad = 0.1, w_pad = 1)
+plt.savefig("../figures/oscillations/limiting_vals.pdf")

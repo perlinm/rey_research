@@ -16,9 +16,9 @@ color_map = "inferno"
 # plotting parameters
 log10_tun_vals = np.linspace(-2,1,13)
 soc_frac_vals = np.linspace(0,1,11)
+plot_peaks = 100
 freq_num = 1000
 freq_scale = 2
-plot_peaks = 100
 
 data_dir = "../data/oscillations/"
 fig_dir = "../figures/oscillations/"

@@ -10,16 +10,27 @@ np.set_printoptions(linewidth = 200)
 
 spin_dim = int(sys.argv[1])
 spin_num = int(sys.argv[2])
+if len(sys.argv) > 3:
+    state_str = sys.argv[3]
+else:
+    state_str = "X"
+
+assert( spin_num % 2 == 0 )
+assert( state_str in [ "X", "DS" ] )
+if spin_dim == 2: state_str = "X"
 
 # simulation parameters
 log10_tun_vals = np.linspace(-2,1,13)
 soc_frac_vals = np.linspace(0,1,11)
 periods = 1000
 
+log10_tun_vals = np.array([0])
+soc_frac_vals = np.array([0.5])
+
 ivp_tolerance = 1e-10
 
 data_dir = "../data/oscillations/"
-sys_tag = f"n{spin_dim}_N{spin_num}"
+sys_tag = f"n{spin_dim}_N{spin_num}_{state}"
 
 ##########################################################################################
 # basic simulation objects and methods
@@ -139,15 +150,14 @@ def compute_spin_mats(states):
     return np.array([ compute_spin_mat(state) for state in states ])
 
 # construct initial state
-assert( spin_num % 2 == 0 )
-if spin_dim == 2:
+if state_str == "X":
     init_state = polarized_state([0,1,0])
-else:
-    theta = np.pi/2 + np.arcsin(1/3)
-    alpha = np.pi/3
-    beta = -(spin_dim-1)/3 * np.pi
-    quantum_init_state = spin_state(theta, +alpha) * np.exp(+1j*beta) \
-                       + spin_state(theta, -alpha) * np.exp(-1j*beta)
+elif state_str == "DS":
+    alpha = np.pi/2 + np.arcsin(1/3)
+    beta = np.pi/3
+    gamma = -(spin_dim-1)/3 * np.pi
+    quantum_init_state = spin_state(alpha, +beta) * np.exp(+1j*gamma) \
+                       + spin_state(alpha, -beta) * np.exp(-1j*gamma)
     init_state = boson_mft_state(quantum_init_state)
 
 ##########################################################################################
