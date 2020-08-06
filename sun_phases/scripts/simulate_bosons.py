@@ -2,31 +2,24 @@
 
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
-import scipy.integrate, scipy.signal
+import scipy.integrate
 
-from dicke_methods import coherent_spin_state_angles, coherent_spin_state, \
-    spin_op_z_dicke, spin_op_p_dicke
+from dicke_methods import coherent_spin_state_angles, coherent_spin_state, spin_op_z_dicke
 
 np.set_printoptions(linewidth = 200)
 
 spin_dim = int(sys.argv[1])
 spin_num = int(sys.argv[2])
 
+# simulation parameters
+log10_tun_vals = np.linspace(-2,1,13)
+soc_frac_vals = np.linspace(0,1,11)
+periods = 1000
+
 ivp_tolerance = 1e-10
 
-color_map = "inferno"
-
 data_dir = "../data/oscillations/"
-fig_dir = "../figures/oscillations/"
 sys_tag = f"n{spin_dim}_N{spin_num}"
-
-figsize = (4,3)
-params = { "font.size" : 12,
-           "text.usetex" : True,
-           "text.latex.preamble" : [ r"\usepackage{physics}",
-                                     r"\usepackage{braket}" ]}
-plt.rcParams.update(params)
 
 ##########################################################################################
 # basic simulation objects and methods
@@ -129,143 +122,58 @@ def evolve(initial_state, sim_time, field, coupling_op = None,
     initial_state.shape = state_shape
     return times, states
 
-def get_params(param_method, initial_state, field, coupling_op = None,
-               time_step = 2*np.pi, end_cond = None,
-               ivp_tolerance = ivp_tolerance):
-
-    evolve_args = [ time_step, field, coupling_op, ivp_tolerance ]
-    times, states = evolve(initial_state, *evolve_args)
-    params = param_method(states)
-    if end_cond is None:
-        return times, params
-
-    while not end_cond(params):
-        new_times, states = evolve(states[-1], *evolve_args)
-        new_params = param_method(states)
-
-        times = np.concatenate([ times, times[-1] + new_times[1:] ])
-        params = np.concatenate([ params, new_params[1:] ])
-
-    return times, params
+# construct an on-site external field
+def bare_lattice_field(qq, soc_angle):
+    return np.diag([ np.cos(2*np.pi*qq/spin_num + mu * soc_angle) for mu in spin_vals ])
 
 ##########################################################################################
 # set up objects for simulation
 ##########################################################################################
 
 Sz = spin_op_z_dicke(spin_dim-1).todense()
-Sp = spin_op_p_dicke(spin_dim-1).todense()
 spin_vals = np.diag(Sz)
 
-def transition(mu,nu):
-    op = np.zeros((spin_dim,)*2)
-    op[mu,nu] = 1
-    return op
-swap = sum( np.kron(transition(mu,nu).T, transition(mu,nu))
-            for mu in range(spin_dim) for nu in range(spin_dim) )
-swap.shape = (spin_dim,)*4
+def compute_spin_mat(state):
+    return np.einsum("mj,nj->mn", state.conj(), state) / spin_num
+def compute_spin_mats(states):
+    return np.array([ compute_spin_mat(state) for state in states ])
 
-def compute_SS_val(state):
-    state_quad = ( state.conj(), state, state.conj(), state )
-    SS = np.einsum("mnrs,mj,nj,rk,sk->", swap, *state_quad).real
-    return SS / spin_num**2
-def compute_SS_vals(states):
-    return np.array([ compute_SS_val(state) for state in states ])
-
-def get_interp_vals(xs, ys, kind = "cubic"):
-    interp = scipy.interpolate.interp1d(xs, ys, kind = kind)
-    new_xs = np.linspace(xs[0], xs[-1], xs.size)
-    new_ys = interp(new_xs)
-    return new_xs, new_ys
+# construct initial state
+assert( spin_num % 2 == 0 )
+if spin_dim == 2:
+    init_state = polarized_state([0,1,0])
+else:
+    theta = np.pi/2 + np.arcsin(1/3)
+    alpha = np.pi/3
+    beta = -(spin_dim-1)/3 * np.pi
+    quantum_init_state = spin_state(theta, +alpha) * np.exp(+1j*beta) \
+                       + spin_state(theta, -alpha) * np.exp(-1j*beta)
+    init_state = boson_mft_state(quantum_init_state)
 
 ##########################################################################################
 # simulate!
 ##########################################################################################
 
-# simulation parameters
-soc_angle = np.pi/2
-log10_tun_vals = np.linspace(-2,1,11)
+for idx_soc, soc_frac in enumerate(soc_frac_vals):
+    soc_tag = f"{soc_frac:.2f}"
+    soc_angle = soc_frac * np.pi
+    bare_field = field_tensor([ bare_lattice_field(qq, soc_angle)
+                                for qq in range(spin_num) ])
 
-periods = 1000
-freq_num = 1000
-freq_scale = 2
-plot_peaks = 100
+    for idx_tun, log10_tun in enumerate(log10_tun_vals):
+        tun_tag = f"{log10_tun:.2f}"
+        file_tag = f"{sys_tag}_J{tun_tag}_p{soc_tag}"
 
-# construct "bare" external field
-def bare_lattice_field(qq):
-    return np.diag([ np.cos(2*np.pi*qq/spin_num + mu * soc_angle)
-                     for mu in spin_vals ])
-bare_field = field_tensor([ bare_lattice_field(qq) for qq in range(spin_num) ])
+        print(f"{idx_soc}/{len(soc_frac_vals)} " + \
+              f"{idx_tun}/{len(log10_tun_vals)} " + \
+              f"(soc_frac, log10_tun = {soc_tag}, {tun_tag})")
+        sys.stdout.flush()
 
-# construct initial state
-assert( spin_num % 2 == 0 )
-theta = np.pi/2 + np.arcsin(1/3)
-alpha = np.pi/3
-beta = -(spin_dim-1)/3 * np.pi
-quantum_init_state = spin_state(theta, +alpha) * np.exp(+1j*beta) \
-                   + spin_state(theta, -alpha) * np.exp(-1j*beta)
-init_state = boson_mft_state(quantum_init_state)
+        tunneling = 10**log10_tun
+        field = -tunneling * bare_field
+        sim_time = 2*np.pi / np.sqrt(1 + tunneling)**2 * periods
 
-# !!!!!!!!!!!!!!!!!!!!
-if spin_dim == 2:
-    alt_signs = np.ones(spin_num)
-    alt_signs[spin_num//2:] = -1
-    bare_field = field_tensor([ sign * Sz for sign in alt_signs ])
-    init_state = polarized_state([0,1,0])
-# !!!!!!!!!!!!!!!!!!!!
-
-SS_ranges = np.zeros(log10_tun_vals.size)
-tunneling_vals = 10**log10_tun_vals
-for idx, ( log10_tun, tunneling ) in enumerate(zip(log10_tun_vals, tunneling_vals)):
-    tun_tag = f"{log10_tun:.2f}"
-    tun_title = r"$\log_{10}(J/U)=" + tun_tag + "$"
-    print(f"{idx}/{log10_tun_vals.size} (log10_tun = {tun_tag})", end = "")
-    sys.stdout.flush()
-
-    field = -tunneling * bare_field
-    sim_time = 2*np.pi / np.sqrt(1 + tunneling)**2 * periods
-    try:
-        times = np.loadtxt(data_dir + f"times_{sys_tag}_J{tun_tag}.txt")
-        SS_vals = np.loadtxt(data_dir + f"SS_vals_{sys_tag}_J{tun_tag}.txt")
-    except:
         times, states = evolve(init_state, sim_time, field)
-        SS_vals = compute_SS_vals(states)
-        np.savetxt(data_dir + f"times_{sys_tag}_J{tun_tag}.txt", times)
-        np.savetxt(data_dir + f"SS_vals_{sys_tag}_J{tun_tag}.txt", SS_vals)
-    SS_ranges[idx] = max(SS_vals) - min(SS_vals)
-
-    peaks, _ = scipy.signal.find_peaks(SS_vals)
-    print(f" {peaks.size} peaks")
-
-    max_plot_time = times[peaks[plot_peaks]]
-    max_plot_freq = np.sqrt(1 + tunneling)**2 * peaks.size / periods * freq_scale
-
-    figure, axes = plt.subplots(2)
-    axes[0].set_title(tun_title)
-
-    # plot time-series data
-    axes[0].plot(times/(2*np.pi), SS_vals)
-    axes[0].set_xlabel(r"$t \times U/2\pi$")
-    axes[0].set_ylabel(r"$\braket{S^2}$")
-
-    # plot power spectrum
-    times, SS_vals = get_interp_vals(times, SS_vals)
-    freqs = 2*np.pi * np.fft.rfftfreq(times.size, times[1])
-    SS_amps = np.fft.rfft(SS_vals-np.mean(SS_vals)) / times.size
-    axes[1].plot(freqs, abs(SS_amps)**2)
-    axes[1].set_xlabel(r"$\omega/U$")
-    axes[1].set_ylabel(r"$P(\omega)$")
-    axes[1].set_yticks([])
-
-    axes[0].set_xlim(0, max_plot_time/(2*np.pi))
-    axes[1].set_xlim(0, max_plot_freq)
-    figure.tight_layout()
-    figure.savefig(fig_dir + f"time_series/series_{sys_tag}_J{tun_tag}.pdf")
-    plt.close(figure)
-
-plt.figure(figsize = figsize)
-plt.semilogx(tunneling_vals, SS_ranges, "k.")
-plt.xlabel(r"$J/U$")
-if spin_dim == 2: plt.xlabel(r"$\delta_E$")
-plt.ylabel(r"$\Delta$")
-plt.tight_layout(pad = 0.1)
-plt.savefig(fig_dir + f"osc_{sys_tag}_cut.pdf")
+        spin_mats = compute_spin_mats(states)
+        np.savetxt(data_dir + f"times_{file_tag}.txt", times)
+        np.savetxt(data_dir + f"spin_mats_{file_tag}.txt", spin_mats.flatten())
