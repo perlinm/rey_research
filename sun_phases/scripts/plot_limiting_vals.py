@@ -60,18 +60,26 @@ plt.savefig("../figures/oscillations/const_vals.pdf")
 
 ##############################
 
-def var_sz(n):
+def var_Z(n):
     _state = state(n)
-    _sz = spin_vals(n)
-    val_sz_sz = _state.conj() @ ( _sz**2 * _state )
-    val_sz = _state.conj() @ ( _sz * _state )
-    return ( val_sz_sz - val_sz**2 ).real
-var_sz_vals = [ var_sz(n) for n in n_vals ]
+    S = (n-1)/2
+    Z = spin_vals(n) / S
+    val_Z_Z = _state.conj() @ ( Z**2 * _state )
+    val_Z = _state.conj() @ ( Z * _state )
+    return ( val_Z_Z - val_Z**2 ).real
+var_Z_vals = np.array([ var_Z(n) for n in n_vals ])
 
 plt.figure(figsize = figsize)
-plt.plot(n_vals, var_sz_vals, "k.")
+plt.plot(n_vals, var_Z_vals, "k.")
 plt.xlabel("$n$")
-plt.ylabel(r"$\mathrm{var}(s_{\mathrm{z}})$")
+plt.ylabel(r"$\mathrm{var}(Z)$")
 plt.tight_layout()
-plt.savefig("../figures/oscillations/var_sz_vals.pdf")
+plt.savefig("../figures/oscillations/var_z_vals.pdf")
 
+
+plt.figure(figsize = figsize)
+plt.plot(n_vals, np.sqrt(var_Z_vals), "k.")
+plt.xlabel("$n$")
+plt.ylabel(r"$\mathrm{std}(Z)$")
+plt.tight_layout()
+plt.savefig("../figures/oscillations/std_z_vals.pdf")

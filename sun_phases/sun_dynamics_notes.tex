@@ -168,65 +168,10 @@ so
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Non-interacting limit of a realistic 1D model}
+\section{Initial state}
 
-Consider the single-particle Hamiltonian
-\begin{align}
-  H = -\f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\phi} s_{\mu\mu q},
-\end{align}
-where $q$ is a quasi-momentum (in units with lattice spacing $a=1$);
-$\mu\in\set{-I,-I+1,\cdots,I}$ is a nuclear spin projection onto a
-quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin;
-$\phi$ is a spin-orbit-coupling angle, and $J$ is the single-particle
-bandwidth (proportional to the tunneling rate, $J/4$).  We wish to
-compute an expectation value of the operator
-\begin{align}
-  \O\p{t}
-  \equiv e^{\i t H} \p{\f{\v S^\dag \c\v S}{N^2}} e^{-\i t H}
-  = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q} \times
-  e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}},
-\end{align}
-where
-\begin{align}
-  \eta_{\mu\nu p}
-  \equiv -\f12 \sp{\cos\p{p+\mu\phi} - \cos\p{p+\nu\phi}}
-  = \sin\p{\phi_{\mu\nu}^-} \sin\p{p+\phi_{\mu\nu}^+},
-  &&
-  \phi_{\mu\nu}^\pm \equiv \f{\mu\pm\nu}{2}\,\phi.
-\end{align}
-If $\ket\Psi=\ket\psi^{\otimes N}$, then
-\begin{align}
-  \bk{\Psi|\O\p{t}|\Psi}
-  &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \sum_{p\ne q} e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \f{n}{N} \\
-  &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \abs{\xi_{\mu\nu}\p{\phi}}^2 + \f{n-1}{N},
-\end{align}
-where
-\begin{align}
-  \xi_{\mu\nu}\p{\phi} \equiv \f1N \sum_q e^{\i tJ\eta_{\mu\nu q}}
-  = \f1N \sum_q e^{\i tJ\sin\p{\phi_{\mu\nu}^-} \sin\p{q+\phi_{\mu\nu}^+}}.
-\end{align}
-As $N\to\infty$, this sum is well approximated by an integral:
-\begin{align}
-  \xi_{\mu\nu}\p{\phi} \approx \f1{2\pi} \int_{-\pi}^\pi \dd\theta\,
-  e^{\i tJ\sin\p{\phi_{\mu\nu}^-} \sin\p{\theta+\phi_{\mu\nu}^+}}
-  = \J_0\sp{tJ\sin\p{\phi_{\mu\nu}^-}},
-\end{align}
-where $\J_0$ is the zero-order Bessel function of the first kind.  To
-leading order in $N\gg1$, we thus find that
-\begin{align}
-  \bk{\Psi|\O\p{t}|\Psi}
-  \approx \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \J_0\sp{tJ\sin\p{\phi_{\mu\nu}^-}}^2.
-  \label{eq:O_time}
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Initial state}
-
-Up to an inconsequential choice of gauge, the initial state that we
-can prepare has the form
+We can prepare an initial product state
+$\ket\Psi\equiv\ket\psi^{\otimes N}$ with
 \begin{align}
   \ket\psi = \f1{\sqrt{2}}
   \p{e^{\i\beta} \ket{\theta,\alpha}
@@ -265,11 +210,65 @@ which implies that
   \cos\p{\mu\alpha-\beta} \ket\mu.
 \end{align}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Non-interacting limit of a realistic 1D model}
+
+We consider the single-particle Hamiltonian
+\begin{align}
+  H = -\f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\phi} s_{\mu\mu q},
+\end{align}
+where $q$ is a quasi-momentum (in units with lattice spacing $a=1$);
+$\mu\in\set{-I,-I+1,\cdots,I}$ is a nuclear spin projection onto a
+quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin;
+$\phi$ is a spin-orbit-coupling angle, and $J$ is the single-particle
+bandwidth (proportional to the tunneling rate, $J/4$).  As a dynamical
+order parameter, we consider the operator
+\begin{align}
+  \O\p{t}
+  \equiv e^{\i t H} \p{\f{\v S^\dag \c\v S}{N^2}} e^{-\i t H}
+  = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q} \times
+  e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}},
+\end{align}
+where
+\begin{align}
+  \eta_{\mu\nu p}
+  \equiv -\f12 \sp{\cos\p{p+\mu\phi} - \cos\p{p+\nu\phi}}
+  = \sin\p{\phi_{\mu\nu}^-} \sin\p{p+\phi_{\mu\nu}^+},
+  &&
+  \phi_{\mu\nu}^\pm \equiv \f{\mu\pm\nu}{2}\,\phi.
+\end{align}
+Specifically, we are interested in the expectation value
+\begin{align}
+  \bk{\Psi|\O\p{t}|\Psi}
+  &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \sum_{p\ne q} e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \f{n}{N} \\
+  &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \abs{\xi_{\mu\nu}\p{\phi}}^2 + \f{n-1}{N},
+\end{align}
+where
+\begin{align}
+  \xi_{\mu\nu}\p{\phi} \equiv \f1N \sum_q e^{\i tJ\eta_{\mu\nu q}}
+  = \f1N \sum_q e^{\i tJ\sin\p{\phi_{\mu\nu}^-} \sin\p{q+\phi_{\mu\nu}^+}}.
+\end{align}
+As $N\to\infty$, this sum is well approximated by an integral:
+\begin{align}
+  \xi_{\mu\nu}\p{\phi} \approx \f1{2\pi} \int_{-\pi}^\pi \dd\theta\,
+  e^{\i tJ\sin\p{\phi_{\mu\nu}^-} \sin\p{\theta+\phi_{\mu\nu}^+}}
+  = \J_0\sp{tJ\sin\p{\phi_{\mu\nu}^-}},
+\end{align}
+where $\J_0$ is the zero-order Bessel function of the first kind.  To
+leading order in $N\gg1$, we thus find that
+\begin{align}
+  \bk{\Psi|\O\p{t}|\Psi}
+  \approx \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \J_0\sp{tJ\sin\p{\phi_{\mu\nu}^-}}^2.
+  \label{eq:O_time}
+\end{align}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Limiting cases}
 
-We now return to the order parameter $\O\p{t}$ in \eqref{eq:O_time}.
-The constant (time independent) terms in this expression have
+The constant (time independent) terms in \eqref{eq:O_time} have
 $\mu=\nu$ (in which case all $\phi_{\mu\nu}^-=0$), so up to $O(1/N)$
 corrections
 \begin{align}
@@ -293,26 +292,36 @@ In the limit of a small angle $\phi$ for which $I\phi\ll1$, we can
 further simplify
 \begin{align}
   \bk{\Psi|\O\p{t}|\Psi}
-  \approx 1 - \f14 \var\p{s_\z} \p{tJ\phi}^2,
-  &&
-  \var\p{X} \equiv \bk{\psi|X^2|\psi} - \bk{\psi|X|\psi}^2.
+  \approx 1 - \f14 \var\p{Z} \p{JI\phi}^2 \times t^2,
   \label{eq:small_time_angle}
 \end{align}
+where
+\begin{align}
+  \var\p{Z}
+  \equiv \bk{\psi|Z^2|\psi} - \bk{\psi|Z|\psi}^2,
+  &&
+  Z \equiv \sum_{\mu=-I}^I \f{\mu}{I} \op{\mu}.
+\end{align}
 Note that the result in \eqref{eq:small_time_angle} is valid for all
-$tJ\ll\p{I\phi}^{-1}$, which may be a long time given the small-angle
+$t\ll\p{JI\phi}^{-1}$, which may be a long time given the small-angle
 assumption $I\phi\ll1$.  Figure \ref{fig:limiting_vals} shows several
-values of $\var\p{s_\z}$ for different $n$.
+values of $\var\p{Z}$ for different $n$.
 
 \begin{figure}
   \centering
   \includegraphics{figures/oscillations/const_vals.pdf}
-  \includegraphics{figures/oscillations/var_sz_vals.pdf}
-  \caption{Several values of $r$ and $\var\p{s_\z}$ for different $n$.
+  \includegraphics{figures/oscillations/var_z_vals.pdf}
+  \caption{Several values of $r$ and $\var\p{Z}$ for different $n$.
     Computed with respect to the state $\ket\psi$ in
     \eqref{eq:double_state}.}
   \label{fig:limiting_vals}
 \end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Strongly-interacting limit of a realistic 1D model}
+
+We now consider the opposite, strongly-interacting limit of a 1D
+model,
 
 \end{document}
 
