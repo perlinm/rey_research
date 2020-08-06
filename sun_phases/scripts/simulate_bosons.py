@@ -11,26 +11,23 @@ np.set_printoptions(linewidth = 200)
 spin_dim = int(sys.argv[1])
 spin_num = int(sys.argv[2])
 if len(sys.argv) > 3:
-    state_str = sys.argv[3]
+    init_state_str = sys.argv[3]
 else:
-    state_str = "X"
+    init_state_str = "X"
 
 assert( spin_num % 2 == 0 )
-assert( state_str in [ "X", "DS" ] )
-if spin_dim == 2: state_str = "X"
+assert( init_state_str in [ "X", "DS" ] )
+if spin_dim == 2: init_state_str = "X"
 
 # simulation parameters
 log10_tun_vals = np.linspace(-2,1,13)
 soc_frac_vals = np.linspace(0,1,11)
 periods = 1000
 
-log10_tun_vals = np.array([0])
-soc_frac_vals = np.array([0.5])
-
 ivp_tolerance = 1e-10
 
 data_dir = "../data/oscillations/"
-sys_tag = f"n{spin_dim}_N{spin_num}_{state}"
+sys_tag = f"n{spin_dim}_N{spin_num}_{init_state_str}"
 
 ##########################################################################################
 # basic simulation objects and methods
@@ -145,14 +142,15 @@ Sz = spin_op_z_dicke(spin_dim-1).todense()
 spin_vals = np.diag(Sz)
 
 def compute_spin_mat(state):
-    return np.einsum("mj,nj->mn", state.conj(), state) / spin_num
+    return np.array([ state[mu,:].conj() @ state[nu,:] / spin_num
+                      for mu, nu in zip(*np.triu_indices(spin_dim)) ], dtype = complex)
 def compute_spin_mats(states):
     return np.array([ compute_spin_mat(state) for state in states ])
 
 # construct initial state
-if state_str == "X":
+if init_state_str == "X":
     init_state = polarized_state([0,1,0])
-elif state_str == "DS":
+elif init_state_str == "DS":
     alpha = np.pi/2 + np.arcsin(1/3)
     beta = np.pi/3
     gamma = -(spin_dim-1)/3 * np.pi

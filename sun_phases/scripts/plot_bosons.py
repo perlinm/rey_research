@@ -9,6 +9,14 @@ np.set_printoptions(linewidth = 200)
 
 spin_dim = int(sys.argv[1])
 spin_num = int(sys.argv[2])
+if len(sys.argv) > 3:
+    init_state_str = sys.argv[3]
+else:
+    init_state_str = "X"
+
+assert( spin_num % 2 == 0 )
+assert( init_state_str in [ "X", "DS" ] )
+if spin_dim == 2: init_state_str = "X"
 
 figsize = (4,3)
 color_map = "inferno"
@@ -22,8 +30,8 @@ freq_scale = 2
 
 data_dir = "../data/oscillations/"
 fig_dir = "../figures/oscillations/"
+sys_tag = f"n{spin_dim}_N{spin_num}_{init_state_str}"
 
-sys_tag = f"n{spin_dim}_N{spin_num}"
 params = { "font.size" : 12,
            "text.usetex" : True,
            "text.latex.preamble" : [ r"\usepackage{physics}",
@@ -54,9 +62,15 @@ for ( idx_soc, soc_frac ), ( idx_tun, log10_tun ) in param_generator:
 
     tunneling = 10**log10_tun
     times = np.loadtxt(data_dir + f"times_{file_tag}.txt")
-    spin_mats = np.loadtxt(data_dir + f"spin_mats_{file_tag}.txt", dtype = complex)
+    spin_mat_vals = np.loadtxt(data_dir + f"spin_mats_{file_tag}.txt", dtype = complex)
 
-    spin_mats.shape = ( times.size, spin_dim, spin_dim )
+    spin_mat_vals.shape = ( times.size, -1 )
+    spin_mats = np.empty(( times.size, spin_dim, spin_dim ), dtype = complex)
+    for idx, ( mu, nu ) in enumerate(zip(*np.triu_indices(spin_dim))):
+        spin_mats[:,mu,nu] = spin_mat_vals[:,idx]
+        if mu != nu:
+            spin_mats[:,nu,mu] = spin_mat_vals[:,idx].conj()
+
     SS_vals = np.einsum("tmn,tnm->t", spin_mats, spin_mats).real
 
     peaks, _ = scipy.signal.find_peaks(SS_vals)
