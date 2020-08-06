@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
+import sys, time
 import numpy as np
 import scipy.integrate
 
@@ -154,6 +154,8 @@ else:
 # simulate!
 ##########################################################################################
 
+sim_start = time.time()
+
 for idx_soc, soc_frac in enumerate(soc_frac_vals):
     soc_tag = f"{soc_frac:.2f}"
     soc_angle = soc_frac * np.pi
@@ -166,8 +168,10 @@ for idx_soc, soc_frac in enumerate(soc_frac_vals):
 
         print(f"{idx_soc}/{len(soc_frac_vals)} " + \
               f"{idx_tun}/{len(log10_tun_vals)} " + \
-              f"(soc_frac, log10_tun = {soc_tag}, {tun_tag})")
+              f"(soc_frac, log10_tun = {soc_tag}, {tun_tag})", end = "")
         sys.stdout.flush()
+
+        this_start = time.time()
 
         tunneling = 10**log10_tun
         field = -tunneling * bare_field
@@ -177,3 +181,12 @@ for idx_soc, soc_frac in enumerate(soc_frac_vals):
         spin_mats = compute_spin_mats(states)
         np.savetxt(data_dir + f"times_{file_tag}.txt", times)
         np.savetxt(data_dir + f"spin_mats_{file_tag}.txt", spin_mats.flatten())
+
+        this_runtime = int( time.time() - this_start )
+        print(f" {this_runtime} sec")
+
+sim_runtime = int( time.time() - sim_start )
+seconds = sim_runtime % 60
+minutes = sim_runtime // 60 % 60
+hours = sim_runtime // 60**2
+print(f"total runtime: {hours:02d}:{minutes:02d}:{seconds:02d}")
