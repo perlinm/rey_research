@@ -302,6 +302,11 @@ figure, axes = plt.subplots(1, len(lattices), figsize = figsize,
 for lattice, axis in zip(lattices, axes.flatten()):
     dim = len(lattice.split("x"))
 
+    # add a reference line for the OAT limit
+    spin_num = np.prod([ int(size) for size in lattice.split("x") ])
+    _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
+    axis.axhline(to_dB(sqz_OAT), color = "k", linestyle = "--", label = "OAT")
+
     # identify values of the power-law exponent \alpha
     alpha_vals = sorted([ int(file.split("_")[-1][1:-4])
                           for file in glob.glob(exact_file(lattice, "?")) ])
@@ -316,11 +321,6 @@ for lattice, axis in zip(lattices, axes.flatten()):
 
         axis.plot(zz_couplings[keep], -sqz[keep], ".", label = alpha)
 
-    # add a reference line for the OAT limit
-    spin_num = np.prod([ int(size) for size in lattice.split("x") ])
-    _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
-    axis.axhline(to_dB(sqz_OAT), color = "k", linestyle = "--", label = "OAT")
-
     axis.set_title(f"$D={dim}$")
     axis.set_xlabel(label_zz)
 
@@ -332,6 +332,63 @@ plt.tight_layout(pad = 0.2)
 
 lattice_label = "_L".join(lattices)
 plt.savefig(fig_dir + f"exact_L{lattice_label}.pdf")
+
+plt.close("all")
+##########################################################################################
+# plot benchmarking with exact simulations
+
+lattices = [ "3x3", "4x4" ]
+figsize = (4,2)
+zz_lims = (-3,3)
+
+def get_file(sim_type, lattice, alpha):
+    sim_dir = "DTWA" if sim_type == "dtwa" else sim_type
+    return data_dir + f"{sim_dir}/benchmarking/{sim_type}_L{lattice}_a{alpha}.txt"
+
+figure, axes = plt.subplots(1, len(lattices), figsize = figsize,
+                            sharex = True, sharey = True)
+
+for lattice, axis in zip(lattices, axes.flatten()):
+    dim = len(lattice.split("x"))
+
+    # add a reference line for the OAT limit
+    spin_num = np.prod([ int(size) for size in lattice.split("x") ])
+    _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
+    axis.axhline(to_dB(sqz_OAT), color = "k", linestyle = "--", label = "OAT")
+
+    # identify values of the power-law exponent \alpha
+    alpha_vals = [ set([ int(file.split("_")[-1][1:-4])
+                         for file in glob.glob(get_file(sim_type, lattice, "?")) ])
+                   for sim_type in [ "dtwa", "exact" ] ]
+    alpha_vals = sorted(set.intersection(*alpha_vals))
+
+    # plot all squeezing data
+    for alpha in alpha_vals:
+        def _get_vals(sim_type):
+            data = np.loadtxt(get_file(sim_type,lattice,alpha), unpack = True)
+            zz_couplings, sqz = data[0,:], data[1,:]
+            keep = np.where( ( np.around(zz_couplings, decimals = 1) >= zz_lims[0] ) &
+                             ( np.around(zz_couplings, decimals = 1) <= zz_lims[1] ) &
+                             ( zz_couplings != 1 ) )[0]
+            return zz_couplings[keep], -sqz[keep]
+
+        exact_zz, exact_sqz = _get_vals("exact")
+        dtwa_zz, dtwa_sqz = _get_vals("dtwa")
+
+        exact_plot = axis.plot(exact_zz, exact_sqz, label = alpha)
+        color = exact_plot[0].get_color()
+        axis.plot(dtwa_zz, dtwa_sqz, ".", color = color, markersize = 2)
+
+    title_text = lattice.replace("x", r"\times")
+    axis.set_title(f"${title_text}$")
+    axis.set_xlabel(label_zz)
+
+axes[0].set_ylabel(label_sqz_opt)
+axes[0].legend(loc = "best", handlelength = 1.7, framealpha = 0.8, ncol = 2)
+plt.tight_layout(pad = 0.2)
+
+lattice_label = "_L".join(lattices)
+plt.savefig(fig_dir + f"benchmarking_L{lattice_label}.pdf")
 
 plt.close("all")
 ##########################################################################################
