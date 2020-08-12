@@ -66,6 +66,7 @@
 \newcommand{\Z}{\mathcal{Z}}
 
 \newcommand{\EE}{\mathbb{E}}
+\newcommand{\RR}{\mathbb{R}}
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\ZZ}{\mathbb{Z}}
 
@@ -102,13 +103,8 @@ We first consider a general quadratic spin Hamiltonian of the form
   + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
   \label{eq:spin}
 \end{align}
-where $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ with $I\equiv\p{n-1}/2$ index
-orthogonal states of an $n$-level spin; $i,j\in\ZZ_N$ index one of $N$
-spins; $h^{\mu\nu i}_{\rho\sigma j}$ and $\epsilon_{\mu\nu i}$ are
-scalars; and $s_{\mu\nu i}\coloneqq\op{\mu}{\nu}_i$ is a transition
-operator for spin $i$.  If interactions are SU($n$) symmetric then
-$h^{\mu\nu i}_{\rho\sigma k} = h_{ik}
-\delta_{\mu\sigma}\delta_{\nu\rho}$, in which case
+where $\mu,\nu\in\set{I,I-1,\cdots,-I}$ with $I\equiv\p{n-1}/2$ index orthogonal states of an $n$-level spin; $i,j\in\ZZ_N$ index one of $N$ spins; $h^{\mu\nu i}_{\rho\sigma j}$ and $\epsilon_{\mu\nu i}$ are scalars; and $s_{\mu\nu i}\coloneqq\op{\mu}{\nu}_i$ is a transition operator for spin $i$.
+If interactions are SU($n$) symmetric then $h^{\mu\nu i}_{\rho\sigma k} = h_{ik} \delta_{\mu\sigma}\delta_{\nu\rho}$, in which case
 \begin{align}
   H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
   h_{ij} \Pi_{ij}
@@ -121,21 +117,16 @@ $h^{\mu\nu i}_{\rho\sigma k} = h_{ik}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 \section{Schwinger boson representation}
 
-We can write the Hamiltonian in \eqref{eq:spin} using Schwinger bosons
-as
+We can write the Hamiltonian in \eqref{eq:spin} using Schwinger bosons as
 \begin{align}
   H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
   h^{\mu\nu i}_{\rho\sigma j}
   b_{\mu i}^\dag b_{\nu i} b_{\rho j}^\dag b_{\sigma j}
   + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} b_{\mu i}^\dag b_{\nu i},
 \end{align}
-where $b_{\mu i}$ annihilates a boson of type $\mu$ on site $i$.  The
-Heisenberg equations of motion for these operators are\footnote{The
-  Hamiltonian in \eqref{eq:spin} only defines
-  $h^{\mu\nu j}_{\rho\sigma k}$ for $j<k$.  To simplify expressions in
-  the remainder of this work, we therefore additionally define
-  $h^{\mu\nu k}_{\rho\sigma j}=h^{\rho\sigma j}_{\mu\nu k}$ and
-  $h^{\mu\nu i}_{\rho\sigma i}=0$.}
+where $b_{\mu i}$ annihilates a boson of type $\mu$ on site $i$.
+The Heisenberg equations of motion for these operators are\footnote{The Hamiltonian in \eqref{eq:spin} only defines $h^{\mu\nu j}_{\rho\sigma k}$ for $j<k$.
+  To simplify expressions in the remainder of this work, we therefore additionally define $h^{\mu\nu k}_{\rho\sigma j}=h^{\rho\sigma j}_{\mu\nu k}$ and $h^{\mu\nu i}_{\rho\sigma i}=0$.}
 \begin{align}
   \i \d_t b_{\alpha i} = \sp{b_{\alpha i}, H}
   &= \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
@@ -171,28 +162,22 @@ so
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Initial states}
 
-We can essentially prepare two types of initial product states
-$\ket\Psi\equiv\ket\psi^{\otimes N}$.  First and foremost, we can
-prepare arbitrary polarized states defined by the polar and azimuthal
-angles $\theta,\phi$:
+We can essentially prepare $N$-fold tensor products $\ket\Psi\equiv\ket\psi^{\otimes N}$ of three types of initial product states $\ket\psi$.
+First and foremost, we can prepare states $\ket{\mu}$ of definite spin projection $\mu=\set{I,I-1,\cdots,-I}$ onto a quantization axis.
+In addition, we can prepare arbitrary polarized states defined by the polar and azimuthal angles $\theta,\phi$:
 \begin{align}
   \ket{\theta,\phi}
   \equiv e^{i\phi s_\z} e^{i\theta s_\y} \ket\up
   = \sum_\mu \zeta_\mu\p{\theta} e^{-\i\mu\phi} \ket\mu,
   \label{eq:polarized_state}
 \end{align}
-where $\ket\up\equiv\ket{I}$ is a state polarized along the $z$ axis,
-and\footnote{The expansion of $\ket{\theta,\phi}$ in
-  \eqref{eq:polarized_state} and \eqref{eq:polarized_proj} is acquired
-  by representing an $n$-level spin by $n-1$ qubits restricted to the
-  (Dicke) manifold of permutationally symmetric states.}
+where $\ket\up\equiv\ket{I}$ is a state polarized along the $z$ axis, and\footnote{The expansion of $\ket{\theta,\phi}$ in \eqref{eq:polarized_state} and \eqref{eq:polarized_proj} is acquired by representing an $n$-level spin by $n-1$ qubits restricted to the (Dicke) manifold of permutationally symmetric states.}
 \begin{align}
   \zeta_\mu\p{\theta} \equiv { 2I \choose I+\mu }^{1/2}
   \cos\p{\f{\theta}{2}}^{I+\mu} \sin\p{\f{\theta}{2}}^{I-\mu}.
   \label{eq:polarized_proj}
 \end{align}
-For even $n$, we can also prepare the following superposition of
-polarized states:
+Finally, for even $n$ we can also prepare the following superposition of polarized states:
 \begin{align}
   \ket{\DS}
   \equiv \f1{\sqrt{2}}
@@ -218,29 +203,40 @@ We consider the single-particle Hamiltonian
 \begin{align}
   H = -\f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\xi} s_{\mu\mu q},
 \end{align}
-where $q$ is a quasi-momentum (in units with lattice spacing $a=1$);
-$\mu\in\set{-I,-I+1,\cdots,I}$ is a nuclear spin projection onto a
-quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin;
-$\xi$ is a spin-orbit-coupling angle, and $J$ is the single-particle
-bandwidth (proportional to the tunneling rate, $J/4$).  As a dynamical
-order parameter, we consider the operator
+where $q$ is a quasi-momentum (in units with lattice spacing $a=1$); $\mu\in\set{I,I-1,\cdots,-I}$ is a nuclear spin projection onto a quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin; $\xi$ is a spin-orbit-coupling angle, and $J$ is the single-particle bandwidth (proportional to the tunneling rate, $J/4$).
+As dynamical order parameters, we consider the operators
 \begin{align}
-  \O\p{t}
-  \equiv e^{\i t H} \p{\f{\v S^\dag \c\v S}{N^2}} e^{-\i t H}
-  = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q} \times
-  e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}},
+  s_{\mu\nu} \equiv \f1N \sum_q s_{\mu\nu q},
+  &&
+  s^2 \equiv \v s^\dag\cdot \v s
+  = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q},
+\end{align}
+where $\v s_q\equiv\sum_{\mu,\nu} s_{\mu\nu q}\uv e_{\mu\nu}$ is a vector of normalized generators of $U(n)$ for spin $q$, and $\uv e_{\mu\nu}$ is a unit vector of $\RR^{n^2}$.
+In the Heisenberg picture, these operators at time $t$ are
+\begin{align}
+  s_{\mu\nu}\p{t} = \f1N \sum_q s_{\mu\nu q}
+  \times e^{\i t J \eta_{\mu\nu q}},
+  &&
+  s^2\p{t} = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q}
+  \times e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}},
 \end{align}
 where
 \begin{align}
-  \eta_{\mu\nu p}
-  \equiv -\f12 \sp{\cos\p{p+\mu\xi} - \cos\p{p+\nu\xi}}
+  \eta_{\mu\nu q}
+  \equiv -\f12 \sp{\cos\p{q+\mu\xi} - \cos\p{q+\nu\xi}}
   = \sin\p{\xi_{\mu\nu}^-} \sin\p{p+\xi_{\mu\nu}^+},
   &&
   \xi_{\mu\nu}^\pm \equiv \f{\mu\pm\nu}{2}\,\xi.
 \end{align}
-Specifically, we are interested in the expectation value
+In particular, we are interested in the expectation values
 \begin{align}
-  \bk{\Psi|\O\p{t}|\Psi}
+  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
+  = \f1N \bk{\psi\op{\mu}{\nu}\psi} \sum_q e^{\i t J \eta_{\mu\nu q}}
+  = \bk{\psi\op{\mu}{\nu}\psi} \chi_{\mu\nu}\p{\xi},
+\end{align}
+and
+\begin{align}
+  \bk{\Psi|s^2\p{t}|\Psi}
   &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
   \sum_{p\ne q} e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \f{n}{N} \\
   &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
@@ -257,44 +253,51 @@ As $N\to\infty$, this sum is well approximated by an integral:
   e^{\i tJ\sin\p{\xi_{\mu\nu}^-} \sin\p{\theta+\xi_{\mu\nu}^+}}
   = \J_0\sp{tJ\sin\p{\xi_{\mu\nu}^-}},
 \end{align}
-where $\J_0$ is the zero-order Bessel function of the first kind.  To
-leading order in $N\gg1$, we thus find that
+where $\J_0$ is the zero-order Bessel function of the first kind.
+To leading order in $N\gg1$, we thus find that
 \begin{align}
-  \bk{\Psi|\O\p{t}|\Psi}
-  \approx \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
+  &\approx \bk{\psi\op{\mu}{\nu}\psi}
+  \J_0\sp{tJ\sin\p{\xi_{\mu\nu}^-}},
+  \\
+  \bk{\Psi|s^2\p{t}|\Psi}
+  &\approx \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
   \J_0\sp{tJ\sin\p{\xi_{\mu\nu}^-}}^2.
-  \label{eq:O_time}
+  \label{eq:ops_time}
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Limiting cases}
 
-The constant (time independent) terms in \eqref{eq:O_time} have
-$\mu=\nu$ (in which case all $\xi_{\mu\nu}^-=0$), so up to $O(1/N)$
-corrections
+The constant (time independent) terms in \eqref{eq:ops_time} have $\mu=\nu$ (in which case all $\xi_{\mu\nu}^-=0$), so up to $O(1/N)$ corrections
 \begin{align}
-  \bk{\Psi|\O_{\t{const}}|\Psi}
+  \bk{\Psi|s_{\mu\nu}^{\t{const}}|\Psi}
+  \approx \abs{\bk{\mu|\psi}}^2,
+  &&
+  \bk{\Psi|s^2_{\t{const}}|\Psi}
   \approx r_\psi \equiv \sum_\mu \abs{\bk{\mu|\psi}}^4,
-  \label{eq:O_const}
+  \label{eq:ops_const}
 \end{align}
-which is sometimes called the inverse participation ratio of
-$\ket\psi$ with respect to the basis $\set{\ket\mu}$ of states with
-definite projection onto the $z$ axis.  Figure \ref{fig:limiting_vals}
-shows several values of $r_\psi$ for different $n$.
+where the quantity $r_\psi$ is sometimes called the inverse participation ratio of $\ket\psi$ with respect to the basis $\set{\ket\mu}$ of states with definite projection onto the $z$ axis.
+Figure \ref{fig:limiting_vals} shows several values of $r_\psi$ for different $n$.
 
-At ``short'' times $t$ for which $tJ\sin\p{I\xi}\ll1$, we can expand
-the Bessel function in \eqref{eq:O_time} as
-$\J_0\p{\tau}^2\approx1-\tau^2/2+O\p{\tau^4}$ to get
+At ``short'' times $t$ for which $tJ\sin\p{I\xi}\ll1$, we can Taylor expand the Bessel functions in \eqref{eq:ops_time} about $t=0$ to get
 \begin{align}
-  \bk{\Psi|\O\p{t}|\Psi}
-  \approx 1 - \f12 \p{tJ}^2 \sum_{\mu,\nu}
+  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
+  &\approx \bk{\psi\op{\mu}{\nu}\psi}
+  \times \sp{1 - \f14 \p{t J}^2 \sin\p{\xi_{\mu\nu}^-}^2}, \\
+  \bk{\Psi|s^2\p{t}|\Psi}
+  &\approx 1 - \f12 \p{tJ}^2 \sum_{\mu,\nu}
   \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2 \sin\p{\xi_{\mu\nu}^-}^2.
 \end{align}
-In the limit of a small angle $\xi$ for which $I\xi\ll1$, we can
-further simplify
+In the limit of a small angle $\xi$ for which $I\xi\ll1$, we can further simplify
 \begin{align}
-  \bk{\Psi|\O\p{t}|\Psi}
-  \approx 1 - \f14 \var_\psi\p{Z} \p{JI\xi}^2 \times t^2,
+  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
+  &\approx \bk{\psi\op{\mu}{\nu}\psi}
+  \times \sp{1 - \f1{16} \p{\f{\mu-\nu}{I}}^2
+    \p{JI\xi}^2 \times t^2}, \\
+  \bk{\Psi|s^2\p{t}|\Psi}
+  &\approx 1 - \f14 \var_\psi\p{Z} \p{JI\xi}^2 \times t^2,
   \label{eq:small_time_angle}
 \end{align}
 where
@@ -303,10 +306,8 @@ where
   &&
   Z \equiv \sum_\mu \f{\mu}{I} \op{\mu}.
 \end{align}
-Note that the result in \eqref{eq:small_time_angle} is valid for all
-$t\ll\p{JI\xi}^{-1}$, which may be a long time given the small-angle
-assumption $I\xi\ll1$.  Figure \ref{fig:limiting_vals} shows several
-values of $\var_\psi\p{Z}$ for different $n$.
+Note that the result in \eqref{eq:small_time_angle} is valid for all $t\ll\p{JI\xi}^{-1}$, which may be a long time given the small-angle assumption $I\xi\ll1$.
+Figure \ref{fig:limiting_vals} shows several values of $\var_\psi\p{Z}$ for different $n$.
 
 \begin{figure}
   \centering
@@ -321,8 +322,12 @@ values of $\var_\psi\p{Z}$ for different $n$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Strongly-interacting limit of a realistic 1D model}
 
-We now consider the opposite, strongly-interacting limit of a 1D
-model,
+We now consider the strongly-interacting limit of a 1D model, in which the Hamiltonian is
+\begin{align}
+  H = -\f{U}{N} \v S^\dag\cdot \v S
+  - \f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\xi} s_{\mu\mu q}
+\end{align}
+with $J\ll U$.
 
 \end{document}
 
