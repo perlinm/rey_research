@@ -201,9 +201,9 @@ with
 
 We consider the single-particle Hamiltonian
 \begin{align}
-  H = -\f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\xi} s_{\mu\mu q},
+  H = -\f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\varphi} s_{\mu\mu q},
 \end{align}
-where $q$ is a quasi-momentum (in units with lattice spacing $a=1$); $\mu\in\set{I,I-1,\cdots,-I}$ is a nuclear spin projection onto a quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin; $\xi$ is a spin-orbit-coupling angle, and $J$ is the single-particle bandwidth (proportional to the tunneling rate, $J/4$).
+where $q$ is a quasi-momentum (in units with lattice spacing $a=1$); $\mu\in\set{I,I-1,\cdots,-I}$ is a nuclear spin projection onto a quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin; $\varphi$ is a spin-orbit-coupling angle, and $J$ is the single-particle bandwidth (proportional to the tunneling rate, $J/4$).
 As dynamical order parameters, we consider the operators
 \begin{align}
   s_{\mu\nu} \equiv \f1N \sum_q s_{\mu\nu q},
@@ -223,16 +223,16 @@ In the Heisenberg picture, these operators at time $t$ are
 where
 \begin{align}
   \eta_{\mu\nu q}
-  \equiv -\f12 \sp{\cos\p{q+\mu\xi} - \cos\p{q+\nu\xi}}
-  = \sin\p{\xi_{\mu\nu}^-} \sin\p{p+\xi_{\mu\nu}^+},
+  \equiv -\f12 \sp{\cos\p{q+\mu\varphi} - \cos\p{q+\nu\varphi}}
+  = \sin\p{\varphi_{\mu\nu}^-} \sin\p{p+\varphi_{\mu\nu}^+},
   &&
-  \xi_{\mu\nu}^\pm \equiv \f{\mu\pm\nu}{2}\,\xi.
+  \varphi_{\mu\nu}^\pm \equiv \f{\mu\pm\nu}{2}\,\varphi.
 \end{align}
 In particular, we are interested in the expectation values
 \begin{align}
   \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
   = \f1N \bk{\psi\op{\mu}{\nu}\psi} \sum_q e^{\i t J \eta_{\mu\nu q}}
-  = \bk{\psi\op{\mu}{\nu}\psi} \chi_{\mu\nu}\p{\xi},
+  = \bk{\psi\op{\mu}{\nu}\psi} \chi_{\mu\nu}\p{\varphi},
 \end{align}
 and
 \begin{align}
@@ -240,64 +240,64 @@ and
   &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
   \sum_{p\ne q} e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \f{n}{N} \\
   &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \abs{\chi_{\mu\nu}\p{\xi}}^2 + \f{n-1}{N},
+  \abs{\chi_{\mu\nu}\p{\varphi}}^2 + \f{n-1}{N},
 \end{align}
 where
 \begin{align}
-  \chi_{\mu\nu}\p{\xi} \equiv \f1N \sum_q e^{\i tJ\eta_{\mu\nu q}}
-  = \f1N \sum_q e^{\i tJ\sin\p{\xi_{\mu\nu}^-} \sin\p{q+\xi_{\mu\nu}^+}}.
+  \chi_{\mu\nu}\p{\varphi} \equiv \f1N \sum_q e^{\i tJ\eta_{\mu\nu q}}
+  = \f1N \sum_q e^{\i tJ\sin\p{\varphi_{\mu\nu}^-} \sin\p{q+\varphi_{\mu\nu}^+}}.
 \end{align}
 As $N\to\infty$, this sum is well approximated by an integral:
 \begin{align}
-  \chi_{\mu\nu}\p{\xi} \approx \f1{2\pi} \int_{-\pi}^\pi \dd\theta\,
-  e^{\i tJ\sin\p{\xi_{\mu\nu}^-} \sin\p{\theta+\xi_{\mu\nu}^+}}
-  = \J_0\sp{tJ\sin\p{\xi_{\mu\nu}^-}},
+  \chi_{\mu\nu}\p{\varphi} \approx \f1{2\pi} \int_{-\pi}^\pi \dd\theta\,
+  e^{\i tJ\sin\p{\varphi_{\mu\nu}^-} \sin\p{\theta+\varphi_{\mu\nu}^+}}
+  = \J_0\sp{tJ\sin\p{\varphi_{\mu\nu}^-}},
 \end{align}
 where $\J_0$ is the zero-order Bessel function of the first kind.
 To leading order in $N\gg1$, we thus find that
 \begin{align}
   \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
   &\approx \bk{\psi\op{\mu}{\nu}\psi}
-  \J_0\sp{tJ\sin\p{\xi_{\mu\nu}^-}},
+  \J_0\sp{tJ\sin\p{\varphi_{\mu\nu}^-}},
   \\
   \bk{\Psi|s^2\p{t}|\Psi}
   &\approx \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \J_0\sp{tJ\sin\p{\xi_{\mu\nu}^-}}^2.
+  \J_0\sp{tJ\sin\p{\varphi_{\mu\nu}^-}}^2.
   \label{eq:ops_time}
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Limiting cases}
 
-The constant (time independent) terms in \eqref{eq:ops_time} have $\mu=\nu$ (in which case all $\xi_{\mu\nu}^-=0$), so up to $O(1/N)$ corrections
+The constant (time independent) terms in \eqref{eq:ops_time} have $\mu=\nu$ (in which case all $\varphi_{\mu\nu}^-=0$), so up to $\O(1/N)$ corrections
 \begin{align}
   \bk{\Psi|s_{\mu\nu}^{\t{const}}|\Psi}
-  \approx \abs{\bk{\mu|\psi}}^2,
+  \approx \delta_{\mu\nu} \abs{\bk{\mu|\psi}}^2,
   &&
   \bk{\Psi|s^2_{\t{const}}|\Psi}
-  \approx r_\psi \equiv \sum_\mu \abs{\bk{\mu|\psi}}^4,
+  \approx \sum_\mu \abs{\bk{\mu|\psi}}^4 \equiv r_\psi,
   \label{eq:ops_const}
 \end{align}
 where the quantity $r_\psi$ is sometimes called the inverse participation ratio of $\ket\psi$ with respect to the basis $\set{\ket\mu}$ of states with definite projection onto the $z$ axis.
 Figure \ref{fig:limiting_vals} shows several values of $r_\psi$ for different $n$.
 
-At ``short'' times $t$ for which $tJ\sin\p{I\xi}\ll1$, we can Taylor expand the Bessel functions in \eqref{eq:ops_time} about $t=0$ to get
+At ``short'' times $t$ for which $tJ\sin\p{I\varphi}\ll1$, we can Taylor expand the Bessel functions in \eqref{eq:ops_time} about $t=0$ to get
 \begin{align}
   \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
   &\approx \bk{\psi\op{\mu}{\nu}\psi}
-  \times \sp{1 - \f14 \p{t J}^2 \sin\p{\xi_{\mu\nu}^-}^2}, \\
+  \times \sp{1 - \f14 \p{t J}^2 \sin\p{\varphi_{\mu\nu}^-}^2}, \\
   \bk{\Psi|s^2\p{t}|\Psi}
   &\approx 1 - \f12 \p{tJ}^2 \sum_{\mu,\nu}
-  \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2 \sin\p{\xi_{\mu\nu}^-}^2.
+  \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2 \sin\p{\varphi_{\mu\nu}^-}^2.
 \end{align}
-In the limit of a small angle $\xi$ for which $I\xi\ll1$, we can further simplify
+In the limit of a small angle $\varphi$ for which $I\varphi\ll1$, we can further simplify
 \begin{align}
   \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
   &\approx \bk{\psi\op{\mu}{\nu}\psi}
   \times \sp{1 - \f1{16} \p{\f{\mu-\nu}{I}}^2
-    \p{JI\xi}^2 \times t^2}, \\
+    \p{JI\varphi}^2 \times t^2}, \\
   \bk{\Psi|s^2\p{t}|\Psi}
-  &\approx 1 - \f14 \var_\psi\p{Z} \p{JI\xi}^2 \times t^2,
+  &\approx 1 - \f14 \var_\psi\p{Z} \p{JI\varphi}^2 \times t^2,
   \label{eq:small_time_angle}
 \end{align}
 where
@@ -306,7 +306,7 @@ where
   &&
   Z \equiv \sum_\mu \f{\mu}{I} \op{\mu}.
 \end{align}
-Note that the result in \eqref{eq:small_time_angle} is valid for all $t\ll\p{JI\xi}^{-1}$, which may be a long time given the small-angle assumption $I\xi\ll1$.
+Note that the result in \eqref{eq:small_time_angle} is valid for all $t\ll\p{JI\varphi}^{-1}$, which may be a long time given the small-angle assumption $I\varphi\ll1$.
 Figure \ref{fig:limiting_vals} shows several values of $\var_\psi\p{Z}$ for different $n$.
 
 \begin{figure}
@@ -325,9 +325,56 @@ Figure \ref{fig:limiting_vals} shows several values of $\var_\psi\p{Z}$ for diff
 We now consider the strongly-interacting limit of a 1D model, in which the Hamiltonian is
 \begin{align}
   H = -\f{U}{N} \v S^\dag\cdot \v S
-  - \f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\xi} s_{\mu\mu q}
+  - \f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\varphi} s_{\mu\mu q}
 \end{align}
 with $J\ll U$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Nuclear spin tomography}
+
+Here we discuss the task of performing full tomography on the average reduced single-particle density operator of a collection of nuclear spins.
+As this task will be performed using collective measurements and homogeneous control fields, for ease of language we will consider the equivalent problem of performing tomography on a single nuclear spin.
+We have essentially two ingredients at our disposal: projective measurements of spin onto a fixed quantization axis, and a three-laser drive that addresses nuclear spins via off-resonant coupling to an excited electronic state.
+To be concrete, we can directly measure projectors $\op{\mu}$ onto states of definite spin projection $\mu$ onto the $z$ axis.
+While the three-laser drive gives us access to a variety of nuclear spin Hamiltonians, in notably it allows us to implement arbitrary SU(2) rotations of the form $e^{-\i\v\theta\c\v S}$, with $\v S\equiv\p{S_\x,S_\y,S_\z}$ a vector of spin operators and $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$ an arbitrary rotation vector.
+These rotations essentially allow us to measure projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$ onto states of definite spin projection $\mu$ onto an arbitrary quantization axis $\v v$.
+
+Question: given a collection of projectors $\Pi\equiv\set{\Pi_j}$ and measurement outcomes $M\equiv\set{M_j}$, with $M_j$ an empirical estimate of $\bk{\Pi_j}_\rho=\tr\p{\rho\Pi_j}$, how do we determine whether the measurement data $M$ is sufficient to reconstruct $\rho$?
+Answer: reconstruction of $\rho$ is possible if $\Pi$ spans the entire space $\B_n$ of operators on the Hilbert space $\H_n$ of an $n$-level spin.
+Given an orthonormal basis $\set{Q_\alpha}$ of self-adjoint operators spanning $\B_n$, we can expand
+\begin{align}
+  \rho = \sum_\alpha \rho_\alpha Q_\alpha,
+  &&
+  \rho_\alpha \equiv \tr\p{\rho Q_\alpha}.
+\end{align}
+If $\Pi$ spans $\B_n$, then we can find a set of real numbers $c_{\alpha j}\in\RR$ for which
+\begin{align}
+  Q_\alpha = \sum_j c_{\alpha j} \Pi_j.
+\end{align}
+An empirical estimate $\tilde\rho$ of $\rho$ is then
+\begin{align}
+  \tilde\rho = \sum_\alpha \tilde\rho_\alpha Q_\alpha,
+  &&
+  \tilde\rho_\alpha \equiv \sum_j c_{\alpha j} M_j.
+\end{align}
+This estimate can be improved by defining $\tilde\rho$ as the least-squares fit to the set of linear equations
+\begin{align}
+  \tr\p{\tilde\rho\,\Pi_j} = M_j,
+\end{align}
+and performing maximum-likelihood corrections to $\tilde\rho$ \cite{smolin2012efficient}, which essentially consists of
+\begin{enumerate*}
+\item diagonalizing $\tilde\rho$,
+\item eliminating the most negative eigenvalue (setting it to zero),
+\item adding an equal amount to all other eigenvalues to enforce $\tr\tilde\rho=1$, and
+\item repeating steps (ii,iii) until there are no more negative eigenvalues.
+\end{enumerate*}
+This algorithm finds the closest density operator to $\tilde\rho$ that has no negative eigenvalues, where distance is measured by the metric induced by the operator 2-norm: $\norm{\O}_2\equiv\sqrt{\tr\p{\O^\dag \O}}$.
+
+As it turns out, numerical experiments with $n\le20$ suggest that in order to perfurm full tomography of $\rho$, it suffices to measure all projectors $\Pi_{\v v\mu}$ onto states of definite spin ($\mu$) along $2n-1$ different axes ($\v v$).
+The question remains: which axes $\set{\v v}$ should we choose?
+
+\bibliography{sun_dynamics_notes.bib}
 
 \end{document}
 
