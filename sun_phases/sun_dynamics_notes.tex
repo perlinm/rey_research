@@ -337,42 +337,61 @@ Here we discuss the task of performing full tomography on the average reduced si
 As this task will be performed using collective measurements and homogeneous control fields, for ease of language we will consider the equivalent problem of performing tomography on a single nuclear spin.
 We have essentially two ingredients at our disposal: projective measurements of spin onto a fixed quantization axis, and a three-laser drive that addresses nuclear spins via off-resonant coupling to an excited electronic state.
 To be concrete, we can directly measure projectors $\op{\mu}$ onto states of definite spin projection $\mu$ onto the $z$ axis.
-While the three-laser drive gives us access to a variety of nuclear spin Hamiltonians, in notably it allows us to implement arbitrary SU(2) rotations of the form $e^{-\i\v\theta\c\v S}$, with $\v S\equiv\p{S_\x,S_\y,S_\z}$ a vector of spin operators and $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$ an arbitrary rotation vector.
-These rotations essentially allow us to measure projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$ onto states of definite spin projection $\mu$ onto an arbitrary quantization axis $\v v$.
+While the three-laser drive gives us access to a variety of nuclear spin Hamiltonians, most notably it allows us to implement arbitrary SU(2) rotations of the form $e^{-\i\v\theta\c\v S}$, with $\v S\equiv\p{S_\x,S_\y,S_\z}$ a vector of spin operators and $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$ an arbitrary rotation vector.
+These rotations essentially allow us to measure projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$ onto states of definite spin projection $\mu$ onto an arbitrary quantization axis $\v v\in\SS_2/\ZZ_2$.
 
 Question: given a collection of projectors $\Pi\equiv\set{\Pi_j}$ and measurement outcomes $M\equiv\set{M_j}$, with $M_j$ an empirical estimate of $\bk{\Pi_j}_\rho=\tr\p{\rho\Pi_j}$, how do we determine whether the measurement data $M$ is sufficient to reconstruct $\rho$?
-Answer: reconstruction of $\rho$ is possible if $\Pi$ spans the entire space $\B_n$ of operators on the Hilbert space $\H_n$ of an $n$-level spin.
+Answer: reconstruction of $\rho$ is possible if $\Pi$ spans the entire space $\B_n$ of operators on the Hilbert space of an $n$-level spin.
 Given an orthonormal basis $\set{Q_\alpha}$ of self-adjoint operators spanning $\B_n$, we can expand
 \begin{align}
   \rho = \sum_\alpha \rho_\alpha Q_\alpha,
   &&
-  \rho_\alpha \equiv \tr\p{\rho Q_\alpha}.
+  \rho_\alpha \equiv \bk{Q_\alpha}_\rho.
 \end{align}
 If $\Pi$ spans $\B_n$, then we can find a set of real numbers $c_{\alpha j}\in\RR$ for which
 \begin{align}
   Q_\alpha = \sum_j c_{\alpha j} \Pi_j.
 \end{align}
-An empirical estimate $\tilde\rho$ of $\rho$ is then
-\begin{align}
-  \tilde\rho = \sum_\alpha \tilde\rho_\alpha Q_\alpha,
-  &&
-  \tilde\rho_\alpha \equiv \sum_j c_{\alpha j} M_j.
-\end{align}
-This estimate can be improved by defining $\tilde\rho$ as the least-squares fit to the set of linear equations
-\begin{align}
-  \tr\p{\tilde\rho\,\Pi_j} = M_j,
-\end{align}
-and performing maximum-likelihood corrections to $\tilde\rho$ \cite{smolin2012efficient}, which essentially consists of
+An empirical estimate $\tilde\rho$ of $\rho$ is then\footnote{This estimate can be improved by defining $\tilde\rho$ as the least-squares fit to the set of linear equations $\tr\p{\tilde\rho\,\Pi_j} = M_j$, and performing maximum-likelihood corrections to $\tilde\rho$ \cite{smolin2012efficient}, which essentially consists of
 \begin{enumerate*}
 \item diagonalizing $\tilde\rho$,
 \item eliminating the most negative eigenvalue (setting it to zero),
 \item adding an equal amount to all other eigenvalues to enforce $\tr\tilde\rho=1$, and
 \item repeating steps (ii,iii) until there are no more negative eigenvalues.
 \end{enumerate*}
-This algorithm finds the closest density operator to $\tilde\rho$ that has no negative eigenvalues, where distance is measured by the metric induced by the operator 2-norm: $\norm{\O}_2\equiv\sqrt{\tr\p{\O^\dag \O}}$.
-
-As it turns out, numerical experiments with $n\le20$ suggest that in order to perfurm full tomography of $\rho$, it suffices to measure all projectors $\Pi_{\v v\mu}$ onto states of definite spin ($\mu$) along $2n-1$ different axes ($\v v$).
-The question remains: which axes $\set{\v v}$ should we choose?
+This algorithm finds the closest density operator to $\tilde\rho$ that has no negative eigenvalues, where distance is measured by the metric induced by the operator 2-norm: $\norm{\O}_2\equiv\sqrt{\tr\p{\O^\dag \O}}$.}
+\begin{align}
+  \tilde\rho = \sum_\alpha \tilde\rho_\alpha Q_\alpha,
+  &&
+  \tilde\rho_\alpha \equiv \sum_j c_{\alpha j} M_j
+  \approx \sum_j c_{\alpha j} \bk{\Pi_j}_\rho
+  = \bk{Q_\alpha}_\rho
+  = \rho_\alpha.
+\end{align}
+As it turns out, numerical experiments with $n\le20$ suggest that in order to perfurm full tomography of $\rho$, it suffices to measure all projectors $\Pi_{\v v\mu}$ onto states of definite spin $\mu$ along $2n-1$ different axes $\v v$.
+The question remains: which axes should we choose?
+As a first pass, we can simply choose a set of $2n-1$ random axes, $V\equiv\set{\v v}$, by uniformly sampling points on the sphere.
+These random axes define a set of $\p{2n-1}\times n$ projectors $\Pi_V=\set{\Pi^V_j}$, where for shorthand we use a combined index $j=\p{\v v_j,\mu_j}$ that specifies both a measurement axis $\v v_j$ and an outcome $\mu_j$, and for clarity we index objects by $V$ to emphasize their dependence on the choice of measurement axes.
+The projectors $\Pi_V$ can be used to construct $n^2$ linearly independent operators by constructing a matrix $B_V$ with entries
+\begin{align}
+  \sp{B_V}_{ij} = \tr\p{\Pi^V_i \Pi^V_j}.
+\end{align}
+Indexing normalized eigenvectors and the corresponding eigenvalues of $B_V$ by $\alpha$, respectively $\v x^V_\alpha$ and $m^V_\alpha$, for all $\alpha$ with eigenvalue $m^V_\alpha\ne0$ we can then construct the normalized and linearly independent operators
+\begin{align}
+  Q^V_\alpha \equiv \f1{\sqrt{m^V_\alpha}} \sum_j x^V_{\alpha j} \Pi^V_j.
+\end{align}
+To summarize: randomly choosing a set $V$ of $2n-1$ axes will induce a set of measurement operators $\Pi_V$ from which we can construct a complete basis $\set{Q^V_\alpha}$ of operators for $\B_n$.
+However, some choices of axes will be better than others: a good choice of axes $V$ will maximize the amount of information that the corresponding measurement data $M_V=\set{M^V_j}$ will contain about the expectation values $\bk{Q^V_\alpha}_\rho$ used to reconstruct $\rho$.
+The amount of information that $M_V$ contains about $\bk{Q^V_\alpha}_\rho$ is controlled, in part, by the magnitude of the eigenvalue $m^V_\alpha$: if $m^V_\alpha$ is large, then $M_V$ will generally contain a lot of information about $\bk{Q^V_\alpha}_\rho$, and vice versa\footnote{Think about the limit $m^V_\alpha\to0$, in which case the fact that $Q^V_\alpha$ is normalized implies that the operator $\sum_j x^V_{\alpha j} \Pi^V_j$ must have a vanishing norm.
+  This vanishing norm can only occur due to cancellations that are analogous to a ``sign problem,'' making the expectation value of $\sum_j x^V_{\alpha j} \Pi^V_j$ difficult to estimate because it will be dominated by measurement noise.}.
+Rather than choosing axes randomly, we can therefore choose a set of axes that minimizes some cost function $C\p{m_V}$ favoring large eigenvalues $m_V\equiv\set{m^V_\alpha}$.
+A reasonable cost function that treats all eigenvalues on equal footing, for example, is
+\begin{align}
+  C_{\t{inv}}\p{m_V} \equiv \sum_\alpha \f1{m^V_\alpha},
+\end{align}
+where the sum is implicitly performed over the $n^2$ largest eigenvalues of $B_V$ (as all other eigenvalues are guaranteed to be zero).
+Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct an even better choice of measurement axes, leading to the possibility of adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
+We leave the details of tailored and adaptive measurement protocols to future work.
 
 \bibliography{sun_dynamics_notes.bib}
 
