@@ -70,7 +70,8 @@ def proj_span_norms(points):
     return vals[-dim**2:]
 
 def proj_span_dim(points):
-    return len(proj_span_norms(points))
+    norms = proj_span_norms(points)
+    return sum(np.logical_not(np.isclose(norms,0)))
 
 def overlap_cost(points):
     orig_shape = points.shape
