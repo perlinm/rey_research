@@ -80,8 +80,9 @@ def overlap_cost(points):
 # cost_fun = energy_cost
 cost_fun = overlap_cost
 
+# pick `axis_num` random points on the sphere
 rnd_points = np.random.rand(axis_num,2)
-rnd_points[:,0] *= np.pi/2
+rnd_points[:,0] = np.arccos(2*rnd_points[:,0]-1)
 rnd_points[:,1] *= 2*np.pi
 rnd_cost = cost_fun(rnd_points)
 rnd_vals = proj_span_vals(rnd_points)
@@ -89,6 +90,7 @@ print(energy_cost(rnd_points))
 print(overlap_cost(rnd_points))
 print(len(rnd_vals), rnd_vals[:4])
 
+# find an "optimal" choice of axes
 optimum = scipy.optimize.minimize(cost_fun, rnd_points.flatten())
 min_points, min_cost = optimum.x, optimum.fun
 min_points.shape = (min_points.size//2,2)
