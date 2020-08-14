@@ -16,7 +16,7 @@ np.set_printoptions(linewidth = 200)
 data_dir = "../data/"
 fig_dir = "../figures/XXZ/"
 
-params = { "font.size" : 8,
+params = { "font.size" : 9,
            "text.usetex" : True,
            "text.latex.preamble" : [ r"\usepackage{braket}",
                                      r"\usepackage{bm}" ]}
@@ -218,6 +218,7 @@ plt.close("all")
 ##########################################################################################
 # plot time-series data (DTWA)
 
+figsize = (2.75,2.5)
 lattice_text = "64x64"
 def get_zz_coupling(file):
     return float(file.split("_")[-1][1:-4])
@@ -249,7 +250,7 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
     min_norm_SS = np.zeros(len(data_files))
 
     # plot squeezing over time for all ZZ couplings
-    figure, axes = plt.subplots(2, figsize = (2.5,2.5), sharex = True, sharey = False)
+    figure, axes = plt.subplots(2, figsize = figsize, sharex = True, sharey = False)
     for idx, ( zz_coupling, file ) in enumerate(data_files):
         color_val = idx / ( len(data_files)-1 ) # color value from 0 to 1
         time, sqz, norm_SS = get_time_sqz_SS(file)
@@ -287,74 +288,28 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
 
 plt.close("all")
 ##########################################################################################
-# plot squeezing from exact simulations
-
-lattices = [ "16", "4x4" ]
-figsize = (4,2)
-zz_lims = (-3,3)
-
-def exact_file(lattice, alpha):
-    return data_dir + f"exact/sqz_L{lattice}_a{alpha}.txt"
-
-figure, axes = plt.subplots(1, len(lattices), figsize = figsize,
-                            sharex = True, sharey = True)
-
-for lattice, axis in zip(lattices, axes.flatten()):
-    dim = len(lattice.split("x"))
-
-    # add a reference line for the OAT limit
-    spin_num = np.prod([ int(size) for size in lattice.split("x") ])
-    _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
-    axis.axhline(to_dB(sqz_OAT), color = "k", linestyle = "--", label = "OAT")
-
-    # identify values of the power-law exponent \alpha
-    alpha_vals = sorted([ int(file.split("_")[-1][1:-4])
-                          for file in glob.glob(exact_file(lattice, "?")) ])
-
-    # plot all squeezing data
-    for alpha in alpha_vals:
-        zz_couplings, sqz = np.loadtxt(exact_file(lattice,alpha), unpack = True)
-
-        # pick values of the ZZ coupling to keep
-        keep = np.where( ( np.around(zz_couplings, decimals = 1) >= zz_lims[0] ) &
-                         ( np.around(zz_couplings, decimals = 1) <= zz_lims[1] ) )[0]
-
-        axis.plot(zz_couplings[keep], -sqz[keep], ".", label = alpha)
-
-    axis.set_title(f"$D={dim}$")
-    axis.set_xlabel(label_zz)
-
-    axis.set_ylim((0,7))
-
-axes[0].set_ylabel(label_sqz_opt)
-axes[1].legend(loc = "best", handlelength = 1.7, framealpha = 1, ncol = 2)
-plt.tight_layout(pad = 0.2)
-
-lattice_label = "_L".join(lattices)
-plt.savefig(fig_dir + f"exact_L{lattice_label}.pdf")
-
-plt.close("all")
-##########################################################################################
 # plot benchmarking with exact simulations
 
 lattices = [ "3x3", "4x4" ]
-figsize = (4,2)
+figsize = (5,4)
 zz_lims = (-3,3)
 
 def get_file(sim_type, lattice, alpha):
     sim_dir = "DTWA" if sim_type == "dtwa" else sim_type
     return data_dir + f"{sim_dir}/benchmarking/{sim_type}_L{lattice}_a{alpha}.txt"
 
-figure, axes = plt.subplots(1, len(lattices), figsize = figsize,
-                            sharex = True, sharey = True)
+figure, all_axes = plt.subplots(2, len(lattices), figsize = figsize,
+                                sharex = True, sharey = "row")
+sqz_axes, SS_axes = all_axes
 
-for lattice, axis in zip(lattices, axes.flatten()):
+for lattice, sqz_axis, SS_axis in zip(lattices, sqz_axes, SS_axes):
     dim = len(lattice.split("x"))
 
     # add a reference line for the OAT limit
     spin_num = np.prod([ int(size) for size in lattice.split("x") ])
     _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
-    axis.axhline(to_dB(sqz_OAT), color = "k", linestyle = "--", label = "OAT")
+    sqz_axis.axhline(to_dB(sqz_OAT), color = "k", linestyle = "--", label = "OAT")
+    SS_axis.axhline(1, color = "k", linestyle = "--", label = "OAT")
 
     # identify values of the power-law exponent \alpha
     alpha_vals = [ set([ int(file.split("_")[-1][1:-4])
@@ -366,30 +321,34 @@ for lattice, axis in zip(lattices, axes.flatten()):
     for alpha in alpha_vals:
         def _get_vals(sim_type):
             data = np.loadtxt(get_file(sim_type,lattice,alpha), unpack = True)
-            zz_couplings, sqz = data[0,:], data[1,:]
+            zz_couplings, sqz_min, SS_min = data[0,:], data[1,:], data[-1,:]
             keep = np.where( ( np.around(zz_couplings, decimals = 1) >= zz_lims[0] ) &
                              ( np.around(zz_couplings, decimals = 1) <= zz_lims[1] ) &
                              ( zz_couplings != 1 ) )[0]
-            return zz_couplings[keep], -sqz[keep]
+            return zz_couplings[keep], -sqz_min[keep], SS_min[keep]
 
-        exact_zz, exact_sqz = _get_vals("exact")
-        dtwa_zz, dtwa_sqz = _get_vals("dtwa")
+        exact_zz, exact_sqz, exact_SS = _get_vals("exact")
+        dtwa_zz, dtwa_sqz, dtwa_SS = _get_vals("dtwa")
 
-        exact_plot = axis.plot(exact_zz, exact_sqz, label = alpha)
+        exact_plot = sqz_axis.plot(exact_zz, exact_sqz, label = alpha)
         color = exact_plot[0].get_color()
-        axis.plot(dtwa_zz, dtwa_sqz, ".", color = color, markersize = 2)
+        sqz_axis.plot(dtwa_zz, dtwa_sqz, ".", color = color, markersize = 2)
+
+        SS_axis.plot(exact_zz, exact_SS, color = color, label = alpha)
+        SS_axis.plot(dtwa_zz, dtwa_SS, ".", color = color, markersize = 2)
 
     title_text = lattice.replace("x", r"\times")
-    axis.set_title(f"${title_text}$")
-    axis.set_xlabel(label_zz)
+    sqz_axis.set_title(f"${title_text}$")
+    SS_axis.set_xlabel(label_zz)
 
-axes[0].set_ylabel(label_sqz_opt)
-axes[0].legend(loc = "best", handlelength = 1.7, framealpha = 0.8, ncol = 2)
-plt.tight_layout(pad = 0.2)
+sqz_axes[0].set_ylabel(label_sqz_opt)
+SS_axes[0].set_ylabel(label_SS_min)
+sqz_axes[0].legend(loc = "center", ncol = 2, handlelength = 1.5,
+                   bbox_to_anchor = (0.29,0.78), columnspacing = 1)
+plt.tight_layout()
 
 lattice_label = "_L".join(lattices)
-plt.savefig(fig_dir + f"benchmarking_L{lattice_label}.pdf")
-
+plt.savefig(fig_dir + f"exact_L{lattice_label}.pdf")
 plt.close("all")
 ##########################################################################################
 # plot summary of DTWA results
@@ -548,7 +507,12 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
 # make a plot of DTWA data comparing multiple lattice sizes
 def make_dtwa_plots(lattice_list, alpha_text = "*",
                     zz_lims = (-3,3), alpha_lims = (0.6,6),
-                    add_markup = True, label_panels = True, figsize = None):
+                    add_markup = True, label_panels = True,
+                    figsize = None, font_size = None):
+    if font_size is not None: # if we were given a font size, set it
+        orig_font_size = plt.rcParams["font.size"]
+        plt.rcParams.update({ "font.size" : font_size })
+
     if type(lattice_list) is str:
         lattice_list = [ lattice_list ]
     cols = len(lattice_list)
@@ -623,6 +587,8 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
     # "tighten" the plot layout, trimming empty space
     plt.tight_layout(pad = 0.3)
     plt.subplots_adjust(wspace = 0.1, hspace = 0.1)
+    if font_size is not None: # set font size to its original value
+        plt.rcParams.update({ "font.size" : orig_font_size })
     return figure
 
 lattice_text = "64x64"
@@ -636,7 +602,7 @@ lattice_label = "_L".join(lattice_list)
 plt.savefig(fig_dir + f"dtwa_L{lattice_label}_int.pdf")
 
 lattice_list = [ "64x64", "16x16x16" ]
-make_dtwa_plots(lattice_list)
+make_dtwa_plots(lattice_list, font_size = 8)
 lattice_label = "_L".join(lattice_list)
 plt.savefig(fig_dir + f"dtwa_L{lattice_label}.pdf")
 
@@ -753,7 +719,7 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha 
 
     plt.xlabel(r"$N$")
     plt.ylabel(r"$J_{\mathrm{z}}^{\mathrm{crit}}/J_\perp$")
-    plt.tight_layout()
+    plt.tight_layout(pad = 0.1)
     plt.savefig(fig_dir + f"size_divergence_D{dim}_a{alpha}.pdf")
 
     ### show power-law scaling of optimal squeezing
@@ -794,7 +760,7 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha 
     if alpha in label_alpha:
         plt.legend(fit_handles, fit_labels, loc = "best", handlelength = 1.7)
 
-    plt.tight_layout()
+    plt.tight_layout(pad = 0.1)
     plt.savefig(fig_dir + f"power_law_D{dim}_a{alpha}.pdf")
 
     plt.close("all")
