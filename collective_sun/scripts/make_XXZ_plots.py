@@ -519,7 +519,7 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
 
     if figsize == None:
         if cols == 1:
-            figsize = (3, 4)
+            figsize = (2.5, 4)
         elif cols == 2:
             figsize = (max_width, 3.5)
         else:
