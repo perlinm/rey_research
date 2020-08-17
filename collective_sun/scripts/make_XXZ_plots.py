@@ -507,8 +507,7 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
 # make a plot of DTWA data comparing multiple lattice sizes
 def make_dtwa_plots(lattice_list, alpha_text = "*",
                     zz_lims = (-3,3), alpha_lims = (0.6,6),
-                    add_markup = True, label_panels = True,
-                    figsize = None, font_size = None):
+                    add_markup = True, figsize = None, font_size = None):
     if font_size is not None: # if we were given a font size, set it
         orig_font_size = plt.rcParams["font.size"]
         plt.rcParams.update({ "font.size" : font_size })
