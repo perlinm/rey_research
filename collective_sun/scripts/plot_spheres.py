@@ -27,9 +27,6 @@ ivp_tolerance = 1e-5
 max_time = max_tau * N**(-2/3)
 times = np.linspace(0, max_time, time_steps)
 
-methods = [ "OAT", "TAT", "TNT" ]
-OAT, TAT, TNT = methods
-
 S_op_vec, SS_op_mat = spin_op_vec_mat_dicke(N)
 S_z = S_op_vec[0]
 H_OAT = S_z @ S_z
