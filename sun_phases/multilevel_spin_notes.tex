@@ -585,11 +585,8 @@ has no contribution to the effective Hamiltonians in
 \section{Raman drive}
 \label{sec:drive_raman}
 
-Rather than coupling the states of a multilevel system directly with a
-single driving laser, as in Section \ref{sec:drive_SOC}, we now
-consider coupling through an off-resonant Raman transition to a highly
-excited state.  Specifically, we consider a three-laser drive of the
-form
+Rather than coupling the states of a multilevel system directly with a single driving laser, as in Section \ref{sec:drive_SOC}, we now consider coupling through an off-resonant Raman transition to a highly excited state.
+Specifically, we consider a three-laser drive of the form
 \begin{align}
   H_{\t{Raman,bare}}^{(\phi)}
   = \sum_j \sum_{m\in\set{1,0,-1}} \Omega_m \p{e^{i\phi_m j}
@@ -597,22 +594,13 @@ form
   + \f{\Delta}{2} \1 \otimes \p{\op{\up} - \op{\dn}},
   \label{eq:raman_bare}
 \end{align}
-where $j$ indexes a lattice site, $\Omega_m$ is a (real) driving
-amplitude; $\phi_m$ is the relative phase of drive $m$ between
-adjacent lattice sites; $\op{r}{s}$ for $r,s\in\set{\up,\dn}$ is a
-pseudo-spin operator for the auxiliary degree of freedom that is
-off-resonantly addressed by the lasers; $\Delta$ is a detuning of the
-lasers from the energy of an excited state; and $\1$ is the identity
-operator.  If the detuning is large, $\abs{\Delta}\gg\abs{\Omega_m}$,
-then at second order in perturbation theory the effective action of
-$H_{\t{Raman,bare}}^{(\phi)}$ within the $\ket{\dn}$-state manifold
-takes the form
+where $j$ indexes a lattice site, $\Omega_m$ is a (real) driving amplitude; $\phi_m$ is the relative phase of drive $m$ between adjacent lattice sites; $\op{r}{s}$ for $r,s\in\set{\up,\dn}$ is a pseudo-spin operator for the auxiliary degree of freedom that is off-resonantly addressed by the lasers; $\Delta$ is a detuning of the lasers from the energy of an excited state; and $\1$ is the identity operator.
+If the detuning is large, $\abs{\Delta}\gg\abs{\Omega_m}$, then at second order in perturbation theory the effective action of $H_{\t{Raman,bare}}^{(\phi)}$ within the $\ket{\dn}$-state manifold takes the form
 \begin{align}
   H_{\t{Raman}}^{(\phi)}
   = \sum_{\tau\in\set{0,1,2}} H_{\t{Raman},\tau}^{(\phi)}
 \end{align}
-where $H_{\t{Raman},\tau}^{(\phi)}$ generates nuclear spin transitions
-$\mu\to\mu\pm\tau$:
+where $H_{\t{Raman},\tau}^{(\phi)}$ generates nuclear spin transitions $\mu\to\mu\pm\tau$:
 \begin{align}
   H_{\t{Raman},0}^{(\phi)}
   &= -\sum_j\sum_m \f{\Omega_m^2}{\Delta}
@@ -636,55 +624,39 @@ In terms of the drive operators, we can expand
   \Omega_{LM}^{(\phi,j)} D_{LM}^{(j)},
   \label{eq:raman_drive}
 \end{align}
-where the coefficients $\Omega_{LM}^{(\phi,j)}$ are provided in
-Appendix \ref{sec:drive_raman_coeff}.  If the driving lasers are
-phase-matched with $\phi_m=m\phi$, such that a nuclear spin transition
-$\mu\to\mu+m$ on site $j$ imprints the phase $m\phi j$, then the drive
-$H_{\t{Raman}}^{(\phi)}$ takes the form
+where the coefficients $\Omega_{LM}^{(\phi,j)}$ are provided in Appendix \ref{sec:drive_raman_coeff}.
+If the driving lasers are phase-matched with $\phi_m=m\phi$, such that a nuclear spin transition $\mu\to\mu+m$ on site $j$ imprints the phase $m\phi j$, then the drive $H_{\t{Raman}}^{(\phi)}$ takes the form
 \begin{align}
   \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_m=m\phi}
   = \sum_{\substack{L\le2\\0\le M\le L}}
   \Omega_{LM} \D_{LM}^{(\phi)},
   \label{eq:drive_raman_matched}
 \end{align}
-with rotated collective drive operators $\D_{LM}^{(\phi)}$ defined in
-\eqref{eq:drive_rot} and uniform driving amplitudes $\Omega_{LM}$
-provided in Appendix \ref{sec:drive_raman_coeff}.  Similarly to the
-case of a direct drive considered in Section \ref{sec:drive_SOC}, the
-Raman drive $H_{\t{Raman}}^{(\phi)}$ in \eqref{eq:drive_raman_matched}
-can be made homogenous through the gauge transformation
-$c_{j\mu}^\dag \to e^{-i\mu\phi j} c_{j\mu}^\dag$, which takes
+with rotated collective drive operators $\D_{LM}^{(\phi)}$ defined in \eqref{eq:drive_rot} and uniform driving amplitudes $\Omega_{LM}$ provided in Appendix \ref{sec:drive_raman_coeff}.
+Similarly to the case of a direct drive considered in Section \ref{sec:drive_SOC}, the Raman drive $H_{\t{Raman}}^{(\phi)}$ in \eqref{eq:drive_raman_matched} can be made homogenous through the gauge transformation $c_{j\mu}^\dag \to e^{-i\mu\phi j} c_{j\mu}^\dag$, which takes
 \begin{align}
   \left. H_{\t{Raman}}^{(\phi)} \right|_{\phi_m=m\phi}
   \to H_{\t{Raman}}
   = \sum_{\substack{L\le2\\0\le M\le L}} \Omega_{LM} \D_{LM}.
 \end{align}
-Writing $H_{\t{Raman}} = \sum_j H_{\t{Raman}}^{\t{single},j}$, where
-$H_{\t{Raman}}^{\t{single},j}$ denotes the action of
-$H_{\t{Raman}}^{\t{single}}$ on spin $j$, we can expand
+Writing $H_{\t{Raman}} = \sum_j H_{\t{Raman}}^{\t{single},j}$, where $H_{\t{Raman}}^{\t{single},j}$ denotes the action of $H_{\t{Raman}}^{\t{single}}$ on spin $j$, we can expand
 \begin{align}
   H_{\t{Raman}}^{\t{single}} \times \Delta
   = h_+ h_- S_\z + h_0 h_+ S_\x
   + h_0 h_- \p{S_\z S_\x  + S_\x S_\z}
   + \p{h_0^2 - h_-^2} S_\x^2 + \p{h_0^2 - h_+^2} S_\y^2,
 \end{align}
-where
-$\p{S_\z,S_\x,S_\y} \equiv \xi_1\times\p{D_{1,0},D_{1,1},D_{1,-1}}$ is
-the standard SU(2) subalgebra of the operators on a single $n$-level
-spin, and
+where $\p{S_\z,S_\x,S_\y} \equiv \xi_1\times\p{D_{1,0},D_{1,1},D_{1,-1}}$ is the standard $\mathfrak{su}(2)$ subalgebra of the operators on a single $n$-level spin, and
 \begin{align}
   h_0 \equiv \xi_1^{-1}\, \Omega_0,
   &&
   h_\pm \equiv \xi_1^{-1}\, \f{\Omega_+\pm\Omega_-}{\sqrt{2}}.
 \end{align}
-Tuning the amplitudes $\Omega_0,\Omega_+,\Omega_-$, or equivalently
-$h_0,h_+,h_-$, enables us to implement various drive Hamiltonians,
-several of which are shown in Table \ref{tab:drives}.
+Tuning the amplitudes $\Omega_0,\Omega_+,\Omega_-$, or equivalently $h_0,h_+,h_-$, enables us to implement various drive Hamiltonians, several of which are shown in Table \ref{tab:drives}.
 
 \begin{table}
   \centering
-  \caption{Drive Hamiltonians that can be implemented with various
-    amplitude-matching conditions.}
+  \caption{Drive Hamiltonians that can be implemented with various amplitude-matching conditions.}
   \begin{tabular}{c|c|c}
     Condition & $\p{h_0,h_+,h_-}/h$
     & $H_{\t{Raman}}^{\t{single}}/\p{h^2/\Delta}$
@@ -696,18 +668,17 @@ several of which are shown in Table \ref{tab:drives}.
     & $\pm\sqrt{2}\p{S_\z S_\x + S_\x S_\z} - \p{S_\x^2-S_\y^2}$
     \\ \hline
     $\Omega_0=\Omega_\mp=0$ & $\p{0,1,\pm1}$
-    & $\pm S_\z - \p{S_\x^2 + S_\y^2}$
-    \\ \hline
-    $\sqrt{2}\Omega_0=\pm\Omega_+=\mp\Omega_-$
-    & $\p{1,0,\pm1}$ & $\pm\p{S_\z S_\x+S_\x S_\z} + S_\y^2$
+    & $\pm S_\z + S_\z^2$
     \\ \hline
     $\sqrt{2}\Omega_0=\pm\Omega_+=\pm\Omega_-$
     & $\p{1,\pm1,0}$ & $\pm S_\x + S_\x^2$
     \\ \hline
-    $\Omega_+=\Omega_-=0$ & $\p{1,0,0}$ & $S_\x^2 + S_\y^2$
+    $\sqrt{2}\Omega_0=\pm\Omega_+=\mp\Omega_-$
+    & $\p{1,0,\pm1}$ & $\pm\p{S_\z S_\x+S_\x S_\z} + S_\y^2$
     \\ \hline
-    $\Omega_0=0$,  $\Omega_+=+\Omega_-$
-    & $\p{0,1,0}$ & $-S_\y^2$
+    $\Omega_+=\Omega_-=0$ & $\p{1,0,0}$ & $-S_\z^2$
+    \\ \hline
+    $\Omega_0=0$,  $\Omega_+=+\Omega_-$ & $\p{0,1,0}$ & $-S_\y^2$
     \\ \hline
     $\Omega_0=0$,  $\Omega_+=-\Omega_-$ & $\p{0,0,1}$ & $-S_\x^2$
   \end{tabular}

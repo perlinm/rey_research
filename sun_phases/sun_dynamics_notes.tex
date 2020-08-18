@@ -106,11 +106,11 @@ We first consider a general quadratic spin Hamiltonian of the form
 where $\mu,\nu\in\set{I,I-1,\cdots,-I}$ with $I\equiv\p{n-1}/2$ index orthogonal states of an $n$-level spin; $i,j\in\ZZ_N$ index one of $N$ spins; $h^{\mu\nu i}_{\rho\sigma j}$ and $\epsilon_{\mu\nu i}$ are scalars; and $s_{\mu\nu i}\coloneqq\op{\mu}{\nu}_i$ is a transition operator for spin $i$.
 If interactions are SU($n$) symmetric then $h^{\mu\nu i}_{\rho\sigma k} = h_{ik} \delta_{\mu\sigma}\delta_{\nu\rho}$, in which case
 \begin{align}
-  H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  H = \f1N \sum_{i<j}
   h_{ij} \Pi_{ij}
   + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
   &&
-  \Pi_{ij} \equiv \sum_{\mu,\nu} s_{\mu\nu i} s_{\rho\sigma j}.
+  \Pi_{ij} \equiv \sum_{\mu,\nu} s_{\mu\nu i} s_{\nu\mu j}.
   \label{eq:spin_sun}
 \end{align}
 
@@ -209,9 +209,8 @@ As dynamical order parameters, we consider the operators
   s_{\mu\nu} \equiv \f1N \sum_q s_{\mu\nu q},
   &&
   s^2 \equiv \v s^\dag\cdot \v s
-  = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q},
+  = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q}.
 \end{align}
-where $\v s_q\equiv\sum_{\mu,\nu} s_{\mu\nu q}\uv e_{\mu\nu}$ is a vector of normalized generators of $U(n)$ for spin $q$, and $\uv e_{\mu\nu}$ is a unit vector of $\RR^{n^2}$.
 In the Heisenberg picture, these operators at time $t$ are
 \begin{align}
   s_{\mu\nu}\p{t} = \f1N \sum_q s_{\mu\nu q}
@@ -224,7 +223,7 @@ where
 \begin{align}
   \eta_{\mu\nu q}
   \equiv -\f12 \sp{\cos\p{q+\mu\varphi} - \cos\p{q+\nu\varphi}}
-  = \sin\p{\varphi_{\mu\nu}^-} \sin\p{p+\varphi_{\mu\nu}^+},
+  = \sin\p{\varphi_{\mu\nu}^-} \sin\p{q+\varphi_{\mu\nu}^+},
   &&
   \varphi_{\mu\nu}^\pm \equiv \f{\mu\pm\nu}{2}\,\varphi.
 \end{align}
@@ -352,14 +351,7 @@ If $\Pi$ spans $\B_n$, then we can find a set of real numbers $c_{\alpha j}\in\R
 \begin{align}
   Q_\alpha = \sum_j c_{\alpha j} \Pi_j.
 \end{align}
-An empirical estimate $\tilde\rho$ of $\rho$ is then\footnote{This estimate can be improved by defining $\tilde\rho$ as the least-squares fit to the set of linear equations $\tr\p{\tilde\rho\,\Pi_j} = M_j$, and performing maximum-likelihood corrections to $\tilde\rho$ \cite{smolin2012efficient}, which essentially consists of
-\begin{enumerate*}
-\item diagonalizing $\tilde\rho$,
-\item eliminating the most negative eigenvalue (setting it to zero),
-\item adding an equal amount to all other eigenvalues to enforce $\tr\tilde\rho=1$, and
-\item repeating steps (ii,iii) until there are no more negative eigenvalues.
-\end{enumerate*}
-This algorithm finds the closest density operator to $\tilde\rho$ that has no negative eigenvalues, where distance is measured by the metric induced by the operator 2-norm: $\norm{\O}_2\equiv\sqrt{\tr\p{\O^\dag \O}}$.}
+An empirical estimate $\tilde\rho$ of $\rho$ is then\footnote{This estimate can be improved by defining $\tilde\rho$ as the least-squares fit to the set of linear equations $\tr\p{\tilde\rho\,\Pi_j} = M_j$, and performing maximum-likelihood corrections to $\tilde\rho$ \cite{smolin2012efficient}.}
 \begin{align}
   \tilde\rho = \sum_\alpha \tilde\rho_\alpha Q_\alpha,
   &&
@@ -376,14 +368,14 @@ The projectors $\Pi_V$ can be used to construct $n^2$ linearly independent opera
 \begin{align}
   \sp{B_V}_{ij} = \tr\p{\Pi^V_i \Pi^V_j}.
 \end{align}
-Indexing normalized eigenvectors and the corresponding eigenvalues of $B_V$ by $\alpha$, respectively $\v x^V_\alpha$ and $m^V_\alpha$, for all $\alpha$ with eigenvalue $m^V_\alpha\ne0$ we can then construct the normalized and linearly independent operators
+Indexing the (normalized) eigenvectors and the corresponding eigenvalues of $B_V$ by $\alpha$, respectively $\v x^V_\alpha$ and $m^V_\alpha$, for all $\alpha$ with eigenvalue $m^V_\alpha\ne0$ we can then construct the normalized and linearly independent operators
 \begin{align}
   Q^V_\alpha \equiv \f1{\sqrt{m^V_\alpha}} \sum_j x^V_{\alpha j} \Pi^V_j.
 \end{align}
 To summarize: randomly choosing a set $V$ of $2n-1$ axes will induce a set of measurement operators $\Pi_V$ from which we can construct a complete basis $\set{Q^V_\alpha}$ of operators for $\B_n$.
 However, some choices of axes will be better than others: a good choice of axes $V$ will maximize the amount of information that the corresponding measurement data $M_V=\set{M^V_j}$ will contain about the expectation values $\bk{Q^V_\alpha}_\rho$ used to reconstruct $\rho$.
-The amount of information that $M_V$ contains about $\bk{Q^V_\alpha}_\rho$ is controlled, in part, by the magnitude of the eigenvalue $m^V_\alpha$: if $m^V_\alpha$ is large, then $M_V$ will generally contain a lot of information about $\bk{Q^V_\alpha}_\rho$, and vice versa\footnote{Think about the limit $m^V_\alpha\to0$, in which case the fact that $Q^V_\alpha$ is normalized implies that the operator $\sum_j x^V_{\alpha j} \Pi^V_j$ must have a vanishing norm.
-  This vanishing norm can only occur due to cancellations that are analogous to a ``sign problem,'' making the expectation value of $\sum_j x^V_{\alpha j} \Pi^V_j$ difficult to estimate because it will be dominated by measurement noise.}.
+The amount of information that $M_V$ contains about $\bk{Q^V_\alpha}_\rho$ is determined, in part, by the magnitude of the eigenvalue $m^V_\alpha$: if $m^V_\alpha$ is small, then $M_V$ will generally contain little information about $\bk{Q^V_\alpha}_\rho$, and vice versa\footnote{Think about the limit $m^V_\alpha\to0$, in which case the fact that $Q^V_\alpha$ is normalized implies that the operator $\sum_j x^V_{\alpha j} \Pi^V_j$ must have a vanishing norm.
+  A vanishing norm can only occur due to fine-tuned cancellations that make the expectation value of $\sum_j x^V_{\alpha j} \Pi^V_j$ difficult to estimate due to the presence of measurement errors and shot noise.}.
 Rather than choosing axes randomly, we can therefore choose a set of axes that minimizes some cost function $C\p{m_V}$ favoring large eigenvalues $m_V\equiv\set{m^V_\alpha}$.
 A reasonable cost function that treats all eigenvalues on equal footing, for example, is
 \begin{align}

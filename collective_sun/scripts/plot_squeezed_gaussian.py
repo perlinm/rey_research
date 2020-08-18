@@ -29,5 +29,10 @@ plt.yticks([])
 plt.xlabel("$X$")
 plt.ylabel("$P$")
 
-plt.tight_layout(pad = 0)
+plt.arrow(+max_val*.8, 0, -max_val/4, 0, color = "c", head_width = .2)
+plt.arrow(-max_val*.8, 0, +max_val/4, 0, color = "c", head_width = .2)
+plt.arrow(0, +max_val*.45, 0, +max_val/4, color = "c", head_width = .2)
+plt.arrow(0, -max_val*.45, 0, -max_val/4, color = "c", head_width = .2)
+
+plt.tight_layout(pad = 0.1)
 plt.savefig(fig_dir + "squeezed_gaussian.pdf")
