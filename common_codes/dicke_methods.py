@@ -104,7 +104,7 @@ except ModuleNotFoundError:
 
 def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = None,
                      rasterized = True):
-    N = state.size-1
+    N = state.shape[0]-1
     if figsize is None:
         if single_sphere:
             figsize = plt.figaspect(1)
@@ -120,7 +120,10 @@ def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = Non
 
     def color_val(theta, phi):
         angle_state = coherent_spin_state_angles(theta, phi, N)
-        return abs(angle_state.conjugate() @ state)**2
+        if state.ndim == 1:
+            return abs(angle_state.conjugate() @ state)**2
+        else:
+            return np.einsum("i,ij,j->", angle_state.conjugate(), state, angle_state).real
     color_vals = np.vectorize(color_val)(theta, phi)
     norm = colors.Normalize(vmin = np.min(color_vals),
                             vmax = np.max(color_vals), clip = False)
