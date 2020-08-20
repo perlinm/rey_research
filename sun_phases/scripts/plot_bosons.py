@@ -8,7 +8,8 @@ import itertools as it
 
 from multilevel_methods import drive_op, drive_scale
 
-np.set_printoptions(linewidth = 200)
+import matplotlib
+matplotlib.use("Agg")
 
 spin_dim = int(sys.argv[1])
 spin_num = int(sys.argv[2])
