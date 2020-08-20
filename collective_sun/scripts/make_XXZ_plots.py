@@ -615,6 +615,8 @@ label_alpha = [ 3 ]
 
 figsize = (3,1.8)
 
+# todo: get 16x16x16 data for 3D plots
+
 def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha = []):
     zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
 
@@ -685,12 +687,16 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha 
     # set axis ticks
     zz_ticks = sorted(set([ int(zz) for zz in zz_couplings ]))
     zz_labels = [ zz if zz % 2 == 0 else "" for zz in zz_ticks ]
-    LL_labels = [ LL if LL % 10 == 0 else "" for LL in LL_image ]
     plt.xticks(zz_ticks, zz_labels)
+
+    if dim == 2:
+        LL_labels = [ LL if LL % 10 == 0 else "" for LL in LL_image ]
+    if dim == 3:
+        LL_labels = [ LL if LL % 5 == 0 else "" for LL in LL_image ]
     plt.yticks(LL_image, LL_labels)
 
     # label each dynamical phase
-    if alpha in label_alpha:
+    if alpha in label_alpha and dim == 2:
         text_args = dict( horizontalalignment = "center",
                           verticalalignment = "center" )
         plt.text(0, 30, "collective", color = "black", **text_args)
@@ -777,7 +783,7 @@ dim = 3
 lattice_res = 1
 zz_lims = ( -3, 2 )
 colors = None
-for alpha in [ 4, 5, 6 ]:
+for alpha in [ 3, 4, 5, 6 ]:
     colors = plot_scaling(dim, lattice_res, zz_lims, alpha, colors)
 
 ##########################################################################################
