@@ -138,7 +138,6 @@ for ( idx_soc, soc_frac ), ( idx_tun, log10_tun ) in param_generator:
     def D(L,M): return D_Z(L,M)
     plt.figure(figsize = figsize)
     plt.title(title)
-    vals, vecs = np.linalg.eigh(Sx)
     for L, M in LM_var:
         D_vals = np.einsum("mnt,nm->t", spin_mats, D(L,M)).real
         plt.plot(times/(2*np.pi), D_vals, label = f"${L},{M}$")
