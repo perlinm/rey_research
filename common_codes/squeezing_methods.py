@@ -113,12 +113,12 @@ def spin_squeezing(spin_num, state, S_op_vec, SS_op_mat, in_dB = False):
 def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis = False,
                                pauli_ops = False):
     if not zxy_basis:
-        Sz    = correlators[(0,1,0)] / 2**int(pauli_ops)
-        Sz_Sz = correlators[(0,2,0)] / 4**int(pauli_ops)
-        Sp    = correlators[(1,0,0)]
-        Sp_Sp = correlators[(2,0,0)]
-        Sp_Sz = correlators[(1,1,0)] / 2**int(pauli_ops)
-        Sp_Sm = correlators[(1,0,1)]
+        Sz    = correlators[0,1,0] / 2**int(pauli_ops)
+        Sz_Sz = correlators[0,2,0] / 4**int(pauli_ops)
+        Sp    = correlators[1,0,0]
+        Sp_Sp = correlators[2,0,0]
+        Sp_Sz = correlators[1,1,0] / 2**int(pauli_ops)
+        Sp_Sm = correlators[1,0,1]
 
         Sx = np.real(Sp)
         Sy = np.imag(Sp)
@@ -138,16 +138,16 @@ def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis =
         Sy_Sx = np.conj(Sx_Sy)
 
     else:
-        Sz    = correlators[(1,0,0)] / 2**int(pauli_ops)
-        Sx    = correlators[(0,1,0)] / 2**int(pauli_ops)
-        Sy    = correlators[(0,0,1)] / 2**int(pauli_ops)
-        Sz_Sz = correlators[(2,0,0)] / 2**int(pauli_ops)
-        Sx_Sx = correlators[(0,2,0)] / 2**int(pauli_ops)
-        Sy_Sy = correlators[(0,0,2)] / 2**int(pauli_ops)
+        Sz    = correlators[1,0,0] / 2**int(pauli_ops)
+        Sx    = correlators[0,1,0] / 2**int(pauli_ops)
+        Sy    = correlators[0,0,1] / 2**int(pauli_ops)
+        Sz_Sz = correlators[2,0,0] / 2**int(pauli_ops)
+        Sx_Sx = correlators[0,2,0] / 2**int(pauli_ops)
+        Sy_Sy = correlators[0,0,2] / 2**int(pauli_ops)
 
-        Sz_Sx = correlators[(1,1,0)] / 2**int(pauli_ops)
-        Sz_Sy = correlators[(1,0,1)] / 2**int(pauli_ops)
-        Sx_Sy = correlators[(0,1,1)] / 2**int(pauli_ops)
+        Sz_Sx = correlators[1,1,0] / 2**int(pauli_ops)
+        Sz_Sy = correlators[1,0,1] / 2**int(pauli_ops)
+        Sx_Sy = correlators[0,1,1] / 2**int(pauli_ops)
 
         Sx_Sz = Sz_Sx
         Sy_Sz = Sz_Sy
