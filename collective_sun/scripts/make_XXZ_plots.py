@@ -349,6 +349,10 @@ plt.tight_layout()
 
 lattice_label = "_L".join(lattices)
 plt.savefig(fig_dir + f"exact_L{lattice_label}.pdf")
+
+sqz_axes[0].set_xlim(-1,2)
+plt.savefig(fig_dir + f"exact_L{lattice_label}_zoom.pdf")
+
 plt.close("all")
 ##########################################################################################
 # plot summary of DTWA results
