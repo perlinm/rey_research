@@ -8,9 +8,6 @@ import itertools as it
 
 from multilevel_methods import drive_op, drive_scale
 
-import matplotlib
-matplotlib.use("Agg")
-
 spin_dim = int(sys.argv[1])
 spin_num = int(sys.argv[2])
 init_state_str = sys.argv[3]
@@ -35,9 +32,7 @@ sys_tag = f"n{spin_dim}_N{spin_num}_{init_state_str}"
 
 params = { "font.size" : 12,
            "text.usetex" : True,
-           "text.latex.preamble" : [ r"\usepackage{physics}",
-                                     r"\usepackage{braket}",
-                                     r"\usepackage{bm}" ]}
+           "text.latex.preamble" : r"\usepackage{physics,braket,bm}" }
 plt.rcParams.update(params)
 
 def get_interp_vals(xs, ys, kind = "cubic"):
@@ -131,7 +126,7 @@ for ( idx_soc, soc_frac ), ( idx_tun, log10_tun ) in param_generator:
     ### z-basis drive operators
     LM_var = [ (L,M) for L, M in all_LM
                if ( M > 0 and (L + M) % 2 == 0 ) or
-                  ( M < 0 and (L + M) % 2 == 1 ) ]
+                  ( M < 0 and (L + M) % 2 == 1 ) ] # remove all (L,M) with abs(M) == 5?
     def D(L,M): return D_Z(L,M)
     plt.figure(figsize = figsize)
     plt.title(title)
