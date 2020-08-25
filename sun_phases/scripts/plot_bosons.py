@@ -19,8 +19,7 @@ else:
     init_state_str = "X"
 
 assert( spin_num % 2 == 0 )
-assert( init_state_str in [ "X", "DS" ] )
-if spin_dim == 2: init_state_str = "X"
+assert( init_state_str in [ "X", "XX", "DS" ] )
 
 figsize = (4,3)
 figsize_ext = (5,3)

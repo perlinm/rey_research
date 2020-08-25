@@ -16,8 +16,7 @@ else:
     init_state_str = "X"
 
 assert( spin_num % 2 == 0 )
-assert( init_state_str in [ "X", "DS" ] )
-if spin_dim == 2: init_state_str = "X"
+assert( init_state_str in [ "X", "XX", "DCS" ] )
 
 # simulation parameters
 log10_tun_vals = np.linspace(-2,1,13)
@@ -130,9 +129,14 @@ def evolve(initial_state, sim_time, field, coupling_op = None,
     initial_state.shape = state_shape
     return times, states
 
+# get the angle associated with a given spin number <--> quasimomentum
+def spin_angle(qq):
+    return 2*np.pi*qq/spin_num
+
 # construct an on-site external field
 def bare_lattice_field(qq, soc_angle):
-    return np.diag([ np.cos(2*np.pi*qq/spin_num + mu * soc_angle) for mu in spin_vals ])
+    return np.diag([ np.cos(spin_angle(qq) + mu * soc_angle) for mu in spin_vals ])
+
 
 ##########################################################################################
 # set up objects for simulation
@@ -150,7 +154,15 @@ def compute_spin_mats(states):
 # construct initial state
 if init_state_str == "X":
     init_state = polarized_state([0,1,0])
-elif init_state_str == "DS":
+elif init_state_str == "XX":
+    # polarized along +X (-X) for low- (high-)momentum spins
+    spin_states = [ spin_state([0,+1,0]) if np.cos(spin_angle(qq+1/spin_num)) > 0 else
+                    spin_state([0,-1,0])
+                    for qq in range(spin_num) ]
+    init_state = boson_mft_state(spin_states)
+elif init_state_str == "DCS":
+    # "double coherent state", with every spin is in an (identical) superposition
+    #   of two coherent states
     alpha = np.pi/2 + np.arcsin(1/3)
     beta = np.pi/3
     gamma = -(spin_dim-1)/3 * np.pi
@@ -161,6 +173,7 @@ elif init_state_str == "DS":
 ##########################################################################################
 # simulate!
 ##########################################################################################
+soc_frac_vals = soc_frac_vals[soc_frac_vals != 0]
 
 sim_start = time.time()
 

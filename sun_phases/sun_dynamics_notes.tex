@@ -375,7 +375,7 @@ Indexing the (normalized) eigenvectors and the corresponding eigenvalues of $B_V
 To summarize: randomly choosing a set $V$ of $2n-1$ axes will induce a set of measurement operators $\Pi_V$ from which we can construct a complete basis $\set{Q^V_\alpha}$ of operators for $\B_n$.
 However, some choices of axes will be better than others: a good choice of axes $V$ will maximize the amount of information that the corresponding measurement data $M_V=\set{M^V_j}$ will contain about the expectation values $\bk{Q^V_\alpha}_\rho$ used to reconstruct $\rho$.
 The amount of information that $M_V$ contains about $\bk{Q^V_\alpha}_\rho$ is determined, in part, by the magnitude of the eigenvalue $m^V_\alpha$: if $m^V_\alpha$ is small, then $M_V$ will generally contain little information about $\bk{Q^V_\alpha}_\rho$, and vice versa\footnote{Think about the limit $m^V_\alpha\to0$, in which case the fact that $Q^V_\alpha$ is normalized implies that the operator $\sum_j x^V_{\alpha j} \Pi^V_j$ must have a vanishing norm.
-  A vanishing norm can only occur due to fine-tuned cancellations that make the expectation value of $\sum_j x^V_{\alpha j} \Pi^V_j$ difficult to estimate due to the presence of measurement errors and shot noise.}.
+  A vanishing norm can only occur due to fine-tuned cancellations that make the expectation value of $\sum_j x^V_{\alpha j} \Pi^V_j$ difficult to estimate from noisy data on $\bk{\Pi^V_j}_\rho$.}.
 Rather than choosing axes randomly, we can therefore choose a set of axes that minimizes some cost function $C\p{m_V}$ favoring large eigenvalues $m_V\equiv\set{m^V_\alpha}$.
 A reasonable cost function that treats all eigenvalues on equal footing, for example, is
 \begin{align}
