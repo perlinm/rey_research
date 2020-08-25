@@ -10,10 +10,7 @@ np.set_printoptions(linewidth = 200)
 
 spin_dim = int(sys.argv[1])
 spin_num = int(sys.argv[2])
-if len(sys.argv) > 3:
-    init_state_str = sys.argv[3]
-else:
-    init_state_str = "X"
+init_state_str = sys.argv[3]
 
 assert( spin_num % 2 == 0 )
 assert( init_state_str in [ "X", "XX", "DCS" ] )
