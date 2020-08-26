@@ -10,7 +10,7 @@ figsize = (4,1.5)
 
 params = { "font.size" : 10,
            "text.usetex" : True,
-           "text.latex.preamble" : [ r"\usepackage{physics}" ]}
+           "text.latex.preamble" : r"\usepackage{physics}" }
 plt.rcParams.update(params)
 
 ##############################
@@ -57,7 +57,7 @@ figure, axes = plt.subplots(1, 2, figsize = figsize, sharex = True)
 
 for state in states:
     label = r"$\mathrm{" + state + "}$"
-    axes[0].plot(n_vals, np.sqrt(n_vals) * r_vals(state), ".", label = label)
+    axes[0].plot(n_vals, np.sqrt(2*I_vals) * r_vals(state), ".", label = label)
     axes[1].plot(n_vals, 2*I_vals * var_Z_vals(state), ".", label = label)
 
 axes[0].set_xticks(n_ticks)
@@ -65,7 +65,7 @@ axes[0].set_xlabel(r"$n$")
 axes[1].set_xlabel(r"$n$")
 
 axes[0].set_ylim(bottom = 0)
-axes[0].set_ylabel(r"$r_\psi\times\sqrt{n}$")
+axes[0].set_ylabel(r"$r_\psi\times\sqrt{2I}$")
 axes[1].set_ylabel(r"$\mathrm{var}_\psi(Z)\times 2I$")
 axes[1].legend(loc = "best")
 
