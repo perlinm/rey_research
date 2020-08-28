@@ -18,8 +18,7 @@ fig_dir = "../figures/XXZ/"
 
 params = { "font.size" : 9,
            "text.usetex" : True,
-           "text.latex.preamble" : [ r"\usepackage{braket}",
-                                     r"\usepackage{bm}" ]}
+           "text.latex.preamble" : r"\usepackage{braket,bm}" }
 plt.rcParams.update(params)
 
 max_width = 8.6/2.54 # maximum single-column figure width allowed by PRL
@@ -218,7 +217,7 @@ plt.close("all")
 ##########################################################################################
 # plot time-series data (DTWA)
 
-figsize = (2.75,2.5)
+figsize = (max_width,1.25)
 lattice_text = "64x64"
 def get_zz_coupling(file):
     return float(file.split("_")[-1][1:-4])
@@ -250,7 +249,7 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
     min_norm_SS = np.zeros(len(data_files))
 
     # plot squeezing over time for all ZZ couplings
-    figure, axes = plt.subplots(2, figsize = figsize, sharex = True, sharey = False)
+    figure, axes = plt.subplots(1, 2, figsize = figsize, sharex = True, sharey = False)
     for idx, ( zz_coupling, file ) in enumerate(data_files):
         color_val = idx / ( len(data_files)-1 ) # color value from 0 to 1
         time, sqz, norm_SS = get_time_sqz_SS(file)
@@ -280,10 +279,11 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
     axes[1].set_ylim(0,1)
 
     # touch-up and save figure
+    axes[0].set_xlabel(label_time_rescaled)
+    axes[1].set_xlabel(label_time_rescaled)
     axes[0].set_ylabel(label_sqz)
     axes[1].set_ylabel(label_SS)
-    axes[1].set_xlabel(label_time_rescaled)
-    plt.tight_layout(pad = 0.7)
+    plt.tight_layout(pad = 0.2)
     plt.savefig(fig_dir + f"time_series_{name_tag}.pdf")
 
 plt.close("all")
@@ -345,13 +345,11 @@ sqz_axes[0].set_ylabel(label_sqz_opt)
 SS_axes[0].set_ylabel(label_SS_min)
 sqz_axes[0].legend(loc = "center", ncol = 2, handlelength = 1.5,
                    bbox_to_anchor = (0.29,0.78), columnspacing = 1)
+sqz_axes[0].set_xlim(-1,2)
 plt.tight_layout()
 
 lattice_label = "_L".join(lattices)
 plt.savefig(fig_dir + f"exact_L{lattice_label}.pdf")
-
-sqz_axes[0].set_xlim(-1,2)
-plt.savefig(fig_dir + f"exact_L{lattice_label}_zoom.pdf")
 
 plt.close("all")
 ##########################################################################################
@@ -621,7 +619,7 @@ figsize = (3,1.8)
 
 # todo: get 16x16x16 data for 3D plots
 
-def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha = []):
+def plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha = True):
     zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
 
     # identify all relevant files
@@ -638,7 +636,7 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha 
 
     # extract simulation data
     sqz_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
-    ss_min_data = np.empty((len(zz_couplings), len(lattice_lengths)), None)
+    s_min_data = sqz_data.copy()
     for zz_idx, zz_coupling in enumerate(zz_couplings):
         # skip the critical point at J_z = 1
         if np.allclose(zz_coupling,1):
@@ -648,13 +646,14 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha 
         for ll_idx, lattice_length in enumerate(lattice_lengths):
             lattice_text = "x".join([str(lattice_length)]*dim)
             data = np.loadtxt(get_file(lattice_text, zz_coupling))
+
             sqz_min_idx = data[:,4].argmin()
             sqz_data[zz_idx,ll_idx] = -data[sqz_min_idx,4]
-            ss_min_data[zz_idx,ll_idx] = min(data[:sqz_min_idx+1,11])
+            s_min_data[zz_idx,ll_idx] = min(data[:sqz_min_idx+1,11])
             del data
 
     # identify the dynamical phase boundary
-    zz_boundaries = zz_couplings[ ss_min_data[zz_couplings < 1, :].argmin(axis = 0) ]
+    zz_boundaries = zz_couplings[ s_min_data[zz_couplings < 1, :].argmin(axis = 0) ]
 
     # identify lattice lengths to plot
     LL_keep = np.isclose(lattice_lengths % lattice_res, 0)
@@ -720,7 +719,7 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha 
     plt.semilogx(system_sizes, zz_boundaries, "ko", label = "DTWA")
 
     # find the best log fit of critical coupling as a function of system size
-    if alpha in fit_div_alpha:
+    if fit_div_alpha:
         fit_slope, _ = scipy.optimize.curve_fit(log_form, system_sizes, zz_boundaries)
         plt.semilogx(system_sizes, log_fit(system_sizes, fit_slope), "k--", label = "fit")
     if alpha in label_alpha:
@@ -737,7 +736,7 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha 
     inspect_zz = np.arange(1-inspect_dz, min(zz_boundaries)-dz/2, -inspect_dz)
     inspect_zz = sorted([ zz_coupling for zz_coupling in inspect_zz
                           if np.sum(zz_boundaries < zz_coupling) >= 4 ])
-    if colors is None: colors = len(inspect_zz)
+    if not colors: colors = len(inspect_zz)
 
     plt.figure(figsize = figsize)
 
@@ -746,12 +745,12 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors = None, fit_div_alpha 
         ll_idx = zz_boundaries < zz_coupling
 
         _system_sizes = system_sizes[ll_idx]
-        sqz_vals = sqz_data[zz_idx, ll_idx]
-        fit_params, _ = scipy.optimize.curve_fit(log_form, _system_sizes, sqz_vals)
+        _sqz_vals = sqz_data[zz_idx,ll_idx]
+        fit_params, _ = scipy.optimize.curve_fit(log_form, _system_sizes, _sqz_vals)
 
         color_val = idx / ( colors - 1 )
         color = color_map(1-color_val)
-        plt.semilogx(_system_sizes, sqz_vals, "o", color = color)
+        plt.semilogx(_system_sizes, _sqz_vals, "o", color = color)
         plt.semilogx(_system_sizes, log_fit(_system_sizes, fit_params), "--", color = color)
 
     fit_handles = [ mpl.lines.Line2D([0], [0], color = "k", linestyle = "none", marker = "o"),
@@ -781,13 +780,14 @@ lattice_res = 5
 zz_lims = ( -2.5, 2 )
 colors = None
 for alpha in [ 3, 4, 5, 6, "nn" ]:
-    colors = plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha = [ 3, 4 ])
+    fit_div_alpha = alpha in [ 3, 4 ]
+    colors = plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha)
 
 dim = 3
 lattice_res = 1
 zz_lims = ( -3, 2 )
 colors = None
-for alpha in [ 3, 4, 5, 6 ]:
+for alpha in [ 3, 4, 5, 6, "nn" ]:
     colors = plot_scaling(dim, lattice_res, zz_lims, alpha, colors)
 
 ##########################################################################################
