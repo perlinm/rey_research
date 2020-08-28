@@ -224,8 +224,8 @@ def get_zz_coupling(file):
 
 spin_num = np.prod(list(map(int,lattice_text.split("x"))))
 
-for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
-                                             ( 4, [-2, 0], 5, [-5,15] ) ]:
+for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,25] ),
+                                             ( 4, [-2, 0], 5, [-5,20] ) ]:
 
     # identify info related to data file names
     name_tag = make_name_tag(lattice_text, alpha, "dtwa")
@@ -266,7 +266,15 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,20] ),
     axes[0].plot(time * time_scale, sqz, color = "red", linewidth = "2")
     axes[1].plot(time * time_scale, norm_SS, color = "red", linewidth = "2")
 
-    # fix time and squeeizng axis ticks
+    # label each phase
+    if alpha == 3:
+        sc_y, si_y = 21, 0
+    if alpha == 4:
+        sc_y, si_y = 16, 0
+    axes[0].text(max_time/2, sc_y, "S-collective", va = "center", ha = "center")
+    axes[0].text(max_time/2, si_y, "S-Ising", va = "center", ha = "center")
+
+    # fix time and squeezing axis ticks
     time_locator = mpl.ticker.MaxNLocator(5, integer = True)
     axes[0].xaxis.set_major_locator(time_locator)
 
@@ -460,13 +468,13 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         text_args = dict( color = "black",
                           horizontalalignment = "center",
                           verticalalignment = "center" )
-        fin_axes[0].text(-1, 1.25, "collective", **text_args)
+        fin_axes[0].text(-1, 1.25, "S-collective", **text_args)
         text_args["color"] = "white"
-        fin_axes[0].text(2, 5, "Ising", **text_args)
+        fin_axes[0].text(2.1, 5, "S-Ising", **text_args)
         if dim == 2:
-            fin_axes[0].text(-2, 5, "Ising", **text_args)
+            fin_axes[0].text(-2, 5, "S-Ising", **text_args)
         if dim == 3:
-            fin_axes[0].text(-2.35, 5.7, "Ising", **text_args)
+            fin_axes[0].text(-2.35, 5.6, "S-I", **text_args)
 
         marker_args = dict( linewidth = 1, markersize = 1.5, clip_on = False )
 
@@ -702,9 +710,9 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha = True)
     if alpha in label_alpha and dim == 2:
         text_args = dict( horizontalalignment = "center",
                           verticalalignment = "center" )
-        plt.text(0, 30, "collective", color = "black", **text_args)
-        plt.text(-2, 20, "Ising", color = "white", **text_args)
-        plt.text(1.6, 20, "Ising", color = "white", **text_args)
+        plt.text(0, 30, "S-collective", color = "black", **text_args)
+        plt.text(-2, 20, "S-Ising", color = "white", **text_args)
+        plt.text(1.6, 20, "S-Ising", color = "white", **text_args)
 
     plt.tight_layout(pad = 0.1)
     plt.savefig(fig_dir + f"size_scaling_D{dim}_a{alpha}.pdf")
