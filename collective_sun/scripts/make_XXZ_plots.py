@@ -172,7 +172,8 @@ plt.close("all")
 
 max_SS = spin_num/2 * (spin_num/2+1)
 
-figure, axes = plt.subplots(2, figsize = (3,3))
+figsize = (6,1.8)
+figure, axes = plt.subplots(1, 2, figsize = figsize, sharex = True)
 
 # plot shell model results
 axes[0].plot(zz_coupling, to_dB(min_sqz), "k.", label = "TS$_4$")
@@ -201,12 +202,11 @@ axes[1].axhline(min_SS_ising/max_SS, **kwargs)
 axes[0].set_ylim(bottom = np.floor(to_dB(sqz_ising)))
 axes[1].set_ylim(bottom = np.floor(min_SS_ising/max_SS * 10)/10)
 axes[0].set_xticks(shell_xticks)
-axes[1].set_xticks(shell_xticks)
-axes[0].set_xticklabels([])
 
+axes[0].set_xlabel(label_zz)
+axes[1].set_xlabel(label_zz)
 axes[0].set_ylabel(label_sqz_opt)
 axes[1].set_ylabel(label_SS_min)
-axes[1].set_xlabel(label_zz)
 shade_exclusions(axes[0])
 shade_exclusions(axes[1])
 axes[0].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.6,0.45))
@@ -217,39 +217,35 @@ plt.close("all")
 ##########################################################################################
 # plot time-series data (DTWA)
 
-figsize = (max_width,1.25)
-lattice_text = "64x64"
 def get_zz_coupling(file):
     return float(file.split("_")[-1][1:-4])
+def in_range(zz_coupling, zz_lims):
+    return min(zz_lims) <= zz_coupling <= max(zz_lims)
 
-spin_num = np.prod(list(map(int,lattice_text.split("x"))))
+# return all data files and the corresponding ZZ couplings
+def get_data_files(name_tag, zz_lims):
+    name_format = data_dir + "DTWA/system_size/dtwa_" + name_tag + "*.txt"
+    return sorted([ ( zz_coupling, file )
+                    for file in glob.glob(name_format)
+                    if in_range(zz_coupling := get_zz_coupling(file), zz_lims) ])
 
-for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,25] ),
-                                             ( 4, [-2, 0], 5, [-5,20] ) ]:
+def get_time_sqz_SS(file):
+    lattice_text = file.split("_")[-3][1:]
+    spin_num = np.prod([ int(dim) for dim in lattice_text.split("x") ])
+    file_data = np.loadtxt(file)
+    time = file_data[:,0]
+    sqz = -file_data[:,4]
+    norm_SS = ( file_data[:,11] * spin_num )**2 / ( spin_num/2 * (spin_num/2+1) )
+    return time, sqz, norm_SS
 
-    # identify info related to data file names
-    name_tag = make_name_tag(lattice_text, alpha, "dtwa")
-    name_format = data_dir + "DTWA/time_series/dtwa_" + name_tag + "*.txt"
-    def in_range(zz_coupling):
-        return zz_lims[0] <= zz_coupling <= zz_lims[1]
-    def get_time_sqz_SS(file):
-        file_data = np.loadtxt(file)
-        time = file_data[:,0]
-        sqz = -file_data[:,4]
-        norm_SS = ( file_data[:,11] * spin_num )**2 / ( spin_num/2 * (spin_num/2+1) )
-        return time, sqz, norm_SS
-
+def plot_sqz_SS(axes, name_tag, zz_lims, mark_transition = True, max_time = 10):
     # collect all data files and the corresponding ZZ couplings
-    data_files = sorted([ ( zz_coupling, file )
-                          for file in glob.glob(name_format)
-                          if in_range(zz_coupling := get_zz_coupling(file)) ])
-    zz_couplings = list(zip(*data_files))[0]
+    data_files = get_data_files(name_tag, zz_lims)
 
     # keep track of minimal squared spin length
     min_norm_SS = np.zeros(len(data_files))
 
     # plot squeezing over time for all ZZ couplings
-    figure, axes = plt.subplots(1, 2, figsize = figsize, sharex = True, sharey = False)
     for idx, ( zz_coupling, file ) in enumerate(data_files):
         color_val = idx / ( len(data_files)-1 ) # color value from 0 to 1
         time, sqz, norm_SS = get_time_sqz_SS(file)
@@ -260,19 +256,12 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,25] ),
         min_norm_SS[idx] = min(norm_SS[:sqz.argmax()+1])
 
     # highlight squeezing over time right *before* the collective-to-Ising transition
-    zz_coupling, file = data_files[min_norm_SS.argmin()]
-    time, sqz, norm_SS = get_time_sqz_SS(file)
-    time_scale = abs( zz_coupling - 1 )
-    axes[0].plot(time * time_scale, sqz, color = "red", linewidth = "2")
-    axes[1].plot(time * time_scale, norm_SS, color = "red", linewidth = "2")
-
-    # label each phase
-    if alpha == 3:
-        sc_y, si_y = 21, 0
-    if alpha == 4:
-        sc_y, si_y = 16, 0
-    axes[0].text(max_time/2, sc_y, "S-collective", va = "center", ha = "center")
-    axes[0].text(max_time/2, si_y, "S-Ising", va = "center", ha = "center")
+    if mark_transition:
+        zz_coupling, file = data_files[min_norm_SS.argmin()]
+        time, sqz, norm_SS = get_time_sqz_SS(file)
+        time_scale = abs( zz_coupling - 1 )
+        axes[0].plot(time * time_scale, sqz, color = "red", linewidth = "2")
+        axes[1].plot(time * time_scale, norm_SS, color = "red", linewidth = "2")
 
     # fix time and squeezing axis ticks
     time_locator = mpl.ticker.MaxNLocator(5, integer = True)
@@ -281,18 +270,67 @@ for alpha, zz_lims, max_time, sqz_range in [ ( 3, [-3,-1], 10, [-5,25] ),
     sqz_locator = mpl.ticker.MaxNLocator(5, integer = True)
     axes[0].yaxis.set_major_locator(sqz_locator)
 
-    # set horizonal and vertical axis ranges
-    axes[0].set_xlim(0, max_time)
-    axes[0].set_ylim(sqz_range)
+    # set axis labels and ranges
+    axes[0].set_xlim(0,max_time)
     axes[1].set_ylim(0,1)
-
-    # touch-up and save figure
-    axes[0].set_xlabel(label_time_rescaled)
     axes[1].set_xlabel(label_time_rescaled)
-    axes[0].set_ylabel(label_sqz)
-    axes[1].set_ylabel(label_SS)
-    plt.tight_layout(pad = 0.2)
-    plt.savefig(fig_dir + f"time_series_{name_tag}.pdf")
+
+    return axes
+
+##############################
+# individual time series plot
+
+alpha = 3
+zz_lims = (-1,-3)
+sqz_range = (-5,25)
+figsize = (max_width,1.25)
+
+name_tag = make_name_tag("64x64", alpha, "dtwa")
+figure, axes = plt.subplots(1, 2, figsize = figsize, sharex = True, sharey = False)
+axes = plot_sqz_SS(axes, name_tag, zz_lims)
+axes[0].set_ylim(sqz_range)
+
+# label each phase
+if alpha == 3:
+    sc_y, si_y = 21, 0
+if alpha == 4:
+    sc_y, si_y = 16, 0
+max_x = axes[0].get_xlim()[1]
+axes[0].text(max_x/2, sc_y, "S-collective", va = "center", ha = "center")
+axes[0].text(max_x/2, si_y, "S-Ising", va = "center", ha = "center")
+
+axes[0].set_ylabel(label_sqz)
+axes[1].set_ylabel(label_SS)
+figure.tight_layout(pad = 0.2)
+figure.savefig(fig_dir + f"time_series_{name_tag}.pdf")
+
+##############################
+# panel of time series plots
+
+max_time = 10
+zz_lims = (-0.1,-3)
+figsize = (6,2.25)
+for lattice, alpha_vals in [ ( "64x64", [3,4,5] ),
+                             ( "16x16x16", [5,6,"nn"] )]:
+
+    figure, axes = plt.subplots(2, 3, sharex = True, sharey = "row", figsize = figsize)
+    for alpha, alpha_ax in zip(alpha_vals, axes.T):
+        name_tag = make_name_tag(lattice, alpha, "dtwa")
+        alpha_ax = plot_sqz_SS(alpha_ax, name_tag, zz_lims)
+
+        alpha_str = str(alpha).replace("nn", r"\infty")
+        alpha_ax[0].set_title(r"$\alpha=" + f"{alpha_str}$")
+        alpha_ax[0].set_ylim(bottom = 0)
+
+    axes[0,0].set_ylabel(label_sqz)
+    axes[1,0].set_ylabel(label_SS)
+    figure.tight_layout(pad = 0.2)
+
+    old_name_tag = make_name_tag(lattice, alpha_vals[0], "dtwa")
+    old_alpha_tag = f"a{alpha_vals[0]}"
+    new_alpha_tag = "_".join([ f"a{alpha}" for alpha in alpha_vals ])
+    new_name_tag = old_name_tag.replace(old_alpha_tag, new_alpha_tag)
+    figure.savefig(fig_dir + f"time_series_{new_name_tag}.pdf")
 
 plt.close("all")
 ##########################################################################################
