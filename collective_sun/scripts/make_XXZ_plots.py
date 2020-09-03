@@ -23,8 +23,9 @@ plt.rcParams.update(params)
 
 max_width = 8.6/2.54 # maximum single-column figure width allowed by PRL
 
-color_map = "viridis_r"
-color_map = mpl.cm.get_cmap(color_map)
+color_map_str = "viridis"
+color_map = mpl.cm.get_cmap(color_map_str)
+color_map_r = mpl.cm.get_cmap(color_map_str + "_r")
 
 ### name tags and axis labels
 
@@ -219,15 +220,6 @@ plt.close("all")
 
 def get_zz_coupling(file):
     return float(file.split("_")[-1][1:-4])
-def in_range(zz_coupling, zz_lims):
-    return min(zz_lims) <= zz_coupling <= max(zz_lims)
-
-# return all data files and the corresponding ZZ couplings
-def get_data_files(name_tag, zz_lims):
-    name_format = data_dir + "DTWA/system_size/dtwa_" + name_tag + "*.txt"
-    return sorted([ ( zz_coupling, file )
-                    for file in glob.glob(name_format)
-                    if in_range(zz_coupling := get_zz_coupling(file), zz_lims) ])
 
 def get_time_sqz_SS(file):
     lattice_text = file.split("_")[-3][1:]
@@ -238,44 +230,45 @@ def get_time_sqz_SS(file):
     norm_SS = ( file_data[:,11] * spin_num )**2 / ( spin_num/2 * (spin_num/2+1) )
     return time, sqz, norm_SS
 
-def plot_sqz_SS(axes, name_tag, zz_lims, mark_transition = True, max_time = 10):
-    # collect all data files and the corresponding ZZ couplings
-    data_files = get_data_files(name_tag, zz_lims)
+def plot_sqz_SS(axes, name_tag, zz_lims, max_time = 10):
+    # collect all data files and identify range of ZZ couplings
+    name_format = data_dir + "DTWA/system_size/dtwa_" + name_tag + "*.txt"
+    data_files = sorted([ ( zz_coupling, file ) for file in glob.glob(name_format)
+                          if ( zz_coupling := get_zz_coupling(file) ) >= min(zz_lims)
+                          and zz_coupling <= max(zz_lims) ])[::-1]
+    zz_range = max(zz_lims) - min(zz_lims)
 
-    # keep track of minimal squared spin length
-    min_norm_SS = np.zeros(len(data_files))
+    # keep track of the (properly normalized) optimal squeezing time
+    opt_time = np.zeros(len(data_files))
 
     # plot squeezing over time for all ZZ couplings
     for idx, ( zz_coupling, file ) in enumerate(data_files):
-        color_val = idx / ( len(data_files)-1 ) # color value from 0 to 1
+        color_val = ( zz_coupling - min(zz_lims) ) / zz_range
         time, sqz, norm_SS = get_time_sqz_SS(file)
         time_scale = abs( zz_coupling - 1 ) # rescale time by | J_z - J_perp |
-        axes[0].plot(time * time_scale, sqz, color = color_map(color_val))
-        axes[1].plot(time * time_scale, norm_SS, color = color_map(color_val))
+        axes[0].plot(time * time_scale, sqz, color = color_map_r(color_val))
+        axes[1].plot(time * time_scale, norm_SS, color = color_map_r(color_val))
+        opt_time[idx] = time[sqz.argmax()] * time_scale
 
-        min_norm_SS[idx] = min(norm_SS[:sqz.argmax()+1])
+    # highlight squeezing over time immediately to the right of the transition
+    transition_idx = abs(opt_time[1:]-opt_time[:-1]).argmax()
+    zz_coupling, file = data_files[transition_idx]
+    time, sqz, norm_SS = get_time_sqz_SS(file)
+    time_scale = abs( zz_coupling - 1 )
+    axes[0].plot(time * time_scale, sqz, color = "red", linewidth = "2")
+    axes[1].plot(time * time_scale, norm_SS, color = "red", linewidth = "2")
 
-    # highlight squeezing over time right *before* the collective-to-Ising transition
-    if mark_transition:
-        zz_coupling, file = data_files[min_norm_SS.argmin()]
-        time, sqz, norm_SS = get_time_sqz_SS(file)
-        time_scale = abs( zz_coupling - 1 )
-        axes[0].plot(time * time_scale, sqz, color = "red", linewidth = "2")
-        axes[1].plot(time * time_scale, norm_SS, color = "red", linewidth = "2")
-
-    # fix time and squeezing axis ticks
+    # set axis ticks and limits
     time_locator = mpl.ticker.MaxNLocator(5, integer = True)
-    axes[0].xaxis.set_major_locator(time_locator)
-
+    for axis in axes:
+        axis.xaxis.set_major_locator(time_locator)
+        axis.set_xlim(0,max_time)
     sqz_locator = mpl.ticker.MaxNLocator(5, integer = True)
     axes[0].yaxis.set_major_locator(sqz_locator)
+    axes[1].set_ylim(-0.02,1.02)
+    axes[1].set_yticks([0,0.5,1])
 
-    # set axis labels and ranges
-    axes[0].set_xlim(0,max_time)
-    axes[1].set_ylim(0,1)
-    axes[1].set_xlabel(label_time_rescaled)
-
-    return axes
+    return axes, zz_coupling
 
 ##############################
 # individual time series plot
@@ -285,9 +278,12 @@ zz_lims = (-1,-3)
 sqz_range = (-5,25)
 figsize = (max_width,1.25)
 
+figure = plt.figure(figsize = figsize, constrained_layout = False)
+data_gs = figure.add_gridspec(1, 2, left = 0.13, right = 0.825, wspace = 0.55)
+axes = [ figure.add_subplot(gs) for gs in data_gs ]
+
 name_tag = make_name_tag("64x64", alpha, "dtwa")
-figure, axes = plt.subplots(1, 2, figsize = figsize, sharex = True, sharey = False)
-axes = plot_sqz_SS(axes, name_tag, zz_lims)
+_, zz_mark = plot_sqz_SS(axes, name_tag, zz_lims)
 axes[0].set_ylim(sqz_range)
 
 # label each phase
@@ -299,38 +295,66 @@ max_x = axes[0].get_xlim()[1]
 axes[0].text(max_x/2, sc_y, "S-collective", va = "center", ha = "center")
 axes[0].text(max_x/2, si_y, "S-Ising", va = "center", ha = "center")
 
+# # add color bar
+data_gs = figure.add_gridspec(1, 1, left = 0.845, right = 0.86)
+cbar_axis = figure.add_subplot(data_gs[0])
+color_norm = mpl.colors.Normalize(vmin = zz_lims[0], vmax = zz_lims[1])
+color_obj = mpl.cm.ScalarMappable(cmap = color_map_r, norm = color_norm)
+color_bar = figure.colorbar(color_obj, cax = cbar_axis)
+color_bar.set_label(label_zz)
+color_bar.ax.plot(zz_lims, [zz_mark]*2, color = "red", linewidth = "2")
+
+# label axes, save figure
+axes[0].set_xlabel(label_time_rescaled)
+axes[1].set_xlabel(label_time_rescaled)
 axes[0].set_ylabel(label_sqz)
 axes[1].set_ylabel(label_SS)
-figure.tight_layout(pad = 0.2)
+figure.subplots_adjust(bottom = 0.32)
 figure.savefig(fig_dir + f"time_series_{name_tag}.pdf")
 
 ##############################
 # panel of time series plots
 
 max_time = 10
-zz_lims = (-0.1,-3)
 figsize = (6,2.25)
-for lattice, alpha_vals in [ ( "64x64", [3,4,5] ),
-                             ( "16x16x16", [5,6,"nn"] )]:
+for zz_lims in [ (0,-3), (2,0) ]:
+    for lattice, alpha_vals in [ ( "64x64", [3,4,5] ),
+                                 ( "16x16x16", [5,6,"nn"] ) ]:
 
-    figure, axes = plt.subplots(2, 3, sharex = True, sharey = "row", figsize = figsize)
-    for alpha, alpha_ax in zip(alpha_vals, axes.T):
-        name_tag = make_name_tag(lattice, alpha, "dtwa")
-        alpha_ax = plot_sqz_SS(alpha_ax, name_tag, zz_lims)
+        figure, all_axes = plt.subplots(2, 4, figsize = figsize, sharex = True, sharey = "row",
+                                        gridspec_kw = dict( width_ratios = [20]*3 + [1] ))
+        axes = all_axes[:,:-1] # plotting axes
+        for alpha, alpha_ax in zip(alpha_vals, axes.T):
+            name_tag = make_name_tag(lattice, alpha, "dtwa")
+            plot_sqz_SS(alpha_ax, name_tag, zz_lims)
 
-        alpha_str = str(alpha).replace("nn", r"\infty")
-        alpha_ax[0].set_title(r"$\alpha=" + f"{alpha_str}$")
-        alpha_ax[0].set_ylim(bottom = 0)
+            alpha_str = str(alpha).replace("nn", r"\infty")
+            alpha_ax[0].set_title(r"$\alpha=" + f"{alpha_str}$")
+            alpha_ax[0].set_ylim(bottom = 0)
 
-    axes[0,0].set_ylabel(label_sqz)
-    axes[1,0].set_ylabel(label_SS)
-    figure.tight_layout(pad = 0.2)
+        # add color bar
+        cbar_gs = all_axes[0,-1].get_gridspec()
+        for axis in all_axes[:,-1]: axis.remove()
+        cbar_ax = figure.add_subplot(cbar_gs[:,-1])
+        color_norm = mpl.colors.Normalize(vmin = zz_lims[0], vmax = zz_lims[1])
+        color_obj = mpl.cm.ScalarMappable(cmap = color_map_r, norm = color_norm)
+        color_bar = figure.colorbar(color_obj, cax = cbar_ax)
+        color_bar.set_label(label_zz)
 
-    old_name_tag = make_name_tag(lattice, alpha_vals[0], "dtwa")
-    old_alpha_tag = f"a{alpha_vals[0]}"
-    new_alpha_tag = "_".join([ f"a{alpha}" for alpha in alpha_vals ])
-    new_name_tag = old_name_tag.replace(old_alpha_tag, new_alpha_tag)
-    figure.savefig(fig_dir + f"time_series_{new_name_tag}.pdf")
+        # label axes
+        for axis in axes[1,:]:
+            axis.set_xlabel(label_time_rescaled)
+        axes[0,0].set_ylabel(label_sqz)
+        axes[1,0].set_ylabel(label_SS)
+        figure.tight_layout(pad = 0.2)
+
+        # save figure
+        old_name_tag = make_name_tag(lattice, alpha_vals[0], "dtwa")
+        old_alpha_tag = f"a{alpha_vals[0]}"
+        new_alpha_tag = "_".join([ f"a{alpha}" for alpha in alpha_vals ])
+        new_name_tag = old_name_tag.replace(old_alpha_tag, new_alpha_tag)
+        suffix = f"z{max(zz_lims)}_z{min(zz_lims)}"
+        figure.savefig(fig_dir + f"time_series_{new_name_tag}_{suffix}.pdf")
 
 plt.close("all")
 ##########################################################################################
@@ -661,9 +685,7 @@ dz = 0.1
 inspect_dz = 0.5
 label_alpha = [ 3 ]
 
-figsize = (3,1.8)
-
-# todo: get 16x16x16 data for 3D plots
+figsize = (2.8,1.6)
 
 def plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha = True):
     zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
@@ -748,9 +770,9 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha = True)
     if alpha in label_alpha and dim == 2:
         text_args = dict( horizontalalignment = "center",
                           verticalalignment = "center" )
-        plt.text(0, 30, "S-collective", color = "black", **text_args)
-        plt.text(-2, 20, "S-Ising", color = "white", **text_args)
-        plt.text(1.6, 20, "S-Ising", color = "white", **text_args)
+        plt.text(-0.2, 35, "S-collective", color = "black", **text_args)
+        plt.text(-1.9, 15, "S-Ising", color = "white", **text_args)
+        plt.text(+1.6, 15, "S-I", color = "white", **text_args)
 
     plt.tight_layout(pad = 0.1)
     plt.savefig(fig_dir + f"size_scaling_D{dim}_a{alpha}.pdf")
@@ -795,7 +817,7 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha = True)
         fit_params, _ = scipy.optimize.curve_fit(log_form, _system_sizes, _sqz_vals)
 
         color_val = idx / ( colors - 1 )
-        color = color_map(1-color_val)
+        color = color_map(color_val)
         plt.semilogx(_system_sizes, _sqz_vals, "o", color = color)
         plt.semilogx(_system_sizes, log_fit(_system_sizes, fit_params), "--", color = color)
 
