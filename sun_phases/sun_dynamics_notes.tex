@@ -46,7 +46,7 @@
 \newcommand{\y}{\text{y}}
 \newcommand{\z}{\text{z}}
 \newcommand{\X}{\text{X}}
-\newcommand{\DS}{\text{DS}}
+\newcommand{\DCS}{\text{DCS}}
 
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\D}{\mathcal{D}}
@@ -179,7 +179,7 @@ where $\ket\up\equiv\ket{I}$ is a state polarized along the $z$ axis, and\footno
 \end{align}
 Finally, for even $n$ we can also prepare the following superposition of polarized states:
 \begin{align}
-  \ket{\DS}
+  \ket{\DCS}
   \equiv \f1{\sqrt{2}}
   \p{e^{\i\gamma} \ket{\alpha,\beta}
     + e^{-\i\gamma} \ket{\alpha,-\beta}}
@@ -201,9 +201,9 @@ with
 
 We consider the single-particle Hamiltonian
 \begin{align}
-  H = -\f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\varphi} s_{\mu\mu q},
+  H = -J \sum_{\mu,q} \cos\p{q + \mu\varphi} s_{\mu\mu q},
 \end{align}
-where $q$ is a quasi-momentum (in units with lattice spacing $a=1$); $\mu\in\set{I,I-1,\cdots,-I}$ is a nuclear spin projection onto a quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin; $\varphi$ is a spin-orbit-coupling angle, and $J$ is the single-particle bandwidth (proportional to the tunneling rate, $J/4$).
+where $q$ is a quasi-momentum (in units with lattice spacing $a=1$); $\mu\in\set{I,I-1,\cdots,-I}$ is a nuclear spin projection onto a quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin; $\varphi$ is a spin-orbit-coupling angle; and $J$ is essentially the single-particle bandwidth (proportional to the nearest-neighbor tunneling rate, $J/2$).
 As dynamical order parameters, we consider the operators
 \begin{align}
   s_{\mu\nu} \equiv \f1N \sum_q s_{\mu\nu q},
@@ -214,54 +214,54 @@ As dynamical order parameters, we consider the operators
 In the Heisenberg picture, these operators at time $t$ are
 \begin{align}
   s_{\mu\nu}\p{t} = \f1N \sum_q s_{\mu\nu q}
-  \times e^{\i t J \eta_{\mu\nu q}},
+  \times e^{\i\eta_{\mu\nu q} J t},
   &&
   s^2\p{t} = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q}
-  \times e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}},
+  \times e^{\i \p{\eta_{\mu\nu p}-\eta_{\mu\nu q}} J t},
 \end{align}
 where
 \begin{align}
   \eta_{\mu\nu q}
-  \equiv -\f12 \sp{\cos\p{q+\mu\varphi} - \cos\p{q+\nu\varphi}}
-  = \sin\p{\varphi_{\mu\nu}^-} \sin\p{q+\varphi_{\mu\nu}^+},
+  \equiv -\sp{\cos\p{q+\mu\varphi} - \cos\p{q+\nu\varphi}}
+  = 2 \sin\p{\varphi_{\mu\nu}^-} \sin\p{q+\varphi_{\mu\nu}^+},
   &&
   \varphi_{\mu\nu}^\pm \equiv \f{\mu\pm\nu}{2}\,\varphi.
 \end{align}
 In particular, we are interested in the expectation values
 \begin{align}
   \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
-  = \f1N \bk{\psi\op{\mu}{\nu}\psi} \sum_q e^{\i t J \eta_{\mu\nu q}}
+  = \f1N \bk{\psi\op{\mu}{\nu}\psi} \sum_q e^{\i\eta_{\mu\nu q} J t}
   = \bk{\psi\op{\mu}{\nu}\psi} \chi_{\mu\nu}\p{\varphi},
 \end{align}
 and
 \begin{align}
   \bk{\Psi|s^2\p{t}|\Psi}
   &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \sum_{p\ne q} e^{\i tJ\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}}} + \f{n}{N} \\
+  \sum_{p\ne q} e^{\i\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}} J t} + \f{n}{N} \\
   &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
   \abs{\chi_{\mu\nu}\p{\varphi}}^2 + \f{n-1}{N},
 \end{align}
 where
 \begin{align}
-  \chi_{\mu\nu}\p{\varphi} \equiv \f1N \sum_q e^{\i tJ\eta_{\mu\nu q}}
-  = \f1N \sum_q e^{\i tJ\sin\p{\varphi_{\mu\nu}^-} \sin\p{q+\varphi_{\mu\nu}^+}}.
+  \chi_{\mu\nu}\p{\varphi} \equiv \f1N \sum_q e^{\i\eta_{\mu\nu q} J t}
+  = \f1N \sum_q e^{\i 2\sin\p{\varphi_{\mu\nu}^-} \sin\p{q+\varphi_{\mu\nu}^+} J t}.
 \end{align}
 As $N\to\infty$, this sum is well approximated by an integral:
 \begin{align}
   \chi_{\mu\nu}\p{\varphi} \approx \f1{2\pi} \int_{-\pi}^\pi \dd\theta\,
-  e^{\i tJ\sin\p{\varphi_{\mu\nu}^-} \sin\p{\theta+\varphi_{\mu\nu}^+}}
-  = \J_0\sp{tJ\sin\p{\varphi_{\mu\nu}^-}},
+  e^{\i 2\sin\p{\varphi_{\mu\nu}^-} \sin\p{\theta+\varphi_{\mu\nu}^+} J t}
+  = \J_0\sp{2 \sin\p{\varphi_{\mu\nu}^-} J t},
 \end{align}
 where $\J_0$ is the zero-order Bessel function of the first kind.
 To leading order in $N\gg1$, we thus find that
 \begin{align}
   \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
   &\approx \bk{\psi\op{\mu}{\nu}\psi}
-  \J_0\sp{tJ\sin\p{\varphi_{\mu\nu}^-}},
+  \J_0\sp{2\sin\p{\varphi_{\mu\nu}^-}Jt},
   \\
   \bk{\Psi|s^2\p{t}|\Psi}
   &\approx \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \J_0\sp{tJ\sin\p{\varphi_{\mu\nu}^-}}^2.
+  \J_0\sp{2\sin\p{\varphi_{\mu\nu}^-}Jt}^2.
   \label{eq:ops_time}
 \end{align}
 
@@ -280,23 +280,23 @@ The constant (time independent) terms in \eqref{eq:ops_time} have $\mu=\nu$ (in 
 where the quantity $r_\psi$ is sometimes called the inverse participation ratio of $\ket\psi$ with respect to the basis $\set{\ket\mu}$ of states with definite projection onto the $z$ axis.
 Figure \ref{fig:limiting_vals} shows several values of $r_\psi$ for different $n$.
 
-At ``short'' times $t$ for which $tJ\sin\p{I\varphi}\ll1$, we can Taylor expand the Bessel functions in \eqref{eq:ops_time} about $t=0$ to get
+At ``short'' times $t$ for which $\sin\p{I\varphi}Jt\ll1$, we can Taylor expand the Bessel functions in \eqref{eq:ops_time} about $t=0$ to get
 \begin{align}
   \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
   &\approx \bk{\psi\op{\mu}{\nu}\psi}
-  \times \sp{1 - \f14 \p{t J}^2 \sin\p{\varphi_{\mu\nu}^-}^2}, \\
+  \times \sp{1 - \sin\p{\varphi_{\mu\nu}^-}^2 \p{J t}^2}, \\
   \bk{\Psi|s^2\p{t}|\Psi}
-  &\approx 1 - \f12 \p{tJ}^2 \sum_{\mu,\nu}
-  \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2 \sin\p{\varphi_{\mu\nu}^-}^2.
+  &\approx 1 - 2 \p{Jt}^2 \sum_{\mu,\nu}
+  \sin\p{\varphi_{\mu\nu}^-}^2 \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2.
 \end{align}
 In the limit of a small angle $\varphi$ for which $I\varphi\ll1$, we can further simplify
 \begin{align}
   \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
   &\approx \bk{\psi\op{\mu}{\nu}\psi}
-  \times \sp{1 - \f1{16} \p{\f{\mu-\nu}{I}}^2
-    \p{JI\varphi}^2 \times t^2}, \\
+  \times \sp{1 - \p{\f{\mu-\nu}{2I}}^2
+    \p{I\varphi J t}^2}, \\
   \bk{\Psi|s^2\p{t}|\Psi}
-  &\approx 1 - \f14 \var_\psi\p{Z} \p{JI\varphi}^2 \times t^2,
+  &\approx 1 - \var_\psi\p{Z} \p{I\varphi J t}^2,
   \label{eq:small_time_angle}
 \end{align}
 where
@@ -305,7 +305,7 @@ where
   &&
   Z \equiv \sum_\mu \f{\mu}{I} \op{\mu}.
 \end{align}
-Note that the result in \eqref{eq:small_time_angle} is valid for all $t\ll\p{JI\varphi}^{-1}$, which may be a long time given the small-angle assumption $I\varphi\ll1$.
+Note that the result in \eqref{eq:small_time_angle} is valid for all $t\ll\p{I\varphi J}^{-1}$, which may be a long time given the small-angle assumption $I\varphi\ll1$.
 Figure \ref{fig:limiting_vals} shows several values of $\var_\psi\p{Z}$ for different $n$.
 
 \begin{figure}
@@ -313,23 +313,33 @@ Figure \ref{fig:limiting_vals} shows several values of $\var_\psi\p{Z}$ for diff
   \includegraphics{figures/oscillations/limiting_vals.pdf}
   \caption{Several values of $r_\psi$ and $\var_\psi\p{Z}$ for
     different $n$.  Computed with respect to the states
-    $\ket\X\equiv\ket{\pi/2,0}$ and $\ket{\DS}$, defined in
+    $\ket\X\equiv\ket{\pi/2,0}$ and $\ket{\DCS}$, defined in
     \eqref{eq:polarized_state} and \eqref{eq:double_state}.}
   \label{fig:limiting_vals}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Strongly-interacting limit of a realistic 1D model}
+\section{Interacting regime of a realistic 1D model}
 
-We now consider the strongly-interacting limit of a 1D model, in which the Hamiltonian is
+We now consider a realistic 1D model with interactions, in which the Hamiltonian is
 \begin{align}
   H = -\f{U}{N} \v S^\dag\cdot \v S
-  - \f{J}{2} \sum_{\mu,q} \cos\p{q + \mu\varphi} s_{\mu\mu q}
+  - J \sum_{\mu,q} \cos\p{q + \mu\varphi} s_{\mu\mu q}.
 \end{align}
-with $J\ll U$.
+This Hamiltonian can be written in the simplified form
+\begin{align}
+  H = -\f{U}{N} \v S^\dag\cdot \v S
+  - J \sum_q \p{\cos q\, w_{\varphi,q}^+ - \sin q\, w_{\varphi,q}^-},
+\end{align}
+where the diagonal single-spin operators
+\begin{align}
+  w_\varphi^+ \equiv \sum_\mu \cos\p{\mu\varphi} \op{\mu},
+  &&
+  w_\varphi^- \equiv \sum_\mu \sin\p{\mu\varphi} \op{\mu},
+\end{align}
+are respectively even ($+$) and odd ($-$) under spin inversion, $\mu\to-\mu$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
 \section{Nuclear spin tomography}
 
 Here we discuss the task of performing full tomography on the average reduced single-particle density operator of a collection of nuclear spins.
