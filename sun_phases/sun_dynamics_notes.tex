@@ -18,6 +18,8 @@
 \usepackage{lastpage} % for referencing last page
 \cfoot{\thepage~of \pageref{LastPage}} % "x of y" page labeling
 
+\usepackage{setspace} % to change text spacing
+
 %%% symbols, notations, etc.
 \usepackage{physics,braket,bm,amssymb} % physics and math
 \renewcommand{\t}{\text} % text in math mode
@@ -28,7 +30,6 @@
 \newcommand{\bk}{\Braket} % shorthand for braket notation
 \renewcommand{\v}{\bm} % bold vectors
 \newcommand{\uv}[1]{\bm{\hat{#1}}} % unit vectors
-\newcommand{\av}{\vec} % arrow vectors
 \renewcommand{\c}{\cdot} % inner product
 \renewcommand{\d}{\partial} % partial derivative
 \renewcommand{\dd}{\text{d}} % for infinitesimals
@@ -42,39 +43,20 @@
 \newcommand{\up}{\uparrow}
 \newcommand{\dn}{\downarrow}
 
+\renewcommand{\a}{\text{a}}
 \newcommand{\x}{\text{x}}
 \newcommand{\y}{\text{y}}
 \newcommand{\z}{\text{z}}
 \newcommand{\X}{\text{X}}
+\newcommand{\Y}{\text{Y}}
+\newcommand{\Z}{\text{Z}}
 \newcommand{\DCS}{\text{DCS}}
 
 \newcommand{\B}{\mathcal{B}}
-\newcommand{\D}{\mathcal{D}}
-\newcommand{\E}{\mathcal{E}}
-\renewcommand{\H}{\mathcal{H}}
-\newcommand{\I}{\mathcal{I}}
-\newcommand{\J}{\mathcal{J}}
-\newcommand{\M}{\mathcal{M}}
-\newcommand{\N}{\mathcal{N}}
-\renewcommand{\O}{\mathcal{O}}
-\renewcommand{\P}{\mathcal{P}}
-\newcommand{\Q}{\mathcal{Q}}
-\newcommand{\R}{\mathcal{R}}
-\newcommand{\T}{\mathcal{T}}
-\renewcommand{\S}{\mathcal{S}}
-\newcommand{\V}{\mathcal{V}}
-\newcommand{\Z}{\mathcal{Z}}
 
-\newcommand{\EE}{\mathbb{E}}
 \newcommand{\RR}{\mathbb{R}}
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\ZZ}{\mathbb{Z}}
-
-\newcommand{\PS}{\text{PS}}
-\newcommand{\col}{\underline}
-
-\let\var\relax
-\DeclareMathOperator{\var}{var}
 
 \usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
@@ -83,271 +65,198 @@
 %%% text markup
 \usepackage{color} % text color
 \newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\todo}[1]{{\color{magenta} To do: #1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 \thispagestyle{fancy}
 
-% todo: find roots of lax vector
-
-\title{Collective SU($n$) spin model dynamics}%
+\title{Collective SU($n$) spin dynamics}%
 \author{Michael A. Perlin}%
 \date{\today}
 
+% notes for Emil Yuzbashyan
+
 \maketitle
+\begin{singlespace}
+  \tableofcontents
+\end{singlespace}
+\vspace{1cm}
 
-We first consider a general quadratic spin Hamiltonian of the form
+Multilevel atoms on an optical lattice can be used to implement a variety of fermionic and spin models with SU($n$) symmetries.
+Not only are these systems powerful quantum simulators, they are also promising platforms for quantum information processing and metrology.
+Two-level atoms with SU(2)-symmetric interactions, for example, can be used to simulate dynamical phases of BCS superconductors, or to prepare entangled states that enable surpassing classical limits on measurement precision.
+When atoms have $n$ nuclear spin sublevels, inter-atomic interactions can exhibit an SU($n$) symmetry that has yet to be explored as a scientific resource.
+For this reason, we wish to study the dynamical quantum phases that can be implemented with these atoms.
+
+Here, we will consider a particular collective spin model resembling that used to study BCS superconductivity.
+We begin by briefly deriving the spin model, before discussing some of its symmetries, examples of initial states that can be prepared, and additional experimental controls.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The spin model}
+
+Starting from a Hamiltonian describing multilevel atoms on a 1D lattice, we first derive the spin model that we will consider throughout the remainder of these notes, in \eqref{eq:spin_cos} and \eqref{eq:spin_pair}.
+Everything before \eqref{eq:spin_cos} is provided for context, but the details are (at this stage) not important for the spin physics that we will discuss.
+
+Our starting point is a simple 1D model of $n$-level fermions with nearest-neighbor tunneling and on-site (collisional) exchange interactions:
 \begin{align}
-  H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
-  h^{\mu\nu i}_{\rho\sigma j} s_{\mu\nu i} s_{\rho\sigma j}
-  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
-  \label{eq:spin}
+  H_{\t{bare}} = -\f{J}{2} \sum_{j,\mu}
+  \p{c_{j\mu}^\dag c_{j+1,\mu} + \t{h.c.}}
+  + U \sum_{j,\mu,\nu} c_{j\mu}^\dag c_{j\mu} c_{j\nu}^\dag c_{j\nu},
+  \label{eq:bare_sites}
 \end{align}
-where $\mu,\nu\in\set{I,I-1,\cdots,-I}$ with $I\equiv\p{n-1}/2$ index orthogonal states of an $n$-level spin; $i,j\in\ZZ_N$ index one of $N$ spins; $h^{\mu\nu i}_{\rho\sigma j}$ and $\epsilon_{\mu\nu i}$ are scalars; and $s_{\mu\nu i}\coloneqq\op{\mu}{\nu}_i$ is a transition operator for spin $i$.
-If interactions are SU($n$) symmetric then $h^{\mu\nu i}_{\rho\sigma k} = h_{ik} \delta_{\mu\sigma}\delta_{\nu\rho}$, in which case
+where $c_{j\mu}$ annihilates a fermionic atom on lattice site $j$ with nuclear spin projection $\mu\in\set{I,I-1,\cdots,-I}$ onto a quantization axis; $I\equiv\p{n-1}/2$ is the total nuclear spin of each atom (e.g.~$I=9/2$ in the case of Sr-87 with $n=10$ nuclear spin levels); $J$ is a tunneling rate; and $U$ is an on-site interaction strength.
+In terms of quasi-momentum modes, the same Hamiltonian reads
 \begin{align}
-  H = \f1N \sum_{i<j}
-  h_{ij} \Pi_{ij}
-  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
+  H_{\t{bare}} = -J \sum_{q,\mu} \cos q\, c_{q\mu}^\dag c_{q\mu}
+  + \f{U}{L} \sum_{\substack{k,\ell,p,q\\\mu,\nu}}
+  \delta_{k+\ell,p+q}\, c_{k\mu}^\dag c_{p\mu} c_{\ell\nu}^\dag c_{q\nu},
+  \label{eq:bare_momenta}
+\end{align}
+where $L$ is the number of lattice sites; $k,\ell,p,q$ index quasi-momenta; and $\delta_{k+\ell,p+q}$ enforces momentum conservation.
+If interactions are sufficiently weak, $U\lesssim J$, then we can neglect mode-changing collisions and only keep interaction terms in which the final momenta are the same as the initial momenta, $\set{p,q}=\set{k,\ell}$.
+In this case, the ``direct'' terms with $\p{p,q}=\p{k,\ell}$ turn out to be trivial (proportional to the total atom number squared, $N^2$), leaving only ``exchange'' terms with $\p{p,q}=\p{\ell,k}$. In total, the operator content of the interactions can be written in the form
+\begin{align}
+  \sum_{\substack{k,\ell,p,q\\\mu,\nu}}
+  \delta_{k+\ell,p+q}\, c_{k\mu}^\dag c_{p\mu} c_{\ell\nu}^\dag c_{q\nu}
+  \to \sum_{k,\ell,\mu,\nu} c_{k\mu}^\dag c_{\ell\mu}
+  c_{\ell\nu}^\dag c_{k\nu}
+  = -\sum_{k,\ell,\mu,\nu} s_{\mu\nu k} s_{\nu\mu\ell}
+  = -\sum_{k,\ell} \v s_k \c\v s_\ell
+  = -\v S \c\v S,
+\end{align}
+where we define spin operators $s_{\mu\nu k}\equiv c_{\mu k}^\dag c_{\nu k}$; $\v s_k=\sum_{\mu,\nu}s_{\mu\nu k}\op{\mu}{\nu}$ is an operator-valued spin matrix for mode $k$; $\v S\equiv\sum_k \v s_k$ is a collective spin matrix; and $\v A\c\v B\equiv\tr\p{\v A^\dag \v B}$ is an inner product of spin matrices (whose result is, again, operator-valued).  Putting everything together, we arrive at a spin Hamiltonian of the form
+\begin{align}
+  H_{\t{spin}}^{\t{bare}}
+  = -\f{U}{L} \v S \c\v S - J \sum_{q,\mu} \cos q\, s_{\mu\mu q}.
+  \label{eq:bare_spin}
+\end{align}
+The Hamiltonian we have thus derived governs free evolution, without external control fields.
+External lasers can additionally couple atoms' internal states, but at the cost of momentum kicks that generally induce spin-orbit coupling (see Appendix \ref{sec:controls}).
+To diagonalize these laser drives in their orbital (lattice site or quasi-momentum) index, it turns out to be convenient to make the gauge transformation $c_{j\mu}\to e^{\i\mu\phi j} c_{j\mu}$ for some spin-orbit coupling angle $\phi$, after which the Hamiltonian in \eqref{eq:bare_spin} becomes
+\begin{align}
+  H_{\t{spin}} = -\f{U}{L} \v S \c\v S
+  - J \sum_{q,\mu} \cos\p{q+\mu\phi}\, s_{\mu\mu q}.
+  \label{eq:spin_cos}
+\end{align}
+The resulting dispersion relation is shown in Figure \ref{fig:dispersion}.
+This Hamiltonian can be written in the simplified form
+\begin{align}
+  H_{\t{spin}} = -\f{U}{L} \v S\c\v S
+  - J \sum_q \p{\cos q\, w_{\phi,q}^+ - \sin q\, w_{\phi,q}^-},
+  \label{eq:spin_pair}
+\end{align}
+where the diagonal single-spin operators
+\begin{align}
+  w_\phi^+ \equiv \sum_\mu \cos\p{\mu\phi} s_{\mu\mu},
   &&
-  \Pi_{ij} \equiv \sum_{\mu,\nu} s_{\mu\nu i} s_{\nu\mu j}.
-  \label{eq:spin_sun}
+  w_\phi^- \equiv \sum_\mu \sin\p{\mu\phi} s_{\mu\mu},
+\end{align}
+are respectively even ($+$) and odd ($-$) under spin inversion, $\mu\to-\mu$.
+
+\begin{figure}
+  \centering
+  \includegraphics{figures/sun_dispersion.pdf}
+  \caption{Single-particle dispersion relations $E_{q\mu}=-J\cos\p{q+\mu\phi}$ for the case of $n=6$ (nuclear spin $I=5/2$) and different spin-orbit coupling angles $\phi$.
+    Legend indicates the spin projection $\mu$ onto the $z$.
+    Note that these dispersion relations are ``maximally spread'' when $\phi=2\pi/n$ (as with $\phi=\pi/3$ above), and that degeneracies occur at all $q$ when $\phi=2\pi/m$ for any $m\in\set{1,2,\cdots,n-1}$.}
+  \label{fig:dispersion}
+\end{figure}
+
+In the case of SU(2), $w_\phi^+=\cos\p{\phi/2}\1$ is a scalar and $w_\phi^-=\sin\p{\phi/2}\sigma_\z$, so
+\begin{align}
+  H_{\t{spin}}^{(n=2)} = -\f{U}{L} \v S\c\v S
+  + J \sin\p{\phi/2} \sum_q \sin q\, \sigma_{\z,q}
+  - J \cos\p{\phi/2} \sum_q \cos q\, \1_q,
+\end{align}
+where we include the identity terms for comparison with \eqref{eq:spin_pair}.
+If $n$ is arbitrary but $I\phi\ll1$, then similarly
+\begin{align}
+  H_{\t{spin}} = -\f{U}{L} \v S\c\v S
+  + J \phi \sum_q \sin q\, s_{\z,q}
+  - J \sum_q \cos q\, \1_q + O(\phi^2),
+  &&
+  s_\z \equiv \sum_\mu \mu\, s_{\mu\mu}.
+\end{align}
+Finally, if $\phi=\pi$ then $\cos\p{\mu\pi}=0$ and $\sin\p{\mu\pi}=\p{-1}^{\mu-1/2}$ due the fact that $\mu$ is a half-integer\footnote{Bosonic nuclei with $I\ne0$ are unsable, so all $I\ne0$ and $\mu\in\set{I,I-1,\cdots,-I}$ are half-integer-valued.}, so
+\begin{align}
+  H_{\t{spin}}^{(\phi=\pi)} = -\f{U}{L} \v S\c\v S
+  + J \sum_q \sin q\, s_{\a,q},
+  &&
+  s_\a \equiv \sum_\mu \p{-1}^{\mu-1/2} s_{\mu\mu}.
+  \label{eq:spin_pi}
 \end{align}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-\section{Schwinger boson representation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conserved quantities and collective observables}
 
-We can write the Hamiltonian in \eqref{eq:spin} using Schwinger bosons as
-\begin{align}
-  H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
-  h^{\mu\nu i}_{\rho\sigma j}
-  b_{\mu i}^\dag b_{\nu i} b_{\rho j}^\dag b_{\sigma j}
-  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} b_{\mu i}^\dag b_{\nu i},
-\end{align}
-where $b_{\mu i}$ annihilates a boson of type $\mu$ on site $i$.
-The Heisenberg equations of motion for these operators are\footnote{The Hamiltonian in \eqref{eq:spin} only defines $h^{\mu\nu j}_{\rho\sigma k}$ for $j<k$.
-  To simplify expressions in the remainder of this work, we therefore additionally define $h^{\mu\nu k}_{\rho\sigma j}=h^{\rho\sigma j}_{\mu\nu k}$ and $h^{\mu\nu i}_{\rho\sigma i}=0$.}
-\begin{align}
-  \i \d_t b_{\alpha i} = \sp{b_{\alpha i}, H}
-  &= \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
-  h^{\mu\nu j}_{\rho\sigma k}
-  \sp{b_{\alpha i}, b_{\mu j}^\dag b_{\nu j} b_{\rho k}^\dag b_{\sigma k}}
-  + \sum_{\mu,\nu,j} \epsilon_{\mu\nu j}
-  \sp{b_{\alpha i}, b_{\mu j}^\dag b_{\nu j}} \\
-  &= \f1N \sum_{\mu,\nu,\rho,\sigma,k}
-  h^{\mu\nu j}_{\rho\sigma k}
-  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}} b_{\rho k}^\dag b_{\sigma k}
-  + \sum_{\mu,\nu} \epsilon_{\mu\nu i}
-  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}} \\
-  &= \sum_{\mu,\nu} \p{\f1N \sum_{\rho,\sigma,k}
-    h^{\mu\nu i}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
-    + \epsilon_{\mu\nu i}}
-  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}}
-\end{align}
-where
-\begin{align}
-  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}}
-  = \delta_{\mu\alpha} \delta_{\nu\alpha} b_{\alpha i}
-  + \delta_{\mu\alpha} \p{1-\delta_{\nu\alpha}} b_{\nu i}
-  = \delta_{\mu\alpha} b_{\nu i},
-\end{align}
-so
-\begin{align}
-  \i \d_t b_{\alpha i}
-  = \sum_\nu \p{\f1N \sum_{\rho,\sigma,k}
-    h^{\alpha\nu i}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
-    + \epsilon_{\alpha\nu i}} b_{\nu i}.
-\end{align}
+Needless to say, the single-body terms in \eqref{eq:spin_pair} explicitly break the SU($n$) symmetry of the interactions.
+Even so, the fact that all single-body terms are diagonal with respect to nuclear spin projection $\mu$ implies that the overall Hamiltonian conserves all collective spin operators of the form $S_{\mu\mu}\equiv\sum_q s_{\mu\mu q}$, as well as all products thereof, which is equivalent to conserving all powers of $S_\z$ in the case of SU(2).
+The enormous number of these conserved quantities\footnote{Altogether, there are essentially ${N+n-1 \choose n-1}\sim N^{n-1}$ such quantities.} suggests that the spin Hamiltonian in \eqref{eq:spin_pair} is integrable, although the precise form of an appropriate Bethe ansatz or Lax formulation is unclear.
+The situation is somewhat simpler when $\phi\ll1$ or $\phi=\pi$, in which case the single-body terms are built from a single spin operator (namely, $s_\z$ or $s_\a$).
+
+It is worth mentioning at this point that we can, in principle, perform full tomography on the average single-body reduced density operator $\bar\rho$, which is equivalent to measuring all components of the mean collective spin matrix $\bk{\v S}\equiv\sum_{\mu,\nu}\bk{S_{\mu\nu}}\op{\mu}{\nu}$ (see Appendix \ref{sec:tomography} for additional details).
+The squared ``magnetization'' $\bk{\v S}\c\bk{\v S}=\sum_{\mu,\nu}\abs{\bk{S_{\mu\nu}}}^2$, which is essentially equal to the purity of $\bar\rho$, may therefore be an interesting ``unbiased'' dynamical order parameter to consider.
+In addition, diagonalizing $\bar\rho$ (equivalently, $\bk{\v S}$), provides a ``natural'' basis in which to examine collective observables.
+The eigenvectors and eigenvalues of $\bar\rho$ may therefore be used as additional order parameters for identifying distinct dynamical phases.
+The precise interpretation of these order parameters is worth ironing out and discussing in the future.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Initial states}
 
-We can essentially prepare $N$-fold tensor products $\ket\Psi\equiv\ket\psi^{\otimes N}$ of three types of initial product states $\ket\psi$.
-First and foremost, we can prepare states $\ket{\mu}$ of definite spin projection $\mu=\set{I,I-1,\cdots,-I}$ onto a quantization axis.
-In addition, we can prepare arbitrary polarized states defined by the polar and azimuthal angles $\theta,\phi$:
-\begin{align}
-  \ket{\theta,\phi}
-  \equiv e^{i\phi s_\z} e^{i\theta s_\y} \ket\up
-  = \sum_\mu \zeta_\mu\p{\theta} e^{-\i\mu\phi} \ket\mu,
-  \label{eq:polarized_state}
-\end{align}
-where $\ket\up\equiv\ket{I}$ is a state polarized along the $z$ axis, and\footnote{The expansion of $\ket{\theta,\phi}$ in \eqref{eq:polarized_state} and \eqref{eq:polarized_proj} is acquired by representing an $n$-level spin by $n-1$ qubits restricted to the (Dicke) manifold of permutationally symmetric states.}
-\begin{align}
-  \zeta_\mu\p{\theta} \equiv { 2I \choose I+\mu }^{1/2}
-  \cos\p{\f{\theta}{2}}^{I+\mu} \sin\p{\f{\theta}{2}}^{I-\mu}.
-  \label{eq:polarized_proj}
-\end{align}
-Finally, for even $n$ we can also prepare the following superposition of polarized states:
-\begin{align}
-  \ket{\DCS}
-  \equiv \f1{\sqrt{2}}
-  \p{e^{\i\gamma} \ket{\alpha,\beta}
-    + e^{-\i\gamma} \ket{\alpha,-\beta}}
-  = \sum_\mu \zeta_\mu\p{\alpha}
-  \times \sqrt{2}\, \cos\p{\mu\beta-\gamma} \ket\mu
-  \label{eq:double_state}
-\end{align}
-with
-\begin{align}
-  \alpha = \f{\pi}{2} + \arcsin\p{\f13},
-  &&
-  \beta = \f{\pi}{3},
-  &&
-  \gamma = -\f{2\pi}{3}\, I.
-\end{align}
+The simplest initial state we can prepare is that with all atoms occupying a single nuclear spin state, e.g.~the state $\ket{\Z}\equiv\ket{I}^{\otimes N}$ with all $N$ atoms pointing up along the $z$ axis.
+Using external control fields (discussed in the Section \ref{sec:controls}), we can rotate the state $\ket\Z$ to orient it along any axis in 3D space.
+External control fields also allow us to prepare states analogous to $\p{\ket\up+\ket\dn}^{\otimes N}$ in that each spin is in a coherent superposition of states polarized along different directions, e.g.~$\p{\ket{I}+\ket{-I}}^{\otimes N}$.
+The possibilities to prepare $N$-fold product states of the form $\ket\psi^{\otimes N}$ are enormous.
+
+Perhaps more interestingly, we can in principle prepare inhomogeneous product states in which the state of each spin is correlated with its corresponding single-body term of the spin Hamiltonian in \eqref{eq:spin_pair}.
+We are currently working on characterizing the sort of inhomogeneous states that we can prepare.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Non-interacting limit of a realistic 1D model}
+\section{Mean-field theory}
 
-We consider the single-particle Hamiltonian
+The dynamics induced by the spin Hamiltonian in \eqref{eq:spin_cos} and \eqref{eq:spin_pair} are efficiently simulable when $U=0$ or $U\gg JI\phi$.
+In order to explore the entirety of parameter space, however, we turn to mean-field theory.
+To this end, we first represent individual spin operators by Schwinger bosons, $s_{\mu\nu q}\coloneqq b_{\mu q}^\dag b_{\nu q}$.
+Up to an overall constant, our spin model can then be written in the form
 \begin{align}
-  H = -J \sum_{\mu,q} \cos\p{q + \mu\varphi} s_{\mu\mu q},
+  H_{\t{boson}} = - \f{U}{L} \sum_{\substack{\mu,\nu\\p\ne q}}
+  b_{\mu p}^\dag b_{\nu p} b_{\nu q}^\dag b_{\mu q}
+  - J \sum_{\mu,q} \cos\p{q+\mu\phi} b_{\mu q}^\dag b_{\mu q}.
 \end{align}
-where $q$ is a quasi-momentum (in units with lattice spacing $a=1$); $\mu\in\set{I,I-1,\cdots,-I}$ is a nuclear spin projection onto a quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin; $\varphi$ is a spin-orbit-coupling angle; and $J$ is essentially the single-particle bandwidth (proportional to the nearest-neighbor tunneling rate, $J/2$).
-As dynamical order parameters, we consider the operators
+With a bit of algebra, we can work out that the Heisenberg equations of motion for individual boson operators are
 \begin{align}
-  s_{\mu\nu} \equiv \f1N \sum_q s_{\mu\nu q},
-  &&
-  s^2 \equiv \v s^\dag\cdot \v s
-  = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q}.
+  \i \d_t b_{\mu q} = \sp{b_{\mu q},H}
+  = -2\, \f{U}{L} \sum_{\nu,p} b_{\nu p}^\dag b_{\mu p} b_{\nu q}
+  - J \cos\p{q+\mu\phi} b_{\mu q}.
 \end{align}
-In the Heisenberg picture, these operators at time $t$ are
-\begin{align}
-  s_{\mu\nu}\p{t} = \f1N \sum_q s_{\mu\nu q}
-  \times e^{\i\eta_{\mu\nu q} J t},
-  &&
-  s^2\p{t} = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q}
-  \times e^{\i \p{\eta_{\mu\nu p}-\eta_{\mu\nu q}} J t},
-\end{align}
-where
-\begin{align}
-  \eta_{\mu\nu q}
-  \equiv -\sp{\cos\p{q+\mu\varphi} - \cos\p{q+\nu\varphi}}
-  = 2 \sin\p{\varphi_{\mu\nu}^-} \sin\p{q+\varphi_{\mu\nu}^+},
-  &&
-  \varphi_{\mu\nu}^\pm \equiv \f{\mu\pm\nu}{2}\,\varphi.
-\end{align}
-In particular, we are interested in the expectation values
-\begin{align}
-  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
-  = \f1N \bk{\psi\op{\mu}{\nu}\psi} \sum_q e^{\i\eta_{\mu\nu q} J t}
-  = \bk{\psi\op{\mu}{\nu}\psi} \chi_{\mu\nu}\p{\varphi},
-\end{align}
-and
-\begin{align}
-  \bk{\Psi|s^2\p{t}|\Psi}
-  &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \sum_{p\ne q} e^{\i\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}} J t} + \f{n}{N} \\
-  &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \abs{\chi_{\mu\nu}\p{\varphi}}^2 + \f{n-1}{N},
-\end{align}
-where
-\begin{align}
-  \chi_{\mu\nu}\p{\varphi} \equiv \f1N \sum_q e^{\i\eta_{\mu\nu q} J t}
-  = \f1N \sum_q e^{\i 2\sin\p{\varphi_{\mu\nu}^-} \sin\p{q+\varphi_{\mu\nu}^+} J t}.
-\end{align}
-As $N\to\infty$, this sum is well approximated by an integral:
-\begin{align}
-  \chi_{\mu\nu}\p{\varphi} \approx \f1{2\pi} \int_{-\pi}^\pi \dd\theta\,
-  e^{\i 2\sin\p{\varphi_{\mu\nu}^-} \sin\p{\theta+\varphi_{\mu\nu}^+} J t}
-  = \J_0\sp{2 \sin\p{\varphi_{\mu\nu}^-} J t},
-\end{align}
-where $\J_0$ is the zero-order Bessel function of the first kind.
-To leading order in $N\gg1$, we thus find that
-\begin{align}
-  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
-  &\approx \bk{\psi\op{\mu}{\nu}\psi}
-  \J_0\sp{2\sin\p{\varphi_{\mu\nu}^-}Jt},
-  \\
-  \bk{\Psi|s^2\p{t}|\Psi}
-  &\approx \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
-  \J_0\sp{2\sin\p{\varphi_{\mu\nu}^-}Jt}^2.
-  \label{eq:ops_time}
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Limiting cases}
-
-The constant (time independent) terms in \eqref{eq:ops_time} have $\mu=\nu$ (in which case all $\varphi_{\mu\nu}^-=0$), so up to $\O(1/N)$ corrections
-\begin{align}
-  \bk{\Psi|s_{\mu\nu}^{\t{const}}|\Psi}
-  \approx \delta_{\mu\nu} \abs{\bk{\mu|\psi}}^2,
-  &&
-  \bk{\Psi|s^2_{\t{const}}|\Psi}
-  \approx \sum_\mu \abs{\bk{\mu|\psi}}^4 \equiv r_\psi,
-  \label{eq:ops_const}
-\end{align}
-where the quantity $r_\psi$ is sometimes called the inverse participation ratio of $\ket\psi$ with respect to the basis $\set{\ket\mu}$ of states with definite projection onto the $z$ axis.
-Figure \ref{fig:limiting_vals} shows several values of $r_\psi$ for different $n$.
-
-At ``short'' times $t$ for which $\sin\p{I\varphi}Jt\ll1$, we can Taylor expand the Bessel functions in \eqref{eq:ops_time} about $t=0$ to get
-\begin{align}
-  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
-  &\approx \bk{\psi\op{\mu}{\nu}\psi}
-  \times \sp{1 - \sin\p{\varphi_{\mu\nu}^-}^2 \p{J t}^2}, \\
-  \bk{\Psi|s^2\p{t}|\Psi}
-  &\approx 1 - 2 \p{Jt}^2 \sum_{\mu,\nu}
-  \sin\p{\varphi_{\mu\nu}^-}^2 \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2.
-\end{align}
-In the limit of a small angle $\varphi$ for which $I\varphi\ll1$, we can further simplify
-\begin{align}
-  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
-  &\approx \bk{\psi\op{\mu}{\nu}\psi}
-  \times \sp{1 - \p{\f{\mu-\nu}{2I}}^2
-    \p{I\varphi J t}^2}, \\
-  \bk{\Psi|s^2\p{t}|\Psi}
-  &\approx 1 - \var_\psi\p{Z} \p{I\varphi J t}^2,
-  \label{eq:small_time_angle}
-\end{align}
-where
-\begin{align}
-  \var_\psi\p{Z} \equiv \bk{\psi|Z^2|\psi} - \bk{\psi|Z|\psi}^2,
-  &&
-  Z \equiv \sum_\mu \f{\mu}{I} \op{\mu}.
-\end{align}
-Note that the result in \eqref{eq:small_time_angle} is valid for all $t\ll\p{I\varphi J}^{-1}$, which may be a long time given the small-angle assumption $I\varphi\ll1$.
-Figure \ref{fig:limiting_vals} shows several values of $\var_\psi\p{Z}$ for different $n$.
-
-\begin{figure}
-  \centering
-  \includegraphics{figures/oscillations/limiting_vals.pdf}
-  \caption{Several values of $r_\psi$ and $\var_\psi\p{Z}$ for
-    different $n$.  Computed with respect to the states
-    $\ket\X\equiv\ket{\pi/2,0}$ and $\ket{\DCS}$, defined in
-    \eqref{eq:polarized_state} and \eqref{eq:double_state}.}
-  \label{fig:limiting_vals}
-\end{figure}
+Our mean-field theory then simply treats the boson operators $b_{\mu q}$ as complex numbers, with the initial value $b_{\mu q}$ equal to the amplitude of spin $q$ in state $\mu$\footnote{This mean-field theory is mathematically equivalent to a mean-field treatment of spin operators $s_{\mu\nu k}$ with initial conditions set by the corresponding initial-state expectation values.  The advantage of the Schwinger boson decomposition is that it reduces the number of variables (operators) from $n^2 N$ to $nN$.}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Interacting regime of a realistic 1D model}
+\section{Preliminary numerics}
 
-We now consider a realistic 1D model with interactions, in which the Hamiltonian is
+Here we show some preliminary numerical results from mean-field theory simulations.
+We will examine the dynamical behavior of two quantities: the mean squared magnetization
 \begin{align}
-  H = -\f{U}{N} \v S^\dag\cdot \v S
-  - J \sum_{\mu,q} \cos\p{q + \mu\varphi} s_{\mu\mu q}.
+  s^2 \equiv \f{\bk{\v S}}{N}\c\f{\bk{\v S}}{N}
+  = \sum_{\mu,\nu} \abs{\f{\bk{S_{\mu\nu}}}{N}}^2,
 \end{align}
-This Hamiltonian can be written in the simplified form
-\begin{align}
-  H = -\f{U}{N} \v S^\dag\cdot \v S
-  - J \sum_q \p{\cos q\, w_{\varphi,q}^+ - \sin q\, w_{\varphi,q}^-},
-\end{align}
-where the diagonal single-spin operators
-\begin{align}
-  w_\varphi^+ \equiv \sum_\mu \cos\p{\mu\varphi} \op{\mu},
-  &&
-  w_\varphi^- \equiv \sum_\mu \sin\p{\mu\varphi} \op{\mu},
-\end{align}
-are respectively even ($+$) and odd ($-$) under spin inversion, $\mu\to-\mu$.
+and the spectrum of the mean reduced single particle density matrix $\bar\rho$ (equivalently, the spectrum of the mean spin matrix $\bk{\v S}/N$).
+We first examine the familiar case
+
+\newpage
+\appendix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Nuclear spin tomography}
+\label{sec:tomography}
 
 Here we discuss the task of performing full tomography on the average reduced single-particle density operator of a collection of nuclear spins.
 As this task will be performed using collective measurements and homogeneous control fields, for ease of language we will consider the equivalent problem of performing tomography on a single nuclear spin.
 We have essentially two ingredients at our disposal: projective measurements of spin onto a fixed quantization axis, and a three-laser drive that addresses nuclear spins via off-resonant coupling to an excited electronic state.
 To be concrete, we can directly measure projectors $\op{\mu}$ onto states of definite spin projection $\mu$ onto the $z$ axis.
-While the three-laser drive gives us access to a variety of nuclear spin Hamiltonians, most notably it allows us to implement arbitrary SU(2) rotations of the form $e^{-\i\v\theta\c\v S}$, with $\v S\equiv\p{S_\x,S_\y,S_\z}$ a vector of spin operators and $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$ an arbitrary rotation vector.
-These rotations essentially allow us to measure projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$ onto states of definite spin projection $\mu$ onto an arbitrary quantization axis $\v v\in\SS_2/\ZZ_2$.
+While the three-laser drive gives us access to a variety of nuclear spin Hamiltonians, most notably it allows us to implement SU(2) rotations of the form $e^{-\i\v\theta\c\v s_{\t{3D}}}$, where $\v s_{\t{3D}}\equiv\p{s_\x,s_\y,s_\z}$ is a vector of spin operators that generate rotations in 3D space, and $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$ is an arbitrary rotation vector (see Appendix \ref{sec:controls}).
+These rotations essentially allow us to measure projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$ onto states of definite spin projection $\mu$ onto an arbitrary quantization axis $\v v\in\SS_2\setminus\ZZ_2$ (where we mod out by $\ZZ_2$ because antipodal points on the sphere correspond to the same set of projectors).
 
 Question: given a collection of projectors $\Pi\equiv\set{\Pi_j}$ and measurement outcomes $M\equiv\set{M_j}$, with $M_j$ an empirical estimate of $\bk{\Pi_j}_\rho=\tr\p{\rho\Pi_j}$, how do we determine whether the measurement data $M$ is sufficient to reconstruct $\rho$?
 Answer: reconstruction of $\rho$ is possible if $\Pi$ spans the entire space $\B_n$ of operators on the Hilbert space of an $n$-level spin.
@@ -382,11 +291,11 @@ Indexing the (normalized) eigenvectors and the corresponding eigenvalues of $B_V
 \begin{align}
   Q^V_\alpha \equiv \f1{\sqrt{m^V_\alpha}} \sum_j x^V_{\alpha j} \Pi^V_j.
 \end{align}
-To summarize: randomly choosing a set $V$ of $2n-1$ axes will induce a set of measurement operators $\Pi_V$ from which we can construct a complete basis $\set{Q^V_\alpha}$ of operators for $\B_n$.
+To summarize: choosing a set $V$ of $2n-1$ random axes will determine a set of measurement operators $\Pi_V$ from which we can construct a complete basis $\set{Q^V_\alpha}$ of operators for $\B_n$.
 However, some choices of axes will be better than others: a good choice of axes $V$ will maximize the amount of information that the corresponding measurement data $M_V=\set{M^V_j}$ will contain about the expectation values $\bk{Q^V_\alpha}_\rho$ used to reconstruct $\rho$.
 The amount of information that $M_V$ contains about $\bk{Q^V_\alpha}_\rho$ is determined, in part, by the magnitude of the eigenvalue $m^V_\alpha$: if $m^V_\alpha$ is small, then $M_V$ will generally contain little information about $\bk{Q^V_\alpha}_\rho$, and vice versa\footnote{Think about the limit $m^V_\alpha\to0$, in which case the fact that $Q^V_\alpha$ is normalized implies that the operator $\sum_j x^V_{\alpha j} \Pi^V_j$ must have a vanishing norm.
   A vanishing norm can only occur due to fine-tuned cancellations that make the expectation value of $\sum_j x^V_{\alpha j} \Pi^V_j$ difficult to estimate from noisy data on $\bk{\Pi^V_j}_\rho$.}.
-Rather than choosing axes randomly, we can therefore choose a set of axes that minimizes some cost function $C\p{m_V}$ favoring large eigenvalues $m_V\equiv\set{m^V_\alpha}$.
+Rather than choosing $2n-1$ axes randomly, we can therefore choose a set of axes that minimizes some cost function $C\p{m_V}$ favoring large eigenvalues $m_V\equiv\set{m^V_\alpha}$.
 A reasonable cost function that treats all eigenvalues on equal footing, for example, is
 \begin{align}
   C_{\t{inv}}\p{m_V} \equiv \sum_\alpha \f1{m^V_\alpha},
@@ -394,6 +303,80 @@ A reasonable cost function that treats all eigenvalues on equal footing, for exa
 where the sum is implicitly performed over the $n^2$ largest eigenvalues of $B_V$ (as all other eigenvalues are guaranteed to be zero).
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct an even better choice of measurement axes, leading to the possibility of adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the details of tailored and adaptive measurement protocols to future work.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{External controls}
+\label{sec:controls}
+
+In addition to letting atoms evolve freely under $H_{\t{spin}}$, we can turn on external control fields to address atoms' internal states.
+Our primary tool here will be three lasers that off-resonantly address an excited electronic state of the atoms.
+Each laser will be indexed by a different integer $m\in\set{1,0,-1}$ that determines the nuclear spin transition $\mu\to\mu+m$ accompanying the electronic $\ket\dn\to\ket\up$ transition upon absorption of a photon.
+Laser $m$ will have a homogeneous drive amplitude $\Omega_m$, and a relative phase $e^{\i\phi_m}$ between adjacent lattice sites.
+All lasers will be detuned by a frequency $\Delta$ away from the electronic $\ket\dn\to\ket\up$ transition.
+Altogether, these lasers induce the drive Hamiltonian
+\begin{align}
+  H_{\t{drive}}^{\t{full}} = \sum_j \sum_{m\in\set{1,0,-1}} \Omega_m
+  \p{e^{\i\phi_m j} s_{mj} \otimes\op{\up}{\dn}_j + \t{h.c.}}
+  + \f{\Delta}{2} \1 \otimes\p{\op\up_j-\op\dn_j},
+  \label{eq:drive_full}
+\end{align}
+where $j$ indexes a lattice site; $s_\pm$ are spin-raising ($+$) and spin-lowering ($-$) operators (containing all appropriate Clebsch-Gordan coefficients); $s_0\coloneqq s_\z$ is a spin-$z$ operator; $\Delta$ is the detuning of the drive lasers from the excited-state transition frequency; and $\1$ is an identity operator (acting on the nuclear spins of all atoms).
+
+In the far-detuned limit $\Delta\gg\Omega_m$, a perturbative treatment of the excited electronic state yields an effective drive Hamiltonian that only addresses nuclear spins.
+Furthermore, if the angles $\phi_m$ satisfy $\phi_m-\phi_{m'}=\p{m-m'}\phi$ for a fixed spin-orbit coupling angle $\phi$ (e.g.~with $\phi_m=m\phi$), then the gauge transformation $c_{j\mu}\to e^{\i\mu\phi j} c_{j\mu}$ makes the drive Hamiltonian spatially homogeneous.
+Altogether, we arrive at a homogeneous effective drive Hamiltonian of the form
+\begin{align}
+  H_{\t{drive}} = \sum_j H_{\t{drive},j}^{\t{single}},
+\end{align}
+where the single-spin Hamiltonian $H_{\t{drive}}^{\t{single}}$ can be conveniently expressed in terms of operators $s_\x,s_\y,s_\z$ that generate rotations in 3D space:
+\begin{align}
+  H_{\t{drive}}^{\t{single}}
+  = h_+ h_- s_\z + h_0 h_+ s_\x
+  + h_0 h_- \p{s_\z s_\x  + s_\x s_\z}
+  - h_0^2\p{s_\z^2-\v s_{\t{3D}}^2} - h_-^2 s_\x^2 - h_+^2 s_\y^2.
+\end{align}
+with $\v s_{\t{3D}}\equiv\p{s_\x,s_\y,s_\z}$.
+Here $h_0\equiv\Omega_0/\sqrt\Delta$ and $h_\pm\equiv\p{\Omega_+\pm\Omega_-}/\sqrt{2\Delta}$ can be tuned independently through the choice of drive amplitudes $\Omega_m$; and $\v s_{\t{3D}}^2=s_\x^2+s_\y^2+s_\z^2=I\p{I+1}$ is a constant.
+Table \ref{tab:drives} shows several drive Hamiltonians that can be implemented with various amplitude-matching conditions.
+We do not expect these controls to be sufficient for implementing arbitrary collective SU($n$) rotations, but identifying the subgroup of SU($n$) generated by these controls could be an interesting problem for future work.
+One notable capability is using pulse sequences to implement SU(2) rotations of the form $e^{-\i\v\theta\c\v s_{\t{3D}}}$ with an arbitrary rotation vector $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$.
+In addition to enabling us to perform arbitrary 3D rotations, these collective rotations enable us to measure all components of the mean collective spin matrix $\bk{\v S}$, as discussed in Appendix \ref{sec:tomography}.
+
+\begin{table}
+  \centering
+  \caption{Drive Hamiltonians that can be implemented with various amplitude-matching conditions.}
+  \begin{tabular}{c|c|c}
+    Condition & $\p{h_0,h_+,h_-}$
+    & $H_{\t{drive}}^{\t{single}}$
+    \\ \hline\hline
+    $\Omega_+=\Omega_-=0$ & $\p{1,0,0}$ & $-s_\z^2 + \v s_{\t{3D}}^2$
+    \\ \hline
+    $\Omega_0=0$,  $\Omega_+=+\Omega_-$ & $\p{0,1,0}$ & $-s_\y^2$
+    \\ \hline
+    $\Omega_0=0$,  $\Omega_+=-\Omega_-$ & $\p{0,0,1}$ & $-s_\x^2$
+    \\ \hline
+    $\Omega_0=\Omega_\mp=0$ & $\p{0,1,\pm1}$
+    & $\pm s_\z + s_\z^2 - \v s_{\t{3D}}^2$
+    \\ \hline
+    $\sqrt{2}\Omega_0=\pm\Omega_+=\pm\Omega_-$
+    & $\p{1,\pm1,0}$ & $\pm s_\x + s_\x^2$
+    \\ \hline
+    $\sqrt{2}\Omega_0=\pm\Omega_+=\mp\Omega_-$
+    & $\p{1,0,\pm1}$ & $\pm\p{s_\z s_\x+s_\x s_\z} + s_\y^2$
+    \\ \hline
+    $\Omega_0=\pm\Omega_+=\pm\Omega_-$ & $\p{1,\pm\sqrt{2},0}$
+    & $\pm\sqrt{2} s_\x + \p{s_\x^2 - s_\y^2}$
+    \\ \hline
+    $\Omega_0=\pm\Omega_+=\mp\Omega_-$ & $\p{1,0,\pm\sqrt{2}}$
+    & $\pm\sqrt{2}\p{s_\z s_\x + s_\x s_\z} - \p{s_\x^2-s_\y^2}$
+  \end{tabular}
+  \label{tab:drives}
+\end{table}
+
+As a final comment, we note that we can, in principle, address nuclear spins directly using external magnetic fields.
+We can also make use of a differential magnetic (Zeeman) splitting, whereby the strength of nuclear spin coupling to an external magnetic field depends on the electronic state of the atoms.
+These controls suffer from the fact that nuclear spin coupling to external magnetic fields is typically weak.
+Even so, these controls are worth exploring in the future.
 
 \bibliography{sun_dynamics_notes.bib}
 

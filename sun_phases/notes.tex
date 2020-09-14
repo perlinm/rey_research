@@ -1,0 +1,405 @@
+\documentclass[nofootinbib,notitlepage,11pt]{revtex4-2}
+
+%%% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,
+  urlcolor=cyan,
+}
+
+%%% header / footer
+\usepackage{fancyhdr} % easier header and footer management
+\pagestyle{fancy} % page formatting style
+\fancyhf{} % clear all header and footer text
+\renewcommand{\headrulewidth}{0pt} % remove horizontal line in header
+\usepackage{lastpage} % for referencing last page
+\cfoot{\thepage~of \pageref{LastPage}} % "x of y" page labeling
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,bm,amssymb} % physics and math
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\newcommand{\bk}{\Braket} % shorthand for braket notation
+\renewcommand{\v}{\bm} % bold vectors
+\newcommand{\uv}[1]{\bm{\hat{#1}}} % unit vectors
+\newcommand{\av}{\vec} % arrow vectors
+\renewcommand{\c}{\cdot} % inner product
+\renewcommand{\d}{\partial} % partial derivative
+\renewcommand{\dd}{\text{d}} % for infinitesimals
+\renewcommand{\i}{\mathrm{i}\mkern1mu} % imaginary unit
+
+\usepackage{dsfont} % for identity operator
+\newcommand{\1}{\mathds{1}}
+
+\usepackage{mathtools} % for \coloneqq
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\z}{\text{z}}
+\newcommand{\X}{\text{X}}
+\newcommand{\DCS}{\text{DCS}}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\J}{\mathcal{J}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\N}{\mathcal{N}}
+\renewcommand{\O}{\mathcal{O}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+\newcommand{\R}{\mathcal{R}}
+\newcommand{\T}{\mathcal{T}}
+\renewcommand{\S}{\mathcal{S}}
+\newcommand{\V}{\mathcal{V}}
+\newcommand{\Z}{\mathcal{Z}}
+
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\RR}{\mathbb{R}}
+\renewcommand{\SS}{\mathbb{S}}
+\newcommand{\ZZ}{\mathbb{Z}}
+
+\newcommand{\PS}{\text{PS}}
+\newcommand{\col}{\underline}
+
+\let\var\relax
+\DeclareMathOperator{\var}{var}
+
+\usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
+\setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
+\setlist{nolistsep} % more compact spacing between environments
+
+%%% text markup
+\usepackage{color} % text color
+\newcommand{\red}[1]{{\color{red} #1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\thispagestyle{fancy}
+
+% todo: find roots of lax vector
+
+\title{Collective SU($n$) spin model dynamics}%
+\author{Michael A. Perlin}%
+\date{\today}
+
+\maketitle
+
+We first consider a general quadratic spin Hamiltonian of the form
+\begin{align}
+  H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  h^{\mu\nu i}_{\rho\sigma j} s_{\mu\nu i} s_{\rho\sigma j}
+  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
+  \label{eq:spin}
+\end{align}
+where $\mu,\nu\in\set{I,I-1,\cdots,-I}$ with $I\equiv\p{n-1}/2$ index orthogonal states of an $n$-level spin; $i,j\in\ZZ_N$ index one of $N$ spins; $h^{\mu\nu i}_{\rho\sigma j}$ and $\epsilon_{\mu\nu i}$ are scalars; and $s_{\mu\nu i}\coloneqq\op{\mu}{\nu}_i$ is a transition operator for spin $i$.
+If interactions are SU($n$) symmetric then $h^{\mu\nu i}_{\rho\sigma k} = h_{ik} \delta_{\mu\sigma}\delta_{\nu\rho}$, in which case
+\begin{align}
+  H = \f1N \sum_{i<j}
+  h_{ij} \Pi_{ij}
+  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} s_{\mu\nu i},
+  &&
+  \Pi_{ij} \equiv \sum_{\mu,\nu} s_{\mu\nu i} s_{\nu\mu j}.
+  \label{eq:spin_sun}
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\section{Schwinger boson representation}
+
+We can write the Hamiltonian in \eqref{eq:spin} using Schwinger bosons as
+\begin{align}
+  H = \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\i<j}}
+  h^{\mu\nu i}_{\rho\sigma j}
+  b_{\mu i}^\dag b_{\nu i} b_{\rho j}^\dag b_{\sigma j}
+  + \sum_{\mu,\nu,i} \epsilon_{\mu\nu i} b_{\mu i}^\dag b_{\nu i},
+\end{align}
+where $b_{\mu i}$ annihilates a boson of type $\mu$ on site $i$.
+The Heisenberg equations of motion for these operators are\footnote{The Hamiltonian in \eqref{eq:spin} only defines $h^{\mu\nu j}_{\rho\sigma k}$ for $j<k$.
+  To simplify expressions in the remainder of this work, we therefore additionally define $h^{\mu\nu k}_{\rho\sigma j}=h^{\rho\sigma j}_{\mu\nu k}$ and $h^{\mu\nu i}_{\rho\sigma i}=0$.}
+\begin{align}
+  \i \d_t b_{\alpha i} = \sp{b_{\alpha i}, H}
+  &= \f1N \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
+  h^{\mu\nu j}_{\rho\sigma k}
+  \sp{b_{\alpha i}, b_{\mu j}^\dag b_{\nu j} b_{\rho k}^\dag b_{\sigma k}}
+  + \sum_{\mu,\nu,j} \epsilon_{\mu\nu j}
+  \sp{b_{\alpha i}, b_{\mu j}^\dag b_{\nu j}} \\
+  &= \f1N \sum_{\mu,\nu,\rho,\sigma,k}
+  h^{\mu\nu j}_{\rho\sigma k}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}} b_{\rho k}^\dag b_{\sigma k}
+  + \sum_{\mu,\nu} \epsilon_{\mu\nu i}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}} \\
+  &= \sum_{\mu,\nu} \p{\f1N \sum_{\rho,\sigma,k}
+    h^{\mu\nu i}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
+    + \epsilon_{\mu\nu i}}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}}
+\end{align}
+where
+\begin{align}
+  \sp{b_{\alpha i}, b_{\mu i}^\dag b_{\nu i}}
+  = \delta_{\mu\alpha} \delta_{\nu\alpha} b_{\alpha i}
+  + \delta_{\mu\alpha} \p{1-\delta_{\nu\alpha}} b_{\nu i}
+  = \delta_{\mu\alpha} b_{\nu i},
+\end{align}
+so
+\begin{align}
+  \i \d_t b_{\alpha i}
+  = \sum_\nu \p{\f1N \sum_{\rho,\sigma,k}
+    h^{\alpha\nu i}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
+    + \epsilon_{\alpha\nu i}} b_{\nu i}.
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Initial states}
+
+We can essentially prepare $N$-fold tensor products $\ket\Psi\equiv\ket\psi^{\otimes N}$ of three types of initial product states $\ket\psi$.
+First and foremost, we can prepare states $\ket{\mu}$ of definite spin projection $\mu=\set{I,I-1,\cdots,-I}$ onto a quantization axis.
+In addition, we can prepare arbitrary polarized states defined by the polar and azimuthal angles $\theta,\phi$:
+\begin{align}
+  \ket{\theta,\phi}
+  \equiv e^{i\phi s_\z} e^{i\theta s_\y} \ket\up
+  = \sum_\mu \zeta_\mu\p{\theta} e^{-\i\mu\phi} \ket\mu,
+  \label{eq:polarized_state}
+\end{align}
+where $\ket\up\equiv\ket{I}$ is a state polarized along the $z$ axis, and\footnote{The expansion of $\ket{\theta,\phi}$ in \eqref{eq:polarized_state} and \eqref{eq:polarized_proj} is acquired by representing an $n$-level spin by $n-1$ qubits restricted to the (Dicke) manifold of permutationally symmetric states.}
+\begin{align}
+  \zeta_\mu\p{\theta} \equiv { 2I \choose I+\mu }^{1/2}
+  \cos\p{\f{\theta}{2}}^{I+\mu} \sin\p{\f{\theta}{2}}^{I-\mu}.
+  \label{eq:polarized_proj}
+\end{align}
+Finally, for even $n$ we can also prepare the following superposition of polarized states:
+\begin{align}
+  \ket{\DCS}
+  \equiv \f1{\sqrt{2}}
+  \p{e^{\i\gamma} \ket{\alpha,\beta}
+    + e^{-\i\gamma} \ket{\alpha,-\beta}}
+  = \sum_\mu \zeta_\mu\p{\alpha}
+  \times \sqrt{2}\, \cos\p{\mu\beta-\gamma} \ket\mu
+  \label{eq:double_state}
+\end{align}
+with
+\begin{align}
+  \alpha = \f{\pi}{2} + \arcsin\p{\f13},
+  &&
+  \beta = \f{\pi}{3},
+  &&
+  \gamma = -\f{2\pi}{3}\, I.
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Non-interacting limit of a realistic 1D model}
+
+We consider the single-particle Hamiltonian
+\begin{align}
+  H = -J \sum_{\mu,q} \cos\p{q + \mu\varphi} s_{\mu\mu q},
+\end{align}
+where $q$ is a quasi-momentum (in units with lattice spacing $a=1$); $\mu\in\set{I,I-1,\cdots,-I}$ is a nuclear spin projection onto a quantization axis, with $I\equiv\p{n-1}/2$ the total nuclear spin; $\varphi$ is a spin-orbit-coupling angle; and $J$ is essentially the single-particle bandwidth (proportional to the nearest-neighbor tunneling rate, $J/2$).
+As dynamical order parameters, we consider the operators
+\begin{align}
+  s_{\mu\nu} \equiv \f1N \sum_q s_{\mu\nu q},
+  &&
+  s^2 \equiv \v s^\dag\cdot \v s
+  = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q}.
+\end{align}
+In the Heisenberg picture, these operators at time $t$ are
+\begin{align}
+  s_{\mu\nu}\p{t} = \f1N \sum_q s_{\mu\nu q}
+  \times e^{\i\eta_{\mu\nu q} J t},
+  &&
+  s^2\p{t} = \f1{N^2} \sum_{\mu,\nu,p,q} s_{\mu\nu p} s_{\nu\mu q}
+  \times e^{\i \p{\eta_{\mu\nu p}-\eta_{\mu\nu q}} J t},
+\end{align}
+where
+\begin{align}
+  \eta_{\mu\nu q}
+  \equiv -\sp{\cos\p{q+\mu\varphi} - \cos\p{q+\nu\varphi}}
+  = 2 \sin\p{\varphi_{\mu\nu}^-} \sin\p{q+\varphi_{\mu\nu}^+},
+  &&
+  \varphi_{\mu\nu}^\pm \equiv \f{\mu\pm\nu}{2}\,\varphi.
+\end{align}
+In particular, we are interested in the expectation values
+\begin{align}
+  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
+  = \f1N \bk{\psi\op{\mu}{\nu}\psi} \sum_q e^{\i\eta_{\mu\nu q} J t}
+  = \bk{\psi\op{\mu}{\nu}\psi} \chi_{\mu\nu}\p{\varphi},
+\end{align}
+and
+\begin{align}
+  \bk{\Psi|s^2\p{t}|\Psi}
+  &= \f1{N^2} \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \sum_{p\ne q} e^{\i\p{\eta_{\mu\nu p}-\eta_{\mu\nu q}} J t} + \f{n}{N} \\
+  &= \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \abs{\chi_{\mu\nu}\p{\varphi}}^2 + \f{n-1}{N},
+\end{align}
+where
+\begin{align}
+  \chi_{\mu\nu}\p{\varphi} \equiv \f1N \sum_q e^{\i\eta_{\mu\nu q} J t}
+  = \f1N \sum_q e^{\i 2\sin\p{\varphi_{\mu\nu}^-} \sin\p{q+\varphi_{\mu\nu}^+} J t}.
+\end{align}
+As $N\to\infty$, this sum is well approximated by an integral:
+\begin{align}
+  \chi_{\mu\nu}\p{\varphi} \approx \f1{2\pi} \int_{-\pi}^\pi \dd\theta\,
+  e^{\i 2\sin\p{\varphi_{\mu\nu}^-} \sin\p{\theta+\varphi_{\mu\nu}^+} J t}
+  = \J_0\sp{2 \sin\p{\varphi_{\mu\nu}^-} J t},
+\end{align}
+where $\J_0$ is the zero-order Bessel function of the first kind.
+To leading order in $N\gg1$, we thus find that
+\begin{align}
+  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
+  &\approx \bk{\psi\op{\mu}{\nu}\psi}
+  \J_0\sp{2\sin\p{\varphi_{\mu\nu}^-}Jt},
+  \\
+  \bk{\Psi|s^2\p{t}|\Psi}
+  &\approx \sum_{\mu,\nu} \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2
+  \J_0\sp{2\sin\p{\varphi_{\mu\nu}^-}Jt}^2.
+  \label{eq:ops_time}
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Limiting cases}
+
+The constant (time independent) terms in \eqref{eq:ops_time} have $\mu=\nu$ (in which case all $\varphi_{\mu\nu}^-=0$), so up to $\O(1/N)$ corrections
+\begin{align}
+  \bk{\Psi|s_{\mu\nu}^{\t{const}}|\Psi}
+  \approx \delta_{\mu\nu} \abs{\bk{\mu|\psi}}^2,
+  &&
+  \bk{\Psi|s^2_{\t{const}}|\Psi}
+  \approx \sum_\mu \abs{\bk{\mu|\psi}}^4 \equiv r_\psi,
+  \label{eq:ops_const}
+\end{align}
+where the quantity $r_\psi$ is sometimes called the inverse participation ratio of $\ket\psi$ with respect to the basis $\set{\ket\mu}$ of states with definite projection onto the $z$ axis.
+Figure \ref{fig:limiting_vals} shows several values of $r_\psi$ for different $n$.
+
+At ``short'' times $t$ for which $\sin\p{I\varphi}Jt\ll1$, we can Taylor expand the Bessel functions in \eqref{eq:ops_time} about $t=0$ to get
+\begin{align}
+  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
+  &\approx \bk{\psi\op{\mu}{\nu}\psi}
+  \times \sp{1 - \sin\p{\varphi_{\mu\nu}^-}^2 \p{J t}^2}, \\
+  \bk{\Psi|s^2\p{t}|\Psi}
+  &\approx 1 - 2 \p{Jt}^2 \sum_{\mu,\nu}
+  \sin\p{\varphi_{\mu\nu}^-}^2 \abs{\bk{\psi\op{\mu}{\nu}\psi}}^2.
+\end{align}
+In the limit of a small angle $\varphi$ for which $I\varphi\ll1$, we can further simplify
+\begin{align}
+  \bk{\Psi|s_{\mu\nu}\p{t}|\Psi}
+  &\approx \bk{\psi\op{\mu}{\nu}\psi}
+  \times \sp{1 - \p{\f{\mu-\nu}{2I}}^2
+    \p{I\varphi J t}^2}, \\
+  \bk{\Psi|s^2\p{t}|\Psi}
+  &\approx 1 - \var_\psi\p{Z} \p{I\varphi J t}^2,
+  \label{eq:small_time_angle}
+\end{align}
+where
+\begin{align}
+  \var_\psi\p{Z} \equiv \bk{\psi|Z^2|\psi} - \bk{\psi|Z|\psi}^2,
+  &&
+  Z \equiv \sum_\mu \f{\mu}{I} \op{\mu}.
+\end{align}
+Note that the result in \eqref{eq:small_time_angle} is valid for all $t\ll\p{I\varphi J}^{-1}$, which may be a long time given the small-angle assumption $I\varphi\ll1$.
+Figure \ref{fig:limiting_vals} shows several values of $\var_\psi\p{Z}$ for different $n$.
+
+\begin{figure}
+  \centering
+  \includegraphics{figures/oscillations/limiting_vals.pdf}
+  \caption{Several values of $r_\psi$ and $\var_\psi\p{Z}$ for
+    different $n$.  Computed with respect to the states
+    $\ket\X\equiv\ket{\pi/2,0}$ and $\ket{\DCS}$, defined in
+    \eqref{eq:polarized_state} and \eqref{eq:double_state}.}
+  \label{fig:limiting_vals}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Interacting regime of a realistic 1D model}
+
+We now consider a realistic 1D model with interactions, in which the Hamiltonian is
+\begin{align}
+  H = -\f{U}{N} \v S^\dag\cdot \v S
+  - J \sum_{\mu,q} \cos\p{q + \mu\varphi} s_{\mu\mu q}.
+\end{align}
+This Hamiltonian can be written in the simplified form
+\begin{align}
+  H = -\f{U}{N} \v S^\dag\cdot \v S
+  - J \sum_q \p{\cos q\, w_{\varphi,q}^+ - \sin q\, w_{\varphi,q}^-},
+\end{align}
+where the diagonal single-spin operators
+\begin{align}
+  w_\varphi^+ \equiv \sum_\mu \cos\p{\mu\varphi} \op{\mu},
+  &&
+  w_\varphi^- \equiv \sum_\mu \sin\p{\mu\varphi} \op{\mu},
+\end{align}
+are respectively even ($+$) and odd ($-$) under spin inversion, $\mu\to-\mu$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Nuclear spin tomography}
+
+Here we discuss the task of performing full tomography on the average reduced single-particle density operator of a collection of nuclear spins.
+As this task will be performed using collective measurements and homogeneous control fields, for ease of language we will consider the equivalent problem of performing tomography on a single nuclear spin.
+We have essentially two ingredients at our disposal: projective measurements of spin onto a fixed quantization axis, and a three-laser drive that addresses nuclear spins via off-resonant coupling to an excited electronic state.
+To be concrete, we can directly measure projectors $\op{\mu}$ onto states of definite spin projection $\mu$ onto the $z$ axis.
+While the three-laser drive gives us access to a variety of nuclear spin Hamiltonians, most notably it allows us to implement arbitrary SU(2) rotations of the form $e^{-\i\v\theta\c\v S}$, with $\v S\equiv\p{S_\x,S_\y,S_\z}$ a vector of spin operators and $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$ an arbitrary rotation vector.
+These rotations essentially allow us to measure projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$ onto states of definite spin projection $\mu$ onto an arbitrary quantization axis $\v v\in\SS_2$.
+
+Question: given a collection of projectors $\Pi\equiv\set{\Pi_j}$ and measurement outcomes $M\equiv\set{M_j}$, with $M_j$ an empirical estimate of $\bk{\Pi_j}_\rho=\tr\p{\rho\Pi_j}$, how do we determine whether the measurement data $M$ is sufficient to reconstruct $\rho$?
+Answer: reconstruction of $\rho$ is possible if $\Pi$ spans the entire space $\B_n$ of operators on the Hilbert space of an $n$-level spin.
+Given an orthonormal basis $\set{Q_\alpha}$ of self-adjoint operators spanning $\B_n$, we can expand
+\begin{align}
+  \rho = \sum_\alpha \rho_\alpha Q_\alpha,
+  &&
+  \rho_\alpha \equiv \bk{Q_\alpha}_\rho.
+\end{align}
+If $\Pi$ spans $\B_n$, then we can find a set of real numbers $c_{\alpha j}\in\RR$ for which
+\begin{align}
+  Q_\alpha = \sum_j c_{\alpha j} \Pi_j.
+\end{align}
+An empirical estimate $\tilde\rho$ of $\rho$ is then\footnote{This estimate can be improved by defining $\tilde\rho$ as the least-squares fit to the set of linear equations $\tr\p{\tilde\rho\,\Pi_j} = M_j$, and performing maximum-likelihood corrections to $\tilde\rho$ \cite{smolin2012efficient}.}
+\begin{align}
+  \tilde\rho = \sum_\alpha \tilde\rho_\alpha Q_\alpha,
+  &&
+  \tilde\rho_\alpha \equiv \sum_j c_{\alpha j} M_j
+  \approx \sum_j c_{\alpha j} \bk{\Pi_j}_\rho
+  = \bk{Q_\alpha}_\rho
+  = \rho_\alpha.
+\end{align}
+As it turns out, numerical experiments with $n\le20$ suggest that in order to perfurm full tomography of $\rho$, it suffices to measure all projectors $\Pi_{\v v\mu}$ onto states of definite spin $\mu$ along $2n-1$ different axes $\v v$.
+The question remains: which axes should we choose?
+As a first pass, we can simply choose a set of $2n-1$ random axes, $V\equiv\set{\v v}$, by uniformly sampling points on the sphere.
+These random axes define a set of $\p{2n-1}\times n$ projectors $\Pi_V=\set{\Pi^V_j}$, where for shorthand we use a combined index $j=\p{\v v_j,\mu_j}$ that specifies both a measurement axis $\v v_j$ and an outcome $\mu_j$, and for clarity we index objects by $V$ to emphasize their dependence on the choice of measurement axes.
+The projectors $\Pi_V$ can be used to construct $n^2$ linearly independent operators by constructing a matrix $B_V$ with entries
+\begin{align}
+  \sp{B_V}_{ij} = \tr\p{\Pi^V_i \Pi^V_j}.
+\end{align}
+Indexing the (normalized) eigenvectors and the corresponding eigenvalues of $B_V$ by $\alpha$, respectively $\v x^V_\alpha$ and $m^V_\alpha$, for all $\alpha$ with eigenvalue $m^V_\alpha\ne0$ we can then construct the normalized and linearly independent operators
+\begin{align}
+  Q^V_\alpha \equiv \f1{\sqrt{m^V_\alpha}} \sum_j x^V_{\alpha j} \Pi^V_j.
+\end{align}
+To summarize: randomly choosing a set $V$ of $2n-1$ axes will determine a set of measurement operators $\Pi_V$ from which we can construct a complete basis $\set{Q^V_\alpha}$ of operators for $\B_n$.
+However, some choices of axes will be better than others: a good choice of axes $V$ will maximize the amount of information that the corresponding measurement data $M_V=\set{M^V_j}$ will contain about the expectation values $\bk{Q^V_\alpha}_\rho$ used to reconstruct $\rho$.
+The amount of information that $M_V$ contains about $\bk{Q^V_\alpha}_\rho$ is determined, in part, by the magnitude of the eigenvalue $m^V_\alpha$: if $m^V_\alpha$ is small, then $M_V$ will generally contain little information about $\bk{Q^V_\alpha}_\rho$, and vice versa\footnote{Think about the limit $m^V_\alpha\to0$, in which case the fact that $Q^V_\alpha$ is normalized implies that the operator $\sum_j x^V_{\alpha j} \Pi^V_j$ must have a vanishing norm.
+  A vanishing norm can only occur due to fine-tuned cancellations that make the expectation value of $\sum_j x^V_{\alpha j} \Pi^V_j$ difficult to estimate from noisy data on $\bk{\Pi^V_j}_\rho$.}.
+Rather than choosing axes randomly, we can therefore choose a set of axes that minimizes some cost function $C\p{m_V}$ favoring large eigenvalues $m_V\equiv\set{m^V_\alpha}$.
+A reasonable cost function that treats all eigenvalues on equal footing, for example, is
+\begin{align}
+  C_{\t{inv}}\p{m_V} \equiv \sum_\alpha \f1{m^V_\alpha},
+\end{align}
+where the sum is implicitly performed over the $n^2$ largest eigenvalues of $B_V$ (as all other eigenvalues are guaranteed to be zero).
+Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct an even better choice of measurement axes, leading to the possibility of adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
+We leave the details of tailored and adaptive measurement protocols to future work.
+
+\bibliography{notes.bib}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
