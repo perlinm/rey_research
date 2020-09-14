@@ -57,8 +57,8 @@ for ( idx_soc, soc_frac ), ( idx_tun, log10_tun ) in param_generator:
     file_tag = f"{sys_tag}_J{tun_tag}_p{soc_tag}"
     title = r"$\log_{10}(J/U)=" + tun_tag + r",~\varphi/\pi=" + soc_tag + "$"
 
-    print(f"{idx_soc}/{soc_frac_vals.size} " + \
-          f"{idx_tun}/{log10_tun_vals.size} " + \
+    print(f"{idx_soc}/{len(soc_frac_vals)} " + \
+          f"{idx_tun}/{len(log10_tun_vals)} " + \
           f"(soc_frac = {soc_tag}, log10_tun = {tun_tag})")
     sys.stdout.flush()
 
