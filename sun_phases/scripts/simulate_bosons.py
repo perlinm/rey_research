@@ -16,7 +16,7 @@ assert( spin_num % 2 == 0 )
 assert( init_state_str in [ "X", "XX" ] )
 
 # simulation parameters
-log10_tun_vals = np.linspace(-2,1,13)
+log10_tun_vals = np.arange(-2,1.01,0.05)
 soc_frac_vals = [ 0.1, 0.5, 0.9, 1.0 ]
 periods = 1000
 
@@ -128,7 +128,7 @@ def evolve(initial_state, sim_time, field, coupling_op = None,
 
 # get the angle associated with a given spin number <--> quasimomentum
 def spin_angle(qq):
-    return 2*np.pi*qq/spin_num
+    return 2*np.pi*(qq+1/2)/spin_num
 
 # construct an on-site external field
 def bare_lattice_field(qq, soc_angle):
