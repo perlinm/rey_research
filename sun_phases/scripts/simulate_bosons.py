@@ -78,27 +78,22 @@ def boson_time_deriv(state, field, coupling_op = None):
     if coupling_op is None:
         # uniform SU(n)-symmetric couplings
         vec = np.einsum("nk,ak,ni->ai", *state_triplet) / spin_num \
-            - np.einsum("ni,ai,ni->ai", *state_triplet) / spin_num \
             + np.einsum("ani,ni->ai", field, state)
     elif type(coupling_op) is np.ndarray and coupling_op.ndim == 2:
         # inhomogeneous SU(n)-symmetric couplings
         vec = np.einsum("ik,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
-            - np.einsum("ii,ri,si,ni->ai", coupling_op, *state_triplet) / spin_num \
             + np.einsum("ani,ni->ai", field, state)
     elif type(coupling_op) is np.ndarray and coupling_op.ndim == 4:
         # uniform asymmetric couplings
         vec = np.einsum("anrs,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
-            - np.einsum("anrs,ri,si,ni->ai", coupling_op, *state_triplet) / spin_num \
             + np.einsum("ani,ni->ai", field, state)
     elif type(coupling_op) is np.ndarray and coupling_op.ndim == 6:
         # inhomogeneous asymmetric couplings
         vec = np.einsum("anirsk,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
-            - np.einsum("anirsi,ri,si,ni->ai", coupling_op, *state_triplet) / spin_num \
             + np.einsum("ani,ni->ai", field, state)
     else:
         # couplings that factorize into an "operator" part and a "spatial" part
         vec = np.einsum("anrs,ik,rk,sk,ni->ai", *coupling_op, *state_triplet) / spin_num \
-            - np.einsum("anrs,ii,ri,si,ni->ai", *coupling_op, *state_triplet) / spin_num \
             + np.einsum("ani,ni->ai", field, state)
     return -1j * vec
 
@@ -179,8 +174,8 @@ for idx_soc, soc_frac in enumerate(soc_frac_vals):
         this_start = time.time()
 
         tunneling = 10**log10_tun
-        field = -tunneling * bare_field
-        sim_time = 2*np.pi / np.sqrt(1 + tunneling)**2 * periods
+        field = -2*tunneling * bare_field
+        sim_time = 2*np.pi / np.sqrt(1 + 2*tunneling)**2 * periods
 
         times, states = evolve(init_state, sim_time, field)
         spin_mats = compute_spin_mats(states)
