@@ -19,7 +19,7 @@ figsize_double = (5,4)
 # plotting parameters
 log10_tun_vals = np.linspace(-2,1,13)
 soc_frac_vals = [ 0.1, 0.5, 0.9, 1.0 ]
-plot_peaks = 100
+plot_peaks = 50
 freq_num = 1000
 freq_scale = 2
 
@@ -27,9 +27,8 @@ data_dir = "../data/oscillations/"
 fig_dir = "../figures/oscillations/time_series/"
 sys_tag = f"n{spin_dim}_N{spin_num}_{init_state_str}"
 
-params = { "font.size" : 12,
-           "text.usetex" : True,
-           "text.latex.preamble" : r"\usepackage{physics,braket,bm}" }
+params = { "font.size" : 10,
+           "text.usetex" : True }
 plt.rcParams.update(params)
 
 def get_interp_vals(xs, ys, kind = "cubic"):
@@ -76,10 +75,10 @@ for ( idx_soc, soc_frac ), ( idx_tun, log10_tun ) in param_generator:
     times, spin_mats = get_interp_vals(times, spin_mats)
     freqs = np.fft.rfftfreq(times.size, times[1])
 
-    SS_vals = np.einsum("mnt,nmt->t", spin_mats, spin_mats).real
-    SS_amps = np.fft.rfft(SS_vals) / times.size
+    ss_vals = np.einsum("mnt,nmt->t", spin_mats, spin_mats).real
+    ss_amps = np.fft.rfft(ss_vals) / times.size
 
-    peaks, _ = scipy.signal.find_peaks(SS_vals)
+    peaks, _ = scipy.signal.find_peaks(ss_vals)
     if plot_peaks < peaks.size:
         end_idx = peaks[plot_peaks]
     else:
@@ -92,25 +91,25 @@ for ( idx_soc, soc_frac ), ( idx_tun, log10_tun ) in param_generator:
     max_plot_time = times[end_idx]
     max_plot_freq = max(1, peaks.size / times[-1] * freq_scale)
     spin_mats = spin_mats[:, :, times <= max_plot_time]
-    SS_vals = SS_vals[times <= max_plot_time]
-    SS_amps = SS_amps[freqs <= max_plot_freq]
+    ss_vals = ss_vals[times <= max_plot_time]
+    ss_amps = ss_amps[freqs <= max_plot_freq]
     times = times[times <= max_plot_time]
     freqs = freqs[freqs <= max_plot_freq]
 
     ### plot time series and power spectrum of S^2
     figure, axes = plt.subplots(2, figsize = figsize_double)
     axes[0].set_title(title)
-    axes[0].plot(times, SS_vals) # time series data
+    axes[0].plot(times, ss_vals) # time series data
     axes[0].set_xlim(0, max_plot_time)
     axes[0].set_xlabel(r"$t \times U/2\pi$")
     axes[0].set_ylabel(r"$s^2$")
-    axes[1].semilogy(freqs[1:], abs(SS_amps[1:])**2) # power spectrum
+    axes[1].semilogy(freqs[1:], abs(ss_amps[1:])**2) # power spectrum
     axes[1].set_xlim(0, max_plot_freq)
     axes[1].set_xlabel(r"$\omega/U$")
     axes[1].set_ylabel(r"$\log P(\omega)$")
     axes[1].set_yticks([])
     figure.tight_layout(pad = 0.3)
-    figure.savefig(fig_dir + f"SS_{file_tag}.pdf")
+    figure.savefig(fig_dir + f"ss_{file_tag}.pdf")
 
     ### spectrum of mean reduced single-particle density matrix
     spectrum = [ np.linalg.eigvalsh(spin_mats[:,:,tt])[::-1]
