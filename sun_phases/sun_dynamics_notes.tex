@@ -412,10 +412,10 @@ Altogether, these lasers induce the drive Hamiltonian
 \begin{align}
   H_{\t{drive}}^{\t{full}} = \sum_j \sum_{m\in\set{1,0,-1}} \Omega_m
   \p{e^{\i\phi_m j} s_{mj} \otimes\op{\up}{\dn}_j + \t{h.c.}}
-  + \f{\Delta}{2}\, \1 \otimes\p{\op\up_j-\op\dn_j},
+  + \f{\Delta}{2} \sum_j \1_j \otimes\p{\op\up_j-\op\dn_j},
   \label{eq:drive_full}
 \end{align}
-where $j$ indexes a lattice site; $s_\pm$ are spin-raising ($+$) and spin-lowering ($-$) operators (containing all appropriate Clebsch-Gordan coefficients); $s_0\coloneqq s_\z$ is a spin-$z$ operator; $\Delta$ is the detuning of the drive lasers from the excited-state transition frequency; and $\1$ is an identity operator (acting on the nuclear spins of all atoms).
+where $j$ indexes a lattice site; $s_\pm$ are spin-raising ($+$) and spin-lowering ($-$) operators (containing all appropriate Clebsch-Gordan coefficients); $s_0\coloneqq s_\z$ is a spin-$z$ operator; and $\1$ is an identity operator on an $n$-level spin.
 
 In the far-detuned limit $\Delta\gg\Omega_m$, a perturbative treatment of the excited electronic state yields an effective drive Hamiltonian that only addresses nuclear spins.
 Furthermore, if the angles $\phi_m$ satisfy $\phi_m-\phi_{m'}=\p{m-m'}\phi$ for a fixed spin-orbit coupling angle $\phi$ (e.g.~with $\phi_m=m\phi$), then the gauge transformation $c_{j\mu}\to e^{\i\mu\phi j} c_{j\mu}$ makes the drive Hamiltonian spatially homogeneous.
