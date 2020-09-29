@@ -175,8 +175,8 @@ def organize_points(points, operation = None, track = False):
         operation = functools.reduce(compose2, operations, identity)
         return new_points, operation
 
-rnd_points, operation = organize_points(rnd_points, track = True)
-min_points = organize_points(min_points, operation)
+min_points, operation = organize_points(min_points, track = True)
+rnd_points = organize_points(rnd_points, operation)
 
 min_polar = np.vstack([min_points[:,1], abs(np.sin(min_points[:,0]))])
 rnd_polar = np.vstack([rnd_points[:,1], abs(np.sin(rnd_points[:,0]))])
