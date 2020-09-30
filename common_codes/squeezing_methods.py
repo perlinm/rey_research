@@ -109,9 +109,8 @@ def spin_squeezing(spin_num, state, S_op_vec, SS_op_mat, in_dB = False):
     if in_dB: squeezing = -10*np.log10(squeezing)
     return squeezing
 
-# return squeezing from a set of spin correlators
-def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis = False,
-                               pauli_ops = False):
+# get mean magnetization vector and minimal spin variance in the orthogonal plane
+def magnetization_and_variance(spin_num, correlators, zxy_basis = False, pauli_ops = False):
     if not zxy_basis:
         Sz    = correlators[0,1,0] / 2**int(pauli_ops)
         Sz_Sz = correlators[0,2,0] / 4**int(pauli_ops)
@@ -141,13 +140,12 @@ def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis =
         Sz    = correlators[1,0,0] / 2**int(pauli_ops)
         Sx    = correlators[0,1,0] / 2**int(pauli_ops)
         Sy    = correlators[0,0,1] / 2**int(pauli_ops)
-        Sz_Sz = correlators[2,0,0] / 2**int(pauli_ops)
-        Sx_Sx = correlators[0,2,0] / 2**int(pauli_ops)
-        Sy_Sy = correlators[0,0,2] / 2**int(pauli_ops)
-
-        Sz_Sx = correlators[1,1,0] / 2**int(pauli_ops)
-        Sz_Sy = correlators[1,0,1] / 2**int(pauli_ops)
-        Sx_Sy = correlators[0,1,1] / 2**int(pauli_ops)
+        Sz_Sz = correlators[2,0,0] / 4**int(pauli_ops)
+        Sx_Sx = correlators[0,2,0] / 4**int(pauli_ops)
+        Sy_Sy = correlators[0,0,2] / 4**int(pauli_ops)
+        Sz_Sx = correlators[1,1,0] / 4**int(pauli_ops)
+        Sz_Sy = correlators[1,0,1] / 4**int(pauli_ops)
+        Sx_Sy = correlators[0,1,1] / 4**int(pauli_ops)
 
         Sx_Sz = Sz_Sx
         Sy_Sz = Sz_Sy
@@ -159,12 +157,19 @@ def squeezing_from_correlators(spin_num, correlators, in_dB = False, zxy_basis =
                         [ Sy_Sz, Sy_Sx, Sy_Sy ] ]).T
 
     if type(Sz) == np.ndarray:
-        var_min = np.array([ minimal_orthogonal_variance(S_vec[ii], SS_mat[ii])
+        min_var = np.array([ minimal_orthogonal_variance(S_vec[ii], SS_mat[ii])
                              for ii in range(len(Sz)) ])
     else:
-        var_min = minimal_orthogonal_variance(S_vec, SS_mat)
+        min_var = minimal_orthogonal_variance(S_vec, SS_mat)
 
-    squeezing = var_min * spin_num / np.real(Sz*Sz + Sx*Sx + Sy*Sy)
+    return S_vec, min_var
+
+# return squeezing from a set of spin correlators
+def squeezing_from_correlators(spin_num, correlators, in_dB = False,
+                               zxy_basis = False, pauli_ops = False):
+    S_vec, min_var \
+        = magnetization_and_variance(spin_num, correlators, zxy_basis, pauli_ops)
+    squeezing = spin_num * min_var / np.sum(S_vec**2, axis = -1)
     if in_dB: squeezing = -10*np.log10(squeezing)
     return squeezing
 
@@ -182,10 +187,10 @@ def squeezing_OAT(spin_num, chi_t, dec_rates = (0,0,0), in_dB = False):
         C = var_Sy + var_Sz
         B = 2 * S * (S-1/2) * np.sin(chi_t) * np.cos(chi_t)**(spin_num-2)
 
-        var_min = 1/2 * np.real( C - np.sqrt(A**2 + B**2) )
+        min_var = 1/2 * np.real( C - np.sqrt(A**2 + B**2) )
         Sx = S * np.cos(chi_t)**(spin_num-1)
 
-        squeezing = var_min * spin_num / Sx**2
+        squeezing = spin_num * min_var / Sx**2
         if in_dB: squeezing = -10*np.log10(squeezing)
         return squeezing
 
