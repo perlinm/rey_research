@@ -7,7 +7,6 @@ import scipy.sparse as sparse
 import scipy.linalg as linalg
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
 from special_functions import axis_str, vec_theta_phi
@@ -104,14 +103,11 @@ except ModuleNotFoundError:
 
 def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = None,
                      rasterized = True):
-    N = state.shape[0]-1
+    spin_num = state.shape[0]-1
     if figsize is None:
-        if single_sphere:
-            figsize = plt.figaspect(1)
-        else:
-            figsize = plt.figaspect(0.5)
-    fig = plt.figure(figsize = figsize)
-    ax = Axes3D(fig)
+        figsize = plt.figaspect( 1 if single_sphere else 0.5 )
+
+    # initialize grid and color map
 
     theta, phi = np.mgrid[0:np.pi:(grid_size*1j), 0:2*np.pi:(grid_size*1j)]
     z_vals = np.cos(theta)
@@ -119,7 +115,7 @@ def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = Non
     y_vals = np.sin(theta) * np.sin(phi)
 
     def color_val(theta, phi):
-        angle_state = coherent_spin_state_angles(theta, phi, N)
+        angle_state = coherent_spin_state_angles(theta, phi, spin_num)
         if state.ndim == 1:
             return abs(angle_state.conjugate() @ state)**2
         else:
@@ -129,28 +125,35 @@ def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = Non
                             vmax = np.max(color_vals), clip = False)
     color_map = sphere_cmap(norm(color_vals))
 
-    ax_lims = np.array([-1,1]) * 0.6
-    ax.set_xlim(ax_lims)
-    ax.set_ylim(ax_lims)
-    ax.set_zlim(ax_lims)
+    # plot spheres
 
-    asymmetry = 0.025
-    z_vals -= asymmetry
-
+    figure = plt.figure(figsize = figsize)
     if single_sphere:
-        y_vals -= asymmetry
-        ax.plot_surface(x_vals, y_vals, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, rasterized = rasterized)
+        axes = [ figure.add_subplot(111, projection = "3d") ]
     else:
-        y_vals -= 2*asymmetry
-        y_offset = 1.1
-        y_lims = 2*ax_lims
-        ax.plot_surface(x_vals, y_vals-y_offset, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, rasterized = rasterized)
-        ax.plot_surface(-x_vals, y_vals+y_offset, z_vals, rstride = 1, cstride = 1,
-                        facecolors = color_map, rasterized = rasterized)
-        ax.set_ylim(y_lims)
+        axes = [ figure.add_subplot(121, projection = "3d"),
+                 figure.add_subplot(122, projection = "3d") ]
 
-    ax.set_axis_off()
-    ax.view_init(elev = 0, azim = 0)
-    return fig, ax
+    axes[0].plot_surface(x_vals, y_vals, z_vals, rstride = 1, cstride = 1,
+                         facecolors = color_map, rasterized = rasterized)
+    if not single_sphere:
+        axes[1].plot_surface(-x_vals, -y_vals, z_vals, rstride = 1, cstride = 1,
+                             facecolors = color_map, rasterized = rasterized)
+
+    # clean up figure
+
+    ax_lims = np.array([-1,1]) * 0.7
+    for axis in axes:
+        axis.set_xlim(ax_lims)
+        axis.set_ylim(ax_lims)
+        axis.set_zlim(ax_lims * 0.8)
+        axis.view_init(elev = 0, azim = 0)
+        axis.set_axis_off()
+
+    left = -0.01
+    right = 1
+    bottom = -0.03
+    top = 1
+    rect = [ left, bottom, right, top ]
+    figure.tight_layout(pad = 0, w_pad = 0, h_pad = 0, rect = rect)
+    return figure, axes
