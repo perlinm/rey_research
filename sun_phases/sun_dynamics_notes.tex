@@ -56,9 +56,12 @@
 \renewcommand{\H}{\mathcal{H}}
 \renewcommand{\P}{\mathcal{P}}
 
+\newcommand{\CC}{\mathbb{C}}
 \newcommand{\RR}{\mathbb{R}}
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\ZZ}{\mathbb{Z}}
+
+\newcommand{\su}{\mathfrak{su}}
 
 \DeclareMathOperator{\sign}{sign}
 
@@ -255,7 +258,7 @@ The purpose here is mostly to give sense of what sorts of quantities we looked a
 
 We will generally assume unit filling, setting $L=N$, and here consider spin-orbit coupling angles $\phi\in\set{\pi/2,\pi}$\footnote{In retrospect, we note that these choices of spin-orbit coupling angles are not ideal for examining ``generic'' behavior, because they yield degenerate dispersions, as discussed in the caption of Figure \ref{fig:disps}.}.
 We will also consider two types of initial states: a fully polarized state $\ket\X$ in which all spins point along the $x$ axis, and a ``back-to-back'' state $\ket\BTBX$ in which half of the spins are polarized along $+x$, and half along $-x$.
-Specifically, indexing spins by their associated quasi-momentum mode $q\in[-\pi,\pi)$, the initial state $\ket\BTBX$ has spins with $q\ge0$ ($q<0$) initially polarized along $+x$ ($-x$).
+Specifically, indexing spins by their associated quasi-momentum mode $q\in(-\pi,\pi)$, the initial state $\ket\BTBX$ has spins with $q>0$ ($q<0$) initially polarized along $+x$ ($-x$).
 In this way, the initial state $\ket\BTBX$ is correlated with $\sim\sin q$ terms of the spin Hamiltonian in \eqref{eq:spin_pair}.
 
 For each initial state, $\ket\X$ or $\ket\BTBX$, and each spin-orbit coupling angle $\phi\in\set{\pi/2,\pi}$, we will examine how the dynamical behavior of a few quantities depends on the strength of single-particle terms relative to interactions, $J/U$.
@@ -266,7 +269,7 @@ In particular, we will examine the mean squared magnetization
 \end{align}
 and the spectrum of the mean reduced single particle density matrix $\bar\rho$ (equivalently, the spectrum of the mean spin matrix $\bk{\v S}/N=\sum_{\mu,\nu}\bk{S_{\mu\nu}}/N \op{\mu}{\nu}$).
 
-Figures \ref{fig:ss_spect_n2_X_p0.5}--\ref{fig:ss_spect_n2_XX_p1.0} show the time-series of $s^2(t)$, its power spectral density $\widetilde{s^2}(\omega)$, and time-series spectrum of $\bar\rho(t)$ for the case of $n=2$, and with values of $J/U$ between $10^{-2}$ and $10^1$.
+Figures \ref{fig:ss_spect_n2_X_p0.5}--\ref{fig:ss_spect_n2_XX_p1.0} show the time-series of $s^2(t)$, its power spectral density $\widetilde{s^2}(\omega)$, and the time-series spectrum of $\bar\rho(t)$ for the case of $n=2$, with values of $J/U$ between $10^{-2}$ and $10^1$.
 In short, these figures all tell the same story: there is a ``collective'' phase when $J/U\lesssim1$, and of a ``single-particle'' phase when $J/U\gtrsim1$.
 No surprises here.
 
@@ -343,8 +346,17 @@ This finding, as well as others (such as the possible existence of a third phase
 \appendix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Nuclear spin tomography}
+\section{Spin qudit tomography}
 \label{sec:tomography}
+
+% Motivations / background:
+% https://arxiv.org/pdf/1901.06282.pdf
+% https://arxiv.org/abs/1911.00099
+% https://arxiv.org/abs/2005.10910
+% https://journals.aps.org/pra/abstract/10.1103/PhysRevA.86.012118
+% https://journals.aps.org/pra/abstract/10.1103/PhysRevA.94.010301
+% https://arxiv.org/pdf/2003.08668.pdf
+% https://www.osapublishing.org/ol/abstract.cfm?uri=ol-44-10-2558
 
 Here we discuss the task of performing full tomography on the average reduced single-particle density operator of a collection of nuclear spins.
 As this task will be performed using collective measurements and homogeneous control fields, for ease of language we will consider the equivalent problem of performing tomography on a single nuclear spin.
@@ -404,66 +416,106 @@ We leave the details of tailored and adaptive measurement protocols to future wo
 \label{sec:controls}
 
 In addition to letting atoms evolve freely under $H_{\t{spin}}$, we can turn on external control fields to address atoms' internal states.
-Our primary tool here will be three lasers that off-resonantly address an excited electronic state of the atoms.
-Each laser will be indexed by a different integer $m\in\set{1,0,-1}$ that determines the nuclear spin transition $\mu\to\mu+m$ accompanying the electronic $\ket\dn\to\ket\up$ transition upon absorption of a photon.
-Laser $m$ will have a homogeneous drive amplitude $\Omega_m$, and a relative phase $e^{\i\phi_m}$ between adjacent lattice sites.
-All lasers will be detuned by a frequency $\Delta$ away from the electronic $\ket\dn\to\ket\up$ transition.
+Our primary tool here will be a multi-laser drive that off-resonantly addresses an excited electronic state of the atoms.
+Specifically, all lasers will have a frequency that is detuned by $\Delta$ from an electronic $\ket\dn\to\ket\up$ transition.
+Each laser will be indexed by an axis of propagation, $\v v$, with right/left-circular polarization amplitudes $\Omega_{\v v\pm} e^{\i\eta_{\v v\pm}}$ (with real $\Omega_{\v v\pm}$ and $\eta_{\v v\pm}$).
+An electronic $\ket\dn\to\ket\up$ transition is thus accompanied by a nuclear spin transition $\mu_{\v v}\to\mu_{\v v}\pm1$, where $\mu_{\v v}$ is the projection of nuclear spin onto $\v v$.
+Furthermore, laser $\v v$ will generally have a relative phase $e^{\i\kappa\v v\c\v\ell}$ between neighboring lattice sites, where $\kappa$ is the wavenumber of the drive lasers (in units of the lattice spacing) and $\v\ell$ is a fixed unit vector parallel to the lattice.
 Altogether, these lasers induce the drive Hamiltonian
 \begin{align}
-  H_{\t{drive}}^{\t{full}} = \sum_j \sum_{m\in\set{1,0,-1}} \Omega_m
-  \p{e^{\i\phi_m j} s_{mj} \otimes\op{\up}{\dn}_j + \t{h.c.}}
+  H_{\t{drive}}^{\t{full}} = \sum_{j,\v v,\sigma}
+  \Omega_{\v v\sigma} \p{e^{\i\eta_{\v v\sigma} + \i\kappa\v v\c\v\ell j}
+    s_{\v v\sigma j} \otimes \op{\up}{\dn}_j + \t{h.c.}}
   + \f{\Delta}{2} \sum_j \1_j \otimes\p{\op\up_j-\op\dn_j},
-  \label{eq:drive_full}
 \end{align}
-where $j$ indexes a lattice site; $s_\pm$ are spin-raising ($+$) and spin-lowering ($-$) operators (containing all appropriate Clebsch-Gordan coefficients); $s_0\coloneqq s_\z$ is a spin-$z$ operator; and $\1$ is an identity operator on an $n$-level spin.
-
+where $s_{\v v\pm}$ are spin-raising/lowering operators along axis $\v v$ (containing all appropriate Clebsch-Gordan coefficients), and $\1$ is the identity operator for a single $n$-level spin (with total spin $I=\frac{n-1}{2}$).
+To write out $s_{\v v\pm}$ in full, we first identify the operators $s_\x,s_\y,s_\z$ that generate rotations of an $n$-level spin in 3D space, and define $s_\pm\equiv s_\x\pm\i s_\y$.
+Denoting the polar and azimuthal angles of $\v v$ respectively by $\alpha_{\v v}$ and $\beta_{\v v}$, we can use the fact that $s_\x,s_\y,s_\z$ form an $\su(2)$ algebra to expand
+\begin{align}
+  s_{\v v\pm}
+  &= e^{-\i\beta_{\v v}s_\z} e^{-\i\alpha_{\v v}s_\y}
+  s_\pm e^{\i\alpha_{\v v}s_\y} e^{\i\beta_{\v v}s_\z} \\
+  &= -\sin\alpha_{\v v}\, s_\z
+  + \f12 \p{\cos\alpha_{\v v}+1} e^{\mp\i\beta_{\v v}} s_\pm
+  + \f12 \p{\cos\alpha_{\v v}-1} e^{\pm\i\beta_{\v v}} s_\mp.
+\end{align}
+We now consider a particular setup involving three drive lasers: one linearly polarized laser oriented along the $x$ axis, with propagation axis $\v v_0\equiv\p{1,0,0}$ and polarization amplitudes $\Omega_{\v v_\x\sigma}e^{\i\eta_{\v_\x\sigma}}=-\Omega_0e^{\i\eta_0}/2$ (for both $\sigma\in\set{\pm1}$); two right-circularly polarized lasers pointing in opposite directions along the $z$ axis, with propagation axes $\v v_\pm\equiv\p{0,0,\pm1}$ and polarization amplitudes $\Omega_{\v v_\pm,+}e^{\i\eta_{\v_\pm,+}}=\pm\Omega_\pm e^{\i\eta_\pm}$; and a 1D lattice oriented in the $y$-$z$ plane at an angle $\theta$ from the $z$ axis, with lattice axis $\v\ell=\p{0,\sin\theta,\cos\theta}$ [\todo{make figure?}].
+In this setup, the relevant spin-raising/lowering operators are
+\begin{align}
+  s_{\v v_0\pm} = -s_\z \pm \i s_\y,
+  &&
+  s_{\v v_\pm,+} = \pm s_\pm,
+\end{align}
+and the site-dependent phases are $e^{\i\kappa\v v_m\c\v\ell j}=e^{\i m\phi j}$, where $m\in\set{0,+1,-1}$ and we define $\phi\equiv\kappa\cos\theta$ for shorthand.
+Altogether, the Hamiltonian induced by this three laser drive is
+\begin{align}
+  H_{\t{drive}}^{\t{3LD}} = \sum_{j,m} \Omega_m
+  \p{e^{\i\eta_m+\i m\phi j} s_{mj} \otimes\op{\up}{\dn}_j + \t{h.c.}}
+  + \f{\Delta}{2} \sum_j \1_j \otimes\p{\op\up_j-\op\dn_j},
+\end{align}
+where we define $s_0\equiv s_\z$ for convenience of notation.
 In the far-detuned limit $\Delta\gg\Omega_m$, a perturbative treatment of the excited electronic state yields an effective drive Hamiltonian that only addresses nuclear spins.
-Furthermore, if the angles $\phi_m$ satisfy $\phi_m-\phi_{m'}=\p{m-m'}\phi$ for a fixed spin-orbit coupling angle $\phi$ (e.g.~with $\phi_m=m\phi$), then the gauge transformation $c_{j\mu}\to e^{\i\mu\phi j} c_{j\mu}$ makes the drive Hamiltonian spatially homogeneous.
-Altogether, we arrive at a homogeneous effective drive Hamiltonian of the form
+Furthermore, the gauge transformation $c_{j\mu}\to e^{\i\mu\phi j} c_{j\mu}$ makes this effective Hamiltonian spatially homogeneous, taking the form
 \begin{align}
-  H_{\t{drive}} = \sum_j H_{\t{drive},j}^{\t{single}},
+  H_{\t{drive}}^{\t{eff}} = \sum_j H_{\t{drive},j}^{\t{single}},
 \end{align}
-where the single-spin Hamiltonian $H_{\t{drive}}^{\t{single}}$ can be conveniently expressed in terms of operators $s_\x,s_\y,s_\z$ that generate rotations of an $n$-level spin (with total spin $I=\frac{n-1}{2}$) in 3D space:
+where the single-spin Hamiltonian $H_{\t{drive}}^{\t{single}}$ is given by
+\begin{multline}
+  \Delta \times H_{\t{drive}}^{\t{single}}
+  = \p{\Omega_+^2 - \Omega_-^2} s_\z
+  - \sum_{\sigma\in\set{\pm1}} \Omega_0 \Omega_\sigma
+  \p{\sigma s_{\tilde\eta_\sigma,\x}
+    + s_\z s_{\tilde\eta_\sigma,\x} + s_{\tilde\eta_\sigma,\x} s_\z} \\
+  - \Omega_0^2 s_\z^2
+  - \p{\Omega_+ + \Omega_-}^2 s_{\tilde\eta_0,\x}^2
+  - \p{\Omega_+ - \Omega_-}^2 s_{\tilde\eta_0,\y}^2
+  ,
+  \label{eq:drive_single}
+\end{multline}
+with
 \begin{align}
-  H_{\t{drive}}^{\t{single}}
-  = h_+ h_- s_\z + h_0 h_+ s_\x
-  + h_0 h_- \p{s_\z s_\x  + s_\x s_\z}
-  - h_0^2\p{s_\z^2-\v s_{\t{3D}}^2} - h_-^2 s_\x^2 - h_+^2 s_\y^2.
+  \tilde\eta_\pm \equiv \pm\p{\eta_0 - \eta_\pm},
+  &&
+  \tilde\eta_0 \equiv \f{\tilde\eta_+ - \tilde\eta_-}{2}
+  = -\f{\eta_+ - \eta_-}{2},
+  &&
+  s_{\varphi m} = e^{-\i\varphi s_\z} s_m e^{\i\varphi s_\z}.
 \end{align}
-with $\v s_{\t{3D}}\equiv\p{s_\x,s_\y,s_\z}$.
-Here $h_0\equiv\Omega_0/\sqrt\Delta$ and $h_\pm\equiv\p{\Omega_+\pm\Omega_-}/\sqrt{2\Delta}$ can be tuned independently through the choice of drive amplitudes $\Omega_m$; and $\v s_{\t{3D}}^2=s_\x^2+s_\y^2+s_\z^2=I\p{I+1}$ is a constant.
-Table \ref{tab:drives} shows several drive Hamiltonians that can be implemented with various amplitude-matching conditions.
-We do not expect these controls to be sufficient for implementing arbitrary collective SU($n$) rotations, but identifying the subgroup of SU($n$) generated by these controls could be an interesting problem for future work.
-One notable capability is using pulse sequences to implement SU(2) rotations of the form $e^{-\i\v\theta\c\v s_{\t{3D}}}$ with an arbitrary rotation vector $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$.
-In addition to enabling us to perform arbitrary 3D rotations, these collective rotations enable us to measure all components of the mean collective spin matrix $\bk{\v S}$, as discussed in Appendix \ref{sec:tomography}.
+We do not expect these controls to be sufficient for implementing arbitrary collective SU($n$) rotations, but identifying the subgroup of SU($n$) that can be generated by \eqref{eq:drive_single} could be an interesting problem for future work.
+A simple special case to consider is that of all $\eta_m=0$, in which case
+\begin{align}
+  \Delta \times H_{\t{drive}}^{\t{single}}
+  = \tilde\Omega_+ \tilde\Omega_- s_\z
+  + \tilde\Omega_0 \tilde\Omega_- s_\x
+  + \tilde\Omega_0 \tilde\Omega_+ \p{s_\z s_\x  + s_\x s_\z}
+  - \tilde\Omega_0^2 s_\z^2 - \tilde\Omega_+^2 s_\x^2
+  - \tilde\Omega_-^2 s_\y^2,
+\end{align}
+where we define $\tilde\Omega_0=-\Omega_0$ and $\tilde\Omega_\pm\equiv\Omega_+\pm\Omega_-$ for convenience.
+Table \ref{tab:drives} shows several drive Hamiltonians that can be implemented with various amplitude-matching conditions (choices of $\tilde\Omega_m$) when all $\eta_m=0$.
+One notable capability that these controls provide us is that of using pulse sequences to implement SU(2) rotations of the form $e^{-\i\v\theta\c\v s_{\t{3D}}}$, where $\v s_{\t{3D}}\equiv\p{s_\x,s_\y,s_\z}$ and $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$ is an arbitrary rotation vector.
+In addition to enabling arbitrary 3D rotations, these collective rotations enable us to measure all components of the mean collective spin matrix $\bk{\v S}$, as discussed in Appendix \ref{sec:tomography}.
 
 \begin{table}
   \centering
-  \caption{Drive Hamiltonians that can be implemented with various amplitude-matching conditions.}
-  \begin{tabular}{c|c|c}
-    Condition & $\p{h_0,h_+,h_-}$
+  \caption{Drive Hamiltonians that can be implemented with various amplitude-matching conditions when all $\eta_m=0$.
+    Here $\v s_{\t{3D}}^2=s_\x^2+s_\y^2+s_\z^2=I\p{I+1}$ is a constant.}
+  \begin{tabular}{c|c}
+    $(\tilde\Omega_0,\tilde\Omega_+,\tilde\Omega_-)/\sqrt{\Delta}$
     & $H_{\t{drive}}^{\t{single}}$
     \\ \hline\hline
-    $\Omega_+=\Omega_-=0$ & $\p{1,0,0}$ & $-s_\z^2 + \v s_{\t{3D}}^2$
+    $\p{1,0,0}$ & $-s_\z^2$
     \\ \hline
-    $\Omega_0=0$,  $\Omega_+=+\Omega_-$ & $\p{0,1,0}$ & $-s_\y^2$
+    $\p{0,1,0}$ & $-s_\x^2$
     \\ \hline
-    $\Omega_0=0$,  $\Omega_+=-\Omega_-$ & $\p{0,0,1}$ & $-s_\x^2$
+    $\p{0,0,1}$ & $-s_\y^2$
     \\ \hline
-    $\Omega_0=\Omega_\mp=0$ & $\p{0,1,\pm1}$
-    & $\pm s_\z + s_\z^2 - \v s_{\t{3D}}^2$
+    $\p{0,1,\pm1}$ & $\pm s_\z + s_\z^2 - \v s_{\t{3D}}^2$
     \\ \hline
-    $\sqrt{2}\Omega_0=\pm\Omega_+=\pm\Omega_-$
-    & $\p{1,\pm1,0}$ & $\pm s_\x + s_\x^2$
+    $\p{1,0,\pm1}$ & $\pm s_\x + s_\x^2 - \v s_{\t{3D}}^2$
     \\ \hline
-    $\sqrt{2}\Omega_0=\pm\Omega_+=\mp\Omega_-$
-    & $\p{1,0,\pm1}$ & $\pm\p{s_\z s_\x+s_\x s_\z} + s_\y^2$
-    \\ \hline
-    $\Omega_0=\pm\Omega_+=\pm\Omega_-$ & $\p{1,\pm\sqrt{2},0}$
-    & $\pm\sqrt{2} s_\x + \p{s_\x^2 - s_\y^2}$
-    \\ \hline
-    $\Omega_0=\pm\Omega_+=\mp\Omega_-$ & $\p{1,0,\pm\sqrt{2}}$
-    & $\pm\sqrt{2}\p{s_\z s_\x + s_\x s_\z} - \p{s_\x^2-s_\y^2}$
+    $\p{1,\pm1,0}$
+    & $\pm\p{s_\z s_\x+s_\x s_\z} + s_\y^2 - \v s_{\t{3D}}^2$
   \end{tabular}
   \label{tab:drives}
 \end{table}
@@ -493,7 +545,7 @@ where $\mu,\nu$ index orthogonal states of an $n$-level spin; $j,k\in\ZZ_N$ inde
 \end{align}
 where $b_{\mu j}$ annihilates a boson of type $\mu$ on site $j$.
 The Heisenberg equations of motion for these operators are\footnote{The Hamiltonian in \eqref{eq:spin} only defines $h^{\mu\nu j}_{\rho\sigma k}$ for $j<k$.
-  To simplify expressions in the remainder of this work, we therefore additionally define $h^{\rho\sigma k}_{\mu\nu j}=h^{\mu\nu j}_{\rho\sigma k}$ and $h^{\mu\nu j}_{\rho\sigma j}=0$.}
+  To simplify expressions, we therefore additionally define $h^{\rho\sigma k}_{\mu\nu j}=h^{\mu\nu j}_{\rho\sigma k}$ and $h^{\mu\nu j}_{\rho\sigma j}=0$.}
 \begin{align}
   \i \d_t b_{\alpha\ell} = \sp{b_{\alpha\ell}, H}
   &= \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
