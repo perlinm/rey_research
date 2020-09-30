@@ -39,11 +39,10 @@ def distance(point_fst, point_snd):
     return min(angle,np.pi-angle)
 
 def energy_cost(points):
-    orig_shape = points.shape
-    points.shape = (points.size//2,2)
-    energy = sum( 1/distance(point_fst,point_snd)**2 for
-                  point_fst, point_snd in it.combinations(points, 2) )
-    points.shape = orig_shape
+    points_mat_shape = (points.size//2,2)
+    points_mat = points.reshape(points_mat_shape)
+    energy = sum( 1/distance(point_fst,point_snd)**2
+                  for point_fst, point_snd in it.combinations(points_mat, 2) )
     return energy
 
 ####################
@@ -74,16 +73,12 @@ def proj_span_dim(points):
     return sum(np.logical_not(np.isclose(norms,0)))
 
 def overlap_cost(points):
-    orig_shape = points.shape
-    points.shape = (points.size//2,2)
-    vals = proj_span_norms(points)
-    points.shape = orig_shape
+    points_mat_shape = (points.size//2,2)
+    points_mat = points.reshape(points_mat_shape)
+    vals = proj_span_norms(points_mat)
     return sum(1/vals)
 
 ####################
-
-# cost_fun = energy_cost
-cost_fun = overlap_cost
 
 # pick `axis_num` random points on the sphere
 rnd_points = np.random.rand(axis_num,2)
@@ -95,9 +90,8 @@ print(overlap_cost(rnd_points))
 print(rnd_norms[rnd_norms < 1])
 
 # find an "optimal" choice of axes
-optimum = scipy.optimize.minimize(cost_fun, rnd_points.flatten())
-min_points = optimum.x
-min_points.shape = (min_points.size//2,2)
+optimum = scipy.optimize.minimize(overlap_cost, rnd_points.flatten())
+min_points = optimum.x.reshape(rnd_points.shape)
 min_norms = proj_span_norms(min_points)
 print()
 print(energy_cost(min_points))
