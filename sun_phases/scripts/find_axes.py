@@ -88,31 +88,9 @@ def random_points(seed = seed):
     points[:,1] *= 2*np.pi
     return points
 
-# taken from alem2012sparse
-def generate_spiral_points(spirality):
-    h_vals = 1 - 2*np.arange(axis_num)/axis_num
-    theta = np.arccos(h_vals)
-    phi = np.zeros(h_vals.size)
-    for jj in range(1,phi.size):
-        phi[jj] = phi[jj-1] + spirality / np.sqrt(axis_num*(1-h_vals[jj]**2))
-    return np.array([theta,phi]).T
-def spirality_cost(spirality, cost_fun = overlap_cost):
-    return cost_fun(generate_spiral_points(spirality))
-def spiral_points(spirality_guess = spirality_guess):
-    optimum = scipy.optimize.minimize(spirality_cost, spirality_guess)
-    return generate_spiral_points(optimum.x)
-
-# taken from https://bduvenhage.me/geometry/2019/07/31/generating-equidistant-vectors.html
-def equidistant_points(axis_num = axis_num):
-    golden_ratio = ( 1 + np.sqrt(5) ) / 2;
-    golden_angle = ( 2 - golden_ratio ) * 2*np.pi
-    lat = np.arccos( 1 - 2 * np.arange(1, axis_num+1) / (axis_num+1) )
-    lon = golden_angle * np.arange(1, axis_num+1)
-    return np.array([lon,lat]).T
-
 ####################
 
-spr_points = equidistant_points()
+spr_points = random_points()
 spr_norms = proj_span_norms(spr_points)
 print(energy_cost(spr_points))
 print(overlap_cost(spr_points))
