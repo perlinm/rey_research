@@ -7,6 +7,7 @@ import itertools as it
 import scipy.optimize
 
 from dicke_methods import spin_op_vec_dicke
+from multilevel_methods import transition_op
 
 np.set_printoptions(linewidth = 200)
 
@@ -16,8 +17,9 @@ except: seed = 0
 
 ####################
 
-spirality_guess = 1
 axis_num = 2*dim-1
+
+drive_ops = [ np.diag(transition_op(dim,L,0)) for L in range(dim) ]
 
 zhat = [1,0,0]
 xhat = [0,1,0]
@@ -51,23 +53,32 @@ def energy_cost(points):
 spin_op_vec = np.array([ op.todense() for op in spin_op_vec_dicke(dim-1) ])
 
 def op_dot(A,B):
-    return A.conj().flatten() @ B.flatten()
+    return A.conj().ravel() @ B.ravel()
 
 def axis_projectors(point):
     spin_op = np.tensordot(to_axis(point), spin_op_vec, axes = 1)
-    vecs = np.linalg.eigh(spin_op)[1].T
-    return [ np.outer(vec,vec.conj()) for vec in vecs ]
+    _, vecs = np.linalg.eigh(spin_op)
+    return [ np.outer(vec,vec.conj()) for vec in vecs.T ]
 
-def all_projectors(points):
-    return list(it.chain.from_iterable(( axis_projectors(point) for point in points )))
+def axis_drive_ops(point):
+    projectors = axis_projectors(point)
+    return [ sum([ coef * proj for coef, proj in zip(drive,projectors) ])
+             for drive in drive_ops ]
+
+def all_drive_ops(points):
+    return np.array([ axis_drive_ops(point) for point in points ])
 
 def proj_span_norms(points):
-    projectors = all_projectors(points)
-    overlap_mat = np.zeros((len(projectors),)*2, dtype = complex)
-    for ii, jj in it.product(range(len(projectors)), repeat = 2):
-        overlap_mat[ii,jj] = op_dot(projectors[ii],projectors[jj])
-    vals = np.linalg.eigvalsh(overlap_mat)
-    return vals[-dim**2:]
+    axis_num = points.shape[0]
+    drive_ops = all_drive_ops(points)
+    vals = np.zeros(dim**2)
+    for LL in range(dim):
+        overlap_mat = np.zeros((axis_num,)*2, dtype = complex)
+        for ii, jj in it.product(range(axis_num), repeat = 2):
+            overlap_mat[ii,jj] = op_dot(drive_ops[ii,LL,:,:],drive_ops[jj,LL,:,:])
+        idx_min, val_num = LL**2, 2*LL+1
+        vals[idx_min:idx_min+val_num] = np.linalg.eigvalsh(overlap_mat)[-val_num:]
+    return vals
 
 def proj_span_dim(points):
     norms = proj_span_norms(points)
@@ -78,8 +89,6 @@ def overlap_cost(points):
     points_mat = points.reshape(points_mat_shape)
     vals = proj_span_norms(points_mat)
     return sum(1/vals)
-
-####################
 
 def random_points(seed = seed):
     np.random.seed(seed)
@@ -94,16 +103,16 @@ spr_points = random_points()
 spr_norms = proj_span_norms(spr_points)
 print(energy_cost(spr_points))
 print(overlap_cost(spr_points))
-print(spr_norms[spr_norms < 1])
+print(np.sort(spr_norms[spr_norms < 1]))
 print()
 
-optimum = scipy.optimize.minimize(overlap_cost, spr_points.flatten())
+optimum = scipy.optimize.minimize(overlap_cost, spr_points.ravel())
 min_points = optimum.x.reshape(spr_points.shape)
 min_norms = proj_span_norms(min_points)
 print()
 print(energy_cost(min_points))
 print(overlap_cost(min_points))
-print(min_norms[min_norms < 1])
+print(np.sort(min_norms[min_norms < 1]))
 
 ####################
 
