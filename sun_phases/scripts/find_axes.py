@@ -16,7 +16,7 @@ except: seed = 0
 
 ####################
 
-np.random.seed(seed)
+spirality_guess = 1
 axis_num = 2*dim-1
 
 zhat = [1,0,0]
@@ -35,15 +35,16 @@ def to_angles(vec):
 def distance(point_fst, point_snd):
     axis_fst = to_axis(point_fst)
     axis_snd = to_axis(point_snd)
-    angle = np.arccos(np.dot(axis_fst,axis_snd))
-    return min(angle,np.pi-angle)
-
-def energy_cost(points):
+    angle = np.arccos(np.dot(axis_fst,axis_snd)) / np.pi
+    return min(angle,1-angle)
+def distances(points):
     points_mat_shape = (points.size//2,2)
     points_mat = points.reshape(points_mat_shape)
-    energy = sum( 1/distance(point_fst,point_snd)**2
-                  for point_fst, point_snd in it.combinations(points_mat, 2) )
-    return energy
+    return ( distance(point_fst,point_snd)
+             for point_fst, point_snd in it.combinations(points_mat, 2) )
+
+def energy_cost(points):
+    return sum( 1/dist**2 for dist in distances(points) )
 
 ####################
 
@@ -80,23 +81,53 @@ def overlap_cost(points):
 
 ####################
 
-# pick `axis_num` random points on the sphere
-rnd_points = np.random.rand(axis_num,2)
-rnd_points[:,0] = np.arccos(2*rnd_points[:,0]-1)
-rnd_points[:,1] *= 2*np.pi
-rnd_norms = proj_span_norms(rnd_points)
-print(energy_cost(rnd_points))
-print(overlap_cost(rnd_points))
-print(rnd_norms[rnd_norms < 1])
+def random_points(seed = seed):
+    np.random.seed(seed)
+    points = np.random.rand(axis_num,2)
+    points[:,0] = np.arccos(2*points[:,0]-1)
+    points[:,1] *= 2*np.pi
+    return points
 
-# find an "optimal" choice of axes
-optimum = scipy.optimize.minimize(overlap_cost, rnd_points.flatten())
-min_points = optimum.x.reshape(rnd_points.shape)
+# taken from alem2012sparse
+def generate_spiral_points(spirality):
+    h_vals = 1 - 2*np.arange(axis_num)/axis_num
+    theta = np.arccos(h_vals)
+    phi = np.zeros(h_vals.size)
+    for jj in range(1,phi.size):
+        phi[jj] = phi[jj-1] + spirality / np.sqrt(axis_num*(1-h_vals[jj]**2))
+    return np.array([theta,phi]).T
+def spirality_cost(spirality, cost_fun = overlap_cost):
+    return cost_fun(generate_spiral_points(spirality))
+def spiral_points(spirality_guess = spirality_guess):
+    optimum = scipy.optimize.minimize(spirality_cost, spirality_guess)
+    return generate_spiral_points(optimum.x)
+
+# taken from https://bduvenhage.me/geometry/2019/07/31/generating-equidistant-vectors.html
+def equidistant_points(axis_num = axis_num):
+    golden_ratio = ( 1 + np.sqrt(5) ) / 2;
+    golden_angle = ( 2 - golden_ratio ) * 2*np.pi
+    lat = np.arccos( 1 - 2 * np.arange(1, axis_num+1) / (axis_num+1) )
+    lon = golden_angle * np.arange(1, axis_num+1)
+    return np.array([lon,lat]).T
+
+####################
+
+spr_points = equidistant_points()
+spr_norms = proj_span_norms(spr_points)
+print(energy_cost(spr_points))
+print(overlap_cost(spr_points))
+print(spr_norms[spr_norms < 1])
+print()
+
+optimum = scipy.optimize.minimize(overlap_cost, spr_points.flatten())
+min_points = optimum.x.reshape(spr_points.shape)
 min_norms = proj_span_norms(min_points)
 print()
 print(energy_cost(min_points))
 print(overlap_cost(min_points))
 print(min_norms[min_norms < 1])
+
+####################
 
 def rotate_point(point, rot_axis, rot_angle):
     cos_angle = np.cos(rot_angle)
@@ -170,19 +201,19 @@ def organize_points(points, operation = None, track = False):
         return new_points, operation
 
 min_points, operation = organize_points(min_points, track = True)
-rnd_points = organize_points(rnd_points, operation)
+spr_points = organize_points(spr_points, operation)
 
 min_polar = np.vstack([min_points[:,1], abs(np.sin(min_points[:,0]))])
-rnd_polar = np.vstack([rnd_points[:,1], abs(np.sin(rnd_points[:,0]))])
-for min_polar_point, rnd_polar_point in zip(min_polar.T, rnd_polar.T):
-    plt.polar([min_polar_point[0], rnd_polar_point[0]],
-              [min_polar_point[1], rnd_polar_point[1]],
+spr_polar = np.vstack([spr_points[:,1], abs(np.sin(spr_points[:,0]))])
+for min_polar_point, spr_polar_point in zip(min_polar.T, spr_polar.T):
+    plt.polar([min_polar_point[0], spr_polar_point[0]],
+              [min_polar_point[1], spr_polar_point[1]],
               color = "gray", linestyle = ":", linewidth = 1)
 min_plot = plt.polar(min_polar[0,:], min_polar[1,:], "o")
-rnd_plot = plt.polar(rnd_polar[0,:], rnd_polar[1,:], ".")
+spr_plot = plt.polar(spr_polar[0,:], spr_polar[1,:], ".")
 
 min_plot[0].set_clip_on(False)
-rnd_plot[0].set_clip_on(False)
+spr_plot[0].set_clip_on(False)
 plt.ylim(0,1)
 plt.gca().set_xticklabels([])
 plt.gca().set_yticklabels([])
