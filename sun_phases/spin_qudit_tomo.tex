@@ -1,0 +1,604 @@
+\documentclass[nofootinbib,notitlepage,twocolumn]{revtex4-2}
+
+\usepackage{setspace} % to change text spacing
+
+%%% linking references
+\usepackage{hyperref}
+\hypersetup{
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,
+  urlcolor=cyan,
+}
+
+%%% header / footer
+\usepackage{fancyhdr} % easier header and footer management
+\pagestyle{fancy} % page formatting style
+\fancyhf{} % clear all header and footer text
+\renewcommand{\headrulewidth}{0pt} % remove horizontal line in header
+\usepackage{lastpage} % for referencing last page
+\cfoot{\thepage~of \pageref{LastPage}} % "x of y" page labeling
+
+%%% symbols, notations, etc.
+\usepackage{physics,braket,bm,amssymb} % physics and math
+\renewcommand{\t}{\text} % text in math mode
+\newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
+\newcommand{\p}[1]{\left(#1\right)} % parenthesis
+\renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
+\renewcommand{\set}[1]{\left\{#1\right\}} % curly parenthesis
+\newcommand{\bk}{\Braket} % shorthand for braket notation
+\renewcommand{\v}{\bm} % bold vectors
+\newcommand{\uv}[1]{\bm{\hat{#1}}} % unit vectors
+\renewcommand{\c}{\cdot} % inner product
+\renewcommand{\i}{\mathrm{i}\mkern1mu} % imaginary unit
+
+\usepackage{dsfont} % for identity operator
+\newcommand{\1}{\mathds{1}}
+
+\usepackage{mathtools} % for \coloneqq
+
+\newcommand{\up}{\uparrow}
+\newcommand{\dn}{\downarrow}
+\newcommand{\x}{\text{x}}
+\newcommand{\y}{\text{y}}
+\newcommand{\z}{\text{z}}
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\G}{\mathcal{G}}
+\renewcommand{\O}{\mathcal{O}}
+\newcommand{\Q}{\mathcal{Q}}
+\newcommand{\R}{\mathcal{R}}
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\Y}{\mathcal{Y}}
+
+\newcommand{\D}{\mathfrak{D}}
+\renewcommand{\dd}{\mathfrak{d}}
+\renewcommand{\d}{\text{d}}
+
+\newcommand{\SO}{\text{SO}}
+
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\RR}{\mathbb{R}}
+\renewcommand{\SS}{\mathbb{S}}
+\newcommand{\ZZ}{\mathbb{Z}}
+
+\newtheorem{theorem}{Theorem}[section]
+
+\def\obra#1{\mathinner{({#1}|}}
+\def\oket#1{\mathinner{|{#1})}}
+\def\obk#1{\mathinner{({#1})}}
+\def\oop#1#2{\oket{#1}\!\obra{#2}}
+
+%%% figures
+\usepackage{graphicx} % for figures
+\graphicspath{{./figures/}} % set path for all figures
+
+% to place figures in the correct section
+\usepackage[section]{placeins}
+
+\usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
+\setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
+\setlist{nolistsep} % more compact spacing between environments
+
+%%% text markup
+\usepackage{color} % text color
+\newcommand{\red}[1]{{\color{red} #1}}
+\newcommand{\todo}[1]{{\color{blue} To do: #1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\newcommand{\JILA}{JILA, National Institute of Standards and Technology and
+  University of Colorado, 440 UCB, Boulder, Colorado 80309, USA}
+\newcommand{\CTQM}{Center for Theory of Quantum Matter, University of Colorado, Boulder, CO, 80309, USA}
+
+\newcommand{\thetitle}{Spin qudit tomography}
+
+\title{\thetitle}
+\author{Michael A.~Perlin}
+\email{mika.perlin@gmail.com}
+\author{Ana Maria Rey}
+\affiliation{\JILA}
+\affiliation{\CTQM}
+\date{\today}
+
+\keywords{spin qudits; quantum state tomography}
+
+\begin{abstract}
+  We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
+  By mapping this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
+  We then provide an explicit optimized tomographic protocol, as well as numerical experiments to show that $r_d=2d-1$ for $d\le20$.
+  [\red{Note: there are also a few other things that I want to look into, such as (1) adaptive tomography protocols, (2) proofs about something like the number of measurements necessary to reconstruct an arbitrary state to a given precision, (3) a simplified tomography procedure for measuring pure states, (4) the trade-off between measurement precision and the \# of measurement axes (for a fixed total number of measurements).]}
+\end{abstract}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+Quantum state tomography, or the task of reconstructing a quantum state by collecting and processing measurement data, is an essential algorithmic primitive for quantum sensing, quantum simulation, and quantum information processing.
+The central importance of quantum state tomography has led to the development of a variety of techniques based on compressed sensing \cite{gross2010quantum}, matrix product states \cite{cramer2010efficient}, % confidence regions \cite{christandl2012reliable},
+maximum-likelihood estimation \cite{smolin2012efficient}, % linear \cite{qi2013quantum} and least-squares \cite{opatrny1997leastsquares} regression,
+Bayesian inference \cite{huszar2012adaptive}, and neural networks \cite{torlai2018neuralnetwork}, among others that are too numerous to list here.
+These techniques are typically developed in a general, information-theoretic setting, and make minimal assumptions about the physical medium of a quantum state.
+As a consequence, even well-established techniques can nonetheless be ill-suited for physical platforms with unique or limited capabilities.
+
+[\red{Discuss spin qudits as quantum resources for quantum sensing \cite{stefano2019set}, quantum simulation \cite{banerjee2013atomic, cazalilla2014ultracold, rico2018nuclear}, and quantum information processing \cite{albert2020robust, gross2020encoding}}]
+
+[\red{Discuss previous work on qudit tomography \cite{thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, evrard2019enhanced, stefano2019set, palici2020oam}}]
+
+[\red{Discuss practical limitations with spin qudits: the operations necessary for existing tomographic protocols may be inaccessible, difficult to implement, or otherwise more costly than simple spin projection measurements.}]
+
+[\red{Mention previous work on spin tomography \cite{manko1997spin}.  Discuss connection to quantum state tomography through the discrete Wigner function \cite{leonhardt1995quantumstate, leonhardt1996discrete}.}]
+
+[\red{Discuss connection to signal recovery on the sphere.  Original $\sim4d^2$ signaling theorem \cite{driscoll1994computing}; its $\sim2d^2$ refinement \cite{mcewen2011novel}; a nice review of these methods \cite{mcewen2011sampling}; an empirically accurate (albeit without rigorous proofs/guarantees) $d^2$ sampling method \cite{khalid2014optimaldimensionality}; current status of the theory behind sparse signal recovery with random sampling \cite{rauhut2011sparse} (note: existing bounds are {\it not} believed to be tight); nice numerical method for sparse signal recovery \cite{alem2012sparse}; useful textbook references \cite{freeden2008spherical, freeden2018spherical}.}]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Spin transition operators and rotation matrices}
+
+Consider a $d$-state spin qudit with total spin $s\equiv\frac{d-1}{2}$.
+The defining property of a spin qudit is the fact that it describes an angular momentum degree of freedom, which has specific implications for how a spin qudit should transform under the group SO(3) of rotations in 3D space.
+Due to the central importance of these transformation rules for a spin qudit, we first identify a basis of operators that transforms nicely under 3D rotations.
+One such basis is provided by the {\it transition operators} (also known as polarization operators \cite{kryszewski2006positivity, bertlmann2008bloch}), defined by
+\begin{align}
+  T_{\ell m} \equiv \sqrt{\f{2\ell+1}{2s+1}} \sum_{\mu,\nu=-s}^s
+  \bk{s\mu;\ell m|s\nu} \op{\nu}{\mu},
+  \label{eq:trans_op}
+\end{align}
+where $\bk{s\mu;\ell m|s\nu}$ is a Clebsh-Gordan coefficient that enforces $\ell\in\set{0,1,\cdots,2s}$ and $m\in\set{-\ell,-\ell+1,\cdots,\ell}$, such that there are $d^2$ operators in total.
+For brevity, we will generally treat the value of $d$ (or $s$) as constant but arbitrary throughout this work, and suppress any explicit dependence of quantities or operators such as $T_{\ell m}$ on $d$.
+The transition operators are orthonormal with respect to the trace inner product $\obk{\O|\Q}\equiv\tr\p{\O^\dag\Q}$, and transform nicely under conjugation:
+\begin{align}
+  \obk{T_{\ell m }|T_{\ell'm'}}
+  = \delta_{\ell\ell'} \delta_{mm'},
+  &&
+  T_{\ell m}^\dag = \p{-1}^m T_{\ell,-m},
+\end{align}
+where $\delta_{kk'}\equiv 1$ if $k=k'$ and $0$ otherwise.
+As a consequence, we can expand any density operator $\rho$ in the transition operator basis as
+\begin{align}
+  \rho = \sum_{\ell=0}^{2s} \sum_{m=-\ell}^\ell \rho_{\ell m} T_{\ell m},
+  &&
+  \rho_{\ell m}\equiv\obk{T_{\ell m}|\rho},
+  \label{eq:trans_state}
+\end{align}
+where $\rho^\dag=\rho$ implies that $\rho_{\ell m}^*=\p{-1}^m\rho_{\ell,-m}$.
+The transition operators can be physically interpreted as the transition $\ket\psi\to T_{\ell m}\ket\psi$ induced on the state $\ket\psi$ of a spin-$s$ system by the absorption of a spin-$\ell$ particle with spin projection $m$ onto a fixed quantization axis.
+In analogy with the spherical harmonics $Y_{\ell m}$, we will refer to the indices $\ell$ and $m$ respectively as the {\it degree} and {\it order} of $T_{\ell m}$.
+
+The transition operators are spherical tensor operators, whose degree $\ell$ is preserved under 3D rotations generated by the spin operators $S_\x,S_\y,S_\z$ (see Appendix \ref{sec:rotations}).
+For any triplet of Euler angles $\v\omega=\p{\alpha_{\v\omega},\beta_{\v\omega},\gamma_{\v\omega}}$, we can therefore define the {\it fundamental} rotation operator
+\begin{align}
+  R\p{\v\omega} \equiv e^{-\i\alpha_{\v\omega}S_\z} e^{-\i\beta_{\v\omega}S_\y} e^{-\i\gamma_{\v\omega}S_\z},
+  \label{eq:rot_op}
+\end{align}
+as well as the corresponding {\it adjoint} rotation operator $\R\p{\v\omega}$ defined by $\R\p{\v\omega}\O = R\p{\v\omega} \O R\p{\v\omega}^\dag$, and expand
+\begin{align}
+  T_{\v\omega\ell m} \equiv
+  \R\p{\v\omega} T_{\ell m}
+  = \sum_{n=-\ell}^\ell \D_{nm}^\ell\p{\v\omega} T_{\ell n}.
+  \label{eq:trans_rot}
+\end{align}
+The adjoint rotation matrix elements $\D_{mn}^\ell\p{\v\omega}\equiv\obk{T_{\ell m}|\R\p{\v\omega}|T_{\ell n}}$ are an analog of the fundamental (Wigner) rotation matrix elements $D_{mn}^\ell\p{\v\omega}\equiv\bk{\ell m|R\p{\v\omega}|\ell n}$ that govern rotations of spin-$\ell$ particles, where $\ket{\ell m}$ denotes the state of a spin-$\ell$ qudit with spin projection $m$ onto a quantization axis.
+Throughout this work, we will primarily consider rotations determined by points on the 2-sphere $\Omega_2$ at $\gamma_{\v\omega}=0$.
+For ease of notation, we therefore implicitly associate doublets $\v v=\p{\alpha_{\v v},\beta_{\v v}}$ with the triplet $\p{\alpha_{\v v},\beta_{\v v},0}$, so that for example $R\p{\v v} = R\p{\alpha_{\v v},\beta_{\v v},0}$ and $T_{\v v\ell m} = T_{\p{\alpha_{\v v},\beta_{\v v},0},\ell m}$.
+
+As functions of $\v\omega$, the fundamental rotation matrix elements $D_{mn}^\ell$ satisfy the orthogonality relations \cite{brown2003rotational}
+\begin{align}
+  \int_{\Omega_3} \d\Omega_3\p{\v\omega}
+  D^{\ell}_{mn}\p{\v\omega}^* D^{\ell'}_{m'n'}\p{\v\omega}
+  = \f{8\pi^2}{2\ell+1} \delta_{\ell\ell'} \delta_{mm'} \delta_{nn'},
+  \label{eq:ortho}
+\end{align}
+where integration is performed over all $\v\omega\in\Omega_3\simeq[0,2\pi]\times[0,\pi]\times[0,2\pi]$ with integration measure $\d\Omega_3\p{\v\omega} \equiv \d\alpha_{\v\omega} \d\beta_{\v\omega} \d\gamma_{\v\omega} \sin\beta_{\v\omega}$.
+In particular, the restriction of $D^\ell_{m,0}$ to the 2-sphere $\Omega_2$ at $\gamma_{\v\omega}=0$ essentially recovers (up to normalization factors and complex conjugation) the spherical harmonics $Y_{\ell m}$.
+The same orthogonality relations in Eq.~\eqref{eq:ortho} are inherited by the rotation matrix elements $\D_{mn}^\ell$ through the fact $\R\p{\v\omega}$ is the adjoint action of $R\p{\v\omega}$ (see Appendix \ref{sec:ortho}), and the functions $\set{\D_{m,0}^\ell}$ restricted to $\Omega_2$ are similarly an orthogonal basis for the space $L^2\p{\Omega_2}$ of square-integrable functions on the sphere.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Spin tomography as signal recovery on the sphere}
+
+Our goal is to reconstruct an arbitrary state of a spin qudit from measurements of spin projection onto different quantization axes.
+We are thus nominally restricted to measuring projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$, where $\ket{\mu_{\v v}}\equiv R\p{\v v}\ket{\mu}$ is a state with spin projection $\mu$ onto a measurement axis determined by a point $\v v$ on the 2-sphere $\Omega_2$.
+For any fixed axis $\v v$, the sets $\set{\Pi_{\v v\mu}}$ and $\set{T_{\v v\ell,0}}$ are both orthonormal bases for the space of diagonal operators in the basis $\set{\ket{\mu_{\v v}}}$.
+By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v \ell,0}}_\rho\equiv\tr\p{\rho T_{\v v\ell,0}}$.
+
+Reconstructing an arbitrary density operator $\rho$ essentially requires us to find a set of axes $V=\set{\v v}$ and associated coefficients $C_{\ell mk}\p{\v v}$ that would allow us to recover any coefficient $\rho_{\ell m}$ of the expansion in Eq.~\eqref{eq:trans_state} through
+\begin{align}
+  \rho_{\ell m}^* = \bk{T_{\ell m}}_\rho
+  = \sum_{\v v,k} C_{\ell mk}\p{\v v} \bk{T_{\v vk,0}}_\rho.
+  \label{eq:state_recon}
+\end{align}
+Expanding the rotated transition operators $T_{\v vk,0}$ according to Eq.~\eqref{eq:trans_rot}, we find that the recovery condition in Eq.~\eqref{eq:state_recon} is satisfied when
+\begin{align}
+  T_{\ell m}
+  = \sum_{\v v,k,n} C_{\ell mk}\p{\v v} \D^k_{n,0}\p{\v v} T_{kn},
+\end{align}
+where the orthogonality of the transition operators motivates decomposing $C_{\ell mk}\p{\v v}=\delta_{k\ell}C_{\ell m}\p{\v v}$, which in turn implies that
+\begin{align}
+  \sum_{\v v} C_{\ell m}\p{\v v} \D^\ell_{n,0}\p{\v v} = \delta_{mn}
+  \label{eq:tomo_recovery}
+\end{align}
+for all $\ell$.
+In fact, the problem of finding suitable axes $V$ and coefficients $C_{\ell m}\p{\v v}$ to satisfy Eq.~\eqref{eq:tomo_recovery}, solving which would enable the recovery of arbitrary qudit states through Eqs.~\eqref{eq:trans_state} and \eqref{eq:state_recon}, can be mapped onto the well-studied problem of signal recovery on the sphere \cite{driscoll1994computing, mcewen2011novel, mcewen2011sampling, khalid2014optimaldimensionality, rauhut2011sparse, alem2012sparse}.
+The signal recovery problem can be stated as follows: given a square-integrable function $f\in L^2\p{\Omega_2}$ on the sphere, with the harmonic expansion
+\begin{align}
+  f\p{\v v} = \sum_{\ell,m} f_{\ell m} B_{\ell m}\p{\v v},
+\end{align}
+where $f_{\ell m}$ are expansion coefficients and $\set{B_{\ell m}}$ is an orthogonal basis for $L^2\p{\Omega_2}$, find a set of points $V=\set{\v v}$ and associated coefficients $C_{\ell m}\p{\v v}$ with which we can reconstruct $f$, or equivalently its coefficients $f_{\ell m}$, from knowledge of the function's value $f\p{\v v}$ at all points $\v v\in V$; that is
+\begin{align}
+  f_{\ell m} = \sum_{\v v} C_{\ell m}\p{\v v} f\p{\v v}
+  = \sum_{\v v,k,n} C_{\ell m}\p{\v v} f_{kn} B_{kn}\p{\v v}.
+\end{align}
+Reconstruction of functions with arbitrary coefficients $f_{\ell m}$ then implies that
+\begin{align}
+  \sum_{\v v} C_{\ell m}\p{\v v} B_{kn}\p{\v v}
+  = \delta_{k\ell} \delta_{mn},
+  \label{eq:full_recovery}
+\end{align}
+which is a stronger version of the condition that we found for the tomography problem in Eq.~\eqref{eq:tomo_recovery}.
+If, as with the spherical harmonics $Y_{\ell m}$, the functions $B_{\ell m}$ are indexed by an integer degree $\ell\ge0$ that is preserved under rotations of the sphere (which automatically implies integer orders $\abs{m}\le\ell$), and the function $f$ is {\it band-limited} in the sense that $f_{\ell m}=0$ for all $\ell\ge L$, then the sampling problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points \cite{freeden2008spherical}.
+A solution to the classical signal recovery problem Eq.~\eqref{eq:full_recovery} with $B_{\ell m}=\D^\ell_{m,0}$ automatically solves the quantum tomography problem in Eq.~\eqref{eq:tomo_recovery}, which implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, which are essentially ``band-limited'' at degree $\ell<d$.
+
+Moreover, for any fixed degree $\ell$, the problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to recovery of a function in the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, which is possible with $\abs{V}=2\ell+1$ samples (equal to the dimension of the degree-$\ell$ subspace) \cite{freeden2008spherical}.
+In our case, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}=d-1$, so state recovery requires at least as many measurement axes as there are transition operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
+
+[\red{Note: finishing comments about why one could expect more than $2d-1$ axes to be necessary, and what conditions are needed for $2d-1$ to be sufficient.}]
+
+[\red{I {\it might} be able to prove that $2d-1$ axes always suffice for full recovery.
+  See Appendix \ref{sec:recycle}.}]
+
+\vspace{3cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Tomography protocol and numerical experiments}
+
+[\red{Note: the text below is copy/pasted from a different set of notes.  I still need to adapt this text for this paper.}]
+
+[\red{Think about maximizing the determinant of the coefficient matrix $C_{m\v v}^\ell$.}]
+
+Question: given a collection of projectors $\Pi\equiv\set{\Pi_j}$ and measurement outcomes $M\equiv\set{M_j}$, with $M_j$ an empirical estimate of $\bk{\Pi_j}_\rho=\tr\p{\rho\Pi_j}$, how do we determine whether the measurement data $M$ is sufficient to reconstruct $\rho$?
+Answer: reconstruction of $\rho$ is possible if $\Pi$ spans the entire space $\B_n$ of operators on the Hilbert space of an $n$-level spin.
+Given an orthonormal basis $\set{Q_\alpha}$ of self-adjoint operators spanning $\B_n$, we can expand
+\begin{align}
+  \rho = \sum_\alpha \rho_\alpha Q_\alpha,
+  &&
+  \rho_\alpha \equiv \bk{Q_\alpha}_\rho.
+\end{align}
+If $\Pi$ spans $\B_n$, then we can find a set of real numbers $c_{\alpha j}\in\RR$ for which
+\begin{align}
+  Q_\alpha = \sum_j c_{\alpha j} \Pi_j.
+\end{align}
+An empirical estimate $\tilde\rho$ of $\rho$ is then
+\begin{align}
+  \tilde\rho = \sum_\alpha \tilde\rho_\alpha Q_\alpha,
+\end{align}
+where\footnote{This estimate can be improved by defining $\tilde\rho$ as the least-squares fit to the set of linear equations $\tr\p{\tilde\rho\,\Pi_j} = M_j$, and performing maximum-likelihood corrections to $\tilde\rho$ \cite{smolin2012efficient}.}
+\begin{align}
+  \tilde\rho_\alpha \equiv \sum_j c_{\alpha j} M_j
+  \approx \sum_j c_{\alpha j} \bk{\Pi_j}_\rho
+  = \bk{Q_\alpha}_\rho
+  = \rho_\alpha.
+\end{align}
+As it turns out, numerical experiments with $n\le20$ suggest that in order to perfurm full tomography of $\rho$, it suffices to measure all projectors $\Pi_{\v v\mu}$ onto states of definite spin $\mu$ along $2n-1$ different axes $\v v$.
+The question remains: which axes should we choose?
+As a first pass, we can simply choose a set of $2n-1$ random axes, $V\equiv\set{\v v}$, by uniformly sampling points on the sphere.
+These random axes define a set of $\p{2n-1}\times n$ projectors $\Pi_V=\set{\Pi^V_j}$, where for shorthand we use a combined index $j=\p{\v v_j,\mu_j}$ that specifies both a measurement axis $\v v_j$ and an outcome $\mu_j$, and for clarity we index objects by $V$ to emphasize their dependence on the choice of measurement axes.
+The projectors $\Pi_V$ can be used to construct $n^2$ linearly independent operators by constructing a matrix $B_V$ with entries
+\begin{align}
+  \sp{B_V}_{ij} = \tr\p{\Pi^V_i \Pi^V_j}.
+\end{align}
+Indexing the (normalized) eigenvectors and the corresponding eigenvalues of $B_V$ by $\alpha$, respectively $\v x^V_\alpha$ and $m^V_\alpha$, for all $\alpha$ with eigenvalue $m^V_\alpha\ne0$ we can then construct the normalized and linearly independent operators
+\begin{align}
+  Q^V_\alpha \equiv \f1{\sqrt{m^V_\alpha}} \sum_j x^V_{\alpha j} \Pi^V_j.
+\end{align}
+To summarize: choosing a set $V$ of $2n-1$ random axes will determine a set of measurement operators $\Pi_V$ from which we can construct a complete basis $\set{Q^V_\alpha}$ of operators for $\B_n$.
+However, some choices of axes will be better than others: a good choice of axes $V$ will maximize the amount of information that the corresponding measurement data $M_V=\set{M^V_j}$ will contain about the expectation values $\bk{Q^V_\alpha}_\rho$ used to reconstruct $\rho$.
+The amount of information that $M_V$ contains about $\bk{Q^V_\alpha}_\rho$ is determined, in part, by the magnitude of the eigenvalue $m^V_\alpha$: if $m^V_\alpha$ is small, then $M_V$ will generally contain little information about $\bk{Q^V_\alpha}_\rho$, and vice versa\footnote{Think about the limit $m^V_\alpha\to0$, in which case the fact that $Q^V_\alpha$ is normalized implies that the operator $\sum_j x^V_{\alpha j} \Pi^V_j$ must have a vanishing norm.
+  A vanishing norm can only occur due to fine-tuned cancellations that make the expectation value of $\sum_j x^V_{\alpha j} \Pi^V_j$ difficult to estimate from noisy data on $\bk{\Pi^V_j}_\rho$.}.
+Rather than choosing $2n-1$ axes randomly, we can therefore choose a set of axes that minimizes some cost function $C\p{m_V}$ favoring large eigenvalues $m_V\equiv\set{m^V_\alpha}$.
+A reasonable cost function that treats all eigenvalues on equal footing, for example, is
+\begin{align}
+  C_{\t{inv}}\p{m_V} \equiv \sum_\alpha \f1{m^V_\alpha},
+\end{align}
+where the sum is implicitly performed over the $n^2$ largest eigenvalues of $B_V$ (as all other eigenvalues are guaranteed to be zero).
+Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct an even better choice of measurement axes, leading to the possibility of tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
+We leave the details of tailored and adaptive measurement protocols to future work.
+
+\bibliography{\jobname.bib}
+
+
+\onecolumngrid
+\appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Rotating transition operators}
+\label{sec:rotations}
+
+Defining
+\begin{align}
+  S_\z \equiv \sum_{\mu=-s}^s \mu \op{\mu},
+  &&
+  S_\pm \equiv \sum_{\mu=-s}^s
+  \sqrt{s\p{s+1}-\mu\p{\mu\pm1}} \op{\mu\pm1}{\mu},
+\end{align}
+as well as
+\begin{align}
+  S_\x \equiv \f12\p{S_+ + S_-},
+  &&
+  S_\y \equiv -\f\i2\p{S_+-S_-},
+  &&
+  \v S \equiv \p{S_\x,S_\y,S_\z},
+\end{align}
+the spin vector $\v S$ generates rotations of a spin-$s$ system in 3D space.
+Specifically, the operator $e^{-\i\theta\v S\cdot\uv n}$ rotates a spin-$s$ system by an angle $\theta$ about the unit vector $\uv n$.
+Furthermore, observing that $S_\z=T_{1,0}$ and $S_\pm\propto T_{1,\pm1}$, we can use the product operator expansion of the transition operators (see Appendix \ref{sec:trans_prod}), the properties of Clebsch-Gordan coefficients, and a computer algebra system to simplify the commutators
+\begin{align}
+  \sp{S_\z,T_{\ell m}} = m\, T_{\ell m},
+  &&
+  \sp{S_\pm,T_{\ell m}} = \sqrt{\p{\ell\mp m}\p{\ell\pm m+1}}\, T_{\ell,m\pm1},
+\end{align}
+which implies that $T_{\ell m}$ is a spherical tensor operator, and in particular that its degree $\ell$ is preserved under rotations generated by $\v S$.
+For any triplet of Euler angles $\v\omega=\p{\alpha_{\v\omega},\beta_{\v\omega},\gamma_{\v\omega}}$, we can therefore define the fundamental rotation operator
+\begin{align}
+  R\p{\v\omega} \equiv e^{-\i\alpha_{\v\omega}S_\z} e^{-\i\beta_{\v\omega}S_\y} e^{-\i\gamma_{\v\omega}S_\z},
+\end{align}
+as well as the corresponding adjoint rotation operator $\R\p{\v\omega}$ defined by $\R\p{\v\omega}\O = R\p{\v\omega} \O R\p{\v\omega}^\dag$, and expand
+\begin{align}
+  \R\p{\v\omega} T_{\v\omega\ell m}
+  = \sum_{n=-\ell}^\ell \D_{nm}^\ell\p{\v\omega} T_{\ell n}.
+\end{align}
+The adjoint rotation matrix elements $\D_{mn}^\ell\p{\v\omega}\in\CC$ are
+\begin{align}
+  \D_{mn}^\ell\p{\v\omega}
+  &\equiv \obk{T_{\ell m}|\R\p{\v\omega}|T_{\ell n}} \\
+  &= \tr\p{T_{\ell m}^\dag e^{-\i\alpha_{\v\omega}S_\z} e^{-\i\beta_{\v\omega}S_\y} e^{-\i\gamma_{\v\omega}S_\z} T_{\ell n}
+    e^{\i\gamma_{\v\omega}S_\z} e^{\i\beta_{\v\omega}S_\y} e^{\i\alpha_{\v\omega}S_\z}} \\
+  &= e^{-\i\alpha_{\v\omega} m} \,\dd_{mn}^\ell\p{\beta_{\v\omega}}\, e^{-\i\gamma_{\v\omega} n},
+\end{align}
+and the {\it reduced} adjoint rotation matrix elements $\dd_{mn}^\ell\p{\beta}\in\RR$ are
+\begin{align}
+  \dd_{mn}^\ell\p{\beta}
+  &\equiv \D_{mn}^\ell\p{0,\beta,0} \\
+  &= \tr\p{T_{\ell m}^\dag e^{-\i\beta S_\y} T_{\ell n} e^{\i\beta S_\y}} \\
+  &= \f{2\ell+1}{2s+1} \sum_{\mu,\nu=-s}^s
+  \bk{s\mu;\ell m|s,\mu+m} \bk{s\nu;\ell n|s,\nu+n} \times
+  \tr\p{\op{\mu}{\mu+m} e^{-\i\beta S_\y}
+    \op{\nu+n}{\nu} e^{\i\beta S_\y}} \\
+  &= \f{2\ell+1}{2s+1} \sum_{\mu,\nu=-s}^s
+  \bk{s\mu;\ell m|s,\mu+m} \bk{s\nu;\ell n|s,\nu+n} \times
+  d_{\mu\nu}^s\p{\beta} d_{\mu+m,\nu+n}^s\p{\beta}.
+\end{align}
+Here $d_{\mu\nu}^s\p{\beta}\equiv D^s_{\mu\nu}\p{0,\beta,0}\in\RR$ are
+matrix elements of a reduced fundamental (Wigner) rotation matrix.
+Note that the above product of reduced fundamental rotation matrix elements can be expanded as \cite{rose1957elementary}
+\begin{align}
+  d_{\mu\nu}^s\p{\beta} d_{\mu+m,\nu+n}^s\p{\beta}
+  = \sum_{L=0}^{2s} \bk{s\mu;s,\mu+m|L,2\mu+m}
+  \bk{s\nu;s,\nu+n|L,2\nu+n} d_{2\mu+m,2\nu+n}^L\p{\beta}.
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Rotation matrix elements as orthogonal functions}
+\label{sec:ortho}
+
+As functions of $\v\omega$, the fundamental rotation matrix elements $D_{mn}^\ell$ and satisfy the orthogonality relations \cite{brown2003rotational}
+\begin{align}
+  \int_{\Omega_3} \d\Omega_3\p{\v\omega}
+  D^{\ell}_{mn}\p{\v\omega}^* D^{\ell'}_{m'n'}\p{\v\omega}
+  = \f{8\pi^2}{2\ell+1} \delta_{\ell\ell'} \delta_{mm'} \delta_{nn'},
+  \label{eq:orthogonal}
+\end{align}
+where integration is performed over all $\v\omega\in\Omega_3\simeq[0,2\pi]\times[0,\pi]\times[0,2\pi]$ with integration measure $\d\Omega_3\p{\v\omega}\equiv\d\alpha_{\v\omega} \d\beta_{\v\omega} \d\gamma_{\v\omega} \sin\beta_{\v\omega}$.
+This orthogonality relation is a consequence of the fact that, for a fixed degree $\ell$, the matrix
+\begin{align}
+  D^\ell \equiv \sum_{m,n} D^\ell_{mn} \op{m}{n}
+\end{align}
+is an irreducible unitary matrix representation of SO(3), where by unitary we mean that
+\begin{align}
+  \sum_k D^\ell_{km}\p{\v\omega}^* D^\ell_{kn}\p{\v\omega} = \delta_{mn}
+  ~\t{for all}~\v\omega\in\Omega_3\simeq\SO(3).
+\end{align}
+Unitarity of $D^\ell$ follows from the fact that the matrix $D^\ell\p{\v\omega}$ is essentially the degree-$\ell$ block of the block-diagonal fundamental rotation matrix $R\p{\v\omega}$, which is itself unitary.
+The Schur orthogonality relations for irreducible unitary representations of compact Lie groups then imply that \cite{cornwell1997group}
+\begin{align}
+  \int_{\Omega_3} \d\Omega_3\p{\v\omega}
+  D^{\ell}_{mn}\p{\v\omega}^* D^{\ell'}_{m'n'}\p{\v\omega}
+  = \f{\abs{\Omega_3}}{\dim\p{D^\ell}}
+  \delta_{\ell\ell'} \delta_{mm'} \delta_{nn'},
+\end{align}
+where $\dim\p{D^\ell}=2\ell+1$ is the dimension of $D^\ell$, and analogously
+\begin{align}
+  \abs{\Omega_3} \equiv \int_{\Omega_3} d\Omega_3\p{\v\omega} = 8\pi^2.
+\end{align}
+Orthogonality relations for adjoint matrix elements $\D^\ell_{mn}$ are derived identically from the fact that the matrix
+\begin{align}
+  \D^\ell \equiv \sum_{m,n} \D^\ell_{mn} \op{m}{n}
+\end{align}
+is an irreducible unitary representation of SO(3).
+This property of $\D^\ell$ follows from the fact that it is an adjoint representation of SO(3), which is isomorphic to the standard representation $D^\ell$ \cite{hall2015lie}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Recycling sampling points on the sphere}
+\label{sec:recycle}
+
+[\red{Note: I have not finished writing up the proof below.
+  I was previously sure that it works, but I ran into an error that I am trying to fix, so I am not so sure at the moment.}]
+
+Consider a set of points $V=\set{\v v}$ on the sphere, and define $L^2_\ell\p{\Omega}$ as the subspace of square-integrable functions on the sphere that can be written as a sum of degree-$\ell$ spherical harmonics, which is to say that a function $f_\ell\in L^2_\ell\p{\Omega}$ admits the decomposition
+\begin{align}
+  f_\ell = \sum_{m=-\ell}^\ell f_{\ell m} Y_{\ell m},
+\end{align}
+where $f_{\ell m}\in\CC$ are scalars and $Y_{\ell m}$ is the spherical harmonic of degree $\ell$ and order $m$.
+Here, we prove the following:
+\begin{theorem}
+  If $V$ enables the recovery of arbitrary functions $f_\ell\in L^2_\ell\p{\Omega}$, which is to say that $f_\ell$ is uniquely determined by its values $f_\ell\p{\v v}$ at all $\v v\in V$, then $V$ also enables the recovery of arbitrary functions $f_k\in L^2_k\p{\Omega}$ with $k<\ell$.
+  \label{thm:recycling}
+\end{theorem}
+Consider the equivalent, contrapositive statement: if a set of points $V$ is insufficient to recover functions $f_k\in L^2_k\p{\Omega}$, then $V$ is insufficient to recover functions $f_\ell\in L^2_\ell\p{\Omega}$ with $\ell>k$.
+If we can prove this statement for $k=\ell-1$, then we essentially prove it for all $k<\ell$ by induction, which in turn proves theorem \ref{thm:recycling}.
+
+We first clarify necessary and sufficient conditions for $V$ to enable the recovery of arbitrary functions $f_k\in L^2_k\p{\Omega}$.
+Recovery requires the existence of coefficients $C_{km}\p{\v v}$ for which
+\begin{align}
+  f_{km} = \sum_{\v v\in V} C_{km} f_k\p{v}
+  = \sum_{\v v,n} C_{km}\p{\v v} f_{kn} Y_{kn}\p{\v v},
+\end{align}
+which implies that
+\begin{align}
+  \sum_{\v v\in V} C_{km}\p{\v v} Y_{kn}\p{\v v} = \delta_{mn}.
+  \label{eq:degree_recovery}
+\end{align}
+Coefficients $C_{km}\p{\v v}$ satisfying Eq.~\eqref{eq:degree_recovery} are essentially a left-inverse of the $\abs{V}\times\p{2k+1}$ matrix
+\begin{align}
+  \Y_k\p{V} \equiv
+  \begin{pmatrix}
+    Y_{k,-k}\p{\v v_1} & \cdots & Y_{kk}\p{\v v_1} \\
+    \vdots & \ddots & \vdots \\
+    Y_{k,-k}\p{\v v_{\abs{V}}} & \cdots & Y_{kk}\p{\v v_{\abs{V}}}
+  \end{pmatrix},
+\end{align}
+which exists if and only if $\Y_k\p{V}$ has maximal rank, $2k+1$.
+Note that the existence of such an inverse is entirely a property of $V$, independent of the choice of basis for $L^2_k\p{\Omega}$ \cite{freeden2008spherical}, which is why we are free to consider the spherical harmonics $Y_{km}$ here in place of the adjoint rotation matrix elements $\D^k_{m,0}$ that appear in the main text.
+
+We now assume that $V$ is insufficient to recover functions in $L^2_{\ell-1}\p{\Omega}$.
+In this case, the matrix $\Y_{\ell-1}\p{V}$ does not have maximal rank, which implies that its columns are linearly dependent.
+Linear dependence of the columns of $\Y_{\ell-1}\p{V}$ in turn implies the existence of non-trivial (i.e.~not-all-zero) coefficients $c_{\ell-1,m}$ for which
+\begin{align}
+  \sum_{m=-\ell+1}^{\ell-1} c_{\ell-1,m} Y_{\ell-1,m}\p{\v v}
+  = 0 ~\t{for all}~ \v v\in V.
+\end{align}
+Using the fact that $Y_{km}\p{\v v}\propto e^{\i m\alpha_{\v v}} P_{km}\p{\cos\beta_{\v v}}$, where $\alpha_{\v v},\beta_{\v v}$ are respectively the azimuthal and polar angles of $\v v$ and $P_{km}$ is an associated Legendre polynomial, we can say that
+\begin{align}
+  \sum_{m=-\ell+1}^{\ell-1} \tilde c_{\ell-1,m} e^{\i m\alpha_{\v v}} P_{\ell-1,m}\p{\cos\beta_{\v v}}
+  = 0 ~\t{for all}~ \v v\in V,
+  &&
+  \tilde c_{\ell m} \equiv c_{\ell m}
+  \times \sqrt{\f{4\pi\p{\ell+m}!}{\p{2\ell+1}\p{\ell-m}!}}.
+\end{align}
+Assuming without loss of generality that $\cos\beta_{\v v}\ne1$ for all $\v v\in V$, we can use recurrence relations of the associated Legendre polynomials to say that
+\begin{align}
+  \sum_{m=-\ell+1}^{\ell-1} \sum_{\sigma\in\set{\pm1}}
+  e^{\i m\alpha_{\v v}} \tilde d_{\ell m\sigma}
+  P_{\ell m+\sigma}\p{\cos\beta_{\v v}}
+  = 0 ~\t{for all}~ \v v\in V,
+\end{align}
+where
+\begin{align}
+  \tilde d_{\ell m,+} \equiv -\f{\tilde c_{\ell-1,m}}{2m},
+  &&
+  \tilde d_{\ell m,-} \equiv -\f{\tilde c_{\ell-1,m}}{2m}
+  \p{\ell-m+1} \p{\ell-m+2}.
+\end{align}
+[\red{what if $m=0$?}] Substituting back the spherical harmonics in place of the associated Legendre polynomials, we thus find that
+\begin{align}
+  \sum_{m=-\ell}^\ell \sum_{\sigma\in\set{\pm 1}}
+  d_{\ell m\sigma} e^{-\i\sigma\alpha_{\v v}} Y_{\ell m}\p{\v v} = 0
+  ~\t{for all}~ \v v\in V,
+  &&
+  d_{\ell m\sigma} \equiv \tilde d_{\ell,m-\sigma,\sigma}
+  \times \sqrt{\f{\p{2\ell+1}\p{\ell-m}!}{4\pi\p{\ell+m}!}},
+\end{align}
+where we define $\tilde d_{\ell\ell\sigma} = \tilde d_{\ell,-\ell,\sigma} = 0$.
+
+\vspace{.5cm}
+
+[\red{proof incomplete}]
+
+\vspace{3cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Transition operator product expansion}
+\label{sec:trans_prod}
+
+The transition operators on the $d$-dimensional Hilbert space of a spin-$s$ system (with $s\equiv\frac{d-1}{2}$) are defined by
+\begin{align}
+  T_{\ell m} = \sqrt{\f{2\ell+1}{2s+1}} \sum_{\mu,\nu=-s}^s
+  \bk{s\mu;\ell m|s\nu} \op{\nu}{\mu},
+\end{align}
+where $\bk{s\mu;\ell m|s\nu}$ is a Clebsh-Gordan coefficient that enforces $\ell\in\set{0,1,\cdots,2s}$ and $m\in\set{-\ell,-\ell+1,\cdots,\ell}$.
+We wish to compute the coefficients of the operator product expansion
+\begin{align}
+  T_{\ell_1 m_1} T_{\ell_2 m_2}
+  = \sum_{L,M} f_{\ell_1 m_1;\ell_2 m_2}^{LM} T_{LM},
+  &&
+  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  \equiv \obk{T_{LM} | T_{\ell_1 m_1} T_{\ell_2 m_2}}.
+\end{align}
+Using the symmetry properties of Clebsch-Gordan coefficients, namely
+\begin{align}
+  \bk{\ell_1 m_1; \ell_2 m_2| \ell_3 m_3}
+  &= \p{-1}^{\ell_2+m_2} \sqrt{\f{2\ell_3+1}{2\ell_1+1}}
+  \bk{\ell_3,-m_3; \ell_2 m_2| \ell_1,-m_1} \\
+  \bk{\ell_1 m_1; \ell_2 m_2| \ell_3 m_3}
+  &= \p{-1}^{\ell_1+\ell_2-\ell_3}
+  \bk{\ell_1,-m_1; \ell_2,-m_2| \ell_3,-m_3},
+\end{align}
+we can find that the transition operators transform under conjugation as
+\begin{align}
+  T_{\ell m}^\dag
+  = \sqrt{\f{2\ell+1}{2s+1}}
+  \sum_{\mu,\nu} \p{-1}^m \bk{s\nu;\ell,-m|s\mu} \op{\mu}{\nu}
+  = \p{-1}^m T_{\ell,-m},
+\end{align}
+which implies that
+\begin{align}
+  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  = \p{-1}^M \sqrt{\f{\p{2L+1}\p{2\ell_1+1}\p{2\ell_2+1}}
+    {\p{2s+1}\p{2s+1}\p{2s+1}}}
+  \sum_{\mu,\nu,\rho} \bk{s\nu;L,-M|s\mu}
+  \bk{s\rho;\ell_1m_1|s\nu} \bk{s\mu;\ell_2m_2|s\rho}.
+\end{align}
+Replacing the Clebsch-Gordan coefficients by the Wigner 3-$j$ symbols with the identity
+\begin{align}
+  \bk{\ell_1 m_1; \ell_2 m_2| \ell_3 m_3}
+  = \p{-1}^{2\ell_2} \p{-1}^{\ell_3-m_3} \sqrt{\p{2\ell_3+1}}
+  \begin{pmatrix}
+    \ell_3 & \ell_2 & \ell_1 \\
+    -m_3 & m_2 & m_1
+  \end{pmatrix},
+\end{align}
+we can use the fact that $2\ell_2$ is (in our case) always even to expand
+\begin{align}
+  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  = \p{-1}^M \sqrt{\p{2L+1}\p{2\ell_1+1}\p{2\ell_2+1}}
+  \sum_{\mu,\nu,\rho} \p{-1}^{3s-\mu-\nu-\rho}
+  \begin{pmatrix}
+    s & L & s \\
+    -\mu & -M & \nu
+  \end{pmatrix}
+  \begin{pmatrix}
+    s & \ell_1 & s \\
+    -\nu & m_1 & \rho
+  \end{pmatrix}
+  \begin{pmatrix}
+    s & \ell_2 & s \\
+    -\rho & m_2 & \mu
+  \end{pmatrix}.
+\end{align}
+This sum can be simplified by the introduction of Wigner 6-$j$ symbols, giving us
+\begin{align}
+  f_{\ell_1 m_1;\ell_2 m_2}^{LM}
+  &= \p{-1}^{2s+M} \sqrt{\p{2L+1}\p{2\ell_1+1}\p{2\ell_2+1}}
+  \begin{pmatrix}
+    L & \ell_1 & \ell_2 \\
+    M & -m_1 & -m_2
+  \end{pmatrix}
+  \begin{Bmatrix}
+    L & \ell_1 & \ell_2 \\
+    s & s & s
+  \end{Bmatrix} \\
+  &= \p{-1}^{2s+L} \sqrt{\p{2\ell_1+1}\p{2\ell_2+1}}
+  \bk{\ell_1 m_1; \ell_2 m_2| LM}
+  \begin{Bmatrix}
+    \ell_1 & \ell_2 & L \\
+    s & s & s
+  \end{Bmatrix}.
+\end{align}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
