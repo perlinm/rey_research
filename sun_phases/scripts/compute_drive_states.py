@@ -11,7 +11,7 @@ np.set_printoptions(linewidth = 200)
 
 dim = int(sys.argv[1])
 
-fig_dir = "../figures/drive_states/"
+data_dir = "../data/drive_states/"
 
 ##################################################
 # define objects
@@ -29,80 +29,69 @@ Sz = S_vec[0].todense()
 Sx = S_vec[1].todense()
 Sy = S_vec[2].todense()
 
+H_drive = Sx - Sx @ Sx
+
 ##################################################
-# simulation and plotting methods
+# simulation methods
 
 def time_deriv(state, hamiltonian):
     return -1j * hamiltonian.dot(state.T)
 def ivp_deriv(hamiltonian):
     return lambda time, state : time_deriv(state, hamiltonian)
-
 def get_states(times, hamiltonian, ivp_tolerance = 1e-10):
-    return scipy.integrate.solve_ivp(ivp_deriv(hamiltonian), (0,times[-1]),
-                                     init_state, t_eval = times,
-                                     rtol = ivp_tolerance, atol = ivp_tolerance).y.T
-
-def plot_states(name, times, states, angle = 0):
-    R = scipy.linalg.expm(1j*Sy*angle)
-    digits = int(np.floor(np.log10(time_steps-1)))+1
-
-    sim_tag = f"{name}_{dim}"
-    sim_dir = fig_dir + sim_tag + "/"
-    if not os.path.isdir(sim_dir): os.makedirs(sim_dir)
-
-    for step, ( time, state ) in enumerate(zip(times, states)):
-        print(f"{step} / {time_steps}")
-        step_str = str(step).zfill(digits)
-        plot_dicke_state(R @ state, single_sphere = False)
-        plt.savefig(sim_dir + f"{sim_tag}_{step_str}.png")
-        plt.close("all")
+    solve_ivp = scipy.integrate.solve_ivp
+    return solve_ivp(ivp_deriv(hamiltonian), (0,times[-1]), init_state,
+                     t_eval = times, rtol = ivp_tolerance, atol = ivp_tolerance).y.T
 
 ##################################################
 # simulate and save states
 
-def energies(phi, qq):
+def get_energies(phi, qq):
     return -2 * np.array([ np.cos(qq + mu*phi) for mu in spin_vals ])
 def H_SOC(phi, qq):
-    return np.diag(energies(qq,phi))
-
-H_drive = Sx - Sx @ Sx
-
+    return np.diag(get_energies(qq,phi))
 def H_total(theta, phi, qq):
-    return np.cos(theta) * H_drive + np.sin(theta) * H_SOC(phi,qq)
+    return weight * H_drive + (1-weight) * H_SOC(phi,qq)
 
-##################################################
-def correlation(ff, gg, min, max):
-    _mean = lambda hh : scipy.integrate.quad_vec(hh,min,max)[0] / (max-min)
-    ff_mean = _mean(ff)
-    gg_mean = _mean(gg)
-    ff_dev = lambda qq : ff(qq) - ff_mean
-    gg_dev = lambda qq : gg(qq) - gg_mean
-    ff_var = _mean(lambda qq : ff_dev(qq)**2)
-    gg_var = _mean(lambda qq : gg_dev(qq)**2)
-    norm = np.sqrt(ff_var * gg_var)
-    cov = _mean(lambda qq : ff_dev(qq) * gg_dev(qq))
+def correlation(ff, gg, domain):
+    def _mean(hh):
+        return scipy.integrate.simps(hh.T, domain) / (domain[-1] - domain[0])
+    ff_dev = ff - _mean(ff) # deviation from the mean
+    gg_dev = gg - _mean(gg)
+    ff_var = _mean(ff_dev**2) # variance
+    gg_var = _mean(gg_dev**2)
 
-    if type(cov) is np.ndarray:
-        cov[np.isclose(cov,0)] = 0
-        norm[cov == 0] = 1
-    else:
-        if np.isclose(cov,0): return 0
+    cov = _mean(ff_dev * gg_dev) # covariance
+    norm = np.sqrt(ff_var * gg_var) # normalization factor
+
+    # correct for numerical zeroes and return
+    cov[np.isclose(cov,0)] = 0
+    norm[cov == 0] = 1
     return cov / norm
-##################################################
 
 times = np.linspace(0, 10*np.pi, 1001)
-phi_vals = np.linspace(0, np.pi, 101)
-theta_vals = np.linspace(0, np.pi, 101)
-momenta = np.linspace(-np.pi, np.pi, 11)
+phi_vals = np.linspace(0, 2*np.pi/total_spin, 101)
+weight_vals = np.linspace(0, 1, 101)
+momenta = np.linspace(-np.pi, np.pi, 121)
 
 for phi_idx, phi in enumerate(phi_vals):
-    phi_energies = np.array([ energies(phi,qq) for qq in momenta ])
-    for theta_idx, theta in enumerate(theta_vals):
-        states = np.array([ get_states(times, H_total(theta, phi, qq))
-                            for qq in momenta ])
+    print(f"{phi_idx}/{phi_vals.size}")
 
-        populations = abs(states)**2
-        print(populations.shape)
-        print(phi_energies.shape)
-        exit()
+    energies = np.array([ get_energies(phi,qq) for qq in momenta ])
+
+    phi_tag = f"d{dim:02d}_p{phi_idx:03d}"
+    np.savetxt(data_dir + f"energies_{phi_tag}.txt", energies)
+
+    for weight_idx, weight in enumerate(weight_vals):
+        print(f" {weight_idx}/{weight_vals.size}")
+
+        states = np.array([ get_states(times, H_total(weight, phi, qq))
+                            for qq in momenta ])
+        correlations = np.array([ correlation(abs(states[:,tt,:])**2, energies, momenta)
+                                  for tt in range(times.size) ])
+
+        suffix = f"{phi_tag}_w{weight_idx:03d}"
+        states.shape = (states.shape[0], -1)
+        np.savetxt(data_dir + f"states_{suffix}.txt", states)
+        np.savetxt(data_dir + f"correlations_{suffix}.txt", correlations)
 
