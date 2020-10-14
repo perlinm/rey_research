@@ -98,6 +98,7 @@ for phi_idx, phi in enumerate(phi_vals):
 
     for weight_idx, weight in enumerate(weight_vals):
         print(f" {weight_idx}/{weight_vals.size}")
+        sys.stdout.flush()
 
         states = np.array([ get_states(times, H_total(weight, phi, qq))
                             for qq in momenta ])
