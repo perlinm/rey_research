@@ -4,35 +4,47 @@ import os, sys, functools, scipy, scipy.integrate
 import numpy as np
 import matplotlib.pyplot as plt
 
-from dicke_methods import coherent_spin_state_angles, \
-    spin_op_vec_mat_dicke, plot_dicke_state
+from dicke_methods import spin_op_vec_dicke
 
 np.set_printoptions(linewidth = 200)
 
 dim = int(sys.argv[1])
+if len(sys.argv) > 2:
+    drive = [ int(val) for val in sys.argv[2:] ]
+else:
+    drive = [ 1, 0, 1 ] # default drive
 
-data_dir = "../data/drive_states/"
+data_dir = "../data/drive_states/drive_"
+for val in drive:
+    if val == 0: data_dir += "z"
+    elif val == +1: data_dir += "p"
+    elif val == -1: data_dir += "m"
+    else: assert(False)
+data_dir += "/"
+if not os.path.isdir(data_dir):
+    os.makedirs(data_dir)
 
 ##################################################
 # define objects
 
 total_spin = (dim-1)/2
-spin_vals = np.arange(total_spin, -total_spin-1, -1)
+Sz, Sx, Sy = [ op.todense() for op in spin_op_vec_dicke(dim-1) ]
+spin_vals = np.diag(Sz)
 
-def polarized_state(theta, phi):
-    return coherent_spin_state_angles(theta, phi, dim-1)
+# initial state pointing in -Z
+init_state = np.zeros(dim, dtype = complex)
+init_state[spin_vals.argmin()] = 1
 
-init_state = polarized_state(np.pi,0)
-
-S_vec, SS_mat = spin_op_vec_mat_dicke(dim-1)
-Sz = S_vec[0].todense()
-Sx = S_vec[1].todense()
-Sy = S_vec[2].todense()
-
-H_drive = Sx - Sx @ Sx
+# build drive Hamiltonian
+def build_drive(drive_strengths):
+    zz, pp, mm = drive_strengths
+    fst = pp*mm * Sz + zz*mm * Sx + zz*pp * (Sz @ Sx + Sx @ Sz)
+    snd = zz**2 * Sz @ Sz + pp**2 * Sx @ Sx + mm**2 * Sy @ Sy
+    drive = fst - snd
+    return drive - np.trace(drive)/dim * np.eye(dim)
 
 ##################################################
-# simulation methods
+# time evolution methods
 
 def time_deriv(state, hamiltonian):
     return -1j * hamiltonian.dot(state.T)
@@ -45,6 +57,8 @@ def get_states(times, hamiltonian, ivp_tolerance = 1e-10):
 
 ##################################################
 # simulate and save states
+
+H_drive = build_drive(drive)
 
 def get_energies(phi, qq):
     return -2 * np.array([ np.cos(qq + mu*phi) for mu in spin_vals ])
@@ -94,4 +108,3 @@ for phi_idx, phi in enumerate(phi_vals):
         states.shape = (states.shape[0], -1)
         np.savetxt(data_dir + f"states_{suffix}.txt", states)
         np.savetxt(data_dir + f"correlations_{suffix}.txt", correlations)
-
