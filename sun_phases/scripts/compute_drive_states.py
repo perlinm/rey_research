@@ -84,16 +84,17 @@ def correlation(ff, gg, domain):
     return cov / norm
 
 times = np.linspace(0, 10*np.pi, 1001)
-phi_vals = np.linspace(0, 2*np.pi/total_spin, 101)
-weight_vals = np.linspace(0, 1, 101)
-momenta = np.linspace(-np.pi, np.pi, 121)
+phi_frac_vals = np.arange(0, 1, 0.1)
+weight_vals = np.arange(0, 1, 0.1)
+momenta = np.linspace(-np.pi, np.pi, 201)
 
-for phi_idx, phi in enumerate(phi_vals):
-    print(f"{phi_idx}/{phi_vals.size}")
+for phi_idx, phi_frac in enumerate(phi_frac_vals):
+    print(f"{phi_idx}/{phi_frac_vals.size}")
 
+    phi = phi_frac * 2*np.pi/total_spin
     energies = np.array([ get_energies(phi,qq) for qq in momenta ])
 
-    phi_tag = f"d{dim:02d}_p{phi_idx:03d}"
+    phi_tag = f"d{dim:02d}_p{phi_frac:.2f}"
     np.savetxt(data_dir + f"energies_{phi_tag}.txt", energies)
 
     for weight_idx, weight in enumerate(weight_vals):
@@ -105,7 +106,7 @@ for phi_idx, phi in enumerate(phi_vals):
         correlations = np.array([ correlation(abs(states[:,tt,:])**2, energies, momenta)
                                   for tt in range(times.size) ])
 
-        suffix = f"{phi_tag}_w{weight_idx:03d}"
+        suffix = f"{phi_tag}_w{weight:.2f}"
         states.shape = (states.shape[0], -1)
         np.savetxt(data_dir + f"states_{suffix}.txt", states)
         np.savetxt(data_dir + f"correlations_{suffix}.txt", correlations)
