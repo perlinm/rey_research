@@ -91,7 +91,7 @@ momenta = np.linspace(-np.pi, np.pi, 201)
 for phi_idx, phi_frac in enumerate(phi_frac_vals):
     print(f"{phi_idx}/{phi_frac_vals.size}")
 
-    phi = phi_frac * 2*np.pi/total_spin
+    phi = phi_frac * 2*np.pi
     energies = np.array([ get_energies(phi,qq) for qq in momenta ])
 
     phi_tag = f"d{dim:02d}_p{phi_frac:.2f}"
