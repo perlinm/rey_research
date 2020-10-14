@@ -84,8 +84,8 @@ def correlation(ff, gg, domain):
     return cov / norm
 
 times = np.linspace(0, 10*np.pi, 1001)
-phi_frac_vals = np.arange(0, 1, 0.1)
-weight_vals = np.arange(0, 1, 0.1)
+phi_frac_vals = np.arange(0.1, 1, 0.1)
+weight_vals = np.arange(0.1, 1, 0.1)
 momenta = np.linspace(-np.pi, np.pi, 201)
 
 for phi_idx, phi_frac in enumerate(phi_frac_vals):
