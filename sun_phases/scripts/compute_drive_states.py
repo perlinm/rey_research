@@ -64,7 +64,7 @@ def get_energies(phi, qq):
     return -2 * np.array([ np.cos(qq + mu*phi) for mu in spin_vals ])
 def H_SOC(phi, qq):
     return np.diag(get_energies(qq,phi))
-def H_total(theta, phi, qq):
+def H_total(weight, phi, qq):
     return weight * H_drive + (1-weight) * H_SOC(phi,qq)
 
 def correlation(ff, gg, domain):
