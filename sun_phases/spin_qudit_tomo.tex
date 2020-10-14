@@ -245,9 +245,6 @@ In our case, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}=d-1$, so
 
 [\red{Note: finishing comments about why one could expect more than $2d-1$ axes to be necessary, and what conditions are needed for $2d-1$ to be sufficient.}]
 
-[\red{I {\it might} be able to prove that $2d-1$ axes always suffice for full recovery.
-  See Appendix \ref{sec:recycle}.}]
-
 \vspace{3cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -417,95 +414,6 @@ Orthogonality relations for adjoint matrix elements $\D^\ell_{mn}$ are derived i
 \end{align}
 is an irreducible unitary representation of SO(3).
 This property of $\D^\ell$ follows from the fact that it is an adjoint representation of SO(3), which is isomorphic to the standard representation $D^\ell$ \cite{hall2015lie}.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Recycling sampling points on the sphere}
-\label{sec:recycle}
-
-[\red{Note: I have not finished writing up the proof below.
-  I was previously sure that it works, but I ran into an error that I am trying to fix, so I am not so sure at the moment.}]
-
-Consider a set of points $V=\set{\v v}$ on the sphere, and define $L^2_\ell\p{\Omega}$ as the subspace of square-integrable functions on the sphere that can be written as a sum of degree-$\ell$ spherical harmonics, which is to say that a function $f_\ell\in L^2_\ell\p{\Omega}$ admits the decomposition
-\begin{align}
-  f_\ell = \sum_{m=-\ell}^\ell f_{\ell m} Y_{\ell m},
-\end{align}
-where $f_{\ell m}\in\CC$ are scalars and $Y_{\ell m}$ is the spherical harmonic of degree $\ell$ and order $m$.
-Here, we prove the following:
-\begin{theorem}
-  If $V$ enables the recovery of arbitrary functions $f_\ell\in L^2_\ell\p{\Omega}$, which is to say that $f_\ell$ is uniquely determined by its values $f_\ell\p{\v v}$ at all $\v v\in V$, then $V$ also enables the recovery of arbitrary functions $f_k\in L^2_k\p{\Omega}$ with $k<\ell$.
-  \label{thm:recycling}
-\end{theorem}
-Consider the equivalent, contrapositive statement: if a set of points $V$ is insufficient to recover functions $f_k\in L^2_k\p{\Omega}$, then $V$ is insufficient to recover functions $f_\ell\in L^2_\ell\p{\Omega}$ with $\ell>k$.
-If we can prove this statement for $k=\ell-1$, then we essentially prove it for all $k<\ell$ by induction, which in turn proves theorem \ref{thm:recycling}.
-
-We first clarify necessary and sufficient conditions for $V$ to enable the recovery of arbitrary functions $f_k\in L^2_k\p{\Omega}$.
-Recovery requires the existence of coefficients $C_{km}\p{\v v}$ for which
-\begin{align}
-  f_{km} = \sum_{\v v\in V} C_{km} f_k\p{v}
-  = \sum_{\v v,n} C_{km}\p{\v v} f_{kn} Y_{kn}\p{\v v},
-\end{align}
-which implies that
-\begin{align}
-  \sum_{\v v\in V} C_{km}\p{\v v} Y_{kn}\p{\v v} = \delta_{mn}.
-  \label{eq:degree_recovery}
-\end{align}
-Coefficients $C_{km}\p{\v v}$ satisfying Eq.~\eqref{eq:degree_recovery} are essentially a left-inverse of the $\abs{V}\times\p{2k+1}$ matrix
-\begin{align}
-  \Y_k\p{V} \equiv
-  \begin{pmatrix}
-    Y_{k,-k}\p{\v v_1} & \cdots & Y_{kk}\p{\v v_1} \\
-    \vdots & \ddots & \vdots \\
-    Y_{k,-k}\p{\v v_{\abs{V}}} & \cdots & Y_{kk}\p{\v v_{\abs{V}}}
-  \end{pmatrix},
-\end{align}
-which exists if and only if $\Y_k\p{V}$ has maximal rank, $2k+1$.
-Note that the existence of such an inverse is entirely a property of $V$, independent of the choice of basis for $L^2_k\p{\Omega}$ \cite{freeden2008spherical}, which is why we are free to consider the spherical harmonics $Y_{km}$ here in place of the adjoint rotation matrix elements $\D^k_{m,0}$ that appear in the main text.
-
-We now assume that $V$ is insufficient to recover functions in $L^2_{\ell-1}\p{\Omega}$.
-In this case, the matrix $\Y_{\ell-1}\p{V}$ does not have maximal rank, which implies that its columns are linearly dependent.
-Linear dependence of the columns of $\Y_{\ell-1}\p{V}$ in turn implies the existence of non-trivial (i.e.~not-all-zero) coefficients $c_{\ell-1,m}$ for which
-\begin{align}
-  \sum_{m=-\ell+1}^{\ell-1} c_{\ell-1,m} Y_{\ell-1,m}\p{\v v}
-  = 0 ~\t{for all}~ \v v\in V.
-\end{align}
-Using the fact that $Y_{km}\p{\v v}\propto e^{\i m\alpha_{\v v}} P_{km}\p{\cos\beta_{\v v}}$, where $\alpha_{\v v},\beta_{\v v}$ are respectively the azimuthal and polar angles of $\v v$ and $P_{km}$ is an associated Legendre polynomial, we can say that
-\begin{align}
-  \sum_{m=-\ell+1}^{\ell-1} \tilde c_{\ell-1,m} e^{\i m\alpha_{\v v}} P_{\ell-1,m}\p{\cos\beta_{\v v}}
-  = 0 ~\t{for all}~ \v v\in V,
-  &&
-  \tilde c_{\ell m} \equiv c_{\ell m}
-  \times \sqrt{\f{4\pi\p{\ell+m}!}{\p{2\ell+1}\p{\ell-m}!}}.
-\end{align}
-Assuming without loss of generality that $\cos\beta_{\v v}\ne1$ for all $\v v\in V$, we can use recurrence relations of the associated Legendre polynomials to say that
-\begin{align}
-  \sum_{m=-\ell+1}^{\ell-1} \sum_{\sigma\in\set{\pm1}}
-  e^{\i m\alpha_{\v v}} \tilde d_{\ell m\sigma}
-  P_{\ell m+\sigma}\p{\cos\beta_{\v v}}
-  = 0 ~\t{for all}~ \v v\in V,
-\end{align}
-where
-\begin{align}
-  \tilde d_{\ell m,+} \equiv -\f{\tilde c_{\ell-1,m}}{2m},
-  &&
-  \tilde d_{\ell m,-} \equiv -\f{\tilde c_{\ell-1,m}}{2m}
-  \p{\ell-m+1} \p{\ell-m+2}.
-\end{align}
-[\red{what if $m=0$?}] Substituting back the spherical harmonics in place of the associated Legendre polynomials, we thus find that
-\begin{align}
-  \sum_{m=-\ell}^\ell \sum_{\sigma\in\set{\pm 1}}
-  d_{\ell m\sigma} e^{-\i\sigma\alpha_{\v v}} Y_{\ell m}\p{\v v} = 0
-  ~\t{for all}~ \v v\in V,
-  &&
-  d_{\ell m\sigma} \equiv \tilde d_{\ell,m-\sigma,\sigma}
-  \times \sqrt{\f{\p{2\ell+1}\p{\ell-m}!}{4\pi\p{\ell+m}!}},
-\end{align}
-where we define $\tilde d_{\ell\ell\sigma} = \tilde d_{\ell,-\ell,\sigma} = 0$.
-
-\vspace{.5cm}
-
-[\red{proof incomplete}]
-
-\vspace{3cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Transition operator product expansion}
