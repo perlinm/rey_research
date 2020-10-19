@@ -71,25 +71,25 @@ def all_drive_ops(points):
 def proj_span_norms(points):
     axis_num = points.shape[0]
     drive_ops = all_drive_ops(points)
-    vals = np.zeros(dim**2)
+    norms = np.zeros(dim**2)
     for LL in range(dim):
         overlap_mat = np.zeros((axis_num,)*2, dtype = complex)
         for ii, jj in it.product(range(axis_num), repeat = 2):
             overlap_mat[ii,jj] = op_dot(drive_ops[ii,LL,:,:],drive_ops[jj,LL,:,:])
-        idx_min, val_num = LL**2, 2*LL+1
-        vals_LL = np.linalg.eigvalsh(overlap_mat)[-val_num:]
-        vals[ idx_min : idx_min + vals_num ] = vals_LL
-    return vals
+        idx_min, norm_num = LL**2, 2*LL+1
+        norms_LL = np.linalg.eigvalsh(overlap_mat)[-norm_num:]
+        norms[ idx_min : idx_min + norms_LL.size ] = norms_LL
+    return norms
 
 def proj_span_dim(points):
     norms = proj_span_norms(points)
     return sum(np.logical_not(np.isclose(norms,0)))
 
-def overlap_cost(points):
+def overlap_cost(points, indices = None):
     points_mat_shape = (points.size//2,2)
     points_mat = points.reshape(points_mat_shape)
-    vals = proj_span_norms(points_mat)
-    return sum(1/vals)
+    norms = proj_span_norms(points_mat)
+    return sum(1/norms)
 
 def random_points(seed = seed):
     np.random.seed(seed)
