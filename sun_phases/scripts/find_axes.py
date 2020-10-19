@@ -77,7 +77,8 @@ def proj_span_norms(points):
         for ii, jj in it.product(range(axis_num), repeat = 2):
             overlap_mat[ii,jj] = op_dot(drive_ops[ii,LL,:,:],drive_ops[jj,LL,:,:])
         idx_min, val_num = LL**2, 2*LL+1
-        vals[idx_min:idx_min+val_num] = np.linalg.eigvalsh(overlap_mat)[-val_num:]
+        vals_LL = np.linalg.eigvalsh(overlap_mat)[-val_num:]
+        vals[ idx_min : idx_min + vals_num ] = vals_LL
     return vals
 
 def proj_span_dim(points):
@@ -99,15 +100,15 @@ def random_points(seed = seed):
 
 ####################
 
-spr_points = random_points()
-spr_norms = proj_span_norms(spr_points)
-print(energy_cost(spr_points))
-print(overlap_cost(spr_points))
-print(np.sort(spr_norms[spr_norms < 1]))
+rnd_points = random_points()
+rnd_norms = proj_span_norms(rnd_points)
+print(energy_cost(rnd_points))
+print(overlap_cost(rnd_points))
+print(np.sort(rnd_norms[rnd_norms < 1]))
 print()
 
-optimum = scipy.optimize.minimize(overlap_cost, spr_points.ravel())
-min_points = optimum.x.reshape(spr_points.shape)
+optimum = scipy.optimize.minimize(overlap_cost, rnd_points.ravel())
+min_points = optimum.x.reshape(rnd_points.shape)
 min_norms = proj_span_norms(min_points)
 print()
 print(energy_cost(min_points))
@@ -188,19 +189,19 @@ def organize_points(points, operation = None, track = False):
         return new_points, operation
 
 min_points, operation = organize_points(min_points, track = True)
-spr_points = organize_points(spr_points, operation)
+rnd_points = organize_points(rnd_points, operation)
 
 min_polar = np.vstack([min_points[:,1], abs(np.sin(min_points[:,0]))])
-spr_polar = np.vstack([spr_points[:,1], abs(np.sin(spr_points[:,0]))])
-for min_polar_point, spr_polar_point in zip(min_polar.T, spr_polar.T):
-    plt.polar([min_polar_point[0], spr_polar_point[0]],
-              [min_polar_point[1], spr_polar_point[1]],
+rnd_polar = np.vstack([rnd_points[:,1], abs(np.sin(rnd_points[:,0]))])
+for min_polar_point, rnd_polar_point in zip(min_polar.T, rnd_polar.T):
+    plt.polar([min_polar_point[0], rnd_polar_point[0]],
+              [min_polar_point[1], rnd_polar_point[1]],
               color = "gray", linestyle = ":", linewidth = 1)
 min_plot = plt.polar(min_polar[0,:], min_polar[1,:], "o")
-spr_plot = plt.polar(spr_polar[0,:], spr_polar[1,:], ".")
+rnd_plot = plt.polar(rnd_polar[0,:], rnd_polar[1,:], ".")
 
 min_plot[0].set_clip_on(False)
-spr_plot[0].set_clip_on(False)
+rnd_plot[0].set_clip_on(False)
 plt.ylim(0,1)
 plt.gca().set_xticklabels([])
 plt.gca().set_yticklabels([])
