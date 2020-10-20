@@ -226,7 +226,7 @@ External control fields also allow us to prepare product states in which each sp
 Generally speaking, the possibilities to prepare $N$-fold product states of the form $\ket\psi^{\otimes N}$ are enormous.
 
 Perhaps more interestingly, we can in principle prepare inhomogeneous product states in which the state of each spin is correlated with its corresponding single-body term of the spin Hamiltonian in \eqref{eq:spin_pair}.
-We are currently working on characterizing the sort of inhomogeneous states that we can prepare.
+We are currently working on characterizing the sort of inhomogeneous states that we can prepare (see Appendix \ref{sec:init_states}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Mean-field theory}
@@ -349,15 +349,6 @@ This finding, as well as others (such as the possible existence of a third phase
 \section{Spin qudit tomography}
 \label{sec:tomography}
 
-% Motivations / background:
-% https://arxiv.org/pdf/1901.06282.pdf
-% https://arxiv.org/abs/1911.00099
-% https://arxiv.org/abs/2005.10910
-% https://journals.aps.org/pra/abstract/10.1103/PhysRevA.86.012118
-% https://journals.aps.org/pra/abstract/10.1103/PhysRevA.94.010301
-% https://arxiv.org/pdf/2003.08668.pdf
-% https://www.osapublishing.org/ol/abstract.cfm?uri=ol-44-10-2558
-
 Here we discuss the task of performing full tomography on the average reduced single-particle density operator of a collection of nuclear spins.
 As this task will be performed using collective measurements and homogeneous control fields, for ease of language we will consider the equivalent problem of performing tomography on a single nuclear spin.
 We have essentially two ingredients at our disposal: projective measurements of spin onto a fixed quantization axis, and a three-laser drive that addresses nuclear spins via off-resonant coupling to an excited electronic state.
@@ -430,14 +421,14 @@ Altogether, these lasers induce the drive Hamiltonian
 \end{align}
 where $s_{\v v\pm}$ are spin-raising/lowering operators along axis $\v v$ (containing all appropriate Clebsch-Gordan coefficients), and $\1$ is the identity operator for a single $n$-level spin (with total spin $I=\frac{n-1}{2}$).
 To write out $s_{\v v\pm}$ in full, we first identify the operators $s_\x,s_\y,s_\z$ that generate rotations of an $n$-level spin in 3D space, and define $s_\pm\equiv s_\x\pm\i s_\y$.
-Denoting the polar and azimuthal angles of $\v v$ respectively by $\alpha_{\v v}$ and $\beta_{\v v}$, we can use the fact that $s_\x,s_\y,s_\z$ form an $\su(2)$ algebra to expand
+Denoting the azimuthal and polar angles of $\v v$ respectively by $\alpha_{\v v}$ and $\beta_{\v v}$, we can use the fact that $s_\x,s_\y,s_\z$ form an $\su(2)$ algebra to expand
 \begin{align}
   s_{\v v\pm}
-  &= e^{-\i\beta_{\v v}s_\z} e^{-\i\alpha_{\v v}s_\y}
-  s_\pm e^{\i\alpha_{\v v}s_\y} e^{\i\beta_{\v v}s_\z} \\
-  &= -\sin\alpha_{\v v}\, s_\z
-  + \f12 \p{\cos\alpha_{\v v}+1} e^{\mp\i\beta_{\v v}} s_\pm
-  + \f12 \p{\cos\alpha_{\v v}-1} e^{\pm\i\beta_{\v v}} s_\mp.
+  &= e^{-\i\alpha_{\v v}s_\z} e^{-\i\beta_{\v v}s_\y}
+  s_\pm e^{\i\beta_{\v v}s_\y} e^{\i\alpha_{\v v}s_\z} \\
+  &= -\sin\beta_{\v v}\, s_\z
+  + \f12 \p{\cos\beta_{\v v}+1} e^{\mp\i\alpha_{\v v}} s_\pm
+  + \f12 \p{\cos\beta_{\v v}-1} e^{\pm\i\alpha_{\v v}} s_\mp.
 \end{align}
 We now consider a particular setup involving three drive lasers: one linearly polarized laser oriented along the $x$ axis, with propagation axis $\v v_0\equiv\p{1,0,0}$ and polarization amplitudes $\Omega_{\v v_\x\sigma}e^{\i\eta_{\v_\x\sigma}}=-\Omega_0e^{\i\eta_0}/2$ (for both $\sigma\in\set{\pm1}$); two right-circularly polarized lasers pointing in opposite directions along the $z$ axis, with propagation axes $\v v_\pm\equiv\p{0,0,\pm1}$ and polarization amplitudes $\Omega_{\v v_\pm,+}e^{\i\eta_{\v_\pm,+}}=\pm\Omega_\pm e^{\i\eta_\pm}$; and a 1D lattice oriented in the $y$-$z$ plane at an angle $\theta$ from the $z$ axis, with lattice axis $\v\ell=\p{0,\sin\theta,\cos\theta}$ [\todo{make figure?}].
 In this setup, the relevant spin-raising/lowering operators are
@@ -468,8 +459,7 @@ where the single-spin Hamiltonian $H_{\t{drive}}^{\t{single}}$ is given by
     + s_\z s_{\tilde\eta_\sigma,\x} + s_{\tilde\eta_\sigma,\x} s_\z} \\
   - \Omega_0^2 s_\z^2
   - \p{\Omega_+ + \Omega_-}^2 s_{\tilde\eta_0,\x}^2
-  - \p{\Omega_+ - \Omega_-}^2 s_{\tilde\eta_0,\y}^2
-  ,
+  - \p{\Omega_+ - \Omega_-}^2 s_{\tilde\eta_0,\y}^2,
   \label{eq:drive_single}
 \end{multline}
 with
@@ -499,7 +489,7 @@ In addition to enabling arbitrary 3D rotations, these collective rotations enabl
 \begin{table}
   \centering
   \caption{Drive Hamiltonians that can be implemented with various amplitude-matching conditions when all $\eta_m=0$.
-    Here $\v s_{\t{3D}}^2=s_\x^2+s_\y^2+s_\z^2=I\p{I+1}$ is a constant.}
+    Here $\v s_{\t{3D}}^2=s_\x^2+s_\y^2+s_\z^2=I\p{I+1}$ is a constant and $\sigma\in\set{+1,-1}$.  For each $m\in\set{0,+1,-1}$, a drive with $\abs*{\tilde\Omega_m}=1$ and $\tilde\Omega_n=0$ for $n\ne m$ commutes with drives in which $\tilde\Omega_m=0$ and $\abs*{\tilde\Omega_n}=1$ for $n\ne m$.}
   \begin{tabular}{c|c}
     $(\tilde\Omega_0,\tilde\Omega_+,\tilde\Omega_-)/\sqrt{\Delta}$
     & $H_{\t{drive}}^{\t{single}}$
@@ -510,12 +500,16 @@ In addition to enabling arbitrary 3D rotations, these collective rotations enabl
     \\ \hline
     $\p{0,0,1}$ & $-s_\y^2$
     \\ \hline
-    $\p{0,1,\pm1}$ & $\pm s_\z + s_\z^2 - \v s_{\t{3D}}^2$
+    $\p{0,1,\sigma}$ & $\sigma s_\z + s_\z^2 - \v s_{\t{3D}}^2$
     \\ \hline
-    $\p{1,0,\pm1}$ & $\pm s_\x + s_\x^2 - \v s_{\t{3D}}^2$
+    $\p{1,0,\sigma}$ & $\sigma s_\x + s_\x^2 - \v s_{\t{3D}}^2$
     \\ \hline
-    $\p{1,\pm1,0}$
-    & $\pm\p{s_\z s_\x+s_\x s_\z} + s_\y^2 - \v s_{\t{3D}}^2$
+    $\p{1,\sigma,0}$
+    & $\sigma\p{s_\z s_\x+s_\x s_\z} + s_\y^2 - \v s_{\t{3D}}^2$
+    \\ \hline
+    $\p{1,\sigma,\pm\sigma}$
+    & $\pm s_\z \pm \sigma s_\x
+    + \sigma \p{s_\z s_\x + s_\x s_\z} - \v s_{\t{3D}}^2$
   \end{tabular}
   \label{tab:drives}
 \end{table}
@@ -576,6 +570,15 @@ so
   = \sum_\nu \p{\sum_{\rho,\sigma,k}
     h^{\alpha\nu\ell}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
     + \epsilon_{\alpha\nu\ell}} b_{\nu\ell}.
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Initial states}
+\label{sec:init_states}
+
+Here we explore the preparation of initial states that are correlated with the single-particle terms of the spin Hamiltonian in Eqs.~\eqref{eq:spin_cos} and \eqref{eq:spin_pair}, namely
+\begin{align}
+  H_{\t{SOC}} \equiv -2 J \sum_{q,\mu} \cos\p{q+\mu\phi} s_{\mu\mu q}.
 \end{align}
 
 \bibliography{sun_dynamics_notes.bib}
