@@ -110,7 +110,7 @@
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
   By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
   We then provide an explicit optimized tomographic protocol, as well as numerical experiments to show that $r_d=2d-1$ for $d\le20$.
-  [\red{Note: there are also a few other things that I want to look into, such as (1) adaptive tomography protocols, (2) proofs about something like the number of measurements necessary to reconstruct an arbitrary state to a given precision, (3) a simplified tomography procedure for measuring pure states, (4) the trade-off between measurement precision and the \# of measurement axes (for a fixed total number of measurements).]}
+  [\red{Note: there are also a few other things that I want to look into, including (1) a simplified tomography procedure for measuring pure states, (2) trade-offs between measurement precision and the \# of measurement axes (for a fixed total number of measurements; these will likely be numerical experiments), (3) proofs about something like the number of measurements necessary to reconstruct an arbitrary state to a given precision, and (4) adaptive tomography protocols.]}
 \end{abstract}
 
 \maketitle
@@ -134,13 +134,17 @@ However, existing proposals either require the capability to perform essentially
 In particular, the protocols based on infinite-dimensional representations of a quantum spin require only the capability to measure spin projection onto different spatial axes, which is usually straightforward with a spin qudit.
 Nonetheless, these protocols obfuscate the requirements for performing full state tomography, provide no straightforward guarantees of state reconstruction fidelity, and extract only a vanishing faction of the information contained in measurement data.
 
-In this work, we provide a new and simple framework for performing spin qudit tomography.
-We begin by mapping this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere, thereby importing a host of existing literature and machinery that has been developed for this task \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
+In this work, we provide an efficient framework for performing spin qudit tomography using only measurements of spin projection onto different spatial axes.
+We first introduce, in Section \ref{sec:transition_ops}, a basis of operators that have a simple physical interpretation, and transform nicely under rotations in 3D space, thereby respecting the symmetries of the tomography task at hand.
+We then map this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby importing a host of existing literature and machinery that has been developed for this task \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
+In particular, this mapping allows us to bound the minimum number of measurement axes necessary to perform full tomography on a $d$-level spin qudit, $r_d$, by $2d-1\le r_d\le d^2$.
+We provide an example of an optimized tomography protocol in Section \ref{sec:protocol}, as well as numerical experiments to show that $r_d=2d-1$ for $d\le20$.
 
-[\red{finish intro, provide outline of the paper}]
+[\red{finish intro}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin transition operators and rotation matrices}
+\label{sec:transition_ops}
 
 Consider a $d$-state spin qudit with total spin $s\equiv\frac{d-1}{2}$.
 The defining property of a spin qudit is the fact that it describes an angular momentum degree of freedom, which has specific implications for how a spin qudit should transform under the group SO(3) of rotations in 3D space.
@@ -209,11 +213,12 @@ The same orthogonality relations in Eqs.~\eqref{eq:ortho_full} and \eqref{eq:ort
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin tomography as signal recovery on the sphere}
+\label{sec:signal_recovery}
 
 Our goal is to reconstruct an arbitrary state of a spin qudit from measurements of spin projection onto different quantization axes.
 We are thus nominally restricted to measuring projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$, where $\ket{\mu_{\v v}}\equiv R\p{\v v}\ket{\mu}$ is a state with spin projection $\mu$ onto a measurement axis determined by a point $\v v$ on the 2-sphere $\Omega_2$.
 For any fixed axis $\v v$, the sets $\set{\Pi_{\v v\mu}}$ and $\set{T_{\v v\ell,0}}$ are both orthonormal bases for the space of operators that are diagonal in the basis $\set{\ket{\mu_{\v v}}}$.
-By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v \ell,0}}_\rho\equiv\tr\p{\rho T_{\v v\ell,0}}$.
+By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v \ell,0}}_\rho$, where $\bk{X}_\rho\equiv\tr\p{\rho X}$.
 
 Reconstructing an arbitrary density operator $\rho$ essentially requires us to find a set of axes $V=\set{\v v}$ and associated coefficients $C_{\ell mk}\p{\v v}$ that would allow us to recover any coefficient $\rho_{\ell m}$ of the expansion in Eq.~\eqref{eq:trans_state} through
 \begin{align}
@@ -272,7 +277,7 @@ where
   \int_{\Omega_2} \d\Omega_2\p{\v v}
   \D^\ell_{m,0}\p{\v v}^* Y_{\ell n}\p{\v v},
 \end{align}
-is an inner product of the functions $\D^\ell_{m,0}$ and $Y_{\ell n}$ [\red{does this need to be derived in its own Appendix?}].
+is an inner product of the functions $\D^\ell_{m,0}$ and $Y_{\ell n}$ (see Appendix \ref{sec:basis_change}).
 
 Finally, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to recovery of a function in the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, which is possible with $\abs{V}=2\ell+1$ samples (equal to the dimension of the degree-$\ell$ subspace) \cite{freeden2008spherical}.
 In our case, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are transition operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
@@ -287,7 +292,8 @@ Unfortunately, we have no general proof of this conjecture, which may require a 
 Nonetheless, in the following section we show by example that $2d-1$ measurement axes suffice for all $d\le20$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Tomographic protocol and numerical experiments}
+\section{Tomography protocol and numerical experiments}
+\label{sec:protocol}
 
 [\red{Mention sparse signal recovery protocols \cite{rauhut2011sparse, alem2012sparse}.}]
 
@@ -467,6 +473,49 @@ Evaluating the integral over $\gamma_{\v\omega}$ and dividing through by $2\pi$ 
 \end{align}
 where integration is performed over all $\v v\in\Omega_2\simeq[0,2\pi]\times[0,\pi]$ with integration measure $\d\Omega_2\p{\v v} \equiv \d\alpha_{\v v} \d\beta_{\v v} \sin\beta_{\v v}$.
 A similar decomposition of the adjoint rotation matrix elements $\D^\ell_{mn}\p{\v\omega}$ (see Appendix \ref{sec:rotations}) implies the identical orthogonality relations.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Changing bases for the signal recovery problem}
+\label{sec:basis_change}
+
+Here we show how one solution to the problem of signal recovery on the sphere with a particular basis of functions (such as the spherical harmonics $Y_{\ell m}$) can be translated into a solution with a different basis (such as the adjoint rotation matrix elements $\D^\ell_{m,0}$).
+Consider a square-integrable function on the sphere, $f\in L^2\p{\Omega_2}$, with the harmonic expansion
+\begin{align}
+  f\p{\v v} = \sum_{\ell,m} f_{\ell m} B_{\ell m},
+\end{align}
+where $f_{\ell m}\in\CC$ is a coefficient and $\set{B_{\ell m}}$ is a complete basis for $L^2\p{\Omega_2}$.
+Without loss of generality, we will assume that for a fixed degree $\ell$ the functions $\set{B_{\ell m}}$ span the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, and that these functions satisfy orthogonality relations analogous to that in Eq.~\eqref{eq:ortho_sphere}.
+A solution to the signal recovery problem amounts to a set of points $V=\set{\v v}\subset\Omega_2$ and coefficients $C_{\ell m}\p{\v v}$ for which
+\begin{align}
+  f_{\ell m} = \sum_{\v v} C_{\ell m}\p{\v v} f\p{\v v}.
+  \label{eq:recovery_solution}
+\end{align}
+Consider now a different basis $\set{\tilde B_{\ell m}}$ for $L^2\p{\Omega_2}$, with which
+\begin{align}
+  f\p{\v v} = \sum_{\ell, m} \tilde f_{\ell m} \tilde B_{\ell m},
+\end{align}
+where we make the same general assumptions about $\set{\tilde B_{\ell m}}$ that we made for $\set{B_{\ell m}}$.
+Substituting the harmonic expansion of $f\p{\v v}$ in the original basis $\set{B_{\ell m}}$, we find that
+\begin{align}
+  \tilde f_{\ell m} = \int_{\Omega_2} \d\Omega_2\p{\v v}
+  \tilde B_{\ell m}\p{\v v}^* f\p{\v v}
+  = \sum_n G^\ell_{mn} f_{\ell n},
+  &&
+  G^\ell_{mn} \equiv \int_{\Omega_2} \d\Omega_2\p{\v v}
+  \tilde B_{\ell m}\p{\v v}^* B_{\ell n}\p{\v v},
+  \label{eq:basis_change}
+\end{align}
+where integration is performed over all $\v v\in\Omega_2\simeq[0,2\pi]\times[0,\pi]$ with integration measure $\d\Omega_2\p{\v v} \equiv \d\alpha_{\v v} \d\beta_{\v v} \sin\beta_{\v v}$.
+Note that the inner product between functions $\tilde B_{\ell m}\p{\v v}$ and $B_{kn}\p{\v v}$ for $k\ne\ell$ vanishes because these functions live in orthogonal subspaces of $L^2\p{\Omega_2}$ \cite{freeden2008spherical}.
+Substituting Eq.~\eqref{eq:recovery_solution} into Eq.~\eqref{eq:basis_change}, we find that
+\begin{align}
+  \tilde f_{\ell m}
+  = \sum_n G^\ell_{mn} \sum_{\v v} C_{\ell n}\p{\v v} f\p{\v v}
+  = \sum_{\v v} \tilde C_{\ell m}\p{\v v} f\p{\v v},
+  &&
+  \tilde C_{\ell m}\p{\v v} \equiv \sum_n G^\ell_{mn} C_{\ell n}\p{\v v}.
+\end{align}
+The coefficients $\tilde C_{\ell m}\p{\v v}$ thus solve the signal recovery problem with the new basis $\set{\tilde B_{\ell m}}$ for $L^2\p{\Omega_2}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Transition operator product expansion}
