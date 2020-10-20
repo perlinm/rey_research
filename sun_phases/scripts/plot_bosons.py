@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
+import os, sys
 import numpy as np
 import scipy.signal, scipy.linalg
 import matplotlib.pyplot as plt
@@ -19,14 +19,17 @@ figsize_double = (5,4)
 # plotting parameters
 log10_tun_vals_smry = np.linspace(-2,1,7)
 log10_tun_vals_bulk = np.arange(-2,1.01,0.05)
-soc_frac_vals = [ 0.1, 0.5, 0.9, 1.0 ]
+soc_frac_vals = np.linspace(0.1,1,10)
 plot_peaks = 50
 freq_num = 1000
 freq_scale = 2
 
-data_dir = "../data/oscillations/"
-fig_dir = "../figures/oscillations/time_series/"
+data_dir = "../data/oscillations/toy/"
+fig_dir = "../figures/oscillations/time_series/toy/"
 sys_tag = f"n{spin_dim}_N{spin_num}_{init_state_str}"
+
+if not os.path.isdir(fig_dir):
+    os.makedirs(fig_dir)
 
 params = { "font.size" : 10,
            "text.usetex" : True }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, time
+import os, sys, time
 import numpy as np
 import scipy.integrate
 
@@ -17,13 +17,16 @@ assert( init_state_str in [ "X", "XX" ] )
 
 # simulation parameters
 log10_tun_vals = np.arange(-2,1.01,0.05)
-soc_frac_vals = [ 0.1, 0.5, 0.9, 1.0 ]
+soc_frac_vals = np.linspace(0.1,1,10)
 periods = 1000
 
 ivp_tolerance = 1e-10
 
-data_dir = "../data/oscillations/"
+data_dir = "../data/oscillations/toy/"
 sys_tag = f"n{spin_dim}_N{spin_num}_{init_state_str}"
+
+if not os.path.isdir(data_dir):
+    os.makedirs(data_dir)
 
 ##########################################################################################
 # basic simulation objects and methods
@@ -129,7 +132,6 @@ def spin_angle(qq):
 def bare_lattice_field(qq, soc_angle):
     return np.diag([ np.cos(spin_angle(qq) + mu * soc_angle) for mu in spin_vals ])
 
-
 ##########################################################################################
 # set up objects for simulation
 ##########################################################################################
@@ -159,8 +161,16 @@ sim_start = time.time()
 for idx_soc, soc_frac in enumerate(soc_frac_vals):
     soc_tag = f"{soc_frac:.2f}"
     soc_angle = soc_frac * np.pi
-    bare_field = field_tensor([ bare_lattice_field(qq, soc_angle)
-                                for qq in range(spin_num) ])
+    # bare_field = field_tensor([ bare_lattice_field(qq, soc_angle)
+    #                             for qq in range(spin_num) ])
+
+    bare_field = field_tensor([ +Sz ] * (spin_num//2) + [ -Sz ] * (spin_num//2))
+
+    xx = np.cos(soc_angle/2)
+    yy = np.sin(soc_angle/2)
+    spin_states = [ spin_state([0,xx,+yy]) ] * (spin_num//2) \
+                + [ spin_state([0,xx,-yy]) ] * (spin_num//2)
+    init_state = boson_mft_state(spin_states)
 
     for idx_tun, log10_tun in enumerate(log10_tun_vals):
         tun_tag = f"{log10_tun:.2f}"
@@ -174,8 +184,10 @@ for idx_soc, soc_frac in enumerate(soc_frac_vals):
         this_start = time.time()
 
         tunneling = 10**log10_tun
-        field = -2*tunneling * bare_field
-        sim_time = 2*np.pi / np.sqrt(1 + 2*tunneling)**2 * periods
+        # field = -2*tunneling * bare_field
+        # sim_time = 2*np.pi / np.sqrt(1 + 2*tunneling)**2 * periods
+        field = tunneling * bare_field
+        sim_time = 2*np.pi / np.sqrt(1 + tunneling)**2 * periods
 
         times, states = evolve(init_state, sim_time, field)
         spin_mats = compute_spin_mats(states)
