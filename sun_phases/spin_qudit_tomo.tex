@@ -272,7 +272,7 @@ where
   \int_{\Omega_2} \d\Omega_2\p{\v v}
   \D^\ell_{m,0}\p{\v v}^* Y_{\ell n}\p{\v v},
 \end{align}
-is an inner product of the functions $\D^\ell_{m,0}$ and $Y_{\ell n}$ [\red{does this need to be derived in an Appendix?}].
+is an inner product of the functions $\D^\ell_{m,0}$ and $Y_{\ell n}$ [\red{does this need to be derived in its own Appendix?}].
 
 Finally, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to recovery of a function in the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, which is possible with $\abs{V}=2\ell+1$ samples (equal to the dimension of the degree-$\ell$ subspace) \cite{freeden2008spherical}.
 In our case, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are transition operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
@@ -444,6 +444,7 @@ The Schur orthogonality relations for irreducible unitary representations of com
   D^{\ell}_{mn}\p{\v\omega}^* D^{\ell'}_{m'n'}\p{\v\omega}
   = \f{\abs{\Omega_3}}{\dim\p{D^\ell}}
   \delta_{\ell\ell'} \delta_{mm'} \delta_{nn'},
+  \label{eq:ortho_full_apndx}
 \end{align}
 where $\dim\p{D^\ell}=2\ell+1$ is the dimension of $D^\ell$, and analogously
 \begin{align}
@@ -455,6 +456,17 @@ Orthogonality relations for adjoint matrix elements $\D^\ell_{mn}$ are derived i
 \end{align}
 is an irreducible unitary representation of SO(3).
 This property of $\D^\ell$ follows from the fact that it is an adjoint representation of SO(3), which is isomorphic to the standard representation $D^\ell$ \cite{hall2015lie}.
+
+The decomposition $D^\ell_{mn}\p{\v\omega} = e^{-\i\alpha_{\v\omega}m} d^\ell_{mn}\p{\beta_{\v\omega}} e^{-\i\gamma_{\v\omega}n}$, where $d^\ell_{mn}\p{\beta}\equiv D^\ell_{mn}\p{0,\beta,0}$ is
+a matrix element of a reduced fundamental (Wigner) rotation matrix, implies that setting $n'=n$ in in Eq.~\eqref{eq:ortho_full_apndx} makes the integrand independent of $\gamma_{\v\omega}$.
+Evaluating the integral over $\gamma_{\v\omega}$ and dividing through by $2\pi$ then recovers the orthogonality relations
+\begin{align}
+  \int_{\Omega_2} \d\Omega_2\p{\v v}
+  D^{\ell}_{mn}\p{\v v}^* D^{\ell'}_{m'n}\p{\v v}
+  = \f{4\pi}{2\ell+1} \delta_{\ell\ell'} \delta_{mm'},
+\end{align}
+where integration is performed over all $\v v\in\Omega_2\simeq[0,2\pi]\times[0,\pi]$ with integration measure $\d\Omega_2\p{\v v} \equiv \d\alpha_{\v v} \d\beta_{\v v} \sin\beta_{\v v}$.
+A similar decomposition of the adjoint rotation matrix elements $\D^\ell_{mn}\p{\v\omega}$ (see Appendix \ref{sec:rotations}) implies the identical orthogonality relations.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Transition operator product expansion}
