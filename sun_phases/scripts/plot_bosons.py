@@ -11,6 +11,7 @@ from multilevel_methods import drive_op, drive_scale
 spin_dim = int(sys.argv[1])
 spin_num = int(sys.argv[2])
 init_state_str = sys.argv[3]
+toy_sims = "toy" in sys.argv
 
 figsize = (4,3)
 figsize_ext = (5,3)
@@ -24,9 +25,13 @@ plot_peaks = 50
 freq_num = 1000
 freq_scale = 2
 
-data_dir = "../data/oscillations/toy/"
-fig_dir = "../figures/oscillations/time_series/toy/"
+data_dir = "../data/oscillations/"
+fig_dir = "../figures/oscillations/time_series/"
 sys_tag = f"n{spin_dim}_N{spin_num}_{init_state_str}"
+
+if toy_sims:
+    data_dir += "toy/"
+    fig_dir += "toy/"
 
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
