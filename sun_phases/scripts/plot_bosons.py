@@ -20,7 +20,7 @@ figsize_double = (5,4)
 # plotting parameters
 log10_tun_vals_smry = np.linspace(-2,1,7)
 log10_tun_vals_bulk = np.arange(-2,1.01,0.05)
-soc_frac_vals = np.linspace(0.1,1,10)
+soc_frac_vals = np.linspace(0,1,11)
 plot_peaks = 50
 freq_num = 1000
 freq_scale = 2

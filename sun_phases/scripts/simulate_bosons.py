@@ -18,7 +18,7 @@ assert( init_state_str in [ "X", "XX" ] )
 
 # simulation parameters
 log10_tun_vals = np.arange(-2,1.01,0.05)
-soc_frac_vals = np.linspace(0.1,1,10)
+soc_frac_vals = np.linspace(0,1,11)
 periods = 1000
 
 ivp_tolerance = 1e-10
