@@ -19,7 +19,7 @@ figsize_ext = (5,3)
 figsize_double = (5,4)
 
 # plotting parameters
-log10_field_vals_summary = np.arange(-2,1.01,1)
+log10_field_vals_summary = np.arange(-2,1.01,0.5)
 plot_peaks = 50
 freq_num = 1000
 freq_scale = 2
