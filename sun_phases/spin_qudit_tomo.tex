@@ -96,13 +96,13 @@
 \affiliation{\CTQM}
 \date{\today}
 
-\keywords{spin qudits; quantum state tomography}
+\keywords{qudits; spin qudits; quantum state tomography}
 
 \begin{abstract}
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
-  By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
-  We then provide an explicit optimized tomographic protocol, as well as numerical experiments to show that $r_d=2d-1$ for $d\le20$.
-  [\red{Note: there are also a few other things that I want to look into, including (1) a simplified tomography procedure for measuring pure states, (2) trade-offs between measurement precision and the \# of measurement axes (for a fixed total number of measurements; these will likely be numerical experiments), (3) proofs about something like the number of measurements necessary to reconstruct an arbitrary state to a given precision, and (4) adaptive tomography protocols.]}
+  We map this quantum tomography problem onto the classical problem of signal recovery on the sphere, thereby proving that full reconstruction of arbitrary mixed states is possible and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
+  Our mapping comes with a straightforward prescription for converting existing signal recovery algorithms into spin qudit tomography protocols, and numerical experiments show that $r_d=2d-1$ for $d\le20$.
+  [\red{Note: there are also a few other things that I want to look into, including (1) a simplified tomography procedure for pure states, (2) trade-offs between measurement precision and the \# of measurement axes (for a fixed total number of measurements; these will likely be numerical experiments), (3) proofs about the something like the number of measurements necessary to reconstruct an arbitrary state to a given precision, and (4) adaptive tomography protocols.]}
 \end{abstract}
 
 \maketitle
@@ -117,8 +117,8 @@ Bayesian inference \cite{huszar2012adaptive}, and neural networks \cite{torlai20
 These techniques are typically developed in a general, information-theoretic setting, and make minimal assumptions about the physical medium of a quantum state.
 As a consequence, even well-established techniques can nonetheless be ill-suited for physical platforms with unique or limited capabilities.
 
-Due in part to advancements in experimental capabilities to address nuclear spins in ultracold atomic systems [\red{CITE}], as well as developments in molecular cooling techniques [\red{CITE}], a particular setting of growing interest is the spin qudit, which describes a quantum angular momentum degree of freedom.
-Multilevel spin qudits can provide advantages for quantum sensing \cite{evrard2019enhanced}, enable quantum simulations of SU($N$) magnetism \cite{banerjee2013atomic, cazalilla2014ultracold}, and offer unique capabilities for quantum error correction \cite{albert2020robust, gross2020encoding}.
+Due in part to advancements in experimental capabilities to address nuclear spins in ultracold atomic systems [\red{CITE}], as well as developments in molecular cooling techniques [\red{CITE}], a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.
+Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{evrard2019enhanced}, enable quantum simulations of SU($N$) magnetism \cite{banerjee2013atomic, cazalilla2014ultracold}, and offer unique capabilities for quantum error correction \cite{albert2020robust, gross2020encoding}.
 In all cases, quantum state tomography is necessary to take full advantage of a spin qudit.
 
 The problem of qudit tomography in particular is not new, with an extensive literature on a variety of techniques \cite{manko1997spin, thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, evrard2019enhanced, stefano2019set, palici2020oam}.
@@ -130,7 +130,7 @@ In this work, we provide an efficient framework for performing spin qudit tomogr
 We first introduce, in Section \ref{sec:transition_ops}, a basis of operators that have a simple physical interpretation, and transform nicely under rotations in 3D space, thereby respecting the symmetries of the tomography task at hand.
 We then map this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby importing a host of existing literature and machinery that has been developed for this task \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
 In particular, this mapping allows us to bound the minimum number of measurement axes necessary to perform full tomography on a $d$-level spin qudit, $r_d$, by $2d-1\le r_d\le d^2$.
-We provide an example of an optimized tomography protocol in Section \ref{sec:protocol}, as well as numerical experiments to show that $r_d=2d-1$ for $d\le20$.
+We provide an example of an optimized tomography protocol in Section \ref{sec:protocol} [\red{I'll probably use modified versions of existing signal recovery algorithms rather than a new tomography protocol}], as well as numerical experiments to show that $r_d=2d-1$ for $d\le20$.
 
 [\red{finish intro}]
 
@@ -257,7 +257,7 @@ If
 then the full recovery problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points \cite{freeden2008spherical, freeden2018spherical}.
 The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially ``band-limited'' at degree $d$.
 
-Moreover, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$.
+Moreover, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$ (see Appendix \ref{sec:basis_change}).
 This translation enables importing a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
 Specifically, given a set of points $V\subset\Omega_2$ and coefficients $C_{\ell m}\p{\v v}$ that satisfy Eq.~\eqref{eq:full_recovery} with basis functions $Y_{\ell m}$, we can construct new coefficients $\tilde C_{\ell m}\p{\v v}$ that satisfy the same condition with basis functions $\D^\ell_{m,0}$ via
 \begin{align}
@@ -269,14 +269,14 @@ where
   \int_{\Omega_2} \d\Omega_2\p{\v v}
   \D^\ell_{m,0}\p{\v v}^* Y_{\ell n}\p{\v v},
 \end{align}
-is an inner product of $\D^\ell_{m,0}$ and $Y_{\ell n}$ (see Appendix \ref{sec:basis_change}).
+is an inner product of $\D^\ell_{m,0}$ and $Y_{\ell n}$.
 
 Finally, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to recovery of a function in the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, which is possible with $\abs{V}=2\ell+1$ samples (equal to the dimension of the degree-$\ell$ subspace) \cite{freeden2008spherical}.
 In the case of spin qudit tomography, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are transition operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
 Since
 \begin{enumerate*}
 \item there are only $2\ell+1\le2d-1$ transition operators of degree $\ell\le\ell_{\t{max}}$, and
-\item measuring spin projections along any axis simultaneously provides measurement data for transition operators of all degrees $\ell\le\ell_{\t{max}}$,
+\item measuring spin projections along any axis simultaneously provides measurement data for transition operators of {\it all} degrees $\ell\le\ell_{\t{max}}$,
 \end{enumerate*}
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
 In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any degree-$\ell$ function with $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
