@@ -55,9 +55,10 @@ def get_mean_states(mean_vals):
         return mean_vals_to_states(mean_vals)
     if init_state_str == "P-Z":
         vals = mean_vals.shape[1]
-        mean_states_fst = mean_vals_to_states(mean_vals[:,:vals//2])
-        mean_states_snd = mean_vals_to_states(mean_vals[:,vals//2:])
-        return ( mean_states_fst + mean_states_snd ) / 2
+        mean_vals_fst = mean_vals[:,:vals//2]
+        mean_vals_snd = mean_vals[:,vals//2:]
+        mean_vals_tot = ( mean_vals_fst + mean_vals_snd ) / 2
+        return mean_vals_to_states(mean_vals_tot)
 
 ##########################################################################################
 # plot summary figures
