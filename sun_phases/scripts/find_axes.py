@@ -15,9 +15,11 @@ dim = int(sys.argv[1])
 try: seed = int(sys.argv[2])
 except: seed = 0
 random.seed(seed)
+np.random.seed(seed)
 
 ####################
 
+samples = 100
 axis_num = 2*dim-1
 
 drive_ops = [ np.diag(transition_op(dim,L,0)) for L in range(dim) ]
@@ -84,8 +86,14 @@ def overlap_cost(points, indices = None):
     norms = proj_span_norms(points_mat)
     return abs(sum(1/norms))
 
+def random_points():
+    points = np.random.rand(axis_num,2)
+    points[:,0] = np.arccos(2*points[:,0]-1)
+    points[:,1] *= 2*np.pi
+    return points
+
 # taken from https://ieeexplore.ieee.org/document/6508014
-def spiral_points(spirality, seed = seed):
+def spiral_points(spirality = 3.6):
     base_vals = -1 + 2*np.arange(axis_num) / (axis_num-1)
     spiral_polar = np.arccos(base_vals)
     spiral_azimuth = np.zeros(axis_num-1)
@@ -98,9 +106,8 @@ def spiral_points(spirality, seed = seed):
 
 ####################
 
-def spiral_cost(spirality): return overlap_cost(spiral_points(spirality))
-spr_optimum = scipy.optimize.minimize(spiral_cost, 3.6)
-spr_points = spiral_points(spr_optimum.x)
+spr_point_sets = [ spiral_points() for _ in range(samples) ]
+spr_points = min(spr_point_sets, key = overlap_cost)
 spr_norms = proj_span_norms(spr_points)
 print(overlap_cost(spr_points))
 print(np.sort(spr_norms[spr_norms < 1]))
