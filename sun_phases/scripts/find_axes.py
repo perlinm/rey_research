@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, functools
+import sys, functools, random
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools as it
@@ -14,6 +14,7 @@ np.set_printoptions(linewidth = 200)
 dim = int(sys.argv[1])
 try: seed = int(sys.argv[2])
 except: seed = 0
+random.seed(seed)
 
 ####################
 
@@ -39,14 +40,6 @@ def distance(point_fst, point_snd):
     axis_snd = to_axis(point_snd)
     angle = np.arccos(np.dot(axis_fst,axis_snd)) / np.pi
     return min(angle,1-angle)
-def distances(points):
-    points_mat_shape = (points.size//2,2)
-    points_mat = points.reshape(points_mat_shape)
-    return ( distance(point_fst,point_snd)
-             for point_fst, point_snd in it.combinations(points_mat, 2) )
-
-def energy_cost(points):
-    return sum( 1/dist**2 for dist in distances(points) )
 
 ####################
 
@@ -89,29 +82,33 @@ def overlap_cost(points, indices = None):
     points_mat_shape = (points.size//2,2)
     points_mat = points.reshape(points_mat_shape)
     norms = proj_span_norms(points_mat)
-    return sum(1/norms)
+    return abs(sum(1/norms))
 
-def random_points(seed = seed):
-    np.random.seed(seed)
-    points = np.random.rand(axis_num,2)
-    points[:,0] = np.arccos(2*points[:,0]-1)
-    points[:,1] *= 2*np.pi
-    return points
+# taken from https://ieeexplore.ieee.org/document/6508014
+def spiral_points(spirality, seed = seed):
+    base_vals = -1 + 2*np.arange(axis_num) / (axis_num-1)
+    spiral_polar = np.arccos(base_vals)
+    spiral_azimuth = np.zeros(axis_num-1)
+    for kk in range(1,spiral_azimuth.size):
+        diff = spirality / np.sqrt( axis_num * (1-base_vals[kk]**2) )
+        spiral_azimuth[kk] = spiral_azimuth[kk-1] + diff
+    grid_points = list(it.product(spiral_polar[1:-1], spiral_azimuth))
+    grid_points += [ (0,0) ]
+    return np.array(random.sample(grid_points, axis_num))
 
 ####################
 
-rnd_points = random_points()
-rnd_norms = proj_span_norms(rnd_points)
-print(energy_cost(rnd_points))
-print(overlap_cost(rnd_points))
-print(np.sort(rnd_norms[rnd_norms < 1]))
-print()
+def spiral_cost(spirality): return overlap_cost(spiral_points(spirality))
+spr_optimum = scipy.optimize.minimize(spiral_cost, 3.6)
+spr_points = spiral_points(spr_optimum.x)
+spr_norms = proj_span_norms(spr_points)
+print(overlap_cost(spr_points))
+print(np.sort(spr_norms[spr_norms < 1]))
 
-optimum = scipy.optimize.minimize(overlap_cost, rnd_points.ravel())
-min_points = optimum.x.reshape(rnd_points.shape)
+min_optimum = scipy.optimize.minimize(overlap_cost, spr_points.ravel())
+min_points = min_optimum.x.reshape(spr_points.shape)
 min_norms = proj_span_norms(min_points)
 print()
-print(energy_cost(min_points))
 print(overlap_cost(min_points))
 print(np.sort(min_norms[min_norms < 1]))
 
@@ -189,19 +186,19 @@ def organize_points(points, operation = None, track = False):
         return new_points, operation
 
 min_points, operation = organize_points(min_points, track = True)
-rnd_points = organize_points(rnd_points, operation)
+spr_points = organize_points(spr_points, operation)
 
 min_polar = np.vstack([min_points[:,1], abs(np.sin(min_points[:,0]))])
-rnd_polar = np.vstack([rnd_points[:,1], abs(np.sin(rnd_points[:,0]))])
-for min_polar_point, rnd_polar_point in zip(min_polar.T, rnd_polar.T):
-    plt.polar([min_polar_point[0], rnd_polar_point[0]],
-              [min_polar_point[1], rnd_polar_point[1]],
+spr_polar = np.vstack([spr_points[:,1], abs(np.sin(spr_points[:,0]))])
+for min_polar_point, spr_polar_point in zip(min_polar.T, spr_polar.T):
+    plt.polar([min_polar_point[0], spr_polar_point[0]],
+              [min_polar_point[1], spr_polar_point[1]],
               color = "gray", linestyle = ":", linewidth = 1)
 min_plot = plt.polar(min_polar[0,:], min_polar[1,:], "o")
-rnd_plot = plt.polar(rnd_polar[0,:], rnd_polar[1,:], ".")
+spr_plot = plt.polar(spr_polar[0,:], spr_polar[1,:], ".")
 
 min_plot[0].set_clip_on(False)
-rnd_plot[0].set_clip_on(False)
+spr_plot[0].set_clip_on(False)
 plt.ylim(0,1)
 plt.gca().set_xticklabels([])
 plt.gca().set_yticklabels([])

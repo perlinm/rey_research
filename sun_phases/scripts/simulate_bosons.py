@@ -19,7 +19,7 @@ assert( init_state_str in [ "X-L", "XX-L", "P-Z" ] )
 
 # simulation parameters
 log10_field_vals = np.arange(-2,1.01,0.5)
-angle_frac_vals = np.array([1,0])
+angle_frac_vals = np.array([0,1])
 periods = 1000
 
 data_dir = "../data/oscillations/"
