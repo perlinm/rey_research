@@ -85,6 +85,7 @@ def coherent_spin_state_angles(theta, phi, N = 10):
 
 def coherent_spin_state(vec, N = 10):
     if type(vec) is str: return coherent_spin_state(axis_str(vec), N)
+    if len(vec) == 2: return coherent_spin_state_angles(*vec, N)
     theta, phi = vec_theta_phi(vec)
     return coherent_spin_state_angles(theta, phi, N)
 
