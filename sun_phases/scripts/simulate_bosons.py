@@ -2,203 +2,124 @@
 
 import os, sys, time
 import numpy as np
-import scipy.integrate
 
-from dicke_methods import coherent_spin_state_angles, coherent_spin_state, spin_op_z_dicke
+from dicke_methods import spin_op_z_dicke
+from boson_methods import polarized_state, spin_state, boson_mft_state, \
+    field_tensor, bare_lattice_field, evolve_mft, compute_mean_states
 
 np.set_printoptions(linewidth = 200)
 
 spin_dim = int(sys.argv[1])
 spin_num = int(sys.argv[2])
 init_state_str = sys.argv[3]
-toy_sim = "toy" in sys.argv
 
+assert( spin_dim % 2 == 0 )
 assert( spin_num % 2 == 0 )
-assert( init_state_str in [ "X", "XX" ] )
+assert( init_state_str in [ "X-L", "XX-L", "P-Z" ] )
 
 # simulation parameters
-log10_tun_vals = np.arange(-2,1.01,0.05)
-soc_frac_vals = np.linspace(0,1,11)
+log10_field_vals = np.arange(-2,1.01,0.5)
+angle_frac_vals = np.array([1,0])
 periods = 1000
-
-ivp_tolerance = 1e-10
 
 data_dir = "../data/oscillations/"
 sys_tag = f"n{spin_dim}_N{spin_num}_{init_state_str}"
 
-if toy_sim: data_dir += "toy/"
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
-
-##########################################################################################
-# basic simulation objects and methods
-##########################################################################################
-
-# construct a boson MFT state from a quantum state
-def boson_mft_state(bare_quantum_state):
-    quantum_state = np.array(bare_quantum_state).T.copy().astype(complex)
-
-    # if we were given a state of a single spin,
-    #   construct uniform product state of all spins
-    if quantum_state.ndim == 1:
-        quantum_state /= np.sqrt(sum(abs(quantum_state)**2))
-        quantum_state = np.repeat(quantum_state, spin_num)
-        quantum_state.shape = (spin_dim,spin_num)
-        return quantum_state
-
-    # if we were given many states, construct the state of each spin independently
-    if quantum_state.ndim == 2:
-        quantum_state /= np.sqrt(np.sum(abs(quantum_state)**2, axis = 0))
-        return quantum_state
-
-# return a quantum "coherent" (polarized) state of a single spin
-def spin_state(*direction):
-    if len(direction) == 1:
-        return coherent_spin_state(*direction, spin_dim-1)
-    if len(direction) == 2:
-        return coherent_spin_state_angles(*direction, spin_dim-1)
-
-# return a polarized state of all spins
-def polarized_state(*direction):
-    return boson_mft_state(spin_state(*direction))
-
-# method to construct a field tensor
-def field_tensor(bare_field_data):
-    field_data = np.array(bare_field_data)
-
-    # if we were given a single spin operator, assume a homogeneous field
-    if field_data.ndim == 2:
-        tensor = np.repeat(field_data, spin_num)
-        tensor.shape = (spin_dim,spin_dim,spin_num)
-        return tensor
-
-    # if we were given a list of spin operators, transpose data appropriately
-    if field_data.ndim == 3:
-        tensor = np.transpose(field_data, [ 1, 2, 0 ])
-        return tensor
-
-# method computing the time derivative of a mean-field bosonic state
-def boson_time_deriv(state, field, coupling_op = None):
-    state_triplet = ( state.conj(), state, state )
-    if coupling_op is None:
-        # uniform SU(n)-symmetric couplings
-        vec = np.einsum("nk,ak,ni->ai", *state_triplet) / spin_num \
-            + np.einsum("ani,ni->ai", field, state)
-    elif type(coupling_op) is np.ndarray and coupling_op.ndim == 2:
-        # inhomogeneous SU(n)-symmetric couplings
-        vec = np.einsum("ik,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
-            + np.einsum("ani,ni->ai", field, state)
-    elif type(coupling_op) is np.ndarray and coupling_op.ndim == 4:
-        # uniform asymmetric couplings
-        vec = np.einsum("anrs,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
-            + np.einsum("ani,ni->ai", field, state)
-    elif type(coupling_op) is np.ndarray and coupling_op.ndim == 6:
-        # inhomogeneous asymmetric couplings
-        vec = np.einsum("anirsk,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
-            + np.einsum("ani,ni->ai", field, state)
-    else:
-        # couplings that factorize into an "operator" part and a "spatial" part
-        vec = np.einsum("anrs,ik,rk,sk,ni->ai", *coupling_op, *state_triplet) / spin_num \
-            + np.einsum("ani,ni->ai", field, state)
-    return -1j * vec
-
-# wrapper for the numerical integrator, for dealing with multi-spin_dimensional state
-def evolve(initial_state, sim_time, field, coupling_op = None,
-           ivp_tolerance = ivp_tolerance):
-    state_shape = initial_state.shape
-    initial_state.shape = initial_state.size
-
-    def time_deriv_flat(time, state):
-        state.shape = state_shape
-        vec = boson_time_deriv(state, field, coupling_op).ravel()
-        state.shape = state.size
-        return vec
-
-    ivp_args = [ time_deriv_flat, (0, sim_time), initial_state ]
-    ivp_kwargs = dict( rtol = ivp_tolerance, atol = ivp_tolerance )
-    ivp_solution = scipy.integrate.solve_ivp(*ivp_args, **ivp_kwargs)
-
-    times = ivp_solution.t
-    states = ivp_solution.y
-    states.shape = state_shape + (times.size,)
-    states = states.transpose([2,0,1])
-
-    initial_state.shape = state_shape
-    return times, states
-
-# get the angle associated with a given spin number <--> quasimomentum
-def spin_angle(qq):
-    return 2*np.pi*(qq+1/2)/spin_num
-
-# construct an on-site external field
-def bare_lattice_field(qq, soc_angle):
-    return np.diag([ np.cos(spin_angle(qq) + mu * soc_angle) for mu in spin_vals ])
 
 ##########################################################################################
 # set up objects for simulation
 ##########################################################################################
 
-Sz = spin_op_z_dicke(spin_dim-1).todense()
-spin_vals = np.diag(Sz)
+# initialize two big spins pointing along the equator with a given opening angle
+def split_state(angle):
+    xx = np.cos(angle/2)
+    yy = np.sin(angle/2)
+    spin_states = [ spin_state([0,xx,+yy], spin_dim) ] * (spin_num//2) \
+                + [ spin_state([0,xx,-yy], spin_dim) ] * (spin_num//2)
+    return boson_mft_state(spin_states, spin_dim, spin_num)
 
-def compute_spin_mat(state):
-    return np.array([ state[mu,:].conj() @ state[nu,:] / spin_num
-                      for mu, nu in zip(*np.triu_indices(spin_dim)) ], dtype = complex)
-def compute_spin_mats(states):
-    return np.array([ compute_spin_mat(state) for state in states ])
+# field, initial state, and mean state for a "lattice" field
+if init_state_str[-1] == "L":
 
-# construct initial state
-if init_state_str == "X":
-    init_state = polarized_state([0,1,0])
-elif init_state_str == "XX":
-    spin_states = [ spin_state([0,+1,0]) ] * (spin_num//2) \
-                + [ spin_state([0,-1,0]) ] * (spin_num//2)
-    init_state = boson_mft_state(spin_states)
+    def build_field(angle):
+        return field_tensor([ 2 * bare_lattice_field(qq, angle, spin_dim, spin_num)
+                              for qq in range(spin_num) ])
+
+    def build_init_state(_):
+        if init_state_str == "X-L":
+            return split_state(0)
+        if init_state_str == "XX-L":
+            return split_state(np.pi)
+
+    def get_mean_states(states):
+        return compute_mean_states(states)
+
+# field, initial state, and mean state for two big spins
+if init_state_str == "P-Z":
+
+    Sz = spin_op_z_dicke(spin_dim-1).todense()
+    def build_field(_):
+        return field_tensor([ +Sz ] * (spin_num//2) +
+                            [ -Sz ] * (spin_num//2))
+
+    build_init_state = split_state
+
+    def get_mean_states(states):
+        states_fst = states[:,:,:spin_num//2]
+        states_snd = states[:,:,spin_num//2:]
+        mean_states_fst = compute_mean_states(states[:,:,:spin_num//2])
+        mean_states_snd = compute_mean_states(states[:,:,spin_num//2:])
+        return np.hstack([ mean_states_fst, mean_states_snd ])
+
+# determine spectral range of a single-particle field
+def _range(vals):
+    return max(vals) - min(vals)
+def spectral_range(field):
+    return max([ _range(np.linalg.eigvalsh(field[:,:,qq]))
+                for qq in range(spin_num) ])
 
 ##########################################################################################
 # simulate!
 ##########################################################################################
 sim_start = time.time()
 
-for idx_soc, soc_frac in enumerate(soc_frac_vals):
-    soc_tag = f"{soc_frac:.2f}"
-    soc_angle = soc_frac * np.pi
-    bare_field = field_tensor([ bare_lattice_field(qq, soc_angle)
-                                for qq in range(spin_num) ])
+for idx_soc, angle_frac in enumerate(angle_frac_vals):
+    angle_tag = f"{angle_frac:.2f}"
+    angle = angle_frac * np.pi
 
-    if toy_sim:
-        bare_field = field_tensor([ +Sz ] * (spin_num//2) + [ -Sz ] * (spin_num//2))
+    bare_field = build_field(angle)
+    init_state = build_init_state(angle)
 
-        xx = np.cos(soc_angle/2)
-        yy = np.sin(soc_angle/2)
-        spin_states = [ spin_state([0,xx,+yy]) ] * (spin_num//2) \
-                    + [ spin_state([0,xx,-yy]) ] * (spin_num//2)
-        init_state = boson_mft_state(spin_states)
+    bare_field_strength = spectral_range(bare_field)
 
-    for idx_tun, log10_tun in enumerate(log10_tun_vals):
-        tun_tag = f"{log10_tun:.2f}"
-        file_tag = f"{sys_tag}_J{tun_tag}_p{soc_tag}"
+    for idx_field, log10_field in enumerate(log10_field_vals):
+        field_tag = f"{log10_field:.2f}"
+        file_tag = f"{sys_tag}_h{field_tag}_a{angle_tag}"
 
-        print(f"{idx_soc}/{len(soc_frac_vals)} " + \
-              f"{idx_tun}/{len(log10_tun_vals)} " + \
-              f"(soc_frac, log10_tun = {soc_tag}, {tun_tag})", end = "")
+        print(f"{idx_soc}/{len(angle_frac_vals)} " + \
+              f"{idx_field}/{len(log10_field_vals)} " + \
+              f"(angle_frac = {angle_tag}, log10_field = {field_tag})", end = "")
         sys.stdout.flush()
 
         this_start = time.time()
 
-        tunneling = 10**log10_tun
-        field = -2*tunneling * bare_field
-        sim_time = 2*np.pi / np.sqrt(1 + 2*tunneling)**2 * periods
+        # set single-particle field
+        field_strength = 10**log10_field
+        field = field_strength * bare_field
 
-        field_str = 2*tunneling
-        if toy_sim:
-            field = tunneling * bare_field
-            sim_time = 2*np.pi / np.sqrt(1 + tunneling)**2 * periods
+        # determine simulation time based on estimated "field frequency"
+        field_freq = 2 * field_strength * bare_field_strength
+        sim_time = 2*np.pi / np.sqrt(1 + field_freq)**2 * periods
 
-        times, states = evolve(init_state, sim_time, field)
-        spin_mats = compute_spin_mats(states)
+        # simulate
+        times, states = evolve_mft(init_state, sim_time, field)
+
+        # save simulation results
+        mean_states = get_mean_states(states)
         np.savetxt(data_dir + f"times_{file_tag}.txt", times)
-        np.savetxt(data_dir + f"spin_mats_{file_tag}.txt", spin_mats.flatten())
+        np.savetxt(data_dir + f"mean_states_{file_tag}.txt", mean_states.ravel())
 
         this_runtime = int( time.time() - this_start )
         print(f" {this_runtime} sec")
