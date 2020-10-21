@@ -12,14 +12,6 @@
   urlcolor=cyan,
 }
 
-%%% header / footer
-\usepackage{fancyhdr} % easier header and footer management
-\pagestyle{fancy} % page formatting style
-\fancyhf{} % clear all header and footer text
-\renewcommand{\headrulewidth}{0pt} % remove horizontal line in header
-\usepackage{lastpage} % for referencing last page
-\cfoot{\thepage~of \pageref{LastPage}} % "x of y" page labeling
-
 %%% symbols, notations, etc.
 \usepackage{physics,braket,bm,amssymb} % physics and math
 \renewcommand{\t}{\text} % text in math mode
@@ -242,7 +234,7 @@ The signal recovery problem can be stated as follows: given a square-integrable 
 \begin{align}
   f\p{\v v} = \sum_{\ell,m} f_{\ell m} B_{\ell m}\p{\v v},
 \end{align}
-where $f_{\ell m}$ are expansion coefficients and $\set{B_{\ell m}}$ is an orthogonal basis for $L^2\p{\Omega_2}$, find a set of points $V=\set{\v v}$ and associated coefficients $C_{\ell m}\p{\v v}$ with which we can reconstruct $f$, or equivalently its coefficients $f_{\ell m}$, from knowledge of the function's value $f\p{\v v}$ at all points $\v v\in V$; that is
+where $f_{\ell m}$ are expansion coefficients and $\set{B_{\ell m}}$ is an orthogonal basis for $L^2\p{\Omega_2}$, find a set of points $V=\set{\v v}\subset\Omega_2$ and associated coefficients $C_{\ell m}\p{\v v}$ with which we can reconstruct $f$, or equivalently its coefficients $f_{\ell m}$, from knowledge of the function's value $f\p{\v v}$ at all points $\v v\in V$; that is
 \begin{align}
   f_{\ell m} = \sum_{\v v} C_{\ell m}\p{\v v} f\p{\v v}
   = \sum_{\v v,k,n} C_{\ell m}\p{\v v} f_{kn} B_{kn}\p{\v v}.
@@ -259,7 +251,7 @@ Any solution to the full recovery problem with basis functions $B_{\ell m}=\D^\e
 
 If
 \begin{enumerate*}
-\item the functions $B_{\ell m}$ are indexed by an integer degree $\ell\ge0$ that is preserved under rotations of the sphere, as with the spherical harmonics $Y_{\ell m}$ or $\D^\ell_{m,0}$, and
+\item the functions $B_{\ell m}$ are indexed by an integer degree $\ell\ge0$ that is preserved under rotations of the sphere and an integer order $m\in\set{-\ell,-\ell-1,\cdots,\ell}$, as with the spherical harmonics $Y_{\ell m}$ and $\D^\ell_{m,0}$, and
 \item the function $f$ is {\it band-limited} at degree $L$, which is to say that $f_{\ell m}=0$ for all $\ell\ge L$,
 \end{enumerate*}
 then the full recovery problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points \cite{freeden2008spherical, freeden2018spherical}.
@@ -277,10 +269,10 @@ where
   \int_{\Omega_2} \d\Omega_2\p{\v v}
   \D^\ell_{m,0}\p{\v v}^* Y_{\ell n}\p{\v v},
 \end{align}
-is an inner product of the functions $\D^\ell_{m,0}$ and $Y_{\ell n}$ (see Appendix \ref{sec:basis_change}).
+is an inner product of $\D^\ell_{m,0}$ and $Y_{\ell n}$ (see Appendix \ref{sec:basis_change}).
 
 Finally, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to recovery of a function in the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, which is possible with $\abs{V}=2\ell+1$ samples (equal to the dimension of the degree-$\ell$ subspace) \cite{freeden2008spherical}.
-In our case, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are transition operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
+In the case of spin qudit tomography, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are transition operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
 Since
 \begin{enumerate*}
 \item there are only $2\ell+1\le2d-1$ transition operators of degree $\ell\le\ell_{\t{max}}$, and
@@ -426,7 +418,7 @@ Note that the above product of reduced fundamental rotation matrix elements can 
 \section{Rotation matrix elements as orthogonal functions}
 \label{sec:ortho}
 
-As functions of $\v\omega$, the fundamental rotation matrix elements $D_{mn}^\ell$ and satisfy the orthogonality relations \cite{brown2003rotational}
+As functions of Euler angle triplets $\v\omega=\p{\alpha_{\v\omega},\beta_{\v\omega},\gamma_{\v\omega}}$, the fundamental (Wigner) rotation matrix elements $D_{mn}^\ell$ and satisfy the orthogonality relations \cite{brown2003rotational}
 \begin{align}
   \int_{\Omega_3} \d\Omega_3\p{\v\omega}
   D^{\ell}_{mn}\p{\v\omega}^* D^{\ell'}_{m'n'}\p{\v\omega}
@@ -464,7 +456,7 @@ is an irreducible unitary representation of SO(3).
 This property of $\D^\ell$ follows from the fact that it is an adjoint representation of SO(3), which is isomorphic to the standard representation $D^\ell$ \cite{hall2015lie}.
 
 The decomposition $D^\ell_{mn}\p{\v\omega} = e^{-\i\alpha_{\v\omega}m} d^\ell_{mn}\p{\beta_{\v\omega}} e^{-\i\gamma_{\v\omega}n}$, where $d^\ell_{mn}\p{\beta}\equiv D^\ell_{mn}\p{0,\beta,0}$ is
-a matrix element of a reduced fundamental (Wigner) rotation matrix, implies that setting $n'=n$ in in Eq.~\eqref{eq:ortho_full_apndx} makes the integrand independent of $\gamma_{\v\omega}$.
+a matrix element of a reduced fundamental (Wigner) rotation matrix \cite{rose1957elementary}, implies that setting $n'=n$ in in Eq.~\eqref{eq:ortho_full_apndx} makes the integrand independent of $\gamma_{\v\omega}$.
 Evaluating the integral over $\gamma_{\v\omega}$ and dividing through by $2\pi$ then recovers the orthogonality relations
 \begin{align}
   \int_{\Omega_2} \d\Omega_2\p{\v v}
@@ -537,12 +529,12 @@ We wish to compute the coefficients of the operator product expansion
 \end{align}
 Using the symmetry properties of Clebsch-Gordan coefficients, namely
 \begin{align}
-  \bk{\ell_1 m_1; \ell_2 m_2| \ell_3 m_3}
-  &= \p{-1}^{\ell_2+m_2} \sqrt{\f{2\ell_3+1}{2\ell_1+1}}
-  \bk{\ell_3,-m_3; \ell_2 m_2| \ell_1,-m_1} \\
-  \bk{\ell_1 m_1; \ell_2 m_2| \ell_3 m_3}
-  &= \p{-1}^{\ell_1+\ell_2-\ell_3}
-  \bk{\ell_1,-m_1; \ell_2,-m_2| \ell_3,-m_3},
+  \bk{\ell_1 m_1; \ell_2 m_2| L M}
+  &= \p{-1}^{\ell_2+m_2} \sqrt{\f{2L+1}{2\ell_1+1}}
+  \bk{L,-M; \ell_2 m_2| \ell_1,-m_1} \\
+  \bk{\ell_1 m_1; \ell_2 m_2| L M}
+  &= \p{-1}^{\ell_1+\ell_2-L}
+  \bk{\ell_1,-m_1; \ell_2,-m_2| L,-M},
 \end{align}
 we can find that the transition operators transform under conjugation as
 \begin{align}
@@ -561,11 +553,11 @@ which implies that
 \end{align}
 Replacing Clebsch-Gordan coefficients by Wigner 3-$j$ symbols with the identity
 \begin{align}
-  \bk{\ell_1 m_1; \ell_2 m_2| \ell_3 m_3}
-  = \p{-1}^{2\ell_2} \p{-1}^{\ell_3-m_3} \sqrt{\p{2\ell_3+1}}
+  \bk{\ell_1 m_1; \ell_2 m_2| L M}
+  = \p{-1}^{2\ell_2} \p{-1}^{L-M} \sqrt{2L+1}
   \begin{pmatrix}
-    \ell_3 & \ell_2 & \ell_1 \\
-    -m_3 & m_2 & m_1
+    L & \ell_2 & \ell_1 \\
+    -M & m_2 & m_1
   \end{pmatrix},
 \end{align}
 we can use the fact that $2\ell_2$ is (in our case) always even to expand
