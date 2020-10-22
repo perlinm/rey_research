@@ -21,6 +21,7 @@ np.random.seed(seed)
 
 samples = 100
 axis_num = 2*dim-1
+# axis_num = (3*dim)//2 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 drive_ops = [ np.diag(transition_op(dim,L,0)) for L in range(dim) ]
 
@@ -92,6 +93,12 @@ def random_points():
     points[:,1] *= 2*np.pi
     return points
 
+def unifrm_points():
+    points = np.random.rand(axis_num,2)
+    points[:,0] *= np.pi
+    points[:,1] *= 2*np.pi
+    return points
+
 # taken from https://ieeexplore.ieee.org/document/6508014
 def spiral_points(spirality = 3.6):
     base_vals = -1 + 2*np.arange(axis_num) / (axis_num-1)
@@ -105,6 +112,42 @@ def spiral_points(spirality = 3.6):
     return np.array(random.sample(grid_points, axis_num))
 
 ####################
+
+samples = 10**4
+cutoff = 0.95
+
+def cutoff_val(costs):
+    return sorted(costs)[int(cutoff*len(costs))]
+
+random_costs = [ overlap_cost(random_points()) for _ in range(samples) ]
+unifrm_costs = [ overlap_cost(unifrm_points()) for _ in range(samples) ]
+spiral_costs = [ overlap_cost(spiral_points()) for _ in range(samples) ]
+
+min_val = min(random_costs + unifrm_costs + spiral_costs)
+max_val = min([ cutoff_val(random_costs),
+                cutoff_val(unifrm_costs),
+                cutoff_val(spiral_costs) ])
+
+def range_ratio(costs):
+    return len([ val for val in costs if val <= max_val ]) / len(costs)
+
+print(range_ratio(random_costs))
+print(range_ratio(unifrm_costs))
+print(range_ratio(spiral_costs))
+
+bins = np.logspace(int(np.log10(min_val)), int(np.log10(max_val))+1, 100)
+plt.hist(random_costs, bins = bins, alpha = 0.5, label = "R")
+plt.hist(unifrm_costs, bins = bins, alpha = 0.5, label = "U")
+plt.hist(spiral_costs, bins = bins, alpha = 0.5, label = "S")
+plt.gca().set_xscale("log")
+
+plt.title(dim)
+plt.legend(loc = "best")
+plt.tight_layout()
+plt.show()
+
+
+exit()
 
 spr_point_sets = [ spiral_points() for _ in range(samples) ]
 spr_points = min(spr_point_sets, key = overlap_cost)
