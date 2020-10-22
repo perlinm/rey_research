@@ -21,7 +21,6 @@ np.random.seed(seed)
 
 samples = 100
 axis_num = 2*dim-1
-# axis_num = (3*dim)//2 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 drive_ops = [ np.diag(transition_op(dim,L,0)) for L in range(dim) ]
 
@@ -93,70 +92,16 @@ def random_points():
     points[:,1] *= 2*np.pi
     return points
 
-def unifrm_points():
-    points = np.random.rand(axis_num,2)
-    points[:,0] *= np.pi
-    points[:,1] *= 2*np.pi
-    return points
-
-# taken from https://ieeexplore.ieee.org/document/6508014
-def spiral_points(spirality = 3.6):
-    base_vals = -1 + 2*np.arange(axis_num) / (axis_num-1)
-    spiral_polar = np.arccos(base_vals)
-    spiral_azimuth = np.zeros(axis_num-1)
-    for kk in range(1,spiral_azimuth.size):
-        diff = spirality / np.sqrt( axis_num * (1-base_vals[kk]**2) )
-        spiral_azimuth[kk] = spiral_azimuth[kk-1] + diff
-    grid_points = list(it.product(spiral_polar[1:-1], spiral_azimuth))
-    grid_points += [ (0,0) ]
-    return np.array(random.sample(grid_points, axis_num))
-
 ####################
 
-samples = 10**4
-cutoff = 0.95
+rnd_point_sets = [ random_points() for _ in range(samples) ]
+rnd_points = min(rnd_point_sets, key = overlap_cost)
+rnd_norms = proj_span_norms(rnd_points)
+print(overlap_cost(rnd_points))
+print(np.sort(rnd_norms[rnd_norms < 1]))
 
-def cutoff_val(costs):
-    return sorted(costs)[int(cutoff*len(costs))]
-
-random_costs = [ overlap_cost(random_points()) for _ in range(samples) ]
-unifrm_costs = [ overlap_cost(unifrm_points()) for _ in range(samples) ]
-spiral_costs = [ overlap_cost(spiral_points()) for _ in range(samples) ]
-
-min_val = min(random_costs + unifrm_costs + spiral_costs)
-max_val = min([ cutoff_val(random_costs),
-                cutoff_val(unifrm_costs),
-                cutoff_val(spiral_costs) ])
-
-def range_ratio(costs):
-    return len([ val for val in costs if val <= max_val ]) / len(costs)
-
-print(range_ratio(random_costs))
-print(range_ratio(unifrm_costs))
-print(range_ratio(spiral_costs))
-
-bins = np.logspace(int(np.log10(min_val)), int(np.log10(max_val))+1, 100)
-plt.hist(random_costs, bins = bins, alpha = 0.5, label = "R")
-plt.hist(unifrm_costs, bins = bins, alpha = 0.5, label = "U")
-plt.hist(spiral_costs, bins = bins, alpha = 0.5, label = "S")
-plt.gca().set_xscale("log")
-
-plt.title(dim)
-plt.legend(loc = "best")
-plt.tight_layout()
-plt.show()
-
-
-exit()
-
-spr_point_sets = [ spiral_points() for _ in range(samples) ]
-spr_points = min(spr_point_sets, key = overlap_cost)
-spr_norms = proj_span_norms(spr_points)
-print(overlap_cost(spr_points))
-print(np.sort(spr_norms[spr_norms < 1]))
-
-min_optimum = scipy.optimize.minimize(overlap_cost, spr_points.ravel())
-min_points = min_optimum.x.reshape(spr_points.shape)
+min_optimum = scipy.optimize.minimize(overlap_cost, rnd_points.ravel())
+min_points = min_optimum.x.reshape(rnd_points.shape)
 min_norms = proj_span_norms(min_points)
 print()
 print(overlap_cost(min_points))
@@ -236,19 +181,19 @@ def organize_points(points, operation = None, track = False):
         return new_points, operation
 
 min_points, operation = organize_points(min_points, track = True)
-spr_points = organize_points(spr_points, operation)
+rnd_points = organize_points(rnd_points, operation)
 
 min_polar = np.vstack([min_points[:,1], abs(np.sin(min_points[:,0]))])
-spr_polar = np.vstack([spr_points[:,1], abs(np.sin(spr_points[:,0]))])
-for min_polar_point, spr_polar_point in zip(min_polar.T, spr_polar.T):
-    plt.polar([min_polar_point[0], spr_polar_point[0]],
-              [min_polar_point[1], spr_polar_point[1]],
+rnd_polar = np.vstack([rnd_points[:,1], abs(np.sin(rnd_points[:,0]))])
+for min_polar_point, rnd_polar_point in zip(min_polar.T, rnd_polar.T):
+    plt.polar([min_polar_point[0], rnd_polar_point[0]],
+              [min_polar_point[1], rnd_polar_point[1]],
               color = "gray", linestyle = ":", linewidth = 1)
 min_plot = plt.polar(min_polar[0,:], min_polar[1,:], "o")
-spr_plot = plt.polar(spr_polar[0,:], spr_polar[1,:], ".")
+rnd_plot = plt.polar(rnd_polar[0,:], rnd_polar[1,:], ".")
 
 min_plot[0].set_clip_on(False)
-spr_plot[0].set_clip_on(False)
+rnd_plot[0].set_clip_on(False)
 plt.ylim(0,1)
 plt.gca().set_xticklabels([])
 plt.gca().set_yticklabels([])
