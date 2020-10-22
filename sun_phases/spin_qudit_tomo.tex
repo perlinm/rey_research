@@ -38,7 +38,7 @@
 \newcommand{\z}{\text{z}}
 
 \newcommand{\B}{\mathcal{B}}
-\newcommand{\G}{\mathcal{G}}
+\newcommand{\N}{\mathcal{N}}
 \renewcommand{\O}{\mathcal{O}}
 \newcommand{\Q}{\mathcal{Q}}
 \newcommand{\R}{\mathcal{R}}
@@ -56,7 +56,8 @@
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\ZZ}{\mathbb{Z}}
 
-\newtheorem{theorem}{Theorem}[section]
+\let\var\relax
+\DeclareMathOperator{\var}{var}
 
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
@@ -101,8 +102,10 @@
 \begin{abstract}
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
   By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
-  We provide explicit optimized tomography protocols, and show that $r_d=2d-1$ for $d\le20$ with numerical experiments.
-  [\red{Note: there are also a few other things that I want to look into, including (1) a simplified tomography procedure for pure states, (2) trade-offs between measurement precision and the \# of measurement axes (for a fixed total number of measurements; these will likely be numerical experiments), (3) proofs about the something like the number of measurements necessary to reconstruct an arbitrary state to a given precision, and (4) adaptive tomography protocols.]}
+  We conjecture that $r_d=2d-1$, which numerical experiments verify for $d\le100$.
+  We then provide an algorithm with $O\p{d^4}$ runtime for certifying upper bounds on the error with which tomography protocols can reconstruct an unknown quantum state.
+  Our algorithm motivates simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error [\red{note: this part is not yet complete}].
+  [\red{Possible things to look into: (1) a simplified tomography procedure for pure states, (2) adaptive tomography protocols.]}
 \end{abstract}
 
 \maketitle
@@ -124,15 +127,12 @@ In all cases, quantum state tomography is necessary to take full advantage of a 
 The problem of qudit tomography in particular is not new, with an extensive literature on a variety of techniques \cite{manko1997spin, thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, evrard2019enhanced, stefano2019set, palici2020oam}.
 However, existing proposals either require the capability to perform essentially arbitrary operations on a qudit \cite{thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, stefano2019set, palici2020oam}, or rely on infinite-dimensional representations of a quantum spin \cite{manko1997spin, evrard2019enhanced}, resulting in tomographic protocols that can be highly inefficient or even impossible in practice.
 In particular, the protocols based on infinite-dimensional representations of a quantum spin require only the capability to measure spin projection onto different spatial axes, which is usually straightforward with a spin qudit.
-Nonetheless, these protocols obfuscate the requirements for performing full state tomography, provide no straightforward guarantees of state reconstruction fidelity, and extract only a vanishing faction of the information contained in measurement data.
+Nonetheless, these protocols obfuscate the requirements for performing full state tomography, provide no straightforward error bounds for reconstructed states, and extract only a vanishing faction of the information contained in measurement data.
 
 In this work, we provide an efficient framework for performing spin qudit tomography using only measurements of spin projection onto different spatial axes.
 We first introduce, in Section \ref{sec:transition_ops}, a basis of operators that have a simple physical interpretation, and transform nicely under rotations in 3D space, thereby respecting the symmetries of the tomography task at hand.
 We then map this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby importing a host of existing literature and mathematical machinery that has been developed for this task \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
 In particular, this mapping allows us to bound the minimum number of measurement axes necessary to perform full tomography on a $d$-level spin qudit, $r_d$, by $2d-1\le r_d\le d^2$.
-We provide an example of an optimized tomography protocol in Section \ref{sec:protocol} [\red{I'll probably use modified versions of existing signal recovery algorithms rather than a new tomography protocol}], as well as numerical experiments to show that $r_d=2d-1$ for $d\le20$.
-
-We generally defer mathematical details and derivations to the appendices, keeping the main text focused on a high-level discussion of our results.
 
 [\red{finish intro}]
 
@@ -260,21 +260,7 @@ If
 then the full recovery problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points \cite{freeden2008spherical, freeden2018spherical}.
 The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially ``band-limited'' at degree $d$ \footnote{Spin qudit states can be faithfully represented by quasi-probability distributions on a sphere.  For a $d$-level spin, these quasi-probability distributions are band-limited at degree $d$.}.
 
-Moreover, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$ (see Appendix \ref{sec:basis_change}).
-This translation enables importing a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
-Specifically, given a set of points $V\subset\Omega_2$ and coefficients $C_{\ell m}\p{\v v}$ that satisfy Eq.~\eqref{eq:full_recovery} with basis functions $Y_{\ell m}$, we can construct new coefficients $\tilde C_{\ell m}\p{\v v}$ that satisfy the same condition with basis functions $\D^\ell_{m,0}$ via
-\begin{align}
-  \tilde C_{\ell m} \equiv \sum_n G^\ell_{mn} C_{\ell n},
-\end{align}
-where
-\begin{align}
-  G^\ell_{mn} \equiv \f{2\ell+1}{4\pi}
-  \int_{\Omega_2} \d\Omega_2\p{\v v}
-  \D^\ell_{m,0}\p{\v v}^* Y_{\ell n}\p{\v v},
-\end{align}
-is an inner product of $\D^\ell_{m,0}$ and $Y_{\ell n}$.
-
-Finally, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to the recovery of a function in the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, which is possible with $\abs{V}=2\ell+1$ samples (equal to the dimension of the degree-$\ell$ subspace) \cite{freeden2008spherical}.
+Moreover, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to the recovery of a function in the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, which is possible with $\abs{V}=2\ell+1$ samples (equal to the dimension of the degree-$\ell$ subspace) \cite{freeden2008spherical}.
 In the case of spin qudit tomography, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are transition operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
 Since
 \begin{enumerate*}
@@ -284,10 +270,15 @@ Since
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
 In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any degree-$\ell$ function with $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
 Unfortunately, we have no general proof of this conjecture, which may require a deeper analysis of fixed-degree signal recovery on the sphere.
-Nonetheless, in the following section we show by example that $2d-1$ measurement axes suffice for all $d\le20$.
+Nonetheless, in the following section we show by example that $2d-1$ measurement axes suffice for all $d\le100$. [\red{modify sentence as appropriate after writing the next section}]
+
+In principle, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$ (see Appendix \ref{sec:basis_change}).
+This translation enables importing a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
+In practice, spin qudits typically have only a modest dimension $d$, allowing for simpler and optimized tomography protocols that are practical despite worse scaling with $d$.
+We present one such protocol with $O\p{d^3}$ runtime in the following section.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Optimized tomography protocols}
+\section{Optimized tomography protocols and reconstruction error bounds}
 \label{sec:protocol}
 
 For the practically minded, the mere existence of solutions to a problem is less interesting than the exposition of a particular solution.
@@ -300,75 +291,82 @@ On a high level, a spin qudit tomography protocol needs to
 \item process the collected data to reconstruct the state of the spin qudit.
   \label{tomo:process}
 \end{enumerate*}
-Whereas step \ref{tomo:measure} can involve a host of platform-dependent technical challenges, here we discuss the steps before and after measurement data collection.
+Whereas step \ref{tomo:measure} can involve a host of platform-dependent technical challenges, here we discuss the steps to take before and after measurement data collection.
 
-We begin by discussing the selection of measurement axes $V=\set{\v v}\subset\Omega_2$.
-In the absence of analytical tools to find ``optimal'' deterministic choice of axes, we compare three randomized selection methods that are motivated by past works on sparse signal recovery \cite{rauhut2011sparse, alem2012sparse}.
-Conceptually, the simplest method of randomly choosing axes would be to choose $\abs{V}$ points from the uniform distribution on the sphere.
-To select a point $\v v=\p{\alpha_{\v v},\beta_{\v v}}$ from the uniform distribution on the sphere, we first select a point $\p{a_{\v v},z_{\v v}}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and set $\alpha_{\v v}=2\pi a_{\v v}$ and $\beta_{\v v}=\arccos\p{1-2z_{\v v}}$.
-We will call this procedure the {\it uniform} sampling method.
+To this end, we begin by asking a question: what is a ``good'' choice of measurement axes?
+Intuitively, a good choice of axes should minimize the error with which one can reconstruct an unknown quantum state from associated measurement data.
+If we can quantify this idea, then we can try to optimize over different choices of measurement axes to find a set that (approximately) minimizes the error in reconstructed states.
 
-The work in Ref.~\cite{rauhut2011sparse} proposes an alternate sampling method for sparse signal recovery on the sphere, which consists of uniformly sampling angles $\p{\alpha_{\v v},\beta_{\v v}}\in[0,2\pi]\times[0,\pi]$.
-We will refer to this procedure as the {\it biased} sampling scheme, as it places a higher weight on points near the poles of the sphere.
-For general-purpose recovery of band-limited functions $f=\sum_{\ell,m} f_{\ell m} Y_{\ell m}$ with only a small number of non-zero spherical harmonic coefficients $f_{\ell m}$, Ref.~\cite{rauhut2011sparse} found that the biased sampling scheme was more likely to result in ``good'' points that allow for accurate signal recovery.
+A set of measurement axes $V=\set{\v v}$ nominally induces a set of projectors $\v\Pi_V=\set{\Pi_j^V}$ that will be measured in an experiment, where for shorthand we use a combined index $j\simeq\p{\v v_j,\mu_j}$ that specifies both a measurement axis $\v v_j$ and an outcome $\mu_j$, and for clarify we index objects by $V$ to emphasize their dependence on the choice of measurement axes.
+The projectors $\v\Pi_V$ can be used to construct the overlap (Gram) matrix
+\begin{align}
+  G_V = \sum_{i,j=1}^{\abs{V}\times d} \obk{\Pi_i^V|\Pi_j^V} \op{i}{j}.
+\end{align}
+Eigenvectors of $G_V$ define linearly independent linear combinations of the projectors in $\v\Pi_V$.
+If the projectors in $\v\Pi_V$ span the entire space of operators on a $d$-level spin qudit, which is a necessary and sufficient condition for $V$ to allow for full state tomography, then $G_V$ must have exactly $d^2$ nonzero eigenvalues.
+Indexing these eigenvalues $G^V_k$ by an integer $k\in\set{1,2,\cdots,d^2}$ and normalizing the corresponding eigenvectors $\v g^V_k\equiv(g^V_{k,1},g^V_{k,2},\cdots)$ as
+\begin{align}
+  \abs{\v g^V_k}^2 = \sum_{j=1}^{\abs{V}\times d} \abs{g^V_{kj}}
+  = \f1{G^V_k},
+\end{align}
+we can construct the orthonormal operators
+\begin{align}
+  Q^V_k \equiv \sum_j g^V_{kj} \Pi_j^V.
+\end{align}
+These operators allow us to expand any state $\rho$ of a $d$-level spin qudit in the form
+\begin{align}
+  \rho = \sum_{k=1}^{d^2} \rho_k^V Q_k^V,
+  &&
+  \rho_k^V \equiv \bk{Q^V_k}_\rho.
+\end{align}
+Given empirical estimates $E_j^V$ of the expectation values $\bk{\Pi_j^V}_\rho$, an empirical estimate $\tilde\rho$ of $\rho$ is then
+\begin{align}
+  \tilde\rho \equiv \sum_k \tilde\rho^V_k Q^V_k,
+\end{align}
+where
+\begin{align}
+  \tilde\rho^V_k \equiv \sum_j g^V_{kj} E_j^V
+  \approx \sum_j g^V_{kj} \bk{\Pi_j^V}_\rho
+  = \bk{Q^V_k}_\rho
+  = \rho^V_k.
+\end{align}
+The empirical estimate $\tilde\rho$ can be further improved by performing maximum-likelihood corrections, outlined in the ``algorithm for subproblem 1'' in Ref.~\cite{smolin2012efficient}, which essentially finds the closest state to $\tilde\rho$ with no negative eigenvalues.
 
-Finally, we consider the {\it spiral} sampling scheme laid out in Ref.~\cite{alem2012sparse}, which first generates a spiral of points that go from the north pole to the south, using this spiral to define a grid of points on the entire sphere, and then randomly choosing $\abs{V}$ points on this grid.
+We can use the eigenvalues of the overlap matrix $G_V$ to place strict upper bounds on the distance between the empirical estimate $\tilde\rho$ and the true state $\rho$.
+If the estimates $E^V_j$ approximate $\bk{\Pi^V_j}_\rho$ to within an error $\epsilon$, i.e.
+\begin{align}
+  \abs{E^V_j-\bk{\Pi^V_j}_\rho} \le \epsilon,
+\end{align}
+then we can say that
+\begin{align}
+  \tilde\rho^V_k-\rho^V_k
+  = \sum_j g_{kj}^V \p{E^V_j-\bk{\Pi^V_j}_\rho}
+  \le \epsilon \sum_j g_{kj}^V \sigma_j,
+\end{align}
+where $\sigma_j\in\set{+1,-1}$ is the sign of $E^V_j-\bk{\Pi^V_j}_\rho$.
+Using the fact that the operators $Q^V_k$ are orthonormal, the 2-norm (Euclidean) distance $\norm{\tilde\rho-\rho}_2$ between $\tilde\rho$ and $\rho$ is therefore bounded as
+\begin{align}
+  \norm{\tilde\rho-\rho}_2^2
+  &= \obk{\tilde\rho-\rho|\tilde\rho-\rho}
+  = \sum_k \abs{\tilde\rho^V_k - \rho^V_k}^2 \nonumber \\
+  &\le \epsilon^2 \sum_k \abs{\sum_j g_{kj}^V \sigma_j}^2
+  = \epsilon^2 \sum_k \abs{\v g^V_k}^2
+  = \epsilon^2 \N_V^2,
+\end{align}
+where we used the fact that changing the signs of coefficients in $\v g^V_k$ does not affect its norm, and
+\begin{align}
+  \N_V^2 \equiv \sum_k \f1{G^V_k}.
+\end{align}
+Minimizing the norm $\N_V$ associated with a choice of measurement axes $V$ thus minimizes the error with which the empirical estimate $\tilde\rho$ approximates the true state $\rho$.
 
-[\red{todo: make figure visualizing these sampling schemes}]
+
 
 
 \vspace{3cm}
 
 
-[\red{Think about maximizing the determinant of the coefficient matrix $C_{\ell m}\p{\v v}$?}]
+[\red{Mention past works on sparse signal recovery \cite{rauhut2011sparse, alem2012sparse}.}]
 
-[\red{Note: the text below is copy/pasted from a different set of notes.  I still need to adapt this text for this paper.}]
-
-Question: given a collection of projectors $\Pi\equiv\set{\Pi_j}$ and measurement outcomes $M\equiv\set{M_j}$, with $M_j$ an empirical estimate of $\bk{\Pi_j}_\rho=\tr\p{\rho\Pi_j}$, how do we determine whether the measurement data $M$ is sufficient to reconstruct $\rho$?
-Answer: reconstruction of $\rho$ is possible if $\Pi$ spans the entire space $\B_n$ of operators on the Hilbert space of an $n$-level spin.
-Given an orthonormal basis $\set{Q_\alpha}$ of self-adjoint operators spanning $\B_n$, we can expand
-\begin{align}
-  \rho = \sum_\alpha \rho_\alpha Q_\alpha,
-  &&
-  \rho_\alpha \equiv \bk{Q_\alpha}_\rho.
-\end{align}
-If $\Pi$ spans $\B_n$, then we can find a set of real numbers $c_{\alpha j}\in\RR$ for which
-\begin{align}
-  Q_\alpha = \sum_j c_{\alpha j} \Pi_j.
-\end{align}
-An empirical estimate $\tilde\rho$ of $\rho$ is then
-\begin{align}
-  \tilde\rho = \sum_\alpha \tilde\rho_\alpha Q_\alpha,
-\end{align}
-where\footnote{This estimate can be improved by defining $\tilde\rho$ as the least-squares fit to the set of linear equations $\tr\p{\tilde\rho\,\Pi_j} = M_j$, and performing maximum-likelihood corrections to $\tilde\rho$ \cite{smolin2012efficient}.}
-\begin{align}
-  \tilde\rho_\alpha \equiv \sum_j c_{\alpha j} M_j
-  \approx \sum_j c_{\alpha j} \bk{\Pi_j}_\rho
-  = \bk{Q_\alpha}_\rho
-  = \rho_\alpha.
-\end{align}
-As it turns out, numerical experiments with $n\le20$ suggest that in order to perfurm full tomography of $\rho$, it suffices to measure all projectors $\Pi_{\v v\mu}$ onto states of definite spin $\mu$ along $2n-1$ different axes $\v v$.
-The question remains: which axes should we choose?
-As a first pass, we can simply choose a set of $2n-1$ random axes, $V\equiv\set{\v v}$, by uniformly sampling points on the sphere.
-These random axes define a set of $\p{2n-1}\times n$ projectors $\Pi_V=\set{\Pi^V_j}$, where for shorthand we use a combined index $j=\p{\v v_j,\mu_j}$ that specifies both a measurement axis $\v v_j$ and an outcome $\mu_j$, and for clarity we index objects by $V$ to emphasize their dependence on the choice of measurement axes.
-The projectors $\Pi_V$ can be used to construct $n^2$ linearly independent operators by constructing a matrix $B_V$ with entries
-\begin{align}
-  \sp{B_V}_{ij} = \tr\p{\Pi^V_i \Pi^V_j}.
-\end{align}
-Indexing the (normalized) eigenvectors and the corresponding eigenvalues of $B_V$ by $\alpha$, respectively $\v x^V_\alpha$ and $m^V_\alpha$, for all $\alpha$ with eigenvalue $m^V_\alpha\ne0$ we can then construct the normalized and linearly independent operators
-\begin{align}
-  Q^V_\alpha \equiv \f1{\sqrt{m^V_\alpha}} \sum_j x^V_{\alpha j} \Pi^V_j.
-\end{align}
-To summarize: choosing a set $V$ of $2n-1$ random axes will determine a set of measurement operators $\Pi_V$ from which we can construct a complete basis $\set{Q^V_\alpha}$ of operators for $\B_n$.
-However, some choices of axes will be better than others: a good choice of axes $V$ will maximize the amount of information that the corresponding measurement data $M_V=\set{M^V_j}$ will contain about the expectation values $\bk{Q^V_\alpha}_\rho$ used to reconstruct $\rho$.
-The amount of information that $M_V$ contains about $\bk{Q^V_\alpha}_\rho$ is determined, in part, by the magnitude of the eigenvalue $m^V_\alpha$: if $m^V_\alpha$ is small, then $M_V$ will generally contain little information about $\bk{Q^V_\alpha}_\rho$, and vice versa\footnote{Think about the limit $m^V_\alpha\to0$, in which case the fact that $Q^V_\alpha$ is normalized implies that the operator $\sum_j x^V_{\alpha j} \Pi^V_j$ must have a vanishing norm.
-  A vanishing norm can only occur due to fine-tuned cancellations that make the expectation value of $\sum_j x^V_{\alpha j} \Pi^V_j$ difficult to estimate from noisy data on $\bk{\Pi^V_j}_\rho$.}.
-Rather than choosing $2n-1$ axes randomly, we can therefore choose a set of axes that minimizes some cost function $C\p{m_V}$ favoring large eigenvalues $m_V\equiv\set{m^V_\alpha}$.
-A reasonable cost function that treats all eigenvalues on equal footing, for example, is
-\begin{align}
-  C_{\t{inv}}\p{m_V} \equiv \sum_\alpha \f1{m^V_\alpha},
-\end{align}
-where the sum is implicitly performed over the $n^2$ largest eigenvalues of $B_V$ (as all other eigenvalues are guaranteed to be zero).
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct an even better choice of measurement axes, leading to the possibility of tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the details of tailored and adaptive measurement protocols to future work.
 
