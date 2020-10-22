@@ -118,7 +118,7 @@ These techniques are typically developed in a general, information-theoretic set
 As a consequence, even well-established techniques can nonetheless be ill-suited for physical platforms with unique or limited capabilities.
 
 Due in part to advancements in experimental capabilities to address nuclear spins in ultracold atomic systems [\red{CITE}], as well as developments in molecular cooling techniques [\red{CITE}], a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.
-Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{evrard2019enhanced}, enable quantum simulations of SU($N$) magnetism \cite{banerjee2013atomic, cazalilla2014ultracold}, and offer unique capabilities for quantum error correction \cite{albert2020robust, gross2020encoding}.
+Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{evrard2019enhanced}, enable quantum simulations of SU($d$) magnetism \cite{banerjee2013atomic, cazalilla2014ultracold}, and offer unique capabilities for quantum error correction \cite{albert2020robust, gross2020encoding}.
 In all cases, quantum state tomography is necessary to take full advantage of a spin qudit.
 
 The problem of qudit tomography in particular is not new, with an extensive literature on a variety of techniques \cite{manko1997spin, thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, evrard2019enhanced, stefano2019set, palici2020oam}.
@@ -128,9 +128,11 @@ Nonetheless, these protocols obfuscate the requirements for performing full stat
 
 In this work, we provide an efficient framework for performing spin qudit tomography using only measurements of spin projection onto different spatial axes.
 We first introduce, in Section \ref{sec:transition_ops}, a basis of operators that have a simple physical interpretation, and transform nicely under rotations in 3D space, thereby respecting the symmetries of the tomography task at hand.
-We then map this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby importing a host of existing literature and machinery that has been developed for this task \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
+We then map this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby importing a host of existing literature and mathematical machinery that has been developed for this task \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
 In particular, this mapping allows us to bound the minimum number of measurement axes necessary to perform full tomography on a $d$-level spin qudit, $r_d$, by $2d-1\le r_d\le d^2$.
 We provide an example of an optimized tomography protocol in Section \ref{sec:protocol} [\red{I'll probably use modified versions of existing signal recovery algorithms rather than a new tomography protocol}], as well as numerical experiments to show that $r_d=2d-1$ for $d\le20$.
+
+We generally defer mathematical details and derivations to the appendices, keeping the main text focused on a high-level discussion of our results.
 
 [\red{finish intro}]
 
@@ -182,9 +184,8 @@ as well as the corresponding {\it adjoint} rotation operator $\R\p{\v\omega}$ de
   \label{eq:trans_rot}
 \end{align}
 The adjoint rotation matrix elements $\D_{mn}^\ell\p{\v\omega}\equiv\obk{T_{\ell m}|\R\p{\v\omega}|T_{\ell n}}$ are an analog of the fundamental (Wigner) rotation matrix elements $D_{mn}^\ell\p{\v\omega}\equiv\bk{\ell m|R\p{\v\omega}|\ell n}$ that govern rotations of spin-$\ell$ particles and spherical harmonics $Y_{\ell m}$, where $\ket{\ell m}$ denotes the state of a spin-$\ell$ qudit with spin projection $m$ onto a quantization axis.
-Throughout this work, we will primarily consider rotations determined by points on the 2-sphere $\Omega_2$ at $\gamma_{\v\omega}=0$.
-For ease of notation, we therefore implicitly associate doublets $\v v=\p{\alpha_{\v v},\beta_{\v v}}$ with the triplet $\p{\alpha_{\v v},\beta_{\v v},0}$, so that for example $R\p{\v v} = R\p{\alpha_{\v v},\beta_{\v v},0}$ and $T_{\v v\ell m} = T_{\p{\alpha_{\v v},\beta_{\v v},0},\ell m}$.
 
+It will be useful to think of rotation matrix elements $D^\ell_{mn}$ and $\D^\ell_{mn}$ as scalar functions of Euler angles $\v\omega\in\Omega_3$.
 As functions of $\v\omega$, the fundamental rotation matrix elements $D_{mn}^\ell$ satisfy the orthogonality relations \cite{brown2003rotational}
 \begin{align}
   \int_{\Omega_3} \d\Omega_3\p{\v\omega}
@@ -193,22 +194,23 @@ As functions of $\v\omega$, the fundamental rotation matrix elements $D_{mn}^\el
   \label{eq:ortho_full}
 \end{align}
 where integration is performed over all $\v\omega\in\Omega_3\simeq[0,2\pi]\times[0,\pi]\times[0,2\pi]$ with integration measure $\d\Omega_3\p{\v\omega} \equiv \d\alpha_{\v\omega} \d\beta_{\v\omega} \d\gamma_{\v\omega} \sin\beta_{\v\omega}$.
-In particular, the restriction of $D^\ell_{m,0}$ to the 2-sphere $\Omega_2$ at $\gamma_{\v\omega}=0$ recovers (up to complex conjugation) the spherical harmonics $Y_{\ell m}$, with orthogonality relations
+In particular, the restriction of $D^\ell_{m,0}$ to the sphere $\Omega_2$ at $\gamma_{\v\omega}=0$ recovers (up to complex conjugation) the spherical harmonics $Y_{\ell m}$, with orthogonality relations
 \begin{align}
   \int_{\Omega_2} \d\Omega_2\p{\v v}
   D^{\ell}_{m,0}\p{\v v}^* D^{\ell'}_{m',0}\p{\v v}
   = \f{4\pi}{2\ell+1} \delta_{\ell\ell'} \delta_{mm'},
   \label{eq:ortho_sphere}
 \end{align}
-where integration is performed over all $\v v\in\Omega_2\simeq[0,2\pi]\times[0,\pi]$ with integration measure $\d\Omega_2\p{\v v} \equiv \d\alpha_{\v v} \d\beta_{\v v} \sin\beta_{\v v}$.
+where integration is performed over all $\v v\in\Omega_2\simeq[0,2\pi]\times[0,\pi]$ with integration measure $\d\Omega_2\p{\v v} \equiv \d\alpha_{\v v} \d\beta_{\v v} \sin\beta_{\v v}$, and for ease of notation we implicitly associate doublets $\v v=\p{\alpha_{\v v},\beta_{\v v}}$ with the triplet $\p{\alpha_{\v v},\beta_{\v v},0}$, so that for example $R\p{\v v} = R\p{\alpha_{\v v},\beta_{\v v},0}$ and $T_{\v v\ell m} = T_{\p{\alpha_{\v v},\beta_{\v v},0},\ell m}$.
 The same orthogonality relations in Eqs.~\eqref{eq:ortho_full} and \eqref{eq:ortho_sphere} are inherited by the rotation matrix elements $\D_{mn}^\ell$ through the fact $\R\p{\v\omega}$ is the adjoint action of $R\p{\v\omega}$ (see Appendix \ref{sec:ortho}), and the functions $\set{\D_{m,0}^\ell}$ restricted to $\Omega_2$ are similarly another orthogonal basis for the space $L^2\p{\Omega_2}$ of square-integrable functions on the sphere.
+[\red{todo: make figures visualizing $Y_{\ell m}$ and $\D^\ell_{m,0}$ for comparison}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Spin tomography as signal recovery on the sphere}
+\section{Tomography as signal recovery on the sphere}
 \label{sec:signal_recovery}
 
 Our goal is to reconstruct an arbitrary state of a spin qudit from measurements of spin projection onto different quantization axes.
-We are thus nominally restricted to measuring projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$, where $\ket{\mu_{\v v}}\equiv R\p{\v v}\ket{\mu}$ is a state with spin projection $\mu$ onto a measurement axis determined by a point $\v v$ on the 2-sphere $\Omega_2$.
+We are thus nominally restricted to measuring projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$, where $\ket{\mu_{\v v}}\equiv R\p{\v v}\ket{\mu}$ is a state with spin projection $\mu$ onto a measurement axis determined by a point $\v v$ on the sphere $\Omega_2$.
 For any fixed axis $\v v$, the sets $\set{\Pi_{\v v\mu}}$ and $\set{T_{\v v\ell,0}}$ are both orthonormal bases for the space of operators that are diagonal in the basis $\set{\ket{\mu_{\v v}}}$.
 By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v \ell,0}}_\rho$, where $\bk{X}_\rho\equiv\tr\p{\rho X}$.
 
@@ -218,18 +220,19 @@ Reconstructing an arbitrary density operator $\rho$ essentially requires us to f
   = \sum_{\v v,k} C_{\ell mk}\p{\v v} \bk{T_{\v vk,0}}_\rho.
   \label{eq:state_recon}
 \end{align}
-Expanding the rotated transition operators $T_{\v vk,0}$ according to Eq.~\eqref{eq:trans_rot}, we find that the recovery condition in Eq.~\eqref{eq:state_recon} is satisfied when
+Expanding the rotated transition operators $T_{\v vk,0}$ into a sum of un-rotated transition operators, according to Eq.~\eqref{eq:trans_rot}, we find that the recovery condition in Eq.~\eqref{eq:state_recon} is satisfied when
 \begin{align}
   T_{\ell m}
-  = \sum_{\v v,k,n} C_{\ell mk}\p{\v v} \D^k_{n,0}\p{\v v} T_{kn},
+  = \sum_{\v v,k,n} C_{\ell mk}\p{\v v} \D^k_{n,0}\p{\v v} T_{kn}.
 \end{align}
-where the orthogonality of the transition operators motivates the ansatz $C_{\ell mk}\p{\v v}=\delta_{k\ell}C_{\ell m}\p{\v v}$, which in turn implies that
+Orthogonality of the transition operators motivates the ansatz $C_{\ell mk}\p{\v v}=\delta_{k\ell}C_{\ell m}\p{\v v}$, which in turn implies that
 \begin{align}
   \sum_{\v v} C_{\ell m}\p{\v v} \D^\ell_{n,0}\p{\v v} = \delta_{mn}
   \label{eq:tomo_recovery}
 \end{align}
 for all $\ell$.
-In fact, the problem of finding suitable axes $V$ and coefficients $C_{\ell m}\p{\v v}$ to satisfy Eq.~\eqref{eq:tomo_recovery}, solving which would enable the recovery of arbitrary spin qudit states, can be mapped onto the well-studied problem of signal recovery on the sphere \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
+
+In fact, the problem of finding suitable axes $V$ and coefficients $C_{\ell m}\p{\v v}$ to satisfy Eq.~\eqref{eq:tomo_recovery}, solving which would enable the recovery of arbitrary spin qudit states, can be mapped onto the well-studied problem of signal recovery on the sphere \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} [\red{todo: make figure to visualize the signal recovery problem}].
 The signal recovery problem can be stated as follows: given a square-integrable function $f\in L^2\p{\Omega_2}$ on the sphere, with the harmonic expansion
 \begin{align}
   f\p{\v v} = \sum_{\ell,m} f_{\ell m} B_{\ell m}\p{\v v},
@@ -246,7 +249,7 @@ Reconstruction of functions with arbitrary coefficients $f_{\ell m}$ then implie
   \label{eq:full_recovery}
 \end{align}
 which is a stronger version of the condition that we found for the spin qudit tomography problem in Eq.~\eqref{eq:tomo_recovery}.
-We will refer to Eqs.~\eqref{eq:full_recovery} and \eqref{eq:tomo_recovery} respectively as the {\it full recovery problem} and {\it reduced recovery problem}.
+We will refer to Eq.~\eqref{eq:full_recovery} as the {\it full recovery problem}, and Eq.~\eqref{eq:tomo_recovery} as the the {\it reduced recovery problem}.
 Any solution to the full recovery problem with basis functions $B_{\ell m}=\D^\ell_{m,0}$ automatically solves the reduced recovery problem.
 
 If
@@ -255,7 +258,7 @@ If
 \item the function $f$ is {\it band-limited} at degree $L$, which is to say that $f_{\ell m}=0$ for all $\ell\ge L$,
 \end{enumerate*}
 then the full recovery problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points \cite{freeden2008spherical, freeden2018spherical}.
-The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially ``band-limited'' at degree $d$.
+The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially ``band-limited'' at degree $d$ \footnote{Spin qudit states can be faithfully represented by quasi-probability distributions on a sphere.  For a $d$-level spin, these quasi-probability distributions are band-limited at degree $d$.}.
 
 Moreover, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$ (see Appendix \ref{sec:basis_change}).
 This translation enables importing a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
@@ -271,7 +274,7 @@ where
 \end{align}
 is an inner product of $\D^\ell_{m,0}$ and $Y_{\ell n}$.
 
-Finally, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to recovery of a function in the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, which is possible with $\abs{V}=2\ell+1$ samples (equal to the dimension of the degree-$\ell$ subspace) \cite{freeden2008spherical}.
+Finally, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to the recovery of a function in the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, which is possible with $\abs{V}=2\ell+1$ samples (equal to the dimension of the degree-$\ell$ subspace) \cite{freeden2008spherical}.
 In the case of spin qudit tomography, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are transition operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
 Since
 \begin{enumerate*}
@@ -284,10 +287,38 @@ Unfortunately, we have no general proof of this conjecture, which may require a 
 Nonetheless, in the following section we show by example that $2d-1$ measurement axes suffice for all $d\le20$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Tomography protocol and numerical experiments}
+\section{Optimized tomography protocols}
 \label{sec:protocol}
 
-[\red{Mention sparse signal recovery protocols \cite{rauhut2011sparse, alem2012sparse}.}]
+For the practically minded, the mere existence of solutions to a problem is less interesting than the exposition of a particular solution.
+On a high level, a spin qudit tomography protocol needs to
+\begin{enumerate*}
+\item select a set of measurement axes,
+  \label{tomo:select}
+\item collect measurement data on spin projection onto these axes, and then
+  \label{tomo:measure}
+\item process the collected data to reconstruct the state of the spin qudit.
+  \label{tomo:process}
+\end{enumerate*}
+Whereas step \ref{tomo:measure} can involve a host of platform-dependent technical challenges, here we discuss the steps before and after measurement data collection.
+
+We begin by discussing the selection of measurement axes $V=\set{\v v}\subset\Omega_2$.
+In the absence of analytical tools to find ``optimal'' deterministic choice of axes, we compare three randomized selection methods that are motivated by past works on sparse signal recovery \cite{rauhut2011sparse, alem2012sparse}.
+Conceptually, the simplest method of randomly choosing axes would be to choose $\abs{V}$ points from the uniform distribution on the sphere.
+To select a point $\v v=\p{\alpha_{\v v},\beta_{\v v}}$ from the uniform distribution on the sphere, we first select a point $\p{a_{\v v},z_{\v v}}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and set $\alpha_{\v v}=2\pi a_{\v v}$ and $\beta_{\v v}=\arccos\p{1-2z_{\v v}}$.
+We will call this procedure the {\it uniform} sampling method.
+
+The work in Ref.~\cite{rauhut2011sparse} proposes an alternate sampling method for sparse signal recovery on the sphere, which consists of uniformly sampling angles $\p{\alpha_{\v v},\beta_{\v v}}\in[0,2\pi]\times[0,\pi]$.
+We will refer to this procedure as the {\it biased} sampling scheme, as it places a higher weight on points near the poles of the sphere.
+For general-purpose recovery of band-limited functions $f=\sum_{\ell,m} f_{\ell m} Y_{\ell m}$ with only a small number of non-zero spherical harmonic coefficients $f_{\ell m}$, Ref.~\cite{rauhut2011sparse} found that the biased sampling scheme was more likely to result in ``good'' points that allow for accurate signal recovery.
+
+Finally, we consider the {\it spiral} sampling scheme laid out in Ref.~\cite{alem2012sparse}, which first generates a spiral of points that go from the north pole to the south, using this spiral to define a grid of points on the entire sphere, and then randomly choosing $\abs{V}$ points on this grid.
+
+[\red{todo: make figure visualizing these sampling schemes}]
+
+
+\vspace{3cm}
+
 
 [\red{Think about maximizing the determinant of the coefficient matrix $C_{\ell m}\p{\v v}$?}]
 
