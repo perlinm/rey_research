@@ -100,9 +100,9 @@
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
   By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
   We conjecture that $r_d=2d-1$, which we have verified for all $d\le100$ using numerical experiments.
-  We then provide an algorithm with $O\p{dr^3}$ serial runtime for certifying strict upper bounds on the error with which a tomography protocols with $r$ measurement axes can reconstruct an unknown quantum state.
-  Our algorithm motivates simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error [\red{note: this part is not yet complete}].
-  [\red{Possible things to look into: (1) a simplified tomography procedure for pure states, (2) adaptive tomography protocols.]}
+  We then provide an algorithm with $O\p{r^3}$ runtime for certifying strict upper bounds on the error with which measurements of spin projection along $r$ measurement axes can be used to reconstruct an unknown quantum state.
+  Our algorithm motivates a simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error [\red{note: this part is not yet complete}].
+  [\red{todo: maybe look into a simplified tomography procedure for pure states?]}
 \end{abstract}
 
 \maketitle
@@ -351,7 +351,7 @@ where
   \label{eq:norm}
 \end{align}
 is a norm uniquely determined by the set of measurement axes $V$, with minimization performed over unitary transformations $U$ of all $\v g^V_k$ and $\v x^V_k$ to account for the fact that their 1-norms are generally basis-dependent.
-Equivalently, this minimization accounts for the fact that we can perform the analysis between Eqs.~\eqref{eq:overlap_matrix} and \eqref{eq:bound} identically with any $G_V\to U G_V U^\dag$, where $U$ is an arbitrary unitary that mixes the projectors in $\v\Pi_V$.
+Seen otherwise, this minimization accounts for the fact that we can perform the analysis between Eqs.~\eqref{eq:overlap_matrix} and \eqref{eq:bound} identically with any $G_V\to U G_V U^\dag$, where $U$ is an arbitrary unitary that mixes the projectors in $\v\Pi_V$.
 
 To better understand the bound in Eq.~\eqref{eq:bound}, we observe that by a change of operator basis, or equivalently a particular choice of unitary $U=U_T$, measuring the projectors $\set{\Pi_{\v v\mu}}$ is equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$.
 Orthogonality of transition operators with different degrees $\ell$ then implies that the overlap matrix
@@ -375,7 +375,7 @@ so
 Note that this sum, as well as that in Eq.~\eqref{eq:norm}, is performed over the $d^2$ largest eigenvalues of $G_V$, and therefore may be divergent if $G_V$ has fewer than $d^2$ nonzero eigenvalues.
 Altogether, diagonalizing each of $d$ blocks of $G_V$ takes a time that is $O(\abs{V}^3)$, so an upper bound for $\N_V$ can be computed in $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
 
-The bound in Eq.~\eqref{eq:bound} motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the cost function
+The bound in Eq.~\eqref{eq:bound} motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the cost function
 \begin{align}
   \tilde\N_V^2 \equiv \sum_k \f{\norm{U_T\v x^V_k}_1^2}{G^V_k}
   \ge \N_V^2,
@@ -391,7 +391,13 @@ Altogether, this protocol has an $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parall
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the development of tailored and adaptive measurement protocols to future work.
 
-[\red{Mention past works on sparse signal recovery \cite{rauhut2011sparse, alem2012sparse}?}]
+As a last point, we mention that the cost function $\tilde\N_V^2$ can also evaluate the quality of measurement axes chosen using existing methods for sparse signal recovery on the sphere \cite{rauhut2011sparse, alem2012sparse}.
+In practice, we find that uniform random sampling outperforms these methods, in the sense that it generates low-cost measurement axes with higher probability.
+Two observations may explain the poor performance of the sparse signal recovery methods: first, that spin qudit tomography essentially boils down to recovering sparse signals with a particular harmonic structure, namely with a fixed degree $\ell$.
+The existing sparse signal recovery algorithms do not assume or account for any harmonic structure, and may therefore perform worse than expected on this particular subset of sparse signals.
+Second, spin qudit tomography essentially requires reconstructing signals that are band-limited at degree $d$, but have $O(d)$ non-zero harmonic coefficients (out of $d^2$ coefficients in total).
+The existing sparse signal recovery methods, on the other hand, may only work for signals with sparsity much smaller than $d$.
+In any case, the fact that uniform sampling outperforms these methods only simplifies our randomized tomography protocol.
 
 \bibliography{\jobname.bib}
 
