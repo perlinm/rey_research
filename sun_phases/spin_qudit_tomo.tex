@@ -100,7 +100,7 @@
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
   By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
   We conjecture that $r_d=2d-1$, which we have verified for all $d\le100$ using numerical experiments.
-  We then provide an algorithm with $O\p{dr^3}$ runtime for certifying strict upper bounds on the error with which a tomography protocols with $r$ measurement axes can reconstruct an unknown quantum state.
+  We then provide an algorithm with $O\p{dr^3}$ serial runtime for certifying strict upper bounds on the error with which a tomography protocols with $r$ measurement axes can reconstruct an unknown quantum state.
   Our algorithm motivates simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error [\red{note: this part is not yet complete}].
   [\red{Possible things to look into: (1) a simplified tomography procedure for pure states, (2) adaptive tomography protocols.]}
 \end{abstract}
@@ -300,15 +300,12 @@ The projectors $\v\Pi_V$ can be used to construct the overlap (Gram) matrix
 \end{align}
 Eigenvectors of $G_V$ define linearly independent linear combinations of the projectors in $\v\Pi_V$.
 If the projectors in $\v\Pi_V$ span the entire space of operators on a $d$-level spin qudit, which is a necessary and sufficient condition for $V$ to allow for full state tomography, then $G_V$ must have exactly $d^2$ nonzero eigenvalues.
-Indexing these eigenvalues $G^V_k$ by an integer $k\in\set{1,2,\cdots,d^2}$ and normalizing the corresponding eigenvectors $\v g^V_k\equiv(g^V_{k,1},g^V_{k,2},\cdots)$ as
-\begin{align}
-  \abs{\v g^V_k}^2
-  = \sum_{j=1}^{\abs{V}\times d} \abs{g^V_{kj}}^2
-  = \f1{G^V_k},
-\end{align}
+Indexing these eigenvalues $G^V_k$ and the corresponding (normalized) eigenvectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots)$ by an integer $k\in\set{1,2,\cdots,d^2}$,
 we can construct the orthonormal operators
 \begin{align}
-  Q^V_k \equiv \sum_j g^V_{kj} \Pi_j^V.
+  Q^V_k \equiv \sum_j g^V_{kj} \Pi_j^V,
+  &&
+  g^V_{kj} \equiv \f{x^V_{kj}}{\sqrt{G^V_k}}.
 \end{align}
 These operators allow us to expand any state $\rho$ of a $d$-level spin qudit in the form
 \begin{align}
@@ -339,18 +336,37 @@ then the error in the estimate $\tilde\rho^V_k$ of $\rho^V_k$ is
   \abs{\tilde\rho^V_k-\rho^V_k}
   &= \abs{\sum_j g_{kj}^V \p{E^V_j-\bk{\Pi^V_j}_\rho}} \\
   &\le \sum_j \abs{g_{kj}^V \p{E^V_j-\bk{\Pi^V_j}_\rho}} \\
-  &\le \epsilon \sum_j \abs{g_{kj}^V}
-  \equiv \epsilon^V_k.
+  &\le \epsilon \norm{\v g^V_k}_1,
 \end{align}
+where $\norm{\v g}_1=\sum_j\abs{g_j}$ is the 1-norm of the vector $\v g$.
 Using the fact that the operators $Q^V_k$ are orthonormal, we can bound the 2-norm (Euclidean) distance $\norm{\tilde\rho-\rho}_2$ between $\tilde\rho$ and $\rho$ as
 \begin{align}
   \norm{\tilde\rho-\rho}_2^2
   = \sum_k \abs{\tilde\rho^V_k - \rho^V_k}^2
-  \le \sum_k \abs{\epsilon_k^V}^2
-  = \abs{\v\epsilon_V}^2,
+  \le \epsilon^2 \N_V^2,
 \end{align}
-where the vector $\v\epsilon_V \equiv \p{\epsilon^V_1,\epsilon^V_2,\cdots,\epsilon^V_{d^2}}$ depends only on the approximation error $\epsilon$ and choice of measurement axes $V$.
-To better understand the behavior of this bound,
+where
+\begin{align}
+  \N_V^2 \equiv \min_U \sum_k \norm{U\v g^V_k}_1^2
+  = \min_U \sum_k \f{\norm{U\v x^V_k}_1^2}{G^V_k}
+  \label{eq:norm}
+\end{align}
+is a norm uniquely determined by the set of measurement axes $V$, with minimization performed over unitary transformations $U$ of all $\v g^V_k$ and $\v x^V_k$ to account for the fact that their 1-norms are generally basis-dependent.
+
+To better understand this norm, which induces a state-agnostic upper bound on reconstruction error, we first observe that by a change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$.
+Orthogonality of transition operators with different degrees $\ell$ then implies that the overlap matrix $G_V$ has a block-diagonal structure in the transition operator basis, with $d$ blocks of size $\abs{V}\times\abs{V}$.
+Eigenvectors of $G_V$ in this basis can therefore have at most $\abs{V}$ nonzero components, which implies that
+\begin{align}
+  \min_U \norm{U\v x^V_k}_1^2
+  \le \abs{V}\, \norm{\v x^V_k}_2^2
+  = \abs{V},
+\end{align}
+so
+\begin{align}
+  \N_V^2 \le \abs{V} \sum_k \f1{G^V_k}.
+\end{align}
+Note that this sum, as well as that in Eq.~\eqref{eq:norm}, is performed over the $d^2$ largest eigenvalues of $G_V$, and therefore may be divergent if $G_V$ has fewer than $d^2$ nonzero eigenvalues.
+Altogether, diagonalizing each of $d$ blocks of $G_V$ takes a time that is $O(\abs{V}^3)$, so an upper bound for $\N_V$ can be computed in $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
 
 
 
