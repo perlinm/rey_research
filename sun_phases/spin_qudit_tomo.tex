@@ -285,7 +285,7 @@ On a high level, a spin qudit tomography protocol needs to
   \label{tomo:measure}
 \item process the collected data to reconstruct the state of the spin qudit.
 \end{enumerate*}
-Whereas step \ref{tomo:measure} can involve a host of platform-dependent technical challenges, here we discuss the steps to take before and after measurement data collection.
+Whereas step \ref{tomo:measure} can involve a host of platform-dependent technical challenges, here we discuss the steps to take before and after collecting measurement data.
 
 To this end, we begin by asking a question: what is a ``good'' choice of measurement axes?
 Intuitively, a good choice of axes should minimize the error with which one can reconstruct an unknown quantum state from associated measurement data.
@@ -324,7 +324,7 @@ where
   = \bk{Q^V_k}_\rho
   = \rho^V_k.
 \end{align}
-The eigenvectors of the overlap matrix $G_V$ provide strict upper bounds on the distance between the empirical estimate $\tilde\rho$ and the true state $\rho$.
+The eigenvalues and eigenvectors of the overlap matrix $G_V$ provide strict upper bounds on the distance between the empirical estimate $\tilde\rho$ and the true state $\rho$.
 If the estimates $E^V_j$ approximate $\bk{\Pi^V_j}_\rho$ to within an error $\epsilon$, i.e.
 \begin{align}
   \abs{E^V_j-\bk{\Pi^V_j}_\rho} \le \epsilon,
@@ -395,8 +395,8 @@ As a last point, we mention that the cost function $\tilde\N_V^2$ can also evalu
 In practice, we find that uniform random sampling outperforms these methods, in the sense that it generates low-cost measurement axes with higher probability.
 Two observations may explain the poor performance of the sparse signal recovery methods: first, that spin qudit tomography essentially boils down to recovering sparse signals with a particular harmonic structure, namely with a fixed degree $\ell$.
 The existing sparse signal recovery algorithms do not assume or account for any harmonic structure, and may therefore perform worse than expected on this particular subset of sparse signals.
-Second, spin qudit tomography essentially requires reconstructing signals that are band-limited at degree $d$, but have $O(d)$ non-zero harmonic coefficients (out of $d^2$ coefficients in total).
-The existing sparse signal recovery methods, on the other hand, may only work for signals with sparsity much smaller than $d$.
+Second, spin qudit tomography essentially requires recovering signals that are band-limited at degree $d$, but have $O(d)$ non-zero harmonic coefficients (out of $d^2$ coefficients in total).
+The existing sparse signal recovery methods, on the other hand, may only perform well for signals with sparsity much smaller than $d$.
 In any case, the fact that uniform sampling outperforms these methods only simplifies our randomized tomography protocol.
 
 \bibliography{\jobname.bib}
