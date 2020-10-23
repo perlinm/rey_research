@@ -297,6 +297,7 @@ A set of measurement axes $V=\set{\v v}$ nominally induces a set of projectors $
 The projectors $\v\Pi_V$ can be used to construct the overlap (Gram) matrix
 \begin{align}
   G_V = \sum_{i,j=1}^{\abs{V}\times d} \obk{\Pi_i^V|\Pi_j^V} \op{i}{j}.
+  \label{eq:overlap_matrix}
 \end{align}
 Eigenvectors of $G_V$ define linearly independent linear combinations of the projectors in $\v\Pi_V$.
 If the projectors in $\v\Pi_V$ span the entire space of operators on a $d$-level spin qudit, which is a necessary and sufficient condition for $V$ to allow for full state tomography, then $G_V$ must have exactly $d^2$ nonzero eigenvalues.
@@ -344,6 +345,7 @@ Using the fact that the operators $Q^V_k$ are orthonormal, we can bound the 2-no
   \norm{\tilde\rho-\rho}_2^2
   = \sum_k \abs{\tilde\rho^V_k - \rho^V_k}^2
   \le \epsilon^2 \N_V^2,
+  \label{eq:bound}
 \end{align}
 where
 \begin{align}
@@ -352,12 +354,14 @@ where
   \label{eq:norm}
 \end{align}
 is a norm uniquely determined by the set of measurement axes $V$, with minimization performed over unitary transformations $U$ of all $\v g^V_k$ and $\v x^V_k$ to account for the fact that their 1-norms are generally basis-dependent.
+Equivalently, this minimization accounts for the fact that we can perform the analysis between Eqs.~\eqref{eq:overlap_matrix} and \eqref{eq:bound} identically with any $G_V\to U G_V U^\dag$, where $U$ is an arbitrary unitary that mixes the projectors in $\v\Pi_V$.
 
-To better understand this norm, which induces a state-agnostic upper bound on reconstruction error, we first observe that by a change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$.
-Orthogonality of transition operators with different degrees $\ell$ then implies that the overlap matrix $G_V$ has a block-diagonal structure in the transition operator basis, with $d$ blocks of size $\abs{V}\times\abs{V}$.
-Eigenvectors of $G_V$ in this basis can therefore have at most $\abs{V}$ nonzero components, which implies that
+To better understand the bound in Eq.~\eqref{eq:bound}, we observe that by a change of operator basis, or equivalently a particular choice of unitary $U=U_0$, measuring the projectors $\set{\Pi_{\v v\mu}}$ is equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$.
+Orthogonality of transition operators with different degrees $\ell$ then implies that the overlap matrix $U_0 G_V U_0^\dag$ has a block-diagonal structure, with $d$ blocks of size $\abs{V}\times\abs{V}$.
+Eigenvectors of $G_V$ in the transition operator basis can therefore have at most $\abs{V}$ nonzero components, which implies that
 \begin{align}
   \min_U \norm{U\v x^V_k}_1^2
+  \le \norm{U_0\v x^V_k}_1^2
   \le \abs{V}\, \norm{\v x^V_k}_2^2
   = \abs{V},
 \end{align}
