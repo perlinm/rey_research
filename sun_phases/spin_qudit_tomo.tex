@@ -103,7 +103,7 @@
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
   By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
   We conjecture that $r_d=2d-1$, which numerical experiments verify for $d\le100$.
-  We then provide an algorithm with $O\p{d^4}$ runtime for certifying upper bounds on the error with which tomography protocols can reconstruct an unknown quantum state.
+  We then provide an algorithm with $O\p{dr^3}$ runtime for certifying strict upper bounds on the error with which a tomography protocols with $r$ measurement axes can reconstruct an unknown quantum state.
   Our algorithm motivates simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error [\red{note: this part is not yet complete}].
   [\red{Possible things to look into: (1) a simplified tomography procedure for pure states, (2) adaptive tomography protocols.]}
 \end{abstract}
