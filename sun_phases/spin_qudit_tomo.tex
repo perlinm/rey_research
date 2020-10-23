@@ -56,9 +56,6 @@
 \renewcommand{\SS}{\mathbb{S}}
 \newcommand{\ZZ}{\mathbb{Z}}
 
-\let\var\relax
-\DeclareMathOperator{\var}{var}
-
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
 \def\obk#1{\mathinner{({#1})}}
@@ -102,7 +99,7 @@
 \begin{abstract}
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
   By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
-  We conjecture that $r_d=2d-1$, which numerical experiments verify for $d\le100$.
+  We conjecture that $r_d=2d-1$, which we have verified for all $d\le100$ using numerical experiments.
   We then provide an algorithm with $O\p{dr^3}$ runtime for certifying strict upper bounds on the error with which a tomography protocols with $r$ measurement axes can reconstruct an unknown quantum state.
   Our algorithm motivates simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error [\red{note: this part is not yet complete}].
   [\red{Possible things to look into: (1) a simplified tomography procedure for pure states, (2) adaptive tomography protocols.]}
@@ -275,7 +272,6 @@ Nonetheless, in the following section we show by example that $2d-1$ measurement
 In principle, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$ (see Appendix \ref{sec:basis_change}).
 This translation enables importing a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
 In practice, spin qudits typically have only a modest dimension $d$, allowing for simpler and optimized tomography protocols that are practical despite worse scaling with $d$.
-We present one such protocol with $O\p{d^3}$ runtime in the following section.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Optimized tomography protocols and reconstruction error bounds}
@@ -306,7 +302,8 @@ Eigenvectors of $G_V$ define linearly independent linear combinations of the pro
 If the projectors in $\v\Pi_V$ span the entire space of operators on a $d$-level spin qudit, which is a necessary and sufficient condition for $V$ to allow for full state tomography, then $G_V$ must have exactly $d^2$ nonzero eigenvalues.
 Indexing these eigenvalues $G^V_k$ by an integer $k\in\set{1,2,\cdots,d^2}$ and normalizing the corresponding eigenvectors $\v g^V_k\equiv(g^V_{k,1},g^V_{k,2},\cdots)$ as
 \begin{align}
-  \abs{\v g^V_k}^2 = \sum_{j=1}^{\abs{V}\times d} \abs{g^V_{kj}}
+  \abs{\v g^V_k}^2
+  = \sum_{j=1}^{\abs{V}\times d} \abs{g^V_{kj}}^2
   = \f1{G^V_k},
 \end{align}
 we can construct the orthonormal operators
@@ -332,32 +329,29 @@ where
 \end{align}
 The empirical estimate $\tilde\rho$ can be further improved by performing maximum-likelihood corrections, outlined in the ``algorithm for subproblem 1'' in Ref.~\cite{smolin2012efficient}, which essentially finds the closest state to $\tilde\rho$ with no negative eigenvalues.
 
-We can use the eigenvalues of the overlap matrix $G_V$ to place strict upper bounds on the distance between the empirical estimate $\tilde\rho$ and the true state $\rho$.
+The eigenvectors of the overlap matrix $G_V$ provide strict upper bounds on the distance between the empirical estimate $\tilde\rho$ and the true state $\rho$.
 If the estimates $E^V_j$ approximate $\bk{\Pi^V_j}_\rho$ to within an error $\epsilon$, i.e.
 \begin{align}
   \abs{E^V_j-\bk{\Pi^V_j}_\rho} \le \epsilon,
 \end{align}
-then we can say that
+then the error in the estimate $\tilde\rho^V_k$ of $\rho^V_k$ is
 \begin{align}
-  \tilde\rho^V_k-\rho^V_k
-  = \sum_j g_{kj}^V \p{E^V_j-\bk{\Pi^V_j}_\rho}
-  \le \epsilon \sum_j g_{kj}^V \sigma_j,
+  \abs{\tilde\rho^V_k-\rho^V_k}
+  &= \abs{\sum_j g_{kj}^V \p{E^V_j-\bk{\Pi^V_j}_\rho}} \\
+  &\le \sum_j \abs{g_{kj}^V \p{E^V_j-\bk{\Pi^V_j}_\rho}} \\
+  &\le \epsilon \sum_j \abs{g_{kj}^V}
+  \equiv \epsilon^V_k.
 \end{align}
-where $\sigma_j\in\set{+1,-1}$ is the sign of $E^V_j-\bk{\Pi^V_j}_\rho$.
-Using the fact that the operators $Q^V_k$ are orthonormal, the 2-norm (Euclidean) distance $\norm{\tilde\rho-\rho}_2$ between $\tilde\rho$ and $\rho$ is therefore bounded as
+Using the fact that the operators $Q^V_k$ are orthonormal, we can bound the 2-norm (Euclidean) distance $\norm{\tilde\rho-\rho}_2$ between $\tilde\rho$ and $\rho$ as
 \begin{align}
   \norm{\tilde\rho-\rho}_2^2
-  &= \obk{\tilde\rho-\rho|\tilde\rho-\rho}
-  = \sum_k \abs{\tilde\rho^V_k - \rho^V_k}^2 \nonumber \\
-  &\le \epsilon^2 \sum_k \abs{\sum_j g_{kj}^V \sigma_j}^2
-  = \epsilon^2 \sum_k \abs{\v g^V_k}^2
-  = \epsilon^2 \N_V^2,
+  = \sum_k \abs{\tilde\rho^V_k - \rho^V_k}^2
+  \le \sum_k \abs{\epsilon_k^V}^2
+  = \abs{\v\epsilon_V}^2,
 \end{align}
-where we used the fact that changing the signs of coefficients in $\v g^V_k$ does not affect its norm, and
-\begin{align}
-  \N_V^2 \equiv \sum_k \f1{G^V_k}.
-\end{align}
-Minimizing the norm $\N_V$ associated with a choice of measurement axes $V$ thus minimizes the error with which the empirical estimate $\tilde\rho$ approximates the true state $\rho$.
+where the vector $\v\epsilon_V \equiv \p{\epsilon^V_1,\epsilon^V_2,\cdots,\epsilon^V_{d^2}}$ depends only on the approximation error $\epsilon$ and choice of measurement axes $V$.
+To better understand the behavior of this bound,
+
 
 
 
