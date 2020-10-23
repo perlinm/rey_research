@@ -26,11 +26,6 @@
 \renewcommand{\c}{\cdot} % inner product
 \renewcommand{\i}{\mathrm{i}\mkern1mu} % imaginary unit
 
-\usepackage{dsfont} % for identity operator
-\newcommand{\1}{\mathds{1}}
-
-\usepackage{mathtools} % for \coloneqq
-
 \newcommand{\up}{\uparrow}
 \newcommand{\dn}{\downarrow}
 \newcommand{\x}{\text{x}}
@@ -100,7 +95,7 @@
 \begin{abstract}
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
   By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
-  We conjecture that $r_d=2d-1$, which we have verified for all $d\le100$ using numerical experiments.
+  We conjecture that $r_d=2d-1$, which we have verified for all $d\le120$ using numerical experiments.
   We then provide an algorithm with $O\p{r^3}$ runtime for certifying strict upper bounds on the error with which measurements of spin projection along $r$ measurement axes can be used to reconstruct an unknown quantum state.
   Our algorithm motivates a simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error [\red{note: this part is not yet complete}].
   [\red{todo: maybe look into a simplified tomography procedure for pure states?]}
@@ -268,7 +263,7 @@ Since
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
 In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any degree-$\ell$ function with $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
 Unfortunately, we have no general proof of this conjecture, which may require a deeper analysis of fixed-degree signal recovery on the sphere.
-Nonetheless, in the following section we show by example that $2d-1$ measurement axes suffice for all $d\le100$. [\red{modify sentence as appropriate after writing the next section}]
+Nonetheless, we have used the tomography protocol in the next section to numerically verify that $2d-1$ measurement axes suffice for all $d\le120$.
 
 In principle, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$ (see Appendix \ref{sec:basis_change}).
 This translation enables importing a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
@@ -353,6 +348,7 @@ where
 \end{align}
 is a norm uniquely determined by the set of measurement axes $V$, with minimization performed over unitary transformations $U$ of all $\v g^V_k$ and $\v x^V_k$ to account for the fact that their 1-norms are generally basis-dependent.
 Seen otherwise, this minimization accounts for the fact that we can repeat the analysis between Eqs.~\eqref{eq:overlap_matrix} and \eqref{eq:bound} with any $G_V\to U G_V U^\dag$, where $U$ is an arbitrary unitary that mixes the projectors in $\v\Pi_V$.
+[\red{Actually, I don't think this minimization is quite correct as stated, but it won't matter after some pending changes to this section.  Rather than an absolute error $\epsilon$, we can assume that $E_j$ approximates $\bk{\Pi_j}_\rho$ up to Gaussian noise with variance $\epsilon^2$.  In that case, I think the mean (squared) distance between $\tilde\rho$ and $\rho$ is $\epsilon^2\sum_k1/G^V_k$, which in retrospect is a much nicer result.  I am still working to write this up, which will involve some changes to this section.}]
 
 To better understand the bound in Eq.~\eqref{eq:bound}, we observe that by a change of operator basis, or equivalently a particular choice of unitary $U_T$, measuring the projectors $\set{\Pi_{\v v\mu}}$ is equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$.
 Orthogonality of transition operators with different degrees $\ell$ then implies that the overlap matrix
@@ -370,7 +366,6 @@ Eigenvectors of $G_V$ can therefore have at most $\abs{V}$ nonzero components in
 \end{align}
 Note that these sums are performed over the $d^2$ largest eigenvalues of $G_V$ (or $G_V^{\t{trn}}$), and therefore may be divergent if $G_V$ has fewer than $d^2$ nonzero eigenvalues.
 Altogether, diagonalizing each of $d$ blocks of $G_V^{\t{trn}}$ takes a time that is $O(\abs{V}^3)$, so an upper bound for $\N_V$ can be computed in $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
-[\red{Note: rather than an absolute error $\epsilon$ on experimental measurements, we can assume that $E_j$ is equal to $\bk{\Pi_j}_\rho$ up to Gaussian noise with variance $\epsilon^2$.  In that case, rather than a strict error bound we can make statements about the expected (squared) distance between $\tilde\rho$ and $\rho$, which turns out to be simply $\epsilon^2\sum_k1/G^V_k$.  In retrospect, I think that this is a much nicer result, but I haven't written it up yet, which will require me to restructure this section somewhat.}]
 
 The bound in Eq.~\eqref{eq:bound} motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the cost function
 \begin{align}
@@ -382,19 +377,24 @@ If $\abs{V}$ is too large for variational optimization to be practical, one can 
 Upon choosing a set of measurement axes $V$, experimentally characterize the expectation values $\bk{\Pi^V_j}_\rho$.
 If these measurements can approximate the expectation values $\bk{\Pi^V_j}_\rho$ to within a known error $\epsilon$, then the empirical estimate $\tilde\rho$ defined in Eq.~\eqref{eq:reconstructed_state} is an approximation of the true state $\rho$ to within a 2-norm distance of $\epsilon\N_V$.
 If the empirical estimate $\tilde\rho$ has negative eigenvalues, its 2-norm distance from $\rho$ can be further reduced via maximum-likelihood corrections \cite{smolin2012efficient}.
-In terms of classical computing costs before and after the estimation of expectation values $\bk{\Pi^V_j}_\rho$, this tomography protocol is bottlenecked by the need to diagonalize the overlap matrix $G_V^{\t{trn}}$, which has $d$ blocks of size $\abs{V}\times\abs{V}$.
-Altogether, this protocol has an $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
+In terms of classical computing costs before and after estimating the expectation values $\bk{\Pi^V_j}_\rho$, this tomography protocol is bottlenecked by the need to diagonalize the overlap matrix $G_V^{\t{trn}}$, which has $d$ blocks of size $\abs{V}\times\abs{V}$.
+Altogether, this protocol therefore has an $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
 
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the development of tailored and adaptive measurement protocols to future work.
 
 As a last point, we mention that the cost function $\tilde\N_V^2$ can also evaluate the quality of measurement axes chosen using existing methods for sparse signal recovery on the sphere \cite{rauhut2011sparse, alem2012sparse}.
-In practice, we find that uniform random sampling outperforms these methods, in the sense that it generates low-cost measurement axes with higher probability.
-Two observations may explain the poor performance of the sparse signal recovery methods: first, that spin qudit tomography essentially boils down to recovering sparse signals with a particular harmonic structure, namely with a fixed degree $\ell$.
+In practice, we find that uniform random sampling outperforms these methods, in the sense that it generates low-cost sets of measurement axes with higher probability.
+Two observations may explain the poor performance of the sparse signal recovery methods.
+First, spin qudit tomography essentially boils down to recovering sparse signals with a particular harmonic structure, namely with a fixed degree $\ell$.
 The existing sparse signal recovery algorithms do not assume or account for any harmonic structure, and may therefore perform worse than expected on this particular subset of sparse signals.
-Second, spin qudit tomography essentially requires recovering signals that are band-limited at degree $d$, but have $O(d)$ non-zero harmonic coefficients (out of $d^2$ coefficients in total).
+Second, spin qudit tomography requires recovering signals that are band-limited at degree $d$, but have $O(d)$ non-zero harmonic coefficients (out of $d^2$ coefficients in total).
 The existing sparse signal recovery methods, on the other hand, may only perform well for signals with sparsity much smaller than $d$.
 In any case, the fact that uniform sampling outperforms these methods only simplifies our randomized tomography protocol.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{How many measurement axes?}
+\label{sec:axes}
 
 \bibliography{\jobname.bib}
 
