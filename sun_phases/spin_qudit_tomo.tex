@@ -26,6 +26,14 @@
 \renewcommand{\c}{\cdot} % inner product
 \renewcommand{\i}{\mathrm{i}\mkern1mu} % imaginary unit
 
+% double angle brackets
+\newcommand{\bbk}[1]{\langle\!\langle #1 \rangle\!\rangle}
+\newcommand{\Bbk}[1]
+{\left\langle\!\!\left\langle #1 \right\rangle\!\!\right\rangle}
+
+\usepackage{dsfont} % for identity operator
+\newcommand{\1}{\mathds{1}}
+
 \newcommand{\up}{\uparrow}
 \newcommand{\dn}{\downarrow}
 \newcommand{\x}{\text{x}}
@@ -33,7 +41,6 @@
 \newcommand{\z}{\text{z}}
 
 \newcommand{\B}{\mathcal{B}}
-\newcommand{\M}{\mathcal{M}}
 \newcommand{\N}{\mathcal{N}}
 \renewcommand{\O}{\mathcal{O}}
 \newcommand{\Q}{\mathcal{Q}}
@@ -287,103 +294,87 @@ To this end, we begin by asking a question: what is a ``good'' choice of measure
 Intuitively, a good choice of axes should minimize the error with which one can reconstruct an unknown quantum state from associated measurement data.
 If we can quantify this idea, then we can try to optimize over different choices of measurement axes to find a set that (approximately) minimizes the error in reconstructed states.
 
-A set of measurement axes $V=\set{\v v}$ nominally induces a set of projectors $\v\Pi_V=\set{\Pi_j^V}$ that will be measured in an experiment, where for shorthand we use a combined index $j\simeq\p{\v v_j,\mu_j}$ that specifies both a measurement axis $\v v_j$ and an outcome $\mu_j$, and for clarify we index objects by $V$ to emphasize their dependence on the choice of measurement axes.
-The projectors $\v\Pi_V$ can be used to construct the overlap (Gram) matrix
+A set of measurement axes $V=\set{\v v}$ nominally induces a set of projectors $\set{\Pi_{\v v\mu}^V}$ that will be measured in an experiment, where for clarify we index objects by $V$ to emphasize their dependence on the choice of measurement axes.
+By a simple change of basis, measuring these projectors is equivalent to measuring the set of transition operators $\v T_V\equiv\set{T_{\v v\ell,0}}$.
+The operators in $\v T_V$ can be used to construct the overlap (Gram) matrix
 \begin{align}
-  G_V = \sum_{i,j=1}^{\abs{V}\times d} \obk{\Pi_i^V|\Pi_j^V} \op{i}{j}.
+  G_V \equiv \sum_{\v v,\v v',\ell}
+  \obk{T_{\v v\ell,0}|T_{\v v'\ell,0}} \op{\v v\ell}{\v v'\ell},
   \label{eq:overlap_matrix}
 \end{align}
-Eigenvectors of $G_V$ define linearly independent linear combinations of the projectors in $\v\Pi_V$.
-If the projectors in $\v\Pi_V$ span the entire space of operators on a $d$-level spin qudit, which is a necessary and sufficient condition for $V$ to allow for full state tomography, then $G_V$ must have exactly $d^2$ nonzero eigenvalues.
-Indexing these eigenvalues $G^V_k$ and the corresponding (normalized) eigenvectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots)$ by an integer $k\in\set{1,2,\cdots,d^2}$,
-we can construct the orthonormal operators
+where we neglect cross terms with different degrees $\ell$ because the corresponding inner products $\obk{T_{\v v\ell,0}|T_{\v v'\ell',0}}=0$ for all $\ell\ne\ell'$.
+Eigenvectors of $G_V$ define linearly independent linear combinations of the operators in $\v T_V$.
+If the operators in $\v T_V$ span the entire space of operators on a $d$-level spin qudit, which is a necessary and sufficient condition for $V$ to allow for full state tomography, then $G_V$ must have exactly $d^2$ nonzero eigenvalues.
+Indexing these eigenvalues $G^V_k$ and the corresponding (normalized) eigenvectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots)$ by an integer $k\in\set{1,2,\cdots,\abs{V}d}$, we can construct the orthonormal operators
 \begin{align}
-  Q^V_k \equiv \sum_j g^V_{kj} \Pi_j^V,
+  Q^V_k \equiv \sum_j g^V_{kj} T_j,
   &&
-  g^V_{kj} \equiv \f{x^V_{kj}}{\sqrt{G^V_k}}.
+  g^V_{kj} \equiv \f{x^V_{kj}}{\sqrt{G^V_k}},
 \end{align}
+where for shorthand we use a combined index $j\equiv\p{\v v_j,\ell_j}$ to specify both a measurement axis $\v v_j$ and a degree $\ell_j$, which identify the transition operator $T_j\equiv T_{\v v_j\ell_j,0}$.
 These operators allow us to expand any state $\rho$ of a $d$-level spin qudit in the form
 \begin{align}
   \rho = \sum_{k=1}^{d^2} \rho_k^V Q_k^V,
   &&
   \rho_k^V \equiv \bk{Q^V_k}_\rho.
 \end{align}
-Given empirical estimates $E_j^V$ of the expectation values $\bk{\Pi_j^V}_\rho$, an empirical estimate $\tilde\rho$ of $\rho$ is then
+Given empirical estimates $E_j$ of the expectation values $\bk{T_j}_\rho$, an empirical estimate $\tilde\rho$ of $\rho$ is then
 \begin{align}
   \tilde\rho \equiv \sum_k \tilde\rho^V_k Q^V_k,
   \label{eq:reconstructed_state}
 \end{align}
 where
 \begin{align}
-  \tilde\rho^V_k \equiv \sum_j g^V_{kj} E_j^V
-  \approx \sum_j g^V_{kj} \bk{\Pi_j^V}_\rho
+  \tilde\rho^V_k \equiv \sum_j g^V_{kj} E_j
+  \approx \sum_j g^V_{kj} \bk{T_j}_\rho
   = \bk{Q^V_k}_\rho
   = \rho^V_k.
 \end{align}
-The eigenvalues and eigenvectors of the overlap matrix $G_V$ provide strict upper bounds on the distance between the empirical estimate $\tilde\rho$ and the true state $\rho$.
-If the estimates $E^V_j$ approximate $\bk{\Pi^V_j}_\rho$ to within an error $\epsilon$, i.e.
+The eigenvalues of the overlap matrix $G_V$ allow us to make concrete statements about the statistical error between the empirical estimate $\tilde\rho$ and the true state $\rho$.
+Assume, for example, that the estimates $E_j$ are equal to $\bk{T_j}_\rho$ up to Gaussian noise with variance at most $\epsilon^2$, i.e.
 \begin{align}
-  \abs{E^V_j-\bk{\Pi^V_j}_\rho} \le \epsilon,
+  E_j = \bk{T_j}_\rho + \epsilon_j,
+  &&
+  \bbk{\epsilon_j \epsilon_{j'}} \le \epsilon^2 \delta_{jj'},
 \end{align}
-then the error in the estimate $\tilde\rho^V_k$ of $\rho^V_k$ is
+where $\set{\epsilon_j}$ are independent random variables, and we use the double brackets $\bbk{\cdot}$ to denote statistical averaging.
+The variance in the error with which $\tilde\rho^V_k$ approximates $\rho^V_k$ is then
 \begin{align}
-  \abs{\tilde\rho^V_k-\rho^V_k}
-  &= \abs{\sum_j g_{kj}^V \p{E^V_j-\bk{\Pi^V_j}_\rho}} \\
-  &\le \sum_j \abs{g_{kj}^V \p{E^V_j-\bk{\Pi^V_j}_\rho}} \\
-  &\le \epsilon \norm{\v g^V_k}_1,
+  \Bbk{\abs{\tilde\rho^V_k-\rho^V_k}^2}
+  &= \Bbk{\p{\tilde\rho^V_k-\rho^V_k}^\dag \p{\tilde\rho^V_k-\rho^V_k}} \\
+  &= \sum_{j,j'} \p{g^V_{kj}}^* g^V_{kj'}\,
+  \bbk{\epsilon_j \epsilon_{j'}} \\
+  &\le \sum_j \abs{g^V_{kj}}^2 \epsilon^2
+  = \f{\epsilon^2}{G^V_k}.
 \end{align}
-where $\norm{\v g}_1=\sum_j\abs{g_j}$ is the 1-norm of the vector $\v g$.
-Using the fact that the operators $Q^V_k$ are orthonormal, we can bound the 2-norm (Euclidean) distance $\norm{\tilde\rho-\rho}_2$ between $\tilde\rho$ and $\rho$ as
+Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore bound the mean squared 2-norm (Euclidean) distance between $\tilde\rho$ and $\rho$ as
 \begin{align}
-  \norm{\tilde\rho-\rho}_2^2
-  = \sum_k \abs{\tilde\rho^V_k - \rho^V_k}^2
+  \Bbk{\norm{\tilde\rho-\rho}_2^2}
+  = \sum_k \Bbk{\abs{\tilde\rho^V_k - \rho^V_k}^2}
   \le \epsilon^2 \N_V^2,
   \label{eq:bound}
 \end{align}
 where
 \begin{align}
-  \N_V^2 \equiv \min_U \sum_k \norm{U\v g^V_k}_1^2
-  = \min_U \sum_k \f{\norm{U\v x^V_k}_1^2}{G^V_k}
+  \N_V^2 \equiv \sum_k \f1{G^V_k}
   \label{eq:norm}
 \end{align}
-is a norm uniquely determined by the set of measurement axes $V$, with minimization performed over unitary transformations $U$ of all $\v g^V_k$ and $\v x^V_k$ to account for the fact that their 1-norms are generally basis-dependent.
-Seen otherwise, this minimization accounts for the fact that we can repeat the analysis between Eqs.~\eqref{eq:overlap_matrix} and \eqref{eq:bound} with any $G_V\to U G_V U^\dag$, where $U$ is an arbitrary unitary that mixes the projectors in $\v\Pi_V$.
-[\red{Actually, I don't think this minimization is quite correct as stated, but it won't matter after some pending changes to this section.  Rather than an absolute error $\epsilon$, we can assume that $E_j$ approximates $\bk{\Pi_j}_\rho$ up to Gaussian noise with variance $\epsilon^2$.  In that case, I think the mean (squared) distance between $\tilde\rho$ and $\rho$ is $\epsilon^2\sum_k1/G^V_k$, which in retrospect is a much nicer result.  I am still working to write this up, which will involve some changes to this section.}]
+is a norm uniquely determined by the set of measurement axes $V$.
+Note that the sum in Eq.~\eqref{eq:norm} is performed over the $d^2$ largest eigenvalues of $G_V$, and therefore may be divergent if $G_V$ has fewer than $d^2$ nonzero eigenvalues.
+Altogether, diagonalizing each of $d$ blocks of $G_V$ takes $O(\abs{V}^3)$ time, so the norm $\N_V$ can be computed in $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
 
-To better understand the bound in Eq.~\eqref{eq:bound}, we observe that by a change of operator basis, or equivalently a particular choice of unitary $U_T$, measuring the projectors $\set{\Pi_{\v v\mu}}$ is equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$.
-Orthogonality of transition operators with different degrees $\ell$ then implies that the overlap matrix
-\begin{align}
-  G_V^{\t{trn}} \equiv U_T G_V U_T^\dag
-  = \sum_{\ell,\v v,\v v'} \obk{T_{\v v\ell,0}|T_{\v v'\ell,0}}
-  \op{\v v\ell}{\v v'\ell}
-\end{align}
-has a block-diagonal structure, with $d$ blocks of size $\abs{V}\times\abs{V}$.
-Eigenvectors of $G_V$ can therefore have at most $\abs{V}$ nonzero components in the transition operator basis, which implies that
-\begin{align}
-  \N_V \le \sum_k \f{\norm{U_T\v x^V_k}_1^2}{G^V_k}
-  \le \sum_k \f{\abs{V}\,\norm{U_T\v x^V_k}_2^2}{G^V_k}
-  = \sum_k \f{\abs{V}}{G^V_k}.
-\end{align}
-Note that these sums are performed over the $d^2$ largest eigenvalues of $G_V$ (or $G_V^{\t{trn}}$), and therefore may be divergent if $G_V$ has fewer than $d^2$ nonzero eigenvalues.
-Altogether, diagonalizing each of $d$ blocks of $G_V^{\t{trn}}$ takes a time that is $O(\abs{V}^3)$, so an upper bound for $\N_V$ can be computed in $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
-
-The bound in Eq.~\eqref{eq:bound} motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the cost function
-\begin{align}
-  \tilde\N_V^2 \equiv \sum_k \f{\norm{\v y^V_k}_1^2}{G^V_k}
-  \ge \N_V^2,
-\end{align}
-where $\v y^V_k$ are the (normalized) eigenvectors of the overlap matrix $G_V^{\t{trn}}$ in the transition operator basis, with corresponding eigenvalues $G^V_k$.
-If $\abs{V}$ is too large for variational optimization to be practical, one can instead generate many random sets of measurement axes, and then choose the set that minimizes $\tilde\N_V^2$.
-Upon choosing a set of measurement axes $V$, experimentally characterize the expectation values $\bk{\Pi^V_j}_\rho$.
-If these measurements can approximate the expectation values $\bk{\Pi^V_j}_\rho$ to within a known error $\epsilon$, then the empirical estimate $\tilde\rho$ defined in Eq.~\eqref{eq:reconstructed_state} is an approximation of the true state $\rho$ to within a 2-norm distance of $\epsilon\N_V$.
-If the empirical estimate $\tilde\rho$ has negative eigenvalues, its 2-norm distance from $\rho$ can be further reduced via maximum-likelihood corrections \cite{smolin2012efficient}.
-In terms of classical computing costs before and after estimating the expectation values $\bk{\Pi^V_j}_\rho$, this tomography protocol is bottlenecked by the need to diagonalize the overlap matrix $G_V^{\t{trn}}$, which has $d$ blocks of size $\abs{V}\times\abs{V}$.
+The bound in Eq.~\eqref{eq:bound} motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the error norm $\N_V$.
+If $\abs{V}$ is too large for variational optimization to be practical, one can instead generate many random sets of measurement axes, and then choose the set that minimizes $\N_V$.
+After choosing a set of measurement axes $V$, experimentally characterize the expectation values $\bk{T_j}_\rho$.
+If the experimental measurements $E_j$ of $\bk{T_j}_\rho$ are accurate to within an error $\lesssim\epsilon$, then the state $\tilde\rho$ defined in Eq.~\eqref{eq:reconstructed_state} is an approximation of the true state $\rho$ to within a 2-norm distance of $\lesssim\epsilon\N_V$.
+Furthermore, if the empirical estimate $\tilde\rho$ has negative eigenvalues, its 2-norm distance from $\rho$ can be further reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
+In terms of classical computing costs before and after estimating expectation values $\bk{T_j}_\rho$, this tomography protocol is bottlenecked by the need to diagonalize the overlap matrix $G_V$, which has $d$ blocks of size $\abs{V}\times\abs{V}$.
 Altogether, this protocol therefore has an $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
 
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the development of tailored and adaptive measurement protocols to future work.
 
-As a last point, we mention that the cost function $\tilde\N_V^2$ can also evaluate the quality of measurement axes chosen using existing methods for sparse signal recovery on the sphere \cite{rauhut2011sparse, alem2012sparse}.
+As a last point, we mention that the cost function $\N_V$ can also evaluate the quality of measurement axes chosen using existing methods for sparse signal recovery on the sphere \cite{rauhut2011sparse, alem2012sparse}.
 In practice, we find that uniform random sampling outperforms these methods, in the sense that it generates low-cost sets of measurement axes with higher probability.
 Two observations may explain the poor performance of the sparse signal recovery methods.
 First, spin qudit tomography essentially boils down to recovering sparse signals with a particular harmonic structure, namely with a fixed degree $\ell$.
