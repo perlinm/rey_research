@@ -102,7 +102,7 @@
 \begin{abstract}
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
   By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
-  We conjecture that $r_d=2d-1$, which we have verified for all $d\le150$ using numerical experiments.
+  We conjecture that $r_d=2d-1$, which we have verified for all $d\le200$ using numerical experiments.
   We then provide a parallelized algorithm with $O\p{r^3}$ runtime for certifying upper bounds on the error with which measurements of spin projection along $r$ quantization axes can be used to reconstruct an unknown quantum state.
   Our algorithm motivates a simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error at a fixed total number of measurements [\red{note: this part is not yet complete}].
   [\red{todo: maybe look into a simplified tomography procedure for pure states?]}
@@ -270,7 +270,7 @@ Since
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
 In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any degree-$\ell$ function with $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
 Unfortunately, we have no general proof of this conjecture, which may require a deeper analysis of fixed-degree signal recovery on the sphere.
-Nonetheless, we have used the tomography protocol in the next section to numerically verify that $2d-1$ measurement axes suffice for all $d\le150$.
+Nonetheless, we have used the tomography protocol in the next section to numerically verify that $2d-1$ measurement axes suffice for all $d\le200$.
 
 In principle, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$ (see Appendix \ref{sec:basis_change}).
 This translation enables importing a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
