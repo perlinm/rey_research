@@ -38,8 +38,6 @@
 \usepackage{dsfont} % for identity operator
 \newcommand{\1}{\mathds{1}}
 
-\usepackage{mathtools} % for \coloneqq
-
 \newcommand{\up}{\uparrow}
 \newcommand{\dn}{\downarrow}
 
@@ -50,7 +48,6 @@
 \newcommand{\X}{\text{X}}
 \newcommand{\Y}{\text{Y}}
 \newcommand{\Z}{\text{Z}}
-\newcommand{\BTBX}{\text{BTB-X}}
 
 \newcommand{\B}{\mathcal{B}}
 \renewcommand{\H}{\mathcal{H}}
@@ -85,7 +82,7 @@
 \begin{document}
 \thispagestyle{fancy}
 
-\title{SU($n$) spin model dynamics}%
+\title{SU($d$) spin model dynamics}%
 \author{Michael A. Perlin}%
 \date{\today}
 
@@ -97,10 +94,10 @@
 \end{singlespace}
 \vspace{1cm}
 
-Multilevel atoms on an optical lattice can be used to implement a variety of fermionic and spin models with SU($n$) symmetries.
+Multilevel atoms on an optical lattice can be used to implement a variety of fermionic and spin models with SU($d$) symmetries.
 Not only are these systems powerful quantum simulators, they are also promising platforms for quantum information processing and metrology.
 Two-level atoms with SU(2)-symmetric interactions, for example, can be used to simulate dynamical phases of BCS superconductors, or to prepare entangled states that enable surpassing classical limits on measurement precision.
-When atoms have $n$ nuclear spin sublevels, inter-atomic interactions can exhibit an SU($n$) symmetry that has yet to be explored as a scientific resource.
+When atoms have $d$ nuclear spin sublevels, inter-atomic interactions can exhibit an SU($d$) symmetry that has yet to be explored as a scientific resource.
 For this reason, we wish to study the dynamical quantum phases that can be implemented with these atoms.
 
 Here, we will consider a particular multilevel spin model resembling that used to study BCS superconductivity.
@@ -113,14 +110,14 @@ Additional information about some experimental capabilities and controls are pro
 Starting from a Hamiltonian describing multilevel atoms on a 1D lattice, we first derive the spin model that we will consider throughout the remainder of these notes, in \eqref{eq:spin_cos} and \eqref{eq:spin_pair}.
 Everything before \eqref{eq:spin_cos} is provided for context, but the details are (at this stage) not important for the spin physics that we will discuss.
 
-Our starting point is a simple 1D model of $n$-level fermions with nearest-neighbor tunneling and on-site (collisional) exchange interactions:
+Our starting point is a simple 1D model of $d$-level fermions with nearest-neighbor tunneling and on-site (collisional) exchange interactions:
 \begin{align}
   H_{\t{bare}} = -J \sum_{j,\mu}
   \p{c_{j\mu}^\dag c_{j+1,\mu} + \t{h.c.}}
   + \f{U}{2} \sum_{j,\mu,\nu} c_{j\mu}^\dag c_{j\nu}^\dag c_{j\nu} c_{j\mu},
   \label{eq:bare_sites}
 \end{align}
-where $c_{j\mu}$ annihilates a fermionic atom on lattice site $j$ with nuclear spin projection $\mu\in\set{I,I-1,\cdots,-I}$ onto a quantization axis; $I\equiv\frac{n-1}{2}$ is the total nuclear spin of each atom (e.g.~$I=9/2$ in the case of Sr-87 with $n=10$ nuclear spin levels); $J$ is the nearest-neighbor tunneling rate; and $U$ is the two-body on-site interaction strength.
+where $c_{j\mu}$ annihilates a fermionic atom on lattice site $j$ with nuclear spin projection $\mu\in\set{I,I-1,\cdots,-I}$ onto a quantization axis; $I\equiv\frac{d-1}{2}$ is the total nuclear spin of each atom (e.g.~$I=9/2$ in the case of Sr-87 with $d=10$ nuclear spin levels); $J$ is the nearest-neighbor tunneling rate; and $U$ is the two-body on-site interaction strength.
 In terms of quasi-momentum modes, the same Hamiltonian reads
 \begin{align}
   H_{\t{bare}} = -2J \sum_{q,\mu} \cos q\, c_{q\mu}^\dag c_{q\mu}
@@ -173,9 +170,9 @@ are respectively even ($+$) and odd ($-$) under spin inversion, $\mu\to-\mu$.
 \begin{figure}
   \centering
   \includegraphics{sun_dispersion.pdf}
-  \caption{Single-particle dispersion relations $E_{q\mu}=-2J\cos\p{q+\mu\phi}$ for the case of $n=6$ (nuclear spin $I=5/2$) and different spin-orbit coupling angles $\phi$.
+  \caption{Single-particle dispersion relations $E_{q\mu}=-2J\cos\p{q+\mu\phi}$ for the case of $d=6$ (nuclear spin $I=5/2$) and different spin-orbit coupling angles $\phi$.
     Legend indicates the spin projection $\mu$ onto the $z$.
-    Note that these dispersion relations are ``maximally spread'' when $\phi=2\pi/n$ (as with $\phi=\pi/3$ above), and that some of these dispersions overlap (implying degeneracies at all $q$) when $\phi=2\pi/m$ for any $m\in\set{1,2,\cdots,n-1}$.}
+    Note that these dispersion relations are ``maximally spread'' when $\phi=2\pi/n$ (as with $\phi=\pi/3$ above), and that some of these dispersions overlap (implying degeneracies at all $q$) when $\phi=2\pi/m$ for any $m\in\set{1,2,\cdots,d-1}$.}
   \label{fig:disps}
 \end{figure}
 
@@ -186,7 +183,7 @@ In the case of SU(2), $w_\phi^+=\cos\p{\phi/2}\1$ is a scalar and $w_\phi^-=\sin
   - 2J \cos\p{\phi/2} \sum_q \cos q\, \1_q,
 \end{align}
 where we include the identity terms for comparison with \eqref{eq:spin_pair}.
-If $n$ is arbitrary but $I\phi\ll1$, then similarly
+If $d$ is arbitrary but $I\phi\ll1$, then similarly
 \begin{align}
   H_{\t{spin}} = -\f{U}{2L} \v S\c\v S
   + 2J \phi \sum_q \sin q\, s_{\z,q}
@@ -206,12 +203,12 @@ Finally, if $\phi=\pi$ then $\cos\p{\mu\pi}=0$ and $\sin\p{\mu\pi}=\p{-1}^{\mu-1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conserved quantities and collective observables}
 
-Needless to say, the single-body terms in \eqref{eq:spin_pair} explicitly break the SU($n$) symmetry of the interactions.
+Needless to say, the single-body terms in \eqref{eq:spin_pair} explicitly break the SU($d$) symmetry of the interactions.
 Even so, the fact that all single-body terms are diagonal with respect to nuclear spin projection $\mu$ implies that the overall Hamiltonian conserves all collective spin operators of the form $S_{\mu\mu}\equiv\sum_q s_{\mu\mu q}$, as well as all products thereof, which is equivalent to conserving all powers of $S_\z$ in the case of SU(2)\footnote{This list of conserved quantities is not exhaustive, and in particular a specific choice of initial state may result in additional conserved quantities.}.
 The fact that the Hamiltonian is diagonal in the ``computational'' basis of all spins (i.e.~the basis of their spin projection onto the $z$ axis) and suggests that the spin Hamiltonian in \eqref{eq:spin_pair} might be integrable, although the precise form of an appropriate Bethe ansatz or Lax formulation is unclear.
-When $\phi\ll1$ or $\phi=\pi$, however, the single-body terms of the spin Hamiltonian are built from a single spin operator (namely, $s_\z$ or $s_\a$), so extending the Bethe ansatz or Lax formulation of the SU(2) case to SU($n$) is relatively straightforward.
+When $\phi\ll1$ or $\phi=\pi$, however, the single-body terms of the spin Hamiltonian are built from a single spin operator (namely, $s_\z$ or $s_\a$), so extending the Bethe ansatz or Lax formulation of the SU(2) case to SU($d$) is relatively straightforward.
 
-It is worth mentioning at this point that we can, in principle, perform full tomography on the average single-body reduced density operator $\bar\rho$, which is equivalent to measuring all components of the mean collective spin matrix $\bk{\v S}\equiv\sum_{\mu,\nu}\bk{S_{\mu\nu}}\op{\mu}{\nu}$ (see Appendix \ref{sec:tomography} for additional details)\footnote{Fluctuations in $\v S$, and thereby $\bk{\v S\c\v S}$, are also experimentally accessible in principle, but this quantity is not accessible via mean-field theory.}.
+It is worth mentioning at this point that we can, in principle, perform full tomography on the average single-body reduced density operator $\bar\rho$, which is equivalent to measuring all components of the mean collective spin matrix $\bk{\v S}\equiv\sum_{\mu,\nu}\bk{S_{\mu\nu}}\op{\mu}{\nu}$ (we can provide a different set of notes with additional details upon request)\footnote{Fluctuations in $\v S$, and thereby $\bk{\v S\c\v S}$, are also experimentally accessible in principle, but this quantity is not accessible via mean-field theory.}.
 The squared mean ``magnetization'' $\bk{\v S}\c\bk{\v S}=\sum_{\mu,\nu}\abs{\bk{S_{\mu\nu}}}^2$, which is essentially equal to the purity of $\bar\rho$, is therefore an experimentally accessible  ``unbiased'' dynamical order parameter that we can consider.
 In addition, diagonalizing $\bar\rho$ (equivalently, $\bk{\v S}$), provides a ``natural'' basis in which to examine collective observables.
 The eigenvectors and eigenvalues of $\bar\rho$ may therefore be used as additional order parameters for identifying distinct dynamical phases.
@@ -220,20 +217,20 @@ The precise interpretation of these order parameters is worth ironing out and di
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Initial states}
 
-The simplest initial state we can prepare is that with all atoms occupying a single nuclear spin state, e.g.~the state $\ket{\Z}\equiv\ket{I}^{\otimes N}$ with all $N$ atoms pointing up along the $z$ axis.
+The simplest initial state we can prepare is that with all atoms occupying a single nuclear spin state, e.g.~the state $\ket{\Z}\equiv\ket{I}^{\otimes N}$ with all $d$ atoms pointing up along the $z$ axis.
 Using external control fields (discussed in the Section \ref{sec:controls}), we can rotate the state $\ket\Z$ to orient it along any axis in 3D space.
 External control fields also allow us to prepare product states in which each spin is in a coherent superposition of states polarized along different directions, e.g.~$\p{\ket{+I}+\ket{-I}}^{\otimes N}$.
-Generally speaking, the possibilities to prepare $N$-fold product states of the form $\ket\psi^{\otimes N}$ are enormous.
+Generally speaking, the possibilities to prepare $d$-fold product states of the form $\ket\psi^{\otimes N}$ are enormous.
 
 Perhaps more interestingly, we can in principle prepare inhomogeneous product states in which the state of each spin is correlated with its corresponding single-body term of the spin Hamiltonian in \eqref{eq:spin_pair}.
-We are currently working on characterizing the sort of inhomogeneous states that we can prepare (see Appendix \ref{sec:init_states}).
+We are still working on characterizing the sort of inhomogeneous states that we can prepare.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Mean-field theory}
 
 Given an initial product state, the dynamics induced by the spin Hamiltonian in \eqref{eq:spin_cos} and \eqref{eq:spin_pair} are (in principle) classically simulable when $U=0$ or $U\gg JI\phi$.
 In order to explore the entirety of parameter space, however, we turn to mean-field theory.
-To this end, we first decompose individual spin operators into Schwinger bosons, $s_{\mu\nu q}\coloneqq b_{\mu q}^\dag b_{\nu q}$.
+To this end, we first decompose individual spin operators into Schwinger bosons, $s_{\mu\nu q}\to b_{\mu q}^\dag b_{\nu q}$.
 Up to an overall constant, our spin model can then be written in the form
 \begin{align}
   H_{\t{boson}} = - \f{U}{L} \sum_{\substack{\mu,\nu\\p<q}}
@@ -246,7 +243,7 @@ With a bit of algebra (see Appendix \ref{sec:bosons}), we can work out that the 
   = -\f{U}{L} \sum_{\nu,p} b_{\nu p}^\dag b_{\mu p} b_{\nu q}
   - 2J \cos\p{q+\mu\phi} b_{\mu q}.
 \end{align}
-Our mean-field theory then simply treats the boson operators $b_{\mu q}$ as complex numbers, with the initial value $b_{\mu q}$ equal to the amplitude of spin $q$ in state $\mu$\footnote{This mean-field theory is mathematically equivalent to a mean-field treatment of spin operators $s_{\mu\nu k}$ with initial conditions set by the corresponding initial-state expectation values.  The advantage of the Schwinger boson decomposition is that it reduces the number of variables (operators) from $n^2 N$ to $nN$.}.
+Our mean-field theory then simply treats the boson operators $b_{\mu q}$ as complex numbers, with the initial value $b_{\mu q}$ equal to the amplitude of spin $q$ in state $\mu$\footnote{This mean-field theory is mathematically equivalent to a mean-field treatment of spin operators $s_{\mu\nu k}$ with initial conditions set by the corresponding initial-state expectation values.  The advantage of the Schwinger boson decomposition is that it reduces the number of variables (operators) from $d^2 N$ to $dN$.}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Preliminary numerics}
@@ -257,11 +254,11 @@ We apologize in advance for the crude presentation of these results.
 The purpose here is mostly to give sense of what sorts of quantities we looked at so far, rather than to provide a detailed and organized summary of our findings (we are still exploring possible initial states, observables, and dynamical behaviors, so such a summary does not yet exist).
 
 We will generally assume unit filling, setting $L=N$, and here consider spin-orbit coupling angles $\phi\in\set{\pi/2,\pi}$\footnote{In retrospect, we note that these choices of spin-orbit coupling angles are not ideal for examining ``generic'' behavior, because they yield degenerate dispersions, as discussed in the caption of Figure \ref{fig:disps}.}.
-We will also consider two types of initial states: a fully polarized state $\ket\X$ in which all spins point along the $x$ axis, and a ``back-to-back'' state $\ket\BTBX$ in which half of the spins are polarized along $+x$, and half along $-x$.
-Specifically, indexing spins by their associated quasi-momentum mode $q\in(-\pi,\pi)$, the initial state $\ket\BTBX$ has spins with $q>0$ ($q<0$) initially polarized along $+x$ ($-x$).
-In this way, the initial state $\ket\BTBX$ is correlated with $\sim\sin q$ terms of the spin Hamiltonian in \eqref{eq:spin_pair}.
+We will also consider two types of initial states: a fully polarized state $\ket\X$ in which all spins point along the $x$ axis, and a ``back-to-back'' state $\ket{\X\X}$ in which half of the spins are polarized along $+x$, and half along $-x$.
+Specifically, indexing spins by their associated quasi-momentum mode $q\in(-\pi,\pi)$, the initial state $\ket{\X\X}$ has spins with $q>0$ ($q<0$) initially polarized along $+x$ ($-x$).
+In this way, the initial state $\ket{\X\X}$ is correlated with $\sim\sin q$ terms of the spin Hamiltonian in \eqref{eq:spin_pair}.
 
-For each initial state, $\ket\X$ or $\ket\BTBX$, and each spin-orbit coupling angle $\phi\in\set{\pi/2,\pi}$, we will examine how the dynamical behavior of a few quantities depends on the strength of single-particle terms relative to interactions, $J/U$.
+For each initial state, $\ket\X$ or $\ket{\X\X}$, and each spin-orbit coupling angle $\phi\in\set{\pi/2,\pi}$, we will examine how the dynamical behavior of a few quantities depends on the strength of single-particle terms relative to interactions, $J/U$.
 In particular, we will examine the mean squared magnetization
 \begin{align}
   s^2 \equiv \f{\bk{\v S}}{N}\c\f{\bk{\v S}}{N}
@@ -269,138 +266,210 @@ In particular, we will examine the mean squared magnetization
 \end{align}
 and the spectrum of the mean reduced single particle density matrix $\bar\rho$ (equivalently, the spectrum of the mean spin matrix $\bk{\v S}/N=\sum_{\mu,\nu}\bk{S_{\mu\nu}}/N \op{\mu}{\nu}$).
 
-Figures \ref{fig:ss_spect_n2_X_p0.5}--\ref{fig:ss_spect_n2_XX_p1.0} show the time-series of $s^2(t)$, its power spectral density $\widetilde{s^2}(\omega)$, and the time-series spectrum of $\bar\rho(t)$ for the case of $n=2$, with values of $J/U$ between $10^{-2}$ and $10^1$.
+Figures \ref{fig:ss_spect_n2_X-L_a0.5}--\ref{fig:ss_spect_n2_XX-L_a1.0} show the time-series of $s^2(t)$, its power spectral density $\widetilde{s^2}(\omega)$, and the time-series spectrum of $\bar\rho(t)$ for the case of $d=2$, with values of $J/U$ between $10^{-2}$ and $10^1$.
 In short, these figures all tell the same story: there is a ``collective'' phase when $J/U\lesssim1$, and of a ``single-particle'' phase when $J/U\gtrsim1$.
 No surprises here.
 
-Figure \ref{fig:ss_spect_n6_X_p0.5}--\ref{fig:ss_spect_n6_XX_p1.0} show the same plots for the case of $n=6$.
+Figure \ref{fig:ss_spect_n6_X-L_a0.5}--\ref{fig:ss_spect_n6_XX-L_a1.0} show the same plots for the case of $d=6$.
 Unsurprisingly, here again there appear to be (at least) two phases, at $J/U\lesssim1$ vs.~$J/U\gtrsim1$.
-An interesting observation, however, is that (for both initial states we consider) the spectrum of $\bar\rho$ appears to have only four non-zero eigenvalues when $\phi=\pi/2$, and two non-zero eigenvalues when $\phi=\pi$.
-The case of $\phi=\pi$ happens to be special, as it turns out that (for the initial states we consider) it can be mapped exactly onto a spin model with $n=2$, regardless of the actual value of $n$.
-The general case of $\phi\ne\pi$, however, seems to yield four eigenvalues independent of the actual value of $\phi$.
-One might suspect then that $\bar\rho$ is effectively a density operator on some fixed (time-independent) four-dimensional subspace of $\H_n$ (i.e.~the Hilbert space of an $n$-level quantum system), but that does not appear to be the case: decomposing $\bar\rho\equiv\sum_\lambda\lambda\op\lambda$, we find that the projector $\P_{\bar\rho}\equiv\sum_{\lambda>0}\op\lambda$ is time dependent\footnote{To clarify: $\P_{\bar\rho}$ is time dependent even if you only consider times when $\tr\P_{\bar\rho}=4$.
+An interesting observation, however, is that the spectrum of $\bar\rho$ appears to have only four non-zero eigenvalues when $\phi=\pi/2$, and two non-zero eigenvalues when $\phi=\pi$.
+The case of $\phi=\pi$ happens to be special, as it turns out that (for the initial states we consider) it can be mapped exactly onto a spin model with $d=2$, regardless of the actual value of $d$.
+The general case of $\phi\ne\pi$, however, seems to yield four eigenvalues independent of the value of $\phi$.
+One might suspect then that $\bar\rho$ is effectively a density operator on some fixed (time-independent) four-dimensional subspace of $\H_n$ (i.e.~the Hilbert space of an $d$-level quantum system), but that does not appear to be the case: decomposing $\bar\rho\equiv\sum_\lambda\lambda\op\lambda$, we find that the projector $\P_{\bar\rho}\equiv\sum_{\lambda>0}\op\lambda$ is time dependent\footnote{To clarify: $\P_{\bar\rho}$ is time dependent even if you only consider times when $\tr\P_{\bar\rho}=4$.
   It should be possible to understand this fact in the non-interacting limit $U/J\to0$.}!
 This finding, as well as others (such as the possible existence of a third phase in between those at $J/U\ll1$ and $J/U\gg1$) have yet to be understood and explored in full.
 
 %%% n = 2, X
 
 \begin{figure}
-  \centering \includegraphics{oscillations/time_series/ss_spect_n2_N20_X_p0.50.pdf}
-  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $n=2$ initially in $\ket\X$, with spin-orbit coupling angle $\phi=\pi/2$.}
-  \label{fig:ss_spect_n2_X_p0.5}
+  \centering
+  \includegraphics{oscillations/ss_spect_n2_N20_X-L_a0.50.pdf}
+  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $d=2$ initially in $\ket\X$, with spin-orbit coupling angle $\phi=\pi/2$.}
+  \label{fig:ss_spect_n2_X-L_a0.5}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics{oscillations/time_series/ss_spect_n2_N20_X_p1.00.pdf}
-  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $n=2$ initially in $\ket\X$, with spin-orbit coupling angle $\phi=\pi$.}
-  \label{fig:ss_spect_n2_X_p1.0}
+  \includegraphics{oscillations/ss_spect_n2_N20_X-L_a1.00.pdf}
+  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $d=2$ initially in $\ket\X$, with spin-orbit coupling angle $\phi=\pi$.}
+  \label{fig:ss_spect_n2_X-L_a1.0}
 \end{figure}
 
 %%% n = 2, XX
 
 \begin{figure}
-  \centering \includegraphics{oscillations/time_series/ss_spect_n2_N20_XX_p0.50.pdf}
-  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $n=2$ initially in $\ket\BTBX$, with spin-orbit coupling angle $\phi=\pi/2$.}
-  \label{fig:ss_spect_n2_XX_p0.5}
+  \centering
+  \includegraphics{oscillations/ss_spect_n2_N20_XX-L_a0.50.pdf}
+  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $d=2$ initially in $\ket{\X\X}$, with spin-orbit coupling angle $\phi=\pi/2$.}
+  \label{fig:ss_spect_n2_XX-L_a0.5}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics{oscillations/time_series/ss_spect_n2_N20_XX_p1.00.pdf}
-  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $n=2$ initially in $\ket\BTBX$, with spin-orbit coupling angle $\phi=\pi$.}
-  \label{fig:ss_spect_n2_XX_p1.0}
+  \includegraphics{oscillations/ss_spect_n2_N20_XX-L_a1.00.pdf}
+  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $d=2$ initially in $\ket{\X\X}$, with spin-orbit coupling angle $\phi=\pi$.}
+  \label{fig:ss_spect_n2_XX-L_a1.0}
 \end{figure}
 
 %%% n = 6, X
 
 \begin{figure}
-  \centering \includegraphics{oscillations/time_series/ss_spect_n6_N20_X_p0.50.pdf}
-  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $n=6$ initially in $\ket\X$, with spin-orbit coupling angle $\phi=\pi/2$.}
-  \label{fig:ss_spect_n6_X_p0.5}
+  \centering
+  \includegraphics{oscillations/ss_spect_n6_N20_X-L_a0.50.pdf}
+  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $d=6$ initially in $\ket\X$, with spin-orbit coupling angle $\phi=\pi/2$.}
+  \label{fig:ss_spect_n6_X-L_a0.5}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics{oscillations/time_series/ss_spect_n6_N20_X_p1.00.pdf}
-  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $n=6$ initially in $\ket\X$, with spin-orbit coupling angle $\phi=\pi$.}
-  \label{fig:ss_spect_n6_X_p1.0}
+  \includegraphics{oscillations/ss_spect_n6_N20_X-L_a1.00.pdf}
+  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $d=6$ initially in $\ket\X$, with spin-orbit coupling angle $\phi=\pi$.}
+  \label{fig:ss_spect_n6_X-L_a1.0}
 \end{figure}
 
 %%% n = 6, XX
 
 \begin{figure}
-  \centering \includegraphics{oscillations/time_series/ss_spect_n6_N20_XX_p0.50.pdf}
-  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $n=6$ initially in $\ket\BTBX$, with spin-orbit coupling angle $\phi=\pi/2$.}
-  \label{fig:ss_spect_n6_XX_p0.5}
+  \centering
+  \includegraphics{oscillations/ss_spect_n6_N20_XX-L_a0.50.pdf}
+  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $d=6$ initially in $\ket{\X\X}$, with spin-orbit coupling angle $\phi=\pi/2$.}
+  \label{fig:ss_spect_n6_XX-L_a0.5}
 \end{figure}
 
 \begin{figure}
   \centering
-  \includegraphics{oscillations/time_series/ss_spect_n6_N20_XX_p1.00.pdf}
-  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $n=6$ initially in $\ket\BTBX$, with spin-orbit coupling angle $\phi=\pi$.}
-  \label{fig:ss_spect_n6_XX_p1.0}
+  \includegraphics{oscillations/ss_spect_n6_N20_XX-L_a1.00.pdf}
+  \caption{Time-series and power spectral density of $s^2$ (left and middle columns), as well as the spectrum of $\bar\rho$ (right column), for $N=20$ spins with $d=6$ initially in $\ket{\X\X}$, with spin-orbit coupling angle $\phi=\pi$.}
+  \label{fig:ss_spect_n6_XX-L_a1.0}
 \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{A simple model}
+
+Here we consider a relatively simple Hamiltonian on $2N$ spins,
+\begin{align}
+  H = \f{U}{2} \v S\c\v S + \sum_{j=1}^{2N} h_j s_{\z,j},
+  &&
+  h_j \equiv
+  \begin{cases}
+    +1 & j \le N \\
+    -1 & j > N
+  \end{cases}.
+  \label{eq:two_spins_start}
+\end{align}
+Defining collective the spin-$\alpha$ operators for each sub-ensemble indexed by $k\in\set{0,1}$,
+\begin{align}
+  S_{\alpha k} = \sum_{j=1+kN}^{N+kN} s_{\alpha j},
+\end{align}
+as long as each sub-ensemble remains within the manifold of spin-polarized states we can write the Hamiltonian in \eqref{eq:two_spins_start} in the form
+\begin{align}
+  H = U \v S_0 \c\v S_1 + S_{\z,0} - S_{\z,1}
+  = \sum_{m,n=-IN}^{IN} \p{U\op{mn}{nm}
+    + \p{m-n}\op{mn}},
+\end{align}
+where $m,n$ are projections of a net sub-ensemble spin onto the $z$ axis, and we have neglected the scalars $\v S_k\cdot \v S_k = IN\p{IN+1}$.
+Indexing states $\ket{mn}$ by the mean spin projection $\bar m=\p{m+n}/2$ and spin imbalance $\delta=m-n$,
+\begin{align}
+  \ket{\bar m\delta} \equiv \ket{m+\delta/2,m-\delta/2},
+\end{align}
+we can expand
+\begin{align}
+  \v S_0\c \v S_1 = \sum_{m,\delta}
+  \op{\bar m\delta}{\bar m,-\delta},
+  &&
+  S_{\z,0} - S_{\z,1} = \sum_{m,\delta} \delta \op{\bar m\delta},
+\end{align}
+which allows us to write the Hamiltonian in the form
+\begin{align}
+  H = \sum_m \op{\bar m} \otimes
+  \sum_\delta \p{U \op{\delta}{-\delta} + \delta \op{\delta}}.
+\end{align}
+Diagonalizing this Hamiltonian thus reduces to a qubit problem, for which we define the Pauli operator
+\begin{align}
+  X_\delta\p{U} \equiv \sum_{\sigma\in\set{\pm1}}
+  \sigma \op{\delta,U,\sigma},
+\end{align}
+in terms of the rotated states
+\begin{align}
+  \ket{\delta,U,\sigma} \equiv \cos\p{\f{\eta}{2}} \ket{\p{\sigma\delta}}
+  + \sigma \sin\p{\f{\eta}{2}} \ket{\p{-\sigma\delta}},
+  &&
+  \eta \equiv \arctan\p{\f{U}{\delta}},
+\end{align}
+defined for $\delta\ne0$.
+Altogether, the Hamiltonian is then
+\begin{align}
+  H = \sum_m \op{\bar m} \otimes
+  \sp{U \op{0} + \sum_{\delta>0} U_\delta X_\delta\p{U}}
+  &&
+  U_\delta \equiv \sqrt{U^2+\delta^2}.
+\end{align}
+The eigenvalues of $H$ are therefore $U$ and $\pm U_\delta$ for integer $\delta>0$.
+We now consider an initial state in which both large spins point at a polar angle $\theta$ and azimuthal angles $\pm\phi/2$:
+\begin{align}
+  \ket{\theta,\phi} \equiv \sum_{m,n}
+  \sqrt{\chi_m\p{\theta} \chi_n\p{\theta}} \,
+  e^{-\i\p{m-n}\phi} \ket{mn}
+  = \sum_{m,\delta}
+  \chi_{m\delta}\p{\theta} e^{-\i\delta\phi}
+  \ket{\bar m\delta}.
+\end{align}
+where
+\begin{align}
+  \chi_m\p\theta \equiv { 2IN \choose IN + m }
+  \cos\p{\f{\theta}{2}}^{2IN+2m} \sin\p{\f{\theta}{2}}^{2IN-2m},
+  &&
+  \chi_{m\delta}\p\theta
+  \equiv \sqrt{\chi_{m+\delta/2}\p\theta \chi_{m-\delta/2}\p\theta}.
+\end{align}
+In the eigenbasis of $H$, we have
+\begin{align}
+  \ket{\theta,\phi} = \sum_m \ket{\bar m} \otimes
+  \sp{\chi_0\p\theta \ket{0}
+    + \sum_{\delta>0} \chi_{m\delta}\p\theta
+    \sum_{\sigma\in\set{\pm1}} e^{-\i\sigma\delta\phi}
+    \sp{\cos\p{\f{\eta}{2}} \ket{\delta,U,\sigma}
+    - \sigma\sin\p{\f{\eta}{2}} \ket{\delta,U,-\sigma}}},
+\end{align}
+where again $\eta\equiv\arctan\p{U/\delta}$ for shorthand.
+Note that the only dependence of this state on the nuclear spin $I$ appears in the range of $\bar m$, so any distinction between observed behavior at different $I$ can essentially be attributed to the measurement of different observables.
+
+We now turn our attention to the measurement of collective observables.
+In particular, we consider the collective $N$-spin operators
+\begin{align}
+  S_{\mu\nu} \equiv \sum_{j=1}^N s_{\mu\nu j},
+\end{align}
+where $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ and $s_{\mu\nu j} = \op{\mu}{\nu}_j$ is a spin-transition operator for spin $j$.
+Rather than initial/final spin projections $\mu\to\nu$, it will be convenient to consider operators that induce spin transitions $\mu\to\mu+\epsilon$, and then expand these operators in the Dicke basis for spin-polarized states:
+\begin{align}
+  \tilde S_{\mu\epsilon} \equiv S_{\mu+\epsilon,\mu}
+  = \sum_m \xi_{\mu\epsilon}^m \op{m+\epsilon}{m},
+  &&
+  \xi_{\mu\epsilon}^m \equiv \bk{m+\epsilon|S_{\mu+\epsilon,\mu}|m}.
+\end{align}
+In turn, we symmetrize these operators over their action on two sub-ensembles of $N$ spins each:
+\begin{align}
+  S_{\mu\epsilon\sigma} \equiv \tilde S_{\mu\epsilon} \otimes \1
+  + \sigma \1 \otimes \tilde S_{\mu\epsilon}
+  = \sum_{m,n} \xi_{\mu\epsilon}^m
+  \p{\op{m+\epsilon,n}{mn} + \sigma \op{n,m+\epsilon}{nm}},
+\end{align}
+where $\sigma\in\set{\pm1}$.
+In the symmetrized basis of a mean spin and spin imbalance, we have that
+\begin{align}
+  S_{\mu\epsilon\sigma}= \sum_{m,\delta,\sigma} \p{\xi_{\mu\epsilon}^{m+\delta/2}
+    \ket{\bar m_\epsilon,\delta+\epsilon}
+    + \sigma \xi_{\mu\epsilon}^{m-\delta/2}
+    \ket{\bar m_\epsilon,\delta-\epsilon}}
+  \bra{\bar m\delta},
+  &&
+  \bar m_\epsilon \equiv \bar m + \epsilon/2.
+\end{align}
+
+\newpage
 
 \newpage
 \appendix
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Spin qudit tomography}
-\label{sec:tomography}
-
-Here we discuss the task of performing full tomography on the average reduced single-particle density operator of a collection of nuclear spins.
-As this task will be performed using collective measurements and homogeneous control fields, for ease of language we will consider the equivalent problem of performing tomography on a single nuclear spin.
-We have essentially two ingredients at our disposal: projective measurements of spin onto a fixed quantization axis, and a three-laser drive that addresses nuclear spins via off-resonant coupling to an excited electronic state.
-To be concrete, we can directly measure projectors $\op{\mu}$ onto states of definite spin projection $\mu$ onto the $z$ axis.
-While the three-laser drive gives us access to a variety of nuclear spin Hamiltonians, most notably it allows us to implement SU(2) rotations of the form $e^{-\i\v\theta\c\v s_{\t{3D}}}$, where $\v s_{\t{3D}}\equiv\p{s_\x,s_\y,s_\z}$ is a vector of spin operators that generate rotations of an $n$-level spin (with total spin $I=\frac{n-1}{2}$) in 3D space, and $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$ is an arbitrary rotation vector (see Appendix \ref{sec:controls}).
-These rotations essentially allow us to measure projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$ onto states of definite spin projection $\mu$ onto an arbitrary quantization axis $\v v\in\SS_2\setminus\ZZ_2$ (where we mod out by $\ZZ_2$ because antipodal points on the sphere correspond to the same set of projectors).
-
-Question: given a collection of projectors $\Pi\equiv\set{\Pi_j}$ and measurement outcomes $M\equiv\set{M_j}$, with $M_j$ an empirical estimate of $\bk{\Pi_j}_\rho=\tr\p{\rho\Pi_j}$, how do we determine whether the measurement data $M$ is sufficient to reconstruct $\rho$?
-Answer: reconstruction of $\rho$ is possible if $\Pi$ spans the entire space $\B_n$ of operators on the Hilbert space of an $n$-level spin.
-Given an orthonormal basis $\set{Q_\alpha}$ of self-adjoint operators spanning $\B_n$, we can expand
-\begin{align}
-  \rho = \sum_\alpha \rho_\alpha Q_\alpha,
-  &&
-  \rho_\alpha \equiv \bk{Q_\alpha}_\rho.
-\end{align}
-If $\Pi$ spans $\B_n$, then we can find a set of real numbers $c_{\alpha j}\in\RR$ for which
-\begin{align}
-  Q_\alpha = \sum_j c_{\alpha j} \Pi_j.
-\end{align}
-An empirical estimate $\tilde\rho$ of $\rho$ is then\footnote{This estimate can be improved by defining $\tilde\rho$ as the least-squares fit to the set of linear equations $\tr\p{\tilde\rho\,\Pi_j} = M_j$, and performing maximum-likelihood corrections to $\tilde\rho$ \cite{smolin2012efficient}.}
-\begin{align}
-  \tilde\rho = \sum_\alpha \tilde\rho_\alpha Q_\alpha,
-  &&
-  \tilde\rho_\alpha \equiv \sum_j c_{\alpha j} M_j
-  \approx \sum_j c_{\alpha j} \bk{\Pi_j}_\rho
-  = \bk{Q_\alpha}_\rho
-  = \rho_\alpha.
-\end{align}
-As it turns out, numerical experiments with $n\le20$ suggest that in order to perfurm full tomography of $\rho$, it suffices to measure all projectors $\Pi_{\v v\mu}$ onto states of definite spin $\mu$ along $2n-1$ different axes $\v v$\footnote{It would be interesting to develop an actual (analytical) understanding of this numerical discovery.}.
-The question remains: which axes should we choose?
-As a first pass, we can simply choose a set of $2n-1$ random axes, $V\equiv\set{\v v}$, by uniformly sampling points on the sphere.
-These random axes define a set of $\p{2n-1}\times n$ projectors $\Pi_V=\set{\Pi^V_j}$, where for shorthand we use a combined index $j=\p{\v v_j,\mu_j}$ that specifies both a measurement axis $\v v_j$ and an outcome $\mu_j$, and for clarity we index objects by $V$ to emphasize their dependence on the choice of measurement axes.
-The projectors $\Pi_V$ can be used to construct $n^2$ linearly independent operators by constructing a matrix $B_V$ with entries
-\begin{align}
-  \sp{B_V}_{ij} = \tr\p{\Pi^V_i \Pi^V_j}.
-\end{align}
-Indexing the (normalized) eigenvectors and the corresponding eigenvalues of $B_V$ by $\alpha$, respectively $\v x^V_\alpha$ and $m^V_\alpha$, for all $\alpha$ with eigenvalue $m^V_\alpha\ne0$ we can then construct the normalized and linearly independent operators
-\begin{align}
-  Q^V_\alpha \equiv \f1{\sqrt{m^V_\alpha}} \sum_j x^V_{\alpha j} \Pi^V_j.
-\end{align}
-To summarize: choosing a set $V$ of $2n-1$ random axes will determine a set of measurement operators $\Pi_V$ from which we can construct a complete basis $\set{Q^V_\alpha}$ of operators for $\B_n$.
-However, some choices of axes will be better than others: a good choice of axes $V$ will maximize the amount of information that the corresponding measurement data $M_V=\set{M^V_j}$ will contain about the expectation values $\bk{Q^V_\alpha}_\rho$ used to reconstruct $\rho$.
-The amount of information that $M_V$ contains about $\bk{Q^V_\alpha}_\rho$ is determined, in part, by the magnitude of the eigenvalue $m^V_\alpha$: if $m^V_\alpha$ is small, then $M_V$ will generally contain little information about $\bk{Q^V_\alpha}_\rho$, and vice versa\footnote{Think about the limit $m^V_\alpha\to0$, in which case the fact that $Q^V_\alpha$ is normalized implies that the operator $\sum_j x^V_{\alpha j} \Pi^V_j$ must have a vanishing norm.
-  A vanishing norm can only occur due to fine-tuned cancellations that make the expectation value of $\sum_j x^V_{\alpha j} \Pi^V_j$ difficult to estimate from noisy data on $\bk{\Pi^V_j}_\rho$.}.
-Rather than choosing $2n-1$ axes randomly, we can therefore choose a set of axes that minimizes some cost function $C\p{m_V}$ favoring large eigenvalues $m_V\equiv\set{m^V_\alpha}$.
-A reasonable cost function that treats all eigenvalues on equal footing, for example, is
-\begin{align}
-  C_{\t{inv}}\p{m_V} \equiv \sum_\alpha \f1{m^V_\alpha},
-\end{align}
-where the sum is implicitly performed over the $n^2$ largest eigenvalues of $B_V$ (as all other eigenvalues are guaranteed to be zero).
-Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct an even better choice of measurement axes, leading to the possibility of tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
-We leave the details of tailored and adaptive measurement protocols to future work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{External controls}
@@ -419,8 +488,8 @@ Altogether, these lasers induce the drive Hamiltonian
     s_{\v v\sigma j} \otimes \op{\up}{\dn}_j + \t{h.c.}}
   + \f{\Delta}{2} \sum_j \1_j \otimes\p{\op\up_j-\op\dn_j},
 \end{align}
-where $s_{\v v\pm}$ are spin-raising/lowering operators along axis $\v v$ (containing all appropriate Clebsch-Gordan coefficients), and $\1$ is the identity operator for a single $n$-level spin (with total spin $I=\frac{n-1}{2}$).
-To write out $s_{\v v\pm}$ in full, we first identify the operators $s_\x,s_\y,s_\z$ that generate rotations of an $n$-level spin in 3D space, and define $s_\pm\equiv s_\x\pm\i s_\y$.
+where $s_{\v v\pm}$ are spin-raising/lowering operators along axis $\v v$ (containing all appropriate Clebsch-Gordan coefficients), and $\1$ is the identity operator for a single $d$-level spin (with total spin $I=\frac{d-1}{2}$).
+To write out $s_{\v v\pm}$ in full, we first identify the operators $s_\x,s_\y,s_\z$ that generate rotations of an $d$-level spin in 3D space, and define $s_\pm\equiv s_\x\pm\i s_\y$.
 Denoting the azimuthal and polar angles of $\v v$ respectively by $\alpha_{\v v}$ and $\beta_{\v v}$, we can use the fact that $s_\x,s_\y,s_\z$ form an $\su(2)$ algebra to expand
 \begin{align}
   s_{\v v\pm}
@@ -471,7 +540,7 @@ with
   &&
   s_{\varphi m} = e^{-\i\varphi s_\z} s_m e^{\i\varphi s_\z}.
 \end{align}
-We do not expect these controls to be sufficient for implementing arbitrary collective SU($n$) rotations, but identifying the subgroup of SU($n$) that can be generated by \eqref{eq:drive_single} could be an interesting problem for future work.
+We do not expect these controls to be sufficient for implementing arbitrary collective SU($d$) rotations, but identifying the subgroup of SU($d$) that can be generated by \eqref{eq:drive_single} could be an interesting problem for future work.
 A simple special case to consider is that of all $\eta_m=0$, in which case
 \begin{align}
   \Delta \times H_{\t{drive}}^{\t{single}}
@@ -484,7 +553,7 @@ A simple special case to consider is that of all $\eta_m=0$, in which case
 where we define $\tilde\Omega_0=-\Omega_0$ and $\tilde\Omega_\pm\equiv\Omega_+\pm\Omega_-$ for convenience.
 Table \ref{tab:drives} shows several drive Hamiltonians that can be implemented with various amplitude-matching conditions (choices of $\tilde\Omega_m$) when all $\eta_m=0$.
 One notable capability that these controls provide us is that of using pulse sequences to implement SU(2) rotations of the form $e^{-\i\v\theta\c\v s_{\t{3D}}}$, where $\v s_{\t{3D}}\equiv\p{s_\x,s_\y,s_\z}$ and $\v\theta\equiv\p{\theta_\x,\theta_\y,\theta_\z}$ is an arbitrary rotation vector.
-In addition to enabling arbitrary 3D rotations, these collective rotations enable us to measure all components of the mean collective spin matrix $\bk{\v S}$, as discussed in Appendix \ref{sec:tomography}.
+In addition to enabling arbitrary 3D rotations, these collective rotations enable us to measure all components of the mean collective spin matrix $\bk{\v S}$.
 
 \begin{table}
   \centering
@@ -530,7 +599,7 @@ Here we consider a quadratic spin Hamiltonian of the general form
   + \sum_{\mu,\nu,j} \epsilon_{\mu\nu j} s_{\mu\nu j},
   \label{eq:spin}
 \end{align}
-where $\mu,\nu$ index orthogonal states of an $n$-level spin; $j,k\in\ZZ_N$ index one of $N$ spins; $h^{\mu\nu j}_{\rho\sigma k}$ and $\epsilon_{\mu\nu j}$ are scalars; and $s_{\mu\nu j}\coloneqq\op{\mu}{\nu}_j$ is a transition operator for spin $j$.  We can write this Hamiltonian using Schwinger bosons as
+where $\mu,\nu$ index orthogonal states of an $d$-level spin; $j,k\in\ZZ_N$ index one of $d$ spins; $h^{\mu\nu j}_{\rho\sigma k}$ and $\epsilon_{\mu\nu j}$ are scalars; and $s_{\mu\nu j}=\op{\mu}{\nu}_j$ is a transition operator for spin $j$.  We can write this Hamiltonian using Schwinger bosons as
 \begin{align}
   H = \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
   h^{\mu\nu j}_{\rho\sigma k}
@@ -570,15 +639,6 @@ so
   = \sum_\nu \p{\sum_{\rho,\sigma,k}
     h^{\alpha\nu\ell}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
     + \epsilon_{\alpha\nu\ell}} b_{\nu\ell}.
-\end{align}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Initial states}
-\label{sec:init_states}
-
-Here we explore the preparation of initial states that are correlated with the single-particle terms of the spin Hamiltonian in Eqs.~\eqref{eq:spin_cos} and \eqref{eq:spin_pair}, namely
-\begin{align}
-  H_{\t{SOC}} \equiv -2 J \sum_{q,\mu} \cos\p{q+\mu\phi} s_{\mu\mu q}.
 \end{align}
 
 \bibliography{sun_dynamics_notes.bib}
