@@ -346,7 +346,9 @@ This finding, as well as others (such as the possible existence of a third phase
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{A simple model}
 
-Here we consider a relatively simple Hamiltonian on $2N$ spins,
+\subsection{Hamiltonian}
+
+Here we consider a simple Hamiltonian on $2N$ spins,
 \begin{align}
   H = \f{U}{2} \v S\c\v S + \sum_{j=1}^{2N} h_j s_{\z,j},
   &&
@@ -375,14 +377,14 @@ Indexing states $\ket{mn}$ by the mean spin projection $\bar m=\p{m+n}/2$ and sp
 we can expand
 \begin{align}
   \v S_0\c \v S_1 = \sum_{m,\delta}
-  \op{\bar m\delta}{\bar m,-\delta},
+  \op{\bar m,-\delta}{\bar m\delta},
   &&
   S_{\z,0} - S_{\z,1} = \sum_{m,\delta} \delta \op{\bar m\delta},
 \end{align}
 which allows us to write the Hamiltonian in the form
 \begin{align}
   H = \sum_m \op{\bar m} \otimes
-  \sum_\delta \p{U \op{\delta}{-\delta} + \delta \op{\delta}}.
+  \sum_\delta \p{U \op{-\delta}{\delta} + \delta \op{\delta}}.
 \end{align}
 Diagonalizing this Hamiltonian thus reduces to a qubit problem, for which we define the Pauli operator
 \begin{align}
@@ -397,15 +399,19 @@ in terms of the rotated states
   \eta \equiv \arctan\p{\f{U}{\delta}},
 \end{align}
 defined for $\delta\ne0$.
-Altogether, the Hamiltonian is then
+In words, the state $\ket{\delta,U,\pm}$ points in the direction of $\pm\p{\delta\uv{z}+U\uv{x}}$ on the Bloch sphere defined by the state $\set{\ket{\delta},\ket{-\delta}}$.
+Altogether, the Hamiltonian is
 \begin{align}
   H = \sum_m \op{\bar m} \otimes
-  \sp{U \op{0} + \sum_{\delta>0} U_\delta X_\delta\p{U}}
+  \sp{U\op{0} + \sum_{\delta>0} U_\delta X_\delta\p{U}},
   &&
-  U_\delta \equiv \sqrt{U^2+\delta^2}.
+  U_\delta \equiv \sqrt{U^2+\delta^2},
 \end{align}
-The eigenvalues of $H$ are therefore $U$ and $\pm U_\delta$ for integer $\delta>0$.
-We now consider an initial state in which both large spins point at a polar angle $\theta$ and azimuthal angles $\pm\phi/2$:
+which has eigenvalues $U$ and $\pm U_\delta$ for integer $\delta>0$.
+
+\subsection{Initial state}
+
+We now consider an initial state with both large spins polarized at a polar angle $\theta$ and azimuthal angles $\pm\phi/2$:
 \begin{align}
   \ket{\theta,\phi} \equiv \sum_{m,n}
   \sqrt{\chi_m\p{\theta} \chi_n\p{\theta}} \,
@@ -434,13 +440,15 @@ In the eigenbasis of $H$, we have
 where again $\eta\equiv\arctan\p{U/\delta}$ for shorthand.
 Note that the only dependence of this state on the nuclear spin $I$ appears in the range of $\bar m$, so any distinction between observed behavior at different $I$ can essentially be attributed to the measurement of different observables.
 
+\subsection{Observables}
+
 We now turn our attention to the measurement of collective observables.
 In particular, we consider the collective $N$-spin operators
 \begin{align}
   S_{\mu\nu} \equiv \sum_{j=1}^N s_{\mu\nu j},
 \end{align}
 where $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ and $s_{\mu\nu j} = \op{\mu}{\nu}_j$ is a spin-transition operator for spin $j$.
-Rather than initial/final spin projections $\mu\to\nu$, it will be convenient to consider operators that induce spin transitions $\mu\to\mu+\epsilon$, and then expand these operators in the Dicke basis for spin-polarized states:
+Rather than initial/final spin projections $\nu\to\mu$, it will be convenient to consider operators that induce spin transitions $\mu\to\mu+\epsilon$, and then expand these operators in the spin-projection (Dicke) basis for spin-polarized states:
 \begin{align}
   \tilde S_{\mu\epsilon} \equiv S_{\mu+\epsilon,\mu}
   = \sum_m \xi_{\mu\epsilon}^m \op{m+\epsilon}{m},
@@ -449,15 +457,16 @@ Rather than initial/final spin projections $\mu\to\nu$, it will be convenient to
 \end{align}
 In turn, we symmetrize these operators over their action on two sub-ensembles of $N$ spins each:
 \begin{align}
-  S_{\mu\epsilon\sigma} \equiv \tilde S_{\mu\epsilon} \otimes \1
+  \tilde S_{\mu\epsilon}^\sigma \equiv \tilde S_{\mu\epsilon} \otimes \1
   + \sigma \1 \otimes \tilde S_{\mu\epsilon}
-  = \sum_{m,n} \xi_{\mu\epsilon}^m
-  \p{\op{m+\epsilon,n}{mn} + \sigma \op{n,m+\epsilon}{nm}},
+  = \sum_{m,n} \p{\xi_{\mu\epsilon}^m \ket{m+\epsilon,n}
+    + \sigma \xi_{\mu\epsilon}^n \ket{m,n+\epsilon}} \bra{mn},
 \end{align}
 where $\sigma\in\set{\pm1}$.
 In the symmetrized basis of a mean spin and spin imbalance, we have that
 \begin{align}
-  S_{\mu\epsilon\sigma}= \sum_{m,\delta,\sigma} \p{\xi_{\mu\epsilon}^{m+\delta/2}
+  \tilde S_{\mu\epsilon}^\sigma
+  = \sum_{m,\delta,\sigma} \p{\xi_{\mu\epsilon}^{m+\delta/2}
     \ket{\bar m_\epsilon,\delta+\epsilon}
     + \sigma \xi_{\mu\epsilon}^{m-\delta/2}
     \ket{\bar m_\epsilon,\delta-\epsilon}}
