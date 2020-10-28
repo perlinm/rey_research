@@ -102,9 +102,9 @@
 \begin{abstract}
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
   By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
-  We conjecture that $r_d=2d-1$, which we have verified for all $d\le120$ using numerical experiments.
-  We then provide an algorithm with $O\p{r^3}$ runtime for certifying strict upper bounds on the error with which measurements of spin projection along $r$ measurement axes can be used to reconstruct an unknown quantum state.
-  Our algorithm motivates a simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error [\red{note: this part is not yet complete}].
+  We conjecture that $r_d=2d-1$, which we have verified for all $d\le150$ using numerical experiments.
+  We then provide a parallelized algorithm with $O\p{r^3}$ runtime for certifying upper bounds on the error with which measurements of spin projection along $r$ quantization axes can be used to reconstruct an unknown quantum state.
+  Our algorithm motivates a simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error at a fixed total number of measurements [\red{note: this part is not yet complete}].
   [\red{todo: maybe look into a simplified tomography procedure for pure states?]}
 \end{abstract}
 
@@ -202,7 +202,7 @@ In particular, the restriction of $D^\ell_{m,0}$ to the sphere $\Omega_2$ at $\g
   \label{eq:ortho_sphere}
 \end{align}
 where integration is performed over all $\v v\in\Omega_2\simeq[0,2\pi]\times[0,\pi]$ with integration measure $\d\Omega_2\p{\v v} \equiv \d\alpha_{\v v} \d\beta_{\v v} \sin\beta_{\v v}$, and for ease of notation we implicitly associate doublets $\v v=\p{\alpha_{\v v},\beta_{\v v}}$ with the triplet $\p{\alpha_{\v v},\beta_{\v v},0}$, so that for example $R\p{\v v} = R\p{\alpha_{\v v},\beta_{\v v},0}$ and $T_{\v v\ell m} = T_{\p{\alpha_{\v v},\beta_{\v v},0},\ell m}$.
-The same orthogonality relations in Eqs.~\eqref{eq:ortho_full} and \eqref{eq:ortho_sphere} are inherited by the rotation matrix elements $\D_{mn}^\ell$ through the fact $\R\p{\v\omega}$ is the adjoint action of $R\p{\v\omega}$ (see Appendix \ref{sec:ortho}), and the functions $\set{\D_{m,0}^\ell}$ restricted to $\Omega_2$ are similarly another orthogonal basis for the space $L^2\p{\Omega_2}$ of square-integrable functions on the sphere.
+The same orthogonality relations in Eqs.~\eqref{eq:ortho_full} and \eqref{eq:ortho_sphere} are inherited by the adjoint rotation matrix elements $\D_{mn}^\ell$ through the fact $\R\p{\v\omega}$ is the adjoint action of $R\p{\v\omega}$ (see Appendix \ref{sec:ortho}), and the functions $\set{\D_{m,0}^\ell}$ restricted to $\Omega_2$ are similarly another orthogonal basis for the space $L^2\p{\Omega_2}$ of square-integrable functions on the sphere.
 [\red{todo: make figures visualizing $Y_{\ell m}$ and $\D^\ell_{m,0}$ for comparison}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -270,14 +270,14 @@ Since
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
 In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any degree-$\ell$ function with $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
 Unfortunately, we have no general proof of this conjecture, which may require a deeper analysis of fixed-degree signal recovery on the sphere.
-Nonetheless, we have used the tomography protocol in the next section to numerically verify that $2d-1$ measurement axes suffice for all $d\le120$.
+Nonetheless, we have used the tomography protocol in the next section to numerically verify that $2d-1$ measurement axes suffice for all $d\le150$.
 
 In principle, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$ (see Appendix \ref{sec:basis_change}).
 This translation enables importing a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
 In practice, spin qudits typically have only a modest dimension $d$, allowing for simpler and optimized tomography protocols that are practical despite worse scaling with $d$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Optimized tomography protocols and reconstruction error bounds}
+\section{Reconstruction error bounds}
 \label{sec:protocol}
 
 For the practically minded, the mere existence of solutions to a problem is less interesting than the exposition of a particular solution.
@@ -302,16 +302,16 @@ The operators in $\v T_V$ can be used to construct the overlap (Gram) matrix
   \obk{T_{\v v\ell,0}|T_{\v v'\ell,0}} \op{\v v\ell}{\v v'\ell},
   \label{eq:overlap_matrix}
 \end{align}
-where we neglect cross terms with different degrees $\ell$ because the corresponding inner products $\obk{T_{\v v\ell,0}|T_{\v v'\ell',0}}=0$ for all $\ell\ne\ell'$.
+where we neglect cross terms with different degrees $\ell$ because the corresponding inner products vanish, i.e.~$\obk{T_{\v v\ell,0}|T_{\v v'\ell',0}}=0$ for all $\ell\ne\ell'$.
 Eigenvectors of $G_V$ define linearly independent linear combinations of the operators in $\v T_V$.
 If the operators in $\v T_V$ span the entire space of operators on a $d$-level spin qudit, which is a necessary and sufficient condition for $V$ to allow for full state tomography, then $G_V$ must have exactly $d^2$ nonzero eigenvalues.
-Indexing these eigenvalues $G^V_k$ and the corresponding (normalized) eigenvectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots)$ by an integer $k\in\set{1,2,\cdots,\abs{V}d}$, we can construct the orthonormal operators
+Indexing these eigenvalues $G^V_k$ and the corresponding (normalized) eigenvectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots)$ by an integer $k\in\set{1,2,\cdots,d^2}$, we can construct the orthonormal operators
 \begin{align}
   Q^V_k \equiv \sum_j g^V_{kj} T_j,
   &&
   g^V_{kj} \equiv \f{x^V_{kj}}{\sqrt{G^V_k}},
 \end{align}
-where for shorthand we use a combined index $j\equiv\p{\v v_j,\ell_j}$ to specify both a measurement axis $\v v_j$ and a degree $\ell_j$, which identify the transition operator $T_j\equiv T_{\v v_j\ell_j,0}$.
+where for shorthand we use a combined index $j=\p{\v v_j,\ell_j}$ to specify both a measurement axis $\v v_j$ and a degree $\ell_j$, which identify the transition operator $T_j\equiv T_{\v v_j\ell_j,0}$.
 These operators allow us to expand any state $\rho$ of a $d$-level spin qudit in the form
 \begin{align}
   \rho = \sum_{k=1}^{d^2} \rho_k^V Q_k^V,
@@ -338,10 +338,10 @@ Assume, for example, that the estimates $E_j$ are equal to $\bk{T_j}_\rho$ up to
   \bbk{\epsilon_j \epsilon_{j'}} \le \epsilon^2 \delta_{jj'},
 \end{align}
 where $\set{\epsilon_j}$ are independent random variables, and we use the double brackets $\bbk{\cdot}$ to denote statistical averaging.
-The variance in the error with which $\tilde\rho^V_k$ approximates $\rho^V_k$ is then
+The mean squared error with which $\tilde\rho^V_k$ approximates $\rho^V_k$ is then
 \begin{align}
   \Bbk{\abs{\tilde\rho^V_k-\rho^V_k}^2}
-  &= \Bbk{\p{\tilde\rho^V_k-\rho^V_k}^\dag \p{\tilde\rho^V_k-\rho^V_k}} \\
+  &= \Bbk{\p{\tilde\rho^V_k-\rho^V_k}^*\p{\tilde\rho^V_k-\rho^V_k}} \\
   &= \sum_{j,j'} \p{g^V_{kj}}^* g^V_{kj'}\,
   \bbk{\epsilon_j \epsilon_{j'}} \\
   &\le \sum_j \abs{g^V_{kj}}^2 \epsilon^2
@@ -359,11 +359,11 @@ where
   \N_V^2 \equiv \sum_k \f1{G^V_k}
   \label{eq:norm}
 \end{align}
-is a norm uniquely determined by the set of measurement axes $V$.
+is a norm determined by the set of measurement axes $V$.
 Note that the sum in Eq.~\eqref{eq:norm} is performed over the $d^2$ largest eigenvalues of $G_V$, and therefore may be divergent if $G_V$ has fewer than $d^2$ nonzero eigenvalues.
 Altogether, diagonalizing each of $d$ blocks of $G_V$ takes $O(\abs{V}^3)$ time, so the norm $\N_V$ can be computed in $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
 
-The bound in Eq.~\eqref{eq:bound} motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the error norm $\N_V$.
+The bound in Eq.~\eqref{eq:bound} motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the error norm $\N_V$.
 If $\abs{V}$ is too large for variational optimization to be practical, one can instead generate many random sets of measurement axes, and then choose the set that minimizes $\N_V$.
 After choosing a set of measurement axes $V$, experimentally characterize the expectation values $\bk{T_j}_\rho$.
 If the experimental measurements $E_j$ of $\bk{T_j}_\rho$ are accurate to within an error $\lesssim\epsilon$, then the state $\tilde\rho$ defined in Eq.~\eqref{eq:reconstructed_state} is an approximation of the true state $\rho$ to within a 2-norm distance of $\lesssim\epsilon\N_V$.
@@ -374,9 +374,9 @@ Altogether, this protocol therefore has an $O(d\abs{V}^3)$ serial or $O(\abs{V}^
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the development of tailored and adaptive measurement protocols to future work.
 
-As a last point, we mention that the cost function $\N_V$ can also evaluate the quality of measurement axes chosen using existing methods for sparse signal recovery on the sphere \cite{rauhut2011sparse, alem2012sparse}.
+As a last point, we mention that the cost function $\N_V$ can also evaluate the quality of measurement axes chosen with existing methods for sparse signal recovery on the sphere \cite{rauhut2011sparse, alem2012sparse}.
 In practice, we find that uniform random sampling outperforms these methods, in the sense that it generates low-cost sets of measurement axes with higher probability.
-Two observations may explain the poor performance of the sparse signal recovery methods.
+Two observations may explain the poor performance of these sparse signal recovery methods.
 First, spin qudit tomography essentially boils down to recovering sparse signals with a particular harmonic structure, namely with a fixed degree $\ell$.
 The existing sparse signal recovery algorithms do not assume or account for any harmonic structure, and may therefore perform worse than expected on this particular subset of sparse signals.
 Second, spin qudit tomography requires recovering signals that are band-limited at degree $d$, but have $O(d)$ non-zero harmonic coefficients (out of $d^2$ coefficients in total).
@@ -386,6 +386,10 @@ In any case, the fact that uniform sampling outperforms these methods only simpl
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{How many measurement axes?}
 \label{sec:axes}
+
+
+
+
 
 \bibliography{\jobname.bib}
 
@@ -492,7 +496,7 @@ The Schur orthogonality relations for irreducible unitary representations of com
 \end{align}
 where $\dim\p{D^\ell}=2\ell+1$ is the dimension of $D^\ell$, and analogously
 \begin{align}
-  \abs{\Omega_3} \equiv \int_{\Omega_3} d\Omega_3\p{\v\omega} = 8\pi^2.
+  \abs{\Omega_3} \equiv \int_{\Omega_3} \d\Omega_3\p{\v\omega} = 8\pi^2.
 \end{align}
 Orthogonality relations for adjoint matrix elements $\D^\ell_{mn}$ are derived identically from the fact that the matrix
 \begin{align}
@@ -508,6 +512,7 @@ Evaluating the integral over $\gamma_{\v\omega}$ and dividing through by $2\pi$ 
   \int_{\Omega_2} \d\Omega_2\p{\v v}
   D^{\ell}_{mn}\p{\v v}^* D^{\ell'}_{m'n}\p{\v v}
   = \f{4\pi}{2\ell+1} \delta_{\ell\ell'} \delta_{mm'},
+  \label{eq:ortho_sphere_apndx}
 \end{align}
 where integration is performed over all $\v v\in\Omega_2\simeq[0,2\pi]\times[0,\pi]$ with integration measure $\d\Omega_2\p{\v v} \equiv \d\alpha_{\v v} \d\beta_{\v v} \sin\beta_{\v v}$.
 A similar decomposition of the adjoint rotation matrix elements $\D^\ell_{mn}\p{\v\omega}$ (see Appendix \ref{sec:rotations}) implies the identical orthogonality relations.
@@ -522,17 +527,16 @@ Consider a square-integrable function on the sphere, $f\in L^2\p{\Omega_2}$, wit
   f\p{\v v} = \sum_{\ell,m} f_{\ell m} B_{\ell m},
 \end{align}
 where $f_{\ell m}\in\CC$ is a coefficient and $\set{B_{\ell m}}$ is a complete basis for $L^2\p{\Omega_2}$.
-Without loss of generality, we will assume that for a fixed degree $\ell$ the functions $\set{B_{\ell m}}$ span the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, and that these functions satisfy orthogonality relations analogous to that in Eq.~\eqref{eq:ortho_sphere}.
+Without loss of generality, we will assume that for a fixed degree $\ell$ the functions $\set{B_{\ell m}}$ span the degree-$\ell$ subspace of $L^2\p{\Omega_2}$, and that these functions satisfy orthogonality relations analogous to those in Eqs.~\eqref{eq:ortho_sphere} and \eqref{eq:ortho_sphere_apndx}.
 A solution to the signal recovery problem amounts to a set of points $V=\set{\v v}\subset\Omega_2$ and coefficients $C_{\ell m}\p{\v v}$ for which
 \begin{align}
   f_{\ell m} = \sum_{\v v} C_{\ell m}\p{\v v} f\p{\v v}.
   \label{eq:recovery_solution}
 \end{align}
-Consider now a different basis $\set{\tilde B_{\ell m}}$ for $L^2\p{\Omega_2}$, with which
+Consider now a different basis $\set{\tilde B_{\ell m}}$ for $L^2\p{\Omega_2}$, satisfying the same general assumptions that we made for $\set{B_{\ell m}}$, with which
 \begin{align}
-  f\p{\v v} = \sum_{\ell, m} \tilde f_{\ell m} \tilde B_{\ell m},
+  f\p{\v v} = \sum_{\ell, m} \tilde f_{\ell m} \tilde B_{\ell m}.
 \end{align}
-where we make the same general assumptions about $\set{\tilde B_{\ell m}}$ that we made for $\set{B_{\ell m}}$.
 Substituting the harmonic expansion of $f\p{\v v}$ in the original basis $\set{B_{\ell m}}$, we find that
 \begin{align}
   \tilde f_{\ell m} = \int_{\Omega_2} \d\Omega_2\p{\v v}
