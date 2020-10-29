@@ -41,30 +41,25 @@ def to_angles(vec):
 
 spin_op_vec = np.array([ op.todense() for op in spin_op_vec_dicke(dim-1) ])
 
-def op_dot(A,B):
-    return A.conj().ravel() @ B.ravel()
-
 def axis_projectors(point):
     spin_op = np.tensordot(to_axis(point), spin_op_vec, axes = 1)
     _, vecs = np.linalg.eigh(spin_op)
     return [ np.outer(vec,vec.conj()) for vec in vecs.T ]
 
-def axis_drive_ops(point):
-    projectors = axis_projectors(point)
-    return [ sum([ coef * proj for coef, proj in zip(drive_op, projectors) ])
-             for drive_op in diag_drive_ops ]
-
 def axes_drive_ops(points):
-    return np.array([ axis_drive_ops(point) for point in points ])
+    tup_points = list(map(tuple,points))
+    projectors = { point : axis_projectors(point) for point in tup_points }
+    return [ np.array([ sum([ coef * proj for coef, proj
+                              in zip(drive_op, projectors[point]) ]).ravel()
+                        for point in tup_points ])
+             for drive_op in diag_drive_ops ]
 
 def proj_span_norms(points):
     axis_num = points.shape[0]
     drive_ops = axes_drive_ops(points)
     norms = np.zeros(dim**2)
     for LL in range(dim):
-        overlap_mat = np.zeros((axis_num,)*2, dtype = complex)
-        for ii, jj in it.product(range(axis_num), repeat = 2):
-            overlap_mat[ii,jj] = op_dot(drive_ops[ii,LL,:,:], drive_ops[jj,LL,:,:])
+        overlap_mat = np.einsum("Vk,Wk->VW", drive_ops[LL].conj(), drive_ops[LL])
         idx_min, norm_num = LL**2, 2*LL+1
         norms_LL = np.linalg.eigvalsh(overlap_mat)[-norm_num:]
         norms[ idx_min : idx_min + norms_LL.size ] = norms_LL
