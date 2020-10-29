@@ -19,10 +19,10 @@ np.random.seed(seed)
 
 ####################
 
-samples = 100
+samples = 1000
 axis_num = 2*dim-1
 
-drive_ops = [ np.diag(transition_op(dim,L,0)) for L in range(dim) ]
+diag_drive_ops = [ np.diag(transition_op(dim,L,0)) for L in range(dim) ]
 
 zhat = [1,0,0]
 xhat = [0,1,0]
@@ -36,12 +36,6 @@ def to_axis(point):
 def to_angles(vec):
     return [ np.arccos( vec[0] / np.sqrt(vec @ vec) ),
              np.arctan2( vec[2], vec[1] ) ]
-
-def distance(point_fst, point_snd):
-    axis_fst = to_axis(point_fst)
-    axis_snd = to_axis(point_snd)
-    angle = np.arccos(np.dot(axis_fst,axis_snd)) / np.pi
-    return min(angle,1-angle)
 
 ####################
 
@@ -57,20 +51,20 @@ def axis_projectors(point):
 
 def axis_drive_ops(point):
     projectors = axis_projectors(point)
-    return [ sum([ coef * proj for coef, proj in zip(drive,projectors) ])
-             for drive in drive_ops ]
+    return [ sum([ coef * proj for coef, proj in zip(drive_op, projectors) ])
+             for drive_op in diag_drive_ops ]
 
-def all_drive_ops(points):
+def axes_drive_ops(points):
     return np.array([ axis_drive_ops(point) for point in points ])
 
 def proj_span_norms(points):
     axis_num = points.shape[0]
-    drive_ops = all_drive_ops(points)
+    drive_ops = axes_drive_ops(points)
     norms = np.zeros(dim**2)
     for LL in range(dim):
         overlap_mat = np.zeros((axis_num,)*2, dtype = complex)
         for ii, jj in it.product(range(axis_num), repeat = 2):
-            overlap_mat[ii,jj] = op_dot(drive_ops[ii,LL,:,:],drive_ops[jj,LL,:,:])
+            overlap_mat[ii,jj] = op_dot(drive_ops[ii,LL,:,:], drive_ops[jj,LL,:,:])
         idx_min, norm_num = LL**2, 2*LL+1
         norms_LL = np.linalg.eigvalsh(overlap_mat)[-norm_num:]
         norms[ idx_min : idx_min + norms_LL.size ] = norms_LL
@@ -86,7 +80,7 @@ def overlap_cost(points, indices = None):
     norms = proj_span_norms(points_mat)
     return abs(sum(1/norms))
 
-def random_points():
+def random_points(axis_num = axis_num):
     points = np.random.rand(axis_num,2)
     points[:,0] = np.arccos(2*points[:,0]-1)
     points[:,1] *= 2*np.pi
@@ -94,7 +88,7 @@ def random_points():
 
 ####################
 
-rnd_point_sets = [ random_points() for _ in range(samples) ]
+rnd_point_sets = [ random_points(axis_num) for _ in range(samples) ]
 rnd_points = min(rnd_point_sets, key = overlap_cost)
 rnd_norms = proj_span_norms(rnd_points)
 print(overlap_cost(rnd_points))
@@ -108,6 +102,12 @@ print(overlap_cost(min_points))
 print(np.sort(min_norms[min_norms < 1]))
 
 ####################
+
+def distance(point_fst, point_snd):
+    axis_fst = to_axis(point_fst)
+    axis_snd = to_axis(point_snd)
+    angle = np.arccos(np.dot(axis_fst,axis_snd)) / np.pi
+    return min(angle,1-angle)
 
 def rotate_point(point, rot_axis, rot_angle):
     cos_angle = np.cos(rot_angle)
