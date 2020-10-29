@@ -41,7 +41,7 @@
 \newcommand{\z}{\text{z}}
 
 \newcommand{\B}{\mathcal{B}}
-\newcommand{\N}{\mathcal{N}}
+\newcommand{\M}{\mathcal{M}}
 \renewcommand{\O}{\mathcal{O}}
 \newcommand{\Q}{\mathcal{Q}}
 \newcommand{\R}{\mathcal{R}}
@@ -101,9 +101,9 @@
 
 \begin{abstract}
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
-  By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d$, that is bounded by $2d-1\le r_d\le d^2$.
-  We conjecture that $r_d=2d-1$, which we have verified for all $d\le200$ using numerical experiments.
-  We then provide a parallelized algorithm with $O\p{r^3}$ runtime for certifying upper bounds on the error with which measurements of spin projection along $r$ quantization axes can be used to reconstruct an unknown quantum state.
+  By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d^{\t{min}}$, that is bounded by $2d-1\le r_d^{\t{min}}\le d^2$.
+  We conjecture that $r_d^{\t{min}}=2d-1$, which have verified for all $d\le200$ using numerical experiments.
+  We then provide a parallelized algorithm with $O\p{r^3}$ runtime for certifying an upper bound on the error with which measurements of spin projection onto $r$ quantization axes can reconstruct an unknown quantum state.
   Our algorithm motivates a simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error at a fixed total number of measurements [\red{note: this part is not yet complete}].
   [\red{todo: maybe look into a simplified tomography procedure for pure states?]}
 \end{abstract}
@@ -266,9 +266,9 @@ Since
 \item measuring spin projections along any axis simultaneously provides measurement data for transition operators of {\it all} degrees $\ell\le\ell_{\t{max}}$,
 \end{enumerate*}
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
-In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any degree-$\ell$ function with $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
+In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any function with fixed degree $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
 Unfortunately, we have no general proof of this conjecture, which may require a deeper analysis of fixed-degree signal recovery on the sphere.
-Nonetheless, we have used the tomography protocol in the next section to numerically verify that $2d-1$ measurement axes suffice for all $d\le200$ \footnote{Specifically, for all $d\le200$ we chose $2d-1$ measurement axes $V=\set{\v v}\subset\Omega_2$ by randomly sampling points on the sphere, and checked that the corresponding overlap matrix $G_V$ defined in Eq.~\eqref{eq:overlap_matrix} has $d^2$ nonzero eigenvalues, which is a necessary and sufficient condition to reconstruct an arbitrary $d$-level spin qudit state from measurements of spin projection onto the axes in $V$}.
+Nonetheless, the tomography protocol in the next section can be used to numerically verify that $2d-1$ measurement axes suffice for all $d\le200$.
 
 In principle, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$ (see Appendix \ref{sec:basis_change}).
 This translation enables importing a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
@@ -290,7 +290,7 @@ Whereas step \ref{tomo:measure} can involve a host of platform-dependent technic
 
 To this end, we begin by asking a question: what is a ``good'' choice of measurement axes?
 Intuitively, a good choice of axes should minimize the error with which one can reconstruct an unknown quantum state from associated measurement data.
-If we can quantify this idea, then we can try to optimize over different choices of measurement axes to find a set that (approximately) minimizes the error in reconstructed states.
+If we can quantify this intuition, then we can try to optimize over different choices of measurement axes to find a set that (approximately) minimizes the error in reconstructed states.
 
 A set of measurement axes $V=\set{\v v}$ nominally induces a set of projectors $\set{\Pi_{\v v\mu}^V}$ that will be measured in an experiment, where for clarify we index objects by $V$ to emphasize their dependence on the choice of measurement axes.
 By a simple change of basis, measuring these projectors is equivalent to measuring the set of transition operators $\v T_V\equiv\set{T_{\v v\ell,0}}$.
@@ -301,8 +301,7 @@ The operators in $\v T_V$ can be used to construct the overlap (Gram) matrix
   \label{eq:overlap_matrix}
 \end{align}
 where we neglect cross terms with different degrees $\ell$ because the corresponding inner products vanish, i.e.~$\obk{T_{\v v\ell,0}|T_{\v v'\ell',0}}=0$ for all $\ell\ne\ell'$.
-Eigenvectors of $G_V$ define linearly independent linear combinations of the operators in $\v T_V$.
-If the operators in $\v T_V$ span the entire space of operators on a $d$-level spin qudit, which is a necessary and sufficient condition for $V$ to allow for full state tomography, then $G_V$ must have exactly $d^2$ nonzero eigenvalues.
+If the operators in $\v T_V$ span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit, which is a necessary and sufficient condition for $V$ to allow for full state tomography, then $G_V$ must have exactly $d^2$ nonzero eigenvalues.
 Indexing these eigenvalues $G^V_k$ and the corresponding (normalized) eigenvectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots)$ by an integer $k\in\set{1,2,\cdots,d^2}$, we can construct the orthonormal operators
 \begin{align}
   Q^V_k \equiv \sum_j g^V_{kj} T_j,
@@ -349,22 +348,22 @@ Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore boun
 \begin{align}
   \Bbk{\norm{\tilde\rho-\rho}_2^2}
   = \sum_k \Bbk{\abs{\tilde\rho^V_k - \rho^V_k}^2}
-  \le \epsilon^2 \N_V^2,
+  \le \epsilon^2 \M_V^2,
   \label{eq:bound}
 \end{align}
 where
 \begin{align}
-  \N_V^2 \equiv \sum_k \f1{G^V_k}
-  \label{eq:norm}
+  \M_V^2 \equiv \sum_k \f1{G^V_k}
+  \label{eq:scale}
 \end{align}
-is a norm determined by the set of measurement axes $V$.
-Note that the sum in Eq.~\eqref{eq:norm} is performed over the $d^2$ largest eigenvalues of $G_V$, and therefore may be divergent if $G_V$ has fewer than $d^2$ nonzero eigenvalues.
-Altogether, diagonalizing each of $d$ blocks of $G_V$ takes $O(\abs{V}^3)$ time, so the norm $\N_V$ can be computed in $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
+is a scale determined by the set of measurement axes $V$.
+Note that the sum in Eq.~\eqref{eq:scale} is performed over the $d^2$ largest eigenvalues of $G_V$, and therefore may be divergent if $G_V$ has fewer than $d^2$ nonzero eigenvalues.
+Altogether, diagonalizing each of $d$ blocks of $G_V$ takes $O(\abs{V}^3)$ time, so the scale $\M_V$ can be computed in $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
 
-The bound in Eq.~\eqref{eq:bound} motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the error norm $\N_V$.
-If $\abs{V}$ is too large for variational optimization to be practical, one can instead generate many random sets of measurement axes, and then choose the set that minimizes $\N_V$.
+The bound in Eq.~\eqref{eq:bound} motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the scale $\M_V$.
+If $\abs{V}$ is too large for variational optimization to be practical, one can instead generate many random sets of measurement axes, and then choose the set that minimizes $\M_V$.
 After choosing a set of measurement axes $V$, experimentally characterize the expectation values $\bk{T_j}_\rho$.
-If the experimental measurements $E_j$ of $\bk{T_j}_\rho$ are accurate to within an error $\lesssim\epsilon$, then the state $\tilde\rho$ defined in Eq.~\eqref{eq:reconstructed_state} is an approximation of the true state $\rho$ to within a 2-norm distance of $\lesssim\epsilon\N_V$.
+If the experimental measurements $E_j$ of $\bk{T_j}_\rho$ are accurate to within an error $\lesssim\epsilon$, then the state $\tilde\rho$ defined in Eq.~\eqref{eq:reconstructed_state} is an approximation of the true state $\rho$ to within a 2-norm distance of $\lesssim\epsilon\M_V$.
 Furthermore, if the empirical estimate $\tilde\rho$ has negative eigenvalues, its 2-norm distance from $\rho$ can be further reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
 In terms of classical computing costs before and after estimating expectation values $\bk{T_j}_\rho$, this tomography protocol is bottlenecked by the need to diagonalize the overlap matrix $G_V$, which has $d$ blocks of size $\abs{V}\times\abs{V}$.
 Altogether, this protocol therefore has an $O(d\abs{V}^3)$ serial or $O(\abs{V}^3)$ parallel runtime.
@@ -372,7 +371,7 @@ Altogether, this protocol therefore has an $O(d\abs{V}^3)$ serial or $O(\abs{V}^
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the development of tailored and adaptive measurement protocols to future work.
 
-As a last point, we mention that the cost function $\N_V$ can also evaluate the quality of measurement axes chosen with existing methods for sparse signal recovery on the sphere \cite{rauhut2011sparse, alem2012sparse}.
+As a last point, we mention that the cost function $\M_V$ can also evaluate the quality of measurement axes chosen with existing methods for sparse signal recovery on the sphere \cite{rauhut2011sparse, alem2012sparse}.
 In practice, we find that uniform random sampling outperforms these methods, in the sense that it generates low-cost sets of measurement axes with higher probability.
 Two observations may explain the poor performance of these sparse signal recovery methods.
 First, spin qudit tomography essentially boils down to recovering sparse signals with a particular harmonic structure, namely with a fixed degree $\ell$.
@@ -385,8 +384,16 @@ In any case, the fact that uniform sampling outperforms these methods only simpl
 \section{How many measurement axes?}
 \label{sec:axes}
 
+We conjecture, and numerically verify for $d\le200$, that measurements of spin projection along $2d-1$ axes suffice to reconstruct an arbitrary state of a $d$-level spin qudit [\red{todo: make figure of $1/\M_V$ (minimized over, say, 100 random choices of measurement axes) as a function of the measurement axis number, for different values of $d$}].
+Even so, $2d-1$ measurement axes may not be the ``optimal'' number to use.
+Increasing the number of measurement axes generally decreases the error scale $\M_V$, but at the cost of having to estimate more observables.
+At a fixed total number of experimental measurements, having to estimate more observables means that fewer measurements are devoted to estimating any particular observable, which in turn increases the error $\epsilon$ on those estimates.
+This trade-off begs the question: how many measurement axes should be chosen to perform spin qudit tomography?
 
-
+The reconstruction error bound in Eq.~\eqref{eq:bound} provides a straightforward answer: the number of measurement axes should be chosen to minimize the product $\epsilon^2\M_V^2$, which bounds the expected error in the estimate $\tilde\rho$ of an unknown state $\rho$.
+If there are a total of $N$ spin projection measurements onto $r$ quantization axes, then $\sim N/r$ measurements are used to estimate spin projection onto any given axis.
+The variance in these estimates is then $\epsilon^2\sim 1/(N/r)=r/N$, or simply $\epsilon^2\sim r$ at a fixed total number of measurements (assuming all measurements are independent).
+Altogether, the number of measurement axes $r$ should be chosen in such a way as to minimize $r\M_V^2$.
 
 
 \bibliography{\jobname.bib}
