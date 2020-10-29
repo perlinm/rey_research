@@ -114,20 +114,18 @@
 \section{Introduction}
 
 Quantum state tomography, or the task of reconstructing a quantum state by collecting and processing measurement data, is an essential primitive for quantum sensing, quantum simulation, and quantum information processing.
-The central importance of quantum state tomography has led to the development of a variety of techniques based on compressed sensing \cite{gross2010quantum}, matrix product states \cite{cramer2010efficient}, % confidence regions \cite{christandl2012reliable},
-maximum-likelihood estimation \cite{smolin2012efficient}, % linear \cite{qi2013quantum} and least-squares \cite{opatrny1997leastsquares} regression,
-Bayesian inference \cite{huszar2012adaptive}, and neural networks \cite{torlai2018neuralnetwork}, among others.
+The central importance of quantum state tomography has led to the development of a variety of techniques based on compressed sensing \cite{gross2010quantum}, matrix product states \cite{cramer2010efficient}, maximum-likelihood estimation \cite{smolin2012efficient}, Bayesian inference \cite{huszar2012adaptive}, and neural networks \cite{torlai2018neuralnetwork}, among others \cite{christandl2012reliable, qi2013quantum, opatrny1997leastsquares}.
 These techniques are typically developed in a general, information-theoretic setting, and make minimal assumptions about the physical medium of a quantum state.
 As a consequence, even well-established techniques can nonetheless be ill-suited for physical platforms with unique or limited capabilities.
 
 Due in part to advancements in experimental capabilities to address nuclear spins in ultracold atomic systems [\red{CITE}], as well as developments in molecular cooling techniques [\red{CITE}], a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.
-Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{evrard2019enhanced}, enable quantum simulations of SU($d$) magnetism \cite{banerjee2013atomic, cazalilla2014ultracold}, and offer unique capabilities for quantum error correction \cite{albert2020robust, gross2020encoding}.
+Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{evrard2019enhanced}, enable quantum simulations of SU($d$) magnetism \cite{banerjee2013atomic, cazalilla2014ultracold, zhang2014spectroscopic, scazza2014observation, goban2018emergence}, and offer unique capabilities for quantum error correction \cite{albert2020robust, gross2020encoding}.
 In all cases, quantum state tomography is necessary to take full advantage of a spin qudit.
 
 The problem of qudit tomography in particular is not new, with an extensive literature on a variety of techniques \cite{manko1997spin, thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, evrard2019enhanced, stefano2019set, palici2020oam}.
-However, existing proposals either require the capability to perform essentially arbitrary operations on a qudit \cite{thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, stefano2019set, palici2020oam}, or rely on infinite-dimensional representations of a quantum spin \cite{manko1997spin, evrard2019enhanced}, resulting in tomographic protocols that can be highly inefficient or even impossible in practice.
+However, existing proposals either require the capability to perform essentially arbitrary operations on a qudit \cite{thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, stefano2019set, palici2020oam}, or rely on infinite-dimensional representations of a quantum spin \cite{manko1997spin, evrard2019enhanced}, resulting in tomographic protocols that can be highly inefficient or unachievable in practice.
 In particular, the protocols based on infinite-dimensional representations of a quantum spin require only the capability to measure spin projection onto different spatial axes, which is usually straightforward with a spin qudit.
-Nonetheless, these protocols obfuscate the requirements for performing full state tomography, provide no straightforward error bounds for reconstructed states, and extract only a vanishing faction of the information contained in measurement data.
+Nonetheless, these protocols obfuscate the basic requirements for performing full state tomography, provide no straightforward error bounds or guarantees of accuracy, and extract only a vanishing faction of the information contained in measurement data.
 
 In this work, we provide an efficient framework for performing spin qudit tomography using only measurements of spin projection onto different spatial axes.
 We first introduce, in Section \ref{sec:transition_ops}, a basis of operators that have a simple physical interpretation, and transform nicely under rotations in 3D space, thereby respecting the symmetries of the tomography task at hand.
@@ -206,7 +204,7 @@ The same orthogonality relations in Eqs.~\eqref{eq:ortho_full} and \eqref{eq:ort
 [\red{todo: make figures visualizing $Y_{\ell m}$ and $\D^\ell_{m,0}$ for comparison}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Tomography as signal recovery on the sphere}
+\section{Spin tomography as signal recovery on the sphere}
 \label{sec:signal_recovery}
 
 Our goal is to reconstruct an arbitrary state of a spin qudit from measurements of spin projection onto different quantization axes.
@@ -270,7 +268,7 @@ Since
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
 In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any degree-$\ell$ function with $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
 Unfortunately, we have no general proof of this conjecture, which may require a deeper analysis of fixed-degree signal recovery on the sphere.
-Nonetheless, we have used the tomography protocol in the next section to numerically verify that $2d-1$ measurement axes suffice for all $d\le200$.
+Nonetheless, we have used the tomography protocol in the next section to numerically verify that $2d-1$ measurement axes suffice for all $d\le200$ \footnote{Specifically, for all $d\le200$ we chose $2d-1$ measurement axes $V=\set{\v v}\subset\Omega_2$ by randomly sampling points on the sphere, and checked that the corresponding overlap matrix $G_V$ defined in Eq.~\eqref{eq:overlap_matrix} has $d^2$ nonzero eigenvalues, which is a necessary and sufficient condition to reconstruct an arbitrary $d$-level spin qudit state from measurements of spin projection onto the axes in $V$}.
 
 In principle, any solution to the full recovery problem with a particular set of basis functions, such the spherical harmonics $Y_{\ell m}$, can be readily translated into a solution with a different set of basis functions, such as the adjoint rotation matrix elements $\D^\ell_{m,0}$ (see Appendix \ref{sec:basis_change}).
 This translation enables importing a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
