@@ -4,7 +4,7 @@ import sys, functools, random
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools as it
-import scipy.optimize
+import scipy, scipy.optimize
 
 from dicke_methods import spin_op_vec_dicke
 from multilevel_methods import transition_op
@@ -19,10 +19,10 @@ np.random.seed(seed)
 
 ####################
 
-samples = 1000
+samples = 100
 axis_num = 2*dim-1
 
-diag_drive_ops = [ np.diag(transition_op(dim,L,0)) for L in range(dim) ]
+diag_trans_ops = [ np.diag(transition_op(dim,L,0)) for L in range(dim) ]
 
 zhat = [1,0,0]
 xhat = [0,1,0]
@@ -39,27 +39,39 @@ def to_angles(vec):
 
 ####################
 
-spin_op_vec = np.array([ op.todense() for op in spin_op_vec_dicke(dim-1) ])
+Sz, Sx = [ op.todense() for op in spin_op_vec_dicke(dim-1)[:2] ]
+Sz_diag = np.diag(Sz)
+z_to_y = scipy.linalg.expm(1j*Sx*np.pi/2)
+z_to_y_dag = z_to_y.conj().T
+def rot_z(angle):
+    return np.diag(np.exp(-1j*Sz_diag*angle))
+def rot_y(angle):
+    return z_to_y_dag @ rot_z(angle) @ z_to_y
 
-def axis_projectors(point):
-    spin_op = np.tensordot(to_axis(point), spin_op_vec, axes = 1)
-    _, vecs = np.linalg.eigh(spin_op)
-    return [ np.outer(vec,vec.conj()) for vec in vecs.T ]
+def rotation_matrix(point):
+    return rot_z(point[1]) @ rot_y(point[0])
 
-def axes_drive_ops(points):
+# compute rotated transition operators, flattened into vectors of length dim**2
+# return an array trans_ops, where trans_ops[L,v,:] is the transition operator
+#   of degree L along axis v
+def axes_trans_ops(points):
     tup_points = list(map(tuple,points))
-    projectors = { point : axis_projectors(point) for point in tup_points }
-    return [ np.array([ sum([ coef * proj for coef, proj
-                              in zip(drive_op, projectors[point]) ]).ravel()
-                        for point in tup_points ])
-             for drive_op in diag_drive_ops ]
+    rot_mats = { point : rotation_matrix(point) for point in tup_points }
+    rot_mats_dag = { point : rot_mats[point].conj().T for point in tup_points }
+
+    def _rot_trans_op(point, trans_op):
+        factors = ( rot_mats[point], trans_op, rot_mats_dag[point] )
+        return np.einsum("im,m,mj", *factors).ravel()
+
+    return np.array([ [ _rot_trans_op(point, trans_op) for point in tup_points ]
+                      for trans_op in diag_trans_ops ])
 
 def proj_span_norms(points):
     axis_num = points.shape[0]
-    drive_ops = axes_drive_ops(points)
+    trans_ops = axes_trans_ops(points)
     norms = np.zeros(dim**2)
     for LL in range(dim):
-        overlap_mat = np.einsum("Vk,Wk->VW", drive_ops[LL].conj(), drive_ops[LL])
+        overlap_mat = trans_ops[LL,:,:].conj() @ trans_ops[LL,:,:].T
         idx_min, norm_num = LL**2, 2*LL+1
         norms_LL = np.linalg.eigvalsh(overlap_mat)[-norm_num:]
         norms[ idx_min : idx_min + norms_LL.size ] = norms_LL
@@ -69,7 +81,7 @@ def proj_span_dim(points):
     norms = proj_span_norms(points)
     return sum(np.logical_not(np.isclose(norms,0)))
 
-def overlap_cost(points, indices = None):
+def overlap_cost(points):
     points_mat_shape = (points.size//2,2)
     points_mat = points.reshape(points_mat_shape)
     norms = proj_span_norms(points_mat)
