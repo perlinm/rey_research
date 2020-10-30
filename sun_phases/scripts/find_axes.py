@@ -22,7 +22,7 @@ np.random.seed(seed)
 samples = 100
 axis_num = 2*dim-1
 
-diag_trans_ops = [ np.diag(transition_op(dim,L,0)) for L in range(dim) ]
+diag_trans_ops = [ np.diag(transition_op(LL+1,LL,0)) for LL in range(dim) ]
 
 zhat = [1,0,0]
 xhat = [0,1,0]
@@ -39,45 +39,53 @@ def to_angles(vec):
 
 ####################
 
-Sz = spin_op_z_dicke(dim-1).todense()
-Sx = spin_op_x_dicke(dim-1).todense()
-Sz_diag = np.diag(Sz)
-rot_z_to_y = scipy.linalg.expm(1j*Sx*np.pi/2)
-rot_y_to_z = rot_z_to_y.conj().T
-def rot_z(angle):
-    return np.diag(np.exp(-1j*Sz_diag*angle))
-def rot_y(angle):
-    return rot_y_to_z @ rot_z(angle) @ rot_z_to_y
+spin_vals = {}
+rot_z_to_y = {}
+rot_y_to_z = {}
+for degree in range(dim):
+    Sz = spin_op_z_dicke(degree).todense()
+    Sx = spin_op_x_dicke(degree).todense()
+    spin_vals[degree] = np.diag(Sz)
+    rot_z_to_y[degree] = scipy.linalg.expm(1j*Sx*np.pi/2)
+    rot_y_to_z[degree] = rot_z_to_y[degree].conj().T
 
-def rotation_matrix(point):
-    return rot_z(point[1]) @ rot_y(point[0])
+def _diag_mult(diag, B):
+    return np.multiply(diag[:,None], B)
+def rot_z(angle, degree):
+    return np.exp(-1j*angle*spin_vals[degree])
+def rot_y(angle, degree):
+    return rot_y_to_z[degree] @ _diag_mult(rot_z(angle, degree), rot_z_to_y[degree] )
+def rotation_matrix(point, degree):
+    return _diag_mult(rot_z(point[1], degree), rot_y(point[0], degree))
 
 # compute rotated transition operators, flattened into vectors of length dim**2
-# return an array trans_ops, where trans_ops[L,v,:] is the transition operator
+# return an array trans_ops, where trans_ops[L][v,:] is the transition operator
 #   of degree L along axis v
 def axes_trans_ops(points):
     tup_points = list(map(tuple,points))
 
     # compute all rotated proojectors
-    def _rot_projs(point):
+    def _rot_projs(point, degree):
         return np.einsum("im,jm->ijm",
-                         rot_mat := rotation_matrix(point),
+                         rot_mat := rotation_matrix(point, degree),
                          rot_mat.conj())
-    rot_projs = { point : _rot_projs(point) for point in tup_points }
+    rot_projs = { ( point, degree ) : _rot_projs(point, degree)
+                  for point in tup_points
+                  for degree in range(dim) }
 
     # compute rotated transition operator
-    def _rot_diag_op(point, trans_op):
-        return np.einsum("ijm,m", rot_projs[point], trans_op).ravel()
+    def _rot_diag_op(point, degree):
+        return np.einsum("ijm,m", rot_projs[point,degree], diag_trans_ops[degree]).ravel()
 
-    return np.array([ [ _rot_diag_op(point, trans_op) for point in tup_points ]
-                      for trans_op in diag_trans_ops ])
+    return [ np.array([ _rot_diag_op(point, degree) for point in tup_points ])
+             for degree in range(dim) ]
 
 def proj_span_norms(points):
     axis_num = points.shape[0]
     trans_ops = axes_trans_ops(points)
     norms = np.zeros(dim**2)
     for LL in range(dim):
-        overlap_mat = trans_ops[LL,:,:].conj() @ trans_ops[LL,:,:].T
+        overlap_mat = trans_ops[LL].conj() @ trans_ops[LL].T
         idx_min, norm_num = LL**2, 2*LL+1
         norms_LL = np.linalg.eigvalsh(overlap_mat)[-norm_num:]
         norms[ idx_min : idx_min + norms_LL.size ] = norms_LL
