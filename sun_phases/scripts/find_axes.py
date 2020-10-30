@@ -37,6 +37,9 @@ def to_angles(vec):
     return [ np.arccos( vec[0] / np.sqrt(vec @ vec) ),
              np.arctan2( vec[2], vec[1] ) ]
 
+def diag_mult(diag_A, B):
+    return np.multiply(diag_A[:,None], B)
+
 ####################
 
 spin_vals = {}
@@ -47,36 +50,25 @@ for degree in range(dim):
     Sx = spin_op_x_dicke(degree)
     spin_vals[degree] = Sz.diagonal()
     rot_z_to_y[degree] = scipy.linalg.expm(1j*np.pi/2*Sx.todense())
-    rot_y_to_z[degree] = rot_z_to_y[degree].T
+    rot_y_to_z[degree] = rot_z_to_y[degree].conj().T
 
-def _diag_mult(diag_A, B):
-    return np.multiply(diag_A[:,None], B)
 def rot_z(angle, degree):
     return np.exp(-1j*angle*spin_vals[degree])
 def rot_y(angle, degree):
-    return rot_y_to_z[degree] @ _diag_mult(rot_z(angle, degree), rot_z_to_y[degree] )
+    return rot_y_to_z[degree] @ diag_mult(rot_z(angle, degree), rot_z_to_y[degree] )
 def rotation_matrix(point, degree):
-    return _diag_mult(rot_z(point[1], degree), rot_y(point[0], degree))
+    return diag_mult(rot_z(point[1], degree), rot_y(point[0], degree))
 
-# compute rotated transition operators, flattened into vectors
-# return an array trans_ops, where trans_ops[L][v,:] is the transition operator
-#   of degree L along axis v
+# compute a single rotated (order-0) transition operator
+def axis_trans_op(point, degree):
+    rot_mat = rotation_matrix(point, degree)
+    return rot_mat @ diag_mult(diag_trans_ops[degree], rot_mat.conj().T)
+
+# compute all rotated transition operators, flattened into vectors
+# return an array trans_ops, where
+#   trans_ops[L][v,:] is the transition operator of degree L along axis v
 def axes_trans_ops(points):
-    tup_points = list(map(tuple,points))
-
-    # compute all rotated projectors
-    def _rot_projs(point, degree):
-        return np.einsum("im,jm->ijm",
-                         rot_mat := rotation_matrix(point, degree), rot_mat.conj())
-    rot_projs = { ( point, degree ) : _rot_projs(point, degree)
-                  for point in tup_points
-                  for degree in range(dim) }
-
-    # compute rotated transition operator
-    def _rot_diag_op(point, degree):
-        return rot_projs[point,degree] @ diag_trans_ops[degree]
-
-    return [ np.array([ _rot_diag_op(point, degree).ravel() for point in tup_points ])
+    return [ np.array([ axis_trans_op(point, degree).ravel() for point in points ])
              for degree in range(dim) ]
 
 def proj_span_norms(points):
