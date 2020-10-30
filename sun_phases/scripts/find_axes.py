@@ -41,12 +41,12 @@ def to_angles(vec):
 
 Sz, Sx = [ op.todense() for op in spin_op_vec_dicke(dim-1)[:2] ]
 Sz_diag = np.diag(Sz)
-z_to_y = scipy.linalg.expm(1j*Sx*np.pi/2)
-z_to_y_dag = z_to_y.conj().T
+rot_z_to_y = scipy.linalg.expm(1j*Sx*np.pi/2)
+rot_y_to_z = rot_z_to_y.conj().T
 def rot_z(angle):
     return np.diag(np.exp(-1j*Sz_diag*angle))
 def rot_y(angle):
-    return z_to_y_dag @ rot_z(angle) @ z_to_y
+    return rot_y_to_z @ rot_z(angle) @ rot_z_to_y
 
 def rotation_matrix(point):
     return rot_z(point[1]) @ rot_y(point[0])
@@ -56,14 +56,19 @@ def rotation_matrix(point):
 #   of degree L along axis v
 def axes_trans_ops(points):
     tup_points = list(map(tuple,points))
-    rot_mats = { point : rotation_matrix(point) for point in tup_points }
-    rot_mats_dag = { point : rot_mats[point].conj().T for point in tup_points }
 
-    def _rot_trans_op(point, trans_op):
-        factors = ( rot_mats[point], trans_op, rot_mats_dag[point] )
-        return np.einsum("im,m,mj", *factors).ravel()
+    # compute all rotated proojectors
+    def _rot_projs(point):
+        return np.einsum("im,mj->ijm",
+                         rot_mat := rotation_matrix(point),
+                         rot_mat.conj().T)
+    rot_projs = { point : _rot_projs(point) for point in tup_points }
 
-    return np.array([ [ _rot_trans_op(point, trans_op) for point in tup_points ]
+    # compute rotated transition operator
+    def _rot_diag_op(point, trans_op):
+        return np.einsum("ijm,m", rot_projs[point], trans_op).ravel()
+
+    return np.array([ [ _rot_diag_op(point, trans_op) for point in tup_points ]
                       for trans_op in diag_trans_ops ])
 
 def proj_span_norms(points):
@@ -95,13 +100,13 @@ def random_points(axis_num = axis_num):
 
 ####################
 
-rnd_point_sets = [ random_points(axis_num) for _ in range(samples) ]
+rnd_point_sets = [ random_points() for _ in range(samples) ]
 rnd_points = min(rnd_point_sets, key = overlap_cost)
 rnd_norms = proj_span_norms(rnd_points)
 print(overlap_cost(rnd_points))
 print(np.sort(rnd_norms[rnd_norms < 1]))
 
-min_optimum = scipy.optimize.minimize(overlap_cost, rnd_points.ravel())
+min_optimum = scipy.optimize.minimize(overlap_cost, random_points().ravel())
 min_points = min_optimum.x.reshape(rnd_points.shape)
 min_norms = proj_span_norms(min_points)
 print()
