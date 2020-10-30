@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import itertools as it
 import scipy, scipy.optimize
 
-from dicke_methods import spin_op_vec_dicke
+from dicke_methods import spin_op_z_dicke, spin_op_x_dicke
 from multilevel_methods import transition_op
 
 np.set_printoptions(linewidth = 200)
@@ -39,7 +39,8 @@ def to_angles(vec):
 
 ####################
 
-Sz, Sx = [ op.todense() for op in spin_op_vec_dicke(dim-1)[:2] ]
+Sz = spin_op_z_dicke(dim-1).todense()
+Sx = spin_op_x_dicke(dim-1).todense()
 Sz_diag = np.diag(Sz)
 rot_z_to_y = scipy.linalg.expm(1j*Sx*np.pi/2)
 rot_y_to_z = rot_z_to_y.conj().T
@@ -59,9 +60,9 @@ def axes_trans_ops(points):
 
     # compute all rotated proojectors
     def _rot_projs(point):
-        return np.einsum("im,mj->ijm",
+        return np.einsum("im,jm->ijm",
                          rot_mat := rotation_matrix(point),
-                         rot_mat.conj().T)
+                         rot_mat.conj())
     rot_projs = { point : _rot_projs(point) for point in tup_points }
 
     # compute rotated transition operator
