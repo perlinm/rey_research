@@ -43,14 +43,14 @@ spin_vals = {}
 rot_z_to_y = {}
 rot_y_to_z = {}
 for degree in range(dim):
-    Sz = spin_op_z_dicke(degree).todense()
-    Sx = spin_op_x_dicke(degree).todense()
-    spin_vals[degree] = np.diag(Sz)
-    rot_z_to_y[degree] = scipy.linalg.expm(1j*Sx*np.pi/2)
-    rot_y_to_z[degree] = rot_z_to_y[degree].conj().T
+    Sz = spin_op_z_dicke(degree)
+    Sx = spin_op_x_dicke(degree)
+    spin_vals[degree] = Sz.diagonal()
+    rot_z_to_y[degree] = scipy.linalg.expm(1j*np.pi/2*Sx.todense())
+    rot_y_to_z[degree] = rot_z_to_y[degree].T
 
-def _diag_mult(diag, B):
-    return np.multiply(diag[:,None], B)
+def _diag_mult(diag_A, B):
+    return np.multiply(diag_A[:,None], B)
 def rot_z(angle, degree):
     return np.exp(-1j*angle*spin_vals[degree])
 def rot_y(angle, degree):
@@ -58,26 +58,25 @@ def rot_y(angle, degree):
 def rotation_matrix(point, degree):
     return _diag_mult(rot_z(point[1], degree), rot_y(point[0], degree))
 
-# compute rotated transition operators, flattened into vectors of length dim**2
+# compute rotated transition operators, flattened into vectors
 # return an array trans_ops, where trans_ops[L][v,:] is the transition operator
 #   of degree L along axis v
 def axes_trans_ops(points):
     tup_points = list(map(tuple,points))
 
-    # compute all rotated proojectors
+    # compute all rotated projectors
     def _rot_projs(point, degree):
         return np.einsum("im,jm->ijm",
-                         rot_mat := rotation_matrix(point, degree),
-                         rot_mat.conj())
+                         rot_mat := rotation_matrix(point, degree), rot_mat.conj())
     rot_projs = { ( point, degree ) : _rot_projs(point, degree)
                   for point in tup_points
                   for degree in range(dim) }
 
     # compute rotated transition operator
     def _rot_diag_op(point, degree):
-        return np.einsum("ijm,m", rot_projs[point,degree], diag_trans_ops[degree]).ravel()
+        return rot_projs[point,degree] @ diag_trans_ops[degree]
 
-    return [ np.array([ _rot_diag_op(point, degree) for point in tup_points ])
+    return [ np.array([ _rot_diag_op(point, degree).ravel() for point in tup_points ])
              for degree in range(dim) ]
 
 def proj_span_norms(points):
