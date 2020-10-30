@@ -201,7 +201,6 @@ In particular, the restriction of $D^\ell_{m,0}$ to the sphere $\Omega_2$ at $\g
 \end{align}
 where integration is performed over all $\v v\in\Omega_2\simeq[0,2\pi]\times[0,\pi]$ with integration measure $\d\Omega_2\p{\v v} \equiv \d\alpha_{\v v} \d\beta_{\v v} \sin\beta_{\v v}$, and for ease of notation we implicitly associate doublets $\v v=\p{\alpha_{\v v},\beta_{\v v}}$ with the triplet $\p{\alpha_{\v v},\beta_{\v v},0}$, so that for example $R\p{\v v} = R\p{\alpha_{\v v},\beta_{\v v},0}$ and $T_{\v v\ell m} = T_{\p{\alpha_{\v v},\beta_{\v v},0},\ell m}$.
 The same orthogonality relations in Eqs.~\eqref{eq:ortho_full} and \eqref{eq:ortho_sphere} are inherited by the adjoint rotation matrix elements $\D_{mn}^\ell$ through the fact $\R\p{\v\omega}$ is the adjoint action of $R\p{\v\omega}$ (see Appendix \ref{sec:ortho}), and the functions $\set{\D_{m,0}^\ell}$ restricted to $\Omega_2$ are similarly another orthogonal basis for the space $L^2\p{\Omega_2}$ of square-integrable functions on the sphere.
-[\red{todo: make figures visualizing $Y_{\ell m}$ and $\D^\ell_{m,0}$ for comparison}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin tomography as signal recovery on the sphere}
@@ -230,7 +229,7 @@ Orthogonality of the transition operators motivates the ansatz $C_{\ell mk}\p{\v
 \end{align}
 for all $\ell$.
 
-In fact, the problem of finding suitable axes $V$ and coefficients $C_{\ell m}\p{\v v}$ to satisfy Eq.~\eqref{eq:tomo_recovery}, solving which would enable the recovery of arbitrary spin qudit states, can be mapped onto the well-studied problem of signal recovery on the sphere \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} [\red{todo: make figure to visualize the signal recovery problem}].
+In fact, the problem of finding suitable axes $V$ and coefficients $C_{\ell m}\p{\v v}$ to satisfy Eq.~\eqref{eq:tomo_recovery}, solving which would enable the recovery of arbitrary spin qudit states, can be mapped onto the well-studied problem of signal recovery on the sphere \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
 The signal recovery problem can be stated as follows: given a square-integrable function $f\in L^2\p{\Omega_2}$ on the sphere, with the harmonic expansion
 \begin{align}
   f\p{\v v} = \sum_{\ell,m} f_{\ell m} B_{\ell m}\p{\v v},
@@ -384,16 +383,16 @@ In any case, the fact that uniform sampling outperforms these methods only simpl
 \section{How many measurement axes?}
 \label{sec:axes}
 
-We conjecture, and numerically verify for $d\le200$, that measurements of spin projection along $2d-1$ axes suffice to reconstruct an arbitrary state of a $d$-level spin qudit [\red{todo: make figure of $1/\M_V$ (minimized over, say, 100 random choices of measurement axes) as a function of the measurement axis number, for different values of $d$}].
+We conjecture, and numerically verify for $d\le200$, that measurements of spin projection along $2d-1$ axes suffice to reconstruct an arbitrary state of a $d$-level spin qudit (see Figure [\red{REF}]).
 Even so, $2d-1$ measurement axes may not be the ``optimal'' number to use.
 Increasing the number of measurement axes generally decreases the error scale $\M_V$, but at the cost of having to estimate more observables.
-At a fixed total number of experimental measurements, having to estimate more observables means that fewer measurements are devoted to estimating any particular observable, which in turn increases the error $\epsilon$ on those estimates.
+If we fix the total number of measurements (or experimental trials), then having to estimate more observables means that fewer measurements are devoted to estimating any particular observable, which in turn increases the error $\epsilon$ on those estimates.
 This trade-off begs the question: how many measurement axes should be chosen to perform spin qudit tomography?
 
 The reconstruction error bound in Eq.~\eqref{eq:bound} provides a straightforward answer: the number of measurement axes should be chosen to minimize the product $\epsilon^2\M_V^2$, which bounds the expected error in the estimate $\tilde\rho$ of an unknown state $\rho$.
 If there are a total of $N$ spin projection measurements onto $r$ quantization axes, then $\sim N/r$ measurements are used to estimate spin projection onto any given axis.
-The variance in these estimates is then $\epsilon^2\sim 1/(N/r)=r/N$, or simply $\epsilon^2\sim r$ at a fixed total number of measurements (assuming all measurements are independent).
-Altogether, the number of measurement axes $r$ should be chosen in such a way as to minimize $r\M_V^2$.
+The variance in estimates of spin projection is then $\epsilon^2\sim r/N$, or simply $\epsilon^2\sim r$ at a fixed total number of measurements $N$.
+Altogether, the number of measurement axes should be chosen in such a way as to minimize $r\M_V^2$ with $\abs{V}=r$.
 
 
 \bibliography{\jobname.bib}
