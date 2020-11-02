@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
-import sys, functools, random
+import sys, functools
 import numpy as np
 import matplotlib.pyplot as plt
-import itertools as it
 import scipy, scipy.optimize
 
 from dicke_methods import spin_op_z_dicke, spin_op_x_dicke
@@ -13,14 +12,13 @@ import multiprocessing
 try:
     cpus = multiprocessing.cpu_count()
 except NotImplementedError:
-    cpus = 4 # default
+    cpus = 4 # default number of cpus to use for multithreading
 
 np.set_printoptions(linewidth = 200)
 
 dim = int(sys.argv[1])
 try: seed = int(sys.argv[2])
 except: seed = 0
-random.seed(seed)
 np.random.seed(seed)
 
 ####################
@@ -48,6 +46,7 @@ def diag_mult(diag_A, B):
 
 ####################
 
+# prelimiaries for computing rotation matrices
 spin_vals = {}
 rot_z_to_y = {}
 rot_y_to_z = {}
@@ -58,6 +57,7 @@ for degree in range(dim):
     rot_z_to_y[degree] = scipy.linalg.expm(1j*np.pi/2*Sx.todense())
     rot_y_to_z[degree] = rot_z_to_y[degree].conj().T
 
+# construct a rotation matrix
 def rot_z(angle, degree):
     return np.exp(-1j*angle*spin_vals[degree])
 def rot_y(angle, degree):
@@ -65,43 +65,42 @@ def rot_y(angle, degree):
 def rotation_matrix(point, degree):
     return diag_mult(rot_z(point[1], degree), rot_y(point[0], degree))
 
-# compute a single rotated (order-0) transition operator
+# compute a single rotated (order-0) transition operator of a given degree
 def axis_trans_op(degree, point):
     rot_mat = rotation_matrix(point, degree)
     return rot_mat @ diag_mult(diag_trans_ops[degree], rot_mat.conj().T)
-def axis_trans_ops(degree, points):
+
+# compute all rotated (order-0) transition operators of a given degree
+def axes_trans_ops(degree, points):
     return np.array([ axis_trans_op(degree, point).ravel() for point in points ])
 
-# compute all rotated transition operators, flattened into vectors
-# return an array trans_ops, where
-#   trans_ops[L][v,:] is the transition operator of degree L along axis v
-pool = multiprocessing.Pool(processes = cpus)
-def axes_trans_ops(points):
-    _axis_trans_ops = functools.partial(axis_trans_ops, points = points)
-    return pool.map(_axis_trans_ops,range(dim))
-
-def get_sqr_singular_values(matrix, num):
-    # return scipy.linalg.svdvals(matrix)[:num]**2 # for some reason this is slower...
+# get squared singular values of a matrix, in decreasing order
+def get_sqr_svdvals(matrix):
+    # return scipy.linalg.svdvals(matrix)**2 # for some reason this is slower...
     if matrix.shape[0] < matrix.shape[1]:
         MM = matrix @ matrix.conj().T
     else:
         MM = matrix.conj().T @ matrix
-    return scipy.linalg.eigvalsh(MM)[-num:]
+    return scipy.linalg.eigvalsh(MM)[::-1]
 
-def proj_span_norms(points):
-    return np.concatenate([ get_sqr_singular_values(trans_ops, 2*LL+1)
-                            for LL, trans_ops in enumerate(axes_trans_ops(points)) ])
+# get squared singular values ("norms") of a fixed-degree measurement matrix
+def degree_sqr_norms(degree, points):
+    return get_sqr_svdvals(axes_trans_ops(degree, points))[:2*degree+1]
 
-def proj_span_dim(points):
-    sqr_norms = proj_span_norms(points)
-    return sum(np.logical_not(np.isclose(sqr_norms,0)))
+# get squared singular values ("norms") of the full measurement matrix
+pool = multiprocessing.Pool(processes = cpus)
+def meas_sqr_norms(points):
+    _degree_sqr_norms = functools.partial(degree_sqr_norms, points = points)
+    return np.concatenate(pool.map(_degree_sqr_norms, range(dim)))
 
-def overlap_cost(points):
+# compute the squared error norm
+def sqr_error_norm(points):
     points_mat_shape = (points.size//2,2)
     points_mat = points.reshape(points_mat_shape)
-    sqr_norms = proj_span_norms(points_mat)
+    sqr_norms = meas_sqr_norms(points_mat)
     return abs(sum(1/sqr_norms))
 
+# generate random points on the sphere by uniform sampling
 def random_points(axis_num = axis_num):
     points = np.random.rand(axis_num,2)
     points[:,0] = np.arccos(2*points[:,0]-1)
@@ -111,16 +110,16 @@ def random_points(axis_num = axis_num):
 ####################
 
 rnd_point_sets = [ random_points() for _ in range(samples) ]
-rnd_points = min(rnd_point_sets, key = overlap_cost)
-rnd_norms = proj_span_norms(rnd_points)
-print(overlap_cost(rnd_points))
+rnd_points = min(rnd_point_sets, key = sqr_error_norm)
+rnd_norms = meas_sqr_norms(rnd_points)
+print(sqr_error_norm(rnd_points))
 print(np.sort(rnd_norms[rnd_norms < 1]))
 
-min_optimum = scipy.optimize.minimize(overlap_cost, random_points().ravel())
+min_optimum = scipy.optimize.minimize(sqr_error_norm, random_points().ravel())
 min_points = min_optimum.x.reshape(rnd_points.shape)
-min_norms = proj_span_norms(min_points)
+min_norms = meas_sqr_norms(min_points)
 print()
-print(overlap_cost(min_points))
+print(sqr_error_norm(min_points))
 print(np.sort(min_norms[min_norms < 1]))
 
 ####################
