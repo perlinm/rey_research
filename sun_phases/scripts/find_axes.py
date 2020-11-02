@@ -9,6 +9,12 @@ import scipy, scipy.optimize
 from dicke_methods import spin_op_z_dicke, spin_op_x_dicke
 from multilevel_methods import transition_op
 
+import multiprocessing
+try:
+    cpus = multiprocessing.cpu_count()
+except NotImplementedError:
+    cpus = 4 # default
+
 np.set_printoptions(linewidth = 200)
 
 dim = int(sys.argv[1])
@@ -60,32 +66,31 @@ def rotation_matrix(point, degree):
     return diag_mult(rot_z(point[1], degree), rot_y(point[0], degree))
 
 # compute a single rotated (order-0) transition operator
-def axis_trans_op(point, degree):
+def axis_trans_op(degree, point):
     rot_mat = rotation_matrix(point, degree)
     return rot_mat @ diag_mult(diag_trans_ops[degree], rot_mat.conj().T)
+def axis_trans_ops(degree, points):
+    return np.array([ axis_trans_op(degree, point).ravel() for point in points ])
 
 # compute all rotated transition operators, flattened into vectors
 # return an array trans_ops, where
 #   trans_ops[L][v,:] is the transition operator of degree L along axis v
+pool = multiprocessing.Pool(processes = cpus)
 def axes_trans_ops(points):
-    return [ np.array([ axis_trans_op(point, degree).ravel() for point in points ])
-             for degree in range(dim) ]
+    _axis_trans_ops = functools.partial(axis_trans_ops, points = points)
+    return pool.map(_axis_trans_ops,range(dim))
 
-def get_sqr_singular_values(matrix, num = None):
-    val_num = num if num else min(matrix.shape)
-    val_num = min( min(matrix.shape), val_num )
-    # return scipy.linalg.svdvals(matrix)[:val_num]**2 # for some reason this is slower...
+def get_sqr_singular_values(matrix, num):
+    # return scipy.linalg.svdvals(matrix)[:num]**2 # for some reason this is slower...
     if matrix.shape[0] < matrix.shape[1]:
         MM = matrix @ matrix.conj().T
     else:
         MM = matrix.conj().T @ matrix
-    return scipy.linalg.eigvalsh(MM)[-val_num:]
+    return scipy.linalg.eigvalsh(MM)[-num:]
 
 def proj_span_norms(points):
-    axis_num = points.shape[0]
-    trans_ops = axes_trans_ops(points)
-    return np.concatenate([ get_sqr_singular_values(trans_ops[LL], 2*LL+1)
-                            for LL in range(dim) ])
+    return np.concatenate([ get_sqr_singular_values(trans_ops, 2*LL+1)
+                            for LL, trans_ops in enumerate(axes_trans_ops(points)) ])
 
 def proj_span_dim(points):
     sqr_norms = proj_span_norms(points)
