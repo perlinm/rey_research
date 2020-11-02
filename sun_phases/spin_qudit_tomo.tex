@@ -364,9 +364,10 @@ The complexity of computing $\M_V^2$ is determined by the need to:
 \item construct the overlap matrix $G_V$, whose block diagonal structure makes possible in $O(\abs{V}^2d^3)$ serial or $O(\abs{V}^2d^2)$ parallel runtime; and
 \item diagonalize the blocks of $G_V$, which takes $O(\abs{V}^3d)$ serial or $O(\abs{V}^3)$ parallel runtime.
 \end{enumerate*}
+We discuss these calculations in more detail in Appendix \ref{sec:overlaps}.
 Altogether, assuming $\abs{V}\propto d$ the bound in Eq.~\eqref{eq:bound} can be certified in $O(d^5)$ serial or $O(d^4)$ parallel runtime.
-In practice, for modest values of $d$ we find that vectorized operations can reduce serial runtime to $\sim O(r^4)$, and that serial execution time is divided about evenly between computing rotated transition operators $T_{\v v\ell,0}$ and constructing the overlap matrix $G_V$, with a negligible amount of time spent on diagonalization (see Figure [\red{REF}]).  [\red{todo: add figure showing runtime for each routine as a function of $d$ with $\abs{V}=2d-1$; modify text appropriately after making the figure}].
-We suspect that more efficient representations of the transition operators $T_{\ell m}$, namely as $\p{2\ell+1}$-component vectors rather than $d\times d$ matrices, together with appropriate changes to the representation of the adjoint rotation operator $\R\p{\v v}$, should reduce the computational complexity of computing $\M_V^2$ by a factor of $O(d)$.
+In practice, for modest values of $d$ we find that serial execution time is divided about evenly between computing rotated transition operators $T_{\v v\ell,0}$ and constructing the overlap matrix $G_V$, with a negligible amount of time spent on diagonalization (see Figure [\red{REF}]).  [\red{todo: add figure showing runtime for each routine as a function of $d$ with $\abs{V}=2d-1$; modify text appropriately after making the figure}].
+We suspect that more efficient representations of the transition operators $T_{\ell m}$, namely as $\p{2\ell+1}$-component vectors rather than $d\times d$ matrices, together with appropriate changes to the representation of the adjoint rotation operator $\R\p{\v v}$, can reduce the complexity of computing $\M_V^2$ by a factor of $O(d)$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomography protocols}
@@ -575,6 +576,12 @@ Substituting Eq.~\eqref{eq:recovery_solution} into Eq.~\eqref{eq:basis_change}, 
   \tilde C_{\ell m}\p{\v v} \equiv \sum_n G^\ell_{mn} C_{\ell n}\p{\v v}.
 \end{align}
 The coefficients $\tilde C_{\ell m}\p{\v v}$ thus solve the signal recovery problem with the new basis $\set{\tilde B_{\ell m}}$ for $L^2\p{\Omega_2}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Computing the overlap matrix}
+\label{sec:overlaps}
+
+[\red{todo: walk through the calculation of the error scale $\M_V$.}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Transition operator product expansion}
