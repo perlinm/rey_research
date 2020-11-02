@@ -71,26 +71,31 @@ def axes_trans_ops(points):
     return [ np.array([ axis_trans_op(point, degree).ravel() for point in points ])
              for degree in range(dim) ]
 
+def get_sqr_singular_values(matrix, num = None):
+    val_num = num if num else min(matrix.shape)
+    val_num = min( min(matrix.shape), val_num )
+    # return scipy.linalg.svdvals(matrix)[:val_num]**2 # for some reason this is slower...
+    if matrix.shape[0] < matrix.shape[1]:
+        MM = matrix @ matrix.conj().T
+    else:
+        MM = matrix.conj().T @ matrix
+    return scipy.linalg.eigvalsh(MM)[-val_num:]
+
 def proj_span_norms(points):
     axis_num = points.shape[0]
     trans_ops = axes_trans_ops(points)
-    norms = np.zeros(dim**2)
-    for LL in range(dim):
-        overlap_mat = trans_ops[LL].conj() @ trans_ops[LL].T
-        idx_min, norm_num = LL**2, 2*LL+1
-        norms_LL = np.linalg.eigvalsh(overlap_mat)[-norm_num:]
-        norms[ idx_min : idx_min + norms_LL.size ] = norms_LL
-    return norms
+    return np.concatenate([ get_sqr_singular_values(trans_ops[LL], 2*LL+1)
+                            for LL in range(dim) ])
 
 def proj_span_dim(points):
-    norms = proj_span_norms(points)
-    return sum(np.logical_not(np.isclose(norms,0)))
+    sqr_norms = proj_span_norms(points)
+    return sum(np.logical_not(np.isclose(sqr_norms,0)))
 
 def overlap_cost(points):
     points_mat_shape = (points.size//2,2)
     points_mat = points.reshape(points_mat_shape)
-    norms = proj_span_norms(points_mat)
-    return abs(sum(1/norms))
+    sqr_norms = proj_span_norms(points_mat)
+    return abs(sum(1/sqr_norms))
 
 def random_points(axis_num = axis_num):
     points = np.random.rand(axis_num,2)
@@ -147,7 +152,7 @@ def organize_points(points, operation = None, track = False):
             def anchor(point): return point
         else:
             rot_axis = np.cross(anchor_axis,zhat)
-            rot_axis /= np.linalg.norm(rot_axis)
+            rot_axis /= scipy.linalg.norm(rot_axis)
             rot_angle = np.arccos( np.dot(anchor_axis,zhat) )
             anchor = functools.partial(rotate_point,
                                        rot_axis = rot_axis, rot_angle = rot_angle)
