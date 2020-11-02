@@ -92,6 +92,7 @@
 \title{\thetitle}
 \author{Michael A.~Perlin}
 \email{mika.perlin@gmail.com}
+% \author{Diego Barberena}
 \author{Ana Maria Rey}
 \affiliation{\JILA}
 \affiliation{\CTQM}
@@ -291,30 +292,29 @@ To this end, we begin by asking a question: what is a ``good'' choice of measure
 Intuitively, a good choice of axes should minimize the error with which one can reconstruct an unknown quantum state from associated measurement data.
 If we can quantify this intuition, then we can try to optimize over different choices of measurement axes to find a set that (approximately) minimizes the error in reconstructed states.
 
-A set of measurement axes $V=\set{\v v}$ nominally induces a set of projectors $\set{\Pi_{\v v\mu}}$ that will be measured in an experiment.
-By a simple change of basis, measuring these projectors is equivalent to measuring the set of transition operators $\v T_V\equiv\set{T_{\v v\ell,0}}$.
+A choice of measurement axes $V=\set{\v v}$ determines a set of projectors $\v\Pi_V \equiv \set{\Pi_{\v v\mu}}$ that will be measured in an experiment.
 By flattening qudit operators $X = \sum_{\mu,\nu} X_{\mu\nu} \op{\mu}{\nu}$ into the $d^2$-component vectors $\oket{X} \equiv \sum_{\mu,\nu} X_{\mu\nu} \ket{\mu\nu}$, we can construct the {\it measurement matrix}
 \begin{align}
-  M_V \equiv \sum_{\v v,\ell} \oket{T_{\v v\ell,0}} \bra{\v v\ell},
+  M_V \equiv \sum_{\v v,\ell} \oket{\Pi_{\v v\mu}} \bra{\v v\mu},
   \label{eq:meas_mat}
 \end{align}
-whose columns are flattenings of the operators in $\v T_V$.
-A necessary and sufficient for $V$ to allow for full state tomography is for the operators in $\v T_V$, or equivalently the columns of $M_V$, to span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit.
-In this case, $M_V$ must be full rank, with $d^2$ nonzero singular values.
+whose columns are flattenings of the operators in $\v\Pi_V$.
+A necessary and sufficient condition for $V$ to allow for full state tomography is that the projectors in $\v\Pi_V$, or equivalently the columns of $M_V$, to span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit.
+In this case $M_V$ must be full rank, with $d^2$ nonzero singular values.
 Indexing these singular values $M^V_k$ and the corresponding (normalized) right singular vectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots)$ by an integer $k\in\set{1,2,\cdots,d^2}$, we can construct the orthonormal qudit operators
 \begin{align}
-  Q^V_k \equiv \sum_j q^V_{kj} T_j,
+  Q^V_k \equiv \sum_j q^V_{kj} \Pi_j,
   &&
-  q^V_{kj} \equiv \f{x^V_{kj}}{M^V_k},
+  \v q^V_k \equiv \f{\v x^V_k}{M^V_k},
 \end{align}
-where for shorthand we use a combined index $j=\p{\v v_j,\ell_j}$ to specify both a measurement axis $\v v_j$ and a degree $\ell_j$, which identify the transition operator $T_j\equiv T_{\v v_j\ell_j,0}$.
+where for shorthand we use a combined index $j=\p{\v v_j,\mu_j}$ to specify both a measurement axis $\v v_j$ and a spin projection $\mu_j$, which identify the projector operator $\Pi_j\equiv \Pi_{\v v_j\mu_j}$.
 These operators allow us to expand any state $\rho$ of a $d$-level spin qudit in the form
 \begin{align}
   \rho = \sum_{k=1}^{d^2} \rho_k^V Q_k^V,
   &&
   \rho_k^V \equiv \bk{Q^V_k}_\rho.
 \end{align}
-Given empirical estimates $E_j$ of the expectation values $\bk{T_j}_\rho$, an empirical estimate $\tilde\rho_V$ of $\rho$ is then
+Given empirical estimates $E_j$ of the expectation values $\bk{\Pi_j}_\rho$, an empirical estimate $\tilde\rho_V$ of $\rho$ is then
 \begin{align}
   \tilde\rho_V \equiv \sum_k \tilde\rho^V_k Q^V_k,
   \label{eq:reconstructed_state}
@@ -322,18 +322,18 @@ Given empirical estimates $E_j$ of the expectation values $\bk{T_j}_\rho$, an em
 where
 \begin{align}
   \tilde\rho^V_k \equiv \sum_j q^V_{kj} E_j
-  \approx \sum_j q^V_{kj} \bk{T_j}_\rho
+  \approx \sum_j q^V_{kj} \bk{\Pi_j}_\rho
   = \bk{Q^V_k}_\rho
   = \rho^V_k.
 \end{align}
 The singular values of $M_V$ allow us to make concrete statements about the statistical error between the empirical estimate $\tilde\rho_V$ and the true state $\rho$.
-Assume, for example, that the estimates $E_j$ are equal to $\bk{T_j}_\rho$ up to Gaussian noise with variance at most $\epsilon^2$, i.e.
+Assume, for example, that the estimates $E_j$ are equal to $\bk{\Pi_j}_\rho$ up to uncorrelated noise with variance at most $\epsilon^2$, i.e.
 \begin{align}
-  E_j = \bk{T_j}_\rho + \epsilon_j,
+  E_j = \bk{\Pi_j}_\rho + \epsilon_j,
   &&
   \bbk{\epsilon_j \epsilon_{j'}} \le \epsilon^2 \delta_{jj'},
 \end{align}
-where $\set{\epsilon_j}$ are independent random variables, and we use the double brackets $\bbk{\cdot}$ to denote statistical averaging.
+where $\set{\epsilon_j}$ are independent random variables and we use the double brackets $\bbk{\cdot}$ to denote statistical averaging.
 The mean squared error with which $\tilde\rho^V_k$ approximates $\rho^V_k$ is then
 \begin{align}
   \Bbk{\abs{\tilde\rho^V_k-\rho^V_k}^2}
@@ -350,34 +350,37 @@ Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore boun
   \le \epsilon^2 \S_V^2,
   \label{eq:bound}
 \end{align}
-where
+where the {\it error scale} $\S_V$ of $V$, defined by
 \begin{align}
   \S_V \equiv \norm{M_V^{-1}}_2 = \sqrt{\sum_k\f1{\p{M^V_k}^2}},
   \label{eq:scale}
 \end{align}
-which we call the {\it error scale} of $V$, is the 2-norm of the pseudoinverse $M_V^{-1}$ of $M_V$.
+is the 2-norm of the pseudoinverse $M_V^{-1}$ of $M_V$.
 Note that the bound in Eq.~\eqref{eq:bound} only holds if the measurement matrix $M_V$ is nonsingular, as otherwise some of the operators $Q^V_k$ that we used to expand $\rho$ and $\tilde\rho_V$ are undefined, reflecting the fact that if $M_V$ is singular then measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
 
-The complexity of computing the error scale $\S_V$ is nominally determined by the need to
+The complexity of computing the error scale $\S_V$ is determined by the need to
 \begin{enumerate*}
 \item construct the measurement matrix $M_V$, and
 \item compute the singular values of $M_V$.
 \end{enumerate*}
-By the expansion $T_{\v v\ell,0} = R\p{\v v} T_{\ell,0} R\p{\v v}^\dag$, each of the $\abs{V}d$ columns of $M_V$ takes $O(d^3)$ time to compute, for an overall $O(\abs{V}d^4)$ serial or $O(d^3)$ parallel runtime.
-In order to compute the singular values of $M_V$, we first note that the orthogonality of transition operators with different degrees, i.e.~$\obk{T_{\v v\ell,0}|T_{\v v',\ell',0}} = 0$ for $\ell\ne\ell'$, implies that $M_V$ can be decomposed into a direct sum of the rectangular blocks
+These tasks can be drastically simplified by use of the transition operators.
+Specifically, the orthogonality of transition operators with different degrees, i.e.~$\obk{T_{\v v\ell,0}|T_{\v v',\ell',0}} = 0$ for $\ell\ne\ell'$, implies that $M_V$ has a block-diagonal structure in the transition operator basis, with rectangular blocks
 \begin{align}
-  M_{V\ell} \equiv \sum_{\v v} \oket{T_{\v v\ell,0}} \bra{\v v},
+  M_{V\ell} \equiv U_\ell \sum_{\v v} \oket{T_{\v v\ell,0}} \bra{\v v},
+  &&
+  U_\ell \equiv \sum_{m=-\ell}^\ell \ket{m} \obra{T_{\ell m}},
 \end{align}
-using which we can expand
+that we can use to expand
 \begin{align}
   \S_V^2 = \sum_\ell \S_{V\ell}^2,
   &&
   \S_{V\ell} \equiv \norm{M_{V\ell}^{-1}}_2,
 \end{align}
 where $M_{V\ell}^{-1}$ is the pseudoinverse of $M_{V\ell}$.
-Finding the singular values of each block $M_{V\ell}$ takes $O(\abs{V}^2d^2)$ time at most \footnote{The calculation of $\S_{V\ell}$ can be sped up by the fact that it is independent of $d$ as long as $d\ge\ell+1$, so we can essentially set $d=\ell+1$ for the purposes of computing $\S_{V\ell}$}.
-Altogether, if we assume that $\abs{V}\sim d$ then certifying the bound in Eq.~\eqref{eq:bound} by computing $\S_V$ takes $O(d^5)$ serial or $O(d^4)$ parallel runtime (see Figure [\red{REF}]).  [\red{todo: add figure showing runtime for each routine as a function of $d$ with $\abs{V}=2d-1$; modify text appropriately after making the figure}].
-We suspect that more efficient representations of the transition operators $T_{\ell m}$, namely as $\p{2\ell+1}$-component vectors rather than $d\times d$ matrices, together with appropriate changes to the representation of the adjoint rotation operator $\R\p{\v v}$, can reduce the complexity of computing $\S_V$ by a factor of $O(d)$.
+By the expansion $T_{\v v\ell,0} = R\p{\v v} T_{\ell,0} R\p{\v v}^\dag$, the $\p{2\ell+1}\times\abs{V}$ matrix $M_{V\ell}$ can be constructed in $O(\abs{V}d^3)$ time, and computing its singular values takes at most $O(\abs{V}d^2)$ time \footnote{The calculation of $\S_{V\ell}$ can be sped up by the fact that its value is independent of $d$ (as long as $d\ge\ell+1$), so we can essentially set $d=\ell+1$ for the purposes of computing $\S_{V\ell}$}.
+Altogether, if we assume that $\abs{V}\sim d$ then computing $\S_V$ to certify the bound in Eq.~\eqref{eq:bound} takes $O(d^5)$ serial or $O(d^4)$ parallel runtime (see Figure [\red{REF}]).  [\red{todo: add figure showing runtimes as a function of $d$ with $\abs{V}=2d-1$; modify text appropriately after making the figure}].
+
+[\red{todo: add a careful derivation of the error bound that assumes $n$ measurements of spin projection along each axis into an Appendix.  Briefly discuss the result of this derivation here.}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomography protocols}
@@ -385,8 +388,8 @@ We suspect that more efficient representations of the transition operators $T_{\
 
 The ability to certify a statistical error bound on the empirical estimate $\tilde\rho_V$ of an unknown quantum state $\rho$ motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the error scale $\S_V$ defined in Eq.~\eqref{eq:scale}.
 If $\abs{V}$ is too large for variational optimization to be practical, one can instead generate many random sets of measurement axes, and then choose the set that minimizes $\S_V$.
-After choosing a set of measurement axes $V$, experimentally characterize the expectation values $\bk{T_j}_\rho$.
-If the experimental measurements $E_j$ of $\bk{T_j}_\rho$ are accurate to within an error $\lesssim\epsilon$, then the state $\tilde\rho_V$ defined in Eq.~\eqref{eq:reconstructed_state} is an approximation of the true state $\rho$ to within a 2-norm distance $\lesssim\epsilon\S_V$.
+After choosing a set of measurement axes $V$, experimentally characterize the expectation values $\bk{\Pi_j}_\rho$.
+If the experimental measurements $E_j$ of $\bk{\Pi_j}_\rho$ are accurate to within an error $\lesssim\epsilon$, then the state $\tilde\rho_V$ defined in Eq.~\eqref{eq:reconstructed_state} is an approximation of the true state $\rho$ to within a 2-norm distance $\lesssim\epsilon\S_V$.
 Furthermore, if the empirical estimate $\tilde\rho_V$ has negative eigenvalues, its 2-norm distance from $\rho$ can be further reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
 
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.

@@ -28,6 +28,14 @@ axis_num = 2*dim-1
 
 diag_trans_ops = [ np.diag(transition_op(LL+1,LL,0)) for LL in range(dim) ]
 
+def unit_vector(dim, idx):
+    vec = np.zeros(dim)
+    vec[idx] = 1
+    return vec
+def proj_to_trans_degree(LL):
+    return np.vstack([ transition_op(LL+1,LL,MM).ravel() for MM in range(-LL,LL+1) ])
+proj_to_trans = [ proj_to_trans_degree(LL) for LL in range(dim) ]
+
 zhat = [1,0,0]
 xhat = [0,1,0]
 yhat = [0,0,1]
@@ -72,7 +80,8 @@ def axis_trans_op(degree, point):
 
 # compute all rotated (order-0) transition operators of a given degree
 def axes_trans_ops(degree, points):
-    return np.array([ axis_trans_op(degree, point).ravel() for point in points ])
+    proj_op_mat = np.array([ axis_trans_op(degree, point).ravel() for point in points ])
+    return proj_to_trans[degree] @ proj_op_mat.T
 
 # get squared singular values of a matrix, in decreasing order
 def get_sqr_svdvals(matrix):
