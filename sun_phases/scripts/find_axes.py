@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, functools
+import os, sys, functools
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy, scipy.optimize
@@ -16,25 +16,30 @@ except NotImplementedError:
 
 np.set_printoptions(linewidth = 200)
 
+parallelize = True
+if "serial" in sys.argv:
+    parallelize = False
+    sys.argv.remove("serial")
+
 dim = int(sys.argv[1])
 try: seed = int(sys.argv[2])
 except: seed = 0
 np.random.seed(seed)
 
+data_dir = "../data/transition_ops/"
+if not os.path.isdir(data_dir):
+    os.makedirs(data_dir)
+
+def parallel(pool, function, values):
+    if parallelize:
+        return pool.map(function, values)
+    else:
+        return list(map(function, values))
+
 ####################
 
 samples = 100
 axis_num = 2*dim-1
-
-diag_trans_ops = [ np.diag(transition_op(LL+1,LL,0)) for LL in range(dim) ]
-
-def unit_vector(dim, idx):
-    vec = np.zeros(dim)
-    vec[idx] = 1
-    return vec
-def proj_to_trans_degree(LL):
-    return np.vstack([ transition_op(LL+1,LL,MM).ravel() for MM in range(-LL,LL+1) ])
-proj_to_trans = [ proj_to_trans_degree(LL) for LL in range(dim) ]
 
 zhat = [1,0,0]
 xhat = [0,1,0]
@@ -51,6 +56,21 @@ def to_angles(vec):
 
 def diag_mult(diag_A, B):
     return np.multiply(diag_A[:,None], B)
+
+def proj_to_trans_degree(LL):
+    fname = data_dir + f"trans_ops_{LL}.txt"
+    try:
+        matrix = np.loadtxt(fname, ndmin = 2)
+    except:
+        matrix = np.vstack([ transition_op(LL+1,LL,MM).ravel() for MM in range(-LL,LL+1) ])
+        np.savetxt(fname, matrix)
+    return scipy.sparse.csr_matrix(matrix)
+pool = multiprocessing.Pool(processes = cpus)
+proj_to_trans = parallel(pool, proj_to_trans_degree, range(dim-1,-1,-1))[::-1]
+
+def diag_trans_op(LL):
+    return np.diag(proj_to_trans[LL][LL].todense().reshape((LL+1,-1)))
+diag_trans_ops = [ diag_trans_op(LL) for LL in range(dim) ]
 
 ####################
 
@@ -94,13 +114,13 @@ def get_sqr_svdvals(matrix):
 
 # get squared singular values ("norms") of a fixed-degree measurement matrix
 def degree_sqr_norms(degree, points):
-    return get_sqr_svdvals(axes_trans_ops(degree, points))[:2*degree+1]
+    return get_sqr_svdvals(axes_trans_ops(degree, points))
 
 # get squared singular values ("norms") of the full measurement matrix
 pool = multiprocessing.Pool(processes = cpus)
 def meas_sqr_norms(points):
     _degree_sqr_norms = functools.partial(degree_sqr_norms, points = points)
-    return np.concatenate(pool.map(_degree_sqr_norms, range(dim)))
+    return np.concatenate(parallel(pool, _degree_sqr_norms, range(dim-1,-1,-1)))
 
 # compute the squared error norm
 def sqr_error_norm(points):
@@ -211,19 +231,10 @@ def organize_points(points, operation = None, track = False):
         return new_points, operation
 
 min_points, operation = organize_points(min_points, track = True)
-rnd_points = organize_points(rnd_points, operation)
-
 min_polar = np.vstack([min_points[:,1], abs(np.sin(min_points[:,0]))])
-rnd_polar = np.vstack([rnd_points[:,1], abs(np.sin(rnd_points[:,0]))])
-for min_polar_point, rnd_polar_point in zip(min_polar.T, rnd_polar.T):
-    plt.polar([min_polar_point[0], rnd_polar_point[0]],
-              [min_polar_point[1], rnd_polar_point[1]],
-              color = "gray", linestyle = ":", linewidth = 1)
 min_plot = plt.polar(min_polar[0,:], min_polar[1,:], "o")
-rnd_plot = plt.polar(rnd_polar[0,:], rnd_polar[1,:], ".")
 
 min_plot[0].set_clip_on(False)
-rnd_plot[0].set_clip_on(False)
 plt.ylim(0,1)
 plt.gca().set_xticklabels([])
 plt.gca().set_yticklabels([])
