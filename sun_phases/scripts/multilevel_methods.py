@@ -3,9 +3,7 @@
 import numpy as np
 import sympy as sym
 from sympy.physics.quantum.cg import CG as sym_cg
-
-def cg_coef(l1, m1, l2, m2, L, M):
-    return sym_cg(l1, m1, l2, m2, L, M).doit()
+from sympy.physics.wigner import wigner_6j as sym_wigner_6j
 
 # transition and drive operators, exact
 def transition_op_exact(dim, L, M):
@@ -13,7 +11,8 @@ def transition_op_exact(dim, L, M):
     I = sym.S(dim-1)/2
     mu_min = max(-M,0)
     mu_max = min(dim-M,dim)
-    diag_vals = [ cg_coef(I, -I+mu, L, M, I, -I+mu+M) for mu in range(mu_min,mu_max) ]
+    diag_vals = [ sym_cg(I, -I+mu, L, M, I, -I+mu+M).doit()
+                  for mu in range(mu_min,mu_max) ]
     return sym.sqrt(sym.S(2*L+1)/sym.S(2*I+1)) * np.diag(diag_vals, -M)
 
 def drive_op_exact(dim, L, M):
@@ -38,3 +37,13 @@ def drive_scale_exact(dim, L):
 
 def drive_scale(dim, L):
     return float(drive_scale_exact(dim, L))
+
+# transition product expansion coefficient (structure factor)
+def transition_prod_coef_exact(dim, l1, m1, l2, m2, L, M):
+    I = sym.S(dim-1)/2
+    return ( (-1)**(2*I+L) * sym.sqrt((2*l1+1)*(2*l2+1)) *
+             sym_cg(l1, m1, l2, m2, L, M).doit() *
+             sym_wigner_6j(l1, l2, L, I, I, I).doit() )
+
+def transition_prod_coef(dim, l1, m1, l2, m2, L, M):
+    return float(transition_prod_coef_exact(dim, l1, m1, l2, m2, L, M))
