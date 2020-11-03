@@ -327,13 +327,13 @@ where
   = \rho^V_k.
 \end{align}
 The singular values of $M_V$ allow us to make concrete statements about the statistical error between the empirical estimate $\tilde\rho_V$ and the true state $\rho$.
-Assume, for example, that the estimates $E_j$ are equal to $\bk{\Pi_j}_\rho$ up to uncorrelated noise with variance at most $\epsilon^2$, i.e.
+Assume, for example, that the estimates $E_j$ are equal to $\bk{\Pi_j}_\rho$ up to uncorrelated noise with variance at most $\epsilon^2$:
 \begin{align}
   E_j = \bk{\Pi_j}_\rho + \epsilon_j,
   &&
   \bbk{\epsilon_j \epsilon_{j'}} \le \epsilon^2 \delta_{jj'},
 \end{align}
-where $\set{\epsilon_j}$ are independent random variables and we use the double brackets $\bbk{\cdot}$ to denote statistical averaging.
+where $\set{\epsilon_j}$ are independent random variables and we use the double brackets $\bbk{\cdot}$ to denote statistical averaging (we discuss a more complicated and realistic scenario that leads to the same general conclusions in Appendix \ref{sec:error}).
 The mean squared error with which $\tilde\rho^V_k$ approximates $\rho^V_k$ is then
 \begin{align}
   \Bbk{\abs{\tilde\rho^V_k-\rho^V_k}^2}
@@ -358,29 +358,30 @@ where the {\it error scale} $\S_V$ of $V$, defined by
 is the 2-norm of the pseudoinverse $M_V^{-1}$ of $M_V$.
 Note that the bound in Eq.~\eqref{eq:bound} only holds if the measurement matrix $M_V$ is nonsingular, as otherwise some of the operators $Q^V_k$ that we used to expand $\rho$ and $\tilde\rho_V$ are undefined, reflecting the fact that if $M_V$ is singular then measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
 
-The complexity of computing the error scale $\S_V$ is determined by the need to
-\begin{enumerate*}
-\item construct the measurement matrix $M_V$, and
-\item compute the singular values of $M_V$.
-\end{enumerate*}
-These tasks can be drastically simplified by use of the transition operators.
-Specifically, the orthogonality of transition operators with different degrees, i.e.~$\obk{T_{\v v\ell,0}|T_{\v v',\ell',0}} = 0$ for $\ell\ne\ell'$, implies that $M_V$ has a block-diagonal structure in the transition operator basis, with rectangular blocks
+The complexity of computing the error scale $\S_V$ is determined by the need to construct the measurement matrix $M_V$, and compute its singular values.
+These computations can be drastically reduced by use of the transition operators.
+Specifically, the orthogonality of transition operators with different degrees, i.e.~$\obk{T_{\v v\ell,0}|T_{\v v',\ell',0}} = 0$ for $\ell\ne\ell'$, implies that $M_V$ has a block-diagonal structure in the transition operator basis, with rectangular blocks of size $\p{2\ell+1}\times\abs{V}$:
 \begin{align}
   M_{V\ell} \equiv U_\ell \sum_{\v v} \oket{T_{\v v\ell,0}} \bra{\v v},
-  &&
+\end{align}
+where $U_\ell$ is a $\p{2\ell+1}\times d^2$ isometry defined by
+\begin{align}
   U_\ell \equiv \sum_{m=-\ell}^\ell \ket{m} \obra{T_{\ell m}},
 \end{align}
-that we can use to expand
+with $\obra{T_{\ell m}}$ the conjugate transpose of $\oket{T_{\ell m}}$.
+Using the blocks $M_{V\ell}$, we can expand
 \begin{align}
   \S_V^2 = \sum_\ell \S_{V\ell}^2,
   &&
   \S_{V\ell} \equiv \norm{M_{V\ell}^{-1}}_2,
 \end{align}
 where $M_{V\ell}^{-1}$ is the pseudoinverse of $M_{V\ell}$.
-By the expansion $T_{\v v\ell,0} = R\p{\v v} T_{\ell,0} R\p{\v v}^\dag$, the $\p{2\ell+1}\times\abs{V}$ matrix $M_{V\ell}$ can be constructed in $O(\abs{V}d^3)$ time, and computing its singular values takes at most $O(\abs{V}d^2)$ time \footnote{The calculation of $\S_{V\ell}$ can be sped up by the fact that its value is independent of $d$ (as long as $d\ge\ell+1$), so we can essentially set $d=\ell+1$ for the purposes of computing $\S_{V\ell}$}.
-Altogether, if we assume that $\abs{V}\sim d$ then computing $\S_V$ to certify the bound in Eq.~\eqref{eq:bound} takes $O(d^5)$ serial or $O(d^4)$ parallel runtime (see Figure [\red{REF}]).  [\red{todo: add figure showing runtimes as a function of $d$ with $\abs{V}=2d-1$; modify text appropriately after making the figure}].
+Altogether, the expansion $T_{\v v\ell,0} = R\p{\v v} T_{\ell,0} R\p{\v v}^\dag$ enables the construction of $M_{V\ell}$ in $O(\abs{V}d^3)$ time, and computing the singular values of $M_{V\ell}$ takes at most $O(\abs{V}d^2)$ time \footnote{The calculation of $\S_{V\ell}$ can be sped up by the fact that its value is independent of $d$ (as long as $d\ge\ell+1$), so we can essentially set $d=\ell+1$ for the purposes of computing $\S_{V\ell}$}.
+If we assume that $\abs{V}\sim d$, then computing $\S_V$ to certify the bound in Eq.~\eqref{eq:bound} takes $O(d^5)$ serial or $O(d^4)$ parallel runtime (see Figure [\red{REF}]).
+[\red{todo: add figure showing runtimes as a function of $d$ with $\abs{V}=2d-1$; modify text appropriately after making the figure}].
 
-[\red{todo: add a careful derivation of the error bound that assumes $n$ measurements of spin projection along each axis into an Appendix.  Briefly discuss the result of this derivation here.}]
+[\red{todo: add a derivation of the error bound that assumes $n$ measurements of spin projection along each axis to Appendix \ref{sec:error}.
+  Briefly discuss these results in this section.}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomography protocols}
@@ -415,8 +416,8 @@ If we fix the total number of measurements (or experimental trials), then having
 This trade-off begs the question: how many measurement axes should be chosen to perform spin qudit tomography?
 
 The reconstruction error bound in Eq.~\eqref{eq:bound} provides a straightforward answer: the number of measurement axes should be chosen to minimize the product $\epsilon^2\S_V^2$, which bounds the expected error in the estimate $\tilde\rho_V$ of an unknown state $\rho$.
-If there are a total of $N$ spin projection measurements onto $r$ quantization axes, then $\sim N/r$ measurements are used to estimate spin projection onto any given axis.
-The variance in estimates of spin projection is then $\epsilon^2\sim r/N$, or simply $\epsilon^2\sim r$ at a fixed total number of measurements $N$.
+If there are a total of $N$ spin projection measurements onto $r$ quantization axes, then $n=N/r$ measurements are used to estimate spin projection onto any given axis.
+The variance in estimates of spin projection is then $\epsilon^2\sim1/n\sim r$ at a fixed total number of measurements $N$.
 Altogether, the number of measurement axes should be chosen in such a way as to minimize $r\S_V^2$ with $\abs{V}=r$.
 
 
@@ -589,6 +590,12 @@ Substituting Eq.~\eqref{eq:recovery_solution} into Eq.~\eqref{eq:basis_change}, 
   \tilde C_{\ell m}\p{\v v} \equiv \sum_n G^\ell_{mn} C_{\ell n}\p{\v v}.
 \end{align}
 The coefficients $\tilde C_{\ell m}\p{\v v}$ thus solve the signal recovery problem with the new basis $\set{\tilde B_{\ell m}}$ for $L^2\p{\Omega_2}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{A closer look at measurement error}
+\label{sec:error}
+
+[\red{todo: derive an error bound that relies on the number of spin projection measurements}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Transition operator product expansion}
