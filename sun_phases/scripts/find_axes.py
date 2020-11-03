@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy, scipy.optimize
 
-from dicke_methods import spin_op_z_dicke, spin_op_x_dicke
+from dicke_methods import spin_op_z_dicke, spin_op_y_dicke
 from multilevel_methods import transition_op
 
 import multiprocessing
@@ -57,6 +57,10 @@ def to_angles(vec):
 def diag_mult(diag_A, B):
     return np.multiply(diag_A[:,None], B)
 
+####################
+# preliminatiers that we can "pre-compute"
+
+# all transition operators
 def proj_to_trans_degree(LL):
     fname = data_dir + f"trans_ops_{LL}.txt"
     try:
@@ -72,24 +76,22 @@ def diag_trans_op(LL):
     return np.diag(proj_to_trans[LL][LL].todense().reshape((LL+1,-1)))
 diag_trans_ops = [ diag_trans_op(LL) for LL in range(dim) ]
 
-####################
-
-# prelimiaries for computing rotation matrices
+# spin projections and pi/2 rotation matrices
 spin_vals = {}
-rot_z_to_y = {}
-rot_y_to_z = {}
+rot_z_to_x = {}
 for degree in range(dim):
     Sz = spin_op_z_dicke(degree)
-    Sx = spin_op_x_dicke(degree)
+    Sy = spin_op_y_dicke(degree)
     spin_vals[degree] = Sz.diagonal()
-    rot_z_to_y[degree] = scipy.linalg.expm(1j*np.pi/2*Sx.todense())
-    rot_y_to_z[degree] = rot_z_to_y[degree].conj().T
+    rot_z_to_x[degree] = scipy.linalg.expm(-1j*np.pi/2*Sy.todense())
+
+####################
 
 # construct a rotation matrix
 def rot_z(angle, degree):
     return np.exp(-1j*angle*spin_vals[degree])
 def rot_y(angle, degree):
-    return rot_y_to_z[degree] @ diag_mult(rot_z(angle, degree), rot_z_to_y[degree] )
+    return rot_z_to_x[degree].T @ diag_mult(rot_z(angle, degree), rot_z_to_x[degree])
 def rotation_matrix(point, degree):
     return diag_mult(rot_z(point[1], degree), rot_y(point[0], degree))
 
