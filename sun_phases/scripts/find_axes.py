@@ -26,10 +26,6 @@ try: seed = int(sys.argv[2])
 except: seed = 0
 np.random.seed(seed)
 
-data_dir = "../data/transition_ops/"
-if not os.path.isdir(data_dir):
-    os.makedirs(data_dir)
-
 def parallel(pool, function, values):
     if parallelize:
         return pool.map(function, values)
@@ -40,6 +36,7 @@ def parallel(pool, function, values):
 
 samples = 100
 axis_num = 2*dim-1
+degrees = np.arange(dim-1,-1,-1)
 
 zhat = [1,0,0]
 xhat = [0,1,0]
@@ -54,56 +51,27 @@ def to_angles(vec):
     return [ np.arccos( vec[0] / np.sqrt(vec @ vec) ),
              np.arctan2( vec[2], vec[1] ) ]
 
-def diag_mult(diag_A, B):
-    return np.multiply(diag_A[:,None], B)
-
-####################
-# preliminatiers that we can "pre-compute"
-
-# all transition operators
-def proj_to_trans_degree(LL):
-    fname = data_dir + f"trans_ops_{LL}.txt"
-    try:
-        matrix = np.loadtxt(fname, ndmin = 2)
-    except:
-        matrix = np.vstack([ transition_op(LL+1,LL,MM).ravel() for MM in range(-LL,LL+1) ])
-        np.savetxt(fname, matrix)
-    return scipy.sparse.csr_matrix(matrix)
-pool = multiprocessing.Pool(processes = cpus)
-proj_to_trans = parallel(pool, proj_to_trans_degree, range(dim-1,-1,-1))[::-1]
-
-def diag_trans_op(LL):
-    return np.diag(proj_to_trans[LL][LL].todense().reshape((LL+1,-1)))
-diag_trans_ops = [ diag_trans_op(LL) for LL in range(dim) ]
-
 # spin projections and pi/2 rotation matrices
-spin_vals = {}
-rot_z_to_x = {}
-for degree in range(dim):
-    Sz = spin_op_z_dicke(degree)
-    Sy = spin_op_y_dicke(degree)
-    spin_vals[degree] = Sz.diagonal()
-    rot_z_to_x[degree] = scipy.linalg.expm(-1j*np.pi/2*Sy.todense())
+def _spin_vals(degree):
+    return spin_op_z_dicke(2*degree).diagonal()
+def _roz_z_to_x(degree):
+    Sy = spin_op_y_dicke(2*degree)
+    return scipy.linalg.expm(-1j*np.pi/2*Sy.todense()).T
+pool = multiprocessing.Pool(processes = cpus)
+spin_vals = parallel(pool, _spin_vals, degrees)[::-1]
+rot_z_to_x = parallel(pool, _roz_z_to_x, degrees)[::-1]
 
-####################
-
-# construct a rotation matrix
+# construct the middle column of a rotation matrix
 def rot_z(angle, degree):
     return np.exp(-1j*angle*spin_vals[degree])
-def rot_y(angle, degree):
-    return rot_z_to_x[degree].T @ diag_mult(rot_z(angle, degree), rot_z_to_x[degree])
-def rotation_matrix(point, degree):
-    return diag_mult(rot_z(point[1], degree), rot_y(point[0], degree))
-
-# compute a single rotated (order-0) transition operator of a given degree
-def axis_trans_op(degree, point):
-    rot_mat = rotation_matrix(point, degree)
-    return rot_mat @ diag_mult(diag_trans_ops[degree], rot_mat.conj().T)
+def rot_y_mid(angle, degree):
+    return rot_z_to_x[degree].T @ ( rot_z(angle, degree) * rot_z_to_x[degree][:,degree] )
+def rot_mid(point, degree):
+    return rot_z(point[1], degree) * rot_y_mid(point[0], degree)
 
 # compute all rotated (order-0) transition operators of a given degree
 def axes_trans_ops(degree, points):
-    proj_op_mat = np.array([ axis_trans_op(degree, point).ravel() for point in points ])
-    return proj_to_trans[degree] @ proj_op_mat.T
+    return np.array([ rot_mid(point, degree) for point in points ])
 
 # get squared singular values of a matrix, in decreasing order
 def get_sqr_svdvals(matrix):
@@ -122,7 +90,7 @@ def degree_sqr_norms(degree, points):
 pool = multiprocessing.Pool(processes = cpus)
 def meas_sqr_norms(points):
     _degree_sqr_norms = functools.partial(degree_sqr_norms, points = points)
-    return np.concatenate(parallel(pool, _degree_sqr_norms, range(dim-1,-1,-1)))
+    return np.concatenate(parallel(pool, _degree_sqr_norms, degrees))
 
 # compute the squared error norm
 def sqr_error_norm(points):
