@@ -61,13 +61,21 @@ pool = multiprocessing.Pool(processes = cpus)
 spin_vals = parallel(pool, _spin_vals, degrees)[::-1]
 rot_z_to_x = parallel(pool, _roz_z_to_x, degrees)[::-1]
 
+# vectors `rot_z_to_x[L] @ |L,0>` for different spins L,
+#   with zeros (at every other entry) removed
+rot_zero_vecs = { degree : rot_z_to_x[degree][:,degree][::2] for degree in range(dim) }
+
+# spin values, but skipping every second value
+skip_spin_vals = { degree : spin_vals[degree][::2] for degree in range(dim) }
+
+# X-to-Z pi/2 pulse, but skipping every second column
+pulse_mats = { degree : rot_z_to_x[degree].T[:,::2] for degree in range(dim) }
+
 # construct the middle column of a rotation matrix
-def rot_z(angle, degree):
-    return np.exp(-1j*angle*spin_vals[degree])
-def rot_y_mid(angle, degree):
-    return rot_z_to_x[degree].T @ ( rot_z(angle, degree) * rot_z_to_x[degree][:,degree] )
 def rot_mid(point, degree):
-    return rot_z(point[1], degree) * rot_y_mid(point[0], degree)
+    phases_0 = np.exp(-1j * point[0] * skip_spin_vals[degree])
+    phases_1 = np.exp(-1j * point[1] * spin_vals[degree])
+    return phases_1 * ( pulse_mats[degree] @ ( phases_0 * rot_zero_vecs[degree] ) )
 
 # compute all rotated (order-0) transition operators of a given degree
 def axes_trans_ops(degree, points):
