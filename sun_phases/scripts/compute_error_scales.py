@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, functools, time
+import os, sys, functools, time
 import scipy, scipy.linalg
 import numpy as np
 
@@ -17,26 +17,32 @@ if "serial" in sys.argv:
     parallelize = False
     sys.argv.remove("serial")
 
-dim = int(sys.argv[1])
-try: seed = int(sys.argv[2])
+min_dim = int(sys.argv[1])
+try: max_dim = int(sys.argv[2])
+except: max_dim = min_dim
+try: seed = int(sys.argv[3])
 except: seed = 0
 np.random.seed(seed)
+
+data_dir = "../data/error_scale/"
+if not os.path.isdir(data_dir):
+    os.makedirs(data_dir)
+
+par_tag = f"c{cpus}" if parallelize else "serial"
+data_file = data_dir + f"times_d{min_dim}-{max_dim}_{par_tag}.txt"
 
 ##########################################################################################
 # general simulation options / methods
 
-max_samples = 100 # maximum number of times we choose a random set of measurement axes
-max_time = 300 # maximum time to run, in seconds
+sample_cap = 100 # maximum number of times we choose a random set of measurement axes
+time_cap = 300 # maximum time to run, in seconds
 
-axis_num = 2*dim-1 # number of measurement axes
-degrees = np.arange(dim-1,-1,-1) # degrees
-
-# generate random points on the sphere by uniform sampling
-def random_points(axis_num = axis_num):
-    points = np.random.rand(axis_num,2)
-    points[:,0] = np.arccos(2*points[:,0]-1)
-    points[:,1] *= 2*np.pi
-    return points
+# generate random axes on the sphere by uniform sampling
+def random_axes(axis_num):
+    axes = np.random.rand(axis_num,2)
+    axes[:,0] = np.arccos(2*axes[:,0]-1) # polar angles
+    axes[:,1] *= 2*np.pi # azimuthal angles
+    return axes
 
 # get squared singular values of a matrix
 def get_sqr_svdvals(matrix):
@@ -57,7 +63,7 @@ def compute_batch(pool, function, values):
 ##########################################################################################
 # methods to compute a vector of D^L_{m,0}(v) for all |m| <= L,
 # where: D^L_{mn} is a (Wigner) rotation matrix element, and
-#        v = (alpha,beta) is a point on the sphere at azimuth/polar angles (alpha,beta)
+#        v = (alpha,beta) is a axis on the sphere at azimuth/polar angles (alpha,beta)
 #
 # basically, we decompose D^L_{m,0}(alpha,beta) into:
 #     e^{-i alpha S_z} * exp(+i \pi/2 S_y) * e^{-i beta S_z} * exp(-i \pi/2 S_y) |L,0>
@@ -74,59 +80,66 @@ def _roz_z_to_x(LL):
     S_y = ( S_m - S_m.T ) * 1j/2
     return scipy.linalg.expm(-1j * np.pi/2 * S_y)
 pool = multiprocessing.Pool(processes = cpus)
-spin_vals = compute_batch(pool, _spin_vals, degrees)[::-1]
-rot_z_to_x = compute_batch(pool, _roz_z_to_x, degrees)[::-1]
+spin_vals = compute_batch(pool, _spin_vals, range(max_dim-1,-1,-1))[::-1]
+rot_z_to_x = compute_batch(pool, _roz_z_to_x, range(max_dim-1,-1,-1))[::-1]
 
 # pre-compute the vector exp(-i \pi/2 S_y) |L,0> for all (relevant) L.
 # every other entry in this vector is zero, so remove it preemptively
-rot_zero_vecs = { degree : rot_z_to_x[degree][:,degree][::2] for degree in range(dim) }
+rot_zero_vecs = [ rot_z_to_x[LL][:,LL][::2] for LL in range(max_dim) ]
 
 # pre-compute exp(+i \pi/2 S_y), skipping every other column
-pulse_mats = { degree : rot_z_to_x[degree].T[:,::2] for degree in range(dim) }
+pulse_mats = [ rot_z_to_x[LL].T[:,::2] for LL in range(max_dim) ]
 
 # construct the vector of D^L_{m,0}(v) for all |m| <= L
-def rot_mid(degree, point):
-    phases_0 = np.exp(-1j * point[0] * spin_vals[degree][::2])
-    phases_1 = np.exp(-1j * point[1] * spin_vals[degree])
-    return phases_1 * ( pulse_mats[degree] @ ( phases_0 * rot_zero_vecs[degree] ) )
+def rot_mid(LL, axis):
+    phases_0 = np.exp(-1j * axis[0] * spin_vals[LL][::2])
+    phases_1 = np.exp(-1j * axis[1] * spin_vals[LL])
+    return phases_1 * ( pulse_mats[LL] @ ( phases_0 * rot_zero_vecs[LL] ) )
 
 ##########################################################################################
 # compute the measurement matrix and its singular values
 
 # construct a fixed-degree measurement matrix
-def axes_trans_ops(degree, points):
-    return np.array([ rot_mid(degree, point) for point in points ])
+def axes_trans_ops(LL, axes):
+    return np.array([ rot_mid(LL, axis) for axis in axes ])
 
-# get (squared) singular values ("norms") of a fixed-degree measurement matrix
-def degree_norms(degree, points):
-    return get_sqr_svdvals(axes_trans_ops(degree, points))
+# get squared singular values ("norms") of a fixed-degree measurement matrix
+def degree_sqr_norms(LL, axes):
+    return get_sqr_svdvals(axes_trans_ops(LL, axes))
 
-# get (squared) singular values ("norms") of the full measurement matrix
+# get squared singular values ("norms") of the full measurement matrix
 pool = multiprocessing.Pool(processes = cpus)
-def meas_norms(points):
-    _degree_norms = functools.partial(degree_norms, points = points)
-    return np.concatenate(compute_batch(pool, _degree_norms, degrees))
+def meas_sqr_norms(dim, axes):
+    _degree_sqr_norms = functools.partial(degree_sqr_norms, axes = axes)
+    return np.concatenate(compute_batch(pool, _degree_sqr_norms, range(dim-1,-1,-1)))
 
-# compute the (squared) error scale
-def error_scale(points):
-    points_mat_shape = (points.size//2,2)
-    points_mat = points.reshape(points_mat_shape)
-    norms = meas_norms(points_mat)
-    return abs(sum(1/norms))
+# compute the error scale for  the given axes
+def error_scale(dim, axes):
+    axes_mat_shape = (axes.size//2,2)
+    axes_mat = axes.reshape(axes_mat_shape)
+    sqr_norms = meas_sqr_norms(dim, axes_mat)
+    return np.sqrt(sum(1/sqr_norms))
 
 ##########################################################################################
 # simulate!
 
-samples = 0
-start = time.time()
-min_error_scale = np.inf
+with open(data_file, "w") as file:
+    file.write(f"# sample_cap: {sample_cap}\n")
+    file.write(f"# time_cap: {time_cap} sec\n")
+    file.write(f"# seed: {seed}\n")
+    file.write("# dim, mean_time, min_error_scale\n")
 
-while samples < max_samples and time.time() - start < max_time:
-    rnd_error_scale = error_scale(random_points())
-    min_error_scale = min(min_error_scale, rnd_error_scale)
-    samples += 1
+for dim in range(min_dim, max_dim+1):
 
-mean_time = ( time.time() - start ) / samples
-print(samples)
-print(mean_time)
-print(min_error_scale)
+    start = time.time()
+    min_error_scale = np.inf
+
+    axis_num = 2*dim-1 # minimum number of axes
+    for sample in range(sample_cap):
+        rnd_error_scale = error_scale(dim, random_axes(axis_num))
+        min_error_scale = min(min_error_scale, rnd_error_scale)
+        if time.time() - start > time_cap: break
+
+    mean_time = ( time.time() - start ) / (sample+1)
+    with open(data_file, "a") as file:
+        file.write(f"{dim} {mean_time} {min_error_scale}\n")
