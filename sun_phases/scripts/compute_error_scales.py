@@ -31,6 +31,8 @@ if not os.path.isdir(data_dir):
 par_tag = f"c{cpus}" if parallelize else "serial"
 data_file = data_dir + f"times_d{min_dim}-{max_dim}_{par_tag}.txt"
 
+genesis = time.time()
+
 ##########################################################################################
 # general simulation options / methods
 
@@ -130,6 +132,7 @@ with open(data_file, "w") as file:
     file.write("# dim, mean_time, min_error_scale\n")
 
 for dim in range(min_dim, max_dim+1):
+    print(dim, end = " ")
 
     start = time.time()
     min_error_scale = np.inf
@@ -143,3 +146,8 @@ for dim in range(min_dim, max_dim+1):
     mean_time = ( time.time() - start ) / (sample+1)
     with open(data_file, "a") as file:
         file.write(f"{dim} {mean_time} {min_error_scale}\n")
+
+    print(mean_time, min_error_scale)
+    sys.stdout.flush()
+
+print("total runtime:", time.time() - genesis)
