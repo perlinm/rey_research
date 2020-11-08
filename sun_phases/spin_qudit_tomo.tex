@@ -133,7 +133,7 @@ One such basis is provided by the {\it transition operators} (also known as pola
   \bk{s\mu;\ell m|s\nu} \op{\nu}{\mu},
   \label{eq:trans_op}
 \end{align}
-where $\bk{s\mu;\ell m|s\nu}$ is a Clebsh-Gordan coefficient that enforces $\ell\in\set{0,1,\cdots,2s}$ and $m\in\set{-\ell,-\ell+1,\cdots,\ell}$, such that there are $d^2$ operators in total.
+where $\bk{s\mu;\ell m|s\nu}$ is a Clebsh-Gordan coefficient that enforces $\ell\in\set{0,1,\cdots,d-1}$ and $m\in\set{-\ell,-\ell+1,\cdots,\ell}$, such that there are $d^2$ operators in total.
 For brevity, we will generally treat the value of $d$ (or $s$) as constant but arbitrary throughout this work, and suppress any explicit dependence of quantities or operators such as $T_{\ell m}$ on $d$.
 The transition operators are orthonormal with respect to the trace inner product, and transform nicely under conjugation:
 \begin{align}
@@ -562,22 +562,61 @@ To this end, for any multinomial probability distribution $p\equiv\p{p_1,p_2,\cd
 \begin{align}
   g_\ell\p{p} \equiv \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell\mu'}
   \p{\delta_{\mu\mu'} p_\mu - p_\mu p_{\mu'}}
-  = \sum_\mu t_{\ell\mu}^2 p_\mu - \p{\sum_\mu t_{\ell\mu} p_\mu}^2.
+  = \sum_\mu t_{\ell\mu}^2 p_\mu - \p{\sum_\mu t_{\ell\mu} p_\mu}^2
+  = \sigma_p^2\p{t_\ell},
 \end{align}
-Ideally, we would maximize this function over all valid probability distributions, but doing so is rather difficult.
-Instead, we can find a loose upper bound by ignoring the negative terms:
+where $t_\ell \equiv \p{t_{\ell,-s},t_{\ell,-s+1},\cdots,t_{\ell s}}$ is a vector of all $t_{\ell\mu}$, and
 \begin{align}
-  g_\ell\p{p} \le \sum_\mu t_{\ell\mu}^2 p_\mu
-  \le \max_\mu t_{\ell\mu}^2
-  = \f{2\ell+1}{d} \max_\mu \bk{s\mu;\ell,0|s\mu}^2
-  \le \f{2\ell+1}{d},
+  \sigma_p^2\p{X}
+  \equiv \sum_\mu p_\mu \p{X_\mu - \sum_\nu p_\nu X_\nu}^2
+  = \sum_\mu p_\mu X_\mu^2 - \p{\sum_\mu p_\mu X_\mu}^2
 \end{align}
-which implies that
+is the variance of $X$ when sampled according to the probability distribution $p$.
+By expanding
 \begin{align}
-  \bbk{\epsilon_{i\ell}^2} = \f1n g_\ell\p{p^{(i)}} \le \f{2\ell+1}{nd}.
+  t_{\ell\mu} = \sqrt{\f{2\ell+1}{d}}\, \tau_{\ell\mu},
+  &&
+  \tau_{\ell\mu} \equiv \bk{s\mu;\ell,0|s\mu},
+\end{align}
+we can simplify
+\begin{align}
+  g_\ell\p{p} = \f{2\ell+1}{d} \times \sigma_p^2\p{\tau_\ell}.
+\end{align}
+We now seek to find an upper bound for $g_\ell\p{p}$, which will provide an upper bound for $\bbk{\epsilon_{i\ell}^2}$.
+To bound $g_\ell\p{p}$, we note that variance $\sigma_p^2\p{X}$ is maximal when $p$ has equal weight on the largest and smallest values of $X$, which implies that
+\begin{align}
+  \sigma_p^2\p{\tau_\ell} \le \gamma_\ell^2,
+  &&
+  \gamma_\ell \equiv \f{\max\tau_\ell - \min\tau_\ell}{2}.
+\end{align}
+Altogether, using additionally the fact that $g_0\p{p}=0$, we can bound
+\begin{align}
+  \bbk{\epsilon_{i\ell}^2}
+  = \f1n \times g_\ell\p{p^{(i)}}
+  \le \f{2\ell+1}{nd} \times \gamma_\ell^2
+  \times \p{1 - \delta_{\ell,0}}.
   \label{eq:variance_bound}
 \end{align}
-Note that $t_{0,\mu}=1/\sqrt{d}$, so $f_0\p{p}=0$ and $\bbk{\epsilon_{i,0}^2}=0$.
+Note that the bound in Eq.~\eqref{eq:variance_bound} is tight, as equality is achieved by the mixed state
+\begin{align}
+  \rho^\star
+  \equiv \f12 \p{\Pi_{\v v_i,\mu_{\t{max}}} + \Pi_{\v v_i,\mu_{\t{min}}}},
+\end{align}
+where $\mu_{\t{max}}$ ($\mu_{\t{min}}$) is the index that maximizes (minimizes) $\tau_{\ell\mu}$.
+In addition, the  Clebsch-Gordan coefficients $\tau_{\ell\mu}$ are at most $1$ in magnitude, which implies that $\gamma_\ell^2\le 1$.
+However, this bound on $\gamma_\ell^2$ is not tight in general, as we could have alternately bounded
+\begin{align}
+  g_\ell\p{p} \le \sum_\mu t_{\ell\mu}^2 p_\mu
+  \le \sum_\mu t_{\ell\mu}^2 = 1,
+\end{align}
+which must also hold for the probability distribution $p^\star$ that maximizes $g_\ell$, i.e.
+\begin{align}
+  g_\ell\p{p^\star} = \f{2\ell+1}{d} \times \gamma_\ell^2 \le 1,
+  &&
+  \t{so}
+  &&
+  \gamma_\ell^2 \le \min\Set{1, \f{d}{2\ell+1}}.
+\end{align}
 
 \subsection{An improved reconstruction error bound}
 
@@ -595,13 +634,13 @@ Making the replacement $k\to\p{\ell,m}$, we can thus repeat the derivations thro
   \bbk{\epsilon_{i\ell} \epsilon_{i'\ell}}
   = \sum_i \abs{q_{\ell m i}^V}^2
   \bbk{\epsilon_{i\ell}^2}
-  \le \f{2\ell+1}{nd} \p{1-\delta_{\ell,0}}.
+  \le \f{2\ell+1}{nd} \times \gamma_\ell^2 \times \p{1-\delta_{\ell,0}}.
 \end{align}
 Altogether, we thus find that $n$ measurements of spin projection along every axis $\v v\in V$ allows us to construct an empirical estimate $\tilde\rho_V$ of an unknown state $\rho$ that is accurate to within a mean squared distance
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \sum_{\ell,m} \Bbk{\abs{\tilde\rho_{\ell m}^V-\rho_{\ell m}^V}^2}
-  \le \f1{nd} \sum_{\ell>0} \p{2\ell+1} \S_{V\ell}^2,
+  \le \f1{nd} \sum_{\ell>0} \p{2\ell+1} \gamma_\ell^2 \S_{V\ell}^2,
 \end{align}
 where
 \begin{align}
