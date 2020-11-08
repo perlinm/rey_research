@@ -41,6 +41,8 @@
 \newcommand{\Q}{\mathcal{Q}}
 \renewcommand{\S}{\mathcal{S}}
 
+\newcommand{\ZZ}{\mathbb{Z}}
+
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
 \def\obk#1{\mathinner{({#1})}}
@@ -60,7 +62,6 @@
 %%% text markup
 \usepackage{color} % text color
 \newcommand{\red}[1]{{\color{red} #1}}
-\newcommand{\todo}[1]{{\color{blue} To do: #1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
@@ -362,7 +363,7 @@ Therein, we find that if measurement error is dominated by shot noise, then the 
 where the {\it error scale} $\epsilon_V^2$ is
 \begin{align}
   \epsilon_V^2 \equiv
-  \f1{nd} \sum_{\ell>0} \p{2\ell+1} \gamma_\ell^2 \S_{V\ell}^2,
+  \f1d \sum_{\ell>0} \p{2\ell+1} \gamma_\ell^2 \S_{V\ell}^2,
   \label{eq:scale}
 \end{align}
 and $\gamma_\ell$ is defined using Clebsch-Gordan coefficients:
@@ -614,20 +615,35 @@ Note that the bound in Eq.~\eqref{eq:variance_bound} is tight, as equality is ac
   \rho^\star
   \equiv \f12 \p{\Pi_{\v v_i,\mu_{\t{max}}} + \Pi_{\v v_i,\mu_{\t{min}}}},
 \end{align}
-where $\mu_{\t{max}}$ ($\mu_{\t{min}}$) is the index that maximizes (minimizes) $\tau_{\ell\mu}$.
-In addition, the  Clebsch-Gordan coefficients $\tau_{\ell\mu}$ are at most $1$ in magnitude, which implies that $\gamma_\ell^2\le 1$.
-However, the bound on $\gamma_\ell^2\le1$ is not tight in general, as we could have alternatively bounded
+where $\mu_{\t{max}}$ ($\mu_{\t{min}}$) is any index that maximizes (minimizes) $\tau_{\ell\mu}$.
+
+Though the result in Eq.~\eqref{eq:variance_bound} is sufficient to proceed with our derivation of an improved tomographic error bound, we first take some time to better understand the bound on $\bbk{\epsilon_{i\ell}^2}$ analytically.
+To this end, we first note that the Clebsch-Gordan coefficients $\tau_{\ell\mu}$ are at most $1$ in magnitude, which implies that $\gamma_\ell^2\le 1$.
+Moreover, we can also bound
 \begin{align}
   g_\ell\p{p} \le \sum_\mu t_{\ell\mu}^2 p_\mu
   \le \sum_\mu t_{\ell\mu}^2 = 1,
-\end{align}
-which must also hold for the probability distribution $p^\star$ that maximizes $g_\ell$, i.e.
-\begin{align}
-  g_\ell\p{p^\star} = \f{2\ell+1}{d} \times \gamma_\ell^2 \le 1,
   &&
   \t{so}
   &&
-  \gamma_\ell^2 \le \min\Set{1, \f{d}{2\ell+1}}.
+  \bbk{\epsilon_{i\ell}^2} \le \f1n \times \min\Set{\f{2\ell+1}{d}, 1}.
+\end{align}
+If $d$ is even, then we can get a tighter analytical bound on $\bbk{\epsilon_{i\ell}^2}$ by considering
+\begin{align}
+  g_\ell\p{p} \le \sum_\mu t_{\ell\mu}^2 p_\mu \le t_{\ell\mu_{\t{max}}}^2,
+\end{align}
+where $\mu_{\t{max}}$ is any index maximizing $t_{\ell\mu}$.
+The symmetries of the Clebsch-Gordan coefficients imply that $t_{\ell\mu_{\t{max}}}^2 = t_{\ell,-\mu_{\t{max}}}^2$, so if $\mu_{\t{max}} \ne0$ (which is always true when $d$ is even because $s,\mu\notin\ZZ$), then
+\begin{align}
+  g_\ell\p{p} \le t_{\ell\mu_{\t{max}}}^2
+  = \f12 \p{t_{\ell\mu_{\t{max}}}^2 + t_{\ell,-\mu_{\t{max}}}^2}
+  \le \f12 \sum_\mu t_{\ell\mu}^2
+  = \f12,
+  &&
+  \t{so}
+  &&
+  \bbk{\epsilon_{i\ell}^2}
+  \le \f1n \times \min\Set{\f{2\ell+1}{d}, \f12}.
 \end{align}
 
 \subsection{An improved reconstruction error bound}
