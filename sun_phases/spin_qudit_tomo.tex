@@ -302,10 +302,7 @@ Assume, for example, that the estimates $\tilde T_j$ are equal to $\bk{T_j}_\rho
   \label{eq:error_assumption}
 \end{align}
 where $\set{\epsilon_j}$ are independent random variables and we use the double brackets $\bbk{\cdot}$ to denote statistical averaging.
-The assumption in Eq.~\eqref{eq:error_assumption} is reasonable when measurement error is dominated by experimental sources of noise, but breaks down when measurement error is limited by fundamental quantum (shot) noise.
-We relax the assumption of Eq.~\eqref{eq:error_assumption} and perform a proper treatment of measurement error in Appendix \ref{sec:error}.
-Our full treatment of measurement error yields identical conclusions, with an explicit form for $\epsilon$ in terms of the qudit dimension $d$ and the number of spin projection measurements made along every axis $\v v\in V$.
-To simplify our analysis, we therefore maintain the assumption of Eq.~\eqref{eq:error_assumption} for now, in which case the mean squared error with which $\tilde\rho^V_k$ approximates $\rho^V_k$ is
+In this case, the mean squared error with which $\tilde\rho^V_k$ approximates $\rho^V_k$ is
 \begin{align}
   \Bbk{\abs{\tilde\rho^V_k-\rho^V_k}^2}
   &= \Bbk{\p{\tilde\rho^V_k-\rho^V_k}^*\p{\tilde\rho^V_k-\rho^V_k}} \\
@@ -319,18 +316,18 @@ Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore boun
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \sum_k \Bbk{\abs{\tilde\rho^V_k - \rho^V_k}^2}
   \le \epsilon^2 \S_V^2,
-  \label{eq:bound}
+  \label{eq:bound_eps}
 \end{align}
-where the {\it error scale} $\S_V$ of $V$, defined by
+where
 \begin{align}
-  \S_V \equiv \norm{M_V^{-1}} = \sqrt{\sum_k\f1{\p{M^V_k}^2}},
+  \S_V^2 \equiv \norm{M_V^{-1}}^2 = \sum_k\f1{\p{M^V_k}^2},
   \label{eq:scale}
 \end{align}
-is the (Hilbert-Schmidt, or Frobenius) norm of the right inverse $M_V^{-1}$ of $M_V$.
-Note that the error scale $\S_V$ diverges if $M_V$ is singular, in which case measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
+is the squared (Hilbert-Schmidt, or Frobenius) norm of the right inverse $M_V^{-1}$ of $M_V$.
+Note that $\S_V^2$ diverges if $M_V$ is singular, in which case measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
 
-The complexity of computing the error scale $\S_V$ is determined by the need to construct and compute the singular values of the measurement matrix $M_V$.
-This task can be greatly simplified by the fact that the degree $\ell$ of the transition operator $T_{\ell,0}$ is preserved under rotations, which implies that the unitary
+Computing $\S_V^2$ to certify the bound in Eq.~\eqref{eq:bound_eps} requires constructing the measurement matrix $M_V$ and finding its singular values.
+This complexity of this task can be greatly reduced by the fact that the degree $\ell$ of the transition operator $T_{\ell,0}$ is preserved under rotations, which implies that the unitary
 \begin{align}
   U \equiv \sum_{\ell,m} \ket{\ell m} \obra{T_{\ell m}},
 \end{align}
@@ -347,16 +344,34 @@ As the singular values of $M_V$ are invariant under unitary transformations, it 
 \begin{align}
   \S_V^2 = \sum_\ell \S_{V\ell}^2,
   &&
-  \S_{V\ell} \equiv \norm{M_{V\ell}^{-1}},
+  \S_{V\ell}^2 \equiv \norm{M_{V\ell}^{-1}}^2,
 \end{align}
 where $M_{V\ell}^{-1}$ is the right inverse of $M_{V\ell}$.
-Altogether, constructing the block $M_{V\ell}$ and computing its singular values takes at most $O(\abs{V}d^2)$ time (see Appendix \ref{sec:compute} for additional details on efficiently computing $\S_{V\ell}$ [\red{todo: write tutorial}]).
-If we assume that $\abs{V}\sim d$, then computing $\S_V$ to certify the bound in Eq.~\eqref{eq:bound} takes $O(d^4)$ serial or $O(d^3)$ parallel runtime (see Figure [\red{REF}]).
+Constructing the block $M_{V\ell}$ and computing its singular values takes at most $O(\abs{V}d^2)$ time (see Appendix \ref{sec:compute} for additional details on efficiently computing $\S_{V\ell}$ [\red{todo: write tutorial}]).
+Altogether, if we assume that $\abs{V}\sim d$, then computing $\S_V^2$ to certify the bound in Eq.~\eqref{eq:bound_eps} takes $O(d^4)$ serial or $O(d^3)$ parallel runtime (see Figure [\red{REF}]).
 [\red{todo: add figure showing runtimes as a function of $d$ with $\abs{V}=2d-1$; modify text appropriately after making the figure}].
 For comparison, we note that existing algorithms for signal recovery on the sphere \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} similarly have $O(d^3)$ parallel runtime with $\abs{V}\gtrsim d$.
 
-[\red{todo: add a derivation of the error bound that assumes $n$ measurements of spin projection along each axis to Appendix \ref{sec:error}.
-  Briefly discuss these results in this section.}]
+The assumption that observables can be estimated up to uncorrelated noise with maximal variance $\epsilon^2$, summarized by Eq.~\eqref{eq:error_assumption}, is reasonable when measurement error is dominated by experimental sources of noise.
+However, this assumption breaks down when measurement error is limited by fundamental quantum (shot) noise.
+We relax the assumption of Eq.~\eqref{eq:error_assumption} and derive more fundamental error bounds in Appendix \ref{sec:error}.
+Therein, we find that if measurement error is dominated by shot noise, then the estimate $\tilde\rho_V$ built from $n$ independent measurements of spin projection along every axis $\v v\in V$ approximates the true state $\rho$ to within a mean squared distance
+\begin{align}
+  \Bbk{\norm{\tilde\rho_V-\rho}^2}
+  \le \epsilon_V^2
+  \equiv \f1{nd} \sum_{\ell>0} \p{2\ell+1} \gamma_\ell^2 \S_{V\ell},
+  \label{eq:bound}
+\end{align}
+where
+\begin{align}
+  \gamma_\ell
+  \equiv \f{\max_\mu\tau_{\ell\mu} - \min_\mu\tau_{\ell\mu}}{2}
+\end{align}
+is defined in terms of the Clebsch-Gordan coefficients
+\begin{align}
+  \tau_{\ell\mu} \equiv \bk{s\mu;\ell,0|s\mu}.
+\end{align}
+For reference, we note that $\epsilon_V^2<\S_V^2/n$.
 
 [\red{todo: add a state-dependent error bound}]
 
@@ -392,7 +407,7 @@ Increasing the number of measurement axes generally decreases the error scale $\
 If we fix the total number of measurements (or experimental trials), then having to estimate more observables means that fewer measurements are devoted to estimating any particular observable, which in turn increases the error $\epsilon$ on those estimates.
 This trade-off begs the question: how many measurement axes should be chosen to perform spin qudit tomography?
 
-The reconstruction error bound in Eq.~\eqref{eq:bound} provides a straightforward answer: the number of measurement axes should be chosen to minimize the product $\epsilon^2\S_V^2$, which bounds the expected error in the estimate $\tilde\rho_V$ of an unknown state $\rho$.
+The reconstruction error bound in Eq.~\eqref{eq:bound_eps} provides a straightforward answer: the number of measurement axes should be chosen to minimize the product $\epsilon^2\S_V^2$, which bounds the expected error in the estimate $\tilde\rho_V$ of an unknown state $\rho$.
 If there are a total of $N$ spin projection measurements onto $r$ quantization axes, then $n=N/r$ measurements are used to estimate spin projection onto any given axis.
 The variance in estimates of spin projection is then $\epsilon^2\sim1/n\sim r$ at a fixed total number of measurements $N$.
 Altogether, the number of measurement axes should be chosen in such a way as to minimize $r\S_V^2$ with $\abs{V}=r$.
@@ -460,7 +475,7 @@ are matrix elements of the rotation operator $R\p{\v\omega}$ for spin-$\ell$ par
 \label{sec:error}
 
 In Section \ref{sec:bound} of the main text, we provided a reconstruction error bound using the assumption of Eq.~\eqref{eq:error_assumption}, namely that expectation values derived from spin projection measurements can be estimated up to uncorrelated errors with maximal variance $\epsilon^2$.
-This assumption is reasonable if measurement error is dominated by experimental sources of noise, and it yields a simple derivation of the reconstruction bound in Eq.~\eqref{eq:bound}.
+This assumption is reasonable if measurement error is dominated by experimental sources of noise, and it yields a simple derivation of the reconstruction bound in Eq.~\eqref{eq:bound_eps}.
 Nonetheless, there are two problems with the assumption of Eq.~\eqref{eq:error_assumption}:
 \begin{enumerate*}
 \item there is no a priori guarantee for the value of $\epsilon$, which must be inferred from experimental outcomes, and
@@ -582,8 +597,8 @@ we can simplify
 \begin{align}
   g_\ell\p{p} = \f{2\ell+1}{d} \times \sigma_p^2\p{\tau_\ell}.
 \end{align}
-We now seek to find an upper bound for $g_\ell\p{p}$, which will provide an upper bound for $\bbk{\epsilon_{i\ell}^2}$.
-To bound $g_\ell\p{p}$, we note that variance $\sigma_p^2\p{X}$ is maximal when $p$ has equal weight on the largest and smallest values of $X$, which implies that
+We now seek to maximize $g_\ell\p{p}$, which will provide an upper bound for $\bbk{\epsilon_{i\ell}^2}$.
+In general, variance $\sigma_p^2\p{X}$ is maximal when $p$ has equal weight on the largest and smallest values of $X$, which implies that
 \begin{align}
   \sigma_p^2\p{\tau_\ell} \le \gamma_\ell^2,
   &&
@@ -604,7 +619,7 @@ Note that the bound in Eq.~\eqref{eq:variance_bound} is tight, as equality is ac
 \end{align}
 where $\mu_{\t{max}}$ ($\mu_{\t{min}}$) is the index that maximizes (minimizes) $\tau_{\ell\mu}$.
 In addition, the  Clebsch-Gordan coefficients $\tau_{\ell\mu}$ are at most $1$ in magnitude, which implies that $\gamma_\ell^2\le 1$.
-However, this bound on $\gamma_\ell^2$ is not tight in general, as we could have alternately bounded
+However, the bound on $\gamma_\ell^2\le1$ is not tight in general, as we could have alternately bounded
 \begin{align}
   g_\ell\p{p} \le \sum_\mu t_{\ell\mu}^2 p_\mu
   \le \sum_\mu t_{\ell\mu}^2 = 1,
@@ -627,7 +642,7 @@ Equipped with the bound on variances in Eq.~\eqref{eq:variance_bound}, we again 
   M_{V\ell} = \sum_{m,\v v} D^\ell_{m,0} \op{m}{\v v}.
 \end{align}
 The block diagonal structure of this matrix implies that, rather than an integer index $k\in\set{1,2,\cdots,d^2}$, we can identify the singular values and right singular vectors of $UM_V$ (and equivalently $M_V$) by a block index $\ell\in\set{0,1,\cdots,d-1}$ and a sub-index $m=\set{-\ell,-\ell+1,\cdots,\ell}$.
-Making the replacement $k\to\p{\ell,m}$, we can thus repeat the derivations through Eq.~\eqref{eq:bound} of Section \ref{sec:bound} without the assumption of Eq.~\eqref{eq:error_assumption}, finding that
+Making the replacement $k\to\p{\ell,m}$, we can thus repeat the derivations through Eq.~\eqref{eq:bound_eps} of Section \ref{sec:bound} without the assumption of Eq.~\eqref{eq:error_assumption}, finding that
 \begin{align}
   \Bbk{\abs{\tilde\rho_{\ell m}^V-\rho_{\ell m}^V}^2}
   = \sum_{i,i'} q_{\ell m i}^V \p{q_{\ell m i'}^V}^*
@@ -645,7 +660,7 @@ Altogether, we thus find that $n$ measurements of spin projection along every ax
 where
 \begin{align}
   \S_{V\ell} \equiv \norm{M_{V\ell}^{-1}}
-  = \sqrt{\sum_m \p{M^V_{\ell m}}^{-2}}
+  = \sqrt{\sum_m \f1{\p{M^V_{\ell m}}^2}}
 \end{align}
 is the (Hilbert-Schmidt, or Frobenius) norm of the right inverse of $M_{V\ell}$.
 
