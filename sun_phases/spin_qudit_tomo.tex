@@ -18,44 +18,29 @@
 \newcommand{\f}[2]{\dfrac{#1}{#2}} % shorthand for fractions
 \newcommand{\p}[1]{\left(#1\right)} % parenthesis
 \renewcommand{\sp}[1]{\left[#1\right]} % square parenthesis
-\renewcommand{\set}[1]{\{#1\}} % curly parenthesis
-\renewcommand{\Set}[1]{\left\{#1\right\}} % curly parenthesis
 \newcommand{\bk}{\Braket} % shorthand for braket notation
 \renewcommand{\v}{\bm} % bold vectors
 \newcommand{\uv}[1]{\bm{\hat{#1}}} % unit vectors
-\renewcommand{\c}{\cdot} % inner product
 \renewcommand{\i}{\mathrm{i}\mkern1mu} % imaginary unit
+
+% curly brackets for a set
+\renewcommand{\set}[1]{\{#1\}} % curly parenthesis
+\renewcommand{\Set}[1]{\left\{#1\right\}} % curly parenthesis
 
 % double angle brackets
 \newcommand{\bbk}[1]{\langle\!\langle #1 \rangle\!\rangle}
 \newcommand{\Bbk}[1]
 {\left\langle\!\!\left\langle #1 \right\rangle\!\!\right\rangle}
 
-\usepackage{dsfont} % for identity operator
-\newcommand{\1}{\mathds{1}}
-
-\newcommand{\up}{\uparrow}
-\newcommand{\dn}{\downarrow}
 \newcommand{\x}{\text{x}}
 \newcommand{\y}{\text{y}}
 \newcommand{\z}{\text{z}}
+\renewcommand{\d}{\text{d}}
 
-\newcommand{\B}{\mathcal{B}}
 \renewcommand{\O}{\mathcal{O}}
 \newcommand{\Q}{\mathcal{Q}}
 \newcommand{\R}{\mathcal{R}}
 \renewcommand{\S}{\mathcal{S}}
-\newcommand{\T}{\mathcal{T}}
-\newcommand{\Y}{\mathcal{Y}}
-
-\renewcommand{\d}{\text{d}}
-
-\newcommand{\SO}{\text{SO}}
-
-\newcommand{\CC}{\mathbb{C}}
-\newcommand{\RR}{\mathbb{R}}
-\renewcommand{\SS}{\mathbb{S}}
-\newcommand{\ZZ}{\mathbb{Z}}
 
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
@@ -90,7 +75,7 @@
 \title{\thetitle}
 \author{Michael A.~Perlin}
 \email{mika.perlin@gmail.com}
-% \author{Diego Barberena}
+\author{Diego Barberena}
 \author{Ana Maria Rey}
 \affiliation{\JILA}
 \affiliation{\CTQM}
@@ -128,7 +113,7 @@ Nonetheless, these protocols obfuscate the basic requirements for performing ful
 
 In this work, we provide an efficient framework for performing spin qudit tomography using only measurements of spin projection onto different spatial axes.
 We first introduce, in Section \ref{sec:transition_ops}, a basis of operators that have a simple physical interpretation, and transform nicely under rotations in 3D space, thereby respecting the symmetries of the tomography task at hand.
-We then map this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby importing a host of existing literature and mathematical machinery that has been developed for this task \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
+We then map this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby importing a host of existing literature and mathematical machinery that has been developed for this task \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
 In particular, this mapping allows us to bound the minimum number of measurement axes necessary to perform full tomography on a $d$-level spin qudit, $r_d$, by $2d-1\le r_d\le d^2$.
 
 [\red{finish intro}]
@@ -136,6 +121,8 @@ In particular, this mapping allows us to bound the minimum number of measurement
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin transition operators and 3D rotations}
 \label{sec:transition_ops}
+
+[\red{todo: comment on connection between $T_{\ell m}$ and $Y_{\ell m}$}]
 
 Consider a $d$-state spin qudit with total spin $s\equiv\frac{d-1}{2}$.
 The defining property of a spin qudit is the fact that it describes an angular momentum degree of freedom, which has specific implications for how a spin qudit should transform under the group SO(3) of rotations in 3D space.
@@ -192,6 +179,8 @@ For ease of notation, we will therefore implicitly associate Euler angle doublet
 \section{Spin tomography as signal recovery on the sphere}
 \label{sec:signal_recovery}
 
+[\red{todo: add visualization of the signal recovery problem}]
+
 Our goal is to reconstruct an arbitrary state of a spin qudit from measurements of spin projection onto different quantization axes.
 We are thus nominally restricted to measuring projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$, where $\ket{\mu_{\v v}}\equiv R\p{\v v}\ket{\mu}$ is a state with spin projection $\mu$ onto a measurement axis $\v v$ determined by a point on the sphere.
 For any fixed axis $\v v$, the sets $\set{\Pi_{\v v\mu}}$ and $\set{T_{\v v\ell,0}}$ are both orthonormal bases for the space of operators that are diagonal in the basis $\set{\ket{\mu_{\v v}}}$.
@@ -215,7 +204,7 @@ Orthogonality of the transition operators motivates the ansatz $C_{\ell mk}\p{\v
 \end{align}
 for all $\ell$.
 
-In fact, the problem of finding suitable axes $V$ and coefficients $C_{\ell m}\p{\v v}$ to satisfy Eq.~\eqref{eq:tomo_recovery}, solving which would enable the recovery of arbitrary spin qudit states, can be mapped onto the well-studied problem of signal recovery on the sphere \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
+In fact, the problem of finding suitable axes $V$ and coefficients $C_{\ell m}\p{\v v}$ to satisfy Eq.~\eqref{eq:tomo_recovery}, solving which would enable the recovery of arbitrary spin qudit states, can be mapped onto the well-studied problem of signal recovery on the sphere \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
 The signal recovery problem can be stated as follows: given a square-integrable function $f$ on the sphere, with the harmonic expansion
 \begin{align}
   f\p{\v v} = \sum_{\ell,m} f_{\ell m} Y_{\ell m}\p{\v v},
@@ -234,6 +223,8 @@ Reconstruction of functions with arbitrary coefficients $f_{\ell m}$ then implie
 which is a stronger version of the condition that we found for the spin qudit tomography problem in Eq.~\eqref{eq:tomo_recovery}.
 We will refer to Eq.~\eqref{eq:full_recovery} as the {\it full recovery problem}, and Eq.~\eqref{eq:tomo_recovery} as the the {\it reduced recovery problem}.
 Due to the fact that $D^k_{n,0}\p{\v v} = \sqrt{\frac{4\pi}{2\ell+1}}\, Y_{kn}\p{\v v}^*$, any solution to the full recovery problem automatically solves the reduced recovery problem by setting $C_{\ell m}\p{\v v} = \sqrt{\frac{2\ell+1}{4\pi}}\, \tilde C_{\ell m}\p{\v v}^*$.
+In principle, this mapping allows us to import a host of existing signal recovery algorithms \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
+In practice, spin qudits typically have only a modest dimension $d$, which allows for simpler and optimized tomography protocols that are practical despite worse scaling with $d$ (see Section \ref{sec:protocol}).
 
 If the function $f$ is {\it band-limited} at degree $L$, which is to say that $f_{\ell m}=0$ for all $\ell\ge L$, then the full recovery problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points \cite{freeden2008spherical, freeden2018spherical}.
 The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially ``band-limited'' at degree $d$ \footnote{Spin qudit states can be faithfully represented by quasi-probability distributions on a sphere.  For a $d$-level spin, these quasi-probability distributions are band-limited at degree $d$.}.
@@ -247,11 +238,8 @@ Since
 \end{enumerate*}
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
 In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any function with fixed degree $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
-Unfortunately, we have no general proof of this conjecture, which may require a deeper analysis of fixed-degree signal recovery on the sphere.
-Nonetheless, we have numerically verified that $2d-1$ measurement axes suffice for all $d\le200$ (see Section \ref{sec:axes}).
-
-In principle, our mapping of the spin qudit tomography problem onto that of signal recovery on the sphere allows us to import a host of existing signal recovery algorithms \cite{mcewen2011novel, mcewen2011sampling, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
-In practice, spin qudits typically have only a modest dimension $d$, allowing for simpler and optimized tomography protocols that are practical despite worse scaling with $d$ (see Section \ref{sec:protocol}).
+Unfortunately, we have no general proof of this conjecture, which requires a deeper analysis of fixed-degree signal recovery on the sphere.
+Nonetheless, we have numerically verified that $2d-1$ measurement axes suffice for all $d\le200$ (see Section \ref{sec:bound}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Reconstruction error bound}
@@ -293,27 +281,31 @@ These operators allow us to expand any state $\rho$ of a $d$-level spin qudit in
   &&
   \rho_k^V \equiv \bk{Q^V_k}_\rho.
 \end{align}
-Given empirical estimates $E_j$ of the expectation values $\bk{T_j}_\rho$, an empirical estimate $\tilde\rho_V$ of $\rho$ is then
+Given empirical estimates $\tilde T_j$ of the expectation values $\bk{T_j}_\rho$, an empirical estimate $\tilde\rho_V$ of $\rho$ is then
 \begin{align}
   \tilde\rho_V \equiv \sum_k \tilde\rho^V_k Q^V_k,
   \label{eq:reconstructed_state}
 \end{align}
 where
 \begin{align}
-  \tilde\rho^V_k \equiv \sum_j q^V_{kj} E_j
+  \tilde\rho^V_k \equiv \sum_j q^V_{kj} \tilde T_j
   \approx \sum_j q^V_{kj} \bk{T_j}_\rho
   = \bk{Q^V_k}_\rho
   = \rho^V_k.
 \end{align}
 The singular values of $M_V$ allow us to make concrete statements about the statistical error between the empirical estimate $\tilde\rho_V$ and the true state $\rho$.
-Assume, for example, that the estimates $E_j$ are equal to $\bk{T_j}_\rho$ up to uncorrelated noise with variance at most $\epsilon^2$:
+Assume, for example, that the estimates $\tilde T_j$ are equal to $\bk{T_j}_\rho$ up to uncorrelated noise with variance at most $\epsilon^2$:
 \begin{align}
-  E_j = \bk{T_j}_\rho + \epsilon_j,
+  \tilde T_j = \bk{T_j}_\rho + \epsilon_j,
   &&
   \bbk{\epsilon_j \epsilon_{j'}} \le \epsilon^2 \delta_{jj'},
+  \label{eq:error_assumption}
 \end{align}
-where $\set{\epsilon_j}$ are independent random variables and we use the double brackets $\bbk{\cdot}$ to denote statistical averaging (we discuss a more complicated and realistic scenario that leads to the same general conclusions in Appendix \ref{sec:error}).
-The mean squared error with which $\tilde\rho^V_k$ approximates $\rho^V_k$ is then
+where $\set{\epsilon_j}$ are independent random variables and we use the double brackets $\bbk{\cdot}$ to denote statistical averaging.
+The assumption in Eq.~\eqref{eq:error_assumption} is reasonable when measurement error is dominated by experimental sources of noise, but breaks down when measurement error is limited by fundamental quantum (shot) noise.
+We relax the assumption of Eq.~\eqref{eq:error_assumption} and perform a proper treatment of measurement error in Appendix \ref{sec:error}.
+Our full treatment of measurement error yields identical conclusions, with an explicit form for $\epsilon$ in terms of the qudit dimension $d$ and the number of spin projection measurements made along every axis $\v v\in V$.
+To simplify our analysis, we therefore maintain the assumption of Eq.~\eqref{eq:error_assumption} for now, in which case the mean squared error with which $\tilde\rho^V_k$ approximates $\rho^V_k$ is
 \begin{align}
   \Bbk{\abs{\tilde\rho^V_k-\rho^V_k}^2}
   &= \Bbk{\p{\tilde\rho^V_k-\rho^V_k}^*\p{\tilde\rho^V_k-\rho^V_k}} \\
@@ -322,20 +314,20 @@ The mean squared error with which $\tilde\rho^V_k$ approximates $\rho^V_k$ is th
   &\le \sum_j \abs{q^V_{kj}}^2 \epsilon^2
   = \p{\f{\epsilon}{M^V_k}}^2.
 \end{align}
-Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore bound the mean squared 2-norm (Euclidean) distance between $\tilde\rho_V$ and $\rho$ as
+Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore bound the mean squared (Euclidean) distance (i.e.~the distance induced by the trace inner product) between $\tilde\rho_V$ and $\rho$ as
 \begin{align}
-  \Bbk{\norm{\tilde\rho_V-\rho}_2^2}
+  \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \sum_k \Bbk{\abs{\tilde\rho^V_k - \rho^V_k}^2}
   \le \epsilon^2 \S_V^2,
   \label{eq:bound}
 \end{align}
 where the {\it error scale} $\S_V$ of $V$, defined by
 \begin{align}
-  \S_V \equiv \norm{M_V^{-1}}_2 = \sqrt{\sum_k\f1{\p{M^V_k}^2}},
+  \S_V \equiv \norm{M_V^{-1}} = \sqrt{\sum_k\f1{\p{M^V_k}^2}},
   \label{eq:scale}
 \end{align}
-is the 2-norm of the pseudoinverse $M_V^{-1}$ of $M_V$.
-Note that the bound in Eq.~\eqref{eq:bound} only holds if the measurement matrix $M_V$ is nonsingular, as otherwise some of the operators $Q^V_k$ that we used to expand $\rho$ and $\tilde\rho_V$ are undefined, reflecting the fact that if $M_V$ is singular then measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
+is the (Hilbert-Schmidt, or Frobenius) norm of the right inverse $M_V^{-1}$ of $M_V$.
+Note that the error scale $\S_V$ diverges if $M_V$ is singular, in which case measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
 
 The complexity of computing the error scale $\S_V$ is determined by the need to construct and compute the singular values of the measurement matrix $M_V$.
 This task can be greatly simplified by the fact that the degree $\ell$ of the transition operator $T_{\ell,0}$ is preserved under rotations, which implies that the unitary
@@ -355,25 +347,28 @@ As the singular values of $M_V$ are invariant under unitary transformations, it 
 \begin{align}
   \S_V^2 = \sum_\ell \S_{V\ell}^2,
   &&
-  \S_{V\ell} \equiv \norm{M_{V\ell}^{-1}}_2,
+  \S_{V\ell} \equiv \norm{M_{V\ell}^{-1}},
 \end{align}
-where $M_{V\ell}^{-1}$ is the pseudoinverse of $M_{V\ell}$.
-Altogether, constructing the block $M_{V\ell}$ and computing its singular values takes at most $O(\abs{V}d^2)$ time.
+where $M_{V\ell}^{-1}$ is the right inverse of $M_{V\ell}$.
+Altogether, constructing the block $M_{V\ell}$ and computing its singular values takes at most $O(\abs{V}d^2)$ time (see Appendix \ref{sec:compute} for additional details on efficiently computing $\S_{V\ell}$ [\red{todo: write tutorial}]).
 If we assume that $\abs{V}\sim d$, then computing $\S_V$ to certify the bound in Eq.~\eqref{eq:bound} takes $O(d^4)$ serial or $O(d^3)$ parallel runtime (see Figure [\red{REF}]).
 [\red{todo: add figure showing runtimes as a function of $d$ with $\abs{V}=2d-1$; modify text appropriately after making the figure}].
+For comparison, we note that existing algorithms for signal recovery on the sphere \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} similarly have $O(d^3)$ parallel runtime with $\abs{V}\gtrsim d$.
 
 [\red{todo: add a derivation of the error bound that assumes $n$ measurements of spin projection along each axis to Appendix \ref{sec:error}.
   Briefly discuss these results in this section.}]
+
+[\red{todo: add a state-dependent error bound}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomography protocols}
 \label{sec:protocol}
 
-The ability to certify a statistical error bound on the empirical estimate $\tilde\rho_V$ of an unknown quantum state $\rho$ motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and variationally optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the error scale $\S_V$ defined in Eq.~\eqref{eq:scale}.
-If $\abs{V}$ is too large for variational optimization to be practical, one can instead generate many random sets of measurement axes, and then choose the set that minimizes $\S_V$.
+The ability to certify a statistical error bound on the empirical estimate $\tilde\rho_V$ of an unknown quantum state $\rho$ motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and optimize (using any standard minimization algorithm) the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the error scale $\S_V$ defined in Eq.~\eqref{eq:scale}.
+If $\abs{V}$ is too large for optimization to be practical, one can instead generate many random sets of measurement axes, and then choose the set with the smallest error scale $\S_V$.
 After choosing a set of measurement axes $V$, experimentally characterize expectation values of spin projections, $\bk{\Pi_{\v v\mu}}_\rho$, which determine the expectation values $\bk{T_{\v v\ell,0}}_\rho$.
-If the experimental estimates $E_{\v v\ell}$ of $\bk{T_{\v v\ell,0}}_\rho$ are accurate to within an error $\lesssim\epsilon$, then the state $\tilde\rho_V$ defined in Eq.~\eqref{eq:reconstructed_state} is an approximation of the true state $\rho$ to within a 2-norm distance $\lesssim\epsilon\S_V$.
-Furthermore, if the empirical estimate $\tilde\rho_V$ has negative eigenvalues, its 2-norm distance from $\rho$ can be further reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
+If the experimental estimates of $\bk{T_{\v v\ell,0}}_\rho$ are accurate to within an error $\lesssim\epsilon$, then the state $\tilde\rho_V$ defined in Eq.~\eqref{eq:reconstructed_state} is an approximation of the true state $\rho$ to within a (Euclidean) distance $\lesssim\epsilon\S_V$.
+Furthermore, if the empirical estimate $\tilde\rho_V$ has negative eigenvalues, its distance from $\rho$ can be further reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
 
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the development of tailored and adaptive measurement protocols to future work.
@@ -434,7 +429,7 @@ as well as
 The spin vector $\v S$ generates rotations of a spin-$s$ system in 3D space.
 Specifically, the operator $e^{-\i\theta\v S\cdot\uv n}$ rotates a spin-$s$ system by an angle $\theta$ about the unit vector $\uv n$.
 
-Observing that $S_\z=T_{1,0}$ and $S_\pm\propto T_{1,\pm1}$, we can use the product operator expansion of the transition operators (see Appendix \ref{sec:trans_prod}), the properties of Clebsch-Gordan coefficients, and a computer algebra system to simplify the commutators
+Observing that $S_\z=T_{1,0}$ and $S_\pm\propto T_{1,\pm1}$, we can use the product operator expansion of the transition operators (see Appendix \ref{sec:trans_prod}), properties of Clebsch-Gordan coefficients, properties of Wigner $6$-$j$ symbols, and a computer algebra system to simplify the commutators
 \begin{align}
   \sp{S_\z,T_{\ell m}} = m\, T_{\ell m},
   &&
@@ -461,10 +456,154 @@ where
 are matrix elements of the rotation operator $R\p{\v\omega}$ for spin-$\ell$ particles.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{A closer look at measurement error}
+\section{Relaxing assumptions of the reconstruction error bound}
 \label{sec:error}
 
-[\red{todo: derive an error bound that relies on the number of spin projection measurements}]
+In Section \ref{sec:bound} of the main text, we provided a reconstruction error bound using the assumption of Eq.~\eqref{eq:error_assumption}, namely that expectation values derived from spin projection measurements can be estimated up to uncorrelated errors with maximal variance $\epsilon^2$.
+This assumption is reasonable if measurement error is dominated by experimental sources of noise, and it yields a simple derivation of the reconstruction bound in Eq.~\eqref{eq:bound}.
+Nonetheless, there are two problems with the assumption of Eq.~\eqref{eq:error_assumption}:
+\begin{enumerate*}
+\item there is no a priori guarantee for the value of $\epsilon$, which must be inferred from experimental outcomes, and
+\item the assumption that all errors are uncorrelated is unjustified (and generally false).
+\end{enumerate*}
+Here, we relax the assumption of Eq.~\eqref{eq:error_assumption} and derive an explicit error bound in terms of the qudit dimension $d$ and the number of spin projection measurements made along every measurement axis.
+
+To this end, we fix a particular set of measurement axes $V$, and consider performing $n$ measurements of spin projection along every axis $\v v\in V$, for a total of $N=\abs{V}\times n$ measurements.
+Such a procedure is equivalent to making $N$ local measurements of the $N$-fold product state $\rho^{\otimes N}$.
+For convenience, we index the tensor factors of $\rho^{\otimes N}$ by the integers $\p{i,j}$, with $i\in\set{1,2,\cdots,\abs{V}}$ specifying a measurement axis $\v v_i\in V$ and $j\in\set{1,2,\cdots,n}$ specifying the copy of $\rho$ prepared for the $j$-th measurement spin projection along a particular axis.
+We then define the projectors $\Pi_{i\mu}\equiv\op{\mu_{\v v_i}}$ onto states $\ket{\mu_{\v v_i}}$ with definite spin projection $\mu$ onto axis $\v v_i\in V$, and define $\Pi_{i\mu}^{(j)}$ to be an $N$-qudit operator with $\Pi_{i\mu}$ on the $\p{i,j}$-th tensor factor and the identity elsewhere.
+We denote the experimental outcome of measuring $\Pi_{i\mu}$ in the $\p{i,j}$-th copy of $\rho$ by $\tilde \Pi_{i\mu}^{(j)}\in\set{0,1}$.
+In other words, $\tilde \Pi_{i\mu}^{(j)}$ is the ``single-shot estimate'' of $\Pi_{i\mu}$, with $\tilde \Pi_{i\mu}^{(j)}=1$ if outcome $\mu$ was observed on the $\p{i,j}$-th experimental trial, and $\tilde \Pi_{i\mu}^{(j)}=0$ otherwise.
+An empirical estimate of the expectation value $\bk{\Pi_{i\mu}}_\rho$ is then provided by the fraction of times that outcome $\mu$ was observed when measuring spin projection along axis $\v v_i$, that is
+\begin{align}
+  \tilde \Pi_{i\mu} \equiv \f1n \sum_{j=1}^n \tilde \Pi_{i\mu}^{(j)}
+  \approx \f1n \sum_{j=1}^n \tr\p{\Pi_{i\mu}^{(j)} \rho^{\otimes N}}
+  = \tr\p{\Pi_{i\mu} \rho}.
+\end{align}
+For reasons that will become clear shortly, it will be useful to think of $\tilde \Pi_{i\mu}$ as an empirical estimate of $\bk{\bar \Pi_{i\mu}}_{\rho^{\otimes N}}$, where
+\begin{align}
+  \bar \Pi_{i\mu} \equiv \f1n \sum_{j=1}^n \Pi_{i\mu}^{(j)}
+  \label{eq:mean_proj}
+\end{align}
+is the average of $\Pi_{i\mu}$ applied to all copies of $\rho$ for which spin projection is measured along the axis $\v v_i$.
+
+\subsection{Covariance of errors in the spin-projection basis}
+
+Due to finite sampling error (i.e.~shot noise), an empirical estimate $\tilde\O$ of the observable $\O$ will have statistical error with mean zero:
+\begin{align}
+  \epsilon_\O \equiv \tilde\O - \bk{\O},
+\end{align}
+where the single brackets $\bk{\cdot}$ denote an expectation value with respect to the measured quantum state.
+On average, this statistical error will be zero, which is to say that
+\begin{align}
+  \bbk{\epsilon_\O} = \Bbk{\tilde\O - \bk{\O}}
+  = \bk{\O - \bk{\O}}
+  = 0,
+\end{align}
+where the double brackets $\bbk{\cdot}$ to denote statistical averaging over experimental trials.
+However, the covariance between statistical errors $\epsilon_\O$ and $\epsilon_\Q$ on the empirical estimates $\tilde\O$ and $\tilde\Q$ of observables $\O$ and $\Q$ is
+\begin{align}
+  \bbk{\epsilon_\O \epsilon_\Q}
+  = \Bbk{\p{\tilde\O - \bk{\O}} \p{\tilde\Q - \bk{\Q}}}
+  = \bk{\p{\O - \bk{\O}} \p{\Q - \bk{\Q}}}
+  = \bk{\O\Q} - \bk{\O} \bk{\Q}.
+\end{align}
+In the context of spin qudit tomography, we can therefore define the statistical error
+\begin{align}
+  \epsilon_{i\mu}
+  \equiv \tilde \Pi_{i\mu} - \bk{\Pi_{i\mu}}_{\rho}
+  = \tilde \Pi_{i\mu} - \bk{\bar\Pi_{i\mu}}_{\rho^{\otimes N}}
+\end{align}
+in the empirical estimate of $\bk{\Pi_{i\mu}}_{\rho}$ or $\bk{\bar\Pi_{i\mu}}_{\rho^{\otimes N}}$, and use Eq.~\eqref{eq:mean_proj} to expand
+\begin{align}
+  \bbk{\epsilon_{i\mu} \epsilon_{i'\mu'}}
+  = \bk{\bar\Pi_{i\mu} \bar\Pi_{i'\mu'}}_{\rho^{\otimes N}}
+  - \bk{\bar\Pi_{i\mu}}_{\rho^{\otimes N}}
+  \bk{\bar\Pi_{i'\mu'}}_{\rho^{\otimes N}}
+  = \f1{n^2} \sum_{j,j'=1}^n
+  \sp{\bk{\Pi_{i\mu}^{(j)} \Pi_{i'\mu'}^{(j')}}_{\rho^{\otimes N}}
+    - \bk{\Pi_{i\mu}^{(j)}}_{\rho^{\otimes N}}
+    \bk{\Pi_{i'\mu'}^{(j')}}_{\rho^{\otimes N}}}.
+  \label{eq:proj_cov_start}
+\end{align}
+If $\p{i,j}\ne\p{i',j'}$, then $\Pi_{i\mu}^{(j)}$ and $\Pi_{i'\mu'}^{(j')}$ address different tensor factors of the product state $\rho^{\otimes N}$, so the expectation value of their product factorizes due to the identity $\tr\sp{\p{A\otimes B}\p{A'\otimes B'}} = \tr\p{AA'}\times\tr\p{BB'}$.
+The terms in Eq.~\eqref{eq:proj_cov_start} with $\p{i,j}\ne\p{i',j'}$ therefore vanish, so
+\begin{align}
+  \bbk{\epsilon_{i\mu} \epsilon_{i'\mu'}}
+  &= \delta_{ii'} \times \f1{n^2} \sum_{j=1}^n \sp{\bk{\Pi_{i\mu}^{(j)} \Pi_{i\mu'}^{(j)}}_{\rho^{\otimes N}}
+    - \bk{\Pi_{i\mu}^{(j)}}_{\rho^{\otimes N}}
+    \bk{\Pi_{i\mu'}^{(j)}}_{\rho^{\otimes N}}} \\
+  &= \delta_{ii'} \times \f1n \sp{\bk{\Pi_{i\mu} \Pi_{i\mu'}}_\rho
+    - \bk{\Pi_{i\mu}}_\rho \bk{\Pi_{i\mu'}}_\rho} \\
+  &= \delta_{ii'} \times \f1n \sp{\delta_{\mu\mu'} p_\mu^{(i)} - p_\mu^{(i)} p_{\mu'}^{(i)}},
+\end{align}
+where $p_\mu^{(i)} \equiv \bk{\Pi_{i\mu}}_\rho = \bk{\mu_{\v v_i}|\rho|\mu_{\v v_i}}$ are the diagonal entries of $\rho$ in the basis of spin projections along axis $\v v_i$.
+
+\subsection{Covariance of errors in the transition operator basis}
+
+Rather than the statistical errors $\epsilon_{i\mu} \equiv \tilde\Pi_{i\mu} - \bk{\Pi_{i\mu}}_\rho$ in the estimates $\tilde\Pi_{i\mu}$ of the projectors $\Pi_{i\mu}$, we now consider the statistical errors $\epsilon_{i\ell} \equiv \tilde T_{i\ell} - \bk{T_{i\ell}}_\rho$ in the estimates $\tilde T_{i\ell}$ of the transition operators $T_{i\ell} \equiv T_{\v v_i\ell,0}$.
+We can expand the transition operators $T_{i\ell}$ as a sum over projectors $\Pi_{i\mu}$ as
+\begin{align}
+  T_{i\ell} = \sum_\mu t_{\ell\mu} \Pi_{i\mu},
+  &&
+  t_{\ell\mu} \equiv \bk{\mu|T_{\ell,0}|\mu},
+\end{align}
+and likewise $\tilde T_{i\ell} = \sum_\mu t_{\ell\mu} \tilde\Pi_{i\mu}$.
+The covariances between statistical errors in the transition operator basis are then
+\begin{align}
+  \bbk{\epsilon_{i\ell} \epsilon_{i'\ell'}}
+  = \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell'\mu'}
+  \bbk{\epsilon_{i\mu} \epsilon_{i'\mu'}}
+  = \delta_{ii'} \times \f1n \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell'\mu'}
+  \sp{\delta_{\mu\mu'} p_\mu^{(i)} - p_\mu^{(i)} p_{\mu'}^{(i)}}.
+\end{align}
+In order to establish an upper bound on reconstruction error for an unknown quantum state, we need an upper bound on the variance $\bbk{\epsilon_{i\ell}^2}$ in particular.
+To this end, for any multinomial probability distribution $p\equiv\p{p_1,p_2,\cdots,p_d}$ we define the function
+\begin{align}
+  f_\ell\p{p} \equiv \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell\mu'}
+  \p{\delta_{\mu\mu'} p_\mu - p_\mu p_{\mu'}}
+  = \sum_\mu t_{\ell\mu}^2 p_\mu - \p{\sum_\mu t_{\ell\mu} p_\mu}^2
+  \le \sum_\mu t_{\ell\mu}^2 p_\mu
+  \le \sum_\mu t_{\ell\mu}^2 = 1,
+\end{align}
+which implies that
+\begin{align}
+  \bbk{\epsilon_{i\ell}^2} = \f1n f_\ell\p{p^{(i)}} \le \f1n.
+  \label{eq:variance_bound}
+\end{align}
+
+\subsection{An improved reconstruction error bound}
+
+Equipped with the bound on variances in Eq.~\eqref{eq:variance_bound}, we again consider the block-diagonalized form of the measurement matrix derived in Section \ref{sec:bound}:
+\begin{align}
+  U M_V = \sum_\ell \op{\ell} \otimes M_{V\ell},
+  &&
+  M_{V\ell} = \sum_{m,\v v} D^\ell_{m,0} \op{m}{\v v}.
+\end{align}
+The block diagonal structure of this matrix implies that, rather than an integer index $k\in\set{1,2,\cdots,d^2}$, we can identify the singular values and right singular vectors of $UM_V$ (and equivalently $M_V$) by a block index $\ell\in\set{0,1,\cdots,d-1}$ and a sub-index $m=\set{-\ell,-\ell+1,\cdots,\ell}$.
+Making the replacement $k\to\p{\ell,m}$, we can thus repeat the derivations through Eq.~\eqref{eq:bound} of Section \ref{sec:bound} without the assumption in Eq.~\eqref{eq:error_assumption}, finding that
+\begin{align}
+  \Bbk{\abs{\tilde\rho_{\ell m}^V-\rho_{\ell m}^V}^2}
+  = \sum_{i,i'} q_{\ell m i}^V \p{q_{\ell m i'}^V}^*
+  \bbk{\epsilon_{i\ell} \epsilon_{i'\ell}}
+  = \sum_i \abs{q_{\ell m i}^V}^2
+  \bbk{\epsilon_{i\ell}^2}
+  \le \f1n \sum_i \abs{q_{\ell m i}^V}^2
+  = \f1n \times \f1{\p{M_{\ell m}^V}^2}.
+\end{align}
+Altogether, we thus find that $n$ measurements of spin projection along every axis $\v v\in V$ allows us to construct an empirical estimate $\tilde\rho_V$ of the unknown state $\rho$ that is accurate to within a mean squared distance
+\begin{align}
+  \Bbk{\norm{\tilde\rho_V-\rho}^2} = \sum_{\ell,k}
+  \Bbk{\abs{\tilde\rho_{\ell k}^V-\rho_{\ell k}^V}^2}
+  \le \f{\S_V^2}{n},
+\end{align}
+where $\S_V$ is the same error scale as in Section \ref{sec:bound} of the main text.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Computing the error scale}
+\label{sec:compute}
+
+[\red{todo: write a short tutorial on computing the error scale}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Transition operator product expansion}
