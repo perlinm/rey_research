@@ -560,17 +560,24 @@ The covariances between statistical errors in the transition operator basis are 
 In order to establish an upper bound on reconstruction error for an unknown quantum state, we need an upper bound on the variance $\bbk{\epsilon_{i\ell}^2}$ in particular.
 To this end, for any multinomial probability distribution $p\equiv\p{p_1,p_2,\cdots,p_d}$ we define the function
 \begin{align}
-  f_\ell\p{p} \equiv \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell\mu'}
+  g_\ell\p{p} \equiv \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell\mu'}
   \p{\delta_{\mu\mu'} p_\mu - p_\mu p_{\mu'}}
-  = \sum_\mu t_{\ell\mu}^2 p_\mu - \p{\sum_\mu t_{\ell\mu} p_\mu}^2
-  \le \sum_\mu t_{\ell\mu}^2 p_\mu
-  \le \sum_\mu t_{\ell\mu}^2 = 1,
+  = \sum_\mu t_{\ell\mu}^2 p_\mu - \p{\sum_\mu t_{\ell\mu} p_\mu}^2.
+\end{align}
+Ideally, we would maximize this function over all valid probability distributions, but doing so is rather difficult.
+Instead, we can find a loose upper bound by ignoring the negative terms:
+\begin{align}
+  g_\ell\p{p} \le \sum_\mu t_{\ell\mu}^2 p_\mu
+  \le \max_\mu t_{\ell\mu}^2
+  = \f{2\ell+1}{d} \max_\mu \bk{s\mu;\ell,0|s\mu}^2
+  \le \f{2\ell+1}{d},
 \end{align}
 which implies that
 \begin{align}
-  \bbk{\epsilon_{i\ell}^2} = \f1n f_\ell\p{p^{(i)}} \le \f1n.
+  \bbk{\epsilon_{i\ell}^2} = \f1n g_\ell\p{p^{(i)}} \le \f{2\ell+1}{nd}.
   \label{eq:variance_bound}
 \end{align}
+Note that $t_{0,\mu}=1/\sqrt{d}$, so $f_0\p{p}=0$ and $\bbk{\epsilon_{i,0}^2}=0$.
 
 \subsection{An improved reconstruction error bound}
 
@@ -581,23 +588,27 @@ Equipped with the bound on variances in Eq.~\eqref{eq:variance_bound}, we again 
   M_{V\ell} = \sum_{m,\v v} D^\ell_{m,0} \op{m}{\v v}.
 \end{align}
 The block diagonal structure of this matrix implies that, rather than an integer index $k\in\set{1,2,\cdots,d^2}$, we can identify the singular values and right singular vectors of $UM_V$ (and equivalently $M_V$) by a block index $\ell\in\set{0,1,\cdots,d-1}$ and a sub-index $m=\set{-\ell,-\ell+1,\cdots,\ell}$.
-Making the replacement $k\to\p{\ell,m}$, we can thus repeat the derivations through Eq.~\eqref{eq:bound} of Section \ref{sec:bound} without the assumption in Eq.~\eqref{eq:error_assumption}, finding that
+Making the replacement $k\to\p{\ell,m}$, we can thus repeat the derivations through Eq.~\eqref{eq:bound} of Section \ref{sec:bound} without the assumption of Eq.~\eqref{eq:error_assumption}, finding that
 \begin{align}
   \Bbk{\abs{\tilde\rho_{\ell m}^V-\rho_{\ell m}^V}^2}
   = \sum_{i,i'} q_{\ell m i}^V \p{q_{\ell m i'}^V}^*
   \bbk{\epsilon_{i\ell} \epsilon_{i'\ell}}
   = \sum_i \abs{q_{\ell m i}^V}^2
   \bbk{\epsilon_{i\ell}^2}
-  \le \f1n \sum_i \abs{q_{\ell m i}^V}^2
-  = \f1n \times \f1{\p{M_{\ell m}^V}^2}.
+  \le \f{2\ell+1}{nd} \p{1-\delta_{\ell,0}}.
 \end{align}
-Altogether, we thus find that $n$ measurements of spin projection along every axis $\v v\in V$ allows us to construct an empirical estimate $\tilde\rho_V$ of the unknown state $\rho$ that is accurate to within a mean squared distance
+Altogether, we thus find that $n$ measurements of spin projection along every axis $\v v\in V$ allows us to construct an empirical estimate $\tilde\rho_V$ of an unknown state $\rho$ that is accurate to within a mean squared distance
 \begin{align}
-  \Bbk{\norm{\tilde\rho_V-\rho}^2} = \sum_{\ell,k}
-  \Bbk{\abs{\tilde\rho_{\ell k}^V-\rho_{\ell k}^V}^2}
-  \le \f{\S_V^2}{n},
+  \Bbk{\norm{\tilde\rho_V-\rho}^2}
+  = \sum_{\ell,m} \Bbk{\abs{\tilde\rho_{\ell m}^V-\rho_{\ell m}^V}^2}
+  \le \f1{nd} \sum_{\ell>0} \p{2\ell+1} \S_{V\ell}^2,
 \end{align}
-where $\S_V$ is the same error scale as in Section \ref{sec:bound} of the main text.
+where
+\begin{align}
+  \S_{V\ell} \equiv \norm{M_{V\ell}^{-1}}
+  = \sqrt{\sum_m \p{M^V_{\ell m}}^{-2}}
+\end{align}
+is the (Hilbert-Schmidt, or Frobenius) norm of the right inverse of $M_{V\ell}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Computing the error scale}
