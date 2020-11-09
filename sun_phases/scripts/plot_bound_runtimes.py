@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-import os, sys, glob
+import os, glob
 import numpy as np
 import matplotlib.pyplot as plt
-
-serial = "serial" in sys.argv
 
 data_dir = "../data/error_scale/"
 fig_dir = "../figures/error_scale/"
@@ -21,7 +19,7 @@ fit_dim_min = 100
 
 ##################################################
 
-files = glob.glob(data_dir + "times_*" + ("serial" if serial else "") + ".txt")
+files = glob.glob(data_dir + "times_*_serial.txt")
 
 def max_dim(file):
     pieces = file.replace(".txt","").split("/")[-1].split("_")

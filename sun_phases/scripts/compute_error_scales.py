@@ -12,10 +12,10 @@ except NotImplementedError:
 
 np.set_printoptions(linewidth = 200)
 
-parallelize = True
-if "serial" in sys.argv:
-    parallelize = False
-    sys.argv.remove("serial")
+parallelize = False
+if "par" in sys.argv:
+    parallelize = True
+    sys.argv.remove("par")
 
 min_dim = int(sys.argv[1])
 try: max_dim = int(sys.argv[2])
