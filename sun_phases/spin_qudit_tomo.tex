@@ -628,20 +628,47 @@ Moreover, we can also bound
   &&
   \bbk{\epsilon_{i\ell}^2} \le \f1n \times \min\Set{\f{2\ell+1}{d}, 1}.
 \end{align}
-If $d$ is even, then we can get a tighter analytical bound on $\bbk{\epsilon_{i\ell}^2}$ by considering
+We can get a tighter analytical bound on $\bbk{\epsilon_{i\ell}^2}$ by considering that if $\mu_{\t{max}}\ne0$, then
 \begin{align}
-  g_\ell\p{p} \le \sum_\mu t_{\ell\mu}^2 p_\mu \le t_{\ell\mu_{\t{max}}}^2,
-\end{align}
-where $\mu_{\t{max}}$ is any index maximizing $t_{\ell\mu}$.
-The symmetries of the Clebsch-Gordan coefficients imply that $t_{\ell\mu_{\t{max}}}^2 = t_{\ell,-\mu_{\t{max}}}^2$, so if $\mu_{\t{max}} \ne0$ (which is always true when $d$ is even because $s,\mu\notin\ZZ$), then
-\begin{align}
-  g_\ell\p{p} \le t_{\ell\mu_{\t{max}}}^2
+  g_\ell\p{p} \le \sum_\mu t_{\ell\mu}^2 p_\mu
+  \le t_{\ell\mu_{\t{max}}}^2
   = \f12 \p{t_{\ell\mu_{\t{max}}}^2 + t_{\ell,-\mu_{\t{max}}}^2}
-  \le \f12 \sum_\mu t_{\ell\mu}^2
+  \stackrel{\mu_{\t{max}}\ne0}{\le} \f12 \sum_\mu t_{\ell\mu}^2
   = \f12,
+\end{align}
+where we used the fact that $t_{\ell\mu_{\t{max}}}^2 = t_{\ell,-\mu_{\t{max}}}^2$ due to the symmetries of the Clebsch-Gordan coefficients.
+If $\mu_{\t{max}}=0$, then
+\begin{align}
+  t_{\ell\mu_{\t{max}}}^2 + 2 t_{\ell\mu_{\t{min}}}^2
+  = t_{\ell\mu_{\t{max}}}^2 + t_{\ell\mu_{\t{min}}}^2
+  + t_{\ell,-\mu_{\t{min}}}^2
+  \stackrel{\mu_{\t{max}}=0}{\le}
+  \sum_\mu t_{\ell\mu}^2 = 1,
   &&
   \t{so}
   &&
+  \abs{t_{\ell\mu_{\t{min}}}}
+  \stackrel{\mu_{\t{max}}=0}{\le}
+  \sqrt{\f{1 - t_{\ell\mu_{\t{max}}}^2}{2}}.
+\end{align}
+This inequality lets us bound
+\begin{align}
+  \sqrt{\f{2\ell+1}{d}}\, \gamma_\ell
+  = \f12 \p{t_{\ell\mu_{\t{max}}} - t_{\ell\mu_{\t{min}}}}
+  \le \f12 \p{t_{\ell\mu_{\t{max}}} + \abs{t_{\ell\mu_{\t{min}}}}}
+  \stackrel{\mu_{\t{max}}=0}{\le}
+  \f12 t_{\ell\mu_{\t{max}}}
+  + \f12\sqrt{\f{1 - t_{\ell\mu_{\t{max}}}^2}{2}}
+  \equiv \Gamma\p{t_{\ell\mu_{\t{max}}}}.
+\end{align}
+If is straightforward to show that $\Gamma\p{M}$ has a single maximum at $M=\sqrt{2/3}$, and that $\Gamma^\star\equiv\Gamma\p{\sqrt{2/3}}=\sqrt{3/8}$, so
+\begin{align}
+  g_\ell\p{p} \le \f{2\ell+1}{d}\, \gamma_\ell^2
+  \stackrel{\mu_{\t{max}}=0}{\le} \p{\Gamma^\star}^2
+  = \f38 < \f12.
+\end{align}
+Altogether, we thus find that in all cases
+\begin{align}
   \bbk{\epsilon_{i\ell}^2}
   \le \f1n \times \min\Set{\f{2\ell+1}{d}, \f12}.
 \end{align}
