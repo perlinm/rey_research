@@ -347,8 +347,16 @@ As the singular values of $M_V$ are invariant under unitary transformations, it 
 \end{align}
 where $M_{V\ell}^{-1}$ is the right inverse of $M_{V\ell}$.
 Constructing the block $M_{V\ell}$ and computing its singular values takes at most $O(\abs{V}d^2)$ time (see Appendix \ref{sec:compute} for additional details on efficiently computing $\S_{V\ell}^2$ [\red{todo: write tutorial}]).
-Altogether, if we assume that $\abs{V}\sim d$, then computing $\S_V^2$ to certify the bound in Eq.~\eqref{eq:bound_eps} takes $O(d^4)$ serial or $O(d^3)$ parallel runtime (see Figure [\red{REF}]).
-[\red{todo: add figure showing runtimes as a function of $d$ with $\abs{V}=2d-1$; modify text appropriately after making the figure}].
+Altogether, if we assume that $\abs{V}\sim d$, then computing $\S_V^2$ to certify the bound in Eq.~\eqref{eq:bound_eps} takes $O(d^4)$ serial or $O(d^3)$ parallel runtime (see Figure \ref{fig:times}).
+
+\begin{figure}
+  \centering
+  \includegraphics{error_scale/error_times.pdf}
+  \caption{Serial runtime to compute $\S_V$ with $\abs{V}=2d-1$ randomly chosen measurement axes, averaged over 100 calculations of $\S_V$ or 5 minutes of runtime (for each $d$), whichever comes first.
+    Dashed line shows a fit to runtime $t=c d^\alpha$ for all $d\ge100$, finding $\alpha\approx 3.7$.
+    These results do not include the $O(d^3)$ runtime for pre-computing $\pi/2$-pulses $e^{\i\p{\pi/2}S_\y}$ (see Appendix \ref{sec:compute}), which can be recycled for every new choice of measurement axes $V$.}
+  \label{fig:times}
+\end{figure}
 
 The assumption that observables can be estimated up to uncorrelated noise with maximal variance $\epsilon^2$, summarized by Eq.~\eqref{eq:error_assumption}, is reasonable when measurement error is dominated by experimental sources of noise.
 However, this assumption breaks down when measurement error is limited by fundamental quantum (shot) noise.
@@ -372,7 +380,7 @@ and $\gamma_\ell$ is defined using Clebsch-Gordan coefficients:
   \tau_{\ell\mu} \equiv \bk{s\mu;\ell,0|s\mu}.
 \end{align}
 If $d$ even or $\ell$ is odd, then $\gamma_\ell=\max_\mu\tau_{\ell\mu}$.
-For comparison, we note that the error scale $\epsilon_V^2<\S_V^2/2$.
+For comparison with the previous bound in Eq.~\eqref{eq:bound_eps}, we note that the error scale $\epsilon_V^2<\S_V^2/2$, so the previous bound still holds with the replacement $\epsilon^2\to1/2n$.
 
 [\red{todo: add a state-dependent error bound}]
 
@@ -403,13 +411,13 @@ In any case, the fact that uniform sampling outperforms these methods only simpl
 \section{How many measurement axes?}
 \label{sec:axes}
 
-We conjecture, and numerically verify for $d\le200$, that measurements of spin projection along $2d-1$ axes suffice to reconstruct an arbitrary state of a $d$-level spin qudit (see Figure [\red{REF}]).
-Even so, $2d-1$ measurement axes may not be the ``optimal'' number to use.
+We conjecture, and numerically verified for $d\le200$, that measurements of spin projection along $2d-1$ axes suffice to reconstruct an arbitrary state of a $d$-level spin qudit.
+Even so, $2d-1$ measurement axes may not be the optimal number to use.
 Increasing the number of measurement axes generally decreases the error scale $\epsilon_V^2$, but at the cost of having to estimate more observables.
-At a fixed total number of measurements, $N=n\abs{V}$, increasing the number of measurement axes $\abs{V}$ reduces the number of measurements $n$ along each axis $\v v\in V$.
+At a fixed total number of measurements, increasing the number of measurement axes $\abs{V}$ reduces the number of measurements $n$ devoted to each axis $\v v\in V$.
 This trade-off begs the question: how many measurement axes should be chosen to perform spin qudit tomography?
 
-The reconstruction error bound in Eq.~\eqref{eq:bound} nominally provides a straightforward answer: at a fixed total number of measurements $N=n\abs{V}$, the number of measurement axes should be chosen to minimize $\epsilon_V^2/n\propto\epsilon_V^2\abs{V}$.
+The reconstruction error bound in Eq.~\eqref{eq:bound} nominally provides a straightforward answer: at a fixed total number of measurements, $N=n\abs{V}$, the number of measurement axes should be chosen to minimize $\epsilon_V^2/n\propto\epsilon_V^2\abs{V}$.
 
 
 \bibliography{\jobname.bib}

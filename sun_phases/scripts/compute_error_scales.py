@@ -150,4 +150,8 @@ for dim in range(min_dim, max_dim+1):
     print(mean_time, min_error_scale)
     sys.stdout.flush()
 
-print("total runtime:", time.time() - genesis)
+runtime = time.time() - genesis
+runtime_text = f"total runtime: {runtime}"
+print(runtime_text)
+with open(data_file, "a") as file:
+    file.write(f"# {runtime_text}\n")
