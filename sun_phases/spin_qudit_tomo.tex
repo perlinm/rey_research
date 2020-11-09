@@ -142,7 +142,7 @@ The transition operators are orthonormal with respect to the trace inner product
   &&
   T_{\ell m}^\dag = \p{-1}^m T_{\ell,-m},
 \end{align}
-where for any $d\times d$ matrix $X=\sum_{\mu,\nu} X_{\mu\nu} \op{\mu}{\nu}$ we define the $d^2$-component vector $\oket{X} \equiv \sum_{\mu,\nu} X_{\mu\nu} \ket{\mu\nu}$; $\obra{X}$ is the conjugate transpose of $\oket{X}$; and $\delta_{kk'}\equiv 1$ if $k=k'$ and $0$ otherwise.
+where for any $d\times d$ matrix $X=\sum_{\mu,\nu} X_{\mu\nu} \op{\mu}{\nu}$ we define the $d^2$-component vector $\oket{X} \equiv \sum_{\mu,\nu} X_{\mu\nu} \ket{\mu\nu}$; $\obra{X}$ is the conjugate transpose of $\oket{X}$, such that $\obk{X|Y}=\tr\p{X^\dag Y}$; and $\delta_{kk'}\equiv 1$ if $k=k'$ and $0$ otherwise.
 As a consequence, we can expand any density operator $\rho$ in the transition operator basis as
 \begin{align}
   \rho = \sum_{\ell=0}^{2s} \sum_{m=-\ell}^\ell \rho_{\ell m} T_{\ell m},
@@ -184,7 +184,7 @@ For ease of notation, we will therefore implicitly associate Euler angle doublet
 Our goal is to reconstruct an arbitrary state of a spin qudit from measurements of spin projection onto different quantization axes.
 We are thus nominally restricted to measuring projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$, where $\ket{\mu_{\v v}}\equiv R\p{\v v}\ket{\mu}$ is a state with spin projection $\mu$ onto a measurement axis $\v v$ determined by a point on the sphere.
 For any fixed axis $\v v$, the sets $\set{\Pi_{\v v\mu}}$ and $\set{T_{\v v\ell,0}}$ are both orthonormal bases for the space of operators that are diagonal in the basis $\set{\ket{\mu_{\v v}}}$.
-By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v \ell,0}}_\rho$, where $\bk{X}_\rho\equiv\obk{\rho|X}$.
+By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v v\ell,0}}_\rho$, where $\bk{X}_\rho\equiv\obk{\rho|X}$.
 
 Reconstructing an arbitrary density operator $\rho$ essentially requires us to find a set of axes $V=\set{\v v}$ and associated coefficients $C_{\ell mk}\p{\v v}$ that would allow us to recover any coefficient $\rho_{\ell m}$ in expansion in Eq.~\eqref{eq:trans_state} through
 \begin{align}
@@ -239,7 +239,7 @@ Since
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
 In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any function with fixed degree $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
 Unfortunately, we have no general proof of this conjecture, which requires a deeper analysis of fixed-degree signal recovery on the sphere.
-Nonetheless, we have numerically verified that $2d-1$ measurement axes suffice for all $d\le200$ (see Section \ref{sec:bound}).
+Nonetheless, in the following section we numerically verify that $2d-1$ measurement axes suffice for all $d\le200$ [\red{todo: possibly refer to Section \ref{sec:axes} instead}].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Reconstruction error bound}
@@ -566,7 +566,8 @@ We can expand the transition operators $T_{i\ell}$ as a sum over projectors $\Pi
 \begin{align}
   T_{i\ell} = \sum_\mu t_{\ell\mu} \Pi_{i\mu},
   &&
-  t_{\ell\mu} \equiv \bk{\mu|T_{\ell,0}|\mu},
+  t_{\ell\mu} \equiv \bk{\mu|T_{\ell,0}|\mu}
+  = \sqrt{\f{2\ell+1}{d}} \bk{s\mu;\ell,0|s\mu},
 \end{align}
 and likewise $\tilde T_{i\ell} = \sum_\mu t_{\ell\mu} \tilde\Pi_{i\mu}$.
 The covariances between statistical errors in the transition operator basis are then
