@@ -356,8 +356,7 @@ However, this assumption breaks down when measurement error is limited by fundam
 We relax the assumption of Eq.~\eqref{eq:error_assumption} and derive more fundamental error bounds in Appendix \ref{sec:error}.
 Therein, we find that if measurement error is dominated by shot noise, then the estimate $\tilde\rho_V$ built from $n$ independent measurements of spin projection along every axis $\v v\in V$ approximates the true state $\rho$ to within a mean squared distance $\epsilon_V^2/n$, i.e.
 \begin{align}
-  \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  \le \f{\epsilon_V^2}{n},
+  \Bbk{\norm{\tilde\rho_V-\rho}^2} < \f{\epsilon_V^2}{n},
   \label{eq:bound}
 \end{align}
 where the {\it error scale} $\epsilon_V^2$ is
@@ -373,7 +372,7 @@ and $\gamma_\ell$ is defined using Clebsch-Gordan coefficients:
   &&
   \tau_{\ell\mu} \equiv \bk{s\mu;\ell,0|s\mu}.
 \end{align}
-For reference, we note that the error scale $\epsilon_V^2<\S_V^2/2$.
+For comparison, we note that the error scale $\epsilon_V^2<\S_V^2/2$.
 
 [\red{todo: add a state-dependent error bound}]
 
@@ -689,20 +688,20 @@ Making the replacement $k\to\p{\ell,m}$, we can thus repeat the derivations thro
   \bbk{\epsilon_{i\ell} \epsilon_{i'\ell}}
   = \sum_i \abs{q_{\ell m i}^V}^2
   \bbk{\epsilon_{i\ell}^2}
-  \le \f{2\ell+1}{nd} \times \gamma_\ell^2 \times \p{1-\delta_{\ell,0}}.
+  < \f{2\ell+1}{nd} \times \gamma_\ell^2
+  \times \p{1-\delta_{\ell,0}},
+  \label{eq:bound_single}
 \end{align}
+where $i$ indexes an axis $\v v_i\in V$.
 Altogether, we thus find that $n$ measurements of spin projection along every axis $\v v\in V$ allows us to construct an empirical estimate $\tilde\rho_V$ of an unknown state $\rho$ that is accurate to within a mean squared distance
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \sum_{\ell,m} \Bbk{\abs{\tilde\rho_{\ell m}^V-\rho_{\ell m}^V}^2}
-  \le \f1{nd} \sum_{\ell>0} \p{2\ell+1} \gamma_\ell^2 \S_{V\ell}^2,
+  < \f1{nd} \sum_{\ell>0} \p{2\ell+1} \gamma_\ell^2 \S_{V\ell}^2.
+  \label{eq:bound_full}
 \end{align}
-where
-\begin{align}
-  \S_{V\ell}^2 \equiv \norm{M_{V\ell}^{-1}}^2
-  = \sum_m \f1{\p{M^V_{\ell m}}^2}
-\end{align}
-is the squared (Hilbert-Schmidt, or Frobenius) norm of the right inverse of $M_{V\ell}$.
+We note that whereas the bound on $\bbk{\epsilon_{i\ell}^2}$ in Eq.~\eqref{eq:variance_bound} is tight, the bounds in Eq.~\eqref{eq:bound_single} and Eq.~\eqref{eq:bound_full} are not: the upper bound on $\bbk{\epsilon_{i\ell}^2}$ cannot be achieved simultaneously for all axes $\v v_i$ or degrees $\ell$.
+In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound_full}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Computing singular values of the measurement matrix}
