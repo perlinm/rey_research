@@ -483,18 +483,18 @@ Here, we relax the assumption of Eq.~\eqref{eq:error_assumption} and derive an e
 To this end, we fix a particular set of measurement axes $V$, and consider performing $n$ measurements of spin projection along every axis $\v v\in V$, for a total of $N=\abs{V}\times n$ measurements.
 Such a procedure is equivalent to making $N$ local measurements of the $N$-fold product state $\rho^{\otimes N}$.
 For convenience, we index the tensor factors of $\rho^{\otimes N}$ by the integers $\p{i,j}$, with $i\in\set{1,2,\cdots,\abs{V}}$ specifying a measurement axis $\v v_i\in V$ and $j\in\set{1,2,\cdots,n}$ specifying the copy of $\rho$ prepared for the $j$-th measurement spin projection along a particular axis.
-We then define the projectors $\Pi_{i\mu}\equiv\op{\mu_{\v v_i}}$ onto states $\ket{\mu_{\v v_i}}$ with definite spin projection $\mu$ onto axis $\v v_i\in V$, and define $\Pi_{i\mu}^{(j)}$ to be an $N$-qudit operator with $\Pi_{i\mu}$ on the $\p{i,j}$-th tensor factor and the identity elsewhere.
-We denote the experimental outcome of measuring $\Pi_{i\mu}$ in the $\p{i,j}$-th copy of $\rho$ by $\tilde \Pi_{i\mu}^{(j)}\in\set{0,1}$.
-In other words, $\tilde \Pi_{i\mu}^{(j)}$ is the ``single-shot estimate'' of $\Pi_{i\mu}$, with $\tilde \Pi_{i\mu}^{(j)}=1$ if outcome $\mu$ was observed on the $\p{i,j}$-th experimental trial, and $\tilde \Pi_{i\mu}^{(j)}=0$ otherwise.
+We then define the projectors $\Pi_{i\mu}\equiv\op{\mu_{\v v_i}}$ onto states $\ket{\mu_{\v v_i}}$ with definite spin projection $\mu$ onto axis $\v v_i\in V$, and define $\Pi_{i\mu}^j$ to be an $N$-qudit operator with $\Pi_{i\mu}$ on the $\p{i,j}$-th tensor factor and the identity elsewhere.
+We denote the experimental outcome of measuring $\Pi_{i\mu}$ in the $\p{i,j}$-th copy of $\rho$ by $\tilde \Pi_{i\mu}^j\in\set{0,1}$.
+In other words, $\tilde \Pi_{i\mu}^j$ is the ``single-shot estimate'' of $\Pi_{i\mu}$, with $\tilde \Pi_{i\mu}^j=1$ if outcome $\mu$ was observed on the $\p{i,j}$-th experimental trial, and $\tilde \Pi_{i\mu}^j=0$ otherwise.
 An empirical estimate of the expectation value $\bk{\Pi_{i\mu}}_\rho$ is then provided by the fraction of times that outcome $\mu$ was observed when measuring spin projection along axis $\v v_i$, that is
 \begin{align}
-  \tilde \Pi_{i\mu} \equiv \f1n \sum_{j=1}^n \tilde \Pi_{i\mu}^{(j)}
-  \approx \f1n \sum_{j=1}^n \tr\p{\Pi_{i\mu}^{(j)} \rho^{\otimes N}}
+  \tilde \Pi_{i\mu} \equiv \f1n \sum_{j=1}^n \tilde \Pi_{i\mu}^j
+  \approx \f1n \sum_{j=1}^n \tr\p{\Pi_{i\mu}^j \rho^{\otimes N}}
   = \tr\p{\Pi_{i\mu} \rho}.
 \end{align}
 For reasons that will become clear shortly, it will be useful to think of $\tilde \Pi_{i\mu}$ as an empirical estimate of $\bk{\bar \Pi_{i\mu}}_{\rho^{\otimes N}}$, where
 \begin{align}
-  \bar \Pi_{i\mu} \equiv \f1n \sum_{j=1}^n \Pi_{i\mu}^{(j)}
+  \bar \Pi_{i\mu} \equiv \f1n \sum_{j=1}^n \Pi_{i\mu}^j
   \label{eq:mean_proj}
 \end{align}
 is the average of $\Pi_{i\mu}$ applied to all copies of $\rho$ for which spin projection is measured along the axis $\v v_i$.
@@ -533,23 +533,23 @@ in the empirical estimate of $\bk{\Pi_{i\mu}}_{\rho}$ or $\bk{\bar\Pi_{i\mu}}_{\
   - \bk{\bar\Pi_{i\mu}}_{\rho^{\otimes N}}
   \bk{\bar\Pi_{i'\mu'}}_{\rho^{\otimes N}}
   = \f1{n^2} \sum_{j,j'=1}^n
-  \sp{\bk{\Pi_{i\mu}^{(j)} \Pi_{i'\mu'}^{(j')}}_{\rho^{\otimes N}}
-    - \bk{\Pi_{i\mu}^{(j)}}_{\rho^{\otimes N}}
-    \bk{\Pi_{i'\mu'}^{(j')}}_{\rho^{\otimes N}}}.
+  \sp{\bk{\Pi_{i\mu}^j \Pi_{i'\mu'}^{j'}}_{\rho^{\otimes N}}
+    - \bk{\Pi_{i\mu}^j}_{\rho^{\otimes N}}
+    \bk{\Pi_{i'\mu'}^{j'}}_{\rho^{\otimes N}}}.
   \label{eq:proj_cov_start}
 \end{align}
-If $\p{i,j}\ne\p{i',j'}$, then $\Pi_{i\mu}^{(j)}$ and $\Pi_{i'\mu'}^{(j')}$ address different tensor factors of the product state $\rho^{\otimes N}$, so the expectation value of their product factorizes due to the identity $\tr\sp{\p{A\otimes B}\p{A'\otimes B'}} = \tr\p{AA'}\times\tr\p{BB'}$.
+If $\p{i,j}\ne\p{i',j'}$, then $\Pi_{i\mu}^j$ and $\Pi_{i'\mu'}^{j'}$ address different tensor factors of the product state $\rho^{\otimes N}$, so the expectation value of their product factorizes due to the identity $\tr\sp{\p{A\otimes B}\p{A'\otimes B'}} = \tr\p{AA'}\times\tr\p{BB'}$.
 The terms in Eq.~\eqref{eq:proj_cov_start} with $\p{i,j}\ne\p{i',j'}$ therefore vanish, so
 \begin{align}
   \bbk{\epsilon_{i\mu} \epsilon_{i'\mu'}}
-  &= \delta_{ii'} \times \f1{n^2} \sum_{j=1}^n \sp{\bk{\Pi_{i\mu}^{(j)} \Pi_{i\mu'}^{(j)}}_{\rho^{\otimes N}}
-    - \bk{\Pi_{i\mu}^{(j)}}_{\rho^{\otimes N}}
-    \bk{\Pi_{i\mu'}^{(j)}}_{\rho^{\otimes N}}} \\
+  &= \delta_{ii'} \times \f1{n^2} \sum_{j=1}^n \sp{\bk{\Pi_{i\mu}^j \Pi_{i\mu'}^j}_{\rho^{\otimes N}}
+    - \bk{\Pi_{i\mu}^j}_{\rho^{\otimes N}}
+    \bk{\Pi_{i\mu'}^j}_{\rho^{\otimes N}}} \\
   &= \delta_{ii'} \times \f1n \sp{\bk{\Pi_{i\mu} \Pi_{i\mu'}}_\rho
     - \bk{\Pi_{i\mu}}_\rho \bk{\Pi_{i\mu'}}_\rho} \\
-  &= \delta_{ii'} \times \f1n \sp{\delta_{\mu\mu'} p_\mu^{(i)} - p_\mu^{(i)} p_{\mu'}^{(i)}},
+  &= \delta_{ii'} \times \f1n \sp{\delta_{\mu\mu'} p_\mu^i - p_\mu^i p_{\mu'}^i},
 \end{align}
-where $p_\mu^{(i)} \equiv \bk{\Pi_{i\mu}}_\rho = \bk{\mu_{\v v_i}|\rho|\mu_{\v v_i}}$ are the diagonal entries of $\rho$ in the basis of spin projections along axis $\v v_i$.
+where $p_\mu^i \equiv \bk{\Pi_{i\mu}}_\rho = \bk{\mu_{\v v_i}|\rho|\mu_{\v v_i}}$ are the diagonal entries of $\rho$ in the basis of spin projections along axis $\v v_i$.
 
 \subsection{Covariance of errors in the transition operator basis}
 
@@ -567,47 +567,39 @@ The covariances between statistical errors in the transition operator basis are 
   = \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell'\mu'}
   \bbk{\epsilon_{i\mu} \epsilon_{i'\mu'}}
   = \delta_{ii'} \times \f1n \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell'\mu'}
-  \sp{\delta_{\mu\mu'} p_\mu^{(i)} - p_\mu^{(i)} p_{\mu'}^{(i)}}.
+  \sp{\delta_{\mu\mu'} p_\mu^i - p_\mu^i p_{\mu'}^i}.
 \end{align}
-In order to establish an upper bound on reconstruction error for an unknown quantum state, we need an upper bound on the variance $\bbk{\epsilon_{i\ell}^2}$ in particular.
-To this end, for any multinomial probability distribution $p\equiv\p{p_1,p_2,\cdots,p_d}$ we define the function
+In order to establish an upper bound on reconstruction error for an unknown quantum state, we will need an upper bound on the variance $\bbk{\epsilon_{i\ell}^2}$ in particular.
+To this end, we observe that
 \begin{align}
-  g_\ell\p{p} \equiv \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell\mu'}
-  \p{\delta_{\mu\mu'} p_\mu - p_\mu p_{\mu'}}
-  = \sum_\mu t_{\ell\mu}^2 p_\mu - \p{\sum_\mu t_{\ell\mu} p_\mu}^2
-  = \sigma_p^2\p{t_\ell},
+  \bbk{\epsilon_{i\ell}^2} = \f1n \times \sigma_{p^i}^2\p{t_\ell},
 \end{align}
 where $t_\ell \equiv \p{t_{\ell,-s},t_{\ell,-s+1},\cdots,t_{\ell s}}$ is a vector of all $t_{\ell\mu}$, and
 \begin{align}
   \sigma_p^2\p{X}
-  \equiv \sum_\mu p_\mu \p{X_\mu - \sum_\nu p_\nu X_\nu}^2
-  = \sum_\mu p_\mu X_\mu^2 - \p{\sum_\mu p_\mu X_\mu}^2
+  \equiv \sum_\mu p_\mu X_\mu^2 - \p{\sum_\mu p_\mu X_\mu}^2
+  = \sum_\mu p_\mu \p{X_\mu - \sum_\nu p_\nu X_\nu}^2
 \end{align}
 is the variance of $X$ when sampled according to the probability distribution $p$.
-By expanding
+The variance $\sigma_p^2\p{X}$ is maximal when $p$ has equal weight on the largest and smallest values of $X$, which implies that
 \begin{align}
-  t_{\ell\mu} = \sqrt{\f{2\ell+1}{d}}\, \tau_{\ell\mu},
+  \sigma_p^2\p{t_\ell} \le \Gamma_\ell^2,
   &&
-  \tau_{\ell\mu} \equiv \bk{s\mu;\ell,0|s\mu},
+  \Gamma_\ell \equiv \f{\max_\mu t_{\ell\mu} - \min_\mu t_{\ell\mu}}{2}.
 \end{align}
-we can simplify
-\begin{align}
-  g_\ell\p{p} = \f{2\ell+1}{d} \times \sigma_p^2\p{\tau_\ell}.
-\end{align}
-We now seek to maximize $g_\ell\p{p}$, which will provide an upper bound for $\bbk{\epsilon_{i\ell}^2}$.
-In general, variance $\sigma_p^2\p{X}$ is maximal when $p$ has equal weight on the largest and smallest values of $X$, which implies that
-\begin{align}
-  \sigma_p^2\p{\tau_\ell} \le \gamma_\ell^2,
-  &&
-  \gamma_\ell \equiv \f{\max\tau_\ell - \min\tau_\ell}{2}.
-\end{align}
-Altogether, using additionally the fact that $g_0\p{p}=0$, we can bound
+Altogether, using additionally the fact that $\sigma_p^2\p{t_0}=0$ (because all $t_{0,\mu}=1/\sqrt{d}$) we can bound
 \begin{align}
   \bbk{\epsilon_{i\ell}^2}
-  = \f1n \times g_\ell\p{p^{(i)}}
-  \le \f{2\ell+1}{nd} \times \gamma_\ell^2
-  \times \p{1 - \delta_{\ell,0}}.
+  \le \f1n \times \Gamma_\ell^2 \times \p{1 - \delta_{\ell,0}}
+  = \f{2\ell+1}{nd} \times \gamma_\ell^2
+  \times \p{1 - \delta_{\ell,0}},
   \label{eq:variance_bound}
+\end{align}
+where $\gamma_\ell$ is defined using Clebsch-Gordan coefficients:
+\begin{align}
+  \gamma_\ell \equiv \f{\max_\mu\tau_{\ell\mu} - \min_\mu\tau_{\ell\mu}}{2},
+  &&
+  \tau_{\ell\mu} \equiv \bk{s\mu;\ell,0|s\mu}.
 \end{align}
 Note that the bound in Eq.~\eqref{eq:variance_bound} is tight, as equality is achieved by the mixed state
 \begin{align}
@@ -616,27 +608,26 @@ Note that the bound in Eq.~\eqref{eq:variance_bound} is tight, as equality is ac
 \end{align}
 where $\mu_{\t{max}}$ ($\mu_{\t{min}}$) is any index that maximizes (minimizes) $\tau_{\ell\mu}$.
 
-Though the result in Eq.~\eqref{eq:variance_bound} is sufficient to proceed with our derivation of an improved tomographic error bound, we first take some time to better understand the bound on $\bbk{\epsilon_{i\ell}^2}$ analytically.
+Though the result in Eq.~\eqref{eq:variance_bound} is sufficient to proceed with our derivation of an improved tomographic reconstruction error bound, we first take some time to better understand the bound on $\bbk{\epsilon_{i\ell}^2}$ analytically.
 To this end, we first note that the Clebsch-Gordan coefficients $\tau_{\ell\mu}$ are at most $1$ in magnitude, which implies that $\gamma_\ell^2\le 1$.
 Moreover, we can also bound
 \begin{align}
-  g_\ell\p{p} \le \sum_\mu t_{\ell\mu}^2 p_\mu
+  \sigma_p^2\p{t_\ell} \le \sum_\mu t_{\ell\mu}^2 p_\mu
   \le \sum_\mu t_{\ell\mu}^2 = 1,
   &&
   \t{so}
   &&
   \bbk{\epsilon_{i\ell}^2} \le \f1n \times \min\Set{\f{2\ell+1}{d}, 1}.
 \end{align}
-We can get a tighter analytical bound on $\bbk{\epsilon_{i\ell}^2}$ by considering that if $\mu_{\t{max}}\ne0$, then
+We can get a tighter analytical bound on $\bbk{\epsilon_{i\ell}^2}$ by considering the fact that $t_{\ell\mu_{\t{max}}}^2 = t_{\ell,-\mu_{\t{max}}}^2$ due to the symmetries of the Clebsch-Gordan coefficients, so if $\mu_{\t{max}}\ne0$, then
 \begin{align}
-  g_\ell\p{p} \le \sum_\mu t_{\ell\mu}^2 p_\mu
+  \sigma_p^2\p{t_\ell} \le \sum_\mu t_{\ell\mu}^2 p_\mu
   \le t_{\ell\mu_{\t{max}}}^2
   = \f12 \p{t_{\ell\mu_{\t{max}}}^2 + t_{\ell,-\mu_{\t{max}}}^2}
   \stackrel{\mu_{\t{max}}\ne0}{\le} \f12 \sum_\mu t_{\ell\mu}^2
-  = \f12,
+  = \f12.
 \end{align}
-where we used the fact that $t_{\ell\mu_{\t{max}}}^2 = t_{\ell,-\mu_{\t{max}}}^2$ due to the symmetries of the Clebsch-Gordan coefficients.
-If $\mu_{\t{max}}=0$, then
+If $\mu_{\t{max}}=0$, then similarly
 \begin{align}
   t_{\ell\mu_{\t{max}}}^2 + 2 t_{\ell\mu_{\t{min}}}^2
   = t_{\ell\mu_{\t{max}}}^2 + t_{\ell\mu_{\t{min}}}^2
@@ -652,18 +643,18 @@ If $\mu_{\t{max}}=0$, then
 \end{align}
 This inequality lets us bound
 \begin{align}
-  \sqrt{\f{2\ell+1}{d}}\, \gamma_\ell
+  \Gamma_\ell
   = \f12 \p{t_{\ell\mu_{\t{max}}} - t_{\ell\mu_{\t{min}}}}
   \le \f12 \p{t_{\ell\mu_{\t{max}}} + \abs{t_{\ell\mu_{\t{min}}}}}
   \stackrel{\mu_{\t{max}}=0}{\le}
   \f12 t_{\ell\mu_{\t{max}}}
   + \f12\sqrt{\f{1 - t_{\ell\mu_{\t{max}}}^2}{2}}
-  \equiv \Gamma\p{t_{\ell\mu_{\t{max}}}}.
+  \equiv g\p{t_{\ell\mu_{\t{max}}}}.
 \end{align}
-If is straightforward to show that $\Gamma\p{M}$ has a single maximum at $M=\sqrt{2/3}$, and that $\Gamma^\star\equiv\Gamma\p{\sqrt{2/3}}=\sqrt{3/8}$, so
+If is straightforward to show that $g\p{M}$ has a single maximum at $M=\sqrt{2/3}$, and that $g^\star\equiv g\p{\sqrt{2/3}}=\sqrt{3/8}$, so
 \begin{align}
-  g_\ell\p{p} \le \f{2\ell+1}{d}\, \gamma_\ell^2
-  \stackrel{\mu_{\t{max}}=0}{\le} \p{\Gamma^\star}^2
+  \sigma_p^2\p{t_\ell} \le \Gamma_\ell^2
+  \stackrel{\mu_{\t{max}}=0}{\le} \p{g^\star}^2
   = \f38 < \f12.
 \end{align}
 Altogether, we thus find that in all cases
