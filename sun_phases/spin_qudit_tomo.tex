@@ -382,7 +382,17 @@ and $\gamma_\ell$ is defined using Clebsch-Gordan coefficients:
 If $d$ even or $\ell$ is odd, then $\gamma_\ell=\max_\mu\tau_{\ell\mu}$.
 For comparison with the previous bound in Eq.~\eqref{eq:bound_eps}, we note that the error scale $\epsilon_V^2<\S_V^2/2$, so the previous bound still holds with the replacement $\epsilon^2\to1/2n$.
 
-[\red{todo: add a state-dependent error bound}]
+As a final comment, we note that the statistical error bound in Eq.~\eqref{eq:bound} is a ``worst case'' bound that is agnostic to the state $\rho$.
+The actual statistical error for any particular state may be considerably smaller.
+Written out in full (and derived in Appendix \ref{sec:error}),
+\begin{align}
+  \Bbk{\norm{\tilde\rho_V-\rho}^2}
+  = \f1n \sum_{i,\ell} \sigma_\rho^2\p{T_{\v v_i\ell,0}}
+  \sum_m \abs{q_{\ell mi}^V}^2,
+  \label{eq:error}
+\end{align}
+where $i$ indexes an axis $\v v_i\in V$; $\sigma_\rho^2\p{X} \equiv \bk{X^2}_\rho - \bk{X}_\rho^2$ is the variance of $X$; and $\v q_{\ell m}^V$ is a right singular vector of $M_{V\ell}$ corresponding to the singular value $M^V_{\ell m}$, with normalization $\abs{\v q_{\ell m}^V}=1/M^V_{\ell m}$.
+While the error in Eq.~\eqref{eq:error} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error} with the replacement $\rho\to\tilde\rho_V$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomography protocols}
@@ -577,7 +587,9 @@ The covariance between errors in the transition operator basis is then
   = \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell'\mu'}
   \bbk{\epsilon_{i\mu} \epsilon_{i'\mu'}}
   = \delta_{ii'} \times \f1n \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell'\mu'}
-  \p{\delta_{\mu\mu'} p_\mu^i - p_\mu^i p_{\mu'}^i}.
+  \p{\delta_{\mu\mu'} p_\mu^i - p_\mu^i p_{\mu'}^i}
+  = \delta_{ii'} \times \f1n \sp{\bk{T_{i\ell} T_{i\ell'}}_\rho
+    - \bk{T_{i\ell}}_\rho \bk{T_{i\ell'}}_\rho}.
 \end{align}
 In order to establish an upper bound on reconstruction error for an unknown quantum state, we will need an upper bound on the variance $\bbk{\epsilon_{i\ell}^2}$ in particular.
 To this end, we observe that
@@ -703,6 +715,18 @@ Altogether, we thus find that $n$ measurements of spin projection along every ax
 \end{align}
 We note that whereas the bound on $\bbk{\epsilon_{i\ell}^2}$ in Eq.~\eqref{eq:variance_bound} is tight, the bounds in Eq.~\eqref{eq:bound_single} and Eq.~\eqref{eq:bound_full} are not: the upper bound on $\bbk{\epsilon_{i\ell}^2}$ cannot be achieved simultaneously for all axes $\v v_i$ or degrees $\ell$.
 In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound_full}.
+
+As a final comment, we note that the statistical error bound in \eqref{eq:bound_full} is a ``worst-case'' bound that is agnostic to the state $\rho$.
+The actual statistical error for any particular state may be considerably smaller, and can be obtained by substituting the exact expression for $\bbk{\epsilon_{i\ell}^2}$:
+\begin{align}
+  \Bbk{\norm{\tilde\rho_V-\rho}^2}
+  = \sum_{i,\ell,m} \abs{q^V_{\ell mi}}^2 \bbk{\epsilon_{i\ell}^2}
+  = \f1n \sum_{i,\ell} \sigma_\rho^2\p{T_{i\ell}}
+  \sum_m \abs{q^V_{\ell mi}}^2,
+  \label{eq:error_full}
+\end{align}
+where $\sigma_\rho^2\p{X}\equiv\bk{X^2}_\rho-\bk{X}_\rho^2$ is the variance of $X$.
+While the error in Eq.~\eqref{eq:error_full} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error_full} with the replacement $\rho\to\tilde\rho_V$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Computing singular values of the measurement matrix}
