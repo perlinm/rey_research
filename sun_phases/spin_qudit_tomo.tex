@@ -349,7 +349,6 @@ where $M_{V\ell}^{-1}$ is the right inverse of $M_{V\ell}$.
 Constructing the block $M_{V\ell}$ and computing its singular values takes at most $O(\abs{V}d^2)$ time (see Appendix \ref{sec:compute} for additional details on efficiently computing $\S_{V\ell}^2$ [\red{todo: write tutorial}]).
 Altogether, if we assume that $\abs{V}\sim d$, then computing $\S_V^2$ to certify the bound in Eq.~\eqref{eq:bound_eps} takes $O(d^4)$ serial or $O(d^3)$ parallel runtime (see Figure [\red{REF}]).
 [\red{todo: add figure showing runtimes as a function of $d$ with $\abs{V}=2d-1$; modify text appropriately after making the figure}].
-For comparison, we note that existing algorithms for signal recovery on the sphere \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} similarly have $O(d^3)$ parallel runtime with $\abs{V}\gtrsim d$.
 
 The assumption that observables can be estimated up to uncorrelated noise with maximal variance $\epsilon^2$, summarized by Eq.~\eqref{eq:error_assumption}, is reasonable when measurement error is dominated by experimental sources of noise.
 However, this assumption breaks down when measurement error is limited by fundamental quantum (shot) noise.
@@ -372,6 +371,7 @@ and $\gamma_\ell$ is defined using Clebsch-Gordan coefficients:
   &&
   \tau_{\ell\mu} \equiv \bk{s\mu;\ell,0|s\mu}.
 \end{align}
+If $d$ even or $\ell$ is odd, then $\gamma_\ell=\max_\mu\tau_{\ell\mu}$.
 For comparison, we note that the error scale $\epsilon_V^2<\S_V^2/2$.
 
 [\red{todo: add a state-dependent error bound}]
