@@ -726,12 +726,12 @@ Altogether, we thus find that $n$ measurements of spin projection along every ax
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \sum_{\ell,m} \Bbk{\abs{\tilde\rho_{\ell m}^V-\rho_{\ell m}^V}^2}
   < \f1{nd} \sum_{\ell>0} \p{2\ell+1} \gamma_\ell^2 \S_{V\ell}^2.
-  \label{eq:bound_full}
+  \label{eq:bound_SM}
 \end{align}
-We note that whereas the bound on $\bbk{\epsilon_{i\ell}^2}$ in Eq.~\eqref{eq:variance_bound} is tight, the bounds in Eq.~\eqref{eq:bound_single} and Eq.~\eqref{eq:bound_full} are not: the upper bound on $\bbk{\epsilon_{i\ell}^2}$ cannot be achieved simultaneously for all axes $\v v_i$ or degrees $\ell$.
-In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound_full}.
+We note that whereas the bound on $\bbk{\epsilon_{i\ell}^2}$ in Eq.~\eqref{eq:variance_bound} is tight, the bounds in Eq.~\eqref{eq:bound_single} and Eq.~\eqref{eq:bound_SM} are not: the upper bound on $\bbk{\epsilon_{i\ell}^2}$ cannot be achieved simultaneously for all axes $\v v_i$ or degrees $\ell$.
+In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound_SM}.
 
-As a final comment, we note that the statistical error bound in \eqref{eq:bound_full} is a ``worst-case'' bound that is agnostic to the state $\rho$.
+As a final comment, we note that the statistical error bound in \eqref{eq:bound_SM} is a ``worst-case'' bound that is agnostic to the state $\rho$.
 The actual statistical error for any particular state may be considerably smaller, and can be obtained by substituting the exact expression for $\bbk{\epsilon_{i\ell}^2}$:
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
@@ -739,7 +739,7 @@ The actual statistical error for any particular state may be considerably smalle
   = \f1n \sum_{i,\ell} C^V_{\ell i} \sigma_\rho^2\p{T_{i\ell}},
   &&
   C^V_{\ell i} \equiv \sum_m \abs{q_{\ell mi}}^2,
-  \label{eq:error_full_start}
+  \label{eq:error_SM_start}
 \end{align}
 where $\sigma_\rho^2\p{X}\equiv\bk{X^2}_\rho - \bk{X}_\rho^2$ is the variance of $X$.
 To simplify this error, we use the fact that all $T_{i\ell}=T_{i\ell}^\dag$ to expand
@@ -754,27 +754,23 @@ where
   \cov_\rho\p{X,Y} \equiv \bk{X Y}_\rho - \bk{X}_\rho \bk{Y}_\rho
 \end{align}
 is the covariance between $X$ and $Y$.
-This expansion allows us to express the error in Eq.~\eqref{eq:error_full_start} more compactly as
+This expansion allows us to express the error in Eq.~\eqref{eq:error_SM_start} more compactly as
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \f1n \sum_\ell \p{\xi_{V\ell}|\T_{\rho\ell}},
-  \label{eq:error_full}
+  \label{eq:error_SM}
 \end{align}
 where
 \begin{align}
   \xi_{V\ell} \equiv M_{V\ell} C_{V\ell} M_{V\ell}^\dag,
   &&
   C_{V\ell}
-  \equiv \diag\p{C^V_{\ell,1},C^V_{\ell,2},\cdots,C^V_{\ell,\abs{V}}}
-\end{align}
-and
-\begin{align}
+  \equiv \diag\p{C^V_{\ell,1},C^V_{\ell,2},\cdots,C^V_{\ell,\abs{V}}},
+  &&
   \T_{\rho\ell}
-  \equiv \sum_{m,n} \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n}
-  = \sum_{m,n} \sp{\delta_{mn} \bk{T_{\ell m}^\dag T_{\ell m}}_\rho
-    - \bk{T_{\ell m}^\dag}_\rho \bk{T_{\ell n}}_\rho} \op{m}{n}.
+  \equiv \sum_{m,n} \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n}.
 \end{align}
-While the error in Eq.~\eqref{eq:error_full} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error_full} with the replacement $\rho\to\tilde\rho_V$.
+While the error in Eq.~\eqref{eq:error_SM} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error_SM} with the replacement $\rho\to\tilde\rho_V$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Computing singular values of the measurement matrix}
