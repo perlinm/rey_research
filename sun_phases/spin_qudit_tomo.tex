@@ -390,9 +390,9 @@ As a final comment, we note that the statistical error bound in Eq.~\eqref{eq:bo
 The actual statistical error for any particular state may be considerably smaller.
 To write out the error in full, we identify the normalized right singular vectors $\v x^V_{\ell m}\equiv (x^V_{\ell m,1}, x^V_{\ell m,2}, \cdots)$ and corresponding singular values $M^V_{\ell m}$ of $M_{V\ell}$, and define
 \begin{align}
-  C_{V\ell} \equiv \sum_i C_{V\ell i} \op{i},
+  C_{V\ell i} \equiv \sum_m \abs{\f{x_{\ell m i}}{M^V_{\ell m}}}^2,
   &&
-  C_{V\ell i} \equiv \f1{\p{M^V_{\ell m}}^2} \sum_m \abs{x_{\ell m i}}^2.
+  C_{V\ell} \equiv \sum_i C_{V\ell i} \op{\v v_i}.
 \end{align}
 We can then compactly express (see Appendix \ref{sec:error})
 \begin{align}
