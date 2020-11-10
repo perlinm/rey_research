@@ -40,6 +40,7 @@
 \renewcommand{\O}{\mathcal{O}}
 \newcommand{\Q}{\mathcal{Q}}
 \renewcommand{\S}{\mathcal{S}}
+\newcommand{\T}{\mathcal{T}}
 
 \newcommand{\ZZ}{\mathbb{Z}}
 
@@ -47,6 +48,9 @@
 \def\oket#1{\mathinner{|{#1})}}
 \def\obk#1{\mathinner{({#1})}}
 \def\oop#1#2{\oket{#1}\!\obra{#2}}
+
+\DeclareMathOperator{\cov}{cov}
+\DeclareMathOperator{\diag}{diag}
 
 %%% figures
 \usepackage{graphicx} % for figures
@@ -384,14 +388,25 @@ For comparison with the previous bound in Eq.~\eqref{eq:bound_eps}, we note that
 
 As a final comment, we note that the statistical error bound in Eq.~\eqref{eq:bound} is a ``worst case'' bound that is agnostic to the state $\rho$.
 The actual statistical error for any particular state may be considerably smaller.
-Written out in full (and derived in Appendix \ref{sec:error}),
+To write out the error in full, we identify the normalized right singular vectors $\v x^V_{\ell m}\equiv (x^V_{\ell m,1}, x^V_{\ell m,2}, \cdots)$ and corresponding singular values $M^V_{\ell m}$ of $M_{V\ell}$, and define
+\begin{align}
+  C_{V\ell} \equiv \sum_i C_{V\ell i} \op{i},
+  &&
+  C_{V\ell i} \equiv \f1{\p{M^V_{\ell m}}^2} \sum_m \abs{x_{\ell m i}}^2.
+\end{align}
+We can then compactly express (see Appendix \ref{sec:error})
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \f1n \sum_{i,\ell} \sigma_\rho^2\p{T_{\v v_i\ell,0}}
-  \sum_m \abs{q_{\ell mi}^V}^2,
+  = \f1n \sum_\ell \obk{\xi_{V\ell}|\T_{\rho\ell}},
   \label{eq:error}
 \end{align}
-where $i$ indexes an axis $\v v_i\in V$; $\sigma_\rho^2\p{X} \equiv \bk{X^2}_\rho - \bk{X}_\rho^2$ is the variance of $X$; and $\v q_{\ell m}^V$ is a right singular vector of $M_{V\ell}$ corresponding to the singular value $M^V_{\ell m}$, with normalization $\abs{\v q_{\ell m}^V}=1/M^V_{\ell m}$.
+where
+\begin{align}
+  \xi_{V\ell} &\equiv M_{V\ell} C_{V\ell} M_{V\ell}^\dag, \\
+  \T_{\rho\ell} &\equiv \sum_{m,n}
+  \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n},
+\end{align}
+with $\cov_\rho\p{X,Y} \equiv \bk{XY}_\rho - \bk{X}_\rho \bk{Y}_\rho$ the covariance between $X$ and $Y$.
 While the error in Eq.~\eqref{eq:error} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error} with the replacement $\rho\to\tilde\rho_V$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -721,11 +736,44 @@ The actual statistical error for any particular state may be considerably smalle
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \sum_{i,\ell,m} \abs{q^V_{\ell mi}}^2 \bbk{\epsilon_{i\ell}^2}
-  = \f1n \sum_{i,\ell} \sigma_\rho^2\p{T_{i\ell}}
-  \sum_m \abs{q^V_{\ell mi}}^2,
+  = \f1n \sum_{i,\ell} C^V_{\ell i} \sigma_\rho^2\p{T_{i\ell}},
+  &&
+  C^V_{\ell i} \equiv \sum_m \abs{q_{\ell mi}}^2,
+  \label{eq:error_full_start}
+\end{align}
+where $\sigma_\rho^2\p{X}\equiv\bk{X^2}_\rho - \bk{X}_\rho^2$ is the variance of $X$.
+To simplify this error, we use the fact that all $T_{i\ell}=T_{i\ell}^\dag$ to expand
+\begin{align}
+  \sigma_\rho^2\p{T_{i\ell}}
+  = \sigma_\rho^2\p{\sum_m D^\ell_{m,0}\p{\v v_i} T_{\ell m}}
+  = \sum_{m,n} D^\ell_{m,0}\p{\v v_i}^* D^\ell_{n,0}\p{\v v_i}
+  \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}},
+\end{align}
+where
+\begin{align}
+  \cov_\rho\p{X,Y} \equiv \bk{X Y}_\rho - \bk{X}_\rho \bk{Y}_\rho
+\end{align}
+is the covariance between $X$ and $Y$.
+This expansion allows us to express the error in Eq.~\eqref{eq:error_full_start} more compactly as
+\begin{align}
+  \Bbk{\norm{\tilde\rho_V-\rho}^2}
+  = \f1n \sum_\ell \p{\xi_{V\ell}|\T_{\rho\ell}},
   \label{eq:error_full}
 \end{align}
-where $\sigma_\rho^2\p{X}\equiv\bk{X^2}_\rho-\bk{X}_\rho^2$ is the variance of $X$.
+where
+\begin{align}
+  \xi_{V\ell} \equiv M_{V\ell} C_{V\ell} M_{V\ell}^\dag,
+  &&
+  C_{V\ell}
+  \equiv \diag\p{C^V_{\ell,1},C^V_{\ell,2},\cdots,C^V_{\ell,\abs{V}}}
+\end{align}
+and
+\begin{align}
+  \T_{\rho\ell}
+  \equiv \sum_{m,n} \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n}
+  = \sum_{m,n} \sp{\delta_{mn} \bk{T_{\ell m}^\dag T_{\ell m}}_\rho
+    - \bk{T_{\ell m}^\dag}_\rho \bk{T_{\ell n}}_\rho} \op{m}{n}.
+\end{align}
 While the error in Eq.~\eqref{eq:error_full} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error_full} with the replacement $\rho\to\tilde\rho_V$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
