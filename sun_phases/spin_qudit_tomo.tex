@@ -391,25 +391,28 @@ There is therefore still room for improvement on the bound in Eq.~\eqref{eq:boun
 
 As a final comment, we note that Eq.~\eqref{eq:bound} provides a pessimistic upper bound on statistical error, which can be calculated without prior knowledge of the true qudit state $\rho$.
 The actual error in the reconstruction $\tilde\rho_V$ of a particular state $\rho$ may be considerably smaller.
-To write out this error in full, we identify the normalized right singular vectors $\v x^V_{\ell m}\equiv (x^V_{\ell m,1}, x^V_{\ell m,2}, \cdots)$ and corresponding singular values $M^V_{\ell m}$ of $M_{V\ell}$, and define
+To write out this error in full (see Appendix \ref{sec:error} for a derivation), we identify the normalized right singular vectors $\v x^V_{\ell m}\equiv (x^V_{\ell m,1}, x^V_{\ell m,2}, \cdots)$ and corresponding singular values $M^V_{\ell m}$ of $M_{V\ell}$, and define
 \begin{align}
   C_{V\ell i} \equiv \sum_m \abs{\f{x_{\ell m i}}{M^V_{\ell m}}}^2,
   &&
   C_{V\ell} \equiv \sum_i C_{V\ell i} \op{\v v_i}.
 \end{align}
-We can then compactly express (see Appendix \ref{sec:error})
+We then construct the $\p{2\ell+1}\times\p{2\ell+1}$ matrix
+\begin{align}
+  \xi_{V\ell} \equiv M_{V\ell} C_{V\ell} M_{V\ell}^\dag,
+\end{align}
+whose (normalized) eigenvectors $\v\chi^V_{\ell m}$ determine the orthonormal operators
+\begin{align}
+  \Q_{V\ell m} \equiv \sum_n \chi^V_{\ell mn} T_{\ell n}.
+\end{align}
+In terms of the corresponding eigenvalues $\xi^V_{\ell m}$ of $\xi_{V\ell}$, we can then compactly express
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \f1n \sum_{\ell>0} \obk{\xi_{V\ell}|\T_{\rho\ell}},
+  = \f1n \sum_{\ell,m} \xi^V_{\ell m}
+  \cov_\rho\p{\Q_{V\ell m}^\dag,\Q_{V\ell m}},
   \label{eq:error}
 \end{align}
-where
-\begin{align}
-  \xi_{V\ell} &\equiv M_{V\ell} C_{V\ell} M_{V\ell}^\dag, \\
-  \T_{\rho\ell} &\equiv \sum_{m,n}
-  \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n},
-\end{align}
-with $\cov_\rho\p{X,Y} \equiv \bk{XY}_\rho - \bk{X}_\rho \bk{Y}_\rho$.
+where $\cov_\rho\p{X,Y} \equiv \bk{XY}_\rho - \bk{X}_\rho \bk{Y}_\rho$.
 While the error in Eq.~\eqref{eq:error} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error} with the replacement $\rho\to\tilde\rho_V$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -739,7 +742,7 @@ The actual statistical error for any particular state may be considerably smalle
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \sum_{i,\ell,m} \abs{q^V_{\ell mi}}^2 \bbk{\epsilon_{i\ell}^2}
-  = \f1n \sum_{\ell>0} \sum_i C^V_{\ell i} \sigma_\rho^2\p{T_{i\ell}},
+  = \f1n \sum_{i,\ell} C^V_{\ell i} \sigma_\rho^2\p{T_{i\ell}},
   &&
   C^V_{\ell i} \equiv \sum_m \abs{q_{\ell mi}}^2,
   \label{eq:error_SM_start}
@@ -760,8 +763,8 @@ is the covariance between $X$ and $Y$.
 This expansion allows us to express the error in Eq.~\eqref{eq:error_SM_start} more compactly as
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \f1n \sum_{\ell>0} \p{\xi_{V\ell}|\T_{\rho\ell}},
-  \label{eq:error_SM}
+  = \f1n \sum_\ell \p{\xi_{V\ell}|\T_{\rho\ell}},
+  \label{eq:error_SM_mid}
 \end{align}
 where
 \begin{align}
@@ -772,6 +775,16 @@ where
   &&
   \T_{\rho\ell}
   \equiv \sum_{m,n} \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n}.
+\end{align}
+The result in Eq.~\eqref{eq:error_SM_mid} can be further simplified by diagonalizing $\xi_{V\ell}$.
+Denoting the eigenvalues and corresponding eigenvectors of $\xi_{V\ell}$ respectively by $\xi^V_{\ell m}$ and $\v\chi^V_{\ell m}$, we finally arrive at the expression
+\begin{align}
+  \Bbk{\norm{\tilde\rho_V-\rho}^2}
+  = \f1n \sum_{\ell,m} \xi^V_{\ell m}
+  \cov_\rho\p{\Q_{V\ell m}^\dag, \Q_{V\ell m}},
+  &&
+  \Q_{V\ell m} \equiv \sum_n \chi^V_{\ell m n} T_{\ell n}.
+  \label{eq:error_SM}
 \end{align}
 While the error in Eq.~\eqref{eq:error_SM} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error_SM} with the replacement $\rho\to\tilde\rho_V$.
 
