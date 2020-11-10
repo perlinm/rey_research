@@ -400,7 +400,7 @@ To write out this error in full, we identify the normalized right singular vecto
 We can then compactly express (see Appendix \ref{sec:error})
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \f1n \sum_\ell \obk{\xi_{V\ell}|\T_{\rho\ell}},
+  = \f1n \sum_{\ell>0} \obk{\xi_{V\ell}|\T_{\rho\ell}},
   \label{eq:error}
 \end{align}
 where
@@ -719,7 +719,7 @@ Making the replacement $k\to\p{\ell,m}$, we can thus repeat the derivations thro
   \bbk{\epsilon_{i\ell} \epsilon_{i'\ell}}
   = \sum_i \abs{q_{\ell m i}^V}^2
   \bbk{\epsilon_{i\ell}^2}
-  < \f{2\ell+1}{nd} \times \gamma_\ell^2
+  < \f1{\p{M^V_{\ell m}}^2} \times \f{2\ell+1}{nd} \times \gamma_\ell^2
   \times \p{1-\delta_{\ell,0}},
   \label{eq:bound_single}
 \end{align}
@@ -739,7 +739,7 @@ The actual statistical error for any particular state may be considerably smalle
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \sum_{i,\ell,m} \abs{q^V_{\ell mi}}^2 \bbk{\epsilon_{i\ell}^2}
-  = \f1n \sum_{i,\ell} C^V_{\ell i} \sigma_\rho^2\p{T_{i\ell}},
+  = \f1n \sum_{\ell>0} \sum_i C^V_{\ell i} \sigma_\rho^2\p{T_{i\ell}},
   &&
   C^V_{\ell i} \equiv \sum_m \abs{q_{\ell mi}}^2,
   \label{eq:error_SM_start}
@@ -760,7 +760,7 @@ is the covariance between $X$ and $Y$.
 This expansion allows us to express the error in Eq.~\eqref{eq:error_SM_start} more compactly as
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \f1n \sum_\ell \p{\xi_{V\ell}|\T_{\rho\ell}},
+  = \f1n \sum_{\ell>0} \p{\xi_{V\ell}|\T_{\rho\ell}},
   \label{eq:error_SM}
 \end{align}
 where
