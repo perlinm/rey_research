@@ -2,6 +2,7 @@
 
 import os, sys, functools, time
 import scipy, scipy.linalg
+import sympy, sympy.physics.quantum
 import numpy as np
 
 import multiprocessing
@@ -11,6 +12,8 @@ except NotImplementedError:
     cpus = 4 # default number of cpus to use for multithreading
 
 np.set_printoptions(linewidth = 200)
+
+write_data = False
 
 parallelize = False
 if "par" in sys.argv:
@@ -47,13 +50,13 @@ def random_axes(axis_num):
     return axes
 
 # get squared singular values of a matrix
-def get_sqr_svdvals(matrix):
-    # return scipy.linalg.svdvals(matrix)**2 # for some reason this is slower...
+def get_svdvals(matrix):
+    # return scipy.linalg.svdvals(matrix) # for some reason this is slower...
     if matrix.shape[0] < matrix.shape[1]:
         MM = matrix @ matrix.conj().T
     else:
         MM = matrix.conj().T @ matrix
-    return scipy.linalg.eigvalsh(MM)
+    return np.sqrt(scipy.linalg.eigvalsh(MM))
 
 # run a batch of independent jobs, in parallel by default
 def compute_batch(pool, function, values):
@@ -85,7 +88,7 @@ pool = multiprocessing.Pool(processes = cpus)
 spin_vals = compute_batch(pool, _spin_vals, range(max_dim-1,-1,-1))[::-1]
 rot_z_to_x = compute_batch(pool, _roz_z_to_x, range(max_dim-1,-1,-1))[::-1]
 
-# pre-compute the vector exp(-i \pi/2 S_y) |L,0> for all (relevant) L.
+# pre-compute the vector exp(-i \pi/2 S_y) |L,0> for all (relevant) L
 # every other entry in this vector is zero, so remove it preemptively
 rot_zero_vecs = [ rot_z_to_x[LL][:,LL][::2] for LL in range(max_dim) ]
 
@@ -99,37 +102,53 @@ def rot_mid(LL, axis):
     return phases_1 * ( pulse_mats[LL] @ ( phases_0 * rot_zero_vecs[LL] ) )
 
 ##########################################################################################
-# compute the measurement matrix and its singular values
+# pre-compute weights on fixed-degree variances
+
+def get_gamma(dim, LL):
+    II = ( sympy.S(dim)-1 ) / 2
+    cg_coef = lambda *args : float(sympy.physics.quantum.cg.CG(*args).doit())
+    cg_vals = [ cg_coef(II, -II+mm, LL, 0, II,-II+mm)
+                for mm in range(dim-1) ]
+    return ( max(cg_vals) - min(cg_vals) ) / 2
+variance_weight = { ( dim, LL ) : get_gamma(dim, LL)**2 * (2*LL+1)/dim
+                    for dim in range(min_dim, max_dim+1)
+                    for LL in range(1,dim) }
+
+##########################################################################################
+# compute the measurement matrix, its singular values, and the error scale
 
 # construct a fixed-degree measurement matrix
 def axes_trans_ops(LL, axes):
     return np.array([ rot_mid(LL, axis) for axis in axes ])
 
-# get squared singular values ("norms") of a fixed-degree measurement matrix
-def degree_sqr_norms(LL, axes):
-    return get_sqr_svdvals(axes_trans_ops(LL, axes))
+# get singular values ("norms") of a single fixed-degree measurement matrix
+def degree_norms(LL, axes):
+    return get_svdvals(axes_trans_ops(LL, axes))
 
-# get squared singular values ("norms") of the full measurement matrix
+# get singular values ("norms") of all fixed-degree measurement matrix
 pool = multiprocessing.Pool(processes = cpus)
-def meas_sqr_norms(dim, axes):
-    _degree_sqr_norms = functools.partial(degree_sqr_norms, axes = axes)
-    return np.concatenate(compute_batch(pool, _degree_sqr_norms, range(dim-1,-1,-1)))
+def meas_norms(dim, axes):
+    _degree_norms = functools.partial(degree_norms, axes = axes)
+    return compute_batch(pool, _degree_norms, range(dim-1,0,-1))
 
-# compute the error scale for  the given axes
+# compute the error scale for the given axes
 def error_scale(dim, axes):
     axes_mat_shape = (axes.size//2,2)
     axes_mat = axes.reshape(axes_mat_shape)
-    sqr_norms = meas_sqr_norms(dim, axes_mat)
-    return np.sqrt(sum(1/sqr_norms))
+    norms = meas_norms(dim, axes_mat)
+    weights = [ variance_weight[dim,LL] for LL in range(dim-1,0,-1) ]
+    return np.sqrt(sum([ weight * sum(1/degree_norms**2)
+                         for weight, degree_norms in zip(weights, norms) ]))
 
 ##########################################################################################
 # simulate!
 
-with open(data_file, "w") as file:
-    file.write(f"# sample_cap: {sample_cap}\n")
-    file.write(f"# time_cap: {time_cap} sec\n")
-    file.write(f"# seed: {seed}\n")
-    file.write("# dim, mean_time, min_error_scale\n")
+if write_data:
+    with open(data_file, "w") as file:
+        file.write(f"# sample_cap: {sample_cap}\n")
+        file.write(f"# time_cap: {time_cap} sec\n")
+        file.write(f"# seed: {seed}\n")
+        file.write("# dim, mean_time, min_error_scale\n")
 
 for dim in range(min_dim, max_dim+1):
     print(dim, end = " ")
@@ -144,8 +163,9 @@ for dim in range(min_dim, max_dim+1):
         if time.time() - start > time_cap: break
 
     mean_time = ( time.time() - start ) / (sample+1)
-    with open(data_file, "a") as file:
-        file.write(f"{dim} {mean_time} {min_error_scale}\n")
+    if write_data:
+        with open(data_file, "a") as file:
+            file.write(f"{dim} {mean_time} {min_error_scale}\n")
 
     print(mean_time, min_error_scale)
     sys.stdout.flush()
@@ -153,5 +173,6 @@ for dim in range(min_dim, max_dim+1):
 runtime = time.time() - genesis
 runtime_text = f"total runtime: {runtime}"
 print(runtime_text)
-with open(data_file, "a") as file:
-    file.write(f"# {runtime_text}\n")
+if write_data:
+    with open(data_file, "a") as file:
+        file.write(f"# {runtime_text}\n")
