@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, sys, functools, time
+import os, sys, time, functools
 import scipy, scipy.linalg
 import sympy, sympy.physics.quantum
 import numpy as np
@@ -58,7 +58,7 @@ def get_svdvals(matrix):
         MM = matrix.conj().T @ matrix
     return np.sqrt(scipy.linalg.eigvalsh(MM))
 
-# run a batch of independent jobs, in parallel by default
+# run a batch of independent jobs, possibly in parallel
 def compute_batch(pool, function, values):
     if parallelize:
         return pool.map(function, values)
@@ -66,16 +66,34 @@ def compute_batch(pool, function, values):
         return list(map(function, values))
 
 ##########################################################################################
-# methods to compute a vector of D^L_{m,0}(v) for all |m| <= L,
-# where: D^L_{mn} is a (Wigner) rotation matrix element, and
-#        v = (alpha,beta) is a axis on the sphere at azimuth/polar angles (alpha,beta)
-#
-# basically, we decompose D^L_{m,0}(alpha,beta) into:
-#     e^{-i alpha S_z} * exp(+i \pi/2 S_y) * e^{-i beta S_z} * exp(-i \pi/2 S_y) |L,0>
-# where: S_z, S_y are spin-z and spin_y operators
-#        |L,0> is the state of a spin-L particle with spin projection 0 onto the z axis
+# pre-compute weights on fixed-degree variances
 
-# pre-compute pi/2 rotation matrices
+def get_gamma(dim_LL):
+    dim, LL = dim_LL
+    II = ( sympy.S(dim)-1 ) / 2
+    cg_coef = lambda *args : float(sympy.physics.quantum.cg.CG(*args).doit())
+    cg_vals = [ cg_coef(II, -II+mm, LL, 0, II,-II+mm) for mm in range(dim-1) ]
+    return ( max(cg_vals) - min(cg_vals) ) / 2
+dim_degree_vals = [ ( dim, LL )
+                    for dim in range(min_dim, max_dim+1)
+                    for LL in range(1,dim) ]
+pool = multiprocessing.Pool(processes = cpus)
+variance_weight_vals = compute_batch(pool, get_gamma, dim_degree_vals)
+variance_weight = { dim_LL : weight_val
+                    for dim_LL, weight_val in zip(dim_degree_vals, variance_weight_vals) }
+
+##########################################################################################
+# methods to compute a vector of D^L_{m,0}(v) for all |m| <= L,
+# where: D^L_{mn}(v) = <Lm |R(v)|Ln> is a (Wigner) rotation matrix element
+#        v = (alpha,beta) is a point on the sphere at azimuth/polar angles (alpha,beta)
+#        R(v) is an Euler-angle rotation operator: exp(-i alpha S_z) * exp(-i beta S_y)
+#        S_z and S_y are respectively spin-z and spin_y operators
+#        |Lm> is a state of a spin-L particle with spin projection m onto the z axis
+#
+# the basic idea behind our methods is to decompose D^L_{m,0}(alpha,beta) into:
+#     e^{-i alpha S_z} * exp(+i pi/2 S_y) * e^{-i beta S_z} * exp(-i pi/2 S_y) |L,0>
+
+# pre-compute pi/2 rotation matrices exp(-i pi/2 S_y) for all L
 def _spin_vals(LL):
     return np.arange(-LL, LL+1)
 def _roz_z_to_x(LL):
@@ -88,44 +106,32 @@ pool = multiprocessing.Pool(processes = cpus)
 spin_vals = compute_batch(pool, _spin_vals, range(max_dim-1,-1,-1))[::-1]
 rot_z_to_x = compute_batch(pool, _roz_z_to_x, range(max_dim-1,-1,-1))[::-1]
 
-# pre-compute the vector exp(-i \pi/2 S_y) |L,0> for all (relevant) L
+# pre-compute the vector `exp(-i pi/2 S_y) |L,0>` for all (relevant) L
 # every other entry in this vector is zero, so remove it preemptively
 rot_zero_vecs = [ rot_z_to_x[LL][:,LL][::2] for LL in range(max_dim) ]
 
-# pre-compute exp(+i \pi/2 S_y), skipping every other column
+# collect all exp(+i pi/2 S_y), skipping every other column because we don't need it
 pulse_mats = [ rot_z_to_x[LL].T[:,::2] for LL in range(max_dim) ]
 
-# construct the vector of D^L_{m,0}(v) for all |m| <= L
+# construct the vector of D^L_{m,0}(v) for all |m| <= L,
+# i.e. the "middle column" of the rotation matrix R(v) for a spin-L particle
 def rot_mid(LL, axis):
     phases_0 = np.exp(-1j * axis[0] * spin_vals[LL][::2])
     phases_1 = np.exp(-1j * axis[1] * spin_vals[LL])
     return phases_1 * ( pulse_mats[LL] @ ( phases_0 * rot_zero_vecs[LL] ) )
 
 ##########################################################################################
-# pre-compute weights on fixed-degree variances
-
-def get_gamma(dim, LL):
-    II = ( sympy.S(dim)-1 ) / 2
-    cg_coef = lambda *args : float(sympy.physics.quantum.cg.CG(*args).doit())
-    cg_vals = [ cg_coef(II, -II+mm, LL, 0, II,-II+mm)
-                for mm in range(dim-1) ]
-    return ( max(cg_vals) - min(cg_vals) ) / 2
-variance_weight = { ( dim, LL ) : get_gamma(dim, LL)**2 * (2*LL+1)/dim
-                    for dim in range(min_dim, max_dim+1)
-                    for LL in range(1,dim) }
-
-##########################################################################################
 # compute the measurement matrix, its singular values, and the error scale
 
 # construct a fixed-degree measurement matrix
-def axes_trans_ops(LL, axes):
+def meas_mat(LL, axes):
     return np.array([ rot_mid(LL, axis) for axis in axes ])
 
 # get singular values ("norms") of a single fixed-degree measurement matrix
 def degree_norms(LL, axes):
-    return get_svdvals(axes_trans_ops(LL, axes))
+    return get_svdvals(meas_mat(LL, axes))
 
-# get singular values ("norms") of all fixed-degree measurement matrix
+# get singular values ("norms") of all fixed-degree measurement matrices
 pool = multiprocessing.Pool(processes = cpus)
 def meas_norms(dim, axes):
     _degree_norms = functools.partial(degree_norms, axes = axes)
@@ -133,9 +139,7 @@ def meas_norms(dim, axes):
 
 # compute the error scale for the given axes
 def error_scale(dim, axes):
-    axes_mat_shape = (axes.size//2,2)
-    axes_mat = axes.reshape(axes_mat_shape)
-    norms = meas_norms(dim, axes_mat)
+    norms = meas_norms(dim, axes)
     weights = [ variance_weight[dim,LL] for LL in range(dim-1,0,-1) ]
     return np.sqrt(sum([ weight * sum(1/degree_norms**2)
                          for weight, degree_norms in zip(weights, norms) ]))
