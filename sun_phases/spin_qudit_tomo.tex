@@ -324,7 +324,7 @@ Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore boun
 \end{align}
 where
 \begin{align}
-  \S_V^2 \equiv \norm{M_V^{-1}}^2 = \sum_k\f1{\p{M^V_k}^2},
+  \S_V^2 \equiv \obk{M_V^{-1}|M_V^{-1}} = \sum_k\f1{\p{M^V_k}^2},
 \end{align}
 is the squared (Hilbert-Schmidt, or Frobenius) norm of the right inverse $M_V^{-1}$ of $M_V$.
 Note that $\S_V^2$ diverges if $M_V$ is singular, in which case measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
@@ -347,7 +347,7 @@ As the singular values of $M_V$ are invariant under unitary transformations, it 
 \begin{align}
   \S_V^2 = \sum_\ell \S_{V\ell}^2,
   &&
-  \S_{V\ell}^2 \equiv \norm{M_{V\ell}^{-1}}^2,
+  \S_{V\ell}^2 \equiv \obk{M_{V\ell}^{-1}|M_{V\ell}^{-1}},
 \end{align}
 where $M_{V\ell}^{-1}$ is the right inverse of $M_{V\ell}$.
 Constructing the block $M_{V\ell}$ and computing its singular values takes at most $O(\abs{V}d^2)$ time (see Appendix \ref{sec:compute} for additional details on efficiently computing $\S_{V\ell}^2$ [\red{todo: write tutorial}]).
@@ -392,18 +392,16 @@ There is therefore still room for improvement on the bound in Eq.~\eqref{eq:boun
 
 As a final comment, we note that Eq.~\eqref{eq:bound} provides a pessimistic upper bound on statistical error, which can be calculated without prior knowledge of the true qudit state $\rho$.
 The actual error in the reconstruction $\tilde\rho_V$ of a particular state $\rho$ may be considerably smaller.
-To write out this error in full (see Appendix \ref{sec:error} for a derivation), we identify the singular value decomposition
+To write out this error in full (see Appendix \ref{sec:error} for a derivation), we define the $\p{2\ell+1}\times\p{2\ell+1}$ matrices
 \begin{align}
-  M_{V\ell} = U_{V\ell} D_{V\ell} W_{V\ell}^\dag,
-\end{align}
-and define the $\p{2\ell+1}\times\p{2\ell+1}$ matrices
-\begin{align}
-  \xi_{V\ell} &\equiv M_{V\ell} \diag\p{W_{V\ell} D_{V\ell}^{-2} W_{V\ell}^\dag} M_{V\ell}^\dag, \\
+  \xi_{V\ell} &\equiv M_{V\ell}
+  \diag\sp{M_{V\ell}^{-1} \p{M_{V\ell}^{-1}}^\dag} M_{V\ell}^\dag, \\
   \T_{\rho\ell} &\equiv \sum_{m,n}
   \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n},
 \end{align}
-where $\diag\p{X}$ sets all off-diagonal entries of $X$ to zero, and $\cov_\rho\p{X,Y} \equiv \bk{XY}_\rho - \bk{X}_\rho \bk{Y}_\rho$.
-We can then compactly express
+where $\diag\sp{X}$ sets all off-diagonal entries of $X$ to zero, and $\cov_\rho\p{X,Y} \equiv \bk{XY}_\rho - \bk{X}_\rho \bk{Y}_\rho$.
+We discuss details of efficiently computing $\xi_{V\ell}$ in Appendix \ref{sec:compute}.
+These matrices allow us to compactly express
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \f1n \sum_\ell \p{\xi_{V\ell}|\T_{\rho\ell}}.
@@ -713,7 +711,7 @@ Equipped with the bound on variances in Eq.~\eqref{eq:variance_bound}, we again 
   &&
   M_{V\ell} = \sum_{m,\v v} D^\ell_{m,0} \op{m}{\v v}.
 \end{align}
-The block diagonal structure of this matrix implies that, rather than an integer index $k\in\set{1,2,\cdots,d^2}$, we can identify the singular values and right singular vectors of $UM_V$ (and equivalently $M_V$) by a block index $\ell\in\set{0,1,\cdots,d-1}$ and a sub-index $m=\set{-\ell,-\ell+1,\cdots,\ell}$.
+The block diagonal structure of this matrix implies that, rather than an integer index $k\in\set{1,2,\cdots,d^2}$, we can identify the singular values and right singular vectors of $M_V$ by a block index $\ell\in\set{0,1,\cdots,d-1}$ and a sub-index $m=\set{-\ell,-\ell+1,\cdots,\ell}$.
 Making the replacement $k\to\p{\ell,m}$, we can thus repeat the derivations through Eq.~\eqref{eq:bound_eps} of Section \ref{sec:bound} without the assumption of Eq.~\eqref{eq:error_assumption}, finding that
 \begin{align}
   \Bbk{\abs{\tilde\rho_{\ell m}^V-\rho_{\ell m}^V}^2}
@@ -741,19 +739,22 @@ The actual statistical error for any particular state may be considerably smalle
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \sum_{i,\ell,m} \abs{q^V_{\ell mi}}^2 \bbk{\epsilon_{i\ell}^2}
-  = \f1n \sum_{i,\ell} C^V_{\ell i} \cov_\rho\p{T_{i\ell},T_{i\ell}},
+  = \f1n \sum_{\ell,i} C^V_{\ell i} \cov_\rho\p{T_{i\ell},T_{i\ell}},
+  &&
+  C^V_{\ell i} \equiv \sum_m \abs{q_{\ell mi}}^2.
+  \label{eq:error_SM_start}
 \end{align}
-where
+Identifying the singular value decomposition $M_{V\ell} = U_{V\ell} \Sigma_{V\ell} W_{V\ell}^\dag$, the vector $\tilde{\v q}_{\ell i} = (q_{\ell,-\ell,i},q_{\ell,-\ell+1,i},\cdots q_{\ell,\ell,i})$ is essentially the $i$-th row of $\Sigma_{V\ell}^{-1} W_{V\ell}^\dag$, which is to say that $\tilde{\v q}_{\ell i} = \Sigma_{V\ell}^{-1} W_{V\ell}^\dag \ket{\v v_i}$.
+We can therefore simplify
 \begin{align}
-  C^V_{\ell i} \equiv \sum_m \abs{q_{\ell mi}}^2
-  = \bk{\v v_i| W_{V\ell} D_{V\ell}^{-2} W_{V\ell}^\dag | \v v_i}
+  C^V_{\ell i}
+  = \abs{\tilde{\v q}_{\ell i}}^2
+  = \bk{\v v_i | \p{\Sigma_{V\ell}^{-1} W_{V\ell}^\dag}^\dag
+    \p{\Sigma_{V\ell}^{-1} W_{V\ell}^\dag} | \v v_i}
+  = \bk{\v v_i | W_{V\ell} \Sigma_{V\ell}^{-2} W_{V\ell}^\dag | \v v_i}
+  = \bk{\v v_i| M_{V\ell}^{-1} \p{M_{V\ell}^{-1}}^\dag | \v v_i}.
 \end{align}
-can be defined in terms of the singular value decomposition
-\begin{align}
-  M_{V\ell} = U_{V\ell} D_{V\ell} W_{V\ell}^\dag,
-\end{align}
-with a unitary matrix $U_{V\ell}$, diagonal matrix $D_{V\ell}$, and isometric matrix $W_{V\ell}$.
-Using the fact that all $T_{i\ell}=T_{i\ell}^\dag$, we can expand
+Using the fact that all $T_{i\ell}=T_{i\ell}^\dag$, we can also expand
 \begin{align}
   \cov_\rho\p{T_{i\ell},T_{i\ell}}
   = \cov_\rho\p{T_{i\ell}^\dag,T_{i\ell}}
@@ -763,19 +764,19 @@ Using the fact that all $T_{i\ell}=T_{i\ell}^\dag$, we can expand
 which implies that
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \f1n \sum_{\ell,m,n,i}
-  D^\ell_{m,0}\p{\v v_i}^* D^\ell_{n,0}\p{\v v_i} C^V_{\ell i}
+  = \f1n \sum_{i,\ell,m,n}
+  C^V_{\ell i} D^\ell_{m,0}\p{\v v_i}^* D^\ell_{n,0}\p{\v v_i}
   \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}}.
 \end{align}
-Altogether, we can define the $\p{2\ell+1}\times\p{2\ell+1}$ matrices
+Altogether, the result in Eq.~\eqref{eq:error_SM_start} can be expressed more compactly using the $\p{2\ell+1}\times\p{2\ell+1}$ matrices
 \begin{align}
-  \xi_{V\ell} \equiv M_{V\ell}
-  \diag\p{W_{V\ell} D_{V\ell}^{-2} W_{V\ell}^\dag} M_{V\ell}^\dag
+  \xi_{V\ell} \equiv
+  M_{V\ell} \diag\sp{M_{V\ell}^{-1} \p{M_{V\ell}^{-1}}^\dag} M_{V\ell}^\dag,
   &&
   \T_{\rho\ell} \equiv
   \sum_{m,n} \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n},
 \end{align}
-where $\diag\p{X}$ sets all off-diagonal entries of $X$ to zero, and compactly express
+where $\diag\sp{X}$ sets all off-diagonal entries of $X$ to zero, in terms of which
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \f1n \sum_\ell \p{\xi_{V\ell}|\T_{\rho\ell}}.
@@ -784,7 +785,7 @@ where $\diag\p{X}$ sets all off-diagonal entries of $X$ to zero, and compactly e
 While the error in Eq.~\eqref{eq:error_SM} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error_SM} with the replacement $\rho\to\tilde\rho_V$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Computing singular values of the measurement matrix}
+\section{Efficiently computing error bounds}
 \label{sec:compute}
 
 [\red{todo: write a short tutorial on computing the error scale}]
