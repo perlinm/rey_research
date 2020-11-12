@@ -188,7 +188,7 @@ For ease of notation, we will therefore implicitly associate Euler angle doublet
 Our goal is to reconstruct an arbitrary state of a spin qudit from measurements of spin projection onto different quantization axes.
 We are thus nominally restricted to measuring projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$, where $\ket{\mu_{\v v}}\equiv R\p{\v v}\ket{\mu}$ is a state with spin projection $\mu$ onto a measurement axis $\v v$ determined by a point on the sphere.
 For any fixed axis $\v v$, the sets $\set{\Pi_{\v v\mu}}$ and $\set{T_{\v v\ell,0}}$ are both orthonormal bases for the space of operators that are diagonal in the basis $\set{\ket{\mu_{\v v}}}$.
-By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v v\ell,0}}_\rho$, where $\bk{X}_\rho\equiv\obk{\rho|X}$.
+By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v v\ell,0}}_\rho$, where $\bk{X}_\rho \equiv \obk{\rho|X} = \tr\p{\rho X}$ for a qudit state $\rho$.
 
 Reconstructing an arbitrary density operator $\rho$ essentially requires us to find a set of axes $V=\set{\v v}$ and associated coefficients $C_{\ell mk}\p{\v v}$ that would allow us to recover any coefficient $\rho_{\ell m}$ in expansion in Eq.~\eqref{eq:trans_state} through
 \begin{align}
@@ -216,9 +216,9 @@ The signal recovery problem can be stated as follows: given a square-integrable 
 where $f_{\ell m}$ are expansion coefficients and $Y_{\ell m}$ is the spherical harmonic of degree $\ell$ and order $m$, find a set of points $V=\set{\v v}$ and associated coefficients $\tilde C_{\ell m}\p{\v v}$ with which we can reconstruct $f$, or equivalently its coefficients $f_{\ell m}$, from knowledge of the function's value $f\p{\v v}$ at all points $\v v\in V$; that is
 \begin{align}
   f_{\ell m} = \sum_{\v v} \tilde C_{\ell m}\p{\v v} f\p{\v v}
-  = \sum_{\v v,k,n} \tilde C_{\ell m}\p{\v v} f_{kn} Y_{kn}\p{\v v}.
+  = \sum_{\v v,k,n} \tilde C_{\ell m}\p{\v v} Y_{kn}\p{\v v} f_{kn}.
 \end{align}
-Reconstruction of functions with arbitrary coefficients $f_{\ell m}$ then implies that
+Reconstruction of functions with arbitrary coefficients $f_{\ell m}$ implies that
 \begin{align}
   \sum_{\v v} \tilde C_{\ell m}\p{\v v} Y_{kn}\p{\v v}
   = \delta_{k\ell} \delta_{mn},
@@ -230,18 +230,18 @@ Due to the fact that $D^k_{n,0}\p{\v v} = \sqrt{\frac{4\pi}{2\ell+1}}\, Y_{kn}\p
 In principle, this mapping allows us to import a host of existing signal recovery algorithms \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
 In practice, spin qudits typically have only a modest dimension $d$, which allows for simpler and optimized tomography protocols that are practical despite worse scaling with $d$ (see Section \ref{sec:protocol}).
 
-If the function $f$ is {\it band-limited} at degree $L$, which is to say that $f_{\ell m}=0$ for all $\ell\ge L$, then the full recovery problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points \cite{freeden2008spherical, freeden2018spherical}.
+If the function $f$ is {\it band-limited} at degree $L$, which is to say that $f_{\ell m}=0$ for all $\ell\ge L$, then the full recovery problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points on the sphere \cite{freeden2008spherical, freeden2018spherical}.
 The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially ``band-limited'' at degree $d$ \footnote{Spin qudit states can be faithfully represented by quasi-probability distributions on a sphere.  For a $d$-level spin, these quasi-probability distributions are band-limited at degree $d$.}.
-Moreover, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to the recovery of a degree-$\ell$ function $f = \sum_m f_m Y_{\ell m}$, which provably is possible with $\abs{V}=2\ell+1$ samples \cite{freeden2008spherical}.
+Moreover, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to the recovery of a degree-$\ell$ function $f = \sum_m f_m Y_{\ell m}$, which is provably possible with $\abs{V}=2\ell+1$ samples \cite{freeden2008spherical}.
 In the case of spin qudit tomography, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are transition operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
 
 Since
 \begin{enumerate*}
 \item there are only $2\ell+1\le2d-1$ transition operators of degree $\ell\le\ell_{\t{max}}$, and
-\item measuring spin projections along any axis simultaneously provides measurement data for transition operators of {\it all} degrees $\ell\le\ell_{\t{max}}$,
+\item measuring spin projection along any single axis provides measurement data for transition operators of {\it all} degrees $\ell\le\ell_{\t{max}}$,
 \end{enumerate*}
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
-In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any function with fixed degree $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
+In the language of classical signal recovery, we would expect there to exist a fixed set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of {\it any} function with fixed degree $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ would allow recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than that necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes.}.
 Unfortunately, we have no general proof of this conjecture, which requires a deeper analysis of fixed-degree signal recovery on the sphere.
 Nonetheless, in the following section we numerically verify that $2d-1$ measurement axes suffice for all $d\le200$ [\red{todo: possibly refer to Section \ref{sec:axes} instead}].
 
@@ -250,18 +250,18 @@ Nonetheless, in the following section we numerically verify that $2d-1$ measurem
 \label{sec:bound}
 
 For the practically minded, the mere existence of solutions to a problem is less interesting than the exposition of a particular solution.
-On a high level, a spin qudit tomography protocol needs to
+On a high level, a spin qudit tomography protocol consists of
 \begin{enumerate*}
-\item select a set of measurement axes,
-\item collect measurement data on spin projection onto these axes, and then
+\item selecting a set of measurement axes,
+\item collecting measurement data on spin projection onto these axes, and then
   \label{tomo:measure}
-\item process the collected data to reconstruct the state of the spin qudit.
+\item processing the collected data to reconstruct the state of the spin qudit.
 \end{enumerate*}
 Whereas step \ref{tomo:measure} can involve a host of platform-dependent technical challenges, here we discuss the steps to take before and after collecting measurement data.
 
 To this end, we begin by asking a question: what is a ``good'' choice of measurement axes?
 Intuitively, a good choice of axes should minimize the error with which one can reconstruct an unknown quantum state from associated measurement data.
-If we can quantify this intuition, then we can try to optimize over different choices of measurement axes to find a set that (approximately) minimizes the error in reconstructed states.
+If we can quantify this intuition, then we can optimize over different choices of measurement axes to find a set that (approximately) minimizes the error in reconstructed states.
 
 A set of measurement axes $V=\set{\v v}$ nominally induces a set of projectors $\set{\Pi_{\v v\mu}}$ that will be measured in an experiment.
 By a simple change of basis, measuring these projectors is equivalent to measuring the set of transition operators $\v T_V\equiv\set{T_{\v v\ell,0}}$.
@@ -272,7 +272,7 @@ By flattening the operators in $\v T_V$ into column vectors $\oket{T_{\v v\ell,0
 \end{align}
 A necessary and sufficient condition for $V$ to allow for full state tomography is that the measured transition operators in $\v T_V$, or equivalently the columns of $M_V$, span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit.
 In this case $M_V$ must be full rank, with $d^2$ nonzero singular values.
-Indexing these singular values $M^V_k$ and the corresponding (normalized) right singular vectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots)$ by an integer $k\in\set{1,2,\cdots,d^2}$, we can construct the orthonormal qudit operators
+Indexing these singular values $M^V_k$ and the corresponding (normalized) right singular vectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots,x^V_{k,\abs{V}})$ by an integer $k\in\set{1,2,\cdots,d^2}$, we can construct the orthonormal qudit operators
 \begin{align}
   Q^V_k \equiv \sum_j q^V_{kj} T_j,
   &&
@@ -297,7 +297,7 @@ where
   = \bk{Q^V_k}_\rho
   = \rho^V_k.
 \end{align}
-The singular values of $M_V$ allow us to make concrete statements about the statistical error between the empirical estimate $\tilde\rho_V$ and the true state $\rho$.
+The measurement matrix $M_V$ allows us to make concrete statements about the statistical error between the empirical estimate $\tilde\rho_V$ and the true state $\rho$.
 Assume, for example, that the estimates $\tilde T_j$ are equal to $\bk{T_j}_\rho$ up to uncorrelated noise with variance at most $\epsilon^2$:
 \begin{align}
   \tilde T_j = \bk{T_j}_\rho + \epsilon_j,
@@ -315,22 +315,21 @@ In this case, the mean squared error with which $\tilde\rho^V_k$ approximates $\
   &\le \sum_j \abs{q^V_{kj}}^2 \epsilon^2
   = \p{\f{\epsilon}{M^V_k}}^2.
 \end{align}
-Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore bound the mean squared (Euclidean) distance (i.e.~the distance induced by the trace inner product) between $\tilde\rho_V$ and $\rho$ as
+Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore bound the mean squared (Euclidean) distance between $\tilde\rho_V$ and $\rho$ as
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \sum_k \Bbk{\abs{\tilde\rho^V_k - \rho^V_k}^2}
   \le \epsilon^2 \S_V^2,
   \label{eq:bound_eps}
 \end{align}
-where
+where $\norm{X} \equiv \sqrt{\obk{X|X}} = \sqrt{\tr\p{X^\dag X}}$ is the (Hilbert-Schmidt, or Frobenius) norm of $X$, and
 \begin{align}
-  \S_V^2 \equiv \obk{M_V^{-1}|M_V^{-1}} = \sum_k\f1{\p{M^V_k}^2},
+  \S_V^2 \equiv \sum_k\f1{\p{M^V_k}^2} = \norm{M_V^{-1}}^2,
 \end{align}
-is the squared (Hilbert-Schmidt, or Frobenius) norm of the right inverse $M_V^{-1}$ of $M_V$.
+is the squared norm of the right inverse $M_V^{-1}$ of $M_V$.
 Note that $\S_V^2$ diverges if $M_V$ is singular, in which case measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
 
 Computing $\S_V^2$ to certify the bound in Eq.~\eqref{eq:bound_eps} requires constructing the measurement matrix $M_V$ and finding its singular values.
-The complexity of this task can be greatly reduced by the fact that the degree $\ell$ of the transition operator $T_{\ell,0}$ is preserved under rotations, which implies that the unitary
+The complexity of this task can be greatly reduced by the fact that the degree $\ell$ of a transition operator $T_{\ell m}$ is preserved under rotations, which implies that the unitary
 \begin{align}
   U \equiv \sum_{\ell,m} \ket{\ell m} \obra{T_{\ell m}},
 \end{align}
@@ -347,7 +346,7 @@ As the singular values of $M_V$ are invariant under unitary transformations, it 
 \begin{align}
   \S_V^2 = \sum_\ell \S_{V\ell}^2,
   &&
-  \S_{V\ell}^2 \equiv \obk{M_{V\ell}^{-1}|M_{V\ell}^{-1}},
+  \S_{V\ell}^2 \equiv \norm{M_{V\ell}^{-1}}^2,
 \end{align}
 where $M_{V\ell}^{-1}$ is the right inverse of $M_{V\ell}$.
 Constructing the block $M_{V\ell}$ and computing its singular values takes at most $O(\abs{V}d^2)$ time (see Appendix \ref{sec:compute} for additional details on efficiently computing $\S_{V\ell}^2$ [\red{todo: write tutorial}]).
@@ -418,10 +417,9 @@ While the error in Eq.~\eqref{eq:error} cannot be known exactly without knowing 
 
 The ability to certify a statistical error bound on the empirical estimate $\tilde\rho_V$ of an unknown quantum state $\rho$ motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and optimize (using any standard minimization algorithm) the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the error scale $\epsilon_V^2$ defined in Eq.~\eqref{eq:scale}.
 If $\abs{V}$ is too large for such optimization  to be practical, one can instead generate many random sets of measurement axes, and then choose the set with the smallest error scale $\epsilon_V^2$.
-After choosing a set of measurement axes $V$, experimentally characterize the expectation values $\bk{\Pi_{\v v\mu}}_\rho$ by making measuring spin projection along every axis $\v v\in V$.
-These spin projections determine the expectation values $\bk{T_{\v v\ell,0}}_\rho$, whose estimates can be used to construct the state $\tilde\rho_V$ defined in Eq.~\eqref{eq:reconstructed_state}.
-If spin projection was measured $n$ times along every axis, then the reconstructed state $\tilde\rho_V$ approximates the true state $\rho$ to within a mean squared (Euclidean) distance $\epsilon_V^2/n$.
-Furthermore, if $\tilde\rho_V$ has negative eigenvalues, its distance from $\rho$ can be further reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
+After choosing a set of measurement axes $V$, (experimentally) make $n$ measurements of spin projection along every axis $\v v\in V$, and set $\tilde\Pi_{\v v\mu}\approx\bk{\Pi_{\v v\mu}}_\rho$ to the fraction of times in which the measurement outcome was $\mu$.
+The estimates $\tilde\Pi_{\v v\mu}$ of $\bk{\Pi_{\v v\mu}}_\rho$ determine estimates of the expectation values $\bk{T_{\v v\ell,0}}_\rho$, which can be used to construct the state $\tilde\rho_V$ defined in Eq.~\eqref{eq:reconstructed_state}.
+If $\tilde\rho_V$ has negative eigenvalues, its (Euclidean) distance from $\rho$ can be reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
 
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the development of tailored and adaptive measurement protocols to future work.
@@ -620,7 +618,7 @@ where $t_\ell \equiv \p{t_{\ell,-s},t_{\ell,-s+1},\cdots,t_{\ell s}}$ is a vecto
   \equiv \sum_\mu p_\mu X_\mu^2 - \p{\sum_\mu p_\mu X_\mu}^2
   = \sum_\mu p_\mu \p{X_\mu - \sum_\nu p_\nu X_\nu}^2
 \end{align}
-is the variance of the entries of $X$ when sampled according to the (classical) probability distribution $p$.
+is the variance of the entries in $X$ when sampled according to the probability distribution $p$.
 The variance $\sigma_p^2\p{X}$ is maximal when $p$ has equal weight on the largest and smallest values of $X$, which implies that
 \begin{align}
   \sigma_p^2\p{t_\ell} \le \Gamma_\ell^2,
@@ -749,8 +747,6 @@ We can therefore simplify
 \begin{align}
   C^V_{\ell i}
   = \abs{\tilde{\v q}_{\ell i}}^2
-  = \bk{\v v_i | \p{\Sigma_{V\ell}^{-1} W_{V\ell}^\dag}^\dag
-    \p{\Sigma_{V\ell}^{-1} W_{V\ell}^\dag} | \v v_i}
   = \bk{\v v_i | W_{V\ell} \Sigma_{V\ell}^{-2} W_{V\ell}^\dag | \v v_i}
   = \bk{\v v_i| M_{V\ell}^{-1} \p{M_{V\ell}^{-1}}^\dag | \v v_i}.
 \end{align}
