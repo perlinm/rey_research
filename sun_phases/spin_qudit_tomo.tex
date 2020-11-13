@@ -45,7 +45,6 @@
 \renewcommand{\O}{\mathcal{O}}
 \newcommand{\Q}{\mathcal{Q}}
 \renewcommand{\S}{\mathcal{S}}
-\newcommand{\T}{\mathcal{T}}
 
 \newcommand{\ZZ}{\mathbb{Z}}
 
@@ -369,53 +368,36 @@ Altogether, if we assume that $\abs{V}\sim d$, then computing $\S_V^2$ to certif
 
 The assumption that observables can be estimated up to uncorrelated noise with maximal variance $\epsilon^2$, summarized by Eq.~\eqref{eq:error_assumption}, is reasonable when measurement error is dominated by experimental sources of noise.
 However, this assumption breaks down when measurement error is limited by fundamental quantum (shot) noise.
-We relax the assumption of Eq.~\eqref{eq:error_assumption} and derive more fundamental error bounds in Appendix \ref{sec:error}.
-Therein, we find that if measurement error is dominated by shot noise, then the estimate $\tilde\rho_V$ built from $n$ independent measurements of spin projection along every axis $\v v\in V$ approximates the true state $\rho$ to within a mean squared distance $\epsilon_V^2/n$, i.e.
+We relax the assumption of Eq.~\eqref{eq:error_assumption} in Appendix \ref{sec:error}, where we instead assume that $\tilde\rho_V$ is built from $n$ independent measurements of spin projection along every axis $\v v\in V$.
+In this case, the mean squared distance between the approximation $\tilde\rho_V$ and the true state $\rho$ can be compactly expressed as as an inner product of the {\it covariance matrices}
 \begin{align}
-  \Bbk{\norm{\tilde\rho_V-\rho}^2} < \f{\epsilon_V^2}{n},
-  \label{eq:bound}
+  \C_\ell\sp{\rho} \equiv \sum_{m,n}
+  \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n}
 \end{align}
-where the {\it error scale} $\epsilon_V^2$ is
+where $\cov_\rho\p{X,Y} \equiv \bk{XY}_\rho - \bk{X}_\rho \bk{Y}_\rho$, and the {\it shot noise matrices}
 \begin{align}
-  \epsilon_V^2 \equiv
-  \f1d \sum_{\ell>0} \p{2\ell+1} \gamma_\ell^2 \S_{V\ell}^2,
-  \label{eq:scale}
+  \N_{V\ell} \equiv M_{V\ell} \diag\sp{M_{V\ell}^{-1}
+    \p{M_{V\ell}^{-1}}^\dag} M_{V\ell}^\dag,
 \end{align}
-and $\gamma_\ell$ is defined using Clebsch-Gordan coefficients:
-\begin{align}
-  \gamma_\ell
-  \equiv \f{\max_\mu\tau_{\ell\mu} - \min_\mu\tau_{\ell\mu}}{2},
-  &&
-  \tau_{\ell\mu} \equiv \bk{s\mu;\ell,0|s\mu}.
-\end{align}
-If $d$ even or $\ell$ is odd, then $\gamma_\ell=\max_\mu\tau_{\ell\mu}$.
-For comparison with the previous bound in Eq.~\eqref{eq:bound_eps}, the error scale $\epsilon_V^2<\S_V^2/2$, so the previous bound still holds with the replacement $\epsilon^2\to1/2n$.
-We note that the bound in Eq.~\eqref{eq:bound} is not tight, as it is acquired by bounding the statistical variance $\epsilon_{\v v\ell}^2$ in the empirical estimate of $\bk{T_{\v v\ell,0}}_\rho$ as $\bbk{\epsilon_{\v v\ell}^2}\le\frac{2\ell+1}{nd}\times\gamma_\ell^2$.
-Though the individual bounds for each axis $\v v$ and degree $\ell$
-are tight, these bounds cannot all be achieved simultaneously.
-There is therefore still room for improvement on the bound in Eq.~\eqref{eq:bound}.
-
-As a final comment, we note that Eq.~\eqref{eq:bound} provides a pessimistic upper bound on statistical error, which can be calculated without prior knowledge of the true qudit state $\rho$.
-The actual error in the reconstruction $\tilde\rho_V$ of a particular state $\rho$ may be considerably smaller.
-To write out this error in full (see Appendix \ref{sec:error} for a derivation), we define the $\p{2\ell+1}\times\p{2\ell+1}$ matrices
-\begin{align}
-  \N_{V\ell} &\equiv M_{V\ell}
-  \diag\sp{M_{V\ell}^{-1} \p{M_{V\ell}^{-1}}^\dag} M_{V\ell}^\dag, \\
-  \T_{\rho\ell} &\equiv \sum_{m,n}
-  \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n},
-\end{align}
-where $\diag\sp{X}$ sets all off-diagonal entries of $X$ to zero, and $\cov_\rho\p{X,Y} \equiv \bk{XY}_\rho - \bk{X}_\rho \bk{Y}_\rho$.
-We discuss details of efficiently computing $\N_{V\ell}$ in Appendix \ref{sec:compute}.
-These matrices allow us to compactly express
+where $\diag\sp{X}$ sets all off-diagonal parts of $X$ to zero:
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \f1n \sum_\ell \p{\N_{V\ell}|\T_{\rho\ell}}.
+  = \f1n \sum_\ell \obk{\N_{V\ell}|\C_\ell\sp{\rho}}.
   \label{eq:error}
 \end{align}
-While the error in Eq.~\eqref{eq:error} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error} with the replacement $\rho\to\tilde\rho_V$.
+This reconstruction error can be maximized analytically, yielding a reconstruction error bound of the form
+\begin{align}
+  \Bbk{\norm{\tilde\rho_V-\rho}^2} \le \f{\epsilon_V^2}{n},
+  \label{eq:bound}
+\end{align}
+where the complexity of computing the {\it error scale} $\epsilon_V^2$ is the same as that of computing $\S_V^2$.
+For comparison with the bound in Eq.~\eqref{eq:bound_eps}, we note that the error scale $\epsilon_V^2<\S_V^2/2$, so the previous bound still holds with the replacement $\epsilon^2\to1/2n$.
 
-[\red{I think the error in Eq.~\eqref{eq:error} can be maximized with no added cost to computational complexity.
-  If so, the second half of this section entire section (as well as Appendix \ref{sec:error}) should be rewritten to replace Eq.~\eqref{eq:bound} by the tighter bound obtained by maximizing Eq.~\eqref{eq:error}.}]
+[\red{todo: finish discussion about $\epsilon_V^2$}]
+
+As a final comment, we note that Eq.~\eqref{eq:bound} only provides a pessimistic upper bound on statistical error, which can be calculated without prior knowledge of the true qudit state $\rho$.
+The actual error in the reconstruction $\tilde\rho_V$ of a particular state $\rho$, provided by Eq.~\eqref{eq:error}, may be considerably smaller.
+While the true error in $\tilde\rho_V$ cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error} with the replacement $\rho\to\tilde\rho_V$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomography protocols}
@@ -691,7 +673,7 @@ which implies that
 \end{align}
 Altogether, the exact reconstruction error in Eq.~\eqref{eq:error_SM_start} can be expressed more compactly by defining the covariance matrix
 \begin{align}
-  \T_{\rho\ell} \equiv
+  \C_\ell\sp{\rho} \equiv
   \sum_{m,n} \cov_\rho\p{T_{\ell m}^\dag, T_{\ell n}} \op{m}{n},
 \end{align}
 and the noise matrix
@@ -702,21 +684,38 @@ and the noise matrix
 where $\diag\sp{X}$ sets all off-diagonal entries of $X$ to zero, in terms of which
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \f1n \sum_\ell \obk{\N_{V\ell}|\T_{\rho\ell}}.
+  = \f1n \sum_\ell \obk{\N_{V\ell}|\C_\ell\sp{\rho}}.
   \label{eq:error_SM}
 \end{align}
+In practice, to evaluate this error it is useful to expand the covariance matrix as
+\begin{align}
+  \C_\ell\sp{\rho}
+  = \sum_{m,n} \op{m}{n} \sp{\obk{\rho|T_{\ell m}^\dag T_{\ell n}}
+    - \obk{\rho|T_{\ell m}^\dag} \obk{\rho|T_{\ell n}}}
+  = \sum_{m,n} \I\op{m}{n} \sp{\obk{\rho|T_{\ell m} T_{\ell n}}
+    - \obk{\rho|T_{\ell m}} \obk{\rho|T_{\ell n}}},
+\end{align}
+where we define the inversion operator $\I\equiv\sum_m \p{-1}^m\op{-m}{m}$, and then expand the product $T_{\ell m} T_{\ell n}$ to get
+\begin{align}
+  \C_\ell\sp{\rho} = \sum_{m,n} \I \op{m}{n}
+  \sp{\sum_L g_{\ell mn}^L \obk{\rho|T_{L,m+n}}
+    - \obk{\rho|T_{\ell m}} \obk{\rho|T_{\ell n}}},
+  &&
+  g_{\ell mn}^L \equiv \obk{T_{L,m+n} | T_{\ell m} T_{\ell n}}
+  = f_{\ell m;\ell n}^{L,m+n},
+\end{align}
+where the factors $f_{\ell m;\ell n}^{L,m+n}$ are provided in Appendix \ref{sec:trans_prod}.
 While the error in Eq.~\eqref{eq:error_SM} cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error_SM} with the replacement $\rho\to\tilde\rho_V$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{An improved reconstruction error bound}
 
 We now seek to maximize the error in Eq.~\eqref{eq:error_SM} over all $\rho$, which will provide an upper bound on reconstruction error.
-To this end, we vary the error with respect to $\rho$ by considering the vector derivative (i.e.~gradient)
+To this end, we vary the error with respect to $\rho$, and consider the vector derivative (i.e.~gradient)
 \begin{align}
   \f{\partial}{\partial\obra\rho} \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \f1n \sum_\ell \tr\p{\N_{V\ell}
-    \f{\partial}{\partial\obra\rho} \T_{\rho\ell}}
-  = 0,
+    \f{\partial}{\partial\obra\rho} \C_\ell\sp{\rho}},
   &&
   \f{\partial}{\partial\obra\rho}
   \equiv \sum_{L,M} \oket{T_{LM}} \f{\partial}{\partial\rho_{LM}}.
@@ -734,16 +733,15 @@ Here $\partial/\partial\obra\rho$ is essentially a vector of all $\partial/\part
 \end{align}
 The variation in Eq.~\eqref{eq:variation} leads us to consider
 \begin{align}
-  \f{\partial}{\partial\obra\rho} \T_{\rho\ell}
-  &= \sum_{m,n} \op{m}{n} \otimes \f{\partial}{\partial\obra\rho}
-  \sp{\bk{T_{\ell m}^\dag T_{\ell n}}_\rho
-    - \bk{T_{\ell m}^\dag}_\rho \bk{T_{\ell n}}_\rho} \\
-  &= \sum_{m,n} \op{m}{n} \otimes \f{\partial}{\partial\obra\rho}
-  \sp{\obk{\rho|T_{\ell m}^\dag T_{\ell n}}
-    - \obk{\rho|T_{\ell m}^\dag} \obk{\rho|T_{\ell n}}} \\
-  &= \sum_{m,n} \op{m}{n} \otimes \sp{\oket{T_{\ell m}^\dag T_{\ell n}}
-    - \oket{T_{\ell m}^\dag} \obk{\rho|T_{\ell n}}
-    - \obk{\rho|T_{\ell m}^\dag} \oket{T_{\ell n}}}.
+  \f{\partial}{\partial\obra\rho} \C_\ell\sp{\rho}
+  &= \sum_{m,n} \I \op{m}{n}
+  \f{\partial}{\partial\obra\rho}
+  \sp{\sum_L g_{\ell mn}^L \obk{\rho|T_{L,m+n}}
+    - \obk{\rho|T_{\ell m}} \obk{\rho|T_{\ell n}}} \\
+  &= \sum_{m,n} \I\op{m}{n} \otimes
+  \sp{\sum_L g_{\ell mn}^L \oket{T_{L,m+n}}
+    - \oket{T_{\ell m}} \obk{\rho|T_{\ell n}}
+    - \obk{\rho|T_{\ell m}} \oket{T_{\ell n}}}.
   \label{eq:variation_cov}
 \end{align}
 The $\sim\rho$ terms in Eq.~\eqref{eq:variation_cov} can be simplified by the fact that
@@ -756,38 +754,27 @@ The $\sim\rho$ terms in Eq.~\eqref{eq:variation_cov} can be simplified by the fa
 \end{align}
 which implies that
 \begin{align}
-  \sum_{m,n} \op{m}{n} \otimes
-  \sp{\oket{T_{\ell m}^\dag} \obk{\rho|T_{\ell n}}
-    + \obk{\rho|T_{\ell m}^\dag} \oket{T_{\ell n}}}
-  &= \sum_{m,n} \op{m}{n} \otimes
-  \sp{\oket{T_{\ell m}^\dag} \obk{T_{\ell n}^\dag|\rho}
-    + \oket{T_{\ell n}} \obk{T_{\ell m}|\rho}} \\
+  \sum_{m,n} \I \op{m}{n} \otimes
+  \sp{\oket{T_{\ell m}} \obk{\rho|T_{\ell n}}
+    + \obk{\rho|T_{\ell m}} \oket{T_{\ell n}}}
+  &= \sum_{m,n} \I \op{m}{n} \otimes
+  \sp{\oket{T_{\ell m}} \obk{T_{\ell n}^\dag|\rho}
+    + \oket{T_{\ell n}} \obk{T_{\ell m}^\dag|\rho}} \\
   &= \sp{\sum_{m,n} \p{\I\op{m}{n}\I + \op{n}{m}}
-    \otimes \oop{T_{\ell m}}{T_{\ell n}}} \oket{\rho},
-\end{align}
-where we define the inversion operator $\I\equiv\sum_m \p{-1}^m\op{-m}{m}$.
-Meanwhile, the constant terms in Eq.~\eqref{eq:variation_cov} are
-\begin{align}
-  \sum_{m,n} \op{m}{n} \otimes \oket{T_{\ell m}^\dag T_{\ell n}}
-  = \sum_{L,m,n} \I \op{m}{n} \otimes g_{\ell mn}^L \oket{T_{L,m+n}},
-  &&
-  g_{\ell mn}^L \equiv \obk{T_{L,m+n}|T_{\ell m} T_{\ell n}}
-  = f_{\ell m;\ell n}^{L,m+n}
-\end{align}
-where the factors $f_{\ell m;\ell n}^{L,m+n}$ are provided in Appendix \ref{sec:trans_prod}.
-Altogether, we have that
-\begin{align}
-  \f{\partial}{\partial\obra\rho} \T_{\rho\ell}
-  = \sum_{m,n} g_{\ell mn}^L \I\op{m}{n} \otimes \oket{T_{L,m+n}}
-  - \sp{\sum_{m,n} \p{\op{n}{m} + \I\op{m}{n}\I}
     \otimes \oop{T_{\ell m}}{T_{\ell n}}} \oket{\rho}.
 \end{align}
-Substituting this result back into Eq.~\eqref{eq:variation}, we find that
+Altogether, we have that
+\begin{align}
+  \f{\partial}{\partial\obra\rho} \C_\ell\sp{\rho}
+  = \sum_{m,n} g_{\ell mn}^L \I\op{m}{n} \otimes \oket{T_{L,m+n}}
+  - \sp{\sum_{m,n} \p{\op{n}{m} + \I\op{m}{n}\I}
+    \otimes \oop{T_{\ell m}}{T_{\ell n}}} \oket{\rho},
+\end{align}
+which we can substitute back into Eq.~\eqref{eq:variation} to find that
 \begin{align}
   n\, \f{\partial}{\partial\obra\rho}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \oket{\chi_V} - \sum_\ell \L_{V\ell} \oket\rho
-  = 0,
+  = \oket{\chi_V} - \sum_\ell \L_{V\ell} \oket\rho,
 \end{align}
 where
 \begin{align}
@@ -811,11 +798,17 @@ Defining the projection of $\oket{\chi_V}$ onto the degree-$\ell$ subspace of tr
 \end{align}
 we thus find that reconstruction error is maximized by the state
 \begin{align}
-  \oket\rho = \sum_\ell \L_{V\ell}^{-1} \oket{\chi_{V\ell}},
+  \oket{\rho^\star} = \sum_\ell \L_{V\ell}^{-1} \oket{\chi_{V\ell}},
 \end{align}
 where $\L_{V\ell}^{-1}$ is the inverse of $\L_{V\ell}$.
+In total, the ultimate upper bound on reconstruction error is
+\begin{align}
+  \Bbk{\norm{\tilde\rho_V-\rho}^2} \le
+  \left. \Bbk{\norm{\tilde\rho_V-\rho}^2} \right|_{\rho=\rho^\star}
+  = \f1n \sum_{\ell} \obk{\N_{V\ell}|\C_\ell\sp{\rho^\star}}.
+\end{align}
 
-[\red{todo: substitute this solution back into the reconstruction error to find an upper bound}]
+[\red{todo: finish substituting $\rho^\star$, or otherwise discuss an ``efficient'' calculation of this bound.}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Simpler (and looser) upper bounds}
