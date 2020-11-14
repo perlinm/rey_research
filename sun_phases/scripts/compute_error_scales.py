@@ -2,8 +2,9 @@
 
 import os, sys, time, functools
 import scipy, scipy.linalg
-import sympy, sympy.physics.quantum
 import numpy as np
+
+import wigner.lib, py3nj
 
 import multiprocessing
 try:
@@ -66,21 +67,40 @@ def compute_batch(pool, function, values):
         return list(map(function, values))
 
 ##########################################################################################
-# pre-compute weights on fixed-degree variances
+# pre-compute matrices of Wigner-3j coefficients,
+# which are used to build "inverted" structure factor matrices
 
-def get_gamma(dim_LL):
-    dim, LL = dim_LL
-    II = ( sympy.S(dim)-1 ) / 2
-    cg_coef = lambda *args : float(sympy.physics.quantum.cg.CG(*args).doit())
-    cg_vals = [ cg_coef(II, -II+mm, LL, 0, II,-II+mm) for mm in range(dim-1) ]
-    return ( max(cg_vals) - min(cg_vals) ) / 2
-dim_degree_vals = [ ( dim, LL )
-                    for dim in range(min_dim, max_dim+1)
-                    for LL in range(1,dim) ]
+def wigner_3j_mat(labels):
+    LL, ll = labels
+    matrix = np.zeros((2*ll+1,)*2)
+    for mm in range(-ll,ll+1):
+        start, end, vals = wigner.lib.wigner_3j_m(ll, ll, LL, mm)
+        matrix[mm+ll, int(start)+ll : int(end)+ll+1] = vals
+    return matrix
 pool = multiprocessing.Pool(processes = cpus)
-variance_weight_vals = compute_batch(pool, get_gamma, dim_degree_vals)
-variance_weight = { dim_LL : weight_val
-                    for dim_LL, weight_val in zip(dim_degree_vals, variance_weight_vals) }
+def wigner_3j_labels():
+    return ( (LL,ll)
+             for ll in range(max_dim-1,-1,-1)
+             for LL in range(min(max_dim-1,2*ll),-1,-1) )
+def all_wigner_3j_mats():
+    return compute_batch(pool, wigner_3j_mat, wigner_3j_labels())
+wigner_3j_mats = { label : mat
+                   for label, mat in zip(wigner_3j_labels(), all_wigner_3j_mats()) }
+
+# compute a structure factor matrix
+def struct_mat(dim, LL, ll):
+    if LL > 2*ll or LL >= dim: return np.zeros((2*ll+1,2*ll+1))
+    wigner_6j_args = [ 2*ll, 2*ll, 2*LL, dim-1, dim-1, dim-1 ]
+    wigner_6j_factor = py3nj.wigner6j(*wigner_6j_args)
+    prefactor = (-1)**(dim-1+LL) * (2*ll+1) * np.sqrt(2*LL+1) * wigner_6j_factor
+    alt_signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
+    signs = alt_signs[:,None] * alt_signs[None,:]
+    return prefactor * signs * wigner_3j_mats[LL,ll]
+
+# compute an "inverted" structure factor matrix
+def inverted_struct_mat(dim, LL, ll):
+    signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
+    return signs[:,None] * struct_mat(dim, LL, ll)[::-1,:]
 
 ##########################################################################################
 # methods to compute a vector of D^L_{m,0}(v) for all |m| <= L,
@@ -139,10 +159,8 @@ def meas_norms(dim, axes):
 
 # compute the error scale for the given axes
 def error_scale(dim, axes):
-    norms = meas_norms(dim, axes)
-    weights = [ variance_weight[dim,LL] for LL in range(dim-1,0,-1) ]
-    return np.sqrt(sum([ weight * sum(1/degree_norms**2)
-                         for weight, degree_norms in zip(weights, norms) ]))
+    norms = np.concatenate(meas_norms(dim, axes))
+    return np.sqrt(sum(1/norms**2))
 
 ##########################################################################################
 # simulate!
