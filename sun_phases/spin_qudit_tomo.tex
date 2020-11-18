@@ -430,9 +430,8 @@ Maximizing the reconstruction error in Eq.~\eqref{eq:error_simp} over all $\rho$
   \epsilon_V^2 \equiv \sum_{\ell>0} \sp{\f14 \bk{\chi_{V\ell}|\N_{V\ell}^{-1}|\chi_{V\ell}}
     + \f1d \tr\p{\N_{V\ell}}}.
 \end{align}
-Note that the bound in Eq.~\eqref{eq:bound} is obtained by maximizing the reconstruction error in Eq.~\eqref{eq:error_simp} over all possible $\rho$ (satisfying $\tr\rho=1$) regardless of their spectrum.
-As a consequence, the maximizing ``state'' $\rho_V^\star$ may generally have negative eigenvalues.
-In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound} by maximizing reconstruction error over the (restricted) domain of states with a non-negative spectrum.
+Note that the maximum of Eq.~\eqref{eq:error_simp} may generally occur at an unphysical ``state'' $\rho$ with negative eigenvalues.
+In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound} by maximizing reconstruction error over the restricted domain of states with a non-negative spectrum.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomography protocols}
@@ -808,7 +807,7 @@ The complex conjugate of this variation implies that the state $\rho_V^\star$ th
   - \sp{\N_{V\ell} + \I N_{V\ell}^* \I} \ket{\rho_{V\ell}^\star}
   = \ket{\chi_{V\ell}}
   - 2 \N_{V\ell} \ket{\rho_{V\ell}^\star}
-  \stackrel{\ell>0}{=},
+  \stackrel{\ell>0}{=} 0,
 \end{align}
 which implies that
 \begin{align}
@@ -834,7 +833,7 @@ where
     + \f1d \tr\p{\N_{V\ell}}}.
 \end{align}
 Note that the bound in Eq.~\eqref{eq:bound_SM} is obtained by maximizing reconstruction error over all possible $\rho$ (satisfying $\tr\rho=1$) regardless of their spectrum, which implies that the maximizer $\rho_V^\star$ may generally be an unphysical ``state'' with negative eigenvalues.
-In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound_SM} by maximizing reconstruction error over the (restricted) domain of states with a non-negative spectrum.
+In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound_SM} by maximizing reconstruction error over the restricted domain of states with a non-negative spectrum.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Simpler (and looser) upper bounds}
