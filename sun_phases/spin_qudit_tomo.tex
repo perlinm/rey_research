@@ -407,29 +407,36 @@ The quantum error scale $\epsilon_V^2$ only provides a pessimistic upper bound o
 The actual error in the reconstruction $\tilde\rho_V$ of a particular state $\rho$, provided by Eq.~\eqref{eq:error}, may be considerably smaller.
 While the true error in $\tilde\rho_V$ cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error} with the replacement $\rho\to\tilde\rho_V$.
 
-The remainder of this section is devoted to defining $\epsilon_V^2$, which is derived in Appendix \ref{sec:error}, and can be skipped without consequence for the discussions in the rest of this paper.
-To write out the quantum error scale $\epsilon_V^2$ explicitly, we define a matrix of structure constants
+The remainder of this section is devoted to defining the quantum error scale $\epsilon_V^2$ (derived in Appendix \ref{sec:error}), and can be skipped without consequence for the discussions in the rest of this paper.
+To write out $\epsilon_V^2$ explicitly, we define a matrix of structure constants
 \begin{align}
   g_{L\ell} \equiv \sum_{m,n=-\ell}^\ell
   \obk{T_{L,m+n}|T_{\ell m}T_{\ell n}} \op{m}{n},
 \end{align}
 and the inversion operator $\I\equiv\sum_m\p{-1}^m\op{-m}{m}$, which are used to define the $\p{2\ell+1}$-component vectors
 \begin{align}
-  \ket{\chi_{VL}}
-  &\equiv \sum_{M=-L}^L \chi^V_{LM} \ket{M}, \\
-  \chi^V_{Lm} &\equiv \sum_\ell \obk{\N_{V\ell}|\D_M|\I g_{L\ell}}, \\
+  \ket{\chi_{V\ell}}
+  &\equiv \sum_{m=-\ell}^\ell \chi^V_{\ell m} \ket{m}, \\
+  \chi^V_{LM} &\equiv \sum_\ell \obk{\N_{V\ell}|\D_M|\I g_{L\ell}}, \\
   \D_M &\equiv \sum_{m,m'} \delta_{M,m'-m} \op{mm'}.
 \end{align}
 Here $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on, such that $\obk{\N_{V\ell}|\D_M|\I g_{L\ell}}$ is an inner product between the $M$-th diagonals of $\N_{V\ell}$ and $\I g_{L\ell}$.
-We then define
+The vectors $\ket{\chi_{V\ell}}$ allow us to express reconstruction error in the simple form
 \begin{align}
-  \L_{V\ell} \equiv \N_{V\ell} + \I\N_{V\ell}\I,
+  \Bbk{\norm{\tilde\rho_V-\rho}^2}
+  = \f1n \sum_\ell \sp{\bk{\chi_{V\ell}|\rho_\ell}
+    - \bk{\rho_\ell|\N_{V\ell}|\rho_\ell}},
 \end{align}
-in terms of which we have that $\epsilon_V^2 \equiv \sum_\ell \epsilon_{V\ell}^2$, with
+where $\ket{\rho_\ell}\equiv\sum_m \rho_{\ell m}\ket{m}$.
+This error is straightforward to maximize with respect to all states $\rho$, which yields the bound in Eq.~\eqref{eq:bound} with $\epsilon_V^2 \equiv \sum_\ell \epsilon_{V\ell}^2$ and
 \begin{align}
   \epsilon_{V\ell}^2 \equiv
   \bk{\chi_{V\ell}|\p{\L_{V\ell}^{-1}
-      - \L_{V\ell}^{-1}\N_{V\ell}\L_{V\ell}^{-1}}|\chi_{V\ell}}.
+      - \L_{V\ell}^{-1}\N_{V\ell}\L_{V\ell}^{-1}}|\chi_{V\ell}},
+\end{align}
+where
+\begin{align}
+  \L_{V\ell} \equiv \N_{V\ell} + \I\N_{V\ell}\I.
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
