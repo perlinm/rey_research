@@ -59,16 +59,39 @@ def get_svdvals(matrix):
         MM = matrix.conj().T @ matrix
     return np.sqrt(scipy.linalg.eigvalsh(MM))
 
-# run a batch of independent jobs, possibly in parallel
-def compute_batch(pool, function, values):
-    if parallelize:
-        return pool.map(function, values)
+# get diagonals and anti-diagonals of a matrix
+def diagonals(mat):
+    rows, cols = mat.shape
+    fill = np.zeros(((cols - 1), cols), dtype = mat.dtype)
+    stacked = np.vstack((mat, fill, mat))
+    major_stride, minor_stride = stacked.strides
+    strides = major_stride, minor_stride * (cols + 1)
+    shape = (rows + cols - 1, cols)
+    diags = np.lib.stride_tricks.as_strided(stacked, shape, strides)
+    return np.roll(np.flipud(diags), 1, axis = 0)
+
+# "invert" a matrix or vector
+def invert(mat, axis = 0):
+    ll = (mat.shape[0]-1)//2
+    signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
+    if mat.ndim == 1: return signs * np.flip(mat)
+    if axis == 0:
+        return signs[:,None] * np.flip(mat, axis)
     else:
-        return list(map(function, values))
+        return signs[None,:] * np.flip(mat, axis)
+
+# run a batch of independent jobs, possibly in parallel
+def compute_batch(pool, function, args):
+    args_list = list(args)
+    if parallelize:
+        values = pool.map(function, args_list)
+    else:
+        values = map(function, args_list)
+    return { arg : value for arg, value in zip(args_list, values) }
 
 ##########################################################################################
 # pre-compute matrices of Wigner-3j coefficients,
-# which are used to build "inverted" structure factor matrices
+# which are used to build structure factor matrices
 
 def wigner_3j_mat(labels):
     LL, ll = labels
@@ -78,29 +101,17 @@ def wigner_3j_mat(labels):
         matrix[mm+ll, int(start)+ll : int(end)+ll+1] = vals
     return matrix
 pool = multiprocessing.Pool(processes = cpus)
-def wigner_3j_labels():
-    return ( (LL,ll)
-             for ll in range(max_dim-1,-1,-1)
-             for LL in range(min(max_dim-1,2*ll),-1,-1) )
-def all_wigner_3j_mats():
-    return compute_batch(pool, wigner_3j_mat, wigner_3j_labels())
-wigner_3j_mats = { label : mat
-                   for label, mat in zip(wigner_3j_labels(), all_wigner_3j_mats()) }
+degree_labels = ( (LL,ll)
+                  for ll in range(max_dim-1,-1,-1)
+                  for LL in range(min(max_dim-1,2*ll),-1,-1) )
+wigner_3j_mats = compute_batch(pool, wigner_3j_mat, degree_labels)
 
 # compute a structure factor matrix
 def struct_mat(dim, LL, ll):
-    if LL > 2*ll or LL >= dim: return np.zeros((2*ll+1,2*ll+1))
     wigner_6j_args = [ 2*ll, 2*ll, 2*LL, dim-1, dim-1, dim-1 ]
     wigner_6j_factor = py3nj.wigner6j(*wigner_6j_args)
     prefactor = (-1)**(dim-1+LL) * (2*ll+1) * np.sqrt(2*LL+1) * wigner_6j_factor
-    alt_signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
-    signs = alt_signs[:,None] * alt_signs[None,:]
-    return prefactor * signs * wigner_3j_mats[LL,ll]
-
-# compute an "inverted" structure factor matrix
-def inverted_struct_mat(dim, LL, ll):
-    signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
-    return signs[:,None] * struct_mat(dim, LL, ll)[::-1,:]
+    return prefactor * wigner_3j_mats[LL,ll]
 
 ##########################################################################################
 # methods to compute a vector of D^L_{m,0}(v) for all |m| <= L,
@@ -123,8 +134,8 @@ def _roz_z_to_x(LL):
     S_y = ( S_m - S_m.T ) * 1j/2
     return scipy.linalg.expm(-1j * np.pi/2 * S_y)
 pool = multiprocessing.Pool(processes = cpus)
-spin_vals = compute_batch(pool, _spin_vals, range(max_dim-1,-1,-1))[::-1]
-rot_z_to_x = compute_batch(pool, _roz_z_to_x, range(max_dim-1,-1,-1))[::-1]
+spin_vals = compute_batch(pool, _spin_vals, range(max_dim-1,-1,-1))
+rot_z_to_x = compute_batch(pool, _roz_z_to_x, range(max_dim-1,-1,-1))
 
 # pre-compute the vector `exp(-i pi/2 S_y) |L,0>` for all (relevant) L
 # every other entry in this vector is zero, so remove it preemptively
@@ -157,10 +168,59 @@ def meas_norms(dim, axes):
     _degree_norms = functools.partial(degree_norms, axes = axes)
     return compute_batch(pool, _degree_norms, range(dim-1,0,-1))
 
-# compute the error scale for the given axes
-def error_scale(dim, axes):
-    norms = np.concatenate(meas_norms(dim, axes))
+# compute the classical error scale for a given set of axes
+def classical_error_scale(dim, axes):
+    norms = np.concatenate(list(meas_norms(dim, axes).values()))
     return np.sqrt(sum(1/norms**2))
+
+# compute the fixed-degree noise matrix
+def noise_mat(LL, axes):
+    mat = meas_mat(LL, axes).T
+    _, vals, vecs = scipy.linalg.svd(mat, full_matrices = False)
+    diag_vals = np.sum(abs(vecs/vals[:,None])**2, axis = 0)
+    return ( mat * diag_vals[None,:] ) @ mat.conj().T
+
+# compute the fixed-degree "fixed vector"
+def degree_fixed_vec(LL, noise_mats):
+    min_ll = (LL+1)//2
+    dim = max(noise_mats.keys()) + 1
+    fixed_vec = np.zeros(2*LL+1, dtype = complex)
+    for ll, noise_mat in noise_mats.items():
+        if ll < min_ll: continue
+        mat = noise_mat.T * invert(struct_mat(dim, LL, ll))
+        diag_mat = np.roll(diagonals(mat), LL, axis = 0)[:2*LL+1,:]
+        fixed_vec += diag_mat.sum(axis = 1)
+    return fixed_vec
+
+# compute the contribution to the error scale from each degree
+def degree_error_scale(ll, fixed_vecs, noise_mats):
+    fixed_vec = fixed_vecs[ll]
+    noise_mat = noise_mats[ll]
+    dim = max(noise_mats.keys()) + 1
+    kwargs = dict( check_finite = False, overwrite_a = True, overwrite_b = True,
+                       lapack_driver = "gelsy" )
+    opt_vec = scipy.linalg.lstsq(noise_mat, fixed_vec, **kwargs)[0]
+    return fixed_vec.conj() @ opt_vec / 4 + noise_mat.trace() / dim
+
+# compute the quantum error scale for a given set of axes
+pool = multiprocessing.Pool(processes = cpus)
+def quantum_error_scale(dim, axes):
+    ll_vals = list(range(dim-1,0,-1))
+
+    _noise_mat = functools.partial(noise_mat, axes = axes)
+    noise_mats = compute_batch(pool, _noise_mat, ll_vals)
+
+    kwargs = dict( noise_mats = noise_mats )
+    _degree_fixed_vec = functools.partial(degree_fixed_vec, **kwargs)
+    fixed_vecs = compute_batch(pool, _degree_fixed_vec, ll_vals)
+
+    kwargs = dict( noise_mats = noise_mats, fixed_vecs = fixed_vecs )
+    _degree_error_scale = functools.partial(degree_error_scale, **kwargs)
+    degree_error_scales = compute_batch(pool, _degree_error_scale, ll_vals)
+
+    return sum(degree_error_scales.values())
+
+error_scale = classical_error_scale
 
 ##########################################################################################
 # simulate!
