@@ -428,7 +428,7 @@ Here $g_{L\ell}$ is essentially a matrix of transition operator product coeffici
 Maximizing the reconstruction error in Eq.~\eqref{eq:error_simp} over all $\rho$ with $\tr\rho=1$ leads to the bound in Eq.~\eqref{eq:bound} with
 \begin{align}
   \epsilon_V^2 \equiv \sum_{\ell>0} \sp{\f14 \bk{\chi_{V\ell}|\N_{V\ell}^{-1}|\chi_{V\ell}}
-    - \f1d \tr\p{\N_{V\ell}}}.
+    + \f1d \tr\p{\N_{V\ell}}}.
 \end{align}
 Note that the bound in Eq.~\eqref{eq:bound} is obtained by maximizing the reconstruction error in Eq.~\eqref{eq:error_simp} over all possible $\rho$ (satisfying $\tr\rho=1$) regardless of their spectrum.
 As a consequence, the maximizing ``state'' $\rho_V^\star$ may generally have negative eigenvalues.
@@ -822,16 +822,16 @@ We thus find that
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   \le \Bbk{\norm{\tilde\rho_V-\rho_V^\star}^2}
-  = \f1n \sum_\ell \epsilon_{V\ell}^2,
+  = \f{\epsilon_V^2}{n},
   \label{eq:bound_SM}
 \end{align}
 where
 \begin{align}
-  \epsilon_{V\ell}^2 \stackrel{\ell>0}{\equiv} \f14 \bk{\chi_{V\ell}|\N_{V\ell}^{-1}|\chi_{V\ell}},
-  &&
-  \epsilon_{V,0}^2
-  \equiv \f{\bk{\chi_{V,0}|0}}{\sqrt{d}} - \f{\bk{0|\N_{V,0}|0}}{d}
-  = \f1d \sum_{\ell>0} \tr\p{\N_{V\ell}}.
+  \epsilon_V^2
+  \equiv \sum_{\ell>0} \f14 \bk{\chi_{V\ell}|\N_{V\ell}^{-1}|\chi_{V\ell}}
+  + \sp{\f{\bk{\chi_{V,0}|0}}{\sqrt{d}} - \f{\bk{0|\N_{V,0}|0}}{d}}
+  = \sum_{\ell>0} \sp{\f14 \bk{\chi_{V\ell}|\N_{V\ell}^{-1}|\chi_{V\ell}}
+    + \f1d \tr\p{\N_{V\ell}}}.
 \end{align}
 Note that the bound in Eq.~\eqref{eq:bound_SM} is obtained by maximizing reconstruction error over all possible $\rho$ (satisfying $\tr\rho=1$) regardless of their spectrum, which implies that the maximizer $\rho_V^\star$ may generally be an unphysical ``state'' with negative eigenvalues.
 In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound_SM} by maximizing reconstruction error over the (restricted) domain of states with a non-negative spectrum.
