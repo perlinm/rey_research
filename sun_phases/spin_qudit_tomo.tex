@@ -162,7 +162,7 @@ These properties of the transition operators allow us to expand any density oper
   \rho_{\ell m} \equiv \bk{T_{\ell m}^\dag}_\rho,
   \label{eq:trans_state}
 \end{align}
-where $\bk{X}_\rho\equiv\tr\p{\rho X}$, and $\rho^\dag=\rho$ implies that $\rho_{\ell m}^*=\p{-1}^m\rho_{\ell,-m}$.
+where $\bk{X}_\rho\equiv\tr\p{\rho X}=\obk{\rho|X}$, and $\rho^\dag=\rho$ implies that $\rho_{\ell m}^*=\p{-1}^m\rho_{\ell,-m}$.
 The transition operators can be physically interpreted as the transition $\ket\psi\to T_{\ell m}\ket\psi$ induced on the state $\ket\psi$ of a spin-$s$ system by the absorption of a spin-$\ell$ particle with spin projection $m$ onto a fixed quantization axis.
 In analogy with the spherical harmonics $Y_{\ell m}$, we will refer to the index $\ell$ as the {\it degree} and $m$ as the {\it order} of $T_{\ell m}$.
 
@@ -200,19 +200,19 @@ By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\m
 
 Reconstructing an arbitrary density operator $\rho$ essentially requires us to find a set of axes $V=\set{\v v}$ and associated coefficients $C_{\ell mk}\p{\v v}$ that would allow us to recover any coefficient $\rho_{\ell m}$ in the expansion in Eq.~\eqref{eq:trans_state} through
 \begin{align}
-  \rho_{\ell m} = \bk{T_{\ell m}^\dag}_\rho
-  = \sum_{\v v,k} C_{\ell mk}\p{\v v} \bk{T_{\v vk,0}^\dag}_\rho.
+  \rho_{\ell m}^* = \bk{T_{\ell m}}_\rho
+  = \sum_{\v v,k} C_{\ell mk}\p{\v v} \bk{T_{\v vk,0}}_\rho.
   \label{eq:state_recon}
 \end{align}
 Expanding the rotated transition operators $T_{\v vk,0}$ into a sum of un-rotated transition operators, according to Eq.~\eqref{eq:trans_rot}, we find that the recovery condition in Eq.~\eqref{eq:state_recon} is satisfied when
 \begin{align}
-  T_{\ell m}^\dag
+  T_{\ell m}
   = \sum_{\v v,k,n} C_{\ell mk}\p{\v v}
-  D^k_{n,0}\p{\v v}^* T_{kn}^\dag.
+  D^k_{n,0}\p{\v v} T_{kn}.
 \end{align}
 Orthogonality of the transition operators motivates the ansatz $C_{\ell mk}\p{\v v}=\delta_{k\ell}C_{\ell m}\p{\v v}$, which in turn implies that
 \begin{align}
-  \sum_{\v v} C_{\ell m}\p{\v v} D^\ell_{n,0}\p{\v v}^* = \delta_{mn}
+  \sum_{\v v} C_{\ell m}\p{\v v} D^\ell_{n,0}\p{\v v} = \delta_{mn}
   \label{eq:tomo_recovery}
 \end{align}
 for all $\ell$.
@@ -235,7 +235,7 @@ Reconstruction of functions with arbitrary coefficients $f_{\ell m}$ implies tha
 \end{align}
 which is a stronger version of the condition that we found for the spin qudit tomography problem in Eq.~\eqref{eq:tomo_recovery}.
 We will refer to Eq.~\eqref{eq:full_recovery} as the {\it full recovery problem}, and Eq.~\eqref{eq:tomo_recovery} as the the {\it reduced recovery problem}.
-Due to the fact that $D^k_{n,0}\p{\v v}^* = \sqrt{\frac{4\pi}{2\ell+1}}\, Y_{kn}\p{\v v}$, any solution to the full recovery problem automatically solves the reduced recovery problem by setting $C_{\ell m}\p{\v v} = \sqrt{\frac{2\ell+1}{4\pi}}\, \tilde C_{\ell m}\p{\v v}$.
+Due to the fact that $D^k_{n,0}\p{\v v} = \sqrt{\frac{4\pi}{2\ell+1}}\, Y_{kn}\p{\v v}^*$, any solution to the full recovery problem automatically solves the reduced recovery problem by setting $C_{\ell m}\p{\v v} = \sqrt{\frac{2\ell+1}{4\pi}}\, \tilde C_{\ell m}\p{\v v}^*$.
 In principle, this mapping allows us to import a host of existing signal recovery algorithms \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
 In practice, spin qudits typically have only a modest dimension $d$, which allows for simpler and optimized tomography protocols that are practical despite worse scaling with $d$ (see Section \ref{sec:protocol}).
 
@@ -331,7 +331,7 @@ Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore boun
   \le \epsilon^2 \S_V^2,
   \label{eq:bound_eps}
 \end{align}
-where $\norm{X} \equiv \sqrt{\obk{X|X}} = \sqrt{\tr\p{X^\dag X}}$ is the (Hilbert-Schmidt, or Frobenius) norm of $X$, and the {\it classical error scale}
+where $\norm{X}^2 \equiv \obk{X|X} = \tr\p{X^\dag X}$ is the squared (Frobenius, or Hilbert-Schmidt) norm of $X$, and the {\it classical error scale}
 \begin{align}
   \S_V^2 \equiv \sum_k\f1{\p{M^V_k}^2} = \norm{M_V^{-1}}^2,
 \end{align}
@@ -400,44 +400,50 @@ Maximizing this error over all $\rho$ (for a fixed set of axes $V$) yields a rec
 \end{align}
 where the complexity of computing the {\it quantum error scale} $\epsilon_V^2$ (defined below) is the same as that of computing the classical error scale $\S_V^2$ (see Figure \ref{fig:times}).
 For comparison with the bound in Eq.~\eqref{eq:bound_eps}, we note that $\epsilon_V^2<\S_V^2/2$, so the previous bound still holds with the replacement $\epsilon^2\to1/2n$.
-We also note that the (squared) reconstruction error in Eq.~\eqref{eq:error} and its bound in Eq.~\eqref{eq:bound} obey the ``standard quantum limit'' of $\sim1/\sqrt{n}$ scaling in the number of measurements.
-In principle, this scaling can be improved to $\sim1/n$ by preparing and measuring entangled copies of many qudits \cite{giovannetti2006quantum}.
+We also note that the (squared) reconstruction error in Eq.~\eqref{eq:error} and its bound in Eq.~\eqref{eq:bound} obey the ``standard quantum limit'' of $\sim1/n$ scaling in the number of measurements.
+In principle, this scaling can be improved to $\sim1/n^2$ by preparing and measuring entangled copies of many qudits \cite{giovannetti2006quantum}.
 
 The quantum error scale $\epsilon_V^2$ only provides a pessimistic upper bound on statistical error, which can be calculated without prior knowledge of the true qudit state $\rho$.
 The actual error in the reconstruction $\tilde\rho_V$ of a particular state $\rho$, provided by Eq.~\eqref{eq:error}, may be considerably smaller.
 While the true error in $\tilde\rho_V$ cannot be known exactly without knowing $\rho$, this error can be estimated by computing the right-hand side of Eq.~\eqref{eq:error} with the replacement $\rho\to\tilde\rho_V$.
 
 The remainder of this section is devoted to defining the quantum error scale $\epsilon_V^2$ (derived in Appendix \ref{sec:error}), and can be skipped without consequence for the discussions in the rest of this paper.
-To write out $\epsilon_V^2$ explicitly, we define a matrix of structure constants
-\begin{align}
-  g_{L\ell} \equiv \sum_{m,n=-\ell}^\ell
-  \obk{T_{L,m+n}|T_{\ell m}T_{\ell n}} \op{m}{n},
-\end{align}
-and the inversion operator $\I\equiv\sum_m\p{-1}^m\op{-m}{m}$, which are used to define the $\p{2\ell+1}$-component vectors
-\begin{align}
-  \ket{\chi_{V\ell}}
-  &\equiv \sum_{m=-\ell}^\ell \chi^V_{\ell m} \ket{m}, \\
-  \chi^V_{LM} &\equiv \sum_\ell \obk{\N_{V\ell}|\D_M|\I g_{L\ell}}, \\
-  \D_M &\equiv \sum_{m,m'} \delta_{M,m'-m} \op{mm'}.
-\end{align}
-Here $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on, such that $\obk{\N_{V\ell}|\D_M|\I g_{L\ell}}$ is an inner product between the $M$-th diagonals of $\N_{V\ell}$ and $\I g_{L\ell}$.
-The vectors $\ket{\chi_{V\ell}}$ allow us to express reconstruction error in the simple form
+To write out this error in full, we first rewrite the reconstruction error in Eq.~\eqref{eq:error} as
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \f1n \sum_\ell \sp{\bk{\chi_{V\ell}|\rho_\ell}
     - \bk{\rho_\ell|\N_{V\ell}|\rho_\ell}},
+  \label{eq:error_simp}
 \end{align}
-where $\ket{\rho_\ell}\equiv\sum_m \rho_{\ell m}\ket{m}$.
-This error is straightforward to maximize with respect to all states $\rho$, which yields the bound in Eq.~\eqref{eq:bound} with $\epsilon_V^2 \equiv \sum_\ell \epsilon_{V\ell}^2$ and
+where $\ket{\rho_\ell}\equiv\sum_m \rho_{\ell m}\ket{m}$, and similarly $\ket{\chi_{V\ell}}\equiv\sum_m \chi^V_{\ell m} \ket{m}$ is a vector of the scalars $\chi^V_{\ell m}$ defined by
 \begin{align}
-  \epsilon_{V\ell}^2 \equiv
-  \bk{\chi_{V\ell}|\p{\L_{V\ell}^{-1}
-      - \L_{V\ell}^{-1}\N_{V\ell}\L_{V\ell}^{-1}}|\chi_{V\ell}},
+  \chi^V_{LM} &\equiv
+  \sum_\ell \obk{\N_{V\ell}|\D_M|\I g_{L\ell}}, \\
+  g_{L\ell} &\equiv \sum_{m,m'}
+  \obk{T_{L,m+m'}|T_{\ell m}T_{\ell m'}} \op{m}{m'}, \\
+  \I &\equiv \sum_m \p{-1}^m \op{-m}{m}, \\
+  \D_M &\equiv \sum_{m,m'} \delta_{M,m'-m} \op{mm'}.
 \end{align}
-where
+Here $g_{L\ell}$ is essentially a matrix of transition operator product coefficients (see Appendix \ref{sec:trans_prod}), and $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on.
+Maximizing the reconstruction error in Eq.~\eqref{eq:error_simp} over all $\rho$ with $\tr\rho=1$ leads to the bound in Eq.~\eqref{eq:bound} with
 \begin{align}
-  \L_{V\ell} \equiv \N_{V\ell} + \I\N_{V\ell}\I.
+  \epsilon_V^2 \equiv \sum_\ell\sp{\bk{\chi_{V\ell}|\rho_{V\ell}^\star}
+    - \bk{\rho_{V\ell}^\star|\N_{V\ell}|\rho_{V\ell}^\star}}
 \end{align}
+where the maximizers
+\begin{align}
+  \ket{\rho_{V\ell}^\star} \stackrel{\ell>0}{\equiv}
+  \L_{V\ell}^{-1} \ket{\chi_{V\ell}},
+  &&
+  \ket{\rho_{V,0}^\star} \equiv \f1{\sqrt{d}} \ket{0},
+\end{align}
+are defined in terms of the inverse $\L_{V\ell}^{-1}$ of
+\begin{align}
+  \L_{V\ell} \equiv \N_{V\ell} + \I \N_{V\ell} \I.
+\end{align}
+Note that the bound in Eq.~\eqref{eq:bound} is obtained by maximizing the reconstruction error in Eq.~\eqref{eq:error_simp} over all possible $\rho$ (satisfying $\tr\rho=1$) regardless of their spectrum.
+As a consequence, the maximizing ``state'' $\rho_V^\star$ may generally have negative eigenvalues.
+In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound} by maximizing reconstruction error over the (restricted) domain of states with a non-negative spectrum.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomography protocols}
@@ -708,8 +714,8 @@ which implies that
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \f1n \sum_{i,\ell,m,m'}
-  \abs{\tilde{\v q}_{\ell i}}^2
-  D^\ell_{m,0}\p{\v v_i}^* D^\ell_{m',0}\p{\v v_i}
+  D^\ell_{m',0}\p{\v v_i} \abs{\tilde{\v q}_{\ell i}}^2
+  D^\ell_{m,0}\p{\v v_i}^*
   \cov_\rho\p{T_{\ell m}^\dag, T_{\ell m'}}.
 \end{align}
 Altogether, the exact reconstruction error in Eq.~\eqref{eq:error_SM_start} can be expressed more compactly by defining the covariance matrix
@@ -725,9 +731,10 @@ and the noise matrix
 where $\diag\sp{X}$ sets all off-diagonal entries of $X$ to zero, in terms of which
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \f1n \sum_\ell \obk{\N_{V\ell}|\C_\ell\sp{\rho}}.
+  = \f1n \sum_\ell \obk{\N_{V\ell}|\C_\ell\sp{\rho}},
   \label{eq:error_SM}
 \end{align}
+where $\obk{X|Y}=\tr\p{X^\dag Y}$ is a trace inner product.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{An improved reconstruction error bound}
@@ -767,7 +774,7 @@ Substituting the covariance matrix back into Eq.~\eqref{eq:error_SM} and replaci
   n \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \sum_{L,M} \p{\chi^V_{LM}}^* \rho_{LM}
   - \sum_{\ell,m,m'} \bk{m'|\I\N_{V\ell}|m}
-  \rho_{\ell m'} \rho_{\ell m},
+  \rho_{\ell m} \rho_{\ell m'},
   \label{eq:error_comps}
 \end{align}
 where
@@ -786,71 +793,52 @@ is expressed in terms of the matrices
   \D_M \equiv \sum_{m,m'} \delta_{M,-m'+m} \op{m'm}.
 \end{align}
 Here $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on.
-In total, reconstruction error can be written in the form
-\begin{align}
-  n \Bbk{\norm{\tilde\rho_V-\rho}^2}
-  = \obk{\chi_V|\rho}
-  - \sum_\ell \obk{\rho|U_\ell\N_{V\ell}U_\ell^\dag|\rho},
-  &&
-  \oket{\chi_V} \equiv \sum_{L,M} \chi^V_{LM} \oket{T_{LM}},
-  &&
-  U_\ell \equiv \sum_m \oket{T_{\ell m}} \bra{m}.
-\end{align}
-Performing the change of basis $\oket{T_{\ell m}}\to\ket{\ell m}$ by defining
-\begin{align}
-  \ket{\rho} \equiv U^\dag \oket{\rho}
-  = \sum_{\ell,m} \rho_{\ell m}\ket{\ell m},
-  &&
-  \ket{\chi_V} \equiv U^\dag \oket{\chi_V}
-  = \sum_{\ell,m} \chi^V_{\ell m} \ket{\ell m},
-  &&
-  U \equiv \sum_{\ell,m} \oket{T_{\ell m}} \bra{\ell m},
-\end{align}
-as well as the degree-$\ell$ projections
+Defining the $\p{2\ell+1}$-component vectors
 \begin{align}
   \ket{\rho_\ell} \equiv \sum_m \rho_{\ell m} \ket{m},
   &&
-  \ket{\chi_{V\ell}} \equiv \sum_m \chi^V_{\ell m} \ket{m},
+  \ket{\chi_{V\ell}} \equiv \sum_{\ell,m} \chi^V_{\ell m} \ket{m},
 \end{align}
-we can more simply write
+the expansion in Eq.~\eqref{eq:error_comps} is most efficiently evaluated in the vectorized form
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \f1n \sum_\ell \sp{\bk{\chi_{V\ell}|\rho_\ell}
     - \bk{\rho_\ell|\N_{V\ell}|\rho_\ell}}.
 \end{align}
-Given the expansion in Eq.~\eqref{eq:error_comps}, this error is straightforward to maximize by considering its variation with respect to $\rho_{\ell m}$:
+This error is straightforward to maximize by considering its variation with respect to $\rho_{\ell m}$:
 \begin{align}
   n\, \f{\partial}{\partial\rho_{\ell m}}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   = \p{\chi^V_{\ell m}}^*
-  - \sum_{m'} \sp{\bk{m'|\I\N_{V\ell}|m} + \bk{m'|\I\N_{V\ell}|m}}
+  - \sum_{m'} \sp{\bk{m'|\I\N_{V\ell}|m} + \bk{m|\I\N_{V\ell}|m'}}
   \rho_{\ell m'}.
 \end{align}
 The complex conjugate of this variation implies that the state $\rho_V^\star$ that maximizes reconstruction error satisfies
 \begin{align}
-  \ket{\chi_{V\ell}} - \L_{V\ell} \ket{\rho_{V\ell}^\star} = 0,
+  \ket{\chi_{V\ell}} - \L_{V\ell} \ket{\rho_{V\ell}^\star}
+  \stackrel{\ell>0}{=} 0,
   &&
   \L_{V\ell} \equiv \N_{V\ell} + \I N_{V\ell} \I,
 \end{align}
 which implies that
 \begin{align}
-  \ket{\rho_{V\ell}^\star} = \L_{V\ell}^{-1} \ket{\chi_{V\ell}},
+  \ket{\rho_{V\ell}^\star} \stackrel{\ell>0}{=}
+  \L_{V\ell}^{-1} \ket{\chi_{V\ell}},
+  &&
+  \ket{\rho_{V,0}^\star} = \f1{\sqrt{d}} \ket{0},
 \end{align}
-and in turn
+where the $\ell=0$ component of $\rho_V^\star$ enforces $\tr\rho_V^\star=1$.
+We thus find that
 \begin{align}
   \Bbk{\norm{\tilde\rho_V-\rho}^2}
   \le \Bbk{\norm{\tilde\rho_V-\rho_V^\star}^2}
-  = \f{\epsilon_V^2}{n},
+  = \f1n \sum_\ell \epsilon_{V\ell}^2,
+  &&
+  \epsilon_{V\ell}^2 \equiv \bk{\chi_{V\ell}|\rho_{V\ell}^\star}
+  - \bk{\rho_{V\ell}^\star|\N_{V\ell}|\rho_{V\ell}^\star}.
   \label{eq:bound_SM}
 \end{align}
-where
-\begin{align}
-  \epsilon_V^2 \equiv \sum_\ell \epsilon_{V\ell}^2,
-  &&
-  \epsilon_{V\ell}^2 \equiv \bk{\chi_{V\ell}|\p{\L_{V\ell}^{-1}
-      - \L_{V\ell}^{-1}\N_{V\ell}\L_{V\ell}^{-1}}|\chi_{V\ell}}.
-\end{align}
-Note that the bound in Eq.~\eqref{eq:bound_SM} is obtained by maximizing reconstruction error over all possible $\rho$ regardless of their spectrum, which implies that the maximizer $\rho_V^\star$ may generally be an unphysical state with negative eigenvalues.
+Note that the bound in Eq.~\eqref{eq:bound_SM} is obtained by maximizing reconstruction error over all possible $\rho$ (satisfying $\tr\rho=1$) regardless of their spectrum, which implies that the maximizer $\rho_V^\star$ may generally be an unphysical ``state'' with negative eigenvalues.
 In principle, there is therefore room for improvement on the bound in Eq.~\eqref{eq:bound_SM} by maximizing reconstruction error over the (restricted) domain of states with a non-negative spectrum.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
