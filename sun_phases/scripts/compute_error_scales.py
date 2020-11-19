@@ -91,7 +91,7 @@ def compute_batch(pool, function, args):
 
 ##########################################################################################
 # pre-compute matrices of Wigner-3j coefficients,
-# which are used to build structure factor matrices
+# which are used to build matrices of structure constants
 
 def wigner_3j_mat(labels):
     LL, ll = labels
@@ -152,75 +152,95 @@ def rot_mid(LL, axis):
     return phases_1 * ( pulse_mats[LL] @ ( phases_0 * rot_zero_vecs[LL] ) )
 
 ##########################################################################################
-# compute the measurement matrix, its singular values, and the error scale
+# compute the measurement matrix, its singular values, and error scales
 
 # construct a fixed-degree measurement matrix
-def meas_mat(LL, axes):
+def degree_meas_mat(LL, axes):
     return np.array([ rot_mid(LL, axis) for axis in axes ])
 
 # get singular values ("norms") of a single fixed-degree measurement matrix
-def degree_norms(LL, axes):
-    return get_svdvals(meas_mat(LL, axes))
+def degree_meas_norms(LL, axes):
+    return get_svdvals(degree_meas_mat(LL, axes))
 
 # get singular values ("norms") of all fixed-degree measurement matrices
 pool = multiprocessing.Pool(processes = cpus)
 def meas_norms(dim, axes):
-    _degree_norms = functools.partial(degree_norms, axes = axes)
-    return compute_batch(pool, _degree_norms, range(dim-1,0,-1))
+    _degree_meas_norms = functools.partial(degree_meas_norms, axes = axes)
+    return compute_batch(pool, _degree_meas_norms, range(dim-1,-1,-1))
 
 # compute the classical error scale for a given set of axes
 def classical_error_scale(dim, axes):
-    norms = np.concatenate(list(meas_norms(dim, axes).values()))
-    return np.sqrt(sum(1/norms**2))
+    norms = meas_norms(dim, axes)
+    return np.sqrt(sum( sum(1/degree_norms**2)
+                        for degree_norms in norms.values() ))
+
+# squared "gamma" factors that appear in the quantum error scale
+def sqr_gamma(dim, ll):
+    ss = (dim-1)/2
+    mm_min, mm_max, wigner_3j_vals = wigner.lib.wigner_3j_m(ll, ss, ss, 0)
+    signs = np.array([ (-1)**(2*ll+ss-mm) for mm in np.arange(mm_min, mm_max+1) ])
+    signed_vals = signs * wigner_3j_vals
+    half_span = ( max(signed_vals) - min(signed_vals) ) / 2
+    return (2*ll+1) * half_span**2
+
+# compute the quantum error scale for a given set of axes
+def quantum_error_scale(dim, axes):
+    norms = meas_norms(dim, axes)
+    return np.sqrt(sum( sqr_gamma(dim, ll) * sum(1/degree_norms**2)
+                        for ll, degree_norms in norms.items() ))
+
+##########################################################################################
+# compute root-mean-squared reconstruction error
 
 # compute the fixed-degree noise matrix
-def noise_mat(LL, axes):
-    mat = meas_mat(LL, axes).T
+def degree_noise_mat(LL, axes):
+    mat = degree_meas_mat(LL, axes).T
     _, vals, vecs = scipy.linalg.svd(mat, full_matrices = False)
     diag_vals = np.sum(abs(vecs/vals[:,None])**2, axis = 0)
     return ( mat * diag_vals[None,:] ) @ mat.conj().T
 
-# compute the fixed-degree "fixed vector"
-def degree_fixed_vec(LL, noise_mats):
+# compute all noise matrices
+pool = multiprocessing.Pool(processes = cpus)
+def noise_mats(axes):
+    _degree_noise_mat = functools.partial(degree_noise_mat, axes = axes)
+    return compute_batch(pool, _degree_noise_mat, range(dim-1,-1,-1))
+
+# compute the fixed-degree "chi vector" in the "degree-order" basis
+def degree_chi_state(LL, noise_mats):
     min_ll = (LL+1)//2
     dim = max(noise_mats.keys()) + 1
-    fixed_vec = np.zeros(2*LL+1, dtype = complex)
+    chi_state = np.zeros(2*LL+1, dtype = complex)
     for ll, noise_mat in noise_mats.items():
         if ll < min_ll: continue
         mat = noise_mat.T * invert(struct_mat(dim, LL, ll))
         diag_mat = np.roll(diagonals(mat), LL, axis = 0)[:2*LL+1,:]
-        fixed_vec += diag_mat.sum(axis = 1)
-    return fixed_vec
+        chi_state += diag_mat.sum(axis = 1)
+    return chi_state
 
-# compute the contribution to the error scale from each degree
-def degree_error_scale(ll, fixed_vecs, noise_mats):
-    fixed_vec = fixed_vecs[ll]
-    noise_mat = noise_mats[ll]
-    dim = max(noise_mats.keys()) + 1
-    kwargs = dict( check_finite = False, overwrite_a = True, overwrite_b = True,
-                       lapack_driver = "gelsy" )
-    opt_vec = scipy.linalg.lstsq(noise_mat, fixed_vec, **kwargs)[0]
-    return fixed_vec.conj() @ opt_vec / 4 + noise_mat.trace() / dim
-
-# compute the quantum error scale for a given set of axes
+# compute the full "chi vector" in the "degree-order" basis
 pool = multiprocessing.Pool(processes = cpus)
-def quantum_error_scale(dim, axes):
-    ll_vals = list(range(dim-1,0,-1))
+def chi_state(noise_mats):
+    _degree_chi_state = functools.partial(degree_chi_state, noise_mats = noise_mats)
+    return compute_batch(pool, _degree_chi_state, range(dim-1,-1,-1))
 
-    _noise_mat = functools.partial(noise_mat, axes = axes)
-    noise_mats = compute_batch(pool, _noise_mat, ll_vals)
+# compute contribution to squared reconstruction error from a single degree
+def sqr_degree_error(LL, state, chi_state, noise_mats):
+    pos = chi_state[LL].conj() @ state[LL]
+    neg = state[LL].conj() @ ( noise_mats[LL] @ state[LL] )
+    return pos - neg
 
-    kwargs = dict( noise_mats = noise_mats )
-    _degree_fixed_vec = functools.partial(degree_fixed_vec, **kwargs)
-    fixed_vecs = compute_batch(pool, _degree_fixed_vec, ll_vals)
+# compute the reconstruction error for a state in the "degree-order" basis
+pool = multiprocessing.Pool(processes = cpus)
+def error(state, axes):
+    _noise_mats = noise_mats(axes)
+    _chi_state = chi_state(_noise_mats)
 
-    kwargs = dict( noise_mats = noise_mats, fixed_vecs = fixed_vecs )
-    _degree_error_scale = functools.partial(degree_error_scale, **kwargs)
-    degree_error_scales = compute_batch(pool, _degree_error_scale, ll_vals)
+    dim = max(state.keys()) + 1
+    kwargs = dict( state = state, chi_state = _chi_state, noise_mats = _noise_mats )
+    _sqr_degree_error = functools.partial(sqr_degree_error, **kwargs)
+    sqr_degree_errors = compute_batch(pool, _sqr_degree_error, range(dim-1,-1,-1))
 
-    return sum(degree_error_scales.values())
-
-error_scale = classical_error_scale
+    return np.sqrt(sum( sqr_error for sqr_error in sqr_degree_errors.values() ))
 
 ##########################################################################################
 # simulate!
@@ -240,8 +260,9 @@ for dim in range(min_dim, max_dim+1):
 
     axis_num = 2*dim-1 # minimum number of axes
     for sample in range(sample_cap):
-        rnd_error_scale = error_scale(dim, random_axes(axis_num))
+        rnd_error_scale = classical_error_scale(dim, random_axes(axis_num))
         min_error_scale = min(min_error_scale, rnd_error_scale)
+
         if time.time() - start > time_cap: break
 
     mean_time = ( time.time() - start ) / (sample+1)

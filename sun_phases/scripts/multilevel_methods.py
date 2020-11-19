@@ -7,6 +7,7 @@ from sympy.physics.wigner import wigner_6j as sym_wigner_6j
 
 # transition and drive operators, exact
 def transition_op_exact(dim, L, M):
+    if L >= dim or abs(M) > L: return np.zeros((dim,dim))
     L, M = sym.S(L), sym.S(M)
     I = sym.S(dim-1)/2
     mu_min = max(-M,0)
@@ -16,6 +17,7 @@ def transition_op_exact(dim, L, M):
     return sym.sqrt(sym.S(2*L+1)/sym.S(2*I+1)) * np.diag(diag_vals, -M)
 
 def drive_op_exact(dim, L, M):
+    if L >= dim or abs(M) > L: return np.zeros((dim,dim))
     T_LM = transition_op_exact(dim, L, M)
     if M == 0: return T_LM
     eta_M = (-1)**M if M > 0 else sym.I
@@ -43,7 +45,7 @@ def transition_prod_coef_exact(dim, l1, m1, l2, m2, L, M):
     I = sym.S(dim-1)/2
     return ( (-1)**(2*I+L) * sym.sqrt((2*l1+1)*(2*l2+1)) *
              sym_cg(l1, m1, l2, m2, L, M).doit() *
-             sym_wigner_6j(l1, l2, L, I, I, I).doit() )
+             sym_wigner_6j(l1, l2, L, I, I, I) )
 
 def transition_prod_coef(dim, l1, m1, l2, m2, L, M):
     return float(transition_prod_coef_exact(dim, l1, m1, l2, m2, L, M))
