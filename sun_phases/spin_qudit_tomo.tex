@@ -369,11 +369,11 @@ If we assume that $\abs{V}\sim d$, then computing $\S_V^2$ to certify the bound 
 
 \begin{figure}
   \centering
-  \includegraphics{qudit_errors/error_times.pdf}
-  \caption{Serial runtime to compute the classical error scale $\S_V^2$ with $\abs{V}=2d-1$ randomly chosen measurement axes.
+  \includegraphics{qudit_errors/qudit_times.pdf}
+  \caption{Serial runtime to compute $\S_V$, $\epsilon_V$, and $\E_V\p{\rho}$ with $\abs{V}=2d-1$ randomly chosen measurement axes and a randomly chosen qudit state $\rho$.
     Each point is an average over 100 calculations or 5 minutes of runtime, whichever comes first.
-    Dashed lines shows a fit to runtime $t=c d^\alpha$ for all $d\ge100$, finding $\alpha\approx 3.7$.
-    These results do not include fixed $O(d^3)$ runtimes for pre-computing quantities that can be recycled for every new choice of measurement axes $V$.}
+    Dashed lines shows a fit to runtime $t=c d^\alpha$ for all $d\ge100$, finding $\alpha\approx 3.7$ [\red{todo: update/correct after more simulations}].
+    These results do not count fixed $O(d^3)$ runtimes for pre-computing quantities that can be recycled for every new choice of $V$ or $\rho$.}
   \label{fig:times}
 \end{figure}
 
@@ -395,7 +395,7 @@ where the {\it quantum error scale} $\epsilon_V^2$ is defined in terms of (half 
 \end{align}
 If $d$ is even, then $\Gamma_\ell=\max_\mu t_{\ell\mu}$.
 For comparison with previous error bound in Eq.~\eqref{eq:bound_eps}, we note that $\epsilon_V^2<\S_V^2/2$, so the previous bound still holds with the replacement $\epsilon^2\to1/2n$.
-The factors $\Gamma_\ell^2$ are quick to compute and can be recycled for every new choice of axes $V$, so the complexity of computing $\epsilon_V^2$ is identical to that of $\S_V^2$.
+The factors $\Gamma_\ell^2$ are quick to compute and can be recycled for every new choice of axes $V$, so the complexity of computing $\epsilon_V^2$ is identical to that of $\S_V^2$ (see Figure \ref{fig:times}).
 
 Though straightforward to compute, the bound in Eq.~\eqref{eq:bound} is not tight, as it is acquired by bounding the statistical variance $\epsilon_{\v v\ell}^2$ in the empirical estimate $\tilde T_{\v v\ell,0}$ of $\bk{T_{\v v\ell,0}}_\rho$ as $\bbk{\epsilon_{\v v\ell}^2}\le\Gamma_\ell^2$.
 Though the individual bounds on $\bbk{\epsilon_{\v v\ell}^2}$ for each axis $\v v$ and degree $\ell$ are tight, these bounds cannot all be achieved simultaneously.
@@ -431,6 +431,7 @@ The vector $\ket{\chi_{V\ell}}\equiv\sum_m \chi^V_{\ell m} \ket{m}$ in Eq.~\eqre
   \D_M &\equiv \sum_{m,m'} \delta_{M,m'-m} \op{mm'}.
 \end{align}
 Here $g_{L\ell}$ is a matrix of structure constants for the polarization operator algebra (see Appendix \ref{sec:trans_prod}), and $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on, such that $\obk{\N_{V\ell}|\D_M|\I g_{L\ell}}$ is an inner product of the $M$-th diagonal of $\I g_{L\ell}$ with the $\p{-M}$-th diagonal of $\N_{V\ell}$.
+Overall, the complexity of computing $\E_V\p{\rho}$ is identical to that of $\epsilon_V^2$ and $\S_V^2$ (see Figure \ref{fig:times}).
 
 [\red{todo: comment on code availability}]
 
