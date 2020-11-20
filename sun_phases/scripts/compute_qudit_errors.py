@@ -14,8 +14,8 @@ RE = "RE" # reconstruction error
 compute = RE
 write_data = False
 
-sample_cap = 100 # maximum number of times we choose a random set of measurement axes
-time_cap = 300 # maximum time to run, in seconds
+sample_cap = 1000 # maximum number of times we choose a random set of measurement axes
+time_cap = 300 # maximum time to run per qubit dimension, in seconds
 
 min_dim = int(sys.argv[1])
 try: max_dim = int(sys.argv[2])
@@ -86,14 +86,14 @@ def compute_batch(function, args):
 # pre-compute pi/2 rotation matrices exp(-i pi/2 S_y) for all L
 def _spin_vals(LL):
     return np.arange(-LL, LL+1)
-def _roz_z_to_x(LL):
+def _rot_z_to_x(LL):
     MM = _spin_vals(LL)[:-1]
     diag_vals = np.sqrt(LL*(LL+1)-MM*(MM+1))
     S_m = np.diag(diag_vals, 1)
     S_y = ( S_m - S_m.T ) * 1j/2
     return scipy.linalg.expm(-1j * np.pi/2 * S_y)
 spin_vals = compute_batch(_spin_vals, range(max_dim-1,-1,-1))
-rot_z_to_x = compute_batch(_roz_z_to_x, range(max_dim-1,-1,-1))
+rot_z_to_x = compute_batch(_rot_z_to_x, range(max_dim-1,-1,-1))
 
 # pre-compute the vector `exp(-i pi/2 S_y) |L,0>` for all (relevant) L
 # every other entry in this vector is zero, so remove it preemptively
