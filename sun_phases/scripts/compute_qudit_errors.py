@@ -7,18 +7,21 @@ import numpy as np
 import wigner.lib, py3nj
 
 # flags for what to compute:
-CB = "CB" # classical bound
-QB = "QB" # quantum bound
+CB = "CB" # classical error bound
+QB = "QB" # quantum error bound
 RE = "RE" # reconstruction error
 
 compute = CB
 write_data = True
 
+sample_cap = 100 # maximum number of times we choose a random set of measurement axes
+time_cap = 300 # maximum time to run, in seconds
+
 min_dim = int(sys.argv[1])
 try: max_dim = int(sys.argv[2])
 except: max_dim = min_dim
-try: seed = int(sys.argv[3])
-except: seed = 0
+
+seed = 0 # random number seed. change at your own peril
 np.random.seed(seed)
 
 data_dir = "../data/qudit_errors/"
@@ -30,10 +33,7 @@ data_file = data_dir + f"times_{compute}_d{min_dim}-{max_dim}.txt"
 genesis = time.time()
 
 ##########################################################################################
-# general simulation options / methods
-
-sample_cap = 100 # maximum number of times we choose a random set of measurement axes
-time_cap = 300 # maximum time to run, in seconds
+# general simulation methods
 
 # get squared singular values of a matrix
 def get_svdvals(matrix):
@@ -44,21 +44,22 @@ def get_svdvals(matrix):
         MM = matrix.conj().T @ matrix
     return np.sqrt(scipy.linalg.eigvalsh(MM))
 
-# get diagonals and anti-diagonals of a matrix
-def diagonals(mat):
+# get diagonal bands of a matrix
+def diagonals(mat, band_min = None, band_max = None):
     rows, cols = mat.shape
     fill = np.zeros(((cols - 1), cols), dtype = mat.dtype)
     stacked = np.vstack((mat, fill, mat))
     major_stride, minor_stride = stacked.strides
     strides = major_stride, minor_stride * (cols + 1)
     shape = (rows + cols - 1, cols)
-    diags = np.lib.stride_tricks.as_strided(stacked, shape, strides)
-    return np.roll(np.flipud(diags), 1, axis = 0)
-
-# get the diagonal bands of a matrix
-def diagonal_bands(mat, band_min, band_max):
+    reversed_diags = np.lib.stride_tricks.as_strided(stacked, shape, strides)
+    diags = np.roll(np.flipud(diags), 1, axis = 0)
+    if band_min == None:
+        band_min = diags.shape[0]
+    if band_max == None:
+        band_max = diags.shape[1]
     bands = band_max - band_min + 1
-    return np.roll(diagonals(mat), -band_min, axis = 0)[:bands,:]
+    return np.roll(diags, -band_min, axis = 0)[:bands,:]
 
 # generate random axes on the sphere by uniform sampling
 def random_axes(axis_num):
@@ -67,53 +68,11 @@ def random_axes(axis_num):
     axes[:,1] *= 2*np.pi # azimuthal angles
     return axes
 
-# generate a random (probably unphysical) qudit state,
-# represented by a point within a `dim^2`-dimensional hypersphere
-def random_state(dim):
-    point = np.array([ np.random.normal() for _ in range(dim**2) ])
-    point /= np.sqrt( np.random.exponential() + sum(point**2) )
-    # orgznize components into (2L+1)-sized vectors of "degree" L < dim
-    return { LL : point[ LL**2 : LL**2 + 2*LL+1 ] for LL in range(dim) }
-
 # run a batch of independent jobs, possibly in parallel (not yet implemented)
 def compute_batch(function, args):
     args_list = list(args)
     values = map(function, args_list)
     return { arg : value for arg, value in zip(args_list, values) }
-
-##########################################################################################
-# pre-compute matrices of Wigner-3j coefficients,
-# which are used to build matrices of structure constants
-
-def wigner_3j_mat(labels):
-    LL, ll = labels
-    matrix = np.zeros((2*ll+1,)*2)
-    for mm in range(-ll,ll+1):
-        start, end, vals = wigner.lib.wigner_3j_m(ll, ll, LL, mm)
-        matrix[mm+ll, int(start)+ll : int(end)+ll+1] = vals
-    return matrix
-degree_labels = [ ( LL, ll )
-                  for ll in range(max_dim-1,-1,-1)
-                  for LL in range(min(max_dim-1,2*ll),-1,-1) ]
-wigner_3j_mats = compute_batch(wigner_3j_mat, degree_labels)
-
-# compute a matix of structure constants
-def struct_mat(dim, LL, ll):
-    wigner_6j_args = [ 2*ll, 2*ll, 2*LL, dim-1, dim-1, dim-1 ]
-    wigner_6j_factor = py3nj.wigner6j(*wigner_6j_args)
-    prefactor = (-1)**(dim-1+LL) * (2*ll+1) * np.sqrt(2*LL+1) * wigner_6j_factor
-    return prefactor * wigner_3j_mats[LL,ll]
-
-# "invert" a matrix
-def invert(mat):
-    ll = (mat.shape[0]-1)//2
-    signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
-    return signs[:,None] * np.flipud(mat)
-
-# bands of an inverted matrix of structure constants
-def inv_struct_bands(dim):
-    return { ( LL, ll ) : diagonal_bands(invert(struct_mat(dim, LL, ll)), -LL, LL)
-             for LL, ll in degree_labels }
 
 ##########################################################################################
 # methods to compute a vector of D^L_{m,0}(v) for all |m| <= L,
@@ -153,7 +112,7 @@ def rot_mid(LL, axis):
     return phases_1 * ( pulse_mats[LL] @ ( phases_0 * rot_zero_vecs[LL] ) )
 
 ##########################################################################################
-# compute the measurement matrix, its singular values, and error scales
+# methods to compute the measurement matrix, its singular values, and error scales
 
 # construct a fixed-degree measurement matrix
 def degree_meas_mat(LL, axes):
@@ -190,7 +149,41 @@ def quantum_error_scale(dim, axes):
                         for ll, degree_norms in norms.items() ))
 
 ##########################################################################################
-# compute the root-mean-squared reconstruction error
+# pre-compute matrices of Wigner-3j coefficients,
+# which are used to build matrices of structure constants
+
+def wigner_3j_mat(labels):
+    LL, ll = labels
+    matrix = np.zeros((2*ll+1,)*2)
+    for mm in range(-ll,ll+1):
+        start, end, vals = wigner.lib.wigner_3j_m(ll, ll, LL, mm)
+        matrix[mm+ll, int(start)+ll : int(end)+ll+1] = vals
+    return matrix
+degree_labels = [ ( LL, ll )
+                  for ll in range(max_dim-1,-1,-1)
+                  for LL in range(min(max_dim-1,2*ll),-1,-1) ]
+wigner_3j_mats = compute_batch(wigner_3j_mat, degree_labels)
+
+# compute a matix of structure constants
+def struct_mat(dim, LL, ll):
+    wigner_6j_args = [ 2*ll, 2*ll, 2*LL, dim-1, dim-1, dim-1 ]
+    wigner_6j_factor = py3nj.wigner6j(*wigner_6j_args)
+    prefactor = (-1)**(dim-1+LL) * (2*ll+1) * np.sqrt(2*LL+1) * wigner_6j_factor
+    return prefactor * wigner_3j_mats[LL,ll]
+
+# "invert" a matrix
+def invert(mat):
+    ll = (mat.shape[0]-1)//2
+    signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
+    return signs[:,None] * np.flipud(mat)
+
+# diagonal bands of an inverted matrix of structure constants
+def inv_struct_bands(dim):
+    return { ( LL, ll ) : diagonals(invert(struct_mat(dim, LL, ll)), -LL, LL)
+             for LL, ll in degree_labels }
+
+##########################################################################################
+# methods to compute the root-mean-squared reconstruction error
 
 # compute the fixed-degree noise matrix
 def degree_noise_mat(LL, axes):
@@ -243,6 +236,14 @@ def recon_error(state, axes, inv_struct_bands):
     _sqr_degree_error = functools.partial(sqr_degree_error, **kwargs)
     sqr_degree_errors = compute_batch(_sqr_degree_error, range(dim-1,-1,-1))
     return np.sqrt(sum( sqr_error for sqr_error in sqr_degree_errors.values() ))
+
+# generate a random (probably unphysical) qudit state,
+# represented by a point within a `dim^2`-dimensional hypersphere
+def random_state(dim):
+    point = np.array([ np.random.normal() for _ in range(dim**2) ])
+    point /= np.sqrt( np.random.exponential() + sum(point**2) )
+    # orgznize components into (2L+1)-sized vectors of "degree" L < dim
+    return { LL : point[ LL**2 : LL**2 + 2*LL+1 ] for LL in range(dim) }
 
 ##########################################################################################
 # simulate!
