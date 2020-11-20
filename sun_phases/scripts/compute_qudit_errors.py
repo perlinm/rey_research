@@ -12,7 +12,7 @@ QB = "QB" # quantum error bound
 RE = "RE" # reconstruction error
 
 compute = RE
-write_data = True
+write_data = False
 
 sample_cap = 100 # maximum number of times we choose a random set of measurement axes
 time_cap = 300 # maximum time to run, in seconds
@@ -55,9 +55,9 @@ def diagonals(mat, band_min = None, band_max = None):
     reversed_diags = np.lib.stride_tricks.as_strided(stacked, shape, strides)
     diags = np.roll(np.flipud(reversed_diags), 1, axis = 0)
     if band_min == None:
-        band_min = diags.shape[0]
+        band_min = -mat.shape[0]
     if band_max == None:
-        band_max = diags.shape[1]
+        band_max = +mat.shape[1]
     bands = band_max - band_min
     return np.roll(diags, -band_min, axis = 0)[:bands+1,:]
 
@@ -103,6 +103,8 @@ rot_zero_vecs = [ rot_z_to_x[LL][:,LL][::2] for LL in range(max_dim) ]
 
 # collect all exp(+i pi/2 S_y), skipping every other column because we don't need it
 pulse_mats = [ rot_z_to_x[LL].T[:,::2] for LL in range(max_dim) ]
+
+del rot_z_to_x # delete data we no longer need to save memory
 
 # construct the vector of D^L_{m,0}(v) for all |m| <= L,
 # i.e. the "middle column" of the rotation matrix R(v) for a spin-L particle
@@ -193,15 +195,14 @@ def degree_noise_mat(LL, axes):
     return ( mat * diag_vals[None,:] ) @ mat.conj().T
 
 # compute all noise matrices
-def noise_mats(axes):
+def noise_mats(dim, axes):
     _degree_noise_mat = functools.partial(degree_noise_mat, axes = axes)
     return compute_batch(_degree_noise_mat, range(dim-1,-1,-1))
 
 # compute diagonal bands of transposed noise matrices
 def noise_band_mat(LL, noise_mats):
     noise_mat = noise_mats[LL]
-    dim = noise_mat.shape[0]
-    return diagonals(noise_mat.T, -dim, dim)
+    return diagonals(noise_mat.T)
 
 # compute the fixed-degree "chi vector" in the "degree-order" basis
 def degree_chi_state(LL, noise_band_mats, inv_struct_bands):
@@ -214,7 +215,7 @@ def degree_chi_state(LL, noise_band_mats, inv_struct_bands):
     return chi_state
 
 # compute the full "chi vector" in the "degree-order" basis
-def chi_state(noise_mats, inv_struct_bands):
+def chi_state(dim, noise_mats, inv_struct_bands):
     _noise_band_mat = functools.partial(noise_band_mat, noise_mats = noise_mats)
     noise_band_mats = compute_batch(_noise_band_mat, range(dim-1,-1,-1))
     kwargs = dict( noise_band_mats = noise_band_mats, inv_struct_bands = inv_struct_bands )
@@ -230,8 +231,8 @@ def sqr_degree_error(LL, state, chi_state, noise_mats):
 # compute the reconstruction error for a state in the "degree-order" basis
 def recon_error(state, axes, inv_struct_bands):
     dim = max(state.keys()) + 1
-    _noise_mats = noise_mats(axes)
-    _chi_state = chi_state(_noise_mats, inv_struct_bands)
+    _noise_mats = noise_mats(dim, axes)
+    _chi_state = chi_state(dim, _noise_mats, inv_struct_bands)
     kwargs = dict( state = state, chi_state = _chi_state, noise_mats = _noise_mats )
     _sqr_degree_error = functools.partial(sqr_degree_error, **kwargs)
     sqr_degree_errors = compute_batch(_sqr_degree_error, range(dim-1,-1,-1))
