@@ -6,22 +6,9 @@ import numpy as np
 
 import wigner.lib, py3nj
 
-import multiprocessing
-try:
-    cpus = multiprocessing.cpu_count()
-except NotImplementedError:
-    cpus = 4 # default number of cpus to use for multithreading
-
-np.set_printoptions(linewidth = 200)
-
 write_data = False
 compute = "error"
 assert( compute in [ "bound", "error" ] )
-
-parallelize = False
-if "par" in sys.argv:
-    parallelize = True
-    sys.argv.remove("par")
 
 min_dim = int(sys.argv[1])
 try: max_dim = int(sys.argv[2])
@@ -34,8 +21,7 @@ data_dir = "../data/qudit_errors/"
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
-par_tag = f"c{cpus}" if parallelize else "serial"
-data_file = data_dir + f"times_{compute}_d{min_dim}-{max_dim}_{par_tag}.txt"
+data_file = data_dir + f"times_{compute}_d{min_dim}-{max_dim}.txt"
 
 genesis = time.time()
 
@@ -85,13 +71,10 @@ def random_state(dim):
     # orgznize components into (2L+1)-sized vectors of "degree" L < dim
     return { LL : point[ LL**2 : LL**2 + 2*LL+1 ] for LL in range(dim) }
 
-# run a batch of independent jobs, possibly in parallel
-def compute_batch(pool, function, args):
+# run a batch of independent jobs, possibly in parallel (not yet implemented)
+def compute_batch(function, args):
     args_list = list(args)
-    if parallelize:
-        values = pool.map(function, args_list)
-    else:
-        values = map(function, args_list)
+    values = map(function, args_list)
     return { arg : value for arg, value in zip(args_list, values) }
 
 ##########################################################################################
@@ -105,11 +88,10 @@ def wigner_3j_mat(labels):
         start, end, vals = wigner.lib.wigner_3j_m(ll, ll, LL, mm)
         matrix[mm+ll, int(start)+ll : int(end)+ll+1] = vals
     return matrix
-pool = multiprocessing.Pool(processes = cpus)
 degree_labels = [ ( LL, ll )
                   for ll in range(max_dim-1,-1,-1)
                   for LL in range(min(max_dim-1,2*ll),-1,-1) ]
-wigner_3j_mats = compute_batch(pool, wigner_3j_mat, degree_labels)
+wigner_3j_mats = compute_batch(wigner_3j_mat, degree_labels)
 
 # compute a matix of structure factors
 def struct_mat(dim, LL, ll):
@@ -148,9 +130,8 @@ def _roz_z_to_x(LL):
     S_m = np.diag(diag_vals, 1)
     S_y = ( S_m - S_m.T ) * 1j/2
     return scipy.linalg.expm(-1j * np.pi/2 * S_y)
-pool = multiprocessing.Pool(processes = cpus)
-spin_vals = compute_batch(pool, _spin_vals, range(max_dim-1,-1,-1))
-rot_z_to_x = compute_batch(pool, _roz_z_to_x, range(max_dim-1,-1,-1))
+spin_vals = compute_batch(_spin_vals, range(max_dim-1,-1,-1))
+rot_z_to_x = compute_batch(_roz_z_to_x, range(max_dim-1,-1,-1))
 
 # pre-compute the vector `exp(-i pi/2 S_y) |L,0>` for all (relevant) L
 # every other entry in this vector is zero, so remove it preemptively
@@ -178,10 +159,9 @@ def degree_meas_norms(LL, axes):
     return get_svdvals(degree_meas_mat(LL, axes))
 
 # get singular values ("norms") of all fixed-degree measurement matrices
-pool = multiprocessing.Pool(processes = cpus)
 def meas_norms(dim, axes):
     _degree_meas_norms = functools.partial(degree_meas_norms, axes = axes)
-    return compute_batch(pool, _degree_meas_norms, range(dim-1,-1,-1))
+    return compute_batch(_degree_meas_norms, range(dim-1,-1,-1))
 
 # compute the classical error scale for a given set of axes
 def classical_error_scale(dim, axes):
@@ -215,10 +195,9 @@ def degree_noise_mat(LL, axes):
     return ( mat * diag_vals[None,:] ) @ mat.conj().T
 
 # compute all noise matrices
-pool = multiprocessing.Pool(processes = cpus)
 def noise_mats(axes):
     _degree_noise_mat = functools.partial(degree_noise_mat, axes = axes)
-    return compute_batch(pool, _degree_noise_mat, range(dim-1,-1,-1))
+    return compute_batch(_degree_noise_mat, range(dim-1,-1,-1))
 
 # compute diagonal bands of transposed noise matrices
 def noise_band_mat(LL, noise_mats):
@@ -237,13 +216,12 @@ def degree_chi_state(LL, noise_band_mats, inv_struct_bands):
     return chi_state
 
 # compute the full "chi vector" in the "degree-order" basis
-pool = multiprocessing.Pool(processes = cpus)
 def chi_state(noise_mats, inv_struct_bands):
     _noise_band_mat = functools.partial(noise_band_mat, noise_mats = noise_mats)
-    noise_band_mats = compute_batch(pool, _noise_band_mat, range(dim-1,-1,-1))
+    noise_band_mats = compute_batch(_noise_band_mat, range(dim-1,-1,-1))
     kwargs = dict( noise_band_mats = noise_band_mats, inv_struct_bands = inv_struct_bands )
     _degree_chi_state = functools.partial(degree_chi_state, **kwargs)
-    return compute_batch(pool, _degree_chi_state, range(dim-1,-1,-1))
+    return compute_batch(_degree_chi_state, range(dim-1,-1,-1))
 
 # compute contribution to squared reconstruction error from a single degree
 def sqr_degree_error(LL, state, chi_state, noise_mats):
@@ -252,14 +230,13 @@ def sqr_degree_error(LL, state, chi_state, noise_mats):
     return pos - neg
 
 # compute the reconstruction error for a state in the "degree-order" basis
-pool = multiprocessing.Pool(processes = cpus)
 def recon_error(state, axes, inv_struct_bands):
     dim = max(state.keys()) + 1
     _noise_mats = noise_mats(axes)
     _chi_state = chi_state(_noise_mats, inv_struct_bands)
     kwargs = dict( state = state, chi_state = _chi_state, noise_mats = _noise_mats )
     _sqr_degree_error = functools.partial(sqr_degree_error, **kwargs)
-    sqr_degree_errors = compute_batch(pool, _sqr_degree_error, range(dim-1,-1,-1))
+    sqr_degree_errors = compute_batch(_sqr_degree_error, range(dim-1,-1,-1))
     return np.sqrt(sum( sqr_error for sqr_error in sqr_degree_errors.values() ))
 
 ##########################################################################################
