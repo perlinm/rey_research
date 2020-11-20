@@ -62,7 +62,7 @@
 
 %%% figures
 \usepackage{graphicx} % for figures
-\graphicspath{{./figures/}} % set path for all figures
+\graphicspath{{./figures/qudit_tomo/}} % set path for all figures
 
 % to place figures in the correct section
 \usepackage[section]{placeins}
@@ -374,7 +374,7 @@ If we assume that $\abs{V}\sim d$, then computing $\S_V$ to certify the bound in
 
 \begin{figure}
   \centering
-  \includegraphics{qudit_errors/qudit_times.pdf}
+  \includegraphics{qudit_times.pdf}
   \caption{Serial runtime to compute $\S_V$, $\epsilon_V$, or $\E_V\p{\rho}$ with $\abs{V}=2d-1$ randomly chosen measurement axes and a randomly chosen qudit state $\rho$.
     Each point is an average over 100 calculations or 5 minutes of runtime, whichever comes first.
     Dashed lines shows a fit to runtime $t=c d^\alpha$ for all $d\ge100$, finding $\alpha\approx 3.7$ [\red{todo: update/correct after more simulations}].

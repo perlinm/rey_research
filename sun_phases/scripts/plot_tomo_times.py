@@ -4,8 +4,8 @@ import os, glob
 import numpy as np
 import matplotlib.pyplot as plt
 
-data_dir = "../data/qudit_errors/"
-fig_dir = "../figures/qudit_errors/"
+data_dir = "../data/qudit_tomo/"
+fig_dir = "../figures/qudit_tomo/"
 
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
@@ -28,12 +28,13 @@ def get_data(tag):
 
 plt.figure(figsize = figsize)
 
-for tag, label, marker in [ ( "CB", r"$\mathcal{S}_V$", "ro" ),
-                            ( "QB", r"$\epsilon_V$", "k." ),
-                            ( "RE", r"$\mathcal{E}_V(\rho)$", "b." ) ]:
+plot_params = [ ( "CB", r"$\mathcal{S}_V$", "o", "tab:blue" ),
+                ( "QB", r"$\epsilon_V$", ".", "k" ),
+                ( "RE", r"$\mathcal{E}_V(\rho)$", ".", "tab:orange" ) ]
+
+for tag, label, marker, color in plot_params:
     sizes, times = get_data(tag)
-    plot = plt.loglog(sizes, times, marker, label = label)
-    color = plot[0].get_color()
+    plt.loglog(sizes, times, marker, color = color, label = label)
 
     size_lims = plt.gca().get_xlim()
     time_lims = plt.gca().get_ylim()
