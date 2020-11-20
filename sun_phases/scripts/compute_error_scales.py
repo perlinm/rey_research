@@ -15,6 +15,8 @@ except NotImplementedError:
 np.set_printoptions(linewidth = 200)
 
 write_data = False
+compute = "error"
+assert( compute in [ "bound", "error" ] )
 
 parallelize = False
 if "par" in sys.argv:
@@ -33,7 +35,7 @@ if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
 par_tag = f"c{cpus}" if parallelize else "serial"
-data_file = data_dir + f"times_d{min_dim}-{max_dim}_{par_tag}.txt"
+data_file = data_dir + f"times_{compute}_d{min_dim}-{max_dim}_{par_tag}.txt"
 
 genesis = time.time()
 
@@ -42,13 +44,6 @@ genesis = time.time()
 
 sample_cap = 100 # maximum number of times we choose a random set of measurement axes
 time_cap = 300 # maximum time to run, in seconds
-
-# generate random axes on the sphere by uniform sampling
-def random_axes(axis_num):
-    axes = np.random.rand(axis_num,2)
-    axes[:,0] = np.arccos(2*axes[:,0]-1) # polar angles
-    axes[:,1] *= 2*np.pi # azimuthal angles
-    return axes
 
 # get squared singular values of a matrix
 def get_svdvals(matrix):
@@ -70,15 +65,20 @@ def diagonals(mat):
     diags = np.lib.stride_tricks.as_strided(stacked, shape, strides)
     return np.roll(np.flipud(diags), 1, axis = 0)
 
-# "invert" a matrix or vector
-def invert(mat, axis = 0):
-    ll = (mat.shape[0]-1)//2
-    signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
-    if mat.ndim == 1: return signs * np.flip(mat)
-    if axis == 0:
-        return signs[:,None] * np.flip(mat, axis)
-    else:
-        return signs[None,:] * np.flip(mat, axis)
+# generate random axes on the sphere by uniform sampling
+def random_axes(axis_num):
+    axes = np.random.rand(axis_num,2)
+    axes[:,0] = np.arccos(2*axes[:,0]-1) # polar angles
+    axes[:,1] *= 2*np.pi # azimuthal angles
+    return axes
+
+# generate a random (probably unphysical) qudit state,
+# represented by a point within a `dim^2`-dimensional hypersphere
+def random_state(dim):
+    point = np.array([ np.random.normal() for _ in range(dim**2) ])
+    point /= np.sqrt( np.random.exponential() + sum(point**2) )
+    # orgznize components into (2L+1)-sized vectors of "degree" L < dim
+    return { LL : point[ LL**2 : LL**2 + 2*LL+1 ] for LL in range(dim) }
 
 # run a batch of independent jobs, possibly in parallel
 def compute_batch(pool, function, args):
@@ -212,7 +212,8 @@ def degree_chi_state(LL, noise_mats):
     chi_state = np.zeros(2*LL+1, dtype = complex)
     for ll, noise_mat in noise_mats.items():
         if ll < min_ll: continue
-        mat = noise_mat.T * invert(struct_mat(dim, LL, ll))
+        signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
+        mat = noise_mat.T * ( signs[:,None] * np.flipud(struct_mat(dim, LL, ll)) )
         diag_mat = np.roll(diagonals(mat), LL, axis = 0)[:2*LL+1,:]
         chi_state += diag_mat.sum(axis = 1)
     return chi_state
@@ -231,7 +232,7 @@ def sqr_degree_error(LL, state, chi_state, noise_mats):
 
 # compute the reconstruction error for a state in the "degree-order" basis
 pool = multiprocessing.Pool(processes = cpus)
-def error(state, axes):
+def recon_error(state, axes):
     _noise_mats = noise_mats(axes)
     _chi_state = chi_state(_noise_mats)
 
@@ -253,24 +254,27 @@ if write_data:
         file.write("# dim, mean_time, min_error_scale\n")
 
 for dim in range(min_dim, max_dim+1):
-    print(dim, end = " ")
-
     start = time.time()
     min_error_scale = np.inf
 
     axis_num = 2*dim-1 # minimum number of axes
     for sample in range(sample_cap):
-        rnd_error_scale = classical_error_scale(dim, random_axes(axis_num))
-        min_error_scale = min(min_error_scale, rnd_error_scale)
-
+        if compute == "bound":
+            rnd_error_scale = classical_error_scale(dim, random_axes(axis_num))
+            min_error_scale = min(min_error_scale, rnd_error_scale)
+        if compute == "error":
+            recon_error(random_state(dim), random_axes(axis_num))
         if time.time() - start > time_cap: break
 
     mean_time = ( time.time() - start ) / (sample+1)
+    update = f"{dim} {mean_time}"
+    if compute == "bound":
+        update += f" {min_error_scale}"
+
     if write_data:
         with open(data_file, "a") as file:
-            file.write(f"{dim} {mean_time} {min_error_scale}\n")
-
-    print(mean_time, min_error_scale)
+            file.write(update + "\n")
+    print(update)
     sys.stdout.flush()
 
 runtime = time.time() - genesis
