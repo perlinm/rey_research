@@ -30,7 +30,7 @@ try: seed = int(sys.argv[3])
 except: seed = 0
 np.random.seed(seed)
 
-data_dir = "../data/error_scale/"
+data_dir = "../data/qudit_errors/"
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
@@ -233,7 +233,7 @@ def degree_chi_state(LL, noise_band_mats, inv_struct_bands):
     for ll, noise_band_mat in noise_band_mats.items():
         if ll < min_ll: continue
         _noise_band_mat = np.roll(noise_band_mat, -(2*ll+1)+LL, axis = 0)[:2*LL+1,:]
-        chi_state += (_noise_band_mat * inv_struct_bands[LL,ll]).sum(axis = 1)
+        chi_state += np.sum(_noise_band_mat * inv_struct_bands[LL,ll], axis = 1)
     return chi_state
 
 # compute the full "chi vector" in the "degree-order" basis

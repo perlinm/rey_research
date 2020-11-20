@@ -4,8 +4,8 @@ import os, glob
 import numpy as np
 import matplotlib.pyplot as plt
 
-data_dir = "../data/error_scale/"
-fig_dir = "../figures/error_scale/"
+data_dir = "../data/qudit_errors/"
+fig_dir = "../figures/qudit_errors/"
 
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
