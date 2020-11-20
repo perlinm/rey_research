@@ -65,6 +65,11 @@ def diagonals(mat):
     diags = np.lib.stride_tricks.as_strided(stacked, shape, strides)
     return np.roll(np.flipud(diags), 1, axis = 0)
 
+# get the diagonal bands of a matrix
+def diagonal_bands(mat, band_min, band_max):
+    bands = band_max - band_min + 1
+    return np.roll(diagonals(mat), -band_min, axis = 0)[:bands,:]
+
 # generate random axes on the sphere by uniform sampling
 def random_axes(axis_num):
     axes = np.random.rand(axis_num,2)
@@ -101,17 +106,27 @@ def wigner_3j_mat(labels):
         matrix[mm+ll, int(start)+ll : int(end)+ll+1] = vals
     return matrix
 pool = multiprocessing.Pool(processes = cpus)
-degree_labels = ( (LL,ll)
+degree_labels = [ ( LL, ll )
                   for ll in range(max_dim-1,-1,-1)
-                  for LL in range(min(max_dim-1,2*ll),-1,-1) )
+                  for LL in range(min(max_dim-1,2*ll),-1,-1) ]
 wigner_3j_mats = compute_batch(pool, wigner_3j_mat, degree_labels)
 
-# compute a structure factor matrix
+# compute a matix of structure factors
 def struct_mat(dim, LL, ll):
     wigner_6j_args = [ 2*ll, 2*ll, 2*LL, dim-1, dim-1, dim-1 ]
     wigner_6j_factor = py3nj.wigner6j(*wigner_6j_args)
     prefactor = (-1)**(dim-1+LL) * (2*ll+1) * np.sqrt(2*LL+1) * wigner_6j_factor
     return prefactor * wigner_3j_mats[LL,ll]
+
+# "invert" a matrix
+def invert(mat):
+    ll = (mat.shape[0]-1)//2
+    signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
+    return signs[:,None] * np.flipud(mat)
+
+def inv_struct_bands(dim):
+    return { ( LL, ll ) : diagonal_bands(invert(struct_mat(dim, LL, ll)), -LL, LL)
+             for LL, ll in degree_labels }
 
 ##########################################################################################
 # methods to compute a vector of D^L_{m,0}(v) for all |m| <= L,
@@ -205,23 +220,29 @@ def noise_mats(axes):
     _degree_noise_mat = functools.partial(degree_noise_mat, axes = axes)
     return compute_batch(pool, _degree_noise_mat, range(dim-1,-1,-1))
 
+# compute diagonal bands of transposed noise matrices
+def noise_band_mat(LL, noise_mats):
+    noise_mat = noise_mats[LL]
+    dim = noise_mat.shape[0]
+    return diagonal_bands(noise_mat.T, -dim, dim)
+
 # compute the fixed-degree "chi vector" in the "degree-order" basis
-def degree_chi_state(LL, noise_mats):
+def degree_chi_state(LL, noise_band_mats, inv_struct_bands):
     min_ll = (LL+1)//2
-    dim = max(noise_mats.keys()) + 1
     chi_state = np.zeros(2*LL+1, dtype = complex)
-    for ll, noise_mat in noise_mats.items():
+    for ll, noise_band_mat in noise_band_mats.items():
         if ll < min_ll: continue
-        signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
-        mat = noise_mat.T * ( signs[:,None] * np.flipud(struct_mat(dim, LL, ll)) )
-        diag_mat = np.roll(diagonals(mat), LL, axis = 0)[:2*LL+1,:]
-        chi_state += diag_mat.sum(axis = 1)
+        _noise_band_mat = np.roll(noise_band_mat, -(2*ll+1)+LL, axis = 0)[:2*LL+1,:]
+        chi_state += (_noise_band_mat * inv_struct_bands[LL,ll]).sum(axis = 1)
     return chi_state
 
 # compute the full "chi vector" in the "degree-order" basis
 pool = multiprocessing.Pool(processes = cpus)
-def chi_state(noise_mats):
-    _degree_chi_state = functools.partial(degree_chi_state, noise_mats = noise_mats)
+def chi_state(noise_mats, inv_struct_bands):
+    _noise_band_mat = functools.partial(noise_band_mat, noise_mats = noise_mats)
+    noise_band_mats = compute_batch(pool, _noise_band_mat, range(dim-1,-1,-1))
+    kwargs = dict( noise_band_mats = noise_band_mats, inv_struct_bands = inv_struct_bands )
+    _degree_chi_state = functools.partial(degree_chi_state, **kwargs)
     return compute_batch(pool, _degree_chi_state, range(dim-1,-1,-1))
 
 # compute contribution to squared reconstruction error from a single degree
@@ -232,15 +253,13 @@ def sqr_degree_error(LL, state, chi_state, noise_mats):
 
 # compute the reconstruction error for a state in the "degree-order" basis
 pool = multiprocessing.Pool(processes = cpus)
-def recon_error(state, axes):
-    _noise_mats = noise_mats(axes)
-    _chi_state = chi_state(_noise_mats)
-
+def recon_error(state, axes, inv_struct_bands):
     dim = max(state.keys()) + 1
+    _noise_mats = noise_mats(axes)
+    _chi_state = chi_state(_noise_mats, inv_struct_bands)
     kwargs = dict( state = state, chi_state = _chi_state, noise_mats = _noise_mats )
     _sqr_degree_error = functools.partial(sqr_degree_error, **kwargs)
     sqr_degree_errors = compute_batch(pool, _sqr_degree_error, range(dim-1,-1,-1))
-
     return np.sqrt(sum( sqr_error for sqr_error in sqr_degree_errors.values() ))
 
 ##########################################################################################
@@ -254,6 +273,10 @@ if write_data:
         file.write("# dim, mean_time, min_error_scale\n")
 
 for dim in range(min_dim, max_dim+1):
+
+    if compute == "error":
+        _inv_struct_bands = inv_struct_bands(dim)
+
     start = time.time()
     min_error_scale = np.inf
 
@@ -263,7 +286,7 @@ for dim in range(min_dim, max_dim+1):
             rnd_error_scale = classical_error_scale(dim, random_axes(axis_num))
             min_error_scale = min(min_error_scale, rnd_error_scale)
         if compute == "error":
-            recon_error(random_state(dim), random_axes(axis_num))
+            recon_error(random_state(dim), random_axes(axis_num), _inv_struct_bands)
         if time.time() - start > time_cap: break
 
     mean_time = ( time.time() - start ) / (sample+1)
