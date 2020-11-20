@@ -906,34 +906,34 @@ we can write the expansion in Eq.~\eqref{eq:error_comps} in the vectorized form
 \subsection{Comments on a tight reconstruction error bound}
 
 In principle, maximizing the reconstruction error in Eq.~\eqref{eq:error_SM} over all qudit states $\rho$ would provide a tight upper bound on reconstruction error for any set of axes $V$.
-To simplify this task somewhat, we first maximize Eq.~\eqref{eq:error_SM} over all $\rho$ with $\tr\p\rho=1$: this maximum occurs at a ``state'' $\rho_V^\star$ whose components are defined by
+To simplify this task somewhat, we first maximize Eq.~\eqref{eq:error_SM} over all $\rho$ with $\tr\p\rho=1$: this maximum occurs at a ``state'' $\sigma_V^\star$ whose components are defined by
 \begin{align}
-  \ket{\rho_{V\ell}^\star} \stackrel{\ell\ne0}{\equiv}
+  \ket{\sigma_{V\ell}^\star} \stackrel{\ell\ne0}{\equiv}
   \f12 \N_{V\ell}^{-1} \ket{\chi_{V\ell}},
   &&
-  \ket{\rho_{V,0}^\star} \equiv \f1{\sqrt{d}} \ket{0}.
+  \ket{\sigma_{V,0}^\star} \equiv \f1{\sqrt{d}} \ket{0}.
 \end{align}
 The corresponding maximum of $\E_V$ is given by
 \begin{align}
-  \E_V\p{\rho_V^\star}^2 = \f1n \sum_{\ell>0}
+  \E_V\p{\sigma_V^\star}^2 = \f1n \sum_{\ell>0}
   \sp{\f14 \bk{\chi_{V\ell}|\N_{V\ell}^{-1}|\chi_{V\ell}}
   - \f1d \tr\p{\N_{V\ell}}},
 \end{align}
-where the $\tr\p{\N_{V\ell}}$ terms above come from simplifying the $\ell=0$ terms of Eq.~\eqref{eq:error_SM} with $\rho\to\rho_V^\star$.
-While $\E_V\p{\rho_V^\star}^2$ is a strict upper bound on $\E_V\p{\rho}^2$ over all $\rho$ with $\tr\p{\rho}=1$, this bound turns out to be useless in practice, because $\rho_V^\star$ will generally be a non-physical ``state'' with negative eigenvalues.
+where the $\tr\p{\N_{V\ell}}$ terms above come from simplifying the $\ell=0$ terms of Eq.~\eqref{eq:error_SM} with $\rho\to\sigma_V^\star$.
+While $\E_V\p{\sigma_V^\star}^2$ is a strict upper bound on $\E_V\p{\rho}^2$ over all $\rho$ with $\tr\p{\rho}=1$, this bound turns out to be useless in practice, because $\sigma_V^\star$ will generally be a non-physical ``state'' with negative eigenvalues.
 To find tight bound on $\E_V\p{\rho}^2$ over the space of physical qudit states $\rho$, we also need to constrain $\rho$ to have no negative eigenvalues.
-Equipped with $\rho_V^\star$ and $\E_V\p{\rho_V^\star}^2$, we can expand
+Equipped with $\sigma_V^\star$ and $\E_V\p{\sigma_V^\star}^2$, we can expand
 \begin{align}
-  \E_V\p{\rho}^2 = \E_V\p{\rho_V^\star}^2
-  - \f1n D_V\p{\rho,\rho_V^\star}^2,
+  \E_V\p{\rho}^2 = \E_V\p{\sigma_V^\star}^2
+  - \f1n D_V\p{\rho,\sigma_V^\star}^2,
   &&
   D_V\p{X,Y}^2 \equiv
   \sum_\ell \bk{\p{X-Y}_\ell | \N_{V\ell} | \p{X-Y}_\ell},
 \end{align}
 where $Z_\ell\equiv\sum_m \obk{T_{\ell m}|Z} \ket{m}$ is a vector of the degree-$\ell$ components of $Z$ in the polarization operator basis.
-Finding the maximum of $\E_V$ over all qudit states $\rho$ thus amounts to finding the closest physical qudit state $\rho$ to $\rho_V^\star$, with distance measured by the metric $D_V$ induced by the noise matrices $\N_{V\ell}$.
-This minimization problem is essentially solved for the case of $\N_{V\ell}=1$ in Ref.~\cite{smolin2012efficient}, but it is not obvious how to minimize $D_V\p{\rho,\rho_V^\star}^2$ for general $\N_{V\ell}$.
-We leave the general problem of minimizing $D_V\p{\rho,\rho_V^\star}$ to future work, noting that this task may be assisted by the positivity conditions derived in Ref.~\cite{kryszewski2006positivity}.
+Finding the maximum of $\E_V$ over all qudit states $\rho$ thus amounts to finding the closest physical qudit state $\rho$ to $\sigma_V^\star$, with distance measured by the metric $D_V$ induced by the noise matrices $\N_{V\ell}$.
+This minimization problem is essentially solved for the case of $\N_{V\ell}=1$ in Ref.~\cite{smolin2012efficient}, but it is not obvious how to minimize $D_V\p{\rho,\sigma_V^\star}^2$ for general $\N_{V\ell}$.
+We leave the general problem of minimizing $D_V\p{\rho,\sigma_V^\star}$ to future work, noting that this task may be assisted by the positivity conditions derived in Ref.~\cite{kryszewski2006positivity}.
 A loose upper bound, which may nonetheless be tighter than that in Eq.~\eqref{eq:bound} of the main text (derived in Appendix \ref{sec:improved_bound}), might be found by the fact that physical qudit states $\rho$ satisfy $\obk{\rho|\rho}\le1$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
