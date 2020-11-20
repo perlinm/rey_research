@@ -6,9 +6,13 @@ import numpy as np
 
 import wigner.lib, py3nj
 
-write_data = False
-compute = "error"
-assert( compute in [ "bound", "error" ] )
+# flags for what to compute:
+CB = "CB" # classical bound
+QB = "QB" # quantum bound
+RE = "RE" # reconstruction error
+
+compute = CB
+write_data = True
 
 min_dim = int(sys.argv[1])
 try: max_dim = int(sys.argv[2])
@@ -93,7 +97,7 @@ degree_labels = [ ( LL, ll )
                   for LL in range(min(max_dim-1,2*ll),-1,-1) ]
 wigner_3j_mats = compute_batch(wigner_3j_mat, degree_labels)
 
-# compute a matix of structure factors
+# compute a matix of structure constants
 def struct_mat(dim, LL, ll):
     wigner_6j_args = [ 2*ll, 2*ll, 2*LL, dim-1, dim-1, dim-1 ]
     wigner_6j_factor = py3nj.wigner6j(*wigner_6j_args)
@@ -106,6 +110,7 @@ def invert(mat):
     signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
     return signs[:,None] * np.flipud(mat)
 
+# bands of an inverted matrix of structure constants
 def inv_struct_bands(dim):
     return { ( LL, ll ) : diagonal_bands(invert(struct_mat(dim, LL, ll)), -LL, LL)
              for LL, ll in degree_labels }
@@ -185,7 +190,7 @@ def quantum_error_scale(dim, axes):
                         for ll, degree_norms in norms.items() ))
 
 ##########################################################################################
-# compute root-mean-squared reconstruction error
+# compute the root-mean-squared reconstruction error
 
 # compute the fixed-degree noise matrix
 def degree_noise_mat(LL, axes):
@@ -249,9 +254,14 @@ if write_data:
         file.write(f"# seed: {seed}\n")
         file.write("# dim, mean_time, min_error_scale\n")
 
+if compute == CB:
+    error_scale = classical_error_scale
+if compute == QB:
+    error_scale = quantum_error_scale
+
 for dim in range(min_dim, max_dim+1):
 
-    if compute == "error":
+    if compute == RE:
         _inv_struct_bands = inv_struct_bands(dim)
 
     start = time.time()
@@ -259,16 +269,16 @@ for dim in range(min_dim, max_dim+1):
 
     axis_num = 2*dim-1 # minimum number of axes
     for sample in range(sample_cap):
-        if compute == "bound":
-            rnd_error_scale = classical_error_scale(dim, random_axes(axis_num))
+        if compute in [ CB, QB ]:
+            rnd_error_scale = error_scale(dim, random_axes(axis_num))
             min_error_scale = min(min_error_scale, rnd_error_scale)
-        if compute == "error":
+        if compute == RE:
             recon_error(random_state(dim), random_axes(axis_num), _inv_struct_bands)
         if time.time() - start > time_cap: break
 
     mean_time = ( time.time() - start ) / (sample+1)
     update = f"{dim} {mean_time}"
-    if compute == "bound":
+    if compute in [ CB, QB ]:
         update += f" {min_error_scale}"
 
     if write_data:
