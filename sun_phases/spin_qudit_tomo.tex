@@ -124,22 +124,22 @@ In particular, the protocols based on infinite-dimensional representations of a 
 Nonetheless, these protocols obfuscate the basic requirements for performing full state tomography, provide no straightforward error bounds or guarantees of accuracy, and extract only a vanishing faction of the information contained in measurement data.
 
 In this work, we provide an efficient framework for performing spin qudit tomography using only measurements of spin projection onto different spatial axes.
-We first introduce, in Section \ref{sec:transition_ops}, a basis of operators that have a simple physical interpretation, and transform nicely under rotations in 3D space, thereby respecting the symmetries of the tomography task at hand.
+We first introduce, in Section \ref{sec:polarization_ops}, a basis of operators that have a simple physical interpretation, and transform nicely under rotations in 3D space, thereby respecting the symmetries of the tomography task at hand.
 We then map this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby importing a host of existing literature and mathematical machinery that has been developed for this task \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
 In particular, this mapping allows us to bound the minimum number of measurement axes necessary to perform full tomography on a $d$-level spin qudit, $r_d^{\t{min}}$, by $2d-1\le r_d^{\t{min}}\le d^2$.
 
 [\red{finish intro}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Spin transition operators and 3D rotations}
-\label{sec:transition_ops}
+\section{Polarization operators and 3D rotations}
+\label{sec:polarization_ops}
 
 [\red{todo: investigate and comment on the connection between $T_{\ell m}$ and $Y_{\ell m}$?}]
 
 Consider a $d$-state spin qudit with total spin $s\equiv\frac{d-1}{2}$.
 The defining property of a spin qudit is the fact that it describes an angular momentum degree of freedom, which has specific implications for how a spin qudit should transform under the group SO(3) of rotations in 3D space.
 Due to the central importance of these transformation rules for a spin qudit, we first identify a basis of operators that transforms nicely under 3D rotations.
-One such basis is provided by the {\it transition operators} (also known as polarization operators \cite{kryszewski2006positivity, bertlmann2008bloch}), defined by
+One such basis is provided by the {\it polarization operators} \cite{kryszewski2006positivity, bertlmann2008bloch}, defined by
 \begin{align}
   T_{\ell m} \equiv \sqrt{\f{2\ell+1}{2s+1}} \sum_{\mu,\nu=-s}^s
   \bk{s\mu;\ell m|s\nu} \op{\nu}{\mu},
@@ -147,7 +147,7 @@ One such basis is provided by the {\it transition operators} (also known as pola
 \end{align}
 where $\bk{s\mu;\ell m|s\nu}$ is a Clebsh-Gordan coefficient that enforces $\ell\in\set{0,1,\cdots,d-1}$ and $m\in\set{-\ell,-\ell+1,\cdots,\ell}$, such that there are $d^2$ operators in total.
 For brevity, we will generally treat the value of $d$ (or $s$) as constant but arbitrary throughout this work, and suppress any explicit dependence of quantities or operators such as $T_{\ell m}$ on $d$.
-The transition operators are orthonormal with respect to the trace inner product, and transform nicely under conjugation:
+The polarization operators are orthonormal with respect to the trace inner product, and transform nicely under conjugation:
 \begin{align}
   \obk{T_{\ell m }|T_{\ell'm'}}
   = \delta_{\ell\ell'} \delta_{mm'},
@@ -155,7 +155,7 @@ The transition operators are orthonormal with respect to the trace inner product
   T_{\ell m}^\dag = \p{-1}^m T_{\ell,-m},
 \end{align}
 where for any $d\times d$ matrix $X=\sum_{\mu,\nu} X_{\mu\nu} \op{\mu}{\nu}$ we define the $d^2$-component vector $\oket{X} \equiv \sum_{\mu,\nu} X_{\mu\nu} \ket{\mu\nu}$; $\obra{X}$ is the conjugate transpose of $\oket{X}$, such that $\obk{X|Y}=\tr\p{X^\dag Y}$; and $\delta_{kk'}\equiv 1$ if $k=k'$ and $0$ otherwise.
-These properties of the transition operators allow us to expand any density operator $\rho$ in the transition operator basis as
+These properties of the polarization operators allow us to expand any density operator $\rho$ in the polarization operator basis as
 \begin{align}
   \rho = \sum_{\ell=0}^{d-1} \sum_{m=-\ell}^\ell
   \rho_{\ell m} T_{\ell m},
@@ -164,16 +164,16 @@ These properties of the transition operators allow us to expand any density oper
   \label{eq:trans_state}
 \end{align}
 where $\bk{X}_\rho\equiv\tr\p{\rho X}=\obk{\rho|X}$, and $\rho^\dag=\rho$ implies that $\rho_{\ell m}^*=\p{-1}^m\rho_{\ell,-m}$.
-The transition operators can be physically interpreted as the transition $\ket\psi\to T_{\ell m}\ket\psi$ induced on the state $\ket\psi$ of a spin-$s$ system by the absorption of a spin-$\ell$ particle with spin projection $m$ onto a fixed quantization axis.
+The polarization operators can be physically interpreted as the polarization $\ket\psi\to T_{\ell m}\ket\psi$ induced on the state $\ket\psi$ of a spin-$s$ system by the absorption of a spin-$\ell$ particle with spin projection $m$ onto a fixed quantization axis.
 In analogy with the spherical harmonics $Y_{\ell m}$, we will refer to the index $\ell$ as the {\it degree} and $m$ as the {\it order} of $T_{\ell m}$.
 
-The transition operators are spherical tensor operators, whose degree is preserved under 3D rotations generated by the spin operators $S_\x,S_\y,S_\z$.
-Moreover, the degree-$\ell$ transition operators $T_{\ell m}$ transform identically to spin-$\ell$ particles under 3D rotations (see Appendix \ref{sec:rotations}).
+The polarization operators are spherical tensor operators, whose degree is preserved under 3D rotations generated by the spin operators $S_\x,S_\y,S_\z$.
+Moreover, the degree-$\ell$ polarization operators $T_{\ell m}$ transform identically to spin-$\ell$ particles under 3D rotations (see Appendix \ref{sec:rotations}).
 For any triplet of Euler angles $\v\omega=\p{\alpha_{\v\omega},\beta_{\v\omega},\gamma_{\v\omega}}$, we can therefore define the rotation operator
 \begin{align}
   R\p{\v\omega} \equiv e^{-\i\alpha_{\v\omega}S_\z} e^{-\i\beta_{\v\omega}S_\y} e^{-\i\gamma_{\v\omega}S_\z},
 \end{align}
-and expand rotations of the transition operators as
+and expand rotations of the polarization operators as
 \begin{align}
   T_{\v\omega\ell m} \equiv
   R\p{\v\omega} T_{\ell m} R\p{\v\omega}^\dag
@@ -197,7 +197,7 @@ For ease of notation, we will therefore implicitly associate Euler angle doublet
 Our goal is to reconstruct an arbitrary state $\rho$ of a spin qudit from measurements of spin projection onto different quantization axes.
 We are thus nominally restricted to measuring projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$, where $\ket{\mu_{\v v}}\equiv R\p{\v v}\ket{\mu}$ is a state with spin projection $\mu$ onto a measurement axis $\v v$ determined by a point on the sphere.
 For any fixed axis $\v v$, the sets $\set{\Pi_{\v v\mu}}$ and $\set{T_{\v v\ell,0}}$ are both orthonormal bases for the space of operators that are diagonal in the basis $\set{\ket{\mu_{\v v}}}$.
-By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the transition operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v v\ell,0}}_\rho$.
+By a simple change of operator basis, measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the polarization operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v v\ell,0}}_\rho$.
 
 Reconstructing an arbitrary density operator $\rho$ essentially requires us to find a set of axes $V=\set{\v v}$ and associated coefficients $C_{\ell mk}\p{\v v}$ that would allow us to recover any coefficient $\rho_{\ell m}$ in the expansion in Eq.~\eqref{eq:trans_state} through
 \begin{align}
@@ -205,13 +205,13 @@ Reconstructing an arbitrary density operator $\rho$ essentially requires us to f
   = \sum_{\v v,k} C_{\ell mk}\p{\v v} \bk{T_{\v vk,0}}_\rho.
   \label{eq:state_recon}
 \end{align}
-Expanding the rotated transition operators $T_{\v vk,0}$ into a sum of un-rotated transition operators, according to Eq.~\eqref{eq:trans_rot}, we find that the recovery condition in Eq.~\eqref{eq:state_recon} is satisfied when
+Expanding the rotated polarization operators $T_{\v vk,0}$ into a sum of un-rotated polarization operators, according to Eq.~\eqref{eq:trans_rot}, we find that the recovery condition in Eq.~\eqref{eq:state_recon} is satisfied when
 \begin{align}
   T_{\ell m}
   = \sum_{\v v,k,n} C_{\ell mk}\p{\v v}
   D^k_{n,0}\p{\v v} T_{kn}.
 \end{align}
-Orthogonality of the transition operators motivates the ansatz $C_{\ell mk}\p{\v v}=\delta_{k\ell}C_{\ell m}\p{\v v}$, which in turn implies that
+Orthogonality of the polarization operators motivates the ansatz $C_{\ell mk}\p{\v v}=\delta_{k\ell}C_{\ell m}\p{\v v}$, which in turn implies that
 \begin{align}
   \sum_{\v v} C_{\ell m}\p{\v v} D^\ell_{n,0}\p{\v v} = \delta_{mn}
   \label{eq:tomo_recovery}
@@ -243,12 +243,12 @@ In practice, spin qudits typically have only a modest dimension $d$, which allow
 If the function $f$ is {\it band-limited} at degree $L$, which is to say that $f_{\ell m}=0$ for all $\ell\ge L$, then the full recovery problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points on the sphere \cite{freeden2008spherical, freeden2018spherical}.
 The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially ``band-limited'' at degree $d$ \footnote{Spin qudit states can be faithfully represented by quasi-probability distributions on a sphere.  For a $d$-level spin, these quasi-probability distributions are band-limited at degree $d$.}.
 Moreover, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to the recovery of a degree-$\ell$ function $f = \sum_m f_m Y_{\ell m}$, which is provably possible with $\abs{V}=2\ell+1$ samples \cite{freeden2008spherical}.
-In the case of spin qudit tomography, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are transition operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
+In the case of spin qudit tomography, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are polarization operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
 
 Since
 \begin{enumerate*}
-\item there are only $2\ell+1\le2d-1$ transition operators of degree $\ell\le\ell_{\t{max}}$, and
-\item measuring spin projection along any single axis provides measurement data for transition operators of {\it all} degrees $\ell\le\ell_{\t{max}}$,
+\item there are only $2\ell+1\le2d-1$ polarization operators of degree $\ell\le\ell_{\t{max}}$, and
+\item measuring spin projection along any single axis provides measurement data for polarization operators of {\it all} degrees $\ell\le\ell_{\t{max}}$,
 \end{enumerate*}
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
 In the language of classical signal recovery, we would expect there to exist a fixed set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of {\it any} function with fixed degree $\ell\le\ell_{\t{max}}$ (given prior knowledge of $\ell$) \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ enables the recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.  However, this condition is stronger than necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes, which only requires the existence of {\it some} such set of points.}.
@@ -274,14 +274,14 @@ Intuitively, a good choice of axes should minimize the error with which one can 
 If we can quantify this intuition, then we can optimize over different choices of measurement axes to find a set that (approximately) minimizes the error in reconstructed states.
 
 A set of measurement axes $V=\set{\v v}$ nominally induces a set of projectors $\set{\Pi_{\v v\mu}}$ that will be measured in an experiment.
-By a simple change of basis, measuring these projectors is equivalent to measuring the set of transition operators $\v T_V\equiv\set{T_{\v v\ell,0}}$.
+By a simple change of basis, measuring these projectors is equivalent to measuring the set of polarization operators $\v T_V\equiv\set{T_{\v v\ell,0}}$.
 By flattening the $d\times d$ matrices $T_{\v v\ell,0}$ in $\v T_V$ into $d^2$-component column vectors $\oket{T_{\v v\ell,0}}$, we can construct the {\it measurement matrix}
 \begin{align}
   M_V \equiv \sum_{\v v,\ell} \oket{T_{\v v\ell,0}} \bra{\v v\ell},
   \label{eq:meas_mat}
 \end{align}
 Here $\v v$ and $\ell$ label a column of $M_V$, or equivalently label a standard basis vector $\ket{\v v\ell}$ of a $\p{\abs{V}\times d}$-dimensional vector space.
-A necessary and sufficient condition for $V$ to allow for full state tomography is that the measured transition operators in $\v T_V$, or equivalently the columns of $M_V$, span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit.
+A necessary and sufficient condition for $V$ to allow for full state tomography is that the measured polarization operators in $\v T_V$, or equivalently the columns of $M_V$, span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit.
 In this case $M_V$ must be full rank, with $d^2$ nonzero singular values.
 Indexing these singular values $M^V_k$ and the corresponding (normalized) right singular vectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots,x^V_{k,\abs{V}})$ by an integer $k\in\set{1,2,\cdots,d^2}$, we can construct the orthonormal qudit operators
 \begin{align}
@@ -289,7 +289,7 @@ Indexing these singular values $M^V_k$ and the corresponding (normalized) right 
   &&
   \v q^V_k \equiv \f{\v x^V_k}{M^V_k},
 \end{align}
-where for shorthand we use a combined index $j=\p{\v v,\ell}$ to specify both a measurement axis $\v v$ and a degree $\ell$, which identify the transition operator $T_j\equiv T_{\v v\ell,0}$.
+where for shorthand we use a combined index $j=\p{\v v,\ell}$ to specify both a measurement axis $\v v$ and a degree $\ell$, which identify the polarization operator $T_j\equiv T_{\v v\ell,0}$.
 These operators allow us to expand any state $\rho$ of a $d$-level spin qudit in the form
 \begin{align}
   \rho = \sum_{k=1}^{d^2} \rho_k^V Q_k^V,
@@ -342,7 +342,7 @@ We refer to this error scale $\S_V^2$ as ``classical'' because the bound in Eq.~
 Note that the classical error scale $\S_V^2$ diverges if the measurement matrix $M_V$ is singular, in which case measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
 
 Computing the classical error scale $\S_V^2$ to certify the bound in Eq.~\eqref{eq:bound_eps} requires constructing the measurement matrix $M_V$ and finding its singular values.
-The complexity of this task can be greatly reduced by the fact that the degree $\ell$ of a transition operator $T_{\ell m}$ is preserved under rotations, which implies that the unitary
+The complexity of this task can be greatly reduced by the fact that the degree $\ell$ of a polarization operator $T_{\ell m}$ is preserved under rotations, which implies that the unitary
 \begin{align}
   U \equiv \sum_{\ell=0}^{d-1} \sum_{m=-\ell}^\ell
   \oket{T_{\ell m}} \bra{\ell m},
@@ -430,20 +430,20 @@ The vector $\ket{\chi_{V\ell}}\equiv\sum_m \chi^V_{\ell m} \ket{m}$ in Eq.~\eqre
   \I &\equiv \sum_m \p{-1}^m \op{-m}{m}, \\
   \D_M &\equiv \sum_{m,m'} \delta_{M,m'-m} \op{mm'}.
 \end{align}
-Here $g_{L\ell}$ is a matrix of structure constants for the transition operator algebra (see Appendix \ref{sec:trans_prod}), and $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on, such that $\obk{\N_{V\ell}|\D_M|\I g_{L\ell}}$ is an inner product of the $M$-th diagonal of $\I g_{L\ell}$ with the $\p{-M}$-th diagonal of $\N_{V\ell}$.
+Here $g_{L\ell}$ is a matrix of structure constants for the polarization operator algebra (see Appendix \ref{sec:trans_prod}), and $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on, such that $\obk{\N_{V\ell}|\D_M|\I g_{L\ell}}$ is an inner product of the $M$-th diagonal of $\I g_{L\ell}$ with the $\p{-M}$-th diagonal of $\N_{V\ell}$.
 
 [\red{todo: comment on code availability}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Tomography protocols}
+\section{Tomography protocol}
 \label{sec:protocol}
 
-The ability to certify a statistical error bound on the empirical estimate $\tilde\rho_V$ of an unknown quantum state $\rho$ motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and optimize (using any standard minimization algorithm) the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the quantum error scale $\epsilon_V^2$ defined in Eq.~\eqref{eq:bound}.
+The ability to certify a statistical error bound on the empirical estimate $\tilde\rho_V$ of an unknown quantum state $\rho$ motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and optimize (using any standard minimization algorithm) the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the quantum error scale $\epsilon_V^2$.
 If $\abs{V}$ is too large for such optimization to be practical, one can instead generate many random sets of measurement axes, and then choose the set with the smallest quantum error scale $\epsilon_V^2$.
 After choosing a set of measurement axes $V$, (experimentally) make $n$ measurements of spin projection along every axis $\v v\in V$, and set $\tilde\Pi_{\v v\mu}\approx\bk{\Pi_{\v v\mu}}_\rho$ to the fraction of times in which the measurement outcome was $\mu$.
-The estimates $\tilde\Pi_{\v v\mu}$ of $\bk{\Pi_{\v v\mu}}_\rho$ determine estimates of the expectation values $\bk{T_{\v v\ell,0}}_\rho$, which can be used to construct an estimate $\tilde\rho_V$ of $\rho$, defined in Eq.~\eqref{eq:reconstructed_state}.
+The estimates $\tilde\Pi_{\v v\mu}$ of $\bk{\Pi_{\v v\mu}}_\rho$ determine estimates $\tilde T_{\v v\ell,0}$ of $\bk{T_{\v v\ell,0}}_\rho$, which can be used to construct the estimate $\tilde\rho_V$ of $\rho$
+The error in $\tilde\rho_V$ can be estimated by computing the right-hand side of Eq.~\eqref{eq:error} with the replacement $\rho_V\to\tilde\rho_V$.
 If $\tilde\rho_V$ has negative eigenvalues, its distance from $\rho$ can be reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
-Finally, the error in $\tilde\rho_V$ can be estimated by computing the right-hand side of Eq.~\eqref{eq:error} with the replacement $\rho_V\to\tilde\rho_V$.
 
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the development of tailored and adaptive measurement protocols to future work.
@@ -478,7 +478,7 @@ The reconstruction error bound in Eq.~\eqref{eq:bound} nominally provides a stra
 \appendix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Rotating transition operators}
+\section{Rotating polarization operators}
 \label{sec:rotations}
 
 Denoting the state of a spin-$s$ particle spin spin projection $\mu$ onto a quantization axis by $\ket{s\mu}$, we define
@@ -500,7 +500,7 @@ as well as
 The spin vector $\v S$ generates rotations of a spin-$s$ system in 3D space.
 Specifically, the operator $e^{-\i\theta\v S\cdot\uv n}$ rotates a spin-$s$ system by an angle $\theta$ about the unit vector $\uv n$.
 
-Observing that $S_\z=T_{1,0}$ and $S_\pm\propto T_{1,\pm1}$, we can use the product operator expansion of the transition operators (see Appendix \ref{sec:trans_prod}), properties of Clebsch-Gordan coefficients, properties of Wigner $6$-$j$ symbols, and a computer algebra system to simplify the commutators
+Observing that $S_\z=T_{1,0}$ and $S_\pm\propto T_{1,\pm1}$, we can use the product operator expansion of the polarization operators (see Appendix \ref{sec:trans_prod}), properties of Clebsch-Gordan coefficients, properties of Wigner $6$-$j$ symbols, and a computer algebra system to simplify the commutators
 \begin{align}
   \sp{S_\z,T_{\ell m}} = m\, T_{\ell m},
   &&
@@ -508,7 +508,7 @@ Observing that $S_\z=T_{1,0}$ and $S_\pm\propto T_{1,\pm1}$, we can use the prod
   \label{eq:spin_trans}
 \end{align}
 which implies that $T_{\ell m}$ is a spherical tensor operator, whose degree degree $\ell$ is preserved under rotations generated by $\v S$.
-Moreover, by comparing Eqs.~\eqref{eq:spin_ops} and \eqref{eq:spin_trans} we see that the transition operators $T_{\ell m}$ transform identically to spin-$\ell$ particles under the adjoint action of the spin operators $S_\z$ and $S_\pm$.
+Moreover, by comparing Eqs.~\eqref{eq:spin_ops} and \eqref{eq:spin_trans} we see that the polarization operators $T_{\ell m}$ transform identically to spin-$\ell$ particles under the adjoint action of the spin operators $S_\z$ and $S_\pm$.
 For any triplet of Euler angles $\v\omega=\p{\alpha_{\v\omega},\beta_{\v\omega},\gamma_{\v\omega}}$, we can therefore define the fundamental rotation operator
 \begin{align}
   R\p{\v\omega} \equiv e^{-\i\alpha_{\v\omega}S_\z} e^{-\i\beta_{\v\omega}S_\y} e^{-\i\gamma_{\v\omega}S_\z},
@@ -613,10 +613,10 @@ The terms in Eq.~\eqref{eq:proj_cov_start} with $\p{i,j}\ne\p{i',j'}$ therefore 
 where $\cov_\rho\p{X,Y} \equiv \bk{XY}_\rho - \bk{X}_\rho \bk{Y}_\rho$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Variance of errors in the transition operator basis}
+\subsection{Variance of errors in the polarization operator basis}
 
-Rather than the statistical errors $\epsilon_{i\mu} \equiv \tilde\Pi_{i\mu} - \bk{\Pi_{i\mu}}_\rho$ in the estimates $\tilde\Pi_{i\mu}$ of the projectors $\Pi_{i\mu}$, we now consider the statistical errors $\epsilon_{i\ell} \equiv \tilde T_{i\ell} - \bk{T_{i\ell}}_\rho$ in the estimates $\tilde T_{i\ell}$ of the transition operators $T_{i\ell} \equiv T_{\v v_i\ell,0}$.
-We can expand the transition operators $T_{i\ell}$ as a sum over projectors $\Pi_{i\mu}$ as
+Rather than the statistical errors $\epsilon_{i\mu} \equiv \tilde\Pi_{i\mu} - \bk{\Pi_{i\mu}}_\rho$ in the estimates $\tilde\Pi_{i\mu}$ of the projectors $\Pi_{i\mu}$, we now consider the statistical errors $\epsilon_{i\ell} \equiv \tilde T_{i\ell} - \bk{T_{i\ell}}_\rho$ in the estimates $\tilde T_{i\ell}$ of the polarization operators $T_{i\ell} \equiv T_{\v v_i\ell,0}$.
+We can expand the polarization operators $T_{i\ell}$ as a sum over projectors $\Pi_{i\mu}$ as
 \begin{align}
   T_{i\ell} = \sum_\mu t_{\ell\mu} \Pi_{i\mu},
   &&
@@ -624,7 +624,7 @@ We can expand the transition operators $T_{i\ell}$ as a sum over projectors $\Pi
   = \sqrt{\f{2\ell+1}{d}} \bk{s\mu;\ell,0|s\mu},
 \end{align}
 and likewise $\tilde T_{i\ell} = \sum_\mu t_{\ell\mu} \tilde\Pi_{i\mu}$.
-The covariance between errors in the transition operator basis is then
+The covariance between errors in the polarization operator basis is then
 \begin{align}
   \bbk{\epsilon_{i\ell} \epsilon_{i'\ell'}}
   = \sum_{\mu,\mu'} t_{\ell\mu} t_{\ell'\mu'}
@@ -635,7 +635,7 @@ The covariance between errors in the transition operator basis is then
   = \delta_{ii'} \times \f1n \cov_\rho\p{T_{i\ell}, T_{i\ell'}},
 \end{align}
 where we used the fact that the covariance $\cov_\rho\p{X,Y}$ is linear in both $X$ and $Y$.
-Due to the appearance of $\delta_{ii'}$ above and the orthogonality of rotated transition operators $T_{i\ell}$ and $T_{i'\ell'}$ with degrees $\ell\ne\ell'$, only the variance $\bbk{\epsilon_{i\ell}^2}$ ultimately contributes to reconstruction error.
+Due to the appearance of $\delta_{ii'}$ above and the orthogonality of rotated polarization operators $T_{i\ell}$ and $T_{i'\ell'}$ with degrees $\ell\ne\ell'$, only the variance $\bbk{\epsilon_{i\ell}^2}$ ultimately contributes to reconstruction error.
 We therefore seek to find an upper bound on $\bbk{\epsilon_{i\ell}^2}$.
 
 To this end, we define the probability $p^i_\mu\equiv\bk{\Pi_{i\mu}}_\rho$, collect these probabilities into the classical probability distribution $p^i = \p{p^i_{-s}, p^i_{-s+1}, \cdots, p^i_s}$, and define the vector $t_\ell \equiv \p{t_{\ell,-s},t_{\ell,-s+1},\cdots,t_{\ell s}}$ of all $t_{\ell\mu}\equiv\bk{\mu|T_{\ell,0}|\mu}$.
@@ -661,7 +661,7 @@ Note that this bound on $\bbk{\epsilon_{i\ell}^2}$ is tight, as equality is achi
 \begin{align}
   \rho_i^\star = \f12\p{\Pi_{i\mu_{\t{max}}} + \Pi_{i\mu_{\t{min}}}}.
 \end{align}
-To find a nicer analytical bound on $\bbk{\epsilon_{i\ell}^2}$, we can use normalization of the transition operators, $\obk{T_{i\ell}|T_{i\ell}}=\sum_\mu t_{\ell\mu}^2 = 1$, and the fact that all probabilities $p_\mu\le1$ to bound
+To find a nicer analytical bound on $\bbk{\epsilon_{i\ell}^2}$, we can use normalization of the polarization operators, $\obk{T_{i\ell}|T_{i\ell}}=\sum_\mu t_{\ell\mu}^2 = 1$, and the fact that all probabilities $p_\mu\le1$ to bound
 \begin{align}
   \sigma_p^2\p{t_\ell} \le \sum_\mu p_\mu t_{\ell\mu}^2
   \le \sum_\mu t_{\ell\mu}^2 = 1,
@@ -920,8 +920,8 @@ The corresponding maximum of $\E_V$ is given by
   - \f1d \tr\p{\N_{V\ell}}},
 \end{align}
 where the $\tr\p{\N_{V\ell}}$ terms above come from simplifying the $\ell=0$ terms of Eq.~\eqref{eq:error_SM} with $\rho\to\rho_V^\star$.
-While $\E_V\p{\rho_V^\star}^2$ provides an upper bound on $\E_V\p{\rho}^2$ over all $\rho$ with $\tr\p{\rho}=1$, this bound turns out to be useless in practice, because $\rho_V^\star$ will generally be a non-physical ``state'' with negative eigenvalues.
-To find tight bound on $\E_V\p{\rho}^2$ over the state of physical qudit states $\rho$, we also need to enforce the constraint that $\rho$ have no negative eigenvalues.
+While $\E_V\p{\rho_V^\star}^2$ is a strict upper bound on $\E_V\p{\rho}^2$ over all $\rho$ with $\tr\p{\rho}=1$, this bound turns out to be useless in practice, because $\rho_V^\star$ will generally be a non-physical ``state'' with negative eigenvalues.
+To find tight bound on $\E_V\p{\rho}^2$ over the space of physical qudit states $\rho$, we also need to constrain $\rho$ to have no negative eigenvalues.
 Equipped with $\rho_V^\star$ and $\E_V\p{\rho_V^\star}^2$, we can expand
 \begin{align}
   \E_V\p{\rho}^2 = \E_V\p{\rho_V^\star}^2
@@ -930,17 +930,17 @@ Equipped with $\rho_V^\star$ and $\E_V\p{\rho_V^\star}^2$, we can expand
   D_V\p{X,Y}^2 \equiv
   \sum_\ell \bk{\p{X-Y}_\ell | \N_{V\ell} | \p{X-Y}_\ell},
 \end{align}
-where $Z_\ell\equiv\sum_m \obk{T_{\ell m}|Z} \ket{m}$ is a vector of the degree-$\ell$ components of $Z$.
+where $Z_\ell\equiv\sum_m \obk{T_{\ell m}|Z} \ket{m}$ is a vector of the degree-$\ell$ components of $Z$ in the polarization operator basis.
 Finding the maximum of $\E_V$ over all qudit states $\rho$ thus amounts to finding the closest physical qudit state $\rho$ to $\rho_V^\star$, with distance measured by the metric $D_V$ induced by the noise matrices $\N_{V\ell}$.
 This minimization problem is essentially solved for the case of $\N_{V\ell}=1$ in Ref.~\cite{smolin2012efficient}, but it is not obvious how to minimize $D_V\p{\rho,\rho_V^\star}^2$ for general $\N_{V\ell}$.
 We leave the general problem of minimizing $D_V\p{\rho,\rho_V^\star}$ to future work, noting that this task may be assisted by the positivity conditions derived in Ref.~\cite{kryszewski2006positivity}.
-A loose upper bound, which may nonetheless be tighter than that in Eq.~\eqref{eq:bound} of the main text, might be found by the fact that physical qudit states $\rho$ satisfy $\obk{\rho|\rho}\le1$.
+A loose upper bound, which may nonetheless be tighter than that in Eq.~\eqref{eq:bound} of the main text (derived in Appendix \ref{sec:improved_bound}), might be found by the fact that physical qudit states $\rho$ satisfy $\obk{\rho|\rho}\le1$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Transition operator product expansion}
+\section{Polarization operator product expansion}
 \label{sec:trans_prod}
 
-The transition operators on the $d$-dimensional Hilbert space of a spin-$s$ system (with $s\equiv\frac{d-1}{2}$) are defined by
+The polarization operators on the $d$-dimensional Hilbert space of a spin-$s$ system (with $s\equiv\frac{d-1}{2}$) are defined by
 \begin{align}
   T_{\ell m} \equiv \sqrt{\f{2\ell+1}{2s+1}} \sum_{\mu,\nu=-s}^s
   \bk{s\mu;\ell m|s\nu} \op{\nu}{\mu},
@@ -963,7 +963,7 @@ Using the symmetry properties of Clebsch-Gordan coefficients, namely
   &= \p{-1}^{\ell_1+\ell_2-L}
   \bk{\ell_1,-m_1; \ell_2,-m_2| L,-M},
 \end{align}
-we can find that the transition operators transform under conjugation as
+we can find that the polarization operators transform under conjugation as
 \begin{align}
   T_{\ell m}^\dag
   = \sqrt{\f{2\ell+1}{2s+1}}
