@@ -200,25 +200,28 @@ def noise_mats(dim, axes):
     return compute_batch(_degree_noise_mat, range(dim-1,-1,-1))
 
 # compute diagonal bands of transposed noise matrices
-def noise_band_mat(LL, noise_mats):
+def noise_band_mat(LL, dim, noise_mats):
+    max_ll = dim-1
     noise_mat = noise_mats[LL]
-    return diagonals(noise_mat.T)
+    return diagonals(noise_mat.T, -max_ll, max_ll)
 
 # compute the fixed-degree "chi vector" in the "degree-order" basis
-def degree_chi_state(LL, noise_band_mats, inv_struct_bands):
-    min_ll = (LL+1)//2
+def degree_chi_state(LL, dim, noise_band_mats, inv_struct_bands):
+    min_ll, max_ll = (LL+1)//2, dim-1
     chi_state = np.zeros(2*LL+1, dtype = complex)
-    for ll, noise_band_mat in noise_band_mats.items():
-        if ll < min_ll: continue
-        _noise_band_mat = np.roll(noise_band_mat, -(2*ll+1)+LL, axis = 0)[:2*LL+1,:]
+    for ll in range(min_ll, max_ll+1):
+        _noise_band_mat = np.roll(noise_band_mats[ll], -max_ll+LL, axis = 0)[:2*LL+1,:]
         chi_state += np.sum(_noise_band_mat * inv_struct_bands[LL,ll], axis = 1)
     return chi_state
 
 # compute the full "chi vector" in the "degree-order" basis
 def chi_state(dim, noise_mats, inv_struct_bands):
-    _noise_band_mat = functools.partial(noise_band_mat, noise_mats = noise_mats)
+    kwargs = dict( dim = dim, noise_mats = noise_mats )
+    _noise_band_mat = functools.partial(noise_band_mat, **kwargs)
     noise_band_mats = compute_batch(_noise_band_mat, range(dim-1,-1,-1))
-    kwargs = dict( noise_band_mats = noise_band_mats, inv_struct_bands = inv_struct_bands )
+    kwargs = dict( dim = dim,
+                   noise_band_mats = noise_band_mats,
+                   inv_struct_bands = inv_struct_bands )
     _degree_chi_state = functools.partial(degree_chi_state, **kwargs)
     return compute_batch(_degree_chi_state, range(dim-1,-1,-1))
 
