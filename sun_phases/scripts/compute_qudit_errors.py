@@ -162,7 +162,10 @@ def wigner_3j_mat(labels):
 degree_labels = [ ( LL, ll )
                   for ll in range(max_dim-1,-1,-1)
                   for LL in range(min(max_dim-1,2*ll),-1,-1) ]
-wigner_3j_mats = compute_batch(wigner_3j_mat, degree_labels)
+
+# only pre-compute the matrices if we are computing reconstruction errors
+if compute == RE:
+    wigner_3j_mats = compute_batch(wigner_3j_mat, degree_labels)
 
 # compute a matix of structure constants
 def struct_mat(dim, LL, ll):
