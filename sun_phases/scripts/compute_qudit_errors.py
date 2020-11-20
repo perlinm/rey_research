@@ -11,7 +11,7 @@ CB = "CB" # classical error bound
 QB = "QB" # quantum error bound
 RE = "RE" # reconstruction error
 
-compute = CB
+compute = RE
 write_data = True
 
 sample_cap = 100 # maximum number of times we choose a random set of measurement axes
@@ -53,13 +53,13 @@ def diagonals(mat, band_min = None, band_max = None):
     strides = major_stride, minor_stride * (cols + 1)
     shape = (rows + cols - 1, cols)
     reversed_diags = np.lib.stride_tricks.as_strided(stacked, shape, strides)
-    diags = np.roll(np.flipud(diags), 1, axis = 0)
+    diags = np.roll(np.flipud(reversed_diags), 1, axis = 0)
     if band_min == None:
         band_min = diags.shape[0]
     if band_max == None:
         band_max = diags.shape[1]
-    bands = band_max - band_min + 1
-    return np.roll(diags, -band_min, axis = 0)[:bands,:]
+    bands = band_max - band_min
+    return np.roll(diags, -band_min, axis = 0)[:bands+1,:]
 
 # generate random axes on the sphere by uniform sampling
 def random_axes(axis_num):
@@ -201,7 +201,7 @@ def noise_mats(axes):
 def noise_band_mat(LL, noise_mats):
     noise_mat = noise_mats[LL]
     dim = noise_mat.shape[0]
-    return diagonal_bands(noise_mat.T, -dim, dim)
+    return diagonals(noise_mat.T, -dim, dim)
 
 # compute the fixed-degree "chi vector" in the "degree-order" basis
 def degree_chi_state(LL, noise_band_mats, inv_struct_bands):
