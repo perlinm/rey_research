@@ -28,8 +28,8 @@ def get_data(tag):
 
 plt.figure(figsize = figsize)
 
-plot_params = [ ( "CB", r"$\mathcal{S}_V$", "o", "tab:blue" ),
-                ( "QB", r"$\epsilon_V$", ".", "k" ),
+plot_params = [ ( "CB", r"$\mathcal{S}_V$", "o", "k" ),
+                ( "QB", r"$\epsilon_V$", ".", "tab:blue" ),
                 ( "RE", r"$\mathcal{E}_V(\rho)$", ".", "tab:orange" ) ]
 
 for tag, label, marker, color in plot_params:

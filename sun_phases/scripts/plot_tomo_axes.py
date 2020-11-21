@@ -16,8 +16,8 @@ plt.rcParams.update(params)
 
 figsize = (3,2)
 
-dims = [ 10, 20, 40, 80 ]
-colors = [ "k", "tab:blue", "tab:orange", "tab:green" ]
+dims = [ 10, 40, 20, 80 ]
+colors = [ "k", "tab:orange", "tab:blue", "tab:green" ]
 
 ##################################################
 
@@ -30,12 +30,14 @@ for dim, color in zip(dims, colors):
 
     scales *= np.sqrt(axes)
     excess_axes = axes - (2*dim-1)
-    normed_scales = scales / scales[0]
-    plt.plot(excess_axes/dim, normed_scales, ".", label = dim, color = color)
+    plt.plot(excess_axes/dim, scales/scales[0], ".", label = f"${dim}$", color = color)
 
 plt.gca().set_ylim(bottom = 0)
+plt.gca().tick_params(right = True)
+
 plt.xlabel(r"$p/d$")
-plt.ylabel(r"$\beta(r)$")
-plt.legend(loc = "best", ncol = 2)
+plt.ylabel(r"$\beta(p)/\beta(0)$")
+spacing_kwargs = dict( handlelength = 1, columnspacing = 1, labelspacing = 0.2 )
+plt.legend(loc = "best", ncol = 2, **spacing_kwargs)
 plt.tight_layout()
 plt.savefig(fig_dir + "qudit_axes.pdf")
