@@ -5,7 +5,8 @@ import numpy as np
 
 genesis = time.time()
 
-save_data = False
+save_data = "save" in sys.argv
+if save_data: sys.argv.remove("save")
 
 # get qudit dimension from command-line inputs
 dim = int(sys.argv[1])
@@ -26,6 +27,10 @@ data_dir = "../data/qudit_tomo/"
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 data_file = data_dir + f"axes_d{dim}.txt"
+
+while os.path.isfile(data_file):
+    print("file exists:", data_file)
+    data_file += ".new"
 
 ##########################################################################################
 # import qudit tomography methods

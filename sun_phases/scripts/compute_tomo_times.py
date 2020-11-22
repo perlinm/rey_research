@@ -16,7 +16,8 @@ for idx, arg in enumerate(sys.argv):
         compute = arg
         sys.argv.remove(arg)
 
-save_data = False
+save_data = "save" in sys.argv
+if save_data: sys.argv.remove("save")
 
 # get minimum / maximum qudit dimensions from command-line inputs
 min_dim = int(sys.argv[1])
@@ -34,6 +35,11 @@ data_dir = "../data/qudit_tomo/"
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 data_file = data_dir + f"times_{compute}_d{min_dim}-{max_dim}.txt"
+
+while os.path.isfile(data_file):
+    print("file exists:", data_file)
+    datafile += ".new"
+    exit()
 
 ##########################################################################################
 # import qudit tomography methods
