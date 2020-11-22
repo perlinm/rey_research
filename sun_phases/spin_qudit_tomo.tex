@@ -39,7 +39,6 @@
 \newcommand{\D}{\mathcal{D}}
 \newcommand{\E}{\mathcal{E}}
 \newcommand{\I}{\mathcal{I}}
-\renewcommand{\L}{\mathcal{L}}
 \newcommand{\N}{\mathcal{N}}
 \renewcommand{\O}{\mathcal{O}}
 \newcommand{\Q}{\mathcal{Q}}
@@ -95,10 +94,10 @@
 
 \begin{abstract}
   We consider the task of performing quantum state tomography on a $d$-state spin qudit, using only measurements of spin projection onto different quantization axes.
-  By mapping this quantum tomography problem onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary mixed states is possible, and requires a minimum number of measurement axes, $r_d^{\t{min}}$, that is bounded by $2d-1\le r_d^{\t{min}}\le d^2$.
-  We conjecture that $r_d^{\t{min}}=2d-1$, which we verify for all $d\le200$ with numerical experiments.
-  We then provide an algorithm with $O\p{rd^2}$ runtime for certifying an upper bound on the error with which measurements of spin projection along $r$ axes can reconstruct an unknown quantum state.
-  Our algorithm motivates a simple randomized tomography protocol, which we use to study the trade-off between the number of measurement axes and state reconstruction error at a fixed total number of measurements [\red{note: this part is not yet complete}].
+  By an exact mapping onto the classical problem of signal recovery on the sphere, we prove that full reconstruction of arbitrary qudit states requires is possible with a minimal number of measurement axes, $r_d^{\t{min}}$, that is bounded by $2d-1\le r_d^{\t{min}}\le d^2$.
+  We conjecture that $r_d^{\t{min}}=2d-1$, which we verify numerically for all $d\le200$.
+  We then provide algorithms with $O\p{rd^3}$ serial runtime, parallelizable down to $O\p{rd^2}$, for (i) computing (a priori) upper bounds on the expected error with which spin projection measurements along $r$ given axes can reconstruct an unknown qudit state, and (ii) estimating (a posteriori) the statistical error in a reconstructed state.
+  Our algorithms motivate a simple randomized tomography protocol, for which we numerically find that using more measurement axes can yield substantial benefits that plateau after $r\approx3d$.
 \end{abstract}
 
 \maketitle
@@ -116,16 +115,18 @@ Spin qudits can provide advantages over their qubit counterparts for quantum sen
 In all cases, quantum state tomography is necessary to take full advantage of a spin qudit.
 
 The problem of qudit tomography in particular is not new, with an extensive literature on a variety of techniques \cite{manko1997spin, thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, evrard2019enhanced, stefano2019set, palici2020oam}.
-However, existing proposals either require the capability to perform essentially arbitrary operations on a qudit \cite{thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, stefano2019set, palici2020oam}, or rely on infinite-dimensional representations of a quantum spin \cite{manko1997spin, evrard2019enhanced}, resulting in tomographic protocols that can be highly inefficient or unachievable in practice.
-In particular, the protocols based on infinite-dimensional representations of a quantum spin require only the capability to measure spin projection onto different spatial axes, which is usually straightforward with a spin qudit.
-Nonetheless, these protocols obfuscate the basic requirements for performing full state tomography, provide no straightforward error bounds or guarantees of accuracy, and extract only a vanishing faction of the information contained in measurement data.
+However, existing protocols either require the capability to perform essentially arbitrary operations on a qudit \cite{thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, stefano2019set, palici2020oam}, or rely on infinite-dimensional representations of a quantum spin \cite{manko1997spin, evrard2019enhanced}, resulting in tomographic protocols that can be highly inefficient or unachievable in practice.
+The protocols based on infinite-dimensional representations of a quantum spin have the advantage of reconstructing its state from measurements of spin projection onto different spatial axes, which are generally accessible with any spin qudit.
+Nonetheless, these protocols obfuscate the actual requirements for performing full state tomography, provide no straightforward error bounds or guarantees of accuracy, and extract only a small faction of the information contained in measurement data.
 
 In this work, we provide an efficient framework for performing spin qudit tomography using only measurements of spin projection onto different spatial axes.
-We first introduce, in Section \ref{sec:polarization_ops}, a basis of operators that have a simple physical interpretation, and transform nicely under rotations in 3D space, thereby respecting the symmetries of the tomography task at hand.
-We then map this quantum tomography problem onto the well-studied classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby importing a host of existing literature and mathematical machinery that has been developed for this task \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
+We first introduce, in Section \ref{sec:polarization_ops}, a set of qudit operators that have a simple physical interpretation, transform nicely under 3D rotations, and play a central role in our work.
+We then map the problem of spin qudit tomography onto the well-studied classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby importing a host of existing literature and mathematical machinery that has been developed for this task \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality}.
 In particular, this mapping allows us to bound the minimum number of measurement axes necessary to perform full tomography on a $d$-level spin qudit, $r_d^{\t{min}}$, by $2d-1\le r_d^{\t{min}}\le d^2$.
+In Section \ref{sec:error} we provide (a priori) upper bounds and (a posteriori) estimates of the statistical error in a qudit state reconstructed from measurements of spin projection along a given set of $r$ measurement axes.
+The capability to determine upper bounds on reconstruction error a priori motivates a simple randomized tomography protocol that we outline in Section \ref{sec:protocol}, and for which we numerically find that using more measurement axes yields substantial benefits that plateau after $r\approx3d$.
 
-[\red{finish intro}]
+% todo: comment on code availability
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Polarization operators and 3D rotations}
@@ -192,7 +193,7 @@ Symbols with a suppressed order therefore implicitly set this order to zero, whi
 \section{Spin tomography as signal recovery on the sphere}
 \label{sec:signal_recovery}
 
-[\red{todo: add figure for signal recovery problem?}]
+% todo: add figure for signal recovery problem?
 
 Our goal is to reconstruct an arbitrary state $\rho$ of a spin qudit from measurements of spin projection onto different quantization axes.
 We are thus nominally restricted to measuring projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$, where $\ket{\mu_{\v v}}\equiv R\p{\v v}\ket{\mu}$ is a state with spin projection $\mu$ onto a measurement axis $\v v$ determined by a point on the sphere.
@@ -258,7 +259,7 @@ Nonetheless, in the following sections we numerically verify that $2d-1$ points 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomographic reconstruction error}
-\label{sec:bound}
+\label{sec:error}
 
 For the practically minded, the mere existence of solutions to a problem is less interesting than the exposition of a particular solution.
 On a high level, a spin qudit tomography protocol consists of
@@ -381,7 +382,7 @@ If we assume that $\abs{V}\sim d$, then computing the classical error scale $\S_
 
 The assumption that observables can be estimated up to uncorrelated noise with maximal variance $\epsilon^2$, summarized by Eq.~\eqref{eq:error_assumption}, is reasonable when measurement error is dominated by classical sources of experimental noise.
 However, this assumption breaks down when measurement error is limited by fundamental quantum (shot) noise.
-We relax the assumption of Eq.~\eqref{eq:error_assumption} in Appendix \ref{sec:improved_bound}, where we instead assume that $\tilde\rho_V$ is built from $n$ independent measurements of spin projection along every axis $\v v\in V$, with shot noise the dominant source of error.
+We relax the assumption of Eq.~\eqref{eq:error_assumption} in Appendix \ref{sec:bound}, where we instead assume that $\tilde\rho_V$ is built from $n$ independent measurements of spin projection along every axis $\v v\in V$, with shot noise the dominant source of error.
 In this case, the constraints that all $\bk{\Pi_{\v v\mu}}_\rho\ge0$ and $\tr\p\rho=1$ allow us to bound the mean squared distance between $\tilde\rho_V$ and $\rho$ as
 \begin{align}
   \E_V\p{\rho}^2 < \f{\epsilon_V^2}{n},
@@ -389,7 +390,7 @@ In this case, the constraints that all $\bk{\Pi_{\v v\mu}}_\rho\ge0$ and $\tr\p\
   \epsilon_V^2 \equiv \sum_\ell \Gamma_\ell^2 \S_{V\ell}^2,
   \label{eq:bound}
 \end{align}
-where the {\it quantum error scale} $\epsilon_V$, so called because it is set by quantum noise, is defined in terms of (half of) the spectral range of $T_\ell$:
+where the {\it quantum error scale} $\epsilon_V$, so called because it is set by quantum shot noise, is defined in terms of (half of) the spectral range of $T_\ell$:
 \begin{align}
   \Gamma_\ell \equiv \f{\max_\mu t_{\ell\mu} - \min_\mu t_{\ell\mu}}{2},
   &&
@@ -407,7 +408,7 @@ In principle, this scaling can be improved to $\sim1/n^2$ by preparing and measu
 
 The quantum error scale $\epsilon_V$ provides a pessimistic upper bound on statistical error, which can be calculated without prior knowledge of the true qudit state $\rho$.
 The actual error in the reconstruction $\tilde\rho_V$ of a particular state $\rho$ may be considerably smaller.
-The exact mean squared distance between $\tilde\rho_V$ and $\rho$, derived in Appendix \ref{sec:exact}, can be written in the form
+The exact mean squared distance between $\tilde\rho_V$ and $\rho$, derived in Appendix \ref{sec:exact_error}, can be written in the form
 \begin{align}
   \E_V\p{\rho}^2
   = \f1n \sum_\ell \sp{\bk{\chi_{V\ell}|\rho_\ell}
@@ -426,16 +427,13 @@ where $\diag\sp{X}$ sets all off-diagonal parts of $X$ to zero.
 The vector $\ket{\chi_{V\ell}}\equiv\sum_m \chi^V_{\ell m} \ket{m}$ in Eq.~\eqref{eq:error} is defined by
 \begin{align}
   \chi^V_{LM} &\equiv
-  \sum_\ell \obk{\N_{V\ell}|\D_M|\I g_{L\ell}}, \\
-  g_{L\ell} &\equiv \sum_{m,m'}
-  \obk{T_{L,m+m'}|T_{\ell m}T_{\ell m'}} \op{m}{m'}, \\
-  \I &\equiv \sum_m \p{-1}^m \op{-m}{m}, \\
+  \sum_\ell \obk{\N_{V\ell}|\D_M|\tilde g_{L\ell}}, \\
+  \tilde g_{L\ell} &\equiv \sum_{m,m'}
+  \obk{T_{L,m+m'}|T_{\ell m}^\dag T_{\ell m'}} \op{m}{m'}, \\
   \D_M &\equiv \sum_{m,m'} \delta_{M,m'-m} \op{mm'}.
 \end{align}
-Here $g_{L\ell}$ is a matrix of structure constants for the polarization operator algebra (see Appendix \ref{sec:trans_prod}), and $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on, such that $\obk{\N_{V\ell}|\D_M|\I g_{L\ell}}$ is an inner product of the $M$-th diagonal of $\I g_{L\ell}$ with the $\p{-M}$-th diagonal of $\N_{V\ell}$.
-Overall, the complexity of computing $\E_V\p{\rho}$ is the same as that of $\epsilon_V$ and $\S_V$ (see Figure \ref{fig:times}).
-
-[\red{todo: comment on code availability}]
+Here $\tilde g_{L\ell}$ is essentially a matrix of structure constants for the polarization operator algebra (see Appendix \ref{sec:trans_prod}), and $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on, such that $\obk{\N_{V\ell}|\D_M|\tilde g_{L\ell}}$ is an inner product of the $M$-th diagonal of $\tilde g_{L\ell}$ with the $\p{-M}$-th diagonal of $\N_{V\ell}$.
+Overall, the complexity of computing $\E_V\p{\rho}$ is the same as that of $\S_V$ and $\epsilon_V$ (see Figure \ref{fig:times}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomography protocol}
@@ -451,33 +449,38 @@ If $\tilde\rho_V$ has negative eigenvalues, its distance from $\rho$ can be redu
 Note that any information about $\rho$, obtained either from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
 We leave the development of tailored and adaptive measurement protocols to future work.
 
-The tomography protocol we outline above leaves open the question of {\it how many} measurement axes to choose.
-Though $2d-1$ measurement axes may be {\it sufficient} for full state tomography, this is not necessarily the {\it best} choice of $\abs{V}$.
+The tomography protocol we outline above leaves open the question of {\it how many} measurement axes to use.
+Though $2d-1$ measurement axes may be sufficient to perform full state tomography, this is not necessarily the best choice of $\abs{V}$.
 Increasing the number of measurement axes generally decreases the quantum error scale $\epsilon_V$, but at the cost of having to estimate more observables.
 At a fixed total number of measurements, increasing $\abs{V}$ reduces the number of measurements $n$ devoted to each axis $\v v\in V$.
 This trade-off begs the question: how should one choose the number of measurement axes, $\abs{V}$?
 
-The reconstruction error bound in Eq.~\eqref{eq:bound} nominally provides a straightforward answer: at a fixed total number of measurements, $N=n\abs{V}$, the number of measurement axes should be chosen to minimize the (squared) reconstruction error $\E_V\p{\rho}^2<\epsilon_V^2/n\propto\epsilon_V^2\abs{V}$.
-
 \begin{figure}
   \centering
   \includegraphics{qudit_axes.pdf}
-  \caption{Smallest ``normalized'' error scale $\beta(p)$ found with $p$ excess measurement axes, i.e.~with $\abs{V}=2d-1+p$.
-    Color indicates the qudit dimension $d$ as specified by the legend.
-    Here $\beta(p) \equiv \epsilon_{\t{min}}(p)\times\sqrt{2d-1+p}$ and $\epsilon_{\t{min}}(p) \equiv \min\set{\epsilon_V:\abs{V}=2d-1+p}$ is minimized over $10^3$ choices of random measurement axes or 5 minutes of runtime (for each $p$), whichever comes first.}
+  \caption{Empirical measurement-adjusted error scales $\tilde\beta(p)$ with $p$ excess measurement axes, determined by minimizing over $10^3$ choices of measurement axes $V$ or 5 minutes of runtime (for each $p$), whichever comes first.
+    Color indicates the qudit dimension $d$ in the legend.
+    The rapid initial drop in $\tilde\beta(p)$ implies that using more measurement axes can substantially lower the upper bound on reconstruction error provided in Eq.~\eqref{eq:bound}, and that these benefits plateau after $p\approx d$.}
   \label{fig:axes}
 \end{figure}
 
-\vspace{3cm}
+The reconstruction error bound in Eq.~\eqref{eq:bound} nominally provides a straightforward answer: at a fixed total number of measurements, $N=n\abs{V}$, the number of measurement axes should be chosen to minimize the (squared) reconstruction error $\E_V\p{\rho}^2<\epsilon_V^2/n\propto\epsilon_V^2\abs{V}$.
+We therefore consider the measurement-adjusted error scale
+\begin{align}
+  \beta(p)
+  \equiv \min\set{\epsilon_V:\abs{V}=2d-1+p} \times \sqrt{2d-1+p}
+\end{align}
+as a function of $p$, the number of measurement axes exceeding $2d-1$.
+Though we cannot minimize over all suitable choices of measurement axes $V$ to compute $\beta(p)$, we can compute an empirical upper bound $\tilde\beta(p)\ge\beta(p)$ by minimizing over a large number of randomly chosen $V$.
+Figure \ref{fig:axes} shows the results of such empirical minimization, where we find that $\tilde\beta(p)$ drops substantially before plateauing at $p\approx d$, after which there are only marginal benefits to using more measurement axes.
+In the interest of reducing experimental complexity as well as the runtime of our tomography protocol, which grow linearly in $\abs{V}$, we therefore conclude that spin qudit tomography should be performed with $\abs{V}\approx3d$ measurement axes.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
-\label{sec:conclusions}
 
 
 
 \bibliography{\jobname.bib}
-
 
 \onecolumngrid
 \appendix
@@ -534,9 +537,9 @@ are matrix elements of the rotation operator $R\p{\v\omega}$ for spin-$\ell$ par
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{An improved reconstruction error bound}
-\label{sec:improved_bound}
+\label{sec:bound}
 
-In Section \ref{sec:bound} of the main text, we provided a reconstruction error bound using the assumption of Eq.~\eqref{eq:error_assumption}, namely that expectation values derived from spin projection measurements can be estimated up to uncorrelated errors with maximal variance $\epsilon^2$.
+In Section \ref{sec:error} of the main text, we provided a reconstruction error bound using the assumption of Eq.~\eqref{eq:error_assumption}, namely that expectation values derived from spin projection measurements can be estimated up to uncorrelated errors with maximal variance $\epsilon^2$.
 This assumption is reasonable if measurement error is dominated by experimental sources of noise, and it yields a simple derivation of the reconstruction bound in Eq.~\eqref{eq:bound_eps}.
 Nonetheless, there are two problems with the assumption of Eq.~\eqref{eq:error_assumption}:
 \begin{enumerate*}
@@ -727,9 +730,9 @@ Altogether, we thus find that in all cases
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Revisiting the reconstruction error bound}
-\label{sec:revisiting}
+\label{sec:bound}
 
-We now revisit the derivation of reconstruction error in Section \ref{sec:bound} to make use of the bounds on variances $\bbk{\epsilon_{i\ell}^2}$.
+We now revisit the derivation of reconstruction error in Section \ref{sec:error} to make use of the bounds on variances $\bbk{\epsilon_{i\ell}^2}$.
 To recap, for a set of measurement axes $V=\set{\v v}$ and degrees $\ell\in\set{0,1,\cdots,d-1}$ we construct the measurement matrix
 \begin{align}
   M_V \equiv \sum_{\v v,\ell} \oket{T_{\v v\ell}} \bra{\v v\ell},
@@ -788,10 +791,10 @@ There is therefore still room for improvement on the bound in Eq.~\eqref{eq:boun
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Exact reconstruction error}
-\label{sec:exact}
+\label{sec:exact_error}
 
 Here we find exact expressions for reconstruction error, which can be used to estimate the error in a given reconstruction $\tilde\rho_V$ of an unknown state $\rho$ after performing tomography.
-To this end, we start with Eq.~\eqref{eq:bound_apndx} from Appendix \ref{sec:revisiting} to write
+To this end, we start with Eq.~\eqref{eq:bound_apndx} from Appendix \ref{sec:bound} to write
 \begin{align}
   \E_V\p{\rho}^2
   = \sum_{\ell,m,i,i'} \p{q^V_{\ell mi}}^* q^V_{\ell mi'} \bbk{\epsilon_{i\ell}\epsilon_{i'\ell}}
@@ -940,7 +943,7 @@ where $Z_\ell\equiv\sum_m \obk{T_{\ell m}|Z} \ket{m}$ is a vector of the degree-
 Finding the maximum of $\E_V$ over all qudit states $\rho$ thus amounts to finding the closest physical qudit state $\rho$ to $\sigma_V^\star$, with distance measured by the metric $D_V$ induced by the noise matrices $\N_{V\ell}$.
 This minimization problem is essentially solved for the case of $\N_{V\ell}=1$ in Ref.~\cite{smolin2012efficient}, but it is not obvious how to minimize $D_V\p{\rho,\sigma_V^\star}$ for general $\N_{V\ell}$.
 We leave the general problem of minimizing $D_V\p{\rho,\sigma_V^\star}$ to future work, noting that this task may be assisted by positivity conditions such as those derived in Ref.~\cite{kryszewski2006positivity}.
-A loose upper bound, which may nonetheless be tighter than that in Eq.~\eqref{eq:bound} of the main text (derived in Appendix \ref{sec:improved_bound}), might be found by the fact that physical qudit states $\rho$ satisfy $\obk{\rho|\rho}\le1$.
+A loose upper bound, which may nonetheless be tighter than that in Eq.~\eqref{eq:bound} of the main text (derived in Appendix \ref{sec:bound}), might be found by the fact that physical qudit states $\rho$ satisfy $\obk{\rho|\rho}\le1$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Polarization operator product expansion}
