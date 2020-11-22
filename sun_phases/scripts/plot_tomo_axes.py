@@ -30,13 +30,14 @@ for dim, color in zip(dims, colors):
 
     scales *= np.sqrt(axes)
     excess_axes = axes - (2*dim-1)
-    plt.plot(excess_axes/dim, scales/scales[0], ".", label = f"${dim}$", color = color)
+    plt.plot(excess_axes/dim, scales/scales[0],
+             ".", label = f"${dim}$", color = color)
 
 plt.gca().set_ylim(bottom = 0)
 plt.gca().tick_params(right = True)
 
 plt.xlabel(r"$p/d$")
-plt.ylabel(r"$\beta(p)/\beta(0)$")
+plt.ylabel(r"$\tilde\beta(p)/\tilde\beta(0)$")
 spacing_kwargs = dict( handlelength = 1, columnspacing = 1, labelspacing = 0.2 )
 plt.legend(loc = "best", ncol = 2, **spacing_kwargs)
 plt.tight_layout()
