@@ -33,7 +33,6 @@
 \newcommand{\x}{\text{x}}
 \newcommand{\y}{\text{y}}
 \newcommand{\z}{\text{z}}
-\renewcommand{\d}{\text{d}}
 
 \newcommand{\C}{\mathcal{C}}
 \newcommand{\D}{\mathcal{D}}
@@ -44,8 +43,6 @@
 \newcommand{\Q}{\mathcal{Q}}
 \renewcommand{\S}{\mathcal{S}}
 
-\newcommand{\ZZ}{\mathbb{Z}}
-
 \def\obra#1{\mathinner{({#1}|}}
 \def\oket#1{\mathinner{|{#1})}}
 \def\obk#1{\mathinner{({#1})}}
@@ -53,9 +50,6 @@
 
 \DeclareMathOperator{\cov}{cov}
 \DeclareMathOperator{\diag}{diag}
-
-\usepackage{dsfont} % for identity operator
-\newcommand{\1}{\mathds{1}}
 
 %%% figures
 \usepackage{graphicx} % for figures
@@ -66,7 +60,6 @@
 
 \usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
-\setlist{nolistsep} % more compact spacing between environments
 
 %%% text markup
 \usepackage{color} % text color
@@ -337,13 +330,13 @@ Using the fact that the operators $Q^V_k$ are orthonormal, we can therefore boun
 \end{align}
 where $\norm{X}^2 \equiv \obk{X|X} = \tr\p{X^\dag X}$ is the squared (Frobenius, or Hilbert-Schmidt) norm of $X$, and the {\it classical error scale} $\S_V$ is defined by
 \begin{align}
-  \S_V^2 \equiv \sum_k\f1{\p{M^V_k}^2} = \norm{M_V^{-1}}^2,
+  \S_V^2 \equiv \sum_k \p{M^V_k}^{-2} = \norm{M_V^{-1}}^2,
 \end{align}
-is the squared norm of the right inverse $M_V^{-1}$ of $M_V$, satisfying $M_V M_V^{-1}=1$.
+where $M_V^{-1}$ is the right inverse of $M_V$, satisfying $M_V M_V^{-1}=1$.
 We refer to the error scale $\S_V$ as ``classical'' because the bound in Eq.~\eqref{eq:bound_eps} applies in the presence of classical sources of measurement error.
-Note that the classical error scale $\S_V$ diverges if the measurement matrix $M_V$ is singular, in which case measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
+Note that the classical error scale $\S_V$ diverges if the measurement matrix $M_V$ is singular, which indicates that measuring spin projections along all axes in $V$ does not provide sufficient information to reconstruct arbitrary quantum states.
 
-Computing the classical error scale $\S_V$ and finding estimates $\tilde\rho^V_k\approx\rho^V_k$ requires building the measurement matrix $M_V$ and computing its singular value decomposition.
+Computing the classical error scale $\S_V$ and estimates $\tilde\rho^V_k\approx\rho^V_k$ requires building the measurement matrix $M_V$ and computing its singular value decomposition.
 The complexity of this task can be greatly reduced by the fact that the degree $\ell$ of a polarization operator $T_{\ell m}$ is preserved under rotations, which implies that the unitary
 \begin{align}
   U \equiv \sum_{\ell=0}^{d-1} \sum_{m=-\ell}^\ell
@@ -357,7 +350,7 @@ with vectors $\oket{T_{\ell m}}$ in a column indexed by integers $\p{\ell,m}$, b
 where the $\p{2\ell+1}\times\abs{V}$-sized blocks are
 \begin{align}
   M_{V\ell} \equiv \sum_{m,\v v} \ket{m} \obk{T_{\ell m}|T_{\v v\ell}} \bra{\v v}
-  = \sum_{m,\v v} D^\ell_{m,0}\p{\v v} \op{m}{\v v}.
+  = \sum_{m,\v v} D^\ell_m\p{\v v} \op{m}{\v v}.
 \end{align}
 As the singular values of $M_V$ are invariant under unitary transformations, it follows that
 \begin{align}
@@ -373,17 +366,17 @@ If we assume that $\abs{V}\sim d$, then computing the classical error scale $\S_
   \centering
   \includegraphics{qudit_times.pdf}
   \caption{Serial runtime to compute $\S_V$, $\epsilon_V$, or $\E_V\p{\rho}$ with $\abs{V}=2d-1$ randomly chosen measurement axes and a randomly chosen qudit state $\rho$.
-    Each point is an average over 100 calculations or 5 minutes of runtime, whichever comes first.
-    Dashed lines shows a fit to runtime $t=c d^\alpha$ for all $d\ge100$, finding $\alpha\approx 3.7$ [\red{todo: update/correct after more simulations}].
-    These results do not count fixed $O(d^3)$ runtimes for pre-computing quantities that can be recycled for every new choice of $V$ or $\rho$.
-    The simulations used to benchmark runtime found axes $V$ with $\epsilon_V<d$ for all $d\le200$, thereby verifying for these cases that $2d-1$ measurement axes are sufficient to perform full state tomography.}
+    Each point is an average over $10^3$ calculations or 5 minutes of runtime, whichever comes first.
+    These results do not count fixed runtimes to pre-compute quantities that can be recycled for every new choice of $V$ or $\rho$.
+    Dashed lines show fits to a runtime $t=c d^\alpha$ for all $d\ge100$, finding $\alpha\approx 3.7$.
+    These simulations found axes $V$ with $\epsilon_V<d$ for all $d\le200$, thereby verifying for these cases that $2d-1$ measurement axes are sufficient to perform full state tomography.}
   \label{fig:times}
 \end{figure}
 
 The assumption that observables can be estimated up to uncorrelated noise with maximal variance $\epsilon^2$, summarized by Eq.~\eqref{eq:error_assumption}, is reasonable when measurement error is dominated by classical sources of experimental noise.
 However, this assumption breaks down when measurement error is limited by fundamental quantum (shot) noise.
 We relax the assumption of Eq.~\eqref{eq:error_assumption} in Appendix \ref{sec:bound}, where we instead assume that $\tilde\rho_V$ is built from $n$ independent measurements of spin projection along every axis $\v v\in V$, with shot noise the dominant source of error.
-In this case, the constraints that all $\bk{\Pi_{\v v\mu}}_\rho\ge0$ and $\tr\p\rho=1$ allow us to bound the mean squared distance between $\tilde\rho_V$ and $\rho$ as
+In this case, the constraints that $\tr\p\rho=1$ and $\bk{\Pi_{\v v\mu}}_\rho\ge0$ allow us to bound the mean squared distance between $\tilde\rho_V$ and $\rho$ as
 \begin{align}
   \E_V\p{\rho}^2 < \f{\epsilon_V^2}{n},
   &&
@@ -397,17 +390,17 @@ where the {\it quantum error scale} $\epsilon_V$, so called because it is set by
   t_{\ell\mu} \equiv \bk{\mu|T_\ell|\mu}.
 \end{align}
 If $d$ is even or $\ell$ is odd, then $\Gamma_\ell=\max_\mu t_{\ell\mu}$.
-For comparison with previous error bound in Eq.~\eqref{eq:bound_eps}, we note that $\epsilon_V^2<\S_V^2/2$, so the previous bound still holds with the replacement $\epsilon^2\to1/2n$.
+For comparison with the ``classical'' error bound in Eq.~\eqref{eq:bound_eps}, we note that $\epsilon_V^2<\S_V^2/2$, so the previous bound still holds with the replacement $\epsilon^2\to1/2n$.
 The factors $\Gamma_\ell^2$ are quick to compute and can be recycled for every new choice of axes $V$, so the complexity of computing $\epsilon_V$ is the same as that of $\S_V$ (see Figure \ref{fig:times}).
 
-Though straightforward to compute, the bound in Eq.~\eqref{eq:bound} is not tight, as it is acquired by bounding the statistical variance $\epsilon_{\v v\ell}^2$ in the empirical estimate $\tilde T_{\v v\ell}$ of $\bk{T_{\v v\ell}}_\rho$ as $\bbk{\epsilon_{\v v\ell}^2}\le\Gamma_\ell^2$.
+Though straightforward to compute, the bound in Eq.~\eqref{eq:bound} is not tight, as it is acquired by bounding the statistical error in the empirical estimate $\tilde T_{\v v\ell}$ of $\bk{T_{\v v\ell}}_\rho$ by $\bbk{\epsilon_{\v v\ell}^2}\le\Gamma_\ell^2$.
 Though the individual bounds on $\bbk{\epsilon_{\v v\ell}^2}$ for each axis $\v v$ and degree $\ell$ are tight, these bounds cannot all be achieved simultaneously.
 There is therefore still room for improvement on the bound in Eq.~\eqref{eq:bound} by maximizing $\E_V$ over the set of all qudit states $\rho$.
 We also note that the (squared) reconstruction error bound in Eq.~\eqref{eq:bound} obeys the ``standard quantum limit'' of $\sim1/n$ scaling in the number of measurements.
 In principle, this scaling can be improved to $\sim1/n^2$ by preparing and measuring entangled copies of many qudits \cite{giovannetti2006quantum}.
 
 The quantum error scale $\epsilon_V$ provides a pessimistic upper bound on statistical error, which can be calculated without prior knowledge of the true qudit state $\rho$.
-The actual error in the reconstruction $\tilde\rho_V$ of a particular state $\rho$ may be considerably smaller.
+The actual error in the reconstruction $\tilde\rho_V$ of a particular state $\rho$ may be considerably smaller, and depends on $\rho$ itself.
 The exact mean squared distance between $\tilde\rho_V$ and $\rho$, derived in Appendix \ref{sec:exact_error}, can be written in the form
 \begin{align}
   \E_V\p{\rho}^2
@@ -416,7 +409,7 @@ The exact mean squared distance between $\tilde\rho_V$ and $\rho$, derived in Ap
   \label{eq:error}
 \end{align}
 where $\ket{\rho_\ell} \equiv \sum_m \rho_{\ell m}\ket{m}$, and $\ket{\chi_{V\ell}}$ and $\N_{V\ell}$ are defined below.
-While the true error in $\tilde\rho_V$ cannot be known exactly without knowing $\rho$, this error can be estimated after constructing $\tilde\rho_V$ by computing $\E_V\p{\tilde\rho_V}$.
+While the true error in $\tilde\rho_V$ cannot be known exactly without knowing $\rho$, this error can be estimated by $\E_V\p{\tilde\rho_V} \approx \E_V\p{\rho}$.
 
 The matrix $\N_{V\ell}$ that appears in Eq.~\eqref{eq:error} is defined in terms of the measurement matrix $M_{V\ell}$ and its right inverse $M_{V\ell}^{-1}$ by
 \begin{align}
@@ -474,11 +467,6 @@ as a function of $p$, the number of measurement axes exceeding $2d-1$.
 Though we cannot minimize over all suitable choices of measurement axes $V$ to compute $\beta(p)$, we can compute an empirical upper bound $\tilde\beta(p)\ge\beta(p)$ by minimizing over a large number of randomly chosen $V$.
 Figure \ref{fig:axes} shows the results of such empirical minimization, where we find that $\tilde\beta(p)$ drops substantially before plateauing at $p\approx d$, after which there are only marginal benefits to using more measurement axes.
 In the interest of reducing experimental complexity as well as the runtime of our tomography protocol, which grow linearly in $\abs{V}$, we therefore conclude that spin qudit tomography should be performed with $\abs{V}\approx3d$ measurement axes.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusions}
-
-
 
 \bibliography{\jobname.bib}
 
@@ -730,7 +718,7 @@ Altogether, we thus find that in all cases
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Revisiting the reconstruction error bound}
-\label{sec:bound}
+\label{sec:revisiting}
 
 We now revisit the derivation of reconstruction error in Section \ref{sec:error} to make use of the bounds on variances $\bbk{\epsilon_{i\ell}^2}$.
 To recap, for a set of measurement axes $V=\set{\v v}$ and degrees $\ell\in\set{0,1,\cdots,d-1}$ we construct the measurement matrix
@@ -743,7 +731,7 @@ which can be block diagonalized as
   &&
   U \equiv \sum_{\ell,m} \oket{T_{\ell m}} \bra{\ell m},
   &&
-  M_{V\ell} = \sum_{m,\v v} D^\ell_{m,0}\p{\v v} \op{m}{\v v},
+  M_{V\ell} = \sum_{m,\v v} D^\ell_m\p{\v v} \op{m}{\v v},
 \end{align}
 where $D^\ell_{mn}\p{\v v}\equiv\bk{\ell m|R\p{\v v}|\ell n}$ is a (Wigner) rotation matrix element for a spin-$\ell$ particle.
 The block-diagonal structure of $M_V$ allows us to index its singular values $M^V_{\ell m}$ and corresponding (normalized) right singular vectors $\v x^V_{\ell m} = (x^V_{\ell m,1}, x^V_{\ell m,2}, \cdots )$ by the indices $\p{\ell,m}$, where the integer $\abs{m}\le\ell$.
@@ -778,7 +766,7 @@ Recalling that $\epsilon_{i\ell} \equiv \tilde T_{i\ell} - \bk{T_{i\ell}}_\rho$,
 where we used the fact that $\bbk{\epsilon_{i\ell}^2}\le\Gamma_\ell^2/n$, and
 \begin{align}
   \sum_{m,i} \abs{q^V_{\ell mi}}^2
-  = \sum_m \f1{\p{M^V_{\ell m}}^2}
+  = \sum_m \p{M^V_{\ell m}}^{-2}
   = \norm{M_{V\ell}^{-1}}
   = \S_{V\ell}^2.
 \end{align}
@@ -794,7 +782,7 @@ There is therefore still room for improvement on the bound in Eq.~\eqref{eq:boun
 \label{sec:exact_error}
 
 Here we find exact expressions for reconstruction error, which can be used to estimate the error in a given reconstruction $\tilde\rho_V$ of an unknown state $\rho$ after performing tomography.
-To this end, we start with Eq.~\eqref{eq:bound_apndx} from Appendix \ref{sec:bound} to write
+To this end, we start with Eq.~\eqref{eq:bound_apndx} from Appendix \ref{sec:revisiting} to write
 \begin{align}
   \E_V\p{\rho}^2
   = \sum_{\ell,m,i,i'} \p{q^V_{\ell mi}}^* q^V_{\ell mi'} \bbk{\epsilon_{i\ell}\epsilon_{i'\ell}}
@@ -815,15 +803,15 @@ Using the fact that all $T_{i\ell}=T_{i\ell}^\dag$, we can also expand
 \begin{align}
   \cov_\rho\p{T_{i\ell},T_{i\ell}}
   = \cov_\rho\p{T_{i\ell}^\dag,T_{i\ell}}
-  = \sum_{m,m'} D^\ell_{m,0}\p{\v v_i}^* D^\ell_{m',0}\p{\v v_i}
+  = \sum_{m,m'} D^\ell_m\p{\v v_i}^* D^\ell_{m'}\p{\v v_i}
   \cov_\rho\p{T_{\ell m}^\dag, T_{\ell m'}},
 \end{align}
 which implies that
 \begin{align}
   \E_V\p{\rho}^2
   = \f1n \sum_{i,\ell,m,m'}
-  D^\ell_{m',0}\p{\v v_i} \abs{\tilde{\v q}_{\ell i}}^2
-  D^\ell_{m,0}\p{\v v_i}^*
+  D^\ell_{m'}\p{\v v_i} \abs{\tilde{\v q}_{\ell i}}^2
+  D^\ell_m\p{\v v_i}^*
   \cov_\rho\p{T_{\ell m}^\dag, T_{\ell m'}}.
 \end{align}
 Altogether, this reconstruction error can be expressed more compactly by defining the {\it covariance matrix}
