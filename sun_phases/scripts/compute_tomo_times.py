@@ -38,8 +38,7 @@ data_file = data_dir + f"times_{compute}_d{min_dim}-{max_dim}.txt"
 
 while os.path.isfile(data_file):
     print("file exists:", data_file)
-    datafile += ".new"
-    exit()
+    data_file += ".new"
 
 ##########################################################################################
 # import qudit tomography methods
@@ -57,6 +56,8 @@ if compute == RE:
     inv_struct_bands = tomo.get_struct_method(max_dim)
     random_state = tomo.random_state
     recon_error = tomo.recon_error
+
+print("precomputation finished")
 
 ##########################################################################################
 # simulate!
@@ -78,10 +79,6 @@ for dim in range(min_dim, max_dim+1):
         # initialize the smallest error scale we've seen
         min_error_scale = np.inf
 
-    if compute == RE:
-        # pre-compute diagonal bands of the "inverted" matrix of structure constants
-        _inv_struct_bands = inv_struct_bands(dim)
-
     # record serial runtime for the simulations, excluding the pre-computations above
     start = time.time()
 
@@ -98,7 +95,7 @@ for dim in range(min_dim, max_dim+1):
         if compute == RE:
             _state = random_state(dim)
             _meas_mat = lambda LL : meas_mat(LL, _axes)
-            recon_error(_state, _meas_mat, _inv_struct_bands)
+            recon_error(_state, _meas_mat, inv_struct_bands)
 
         if time.time() - start > time_cap: break
 

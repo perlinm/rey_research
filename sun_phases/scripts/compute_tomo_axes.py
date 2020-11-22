@@ -52,7 +52,7 @@ if save_data:
         file.write(f"# sample_cap: {sample_cap}\n")
         file.write(f"# time_cap: {time_cap} sec\n")
         file.write(f"# seed: {seed}\n")
-        file.write("# axis_num, mean_time, error_scale\n")
+        file.write(f"# axis_num, mean_time, error_scale\n")
 
 for axis_num in axis_nums:
 

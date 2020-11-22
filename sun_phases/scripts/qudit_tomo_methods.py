@@ -115,38 +115,44 @@ def get_meas_methods(max_dim):
 # methods to compute diagonal bands of an "inverted" matrix of structure constants
 
 # matrix of wigner-3j coefficients
-def wigner_3j_mat(labels):
-    LL, ll = labels
+def wigner_3j_mat(ll, LL):
     matrix = np.zeros((2*ll+1,)*2)
     for mm in range(-ll,ll+1):
         start, end, vals = wigner.lib.wigner_3j_m(ll, ll, LL, mm)
         matrix[mm+ll, int(start)+ll : int(end)+ll+1] = vals
     return matrix
 
+# diagonal bands of an "inverted" matrix of wigner-3j factors
+def inv_3j_band_mat(labels):
+    ll, LL = labels
+    mat = wigner_3j_mat(ll, LL)
+    signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
+    inv_mat = signs[:,None] * np.flipud(mat)
+    return diagonals(inv_mat, -LL, LL)
+
+# prefactors that convert between wigner-3j coefficients and structure constants
+def prefactor(labels):
+    dim, ll, LL = labels
+    wigner_6j_args = [ 2*ll, 2*ll, 2*LL, dim-1, dim-1, dim-1 ]
+    wigner_6j_factor = py3nj.wigner6j(*wigner_6j_args)
+    return (-1)**(dim-1+LL) * (2*ll+1) * np.sqrt(2*LL+1) * wigner_6j_factor
+
 def get_struct_method(max_dim):
-    # pre-compute matrices of Wigner-3j coefficients
-    degree_labels = [ ( LL, ll )
+    degree_labels = [ ( ll, LL )
                       for ll in range(max_dim-1,-1,-1)
                       for LL in range(min(max_dim-1,2*ll),-1,-1) ]
-    wigner_3j_mats = compute_batch(wigner_3j_mat, degree_labels)
+    inv_3j_bands = compute_batch(inv_3j_band_mat, degree_labels)
 
-    # compute a matix of structure constants
-    def struct_mat(dim, LL, ll):
-        wigner_6j_args = [ 2*ll, 2*ll, 2*LL, dim-1, dim-1, dim-1 ]
-        wigner_6j_factor = py3nj.wigner6j(*wigner_6j_args)
-        prefactor = (-1)**(dim-1+LL) * (2*ll+1) * np.sqrt(2*LL+1) * wigner_6j_factor
-        return prefactor * wigner_3j_mats[LL,ll]
+    all_labels = [ ( dim, ll, LL )
+                   for dim in range(max_dim,-1,-1)
+                   for ll in range(dim-1,-1,-1)
+                   for LL in range(min(dim-1,2*ll),-1,-1) ]
+    prefactors = compute_batch(prefactor, all_labels)
 
-    # "invert" a matrix
-    def invert(mat):
-        ll = (mat.shape[0]-1)//2
-        signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
-        return signs[:,None] * np.flipud(mat)
+    del degree_labels, all_labels
 
-    # diagonal bands of an inverted matrix of structure constants
-    def inv_struct_bands(dim):
-        return { ( LL, ll ) : diagonals(invert(struct_mat(dim, LL, ll)), -LL, LL)
-                 for LL, ll in degree_labels }
+    def inv_struct_bands(dim, ll, LL):
+        return prefactors[dim,ll,LL] * inv_3j_bands[ll,LL]
 
     return inv_struct_bands
 
@@ -199,7 +205,7 @@ def degree_chi_state(LL, dim, noise_band_mats, inv_struct_bands):
         noise_band_mat = noise_band_mats[ll]
         shift = -noise_band_mat.shape[0]//2 + LL
         noise_band_mat_mid = np.roll(noise_band_mat, shift, axis = 0)[:2*LL+1,:]
-        chi_state += ( noise_band_mat_mid * inv_struct_bands[LL,ll] ).sum(axis = 1)
+        chi_state += ( noise_band_mat_mid * inv_struct_bands(dim,ll,LL) ).sum(axis = 1)
     return chi_state
 
 # compute the full "chi state" in the "degree-order" basis
