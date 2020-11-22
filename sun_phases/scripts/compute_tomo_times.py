@@ -47,10 +47,10 @@ if compute == CB:
     error_scale = tomo.classical_error_scale
 if compute == QB:
     error_scale = tomo.quantum_error_scale
-
-inv_struct_bands = tomo.get_struct_method(max_dim)
-random_state = tomo.random_state
-recon_error = tomo.recon_error
+if compute == RE:
+    inv_struct_bands = tomo.get_struct_method(max_dim)
+    random_state = tomo.random_state
+    recon_error = tomo.recon_error
 
 ##########################################################################################
 # simulate!
