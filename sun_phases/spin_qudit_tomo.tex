@@ -922,16 +922,14 @@ To find tight bound on $\E_V\p{\rho}$ over the space of physical qudit states $\
 Equipped with $\sigma_V^\star$ and $\E_V\p{\sigma_V^\star}$, we can expand
 \begin{align}
   \E_V\p{\rho}^2 = \E_V\p{\sigma_V^\star}^2
-  - \f1n D_V\p{\rho,\sigma_V^\star}^2,
+  - \f1n \norm{\rho-\sigma_V^\star}_V^2,
   &&
-  D_V\p{X,Y}^2 \equiv
-  \sum_\ell \bk{\p{X-Y}_\ell | \N_{V\ell} | \p{X-Y}_\ell},
+  \norm{X}_V^2 \equiv \sum_\ell \bk{X_\ell|\N_{V\ell}|X_\ell},
 \end{align}
-where $Z_\ell\equiv\sum_m \obk{T_{\ell m}|Z} \ket{m}$ is a vector of the degree-$\ell$ components of $Z$ in the polarization operator basis.
-Finding the maximum of $\E_V$ over all qudit states $\rho$ thus amounts to finding the closest physical qudit state $\rho$ to $\sigma_V^\star$, with distance measured by the metric $D_V$ induced by the noise matrices $\N_{V\ell}$.
-This minimization problem is essentially solved for the case of $\N_{V\ell}=1$ in Ref.~\cite{smolin2012efficient}, but it is not obvious how to minimize $D_V\p{\rho,\sigma_V^\star}$ for general $\N_{V\ell}$.
-We leave the general problem of minimizing $D_V\p{\rho,\sigma_V^\star}$ to future work, noting that this task may be assisted by positivity conditions such as those derived in Ref.~\cite{kryszewski2006positivity}.
-A loose upper bound, which may nonetheless be tighter than that in Eq.~\eqref{eq:bound} of the main text (derived in Appendix \ref{sec:bound}), might be found by the fact that physical qudit states $\rho$ satisfy $\obk{\rho|\rho}\le1$.
+where $X_\ell\equiv\sum_m\obk{T_{\ell m}|X}\ket{m}$ is a vector of the degree-$\ell$ components of $X$ in the polarization operator basis, and $\norm{X}_V$ is a noise-weighted norm of $X$.
+Maximizing $\E_V$ over all qudit states $\rho$ thus amounts to finding the closest physical qudit state $\rho$ to $\sigma_V^\star$, with distance measured by the metric $D_V\p{X,Y}\equiv\norm{X-Y}_V$.
+We leave this minimization problem to future work, and note that solving it will likely require making use of the positivity conditions derived in Ref.~\cite{kryszewski2006positivity}.
+A loose lower bound on $\norm{\rho-\sigma_V^\star}$ can be found by minimization under the constraint $\norm{\rho}\le1$ (or $\bk{\rho_\ell|\rho_\ell}\le1$), which may provide a tighter upper bound on $\E_V\p{\rho}$ than that in Eq.~\eqref{eq:bound} of the main text.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Polarization operator product expansion}
