@@ -396,6 +396,7 @@ The factors $\Gamma_\ell^2$ are quick to compute and can be recycled for every n
 Though straightforward to compute, the bound in Eq.~\eqref{eq:bound} is not tight, as it is acquired by bounding the statistical error in the empirical estimate $\tilde T_{\v v\ell}$ of $\bk{T_{\v v\ell}}_\rho$ by $\bbk{\epsilon_{\v v\ell}^2}\le\Gamma_\ell^2$.
 Though the individual bounds on $\bbk{\epsilon_{\v v\ell}^2}$ for each axis $\v v$ and degree $\ell$ are tight, these bounds cannot all be achieved simultaneously.
 There is therefore still room for improvement on the bound in Eq.~\eqref{eq:bound} by maximizing $\E_V$ over the set of all qudit states $\rho$.
+We discuss this maximization problem in Appendix \ref{sec:tight}.
 We also note that the (squared) reconstruction error bound in Eq.~\eqref{eq:bound} obeys the ``standard quantum limit'' of $\sim1/n$ scaling in the number of measurements.
 In principle, this scaling can be improved to $\sim1/n^2$ by preparing and measuring entangled copies of many qudits \cite{giovannetti2006quantum}.
 
@@ -901,6 +902,7 @@ we can write the expansion in Eq.~\eqref{eq:error_comps} in the vectorized form
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Comments on a tight reconstruction error bound}
+\label{sec:tight}
 
 In principle, maximizing the reconstruction error in Eq.~\eqref{eq:error_SM} over all qudit states $\rho$ would provide a tight upper bound on reconstruction error for any set of axes $V$.
 To simplify this task somewhat, we first maximize Eq.~\eqref{eq:error_SM} over all $\rho$ with $\tr\p\rho=1$: this maximum occurs at a ``state'' $\sigma_V^\star$ whose components are defined by
