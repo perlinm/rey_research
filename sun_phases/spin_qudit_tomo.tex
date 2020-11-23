@@ -1,4 +1,4 @@
-\documentclass[notitlepage,nofootinbib,twocolumn]{revtex4-2}
+\documentclass[notitlepage,twocolumn]{revtex4-2}
 
 %%% linking references
 \usepackage{hyperref}
@@ -125,7 +125,7 @@ The capability to determine upper bounds on reconstruction error a priori motiva
 We begin by introducing a set of qudit operators that are analogous to the spherical harmonics $Y_{\ell m}$, and which play a central role in our work.
 Consider a $d$-state spin qudit with total spin $s\equiv\frac{d-1}{2}$.
 The defining property of a spin qudit is that it describes an angular momentum degree of freedom, which has specific implications for how a spin qudit should transform under the group SO(3) of rotations in 3D space.
-Due to the central importance of these transformation rules for a spin qudit, we seek a basis of operators that transform nicely under 3D rotations.\footnote{Technically speaking, we seek a basis of operators that transform as an irreducible representation of SO(3).}
+Due to the central importance of these transformation rules for a spin qudit, we seek a basis of operators that transform nicely under 3D rotations \footnote{Technically speaking, we seek a basis of operators that transform as an irreducible representation of SO(3).}.
 One such basis is that of the {\it polarization operators} \cite{kryszewski2006positivity, bertlmann2008bloch}, defined by
 \begin{align}
   T_{\ell m} \equiv \sqrt{\f{2\ell+1}{2s+1}} \sum_{\mu,\nu=-s}^s
@@ -245,8 +245,8 @@ In principle, this mapping allows us to import a host of existing signal recover
 In practice, spin qudits typically have only a modest dimension $d$, which allows for simpler and optimized tomography protocols that are practical despite worse scaling with $d$ (see Section \ref{sec:protocol}).
 
 If the function $f$ is {\it band-limited} at degree $L$, which is to say that $f_{\ell m}=0$ for all $\ell\ge L$, then the full recovery problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points on the sphere \cite{freeden2008spherical, freeden2018spherical}.
-The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially ``band-limited'' at degree $d$.\footnote{Spin qudit states can be faithfully represented by quasi-probability distributions on a sphere.
-  For a $d$-level spin, these quasi-probability distributions are band-limited at degree $d$.}
+The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially ``band-limited'' at degree $d$ \footnote{Spin qudit states can be faithfully represented by quasi-probability distributions on a sphere.
+  For a $d$-level spin, these quasi-probability distributions are band-limited at degree $d$.}.
 Moreover, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to the recovery of a degree-$\ell$ function $f_\ell = \sum_m f_{\ell m} Y_{\ell m}$, which is provably possible with $\abs{V}=2\ell+1$ samples \cite{freeden2008spherical}.
 In the case of spin qudit tomography, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are polarization operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
 
@@ -256,8 +256,8 @@ Since
 \item measuring spin projection along any single axis provides measurement data for polarization operators of {\it all} degrees $\ell\le\ell_{\t{max}}$,
 \end{enumerate*}
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
-In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of {\it any} function with fixed degree $\ell\le\ell_{\t{max}}$, given prior knowledge of $\ell$.\footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ enables the recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.
-  However, this condition is stronger than necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes, which only requires the existence of {\it some} such set of points.}
+In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of {\it any} function with fixed degree $\ell\le\ell_{\t{max}}$, given prior knowledge of $\ell$ \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ enables the recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.
+  However, this condition is stronger than necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes, which only requires the existence of {\it some} such set of points.}.
 Unfortunately, we have no general proof of this conjecture, which requires a deeper analysis of fixed-degree signal recovery on the sphere.
 Nonetheless, in the following sections we numerically verify that $2d-1$ points suffice for all $d\le200$.
 
@@ -289,11 +289,11 @@ Flattening each $d\times d$ matrix $T_{\v v\ell}$ into the $d^2$-component colum
 Here $\v v$ and $\ell$ label a column of $M_V$, or equivalently label a standard basis vector $\ket{\v v\ell}$ of a $\p{\abs{V}\times d}$-dimensional vector space.
 A necessary and sufficient condition for $V$ to allow for full state tomography is that the measured polarization operators in $\set{T_{\v v\ell}}$, or equivalently the columns of $M_V$, span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit.
 In this case $M_V$ must be full rank, with $d^2$ nonzero singular values.
-Indexing these singular values $M^V_k$ and the corresponding (normalized) right singular vectors $\v x^V_k\equiv(x^V_{k,1},x^V_{k,2},\cdots,x^V_{k,\abs{V}})$ by an integer $k\in\set{1,2,\cdots,d^2}$, we can construct the orthonormal qudit operators
+Indexing these singular values $M^V_k$ and the corresponding (normalized) right singular vectors $\v x^V_k\equiv \sum_j x^V_{kj} \ket{j}$ by an integer $k\in\set{1,2,\cdots,d^2}$, we can construct the orthonormal qudit operators
 \begin{align}
   Q^V_k \equiv \sum_j q^V_{kj} T_j,
   &&
-  \v q^V_k \equiv \f{\v x^V_k}{M^V_k},
+  q^V_{kj} \equiv \f{x^V_{kj}}{M^V_k},
 \end{align}
 where for shorthand we use a combined index $j=\p{\v v,\ell}$ to specify both a measurement axis $\v v$ and a degree $\ell$, which identify the polarization operator $T_j\equiv T_{\v v\ell}$.
 These operators allow us to expand any state $\rho$ of a $d$-level spin qudit in the form
@@ -362,6 +362,7 @@ where the $\p{2\ell+1}\times\abs{V}$-sized blocks are
 \begin{align}
   M_{V\ell} \equiv \sum_{m,\v v} \ket{m} \obk{T_{\ell m}|T_{\v v\ell}} \bra{\v v}
   = \sum_{m,\v v} D^\ell_m\p{\v v} \op{m}{\v v}.
+  \label{eq:block}
 \end{align}
 As the singular values of $M_V$ are invariant under unitary transformations, it follows that
 \begin{align}
@@ -444,10 +445,29 @@ Overall, the complexity of computing $\E_V\p{\rho}$ is the same as that of $\S_V
 \section{Tomography protocol}
 \label{sec:protocol}
 
-The ability to certify a statistical error bound on the empirical estimate $\tilde\rho_V$ of an unknown quantum state $\rho$ motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere,\footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.} and optimize (using any standard minimization algorithm) the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the quantum error scale $\epsilon_V$.
+The ability to certify a statistical error bound on the empirical estimate $\tilde\rho_V$ of an unknown quantum state $\rho$ motivates the following simple protocol for spin qudit tomography: select a random set of measurement axes $V$ by uniformly sampling points on the sphere \footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and optimize (using any standard minimization algorithm) the $2\abs{V}$ parameters in $V$ (two angles for each point $\v v\in V$) to minimize the quantum error scale $\epsilon_V$.
 If $\abs{V}$ is too large for such optimization to be practical, one can instead generate many random sets of measurement axes, and then choose the set with the smallest quantum error scale $\epsilon_V$.
-After choosing a set of measurement axes $V$, (experimentally) make $n$ measurements of spin projection along every axis $\v v\in V$, and set $\tilde\Pi_{\v v\mu}\approx\bk{\Pi_{\v v\mu}}_\rho$ to the fraction of times in which the measurement outcome was $\mu$.
-The estimates $\tilde\Pi_{\v v\mu}$ of $\bk{\Pi_{\v v\mu}}_\rho$ determine estimates $\tilde T_{\v v\ell} \equiv \sum_\mu \bk{\mu|T_\ell|\mu}\tilde\Pi_{\v v\mu}$ of $\bk{T_{\v v\ell}}_\rho$, which can in turn be used to construct the estimate $\tilde\rho_V$ of $\rho$.
+After choosing a set of measurement axes $V$, make $n$ measurements of spin projection along every axis $\v v\in V$, and set $\tilde\Pi_{\v v\mu}\approx\bk{\Pi_{\v v\mu}}_\rho$ to the fraction of times in which the measurement outcome was $\mu$.
+The estimates $\tilde\Pi_{\v v\mu}$ of $\bk{\Pi_{\v v\mu}}_\rho$ determine estimates
+\begin{align}
+  \tilde T_{\v v\ell}
+  \equiv \sum_\mu \bk{\mu|T_\ell|\mu} \tilde\Pi_{\v v\mu}
+\end{align}
+of $\bk{T_{\v v\ell}}_\rho$, which can in turn be used to construct the estimate $\tilde\rho_V$ of $\rho$.
+Specifically, the $2\ell+1$ (normalized) right singular vectors $\v x^V_{\ell k} = \sum_{\v v} x^V_{\ell k \v v} \ket{\v v}$ and corresponding singular values $M^V_{\ell k}$ of the matrices $M_{V\ell}$ defined in Eq.~\eqref{eq:block} determine the components
+\begin{align}
+  \tilde\rho^V_{\ell k}
+  = \f1{M^V_{\ell k}} \sum_{\v v}
+  x^V_{\ell k\v v} \, \tilde T_{\v v\ell},
+\end{align}
+of
+\begin{align}
+  \tilde\rho_V = \sum_{\ell,k} \tilde\rho^V_{\ell k} Q_{\ell k}
+  \approx \rho,
+  &&
+  Q_{\ell k} = \f1{M^V_{\ell k}} \sum_{\v v}
+  x^V_{\ell k\v v} T_{\v v\ell}.
+\end{align}
 The total error in $\tilde\rho_V$, measured by its root-mean-square distance from $\rho$, is approximately $\E_V\p{\tilde\rho_V}\approx\E_V\p{\rho}$.
 If $\tilde\rho_V$ has negative eigenvalues, its distance from $\rho$ can be reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
 
@@ -471,7 +491,7 @@ Though we cannot minimize over all suitable choices of measurement axes $V$ to c
 Figure \ref{fig:axes} shows the results of such empirical minimization, where we find that $\tilde\beta(p)$ drops substantially before plateauing at $p\approx d$, after which there are only marginal benefits to using more measurement axes.
 In the interest of reducing experimental complexity as well as the runtime of our tomography protocol, which grow linearly in $\abs{V}$, we therefore conclude that spin qudit tomography should be performed with $\abs{V}\approx3d$ measurement axes.
 
-\begin{figure}
+\begin{figure}[hb]
   \centering
   \includegraphics{qudit_axes.pdf}
   \caption{Empirical measurement-adjusted error scales $\tilde\beta(p)$ with $p$ excess measurement axes, determined by minimizing over $10^3$ choices of measurement axes $V$ or 5 minutes of runtime (for each $p$), whichever comes first.
@@ -479,6 +499,11 @@ In the interest of reducing experimental complexity as well as the runtime of ou
     The rapid initial drop in $\tilde\beta(p)$ implies that using more measurement axes can substantially lower the upper bound on reconstruction error provided in Eq.~\eqref{eq:bound}, and that these benefits plateau after $p\approx d$.}
   \label{fig:axes}
 \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Conclusions}
+
+% todo: write conclusions
 
 \bibliography{\jobname.bib}
 
@@ -538,34 +563,34 @@ where
 are matrix elements of the rotation operator $R\p{\v\omega}$ for spin-$\ell$ particles, and $R\p{\v\omega}^{\t{T}}$ is the transpose of $R\p{\v\omega}$.
 
 Implicitly associating the Euler angle doublet $\v v = \p{\alpha,\beta}$ with the triplet $\p{\alpha,\beta,0}$, the transformation rules in Eq.~\eqref{eq:trans_rot_apndx} imply that we can expand the phase-space distribution of $T_{\ell m}$ as
-\begin{align*}
+\begin{align}
   \tilde T_{\ell m}\p{\v v}
   \equiv \bk{s_{\v v} | T_{\ell m} | s_{\v v}}
   = \bk{s | R\p{\v v}^\dag T_{\ell m} R\p{\v v} | s}
   = D^\ell_{0,m}\p{\v v} \bk{s | T_{\ell,0} | s},
-\end{align*}
+\end{align}
 where
-\begin{align*}
+\begin{align}
   \bk{s | T_{\ell,0} | s}
   = \sqrt{\f{2\ell+1}{2s+1}} \, \bk{ss;\ell,0|ss}
   = \sqrt{\f{2\ell+1}{2s+\ell+1}
     \p{\f{\p{2s}!}{\p{2s+\ell}!}}
     \p{\f{\p{2s}!}{\p{2s-\ell}!}}},
-\end{align*}
+\end{align}
 and the properties of the rotation matrix elements $D^\ell_{mn}$ imply that
-\begin{align*}
+\begin{align}
   D^\ell_{0,m}\p{\v v} = \p{-1}^m D^\ell_{-m,0}\p{\v v}^*
   = \sqrt{\f{4\pi}{2\ell+1}} \p{-1}^m Y_{\ell,-m}\p{\v v}
   = \sqrt{\f{4\pi}{2\ell+1}} \, Y_{\ell m}\p{\v v}^*,
-\end{align*}
+\end{align}
 so
-\begin{align*}
+\begin{align}
   \tilde T_{\ell m}\p{\v v}
   = \sqrt{\f{4\pi}{2s+\ell+1}
     \p{\f{\p{2s}!}{\p{2s+\ell}!}} \p{\f{\p{2s}!}{\p{2s-\ell}!}}} \,
   Y_{\ell m}\p{\v v}^*
   \propto Y_{\ell m}\p{\v v}^*.
-\end{align*}
+\end{align}
 In this way, the polarization operators are a quantum analogue of spherical harmonics.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -680,7 +705,7 @@ where we used the fact that the covariance $\cov_\rho\p{X,Y}$ is linear in both 
 Due to the appearance of $\delta_{ii'}$ above and the orthogonality of rotated polarization operators $T_{i\ell}$ and $T_{i'\ell'}$ with degrees $\ell\ne\ell'$, only the variance $\bbk{\epsilon_{i\ell}^2}$ ultimately contributes to reconstruction error.
 We therefore seek to find an upper bound on $\bbk{\epsilon_{i\ell}^2}$.
 
-To this end, we define the probability $p^i_\mu\equiv\bk{\Pi_{i\mu}}_\rho$, collect these probabilities into the classical probability distribution $p^i = \p{p^i_{-s}, p^i_{-s+1}, \cdots, p^i_s}$, and define the vector $t_\ell \equiv \p{t_{\ell,-s},t_{\ell,-s+1},\cdots,t_{\ell s}}$ of all $t_{\ell\mu}\equiv\bk{\mu|T_\ell|\mu}$.
+To this end, we define the probability $p^i_\mu\equiv\bk{\Pi_{i\mu}}_\rho$, collect these probabilities into the classical probability distribution $p^i = \sum_\mu p^i_\mu \ket{\mu}$, and define the vector $t_\ell \equiv \sum_\mu t_{\ell\mu} \ket{\mu}$ of all $t_{\ell\mu}\equiv\bk{\mu|T_\ell|\mu}$.
 We then observe that
 \begin{align}
   \bbk{\epsilon_{i\ell}^2} = \f1n \times \sigma_{p^i}^2\p{t_\ell},
@@ -779,14 +804,14 @@ which can be block diagonalized as
   M_{V\ell} = \sum_{m,\v v} D^\ell_m\p{\v v} \op{m}{\v v},
 \end{align}
 where $D^\ell_{mn}\p{\v v}\equiv\bk{\ell m|R\p{\v v}|\ell n}$ is a (Wigner) rotation matrix element for a spin-$\ell$ particle.
-The block-diagonal structure of $M_V$ allows us to index its singular values $M^V_{\ell m}$ and corresponding (normalized) right singular vectors $\v x^V_{\ell m} = (x^V_{\ell m,1}, x^V_{\ell m,2}, \cdots )$ by the indices $\p{\ell,m}$, where the integer $\abs{m}\le\ell$.
+The block-diagonal structure of $M_V$ allows us to index its singular values $M^V_{\ell m}$ and corresponding (normalized) right singular vectors $\v x^V_{\ell m} = \sum_i x^V_{\ell m i} \ket{\v v_i}$ by the indices $\p{\ell,m}$, where the integer $\abs{m}\le\ell$.
 These singular vectors and values define the orthonormal operators
 \begin{align}
   Q^V_{\ell m} \equiv \sum_i q^V_{\ell mi} T_{i\ell},
   &&
-  \v q^V_{\ell m} \equiv \f{\v x^V_{\ell m}}{M^V_{\ell m}},
+  q^V_{\ell m i} \equiv \f{x^V_{\ell m i}}{M^V_{\ell m}},
 \end{align}
-where $i\in\set{1,2,\cdots,\abs{V}}$ indexes an axis $\v v_i\in V$.
+where $i\in\set{1,2,\cdots,\abs{V}}$ indexes an axis $\v v_i\in V$, with $T_{i\ell} \equiv T_{\v v_i\ell}$.
 The state $\rho$ can be expanded in the basis of these operators as
 \begin{align}
   \rho = \sum_{\ell,m} \bk{Q^V_{\ell m}}_\rho Q^V_{\ell m},
@@ -836,7 +861,7 @@ To this end, we start with Eq.~\eqref{eq:bound_apndx} from Appendix \ref{sec:rev
   \abs{\tilde{\v q}_{\ell i}}^2 = \sum_m \abs{q_{\ell mi}}^2,
   \label{eq:error_SM_start}
 \end{align}
-where $\tilde{\v q}_{\ell i} = (q_{\ell,-\ell,i},q_{\ell,-\ell+1,i},\cdots q_{\ell,\ell,i})$, and we used the fact that $\bbk{\epsilon_{i\ell}\epsilon_{i'\ell}} = \delta_{ii'}\times\cov_\rho\p{T_{i\ell},T_{i\ell}}/n$.
+where $\tilde{\v q}_{\ell i} = \sum_m q_{\ell mi} \ket{m}$, and we used the fact that $\bbk{\epsilon_{i\ell}\epsilon_{i'\ell}} = \delta_{ii'}\times\cov_\rho\p{T_{i\ell},T_{i\ell}}/n$.
 Identifying the singular value decomposition $M_{V\ell} = U_{V\ell} \Sigma_{V\ell} W_{V\ell}^\dag$, we then we observe that vector $\tilde{\v q}_{\ell i}$ is essentially the $i$-th row of $\Sigma_{V\ell}^{-1} W_{V\ell}^\dag$, which is to say that $\tilde{\v q}_{\ell i} = \Sigma_{V\ell}^{-1} W_{V\ell}^\dag \ket{\v v_i}$.
 We can therefore simplify
 \begin{align}
