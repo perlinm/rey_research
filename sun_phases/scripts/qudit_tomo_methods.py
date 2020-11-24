@@ -158,25 +158,27 @@ def inv_3j_band_mat(labels):
     return diagonals(inv_mat, -LL, LL)
 
 # prefactors that convert between wigner-3j coefficients and structure constants
-def prefactor(labels):
-    dim, ll, LL = labels
-    wigner_6j_args = [ 2*ll, 2*ll, 2*LL, dim-1, dim-1, dim-1 ]
-    wigner_6j_factor = py3nj.wigner6j(*wigner_6j_args)
-    return (-1)**(dim-1+LL) * (2*ll+1) * np.sqrt(2*LL+1) * wigner_6j_factor
+def get_prefactors(labels):
+    dim, ll, LL = [ np.array(vals) for vals in zip(*labels) ]
+    wigner_6j_degrees = 2 * np.array([ ll, ll, LL ])
+    wigner_6j_spins = np.array([ dim, dim, dim ]) - 1
+    wigner_6j_factors = py3nj.wigner6j(*wigner_6j_degrees.astype(int), *wigner_6j_spins)
+    prefactors = (-1)**(dim-1+LL) * (2*ll+1) * np.sqrt(2*LL+1) * wigner_6j_factors
+    return { label : prefactor for label, prefactor in zip(labels, prefactors) }
 
 def get_struct_method(max_dim):
-    degree_labels = [ ( ll, LL )
-                      for ll in range(max_dim-1,-1,-1)
-                      for LL in range(min(max_dim-1,2*ll),-1,-1) ]
-    inv_3j_bands = compute_batch(inv_3j_band_mat, degree_labels)
+    labels = [ ( ll, LL )
+               for ll in range(max_dim-1,-1,-1)
+               for LL in range(min(max_dim-1,2*ll),-1,-1) ]
+    inv_3j_bands = compute_batch(inv_3j_band_mat, labels)
 
-    all_labels = [ ( dim, ll, LL )
-                   for dim in range(max_dim,-1,-1)
-                   for ll in range(dim-1,-1,-1)
-                   for LL in range(min(dim-1,2*ll),-1,-1) ]
-    prefactors = compute_batch(prefactor, all_labels)
+    labels = [ ( dim, ll, LL )
+               for dim in range(max_dim,-1,-1)
+               for ll in range(dim-1,-1,-1)
+               for LL in range(min(dim-1,2*ll),-1,-1) ]
+    prefactors = get_prefactors(labels)
 
-    del degree_labels, all_labels
+    del labels
 
     def inv_struct_bands(dim, ll, LL):
         return prefactors[dim,ll,LL] * inv_3j_bands[ll,LL]
