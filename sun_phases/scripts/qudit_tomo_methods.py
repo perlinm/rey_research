@@ -4,7 +4,25 @@ import sys, time, functools
 import scipy, scipy.linalg
 import numpy as np
 
-import wigner.lib, py3nj
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# import wigner.lib, py3nj
+import py3nj
+
+def wigner_lib_wigner_3j_m(l1, l2, l3, m1):
+    m2_min = max(-l2, -l3-m1)
+    m2_max = min(+l2, +l3-m1)
+    m2_vals = np.arange(m2_min, m2_max+1)
+    l1_vals = np.ones(m2_vals.size) * l1
+    l2_vals = np.ones(m2_vals.size) * l2
+    l3_vals = np.ones(m2_vals.size) * l3
+    m1_vals = np.ones(m2_vals.size) * m1
+    wigner_3j_args = 2 * np.array([ l1_vals, l2_vals, l3_vals,
+                                    m1_vals, m2_vals, -(m1_vals+m2_vals) ])
+    return m2_min, m2_max, py3nj.wigner3j(*wigner_3j_args.astype(int))
+
+# import wigner.lib
+# wigner_lib_wigner_3j_m = wigner.lib.wigner_3j_m
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ##########################################################################################
 # general simulation methods
@@ -69,6 +87,10 @@ def compute_batch(function, args):
 def _spin_vals(LL):
     return np.arange(-LL, LL+1)
 def _rot_z_to_x(LL):
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    print("rot:", LL)
+    sys.stdout.flush()
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     MM = _spin_vals(LL)[:-1]
     diag_vals = np.sqrt(LL*(LL+1)-MM*(MM+1))
     S_m = np.diag(diag_vals, 1)
@@ -118,13 +140,18 @@ def get_meas_methods(max_dim):
 def wigner_3j_mat(ll, LL):
     matrix = np.zeros((2*ll+1,)*2)
     for mm in range(-ll,ll+1):
-        start, end, vals = wigner.lib.wigner_3j_m(ll, ll, LL, mm)
+        start, end, vals = wigner_lib_wigner_3j_m(ll, ll, LL, mm)
         matrix[mm+ll, int(start)+ll : int(end)+ll+1] = vals
     return matrix
 
 # diagonal bands of an "inverted" matrix of wigner-3j factors
 def inv_3j_band_mat(labels):
     ll, LL = labels
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if ll == LL:
+        print("inv_3j:", LL)
+        sys.stdout.flush()
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     mat = wigner_3j_mat(ll, LL)
     signs = np.array([ (-1)**mm for mm in range(-ll,ll+1) ])
     inv_mat = signs[:,None] * np.flipud(mat)
@@ -166,7 +193,7 @@ def classical_error_scale(meas_scales):
 # squared "gamma" factors that appear in the quantum error scale
 def sqr_gamma(dim, ll):
     ss = (dim-1)/2
-    mm_min, mm_max, wigner_3j_vals = wigner.lib.wigner_3j_m(ll, ss, ss, 0)
+    mm_min, mm_max, wigner_3j_vals = wigner_lib_wigner_3j_m(ll, ss, ss, 0)
     signs = np.array([ (-1)**(2*ll+ss-mm) for mm in np.arange(mm_min, mm_max+1) ])
     signed_vals = signs * wigner_3j_vals
     half_span = ( max(signed_vals) - min(signed_vals) ) / 2
