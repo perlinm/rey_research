@@ -488,7 +488,7 @@ We therefore consider the measurement-adjusted error scale
 \end{align}
 as a function of $p$, the number of measurement axes exceeding $2d-1$.
 Though we cannot minimize over all suitable choices of measurement axes $V$ to compute $\beta(p)$, we can compute an empirical upper bound $\tilde\beta(p)\ge\beta(p)$ by minimizing over a large number of randomly chosen $V$.
-Figure \ref{fig:axes} shows the results of such empirical minimization, where we find that $\tilde\beta(p)$ drops substantially before plateauing at $p\approx d$, after which there are only marginal benefits to using more measurement axes.
+Figure \ref{fig:axes} shows the results of such empirical minimization, where we find that $\tilde\beta(p)$ drops substantially before plateauing at $p\approx d$, after which there are only minor benefits to using more measurement axes.
 In the interest of reducing experimental complexity as well as the runtime of our tomography protocol, which grow linearly in $\abs{V}$, we therefore conclude that spin qudit tomography should be performed with $\abs{V}\approx3d$ measurement axes.
 
 \begin{figure}[hb]
@@ -970,8 +970,7 @@ we can write the expansion in Eq.~\eqref{eq:error_comps} in the vectorized form
 \end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Comments on a tight reconstruction error bound}
-\label{sec:tight}
+\subsection*{Comments on a tight reconstruction error bound}
 
 In principle, maximizing the reconstruction error in Eq.~\eqref{eq:error_SM} over all qudit states $\rho$ would provide a tight upper bound on reconstruction error for any set of axes $V$.
 To simplify this task somewhat, we first maximize Eq.~\eqref{eq:error_SM} over all $\rho$ with $\tr\p\rho=1$: this maximum occurs at a ``state'' $\sigma_V^\star$ whose components are defined by
