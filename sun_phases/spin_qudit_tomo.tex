@@ -188,7 +188,7 @@ The transformation rules for polarization operators in Eq.~\eqref{eq:trans_rot},
   T_{\ell m}^{\t{PS}}\p{\v v} = c_\ell Y_{\ell m}\p{\v v},
 \end{align}
 where the scalar $c_\ell$ simply enforces that $\obk{T_{\ell m}|T_{\ell m}}=1$.
-The polarization operators $T_{\ell m}$ are a quantum analogue of spherical harmonics $Y_{\ell m}$, which play an important role in phase-space formalisms for spin qudits \cite{li2013weylwignermoyal}.
+The polarization operators $T_{\ell m}$ are thus a quantum analogue of spherical harmonics $Y_{\ell m}$, which play an important role in phase-space formalisms for spin qudits \cite{li2013weylwignermoyal}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin tomography as signal recovery on the sphere}
@@ -243,8 +243,7 @@ In principle, this mapping allows us to import a host of existing signal recover
 In practice, spin qudits typically have only a modest dimension $d$, which allows for simpler and optimized tomography protocols that are practical despite worse scaling with $d$ (see Section \ref{sec:protocol}).
 
 If the function $f$ is {\it band-limited} at degree $L$, which is to say that $f_{\ell m}=0$ for all $\ell\ge L$, then the full recovery problem in Eq.~\eqref{eq:full_recovery} is provably solvable with a suitable choice of $\abs{V}=L^2$ points on the sphere \cite{freeden2008spherical, freeden2018spherical}.
-The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially ``band-limited'' at degree $d$ \footnote{Spin qudit states can be faithfully represented by quasi-probability distributions on a sphere.
-  For a $d$-level spin, these quasi-probability distributions are band-limited at degree $d$.}.
+The existence of these solutions to the full recovery problem in turn implies the existence of $d^2$ measurement axes that suffice to reconstruct arbitrary states of $d$-level spin qudit, whose possible states are essentially band-limited at degree $d$ \footnote{Specifically, the phase-space representation of a $d$-level spin qudit state $\rho$ is band-limited at degree $d$.}.
 Moreover, for any fixed degree $\ell$, finding solutions to the reduced recovery problem in Eq.~\eqref{eq:tomo_recovery} is equivalent to the recovery of a degree-$\ell$ function $f_\ell = \sum_m f_{\ell m} Y_{\ell m}$, which is provably possible with $\abs{V}=2\ell+1$ samples \cite{freeden2008spherical}.
 In the case of spin qudit tomography, the degree $\ell$ takes a maximal value of $\ell_{\t{max}}\equiv d-1$, so state recovery requires at least as many measurement axes as there are polarization operators with degree $\ell_{\t{max}}$, namely $2\ell_{\t{max}}+1=2d-1$.
 
