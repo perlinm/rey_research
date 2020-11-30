@@ -176,19 +176,19 @@ Throughout this work, we will primarily consider rotations of the sphere that ta
 For ease of notation, we will therefore implicitly associate Euler angle doublets $\v v=\p{\alpha,\beta}$ with the triplet $\p{\alpha,\beta,0}$, such that $R\p{\v v} \equiv R\p{\alpha,\beta,0}$, $D^\ell_{mn}\p{\v v} \equiv D^\ell_{mn}\p{\alpha,\beta,0}$, and $T_{\v v\ell m} \equiv T_{\p{\alpha,\beta,0},\ell m}$.
 
 As a final point, we mention that the polarization operators $T_{\ell m}$ share a connection to the spherical harmonics $Y_{\ell m}$ that goes beyond the rules for their transformation under 3D rotations.
-In fact, the phase-space (Wigner function) representation of $T_{\ell m}$ is essentially equal to $Y_{\ell m}$, up to complex conjugation and a normalization factor.
-The phase-space representation of an operator $X$ assigns, to each point $\v v$ on the sphere, the complex number
+In fact, the phase-space (Wigner function) representation of $T_{\ell m}$ is proportional to $Y_{\ell m}$.
+The phase-space representation of a spin qudit operator $X$ assigns, to each point $\v v$ on the sphere, the number
 \begin{align}
-  \tilde X\p{\v v} \equiv \bk{s_{\v v}|X|s_{\v v}},
+  X^{\t{PS}}\p{\v v} \equiv \bk{s_{\v v}|X|s_{\v v}},
 \end{align}
 where $\ket{s_{\v v}}\equiv R\p{\v v}\ket{s}$ is the state of a spin qudit polarized along $\v v$.
-This representation is faithful in the sense that $X$ is uniquely determined by the phase-space values $\tilde X\p{\v v}$ at all points $\v v$ on the sphere.
-The transformation rules for polarization operators in Eq.~\eqref{eq:trans_rot}, together with the fact that $\bk{s|T_{\ell m}|s}=0$ unless $m=0$, suffice to show that their phase-space distributions are (see Appendix \ref{sec:rotations})
+This representation is faithful in the sense that $X$ is uniquely determined by the phase-space values $X^{\t{PS}}\p{\v v}$ at all points $\v v$ on the sphere.
+The transformation rules for polarization operators in Eq.~\eqref{eq:trans_rot}, together with the fact that $\bk{s|T_{\ell m}|s}=0$ unless $m=0$, suffice to show that (see Appendix \ref{sec:rotations})
 \begin{align}
-  \tilde T_{\ell m}\p{\v v} = c_\ell Y_{\ell m}\p{\v v}^*,
+  T_{\ell m}^{\t{PS}}\p{\v v} = c_\ell Y_{\ell m}\p{\v v},
 \end{align}
 where the scalar $c_\ell$ simply enforces that $\obk{T_{\ell m}|T_{\ell m}}=1$.
-In this way, the polarization operators $T_{\ell m}$ are a quantum analogue of spherical harmonics $Y_{\ell m}$, which play an important role in phase-space formalisms for spin qudits \cite{li2013weylwignermoyal}.
+The polarization operators $T_{\ell m}$ are a quantum analogue of spherical harmonics $Y_{\ell m}$, which play an important role in phase-space formalisms for spin qudits \cite{li2013weylwignermoyal}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin tomography as signal recovery on the sphere}
@@ -578,17 +578,14 @@ where
 \end{align}
 and the properties of the rotation matrix elements $D^\ell_{mn}$ imply that
 \begin{align}
-  D^\ell_{0,m}\p{\v v} = \p{-1}^m D^\ell_{-m,0}\p{\v v}^*
-  = \sqrt{\f{4\pi}{2\ell+1}} \p{-1}^m Y_{\ell,-m}\p{\v v}
-  = \sqrt{\f{4\pi}{2\ell+1}} \, Y_{\ell m}\p{\v v}^*,
+  D^\ell_{0,m}\p{\v v} = \sqrt{\f{4\pi}{2\ell+1}} \, Y_{\ell m}\p{\v v},
 \end{align}
 so
 \begin{align}
   \tilde T_{\ell m}\p{\v v}
   = \sqrt{\f{4\pi}{2s+\ell+1}
     \p{\f{\p{2s}!}{\p{2s+\ell}!}} \p{\f{\p{2s}!}{\p{2s-\ell}!}}} \,
-  Y_{\ell m}\p{\v v}^*
-  \propto Y_{\ell m}\p{\v v}^*.
+  Y_{\ell m}\p{\v v}.
 \end{align}
 In this way, the polarization operators are a quantum analogue of spherical harmonics.
 
