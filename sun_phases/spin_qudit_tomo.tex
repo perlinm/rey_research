@@ -100,8 +100,8 @@ The central importance of quantum state tomography has led to the development of
 These techniques are typically developed in a general, information-theoretic setting, and make minimal assumptions about the physical medium of a quantum state.
 As a consequence, even well-established techniques can nonetheless be ill-suited for physical platforms with unique or limited capabilities.
 
-Due to advancements in experimental capabilities to address nuclear spins in ultracold atomic systems \cite{cazalilla2014ultracold} [\red{more references?}], as well as developments in the control of ultracold molecular systems \cite{zeppenfeld2012sisyphus, kozyryev2017sisyphus, puri2017synthesis, wu2017cryofuge, marco2019degenerate, liu2019molecular, anderegg2019optical, chou2020frequencycomb, lin2020quantum, covey2018approach, jamadagni2019quantum}, a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.
-Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{evrard2019enhanced}, enable quantum simulations of SU($d$) magnetism \cite{cazalilla2014ultracold, banerjee2013atomic, zhang2014spectroscopic, scazza2014observation, goban2018emergence}, and offer unique capabilities for quantum error correction \cite{albert2020robust, gross2020encoding}.
+Due to advancements in experimental capabilities to address nuclear spin states (hyperfine levels) in ultracold atomic systems \cite{daley2011quantum, smith2013quantum, cazalilla2014ultracold}, as well as developments in the control of ultracold molecular systems \cite{bohn2017cold, zeppenfeld2012sisyphus, kozyryev2017sisyphus, puri2017synthesis, wu2017cryofuge, marco2019degenerate, liu2019molecular, anderegg2019optical, chou2020frequencycomb, lin2020quantum}, a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.
+Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{hemmer2018squeezing, evrard2019enhanced}, enable quantum simulations of SU($d$) magnetism \cite{cazalilla2014ultracold, banerjee2013atomic, zhang2014spectroscopic, scazza2014observation, goban2018emergence}, and offer unique capabilities for quantum error correction \cite{albert2020robust, gross2020encoding}.
 In all cases, quantum state tomography is necessary to take full advantage of a spin qudit.
 
 The general problem of qudit tomography is not new, with an extensive literature on a variety of techniques \cite{manko1997spin, schmied2011tomographic, evrard2019enhanced, flammia2005minimal, thew2002qudit, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, stefano2019set, palici2020oam}.
@@ -174,22 +174,20 @@ where
 are (Wigner) rotation matrix elements.
 Throughout this work, we will primarily consider rotations of the sphere that take the north pole to a point $\v v=\p{\alpha,\beta}$ at azimuthal angle $\alpha$ and polar angle $\beta$.
 For ease of notation, we will therefore implicitly associate Euler angle doublets $\v v=\p{\alpha,\beta}$ with the triplet $\p{\alpha,\beta,0}$, such that $R\p{\v v} \equiv R\p{\alpha,\beta,0}$, $D^\ell_{mn}\p{\v v} \equiv D^\ell_{mn}\p{\alpha,\beta,0}$, and $T_{\v v\ell m} \equiv T_{\p{\alpha,\beta,0},\ell m}$.
-We will also frequently consider polarization operators with order $m=0$.
-Symbols with a suppressed order therefore implicitly set this order to zero, which is to say that $T_\ell\equiv T_{\ell,0}$, $T_{\v v\ell}\equiv T_{\v v\ell,0}$, and $D^\ell_m\equiv D^\ell_{m,0}$.
 
 As a final point, we mention that the polarization operators $T_{\ell m}$ share a connection to the spherical harmonics $Y_{\ell m}$ that goes beyond the rules for their transformation under 3D rotations.
-In fact, the phase-space (Wigner function) representation of $T_{\ell m}$ is essentially equal to $Y_{\ell m}$ (up to complex conjugation and a normalization factor).
+In fact, the phase-space (Wigner function) representation of $T_{\ell m}$ is essentially equal to $Y_{\ell m}$, up to complex conjugation and a normalization factor.
 The phase-space representation of an operator $X$ assigns, to each point $\v v$ on the sphere, the complex number
 \begin{align}
   \tilde X\p{\v v} \equiv \bk{s_{\v v}|X|s_{\v v}},
 \end{align}
 where $\ket{s_{\v v}}\equiv R\p{\v v}\ket{s}$ is the state of a spin qudit polarized along $\v v$.
 This representation is faithful in the sense that $X$ is uniquely determined by the phase-space values $\tilde X\p{\v v}$ at all points $\v v$ on the sphere.
-The transformation rules for polarization operators in Eq.~\eqref{eq:trans_rot}, together with the fact that $\bk{s|T_{\ell m}|s}=0$ unless $m=0$, suffice to show that their phase-space distributions are
+The transformation rules for polarization operators in Eq.~\eqref{eq:trans_rot}, together with the fact that $\bk{s|T_{\ell m}|s}=0$ unless $m=0$, suffice to show that their phase-space distributions are (see Appendix \ref{sec:rotations})
 \begin{align}
   \tilde T_{\ell m}\p{\v v} = c_\ell Y_{\ell m}\p{\v v}^*,
 \end{align}
-where the proportionality factor $c_\ell$ simply enforces that $\obk{T_{\ell m}|T_{\ell m}}=1$ (see Appendix \ref{sec:rotations}).
+where the scalar $c_\ell$ simply enforces that $\obk{T_{\ell m}|T_{\ell m}}=1$.
 In this way, the polarization operators $T_{\ell m}$ are a quantum analogue of spherical harmonics $Y_{\ell m}$, which play an important role in phase-space formalisms for spin qudits \cite{li2013weylwignermoyal}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -200,24 +198,24 @@ In this way, the polarization operators $T_{\ell m}$ are a quantum analogue of s
 
 Our goal is to reconstruct an arbitrary state $\rho$ of a spin qudit from measurements of spin projection onto different quantization axes.
 We are thus nominally restricted to measuring projectors $\Pi_{\v v\mu} \equiv \op{\mu_{\v v}}$, where $\ket{\mu_{\v v}}\equiv R\p{\v v}\ket{\mu}$ is a state with spin projection $\mu$ onto the measurement axis $\v v$.
-For any fixed axis $\v v$, the sets $\set{\Pi_{\v v\mu}}$ and $\set{T_{\v v\ell}}$ are both complete bases for the space of operators that are diagonal in the basis $\set{\ket{\mu_{\v v}}}$.
-Measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the polarization operators $\set{T_{\v v\ell}}$, and provides data on the expectation values $\bk{T_{\v v\ell}}_\rho$.
+For any fixed axis $\v v$, the sets $\set{\Pi_{\v v\mu}}$ and $\set{T_{\v v\ell,0}}$ are both complete bases for the space of operators that are diagonal in the basis $\set{\ket{\mu_{\v v}}}$.
+Measuring the projectors $\set{\Pi_{\v v\mu}}$ is therefore equivalent to measuring the polarization operators $\set{T_{\v v\ell,0}}$, and provides data on the expectation values $\bk{T_{\v v\ell,0}}_\rho$.
 
-In order to reconstruct an arbitrary density operator $\rho$ from the expectation values $\bk{T_{\v v\ell}}_\rho$, we essentially need to to find a set of coefficients $C_{\ell mk}\p{\v v}$ that would allow us to recover any matrix element $\rho_{\ell m}$ of $\rho$ through
+In order to reconstruct an arbitrary density operator $\rho$ from the expectation values $\bk{T_{\v v\ell,0}}_\rho$, we essentially need to to find a set of coefficients $C_{\ell mk}\p{\v v}$ that would allow us to recover any matrix element $\rho_{\ell m}$ of $\rho$ through
 \begin{align}
-  \rho_{\ell m} = \bk{T_{\ell m}^\dag}_\rho
-  = \sum_{\v v,k} C_{\ell mk}\p{\v v} \bk{T_{\v vk}^\dag}_\rho.
+  \rho_{\ell m}^* = \bk{T_{\ell m}}_\rho
+  = \sum_{\v v,k} C_{\ell mk}\p{\v v} \bk{T_{\v vk,0}}_\rho.
   \label{eq:state_recon}
 \end{align}
-Expanding the rotated polarization operators $T_{\v vk}$ into a sum of un-rotated polarization operators, according to Eq.~\eqref{eq:trans_rot}, we find that the recovery condition in Eq.~\eqref{eq:state_recon} is satisfied when
+Expanding the rotated polarization operators $T_{\v vk,0}$ into a sum of un-rotated polarization operators, according to Eq.~\eqref{eq:trans_rot}, we find that the recovery condition in Eq.~\eqref{eq:state_recon} is satisfied when
 \begin{align}
-  T_{\ell m}^\dag
+  T_{\ell m}
   = \sum_{\v v,k,n} C_{\ell mk}\p{\v v}
-  D^k_n\p{\v v}^* T_{kn}^\dag.
+  D^k_{n,0}\p{\v v} T_{kn}.
 \end{align}
 Orthogonality of the polarization operators motivates the ansatz $C_{\ell mk}\p{\v v}=\delta_{k\ell}C_{\ell m}\p{\v v}$, which in turn implies that
 \begin{align}
-  \sum_{\v v} C_{\ell m}\p{\v v} D^\ell_n\p{\v v}^* = \delta_{mn}
+  \sum_{\v v} C_{\ell m}\p{\v v} D^\ell_{n,0}\p{\v v} = \delta_{mn}
   \label{eq:tomo_recovery}
 \end{align}
 for all $\ell$.
@@ -240,7 +238,7 @@ Reconstruction of functions with arbitrary coefficients $f_{\ell m}$ implies tha
 \end{align}
 which is a stronger version of the condition that we found for the spin qudit tomography problem in Eq.~\eqref{eq:tomo_recovery}.
 We will refer to Eq.~\eqref{eq:full_recovery} as the {\it full recovery problem}, and Eq.~\eqref{eq:tomo_recovery} as the the {\it reduced recovery problem}.
-Due to the fact that $D^k_n\p{\v v}^* = \sqrt{\frac{4\pi}{2\ell+1}}\, Y_{kn}\p{\v v}$, any solution to the full recovery problem automatically solves the reduced recovery problem by setting $C_{\ell m}\p{\v v} = \sqrt{\frac{2\ell+1}{4\pi}}\, \tilde C_{\ell m}\p{\v v}$.
+Due to the fact that $D^k_{n,0}\p{\v v} = \sqrt{\frac{4\pi}{2\ell+1}}\, Y_{kn}\p{\v v}^*$, any solution to the full recovery problem automatically solves the reduced recovery problem by setting $C_{\ell m}\p{\v v} = \sqrt{\frac{2\ell+1}{4\pi}}\, \tilde C_{\ell m}\p{\v v}^*$.
 In principle, this mapping allows us to import a host of existing signal recovery algorithms \cite{mcewen2011novel, rauhut2011sparse, alem2012sparse, khalid2014optimaldimensionality} for the task of spin qudit tomography.
 In practice, spin qudits typically have only a modest dimension $d$, which allows for simpler and optimized tomography protocols that are practical despite worse scaling with $d$ (see Section \ref{sec:protocol}).
 
@@ -252,11 +250,11 @@ In the case of spin qudit tomography, the degree $\ell$ takes a maximal value of
 
 Since
 \begin{enumerate*}
-\item there are only $2\ell+1\le2d-1$ polarization operators of degree $\ell\le\ell_{\t{max}}$, and
-\item measuring spin projection along any single axis provides measurement data for polarization operators of {\it all} degrees $\ell\le\ell_{\t{max}}$,
+\item there are at most $2d-1$ polarization operators of any given degree, and
+\item measuring spin projection along any single axis provides measurement data for polarization operators of all degrees,
 \end{enumerate*}
 one might expect that $2d-1$ suitably chosen measurement axes would always suffice to perform full tomography of a $d$-level spin qudit.
-In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of {\it any} function with fixed degree $\ell\le\ell_{\t{max}}$, given prior knowledge of $\ell$ \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ enables the recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.
+In the language of classical signal recovery, we would expect there to exist a set of $2\ell_{\t{max}}+1$ points on the sphere that enable the recovery of any function with fixed degree $\ell\le\ell_{\t{max}}$, given prior knowledge of $\ell$ \footnote{We could further conjecture that if {\it any} set of points $V\subset\Omega_2$ enables the recovery of degree-$\ell_{\t{max}}$ functions on the sphere, then $V$ enables the recovery degree-$\ell$ functions with $\ell\le\ell_{\t{max}}$.
   However, this condition is stronger than necessary to guarantee full recovery of a $d$-level spin qudit state with $2d-1$ measurement axes, which only requires the existence of {\it some} such set of points.}.
 Unfortunately, we have no general proof of this conjecture, which requires a deeper analysis of fixed-degree signal recovery on the sphere.
 Nonetheless, in the following sections we numerically verify that $2d-1$ points suffice for all $d\le200$.
@@ -280,14 +278,14 @@ Intuitively, a good choice of axes should minimize the error with which one can 
 If we can quantify this intuition, then we can optimize over different choices of measurement axes to find a set that (approximately) minimizes the error in reconstructed states.
 
 A set of measurement axes $V=\set{\v v}$ nominally induces a set of projectors $\set{\Pi_{\v v\mu}}$ that will be measured in an experiment.
-By a simple change of basis, measuring these projectors is equivalent to measuring the polarization operators $\set{T_{\v v\ell}}$.
-Flattening each $d\times d$ matrix $T_{\v v\ell}$ into the $d^2$-component column vector $\oket{T_{\v v\ell}}$, we construct the {\it measurement matrix}
+By a simple change of basis, measuring these projectors is equivalent to measuring the polarization operators $\set{T_{\v v\ell,0}}$.
+Flattening each $d\times d$ matrix $T_{\v v\ell,0}$ into the $d^2$-component column vector $\oket{T_{\v v\ell,0}}$, we construct the {\it measurement matrix}
 \begin{align}
-  M_V \equiv \sum_{\v v,\ell} \oket{T_{\v v\ell}} \bra{\v v\ell},
+  M_V \equiv \sum_{\v v,\ell} \oket{T_{\v v\ell,0}} \bra{\v v\ell}.
   \label{eq:meas_mat}
 \end{align}
 Here $\v v$ and $\ell$ label a column of $M_V$, or equivalently label a standard basis vector $\ket{\v v\ell}$ of a $\p{\abs{V}\times d}$-dimensional vector space.
-A necessary and sufficient condition for $V$ to allow for full state tomography is that the measured polarization operators in $\set{T_{\v v\ell}}$, or equivalently the columns of $M_V$, span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit.
+A necessary and sufficient condition for $V$ to allow for full state tomography is that the measured polarization operators in $\set{T_{\v v\ell,0}}$, or equivalently the columns of $M_V$, span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit.
 In this case $M_V$ must be full rank, with $d^2$ nonzero singular values.
 Indexing these singular values $M^V_k$ and the corresponding (normalized) right singular vectors $\v x^V_k\equiv \sum_j x^V_{kj} \ket{j}$ by an integer $k\in\set{1,2,\cdots,d^2}$, we can construct the orthonormal qudit operators
 \begin{align}
@@ -295,7 +293,7 @@ Indexing these singular values $M^V_k$ and the corresponding (normalized) right 
   &&
   q^V_{kj} \equiv \f{x^V_{kj}}{M^V_k},
 \end{align}
-where for shorthand we use a combined index $j=\p{\v v,\ell}$ to specify both a measurement axis $\v v$ and a degree $\ell$, which identify the polarization operator $T_j\equiv T_{\v v\ell}$.
+where for shorthand we use a combined index $j=\p{\v v,\ell}$ to specify both a measurement axis $\v v$ and a degree $\ell$, which identify the polarization operator $T_j\equiv T_{\v v\ell,0}$.
 These operators allow us to expand any state $\rho$ of a $d$-level spin qudit in the form
 \begin{align}
   \rho = \sum_{k=1}^{d^2} \rho_k^V Q_k^V,
@@ -360,8 +358,8 @@ with vectors $\oket{T_{\ell m}}$ in a column indexed by integers $\p{\ell,m}$, b
 \end{align}
 where the $\p{2\ell+1}\times\abs{V}$-sized blocks are
 \begin{align}
-  M_{V\ell} \equiv \sum_{m,\v v} \ket{m} \obk{T_{\ell m}|T_{\v v\ell}} \bra{\v v}
-  = \sum_{m,\v v} D^\ell_m\p{\v v} \op{m}{\v v}.
+  M_{V\ell} \equiv \sum_{m,\v v} \ket{m} \obk{T_{\ell m}|T_{\v v\ell,0}} \bra{\v v}
+  = \sum_{m,\v v} D^\ell_{m,0}\p{\v v} \op{m}{\v v}.
   \label{eq:block}
 \end{align}
 As the singular values of $M_V$ are invariant under unitary transformations, it follows that
@@ -379,8 +377,8 @@ If we assume that $\abs{V}\sim d$, then computing the classical error scale $\S_
   \includegraphics{qudit_times.pdf}
   \caption{Serial runtime to compute $\S_V$, $\epsilon_V$, or $\E_V\p{\rho}$ with $\abs{V}=2d-1$ randomly chosen measurement axes and a randomly chosen qudit state $\rho$.
     Each point is an average over $10^3$ calculations or 5 minutes of runtime, whichever comes first.
-    These results do not count fixed runtimes to pre-compute quantities that can be recycled for every new choice of $V$ or $\rho$.
-    Dashed lines show fits to a runtime $t=c d^\alpha$ for all $d\ge100$, finding $\alpha\approx 3.7$.
+    These results do not count fixed runtimes to pre-compute quantities that can be recycled for every new choice of $V$ and $\rho$.
+    Dashed lines show fits to a runtime $t=c d^\alpha$ for the 20 largest values of $d$, finding $\alpha\approx 3.8\pm0.1$.
     These simulations found axes $V$ with $\epsilon_V<d$ for all $d\le200$, thereby verifying for these cases that $2d-1$ measurement axes are sufficient to perform full state tomography.}
   \label{fig:times}
 \end{figure}
@@ -395,18 +393,18 @@ In this case, the constraints that $\tr\p\rho=1$ and $\bk{\Pi_{\v v\mu}}_\rho\ge
   \epsilon_V^2 \equiv \sum_\ell \Gamma_\ell^2 \S_{V\ell}^2,
   \label{eq:bound}
 \end{align}
-where the {\it quantum error scale} $\epsilon_V$, so called because it is set by quantum shot noise, is defined in terms of (half of) the spectral range of $T_\ell$:
+where the {\it quantum error scale} $\epsilon_V$, so called because the bound in Eq.~\eqref{eq:bound} is set by quantum shot noise, is defined in terms of (half of) the spectral range of $T_{\ell,0}$:
 \begin{align}
   \Gamma_\ell \equiv \f{\max_\mu t_{\ell\mu} - \min_\mu t_{\ell\mu}}{2},
   &&
-  t_{\ell\mu} \equiv \bk{\mu|T_\ell|\mu}.
+  t_{\ell\mu} \equiv \bk{\mu|T_{\ell,0}|\mu}.
 \end{align}
 If $d$ is even or $\ell$ is odd, then $\Gamma_\ell=\max_\mu t_{\ell\mu}$.
 For comparison with the ``classical'' error bound in Eq.~\eqref{eq:bound_eps}, we note that $\epsilon_V^2<\S_V^2/2$, so the previous bound still holds with the replacement $\epsilon^2\to1/2n$.
 The factors $\Gamma_\ell^2$ are quick to compute and can be recycled for every new choice of axes $V$, so the complexity of computing $\epsilon_V$ is the same as that of $\S_V$ (see Figure \ref{fig:times}).
 
-Though straightforward to compute, the bound in Eq.~\eqref{eq:bound} is not tight, as it is acquired by bounding the statistical error in the empirical estimate $\tilde T_{\v v\ell}$ of $\bk{T_{\v v\ell}}_\rho$ by $\bbk{\epsilon_{\v v\ell}^2}\le\Gamma_\ell^2$.
-Though the individual bounds on $\bbk{\epsilon_{\v v\ell}^2}$ for each axis $\v v$ and degree $\ell$ are tight, these bounds cannot all be achieved simultaneously.
+Though straightforward to compute, the bound in Eq.~\eqref{eq:bound} is not tight, as it is acquired by bounding the statistical error in the empirical estimate $\tilde T_{\v v\ell,0}$ of $\bk{T_{\v v\ell,0}}_\rho$ by $\bbk{\epsilon_{\v v\ell,0}^2}\le\Gamma_\ell^2$.
+The individual bounds on $\bbk{\epsilon_{\v v\ell,0}^2}$ for each axis $\v v$ and degree $\ell$ are tight, these bounds cannot all be achieved simultaneously.
 There is therefore still room for improvement on the bound in Eq.~\eqref{eq:bound} by maximizing $\E_V$ over the set of all qudit states $\rho$.
 We discuss this maximization problem in Appendix \ref{sec:exact}.
 We also note that the (squared) reconstruction error bound in Eq.~\eqref{eq:bound} obeys the ``standard quantum limit'' of $\sim1/n$ scaling in the number of measurements.
@@ -421,16 +419,18 @@ The exact mean squared distance between $\tilde\rho_V$ and $\rho$, derived in Ap
     - \bk{\rho_\ell|\N_{V\ell}|\rho_\ell}},
   \label{eq:error}
 \end{align}
-where $\ket{\rho_\ell} \equiv \sum_m \rho_{\ell m}\ket{m}$, and $\ket{\chi_{V\ell}}$ and $\N_{V\ell}$ are defined below.
-While the true error in $\tilde\rho_V$ cannot be known exactly without knowing $\rho$, this error can be estimated by $\E_V\p{\tilde\rho_V} \approx \E_V\p{\rho}$.
+where $\ket{\rho_\ell} \equiv \sum_m \rho_{\ell m}\ket{m}$ is a vector of the degree-$\ell$ polarization operator components $\rho_{\ell m}$ of $\rho$, defined in Eq.~\eqref{eq:trans_state}, and the matrix $\N_{V\ell}$ and vector $\ket{\chi_{V\ell}}$ are defined below.
+While the true error in $\tilde\rho_V$ cannot be known exactly without knowing $\rho$, this error can be estimated a posteriori by $\E_V\p{\tilde\rho_V} \approx \E_V\p{\rho}$.
+After constructing an estimate $\tilde\rho_V$ of $\rho$, the complexity of computing $\E_V\p{\tilde\rho_V}$ is the same as that of $\S_V$ and $\epsilon_V$ (see Figure \ref{fig:times}).
 
-The matrix $\N_{V\ell}$ that appears in Eq.~\eqref{eq:error} is defined in terms of the measurement matrix $M_{V\ell}$ and its right inverse $M_{V\ell}^{-1}$ by
+We now define $\N_{V\ell}$ and $\ket{\chi_{V\ell}}$ for the sake of completion, but note that these definitions can be skipped without consequence for the remaining discussions in this paper.
+The matrix $\N_{V\ell}$ is defined in terms of the measurement matrix $M_{V\ell}$ and its right inverse $M_{V\ell}^{-1}$ by
 \begin{align}
   \N_{V\ell} \equiv M_{V\ell} \diag\sp{M_{V\ell}^{-1}
     \p{M_{V\ell}^{-1}}^\dag} M_{V\ell}^\dag,
 \end{align}
 where $\diag\sp{X}$ sets all off-diagonal parts of $X$ to zero.
-The vector $\ket{\chi_{V\ell}}\equiv\sum_m \chi^V_{\ell m} \ket{m}$ in Eq.~\eqref{eq:error} is defined by
+The vector $\ket{\chi_{V\ell}}\equiv\sum_m \chi^V_{\ell m} \ket{m}$ is defined by
 \begin{align}
   \chi^V_{LM} &\equiv
   \sum_\ell \obk{\N_{V\ell}|\D_M|\tilde g_{L\ell}}, \\
@@ -438,8 +438,7 @@ The vector $\ket{\chi_{V\ell}}\equiv\sum_m \chi^V_{\ell m} \ket{m}$ in Eq.~\eqre
   \obk{T_{L,m+m'}|T_{\ell m}^\dag T_{\ell m'}} \op{m}{m'}, \\
   \D_M &\equiv \sum_{m,m'} \delta_{M,m'-m} \op{mm'}.
 \end{align}
-Here $\tilde g_{L\ell}$ is essentially a matrix of structure constants for the polarization operator algebra (see Appendix \ref{sec:trans_prod}), and $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on, such that $\obk{\N_{V\ell}|\D_M|\tilde g_{L\ell}}$ is an inner product of the $M$-th diagonal of $\tilde g_{L\ell}$ with the $\p{-M}$-th diagonal of $\N_{V\ell}$.
-Overall, the complexity of computing $\E_V\p{\rho}$ is the same as that of $\S_V$ and $\epsilon_V$ (see Figure \ref{fig:times}).
+Here $\tilde g_{L\ell}$ is essentially a matrix of structure constants for the polarization operator algebra (see Appendix \ref{sec:trans_prod}), and $\D_M$ simply picks off the $M$-th diagonal of the matrix it acts on.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Tomography protocol}
@@ -450,15 +449,15 @@ If $\abs{V}$ is too large for such optimization to be practical, one can instead
 After choosing a set of measurement axes $V$, make $n$ measurements of spin projection along every axis $\v v\in V$, and set $\tilde\Pi_{\v v\mu}\approx\bk{\Pi_{\v v\mu}}_\rho$ to the fraction of times in which the measurement outcome was $\mu$.
 The estimates $\tilde\Pi_{\v v\mu}$ of $\bk{\Pi_{\v v\mu}}_\rho$ determine estimates
 \begin{align}
-  \tilde T_{\v v\ell}
-  \equiv \sum_\mu \bk{\mu|T_\ell|\mu} \tilde\Pi_{\v v\mu}
+  \tilde T_{\v v\ell,0}
+  \equiv \sum_\mu \bk{\mu|T_{\ell,0}|\mu} \tilde\Pi_{\v v\mu}
 \end{align}
-of $\bk{T_{\v v\ell}}_\rho$, which can in turn be used to construct the estimate $\tilde\rho_V$ of $\rho$.
+of $\bk{T_{\v v\ell,0}}_\rho$, which can in turn be used to construct the estimate $\tilde\rho_V$ of $\rho$.
 Specifically, the $2\ell+1$ (normalized) right singular vectors $\v x^V_{\ell k} = \sum_{\v v} x^V_{\ell k \v v} \ket{\v v}$ and corresponding singular values $M^V_{\ell k}$ of the matrices $M_{V\ell}$ defined in Eq.~\eqref{eq:block} determine the components
 \begin{align}
   \tilde\rho^V_{\ell k}
   = \f1{M^V_{\ell k}} \sum_{\v v}
-  x^V_{\ell k\v v} \, \tilde T_{\v v\ell},
+  x^V_{\ell k\v v} \, \tilde T_{\v v\ell,0},
 \end{align}
 of
 \begin{align}
@@ -466,7 +465,7 @@ of
   \approx \rho,
   &&
   Q_{\ell k} = \f1{M^V_{\ell k}} \sum_{\v v}
-  x^V_{\ell k\v v} T_{\v v\ell}.
+  x^V_{\ell k\v v} T_{\v v\ell,0}.
 \end{align}
 The total error in $\tilde\rho_V$, measured by its root-mean-square distance from $\rho$, is approximately $\E_V\p{\tilde\rho_V}\approx\E_V\p{\rho}$.
 If $\tilde\rho_V$ has negative eigenvalues, its distance from $\rho$ can be reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
@@ -476,7 +475,7 @@ We leave the development of tailored and adaptive measurement protocols to futur
 
 The tomography protocol we outline above leaves open the question of {\it how many} measurement axes to use.
 Though $2d-1$ measurement axes may be sufficient to perform full state tomography, this is not necessarily the best choice of $\abs{V}$.
-Increasing the number of measurement axes generally decreases the quantum error scale $\epsilon_V$, but at the cost of having to estimate more observables.
+Increasing the number of measurement axes generally decreases the quantum error scale $\epsilon_V$, but comes at the cost of having to estimate more observables.
 At a fixed total number of measurements, increasing $\abs{V}$ reduces the number of measurements $n$ devoted to each axis $\v v\in V$.
 This trade-off begs the question: how should one choose the number of measurement axes, $\abs{V}$?
 
@@ -682,12 +681,12 @@ where $\cov_\rho\p{X,Y} \equiv \bk{XY}_\rho - \bk{X}_\rho \bk{Y}_\rho$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Variance of errors in the polarization operator basis}
 
-Rather than the statistical errors $\epsilon_{i\mu} \equiv \tilde\Pi_{i\mu} - \bk{\Pi_{i\mu}}_\rho$ in the estimates $\tilde\Pi_{i\mu}$ of the projectors $\Pi_{i\mu}$, we now consider the statistical errors $\epsilon_{i\ell} \equiv \tilde T_{i\ell} - \bk{T_{i\ell}}_\rho$ in the estimates $\tilde T_{i\ell}$ of the polarization operators $T_{i\ell} \equiv T_{\v v_i\ell}$.
+Rather than the statistical errors $\epsilon_{i\mu} \equiv \tilde\Pi_{i\mu} - \bk{\Pi_{i\mu}}_\rho$ in the estimates $\tilde\Pi_{i\mu}$ of the projectors $\Pi_{i\mu}$, we now consider the statistical errors $\epsilon_{i\ell} \equiv \tilde T_{i\ell} - \bk{T_{i\ell}}_\rho$ in the estimates $\tilde T_{i\ell}$ of the polarization operators $T_{i\ell} \equiv T_{\v v_i\ell,0}$.
 We can expand the polarization operators $T_{i\ell}$ as a sum over projectors $\Pi_{i\mu}$ as
 \begin{align}
   T_{i\ell} = \sum_\mu t_{\ell\mu} \Pi_{i\mu},
   &&
-  t_{\ell\mu} \equiv \bk{\mu|T_\ell|\mu}
+  t_{\ell\mu} \equiv \bk{\mu|T_{\ell,0}|\mu}
   = \sqrt{\f{2\ell+1}{d}} \bk{s\mu;\ell|s\mu},
 \end{align}
 and likewise $\tilde T_{i\ell} = \sum_\mu t_{\ell\mu} \tilde\Pi_{i\mu}$.
@@ -705,7 +704,7 @@ where we used the fact that the covariance $\cov_\rho\p{X,Y}$ is linear in both 
 Due to the appearance of $\delta_{ii'}$ above and the orthogonality of rotated polarization operators $T_{i\ell}$ and $T_{i'\ell'}$ with degrees $\ell\ne\ell'$, only the variance $\bbk{\epsilon_{i\ell}^2}$ ultimately contributes to reconstruction error.
 We therefore seek to find an upper bound on $\bbk{\epsilon_{i\ell}^2}$.
 
-To this end, we define the probability $p^i_\mu\equiv\bk{\Pi_{i\mu}}_\rho$, collect these probabilities into the classical probability distribution $p^i = \sum_\mu p^i_\mu \ket{\mu}$, and define the vector $t_\ell \equiv \sum_\mu t_{\ell\mu} \ket{\mu}$ of all $t_{\ell\mu}\equiv\bk{\mu|T_\ell|\mu}$.
+To this end, we define the probability $p^i_\mu\equiv\bk{\Pi_{i\mu}}_\rho$, collect these probabilities into the classical probability distribution $p^i = \sum_\mu p^i_\mu \ket{\mu}$, and define the vector $t_\ell \equiv \sum_\mu t_{\ell\mu} \ket{\mu}$ of all $t_{\ell\mu}\equiv\bk{\mu|T_{\ell,0}|\mu}$.
 We then observe that
 \begin{align}
   \bbk{\epsilon_{i\ell}^2} = \f1n \times \sigma_{p^i}^2\p{t_\ell},
@@ -793,7 +792,7 @@ Altogether, we thus find that in all cases
 We now revisit the derivation of reconstruction error in Section \ref{sec:error} to make use of the bounds on variances $\bbk{\epsilon_{i\ell}^2}$.
 To recap, for a set of measurement axes $V=\set{\v v}$ and degrees $\ell\in\set{0,1,\cdots,d-1}$ we construct the measurement matrix
 \begin{align}
-  M_V \equiv \sum_{\v v,\ell} \oket{T_{\v v\ell}} \bra{\v v\ell},
+  M_V \equiv \sum_{\v v,\ell} \oket{T_{\v v\ell,0}} \bra{\v v\ell},
 \end{align}
 which can be block diagonalized as
 \begin{align}
@@ -801,7 +800,7 @@ which can be block diagonalized as
   &&
   U \equiv \sum_{\ell,m} \oket{T_{\ell m}} \bra{\ell m},
   &&
-  M_{V\ell} = \sum_{m,\v v} D^\ell_m\p{\v v} \op{m}{\v v},
+  M_{V\ell} = \sum_{m,\v v} D^\ell_{m,0}\p{\v v} \op{m}{\v v},
 \end{align}
 where $D^\ell_{mn}\p{\v v}\equiv\bk{\ell m|R\p{\v v}|\ell n}$ is a (Wigner) rotation matrix element for a spin-$\ell$ particle.
 The block-diagonal structure of $M_V$ allows us to index its singular values $M^V_{\ell m}$ and corresponding (normalized) right singular vectors $\v x^V_{\ell m} = \sum_i x^V_{\ell m i} \ket{\v v_i}$ by the indices $\p{\ell,m}$, where the integer $\abs{m}\le\ell$.
@@ -873,15 +872,15 @@ Using the fact that all $T_{i\ell}=T_{i\ell}^\dag$, we can also expand
 \begin{align}
   \cov_\rho\p{T_{i\ell},T_{i\ell}}
   = \cov_\rho\p{T_{i\ell}^\dag,T_{i\ell}}
-  = \sum_{m,m'} D^\ell_m\p{\v v_i}^* D^\ell_{m'}\p{\v v_i}
+  = \sum_{m,m'} D^\ell_{m,0}\p{\v v_i}^* D^\ell_{m',0}\p{\v v_i}
   \cov_\rho\p{T_{\ell m}^\dag, T_{\ell m'}},
 \end{align}
 which implies that
 \begin{align}
   \E_V\p{\rho}^2
   = \f1n \sum_{i,\ell,m,m'}
-  D^\ell_{m'}\p{\v v_i} \abs{\tilde{\v q}_{\ell i}}^2
-  D^\ell_m\p{\v v_i}^*
+  D^\ell_{m',0}\p{\v v_i} \abs{\tilde{\v q}_{\ell i}}^2
+  D^\ell_{m,0}\p{\v v_i}^*
   \cov_\rho\p{T_{\ell m}^\dag, T_{\ell m'}}.
 \end{align}
 Altogether, this reconstruction error can be expressed more compactly by defining the {\it covariance matrix}
