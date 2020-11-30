@@ -15,6 +15,7 @@ params = { "font.size" : 10,
 plt.rcParams.update(params)
 
 figsize = (3,2)
+size_fits = 20
 
 ##################################################
 
@@ -38,8 +39,9 @@ for tag, label, marker, color in plot_params:
 
     size_lims = plt.gca().get_xlim()
     time_lims = plt.gca().get_ylim()
-    fit_idx = sizes >= sizes[-1]//2
-    fit = np.polyfit(np.log(sizes[fit_idx]), np.log(times[fit_idx]), deg = 1)
+    fit_idx = slice(-size_fits,-1)
+    fit_args = [ np.log(sizes[fit_idx]), np.log(times[fit_idx]) ]
+    fit, cov = np.polyfit(*fit_args, deg = 1, cov = True)
     plt.loglog(size_lims, np.exp(fit[0]*np.log(size_lims) + fit[1]), "--", color = color)
     plt.gca().set_xlim(size_lims)
     plt.gca().set_ylim(time_lims)

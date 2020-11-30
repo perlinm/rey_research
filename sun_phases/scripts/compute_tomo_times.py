@@ -27,7 +27,7 @@ except: max_dim = min_dim
 sample_cap = 1000 # maximum number of times we choose a random set of measurement axes
 time_cap = 300 # maximum time to run per qubit dimension, in seconds
 
-seed = 0 # set random number seed. change at your own peril
+seed = 1 # set random number seed. change at your own peril
 np.random.seed(seed)
 
 # determine the directory and file for saving data
