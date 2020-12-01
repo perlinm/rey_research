@@ -346,8 +346,6 @@ This finding, as well as others (such as the possible existence of a third phase
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{A simple model}
 
-\subsection{Hamiltonian}
-
 Here we consider a simple Hamiltonian on $2N$ spins,
 \begin{align}
   H = \f{U}{2} \v S\c\v S + \sum_{j=1}^{2N} h_j s_{\z,j},
@@ -365,85 +363,12 @@ Defining collective the spin-$\alpha$ operators for each sub-ensemble indexed by
 \end{align}
 as long as each sub-ensemble remains within the manifold of spin-polarized states we can write the Hamiltonian in \eqref{eq:two_spins_start} in the form
 \begin{align}
-  H = U \v S_0 \c\v S_1 + S_{\z,0} - S_{\z,1}
-  = \sum_{m,n=-IN}^{IN} \p{U\op{mn}{nm}
-    + \p{m-n}\op{mn}},
+  H = U \v S_0 \c\v S_1 + S_{\z,0} - S_{\z,1}.
 \end{align}
-where $m,n$ are projections of a net sub-ensemble spin onto the $z$ axis, and we have neglected the scalars $\v S_k\cdot \v S_k = IN\p{IN+1}$.
-Indexing states $\ket{mn}$ by the mean spin projection $\bar m=\p{m+n}/2$ and spin imbalance $\delta=m-n$,
-\begin{align}
-  \ket{\bar m\delta} \equiv \ket{m+\delta/2,m-\delta/2},
-\end{align}
-we can expand
-\begin{align}
-  \v S_0\c \v S_1 = \sum_{m,\delta}
-  \op{\bar m,-\delta}{\bar m\delta},
-  &&
-  S_{\z,0} - S_{\z,1} = \sum_{m,\delta} \delta \op{\bar m\delta},
-\end{align}
-which allows us to write the Hamiltonian in the form
-\begin{align}
-  H = \sum_m \op{\bar m} \otimes
-  \sum_\delta \p{U \op{-\delta}{\delta} + \delta \op{\delta}}.
-\end{align}
-Diagonalizing this Hamiltonian thus reduces to a qubit problem, for which we define the Pauli operator
-\begin{align}
-  X_\delta\p{U} \equiv \sum_{\sigma\in\set{\pm1}}
-  \sigma \op{\delta,U,\sigma},
-\end{align}
-in terms of the rotated states
-\begin{align}
-  \ket{\delta,U,\sigma} \equiv \cos\p{\f{\eta}{2}} \ket{\p{\sigma\delta}}
-  + \sigma \sin\p{\f{\eta}{2}} \ket{\p{-\sigma\delta}},
-  &&
-  \eta \equiv \arctan\p{\f{U}{\delta}},
-\end{align}
-defined for $\delta\ne0$.
-In words, the state $\ket{\delta,U,\pm}$ points in the direction of $\pm\p{\delta\uv{z}+U\uv{x}}$ on the Bloch sphere defined by the state $\set{\ket{\delta},\ket{-\delta}}$.
-Altogether, the Hamiltonian is
-\begin{align}
-  H = \sum_m \op{\bar m} \otimes
-  \sp{U\op{0} + \sum_{\delta>0} U_\delta X_\delta\p{U}},
-  &&
-  U_\delta \equiv \sqrt{U^2+\delta^2},
-\end{align}
-which has eigenvalues $U$ and $\pm U_\delta$ for integer $\delta>0$.
 
-\subsection{Initial state}
+\subsection{Simplifying the Hamiltonian}
 
-We now consider an initial state with both large spins polarized at a polar angle $\theta$ and azimuthal angles $\pm\phi/2$:
-\begin{align}
-  \ket{\theta,\phi} \equiv \sum_{m,n}
-  \sqrt{\chi_m\p{\theta} \chi_n\p{\theta}} \,
-  e^{-\i\p{m-n}\phi} \ket{mn}
-  = \sum_{m,\delta}
-  \chi_{m\delta}\p{\theta} e^{-\i\delta\phi}
-  \ket{\bar m\delta}.
-\end{align}
-where
-\begin{align}
-  \chi_m\p\theta \equiv { 2IN \choose IN + m }
-  \cos\p{\f{\theta}{2}}^{2IN+2m} \sin\p{\f{\theta}{2}}^{2IN-2m},
-  &&
-  \chi_{m\delta}\p\theta
-  \equiv \sqrt{\chi_{m+\delta/2}\p\theta \chi_{m-\delta/2}\p\theta}.
-\end{align}
-In the eigenbasis of $H$, we have
-\begin{align}
-  \ket{\theta,\phi} = \sum_m \ket{\bar m} \otimes
-  \sp{\chi_0\p\theta \ket{0}
-    + \sum_{\delta>0} \chi_{m\delta}\p\theta
-    \sum_{\sigma\in\set{\pm1}} e^{-\i\sigma\delta\phi}
-    \sp{\cos\p{\f{\eta}{2}} \ket{\delta,U,\sigma}
-    - \sigma\sin\p{\f{\eta}{2}} \ket{\delta,U,-\sigma}}},
-\end{align}
-where again $\eta\equiv\arctan\p{U/\delta}$ for shorthand.
-Note that the only dependence of this state on the nuclear spin $I$ appears in the range of $\bar m$, so any distinction between observed behavior at different $I$ can essentially be attributed to the measurement of different observables.
-
-\subsection{Observables}
-
-We now turn our attention to the measurement of collective observables.
-In particular, we consider the collective $N$-spin operators
+To simplify the Hamiltonian, we consider the collective $N$-spin operators
 \begin{align}
   S_{\mu\nu} \equiv \sum_{j=1}^N s_{\mu\nu j},
 \end{align}
@@ -451,31 +376,47 @@ where $\mu,\nu\in\set{-I,-I+1,\cdots,I}$ and $s_{\mu\nu j} = \op{\mu}{\nu}_j$ is
 Rather than initial/final spin projections $\nu\to\mu$, it will be convenient to consider operators that induce spin transitions $\mu\to\mu+\epsilon$, and then expand these operators in the spin-projection (Dicke) basis for spin-polarized states:
 \begin{align}
   \tilde S_{\mu\epsilon} \equiv S_{\mu+\epsilon,\mu}
-  = \sum_m \xi_{\mu\epsilon}^m \op{m+\epsilon}{m},
+  = \sum_m c_{\mu\epsilon}^m \op{m+\epsilon}{m},
   &&
-  \xi_{\mu\epsilon}^m \equiv \bk{m+\epsilon|S_{\mu+\epsilon,\mu}|m}.
+  c_{\mu\epsilon}^m \equiv \bk{m+\epsilon|S_{\mu+\epsilon,\mu}|m}.
 \end{align}
-In turn, we symmetrize these operators over their action on two sub-ensembles of $N$ spins each:
+We can thus expand
 \begin{align}
-  \tilde S_{\mu\epsilon}^\sigma \equiv \tilde S_{\mu\epsilon} \otimes \1
-  + \sigma \1 \otimes \tilde S_{\mu\epsilon}
-  = \sum_{m,n} \p{\xi_{\mu\epsilon}^m \ket{m+\epsilon,n}
-    + \sigma \xi_{\mu\epsilon}^n \ket{m,n+\epsilon}} \bra{mn},
-\end{align}
-where $\sigma\in\set{\pm1}$.
-In the symmetrized basis of a mean spin and spin imbalance, we have that
-\begin{align}
-  \tilde S_{\mu\epsilon}^\sigma
-  = \sum_{m,\delta,\sigma} \p{\xi_{\mu\epsilon}^{m+\delta/2}
-    \ket{\bar m_\epsilon,\delta+\epsilon}
-    + \sigma \xi_{\mu\epsilon}^{m-\delta/2}
-    \ket{\bar m_\epsilon,\delta-\epsilon}}
-  \bra{\bar m\delta},
+  \v S_0 \c \v S_1
+  = \sum_{\mu,\epsilon} \tilde S_{\mu\epsilon,0}
+  \tilde S_{\mu\epsilon,1}^\dag
+  = \sum_{m,n,\epsilon} \xi^\epsilon_{m,n}
+  \op{m+\epsilon,n}{m,n+\epsilon},
   &&
-  \bar m_\epsilon \equiv \bar m + \epsilon/2.
+  \xi^\epsilon_{m,n} \equiv
+  \sum_\mu c^m_{\mu\epsilon} \p{c^n_{\mu\epsilon}}^*.
 \end{align}
-
-\newpage
+Indexing states $\ket{mn}$ by the mean spin projection $M=\p{m+n}/2$ and spin imbalance $\delta=m-n$,
+\begin{align}
+  \ket{M\delta} \leftrightarrow \ket{m+\delta/2,n-\delta/2},
+\end{align}
+we can expand
+\begin{align}
+  U \v S_0 \c \v S_1
+  = \sum_{M,\delta,\epsilon} U_{M\delta}^\epsilon
+  \op{M,\delta+\epsilon}{M,\delta-\epsilon},
+  &&
+  U_{M\delta}^\epsilon \equiv
+  U \xi^\epsilon_{M+\delta/2-\epsilon/2,M-\delta/2-\epsilon/2}.
+\end{align}
+Additionally using the fact that
+\begin{align}
+  S_{\z,0} - S_{\z,1} = \sum_{M,\delta} \delta \op{M\delta},
+\end{align}
+the Hamiltonian is thus
+\begin{align}
+  H = \sum_M \op{M} \otimes
+  \sp{\sum_{\delta,\epsilon} U_{M\delta}^\epsilon \op{\delta+\epsilon}{\delta-\epsilon}
+    + \sum_\delta \delta \op\delta}.
+\end{align}
+For each value of $M$, this Hamiltonian looks like that of a single particle on a 1-D ``$\delta$-lattice'' with a linear tilt and position-dependent hopping.
+The parity of $\delta$ is conserved by this Hamiltonian, so in fact there is a single 1-D lattice for every value of $M$ and parity of $\delta$.
+The fact that $\epsilon\in\set{-2I,-2I+1,\cdots,2I}$ implies that the particle can hop as many as $2I$ sites on each fixed-parity lattice, with the hopping amplitude determined by $U_{M\delta}^\epsilon$.
 
 \newpage
 \appendix
