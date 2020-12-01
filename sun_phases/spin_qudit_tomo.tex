@@ -10,6 +10,10 @@
   urlcolor=cyan,
 }
 
+%%% properly deal with different font encodings
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
 %%% symbols, notations, etc.
 \usepackage{physics,braket,bm} % physics and math
 \renewcommand{\t}{\text} % text in math mode
@@ -96,11 +100,11 @@
 \section{Introduction}
 
 Quantum state tomography, or the task of reconstructing a quantum state by collecting and processing measurement data, is an essential primitive for quantum sensing, quantum simulation, and quantum information processing.
-The central importance of quantum state tomography has led to the development of a variety of techniques based on compressed sensing \cite{gross2010quantum}, matrix product states \cite{cramer2010efficient}, maximum-likelihood estimation \cite{smolin2012efficient}, Bayesian inference \cite{huszar2012adaptive}, and neural networks \cite{torlai2018neuralnetwork}, among many others \cite{christandl2012reliable, qi2013quantum, opatrny1997leastsquares}
+The central importance of quantum state tomography has led to the development of a variety of techniques based on compressed sensing \cite{gross2010quantum}, matrix product states \cite{cramer2010efficient}, maximum-likelihood estimation \cite{smolin2012efficient}, Bayesian inference \cite{huszar2012adaptive}, and neural networks \cite{torlai2018neuralnetwork}, among many others \cite{christandl2012reliable, qi2013quantum, opatrny1997leastsquares}.
 These techniques are typically developed in a general, information-theoretic setting, and make minimal assumptions about the physical medium of a quantum state.
 As a consequence, even well-established techniques can nonetheless be ill-suited for physical platforms with unique or limited capabilities.
 
-Due to advancements in experimental capabilities to address nuclear spin states (hyperfine levels) in ultracold atomic systems \cite{daley2011quantum, smith2013quantum, cazalilla2014ultracold}, as well as developments in the control of ultracold molecular systems \cite{bohn2017cold, zeppenfeld2012sisyphus, kozyryev2017sisyphus, puri2017synthesis, wu2017cryofuge, marco2019degenerate, liu2019molecular, anderegg2019optical, chou2020frequencycomb, lin2020quantum}, a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.
+Due to advancements in experimental capabilities to address nuclear spin states (hyperfine levels) in ultracold atomic systems \cite{daley2011quantum, mischuck2012control, smith2013quantum, cazalilla2014ultracold}, as well as developments in the control of ultracold molecular systems \cite{bohn2017cold, zeppenfeld2012sisyphus, kozyryev2017sisyphus, puri2017synthesis, wu2017cryofuge, marco2019degenerate, liu2019molecular, anderegg2019optical, chou2020frequencycomb, lin2020quantum}, a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.
 Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{hemmer2018squeezing, evrard2019enhanced}, enable quantum simulations of SU($d$) magnetism \cite{cazalilla2014ultracold, banerjee2013atomic, zhang2014spectroscopic, scazza2014observation, goban2018emergence}, and offer unique capabilities for quantum error correction \cite{albert2020robust, gross2020encoding}.
 In all cases, quantum state tomography is necessary to take full advantage of a spin qudit.
 
