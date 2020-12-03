@@ -31,7 +31,7 @@ for dim, color in zip(dims, colors):
     scales *= np.sqrt(axes)
     excess_axes = axes - (2*dim-1)
     plt.plot(excess_axes/dim, scales/scales[0],
-             ".", label = f"${dim}$", color = color)
+             ".", label = f"$d={dim}$", color = color)
 
 plt.gca().set_ylim(bottom = 0)
 plt.gca().tick_params(right = True)
