@@ -6,6 +6,8 @@ import numpy as np
 
 import wigner.lib, py3nj
 
+_update = True
+
 ##########################################################################################
 # general simulation methods
 
@@ -55,20 +57,19 @@ def compute_batch(function, args):
     return { arg : value for arg, value in zip(args_list, values) }
 
 ##########################################################################################
-# methods to compute a "measurement matrix" of all D^L_{m,0}(v) with a fixed degree L
-# where: D^L_{mn}(v) = <Lm |R(v)|Ln> is a (Wigner) rotation matrix element
-#        v = (alpha,beta) is a point on the sphere at azimuth/polar angles (alpha,beta)
-#        R(v) is an Euler-angle rotation operator: exp(-i alpha S_z) * exp(-i beta S_y)
-#        S_z and S_y are respectively spin-z and spin_y operators
+# methods to compute a "measurement matrix" of all D^L_{0,m}(v) with a fixed degree L
+# where: v = (alpha,beta) is a point on the sphere at azimuth/polar angles (alpha,beta)
+#        D^L_{mn}(v) = <Lm| e^{-i beta S_y} * e^{-i alpha S_z} |Ln>
+#        S_y and S_z are respectively spin-y and spin-z operators
 #        |Lm> is a state of a spin-L particle with spin projection m onto the z axis
 #
-# the basic idea behind our methods is to decompose D^L_{m,0}(alpha,beta) into:
-#     e^{-i alpha S_z} * exp(+i pi/2 S_y) * e^{-i beta S_z} * exp(-i pi/2 S_y) |L,0>
+# the basic idea behind our methods is to decompose D^L_{0,m}(v) into:
+#     <L,0| exp(+i pi/2 S_y) * e^{-i beta S_z} * exp(-i pi/2 S_y) * e^{-i alpha S_z}
 
 # methods to pre-compute spin values and pi/2 rotation matrices exp(-i pi/2 S_y)
 def _spin_vals(LL):
     return np.arange(-LL, LL+1)
-def _rot_z_to_x(LL, update = True):
+def _rot_z_to_x(LL, update = _update):
     if update:
         print("rot:", LL)
         sys.stdout.flush()
@@ -83,21 +84,20 @@ def get_meas_methods(max_dim):
     spin_vals = compute_batch(_spin_vals, range(max_dim-1,-1,-1))
     rot_z_to_x = compute_batch(_rot_z_to_x, range(max_dim-1,-1,-1))
 
-    # save the vector `exp(-i pi/2 S_y) |L,0>` for all (relevant) L
+    # save the vector `<L,0| exp(+i pi/2 S_y)` for all (relevant) L
     # every other entry in this vector is zero, so remove it preemptively
-    rot_zero_vecs = [ rot_z_to_x[LL][:,LL][::2] for LL in range(max_dim) ]
+    rot_zero_vecs = [ rot_z_to_x[LL].T[LL,:][::2] for LL in range(max_dim) ]
 
-    # collect all exp(+i pi/2 S_y), skipping every other column because we don't need it
-    pulse_mats = [ rot_z_to_x[LL].T[:,::2] for LL in range(max_dim) ]
+    # collect all exp(-i pi/2 S_y), skipping every other row because we won't need it
+    pulse_mats = [ rot_z_to_x[LL][::2,:] for LL in range(max_dim) ]
 
     del rot_z_to_x # delete data we no longer need to save memory
 
-    # method that constructs a vector of D^L_{m,0}(v) for all |m| <= L,
-    # i.e. the "middle column" of the rotation matrix R(v) for a spin-L particle
+    # method that constructs a vector of D^L_{0,m}(v) for all |m| <= L
     def rot_mid(LL, axis):
-        phases_0 = np.exp(-1j * axis[0] * spin_vals[LL][::2])
-        phases_1 = np.exp(-1j * axis[1] * spin_vals[LL])
-        return phases_1 * ( pulse_mats[LL] @ ( phases_0 * rot_zero_vecs[LL] ) )
+        phases_beta = np.exp(-1j * axis[0] * spin_vals[LL][::2])
+        phases_alph = np.exp(-1j * axis[1] * spin_vals[LL])
+        return ( ( rot_zero_vecs[LL] * phases_beta ) @ pulse_mats[LL] ) * phases_alph
 
     # construct a fixed-degree measurement matrix
     def meas_mat(LL, axes):
@@ -126,7 +126,7 @@ def wigner_3j_mat(ll, LL):
     return matrix
 
 # diagonal bands of an "inverted" matrix of wigner-3j factors
-def inv_3j_band_mat(labels, update = True):
+def inv_3j_band_mat(labels, update = _update):
     ll, LL = labels
     if update and ll == LL:
         print("inv_3j:", LL)
@@ -191,10 +191,10 @@ def quantum_error_scale(meas_scales):
 
 # compute the fixed-degree noise matrix
 def noise_mat(LL, meas_mat):
-    mat = meas_mat(LL).T
-    _, vals, vecs = scipy.linalg.svd(mat, full_matrices = False)
-    diag_vals = np.sum(abs(vecs/vals[:,None])**2, axis = 0)
-    return ( mat * diag_vals[None,:] ) @ mat.conj().T
+    mat = meas_mat(LL)
+    vecs, vals, _ = scipy.linalg.svd(mat, full_matrices = False)
+    diag_vals = np.sum( abs(vecs/vals[None,:])**2, axis = 1)
+    return ( mat.conj().T * diag_vals[None,:] ) @ mat
 
 # compute all noise matrices
 def noise_mats(dim, meas_mat):
