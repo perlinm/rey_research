@@ -66,7 +66,7 @@
 \usepackage{graphicx} % for figures
 \graphicspath{{./figures/qudit_tomo/}} % set path for all figures
 
-\usepackage[inline]{enumitem} % in-line lists and \setlist{} (below)
+\usepackage[inline]{enumitem} % in-line lists
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
 
 %%% text markup
@@ -102,7 +102,7 @@
 \section{Introduction}
 
 Quantum state tomography, the task of reconstructing a quantum state by collecting and processing measurement data, is an essential primitive for quantum sensing, quantum simulation, and quantum information processing.
-The central importance of quantum state tomography has led to the development of techniques based on least-squares inversion \cite{opatrny1997leastsquares}, linear regression \cite{qi2013quantum}, maximum likelihood estimation \cite{teo2011quantumstate, smolin2012efficient}, Bayesian inference \cite{huszar2012adaptive, ferrie2014quantum, granade2016practical}, compressed sensing \cite{gross2010quantum, kalev2015quantum}, neural networks \cite{torlai2018neuralnetwork}, among others too numerous to exhaustively list here. % todo: fix citation for teo2011
+The central importance of quantum state tomography has led to the development of techniques based on least-squares inversion \cite{opatrny1997leastsquares}, linear regression \cite{qi2013quantum}, maximum likelihood estimation \cite{teo2011quantumstate, smolin2012efficient}, Bayesian inference \cite{huszar2012adaptive, ferrie2014quantum, granade2016practical}, compressed sensing \cite{gross2010quantum, kalev2015quantum}, neural networks \cite{torlai2018neuralnetwork}, among others too numerous to exhaustively list here.
 These techniques are typically developed in a general information-theoretic setting, and make minimal assumptions about the physical medium of a quantum state.
 As a consequence, even well-established techniques can be ill-suited for physical platforms with unique or limited capabilities.
 
@@ -200,7 +200,7 @@ The transformation rules for polarization operators in Eq.~\eqref{eq:trans_rot},
 where the scalar $c_\ell$ simply enforces $\obk{T_{\ell m}|T_{\ell m}}=1$.
 The polarization operators $T_{\ell m}$ are thus a quantum analogue of the spherical harmonics $Y_{\ell m}$, and play an important role in phase-space formalisms for spin qudits \cite{li2013weylwignermoyal}.
 
-As a special case, the phase-space representation $\rho^{\t{PS}}$ of a qudit state $\rho$ is commonly known as its Husimi distribution.
+As a special case, the phase-space representation $\rho^{\t{PS}}$ of a spin qudit state $\rho$ is commonly known as its Husimi distribution.
 Performing tomography on an unknown qudit state $\rho$ is therefore equivalent to reconstructing the unknown distribution $\rho^{\t{PS}}$ on the sphere.
 In principle, the representation $\rho^{\t{PS}}$ of a finite-dimensional qudit state $\rho$ can be reconstructed from the values $\rho^{\t{PS}}\p{\bm v}=\bk{s_{\bm v}|\rho|s_{\bm v}}$ at a finite number of points $\bm v$.
 In practice, the value $\bk{s_{\bm v}|\rho|s_{\bm v}}$ is determined by measuring spin projection along $\bm v$, which also provides measurement data on all spin projections $\bk{\mu_{\bm v}|\rho|\mu_{\bm v}}$ with $\mu\in\set{s,s-1,\cdots,-s}$ and $\ket{\mu_{\bm v}}\equiv R\p{\bm v}\ket{\mu}$; one would like to make use of this additional data as well.
@@ -568,7 +568,7 @@ as well as
 The spin vector $\bm S$ generates rotations of a spin-$s$ system in 3D space.
 Specifically, the operator $e^{-\i\theta\bm S\cdot\uv n}$ rotates a spin-$s$ system by an angle $\theta$ about the unit vector $\uv n$.
 
-Observing that $S_\z=T_{1,0}$ and $S_\pm\propto T_{1,\pm1}$, we can use the product operator expansion of the polarization operators (see Appendix \ref{sec:trans_prod}), properties of Clebsch-Gordan coefficients, properties of Wigner $6$-$j$ symbols, and a computer algebra system to simplify the commutators
+Observing that $S_\z=T_{1,0}$ and $S_\pm\propto T_{1,\pm1}$, we can use the operator product expansion of the polarization operators (see Appendix \ref{sec:trans_prod}), the properties of Clebsch-Gordan coefficients, the properties of Wigner $6$-$j$ symbols, and a computer algebra system to simplify the commutators
 \begin{align}
   \sp{S_\z,T_{\ell m}} = m\, T_{\ell m},
   &&
@@ -1043,7 +1043,7 @@ Equipped with $\sigma_V^\star$ and $\E_V\p{\sigma_V^\star}$, we can expand
 where $X_\ell\equiv\sum_m\obk{T_{\ell m}|X}\ket{m}$ is a vector of the degree-$\ell$ components of $X$ in the polarization operator basis, and $\norm{X}_V$ is a noise-weighted norm of $X$.
 Maximizing $\E_V$ over all qudit states $\rho$ thus amounts to finding the closest physical qudit state $\rho$ to $\sigma_V^\star$, with distance measured by the metric $D_V\p{X,Y}\equiv\norm{X-Y}_V$.
 We leave this minimization problem to future work, and note that solving it will likely require making use of the positivity conditions derived in Ref.~\cite{kryszewski2006positivity}.
-A loose lower bound on $\norm{\rho-\sigma_V^\star}$ can be found by minimization under the constraint $\norm{\rho}\le1$ (or $\bk{\rho_\ell|\rho_\ell}\le1$), which may provide a tighter upper bound on $\E_V\p{\rho}$ than that in Eq.~\eqref{eq:bound} of the main text.
+A loose lower bound on $\norm{\rho-\sigma_V^\star}$ can be found by minimization under the constraint $\norm{\rho}\le1$, which may provide a tighter upper bound on $\E_V\p{\rho}$ than that in Eq.~\eqref{eq:bound} of the main text.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Polarization operator product expansion}
