@@ -4,7 +4,7 @@ import sys, time, functools
 import scipy, scipy.linalg
 import numpy as np
 
-import wigner.lib, py3nj
+import wigner, py3nj
 
 _update = True
 
@@ -121,7 +121,7 @@ def get_meas_methods(max_dim):
 def wigner_3j_mat(ll, LL):
     matrix = np.zeros((2*ll+1,)*2)
     for mm in range(-ll,ll+1):
-        start, end, vals = wigner.lib.wigner_3j_m(ll, ll, LL, mm)
+        start, end, vals = wigner.wigner_3j_m(ll, ll, LL, mm)
         matrix[mm+ll, int(start)+ll : int(end)+ll+1] = vals
     return matrix
 
@@ -174,7 +174,7 @@ def classical_error_scale(meas_scales):
 # squared "gamma" factors that appear in the quantum error scale
 def sqr_gamma(dim, ll):
     ss = (dim-1)/2
-    mm_min, mm_max, wigner_3j_vals = wigner.lib.wigner_3j_m(ll, ss, ss, 0)
+    mm_min, mm_max, wigner_3j_vals = wigner.wigner_3j_m(ll, ss, ss, 0)
     signs = np.array([ (-1)**(2*ll+ss-mm) for mm in np.arange(mm_min, mm_max+1) ])
     signed_vals = signs * wigner_3j_vals
     half_span = ( max(signed_vals) - min(signed_vals) ) / 2
