@@ -83,8 +83,8 @@ initial_B1 = pulse @ initial_B1
 initial_state = join(initial_B0, initial_B1)
 
 joined_states = evolve(initial_state, time_deriv, times)
-split_states = np.array([ split(joined_state) for joined_state in joined_states.T ])
-states = split_states[:,0,:] # 0 index for +Z spins
+pair_states = np.array([ split(joined_state) for joined_state in joined_states.T ])
+states = pair_states[:,0,:] # 0 index for +Z spins
 
 def spin_vec(state):
     spin_ops = np.array([ Sx, Sy, Sz ]) / spin
@@ -113,7 +113,8 @@ bloch.save(fig_name("top"))
 bloch = make_bloch(spin_vecs, [0,0])
 bloch.save(fig_name("side"))
 
-### dim = 2, hh = 0
-### dim = 4, hh = 0.3808, 0.3809
-### dim = 6, hh = 0.5408, 0.5409
-### dim = 8, hh = 0.6410, 0.6411
+### dim = 2,  hh = 0
+### dim = 4,  hh = 0.3808, 0.3809
+### dim = 6,  hh = 0.5408, 0.5409
+### dim = 8,  hh = 0.6410, 0.6411
+### dim = 10, hh = 0.7135, 0.7136
