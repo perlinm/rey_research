@@ -8,8 +8,12 @@ from dicke_methods import spin_op_vec_dicke
 
 np.set_printoptions(linewidth = 200)
 
-dim = int(sys.argv[1])
-log10_field = float(sys.argv[2])
+dim = sys.argv[1]
+log10_field = sys.argv[2]
+data_file = data_dir + f"states_d{dim}_h{log10_field}.txt"
+
+dim = int(dim)
+log10_field = float(log10_field)
 
 sim_time = 10**4
 time_step = 0.1
@@ -18,8 +22,6 @@ ivp_tolerance = 2.220446049250313e-14 # smallest value allowed
 data_dir = f"../data/spin_pair/"
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
-
-data_file = data_dir + f"states_d{dim:02d}_h{log10_field}.txt"
 
 ####################
 
