@@ -11,7 +11,7 @@ np.set_printoptions(linewidth = 200)
 dim = int(sys.argv[1])
 log10_field = float(sys.argv[2])
 
-sim_time = 10**1
+sim_time = 10**4
 time_step = 0.1
 ivp_tolerance = 2.220446049250313e-14 # smallest value allowed
 
