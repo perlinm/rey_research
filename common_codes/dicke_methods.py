@@ -97,7 +97,7 @@ def coherent_spin_state(vec, N = 10):
 try:
     import cmocean
     def sphere_cmap(color_vals):
-        return cmocean.cm.amp(color_vals)
+        return cmocean.cm.balance(color_vals)
 except ModuleNotFoundError:
     def sphere_cmap(color_vals):
         return plt.cm.get_cmap("inferno")(color_vals)
@@ -118,12 +118,12 @@ def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = Non
     def color_val(theta, phi):
         angle_state = coherent_spin_state_angles(theta, phi, spin_num)
         if state.ndim == 1:
-            return abs(angle_state.conjugate() @ state)**2
+            return abs( angle_state.conjugate() @ state )**2
         else:
             return np.einsum("i,ij,j->", angle_state.conjugate(), state, angle_state).real
     color_vals = np.vectorize(color_val)(theta, phi)
-    norm = colors.Normalize(vmin = np.min(color_vals),
-                            vmax = np.max(color_vals), clip = False)
+    vmax = np.max(abs(color_vals))
+    norm = colors.Normalize(vmax = vmax, vmin = -vmax, clip = False)
     color_map = sphere_cmap(norm(color_vals))
 
     # plot spheres
