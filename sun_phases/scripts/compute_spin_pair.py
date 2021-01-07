@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, sys
+import os, sys, time
 import numpy as np
 import scipy, scipy.integrate
 
@@ -21,6 +21,7 @@ if not os.path.isdir(data_dir):
 
 data_file = data_dir + f"states_d{dim}_h{log10_field}.txt"
 
+genesis = time.time()
 ####################
 
 dim = int(dim)
@@ -84,3 +85,5 @@ states = evolve(initial_state, time_deriv, times)
 
 data = np.vstack([ times, states ]).T
 np.savetxt(data_file, data, header = "time, state")
+
+print("runtime:", time.time()-genesis, "seconds")
