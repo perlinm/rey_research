@@ -10,10 +10,6 @@ np.set_printoptions(linewidth = 200)
 
 dim = sys.argv[1]
 log10_field = sys.argv[2]
-data_file = data_dir + f"states_d{dim}_h{log10_field}.txt"
-
-dim = int(dim)
-log10_field = float(log10_field)
 
 sim_time = 10**4
 time_step = 0.1
@@ -23,7 +19,12 @@ data_dir = f"../data/spin_pair/"
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
+data_file = data_dir + f"states_d{dim}_h{log10_field}.txt"
+
 ####################
+
+dim = int(dim)
+log10_field = float(log10_field)
 
 spin = (dim-1)/2
 field = 10**log10_field / (2*spin)
