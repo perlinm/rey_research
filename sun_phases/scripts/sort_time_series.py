@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# should be linked in: [project_dir]/figures/spin_pair/time_series/
+
 import os, glob, shutil
 
 ext = "png"

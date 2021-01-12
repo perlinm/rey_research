@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# should be linked in:
+# [project_dir]/figures/spin_pair/sweep/
+# [project_dir]/figures/spin_pair/zoom/
+
 import os, glob, PIL.Image
 
 ext = "png"
