@@ -8,6 +8,7 @@ from dicke_methods import spin_op_vec_dicke
 
 dim = int(sys.argv[1])
 
+ext = "png"
 figsize = (4,3)
 data_dir = "../data/spin_pair/"
 fig_dir = "../figures/spin_pair/"
@@ -34,11 +35,11 @@ def wrap_label(label, double_braket = False):
         return r"$\langle\!\langle " + label + r"\rangle\!\rangle$"
 
 def time_series_name(file, tag):
-    basename = os.path.basename(file).replace("states",tag).replace(".txt",".png")
+    basename = os.path.basename(file).replace("states",tag).replace(".txt",f".{ext}")
     return fig_dir + "time_series/" + basename
 def LTA_name(file, tag):
     tmp = os.path.basename(file).replace("states",tag)
-    basename = "_".join(tmp.split("_")[:-1]) + ".png"
+    basename = "_".join(tmp.split("_")[:-1]) + f".{ext}"
     return fig_dir + "LTAs/" + basename
 
 ##################################################
