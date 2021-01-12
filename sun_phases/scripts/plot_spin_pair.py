@@ -59,6 +59,8 @@ LTAs = {} # long-time averages
 LTA_info = {}
 
 for field_idx, ( field, file ) in enumerate(sorted(zip(fields,files))):
+    print(f"{field_idx}/{len(fields)}")
+
     data = np.loadtxt(file, dtype = complex)
     times, states_0, states_1 = data[:,0], data[:,1:dim+1], data[:,dim+1:]
     times = times.real
