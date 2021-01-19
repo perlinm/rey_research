@@ -78,15 +78,14 @@ for field_idx, ( field, file ) in enumerate(sorted(zip(fields,files))):
 
     # compute observables of interest
     exchange = abs(np.einsum("ti,ti->t", states_0.conj(), states_1))**2
-    Sx_vals = vals(Sx, states_0).real
-    Sx_Sx_vals = vals(Sx @ Sx, states_0).real
-    Sz_Sz_vals = vals(Sz @ Sz, states_0).real
+    Sx_vals = ( vals(Sx, states_0).real + vals(Sx, states_1).real ) / 2
+
+    ex_label = r"\bm{s}_0\cdot\bm{s}_1"
+    sx_label = r"\tilde s_{\mathrm{x}}"
 
     # make time-series figures
-    for tag, label, values in [ ("ss", r"\bm{s}_0\cdot\bm{s}_1", exchange),
-                                ("sx", r"s_{\mathrm{x}}", Sx_vals),
-                                ("sx_sx", r"s_{\mathrm{x}}^2", Sx_Sx_vals),
-                                ("sz_sz", r"s_{\mathrm{z}}^2", Sz_Sz_vals) ]:
+    for tag, label, values in [ ("ex", ex_label, exchange),
+                                ("sx", sx_label, Sx_vals) ]:
         plt.figure(figsize = figsize)
         plt.title(title)
         plt.plot(times, values, "k-")
