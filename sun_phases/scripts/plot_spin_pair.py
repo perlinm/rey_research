@@ -47,7 +47,7 @@ spin = (dim-1)/2
 
 # spin matrices
 spin_ops = [ op.todense()/spin for op in spin_op_vec_dicke(dim-1) ]
-Sz, Sx, Sy = spin_ops
+Sz, sx, Sy = spin_ops
 
 def vals(op, states):
     return np.einsum("ij,ti,tj->t", op, states.conj(), states)
@@ -78,14 +78,14 @@ for field_idx, ( field, file ) in enumerate(sorted(zip(fields,files))):
 
     # compute observables of interest
     exchange = abs(np.einsum("ti,ti->t", states_0.conj(), states_1))**2
-    Sx_vals = ( vals(Sx, states_0).real + vals(Sx, states_1).real ) / 2
+    sx_vals = ( vals(sx, states_0).real + vals(sx, states_1).real ) / 2
 
-    ex_label = r"\bm{s}_0\cdot\bm{s}_1"
-    sx_label = r"\tilde s_{\mathrm{x}}"
+    ex_label = r"\bar{\bm s}_0\cdot\bar{\bm s}_1"
+    sx_label = r"\bar\sigma_{\mathrm{x}}"
 
     # make time-series figures
     for tag, label, values in [ ("ex", ex_label, exchange),
-                                ("sx", sx_label, Sx_vals) ]:
+                                ("sx", sx_label, sx_vals) ]:
         plt.figure(figsize = figsize)
         plt.title(title)
         plt.plot(times, values, "k-")
@@ -106,6 +106,7 @@ for tag, values in LTAs.items():
     plt.plot(fields, values, "ko")
     plt.xlabel(r"$\log_{10}(h/U)$")
     plt.ylabel(wrap_label(label, double_braket = True))
+    if tag == "ex": plt.ylim(0,1.05)
     plt.tight_layout()
     plt.savefig(fname)
     plt.close()
