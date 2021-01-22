@@ -110,3 +110,10 @@ for tag, values in LTAs.items():
     plt.tight_layout()
     plt.savefig(fname)
     plt.close()
+
+    if tag == "ex":
+        idx = np.argmin(values)
+        print("ex transition:",fields[idx])
+    if tag == "sx":
+        idx = np.argmax(abs(values[1:]/values[:-1]) < 0.01) # arbitrary cutoff
+        print("sx transition:",fields[idx+1])
