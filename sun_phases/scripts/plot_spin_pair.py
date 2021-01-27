@@ -47,7 +47,7 @@ spin = (dim-1)/2
 
 # spin matrices
 spin_ops = [ op.todense()/spin for op in spin_op_vec_dicke(dim-1) ]
-Sz, sx, Sy = spin_ops
+sz, sx, sy = spin_ops
 
 def vals(op, states):
     return np.einsum("ij,ti,tj->t", op, states.conj(), states)
