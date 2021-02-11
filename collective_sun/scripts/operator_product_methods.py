@@ -289,7 +289,7 @@ def _is_diagonal(operator):
     # reshape operator into a matrix of size (op_dim-1)x(op_dim+1),
     #   placing all (previously) diagonal elements (except for the last one)
     #   into the first column of the new matrix
-    diagonal_test = operator.flatten()[:-1].reshape((op_dim-1,op_dim+1))
+    diagonal_test = np.array(operator).ravel().flatten()[:-1].reshape((op_dim-1,op_dim+1))
     # check whether the matrix is zero in all columns after the first
     return not np.any(diagonal_test[:,1:])
 
@@ -301,7 +301,7 @@ def build_multi_local_op(spin_num, spin_dim, local_op,
     dim_PS = np.math.comb(spin_num+spin_dim-1,spin_dim-1)
 
     # determine dimension of each spin, and total number of spins
-    if op_spins := int(np.math.log(np.sqrt(local_op.size), spin_dim)):
+    if op_spins := round( np.math.log(np.sqrt(local_op.size), spin_dim) ):
         local_op = local_op.reshape((spin_dim,)*2*op_spins)
 
     else: # local_op is a scalar
@@ -374,24 +374,29 @@ def build_multi_local_op(spin_num, spin_dim, local_op,
             local_op_sym_mult[pops_lft,pops_rht] \
                 = sum( local_op[ state_lft + state_rht ]
                        for state_lft, state_rht
-                       in it.product(unique_permutations(base_lft),
-                                     unique_permutations(base_rht)) )
+                       in itertools.product(unique_permutations(base_lft),
+                                            unique_permutations(base_rht)) )
 
     # get a matrix element of the full operator
     def get_matrix_element(state_full_lft, state_full_rht, elem = {}):
+        state_full_lft = np.array(state_full_lft)
+        state_full_rht = np.array(state_full_rht)
         val = 0
-        log_coef_full = sum( np.log(float(multinomial(state)))
+        log_coef_full = sum( np.log(multinomial(state))
                              for state in [ state_full_lft, state_full_rht ] )
-        for state_locl_lft, state_locl_rht in state_pairs(op_spins):
-            state_diff_rht = np.array(state_full_rht) - np.array(state_locl_rht)
-            if any( state_diff_rht < 0 ): continue
-            state_diff_lft = np.array(state_full_lft) - np.array(state_locl_lft)
+        state_full_diff = state_full_rht - state_full_lft
+        for state_locl_lft in map(np.array, assignments(op_spins, spin_dim)):
+            state_diff_lft = state_full_lft - state_locl_lft
             if any( state_diff_lft < 0 ): continue
+            state_locl_rht = state_full_diff + state_locl_lft
+            if any( state_locl_rht < 0 ): continue
+            state_diff_rht = state_full_rht - state_locl_rht
+            if any( state_diff_rht < 0 ): continue
 
-            log_coef_locl = sum( np.log(float(multinomial(state)))
+            log_coef_locl = sum( np.log(multinomial(state))
                                  for state in [ state_diff_lft, state_diff_rht ] )
             coef = np.exp( ( log_coef_locl - log_coef_full ) / 2 )
-            val += coef * local_op_sym_mult[state_locl_lft,state_locl_rht]
+            val += coef * local_op_sym_mult[tuple(state_locl_lft),tuple(state_locl_rht)]
 
         return val
 
@@ -401,7 +406,8 @@ def build_multi_local_op(spin_num, spin_dim, local_op,
         return np.array([ get_matrix_element(state, state)
                           for state in collective_states[spin_num,spin_dim] ])
     else:
-        full_op = np.zeros((dim_PS,)*2)
+        dtype = complex if np.iscomplexobj(local_op) else float
+        full_op = np.zeros((dim_PS,)*2, dtype = dtype)
         for state_lft, state_rht in state_pairs(spin_num):
             idx_lft = collective_states[spin_num,spin_dim][state_lft]
             idx_rht = collective_states[spin_num,spin_dim][state_rht]
