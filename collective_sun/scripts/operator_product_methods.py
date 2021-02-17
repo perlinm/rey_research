@@ -374,8 +374,8 @@ def build_multi_local_op(spin_num, spin_dim, local_op,
             local_op_sym_mult[pops_lft,pops_rht] \
                 = sum( local_op[ state_lft + state_rht ]
                        for state_lft, state_rht
-                       in itertools.product(unique_permutations(base_lft),
-                                            unique_permutations(base_rht)) )
+                       in it.product(unique_permutations(base_lft),
+                                     unique_permutations(base_rht)) )
 
     # get a matrix element of the full operator
     def get_matrix_element(state_full_lft, state_full_rht, elem = {}):
