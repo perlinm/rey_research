@@ -31,11 +31,7 @@ spin = (dim-1)/2
 field = 10**log10_field / (2*spin)
 
 # spin matrices
-Sz, Sx, Sy = spin_op_vec_dicke(dim-1)
-
-def rot_frame(state, time):
-    phases = np.exp(-1j * time * field * Sz.diagonal())
-    return phases.conj() * state
+sz, sx, sy = spin_op_vec_dicke(dim-1)
 
 def rank(state):
     return int(np.round(np.log(state.size)/np.log(dim)))
@@ -51,11 +47,17 @@ def split(state):
     S0.shape = S1.shape = (dim,) * rank(S0)
     return S0, S1
 
+def val(op, state):
+    if rank(state) == 2:
+        return np.trace(op @ state)
+    else:
+        return state.conj() @ ( op @ state )
+
 # time derivative of spin state
 def time_deriv(state, field):
     B0, B1 = split(state)
-    deriv_0 = B1 * ( B1.conj() @ B0 ) + field * ( Sz @ B0 )
-    deriv_1 = B0 * ( B0.conj() @ B1 ) - field * ( Sz @ B1 )
+    deriv_0 = B1 * ( B1.conj() @ B0 ) + field * ( sz @ B0 )
+    deriv_1 = B0 * ( B0.conj() @ B1 ) - field * ( sz @ B1 )
     return -1j * join(deriv_0, deriv_1)
 
 def evolve(initial_state, time_deriv, times, tol = ivp_tolerance):
@@ -76,7 +78,7 @@ initial_B0[-1] = 1
 initial_B1[-1] = 1
 
 # rotate states to point up/down along X
-pulse = scipy.linalg.expm(-1j * np.pi/2 * Sy.tocsc())
+pulse = scipy.linalg.expm(-1j * np.pi/2 * sy.todense())
 initial_B0 = pulse @ initial_B0
 initial_B1 = pulse @ initial_B1
 

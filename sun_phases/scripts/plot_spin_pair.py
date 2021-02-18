@@ -1,119 +1,95 @@
 #!/usr/bin/env python3
 
-import os, sys, glob
+import os, glob, qutip
 import numpy as np
 import matplotlib.pyplot as plt
 
-from dicke_methods import spin_op_vec_dicke
+from dicke_methods import spin_op_vec_dicke, plot_dicke_state
 
-dim = int(sys.argv[1])
-
-figsize = (4,3)
 data_dir = "../data/spin_pair/"
-fig_dir = "../figures/spin_pair/"
+fig_dir = "../figures/spin_pair/spin_vecs/"
+
+figsize = (3,3)
 
 # set fonts and use latex packages
 params = { "font.family" : "serif",
            "font.serif" : "Computer Modern",
            "text.usetex" : True,
-           "text.latex.preamble" : r"\usepackage{bm}",
            "font.size" : 10 }
 plt.rcParams.update(params)
 
 ##################################################
 
-def get_field(file, string = False):
-    field = file.split("_")[-1][1:-4]
-    if not string: field = float(field)
-    return field
+def get_info(file, string = False):
+    _, dim, log10_field = os.path.basename(file).split("_")
+    dim = dim[1:]
+    log10_field = log10_field[1:-4]
+    if not string:
+        dim = int(dim)
+        log10_field = float(log10_field)
+    return { "dim" : dim, "log10_field" : log10_field }
 
-def wrap_label(label, double_braket = False):
-    if not double_braket:
-        return r"$\langle " + label + r"\rangle$"
-    else:
-        return r"$\langle\!\langle " + label + r"\rangle\!\rangle$"
+files = sorted(glob.glob(data_dir + "*.txt"),
+               key = lambda file : list(get_info(file).values()))
+dims = sorted(set( get_info(file)["dim"] for file in files ))
 
-def time_series_name(file, tag):
-    basename = os.path.basename(file).replace("states",tag).replace(".txt",".png")
-    return fig_dir + "time_series/" + basename
-def LTA_name(file, tag):
-    tmp = os.path.basename(file).replace("states",tag)
-    basename = "_".join(tmp.split("_")[:-1]) + ".pdf"
-    return fig_dir + "LTAs/" + basename
+def spin_op_vec(dim):
+    spin = (dim-1)/2
+    sz, sx, sy = spin_op_vec_dicke(dim-1)
+    return np.array([ sx.todense(), sy.todense(), sz.todense() ]) / spin
+spin_op_vecs = { dim : spin_op_vec(dim) for dim in dims }
 
 ##################################################
 
-spin = (dim-1)/2
+def fig_name(file, aux_dir, tag):
+    _fig_dir = fig_dir + aux_dir + "/"
+    field_text = file.split("_")[-1][1:-4]
+    if len(field_text) in [ 3, 4 ]:
+        _fig_dir += "sweep/"
+    else:
+        _fig_dir += "zoom/"
+    name = file.replace(data_dir + "states", _fig_dir + f"{tag}")
+    return name.replace(".txt", ".png")
 
-# spin matrices
-spin_ops = [ op.todense()/spin for op in spin_op_vec_dicke(dim-1) ]
-sz, sx, sy = spin_ops
+def spin_vec(state):
+    return np.einsum("aij,i,j", spin_op_vecs[state.size], state.conj(), state).real
 
-def vals(op, states):
-    return np.einsum("ij,ti,tj->t", op, states.conj(), states)
+def make_bloch(spin_vecs, view = None):
+    figure = plt.figure(figsize = figsize)
+    bloch = qutip.Bloch(figure)
+    bloch.add_points(spin_vecs.T)
+    bloch.xlabel = [ "", "" ]
+    bloch.ylabel = [ "", "" ]
+    bloch.zlabel = [ "", "" ]
+    if view: bloch.view = view
+    return bloch
 
-files = glob.glob(data_dir + f"states_d{dim:02d}_h*.txt")
-files = sorted(files, key = get_field)
-fields = list(map(get_field,files))
-LTAs = {} # long-time averages
-LTA_info = {}
-
-for field_idx, ( field, file ) in enumerate(sorted(zip(fields,files))):
-    print(f"{field_idx}/{len(fields)}")
-    sys.stdout.flush()
+for file in files:
+    print(file)
+    dim = get_info(file)["dim"]
+    spin = (dim-1)/2
 
     data = np.loadtxt(file, dtype = complex)
-    times, states_0, states_1 = data[:,0], data[:,1:dim+1], data[:,dim+1:]
-    times = times.real
+    states = data[:,1:dim+1]
 
-    # construct human-readable title
-    field_str = get_field(file, string = True)
-    if field < 0:
-        sign = "-"
-        abs_field = field_str[1:]
-    else:
-        sign = "+"
-        abs_field = field_str
-    title = r"$\log_{10}(h/U)=" + f"{sign}{abs_field}$"
-
-    # compute observables of interest
-    exchange = abs(np.einsum("ti,ti->t", states_0.conj(), states_1))**2
-    sx_vals = ( vals(sx, states_0).real + vals(sx, states_1).real ) / 2
-
-    ex_label = r"\bar{\bm s}_0\cdot\bar{\bm s}_1"
-    sx_label = r"\bar\sigma_{\mathrm{x}}"
-
-    # make time-series figures
-    for tag, label, values in [ ("ex", ex_label, exchange),
-                                ("sx", sx_label, sx_vals) ]:
-        plt.figure(figsize = figsize)
-        plt.title(title)
-        plt.plot(times, values, "k-")
-        plt.xlabel(r"$tU$")
-        plt.ylabel(wrap_label(label))
-        plt.tight_layout()
-        plt.savefig(time_series_name(file, tag))
-        plt.close()
-
-        if tag not in LTAs:
-            LTAs[tag] = np.zeros(len(fields))
-            LTA_info[tag] = ( LTA_name(file, tag), label )
-        LTAs[tag][field_idx] = np.mean(values)
-
-for tag, values in LTAs.items():
-    fname, label = LTA_info[tag]
-    plt.figure(figsize = figsize)
-    plt.plot(fields, values, "ko")
-    plt.xlabel(r"$\log_{10}(h/U)$")
-    plt.ylabel(wrap_label(label, double_braket = True))
-    if tag == "ex": plt.ylim(0,1.05)
-    plt.tight_layout()
-    plt.savefig(fname)
+    # plot mean state
+    mean_state = np.einsum("ti,tj->tij", states, states.conj()).mean(axis = 0)
+    plot_dicke_state(mean_state, single_sphere = False)
+    plt.savefig(fig_name(file, "mean_states", "state"))
     plt.close()
 
-    if tag == "ex":
-        idx = np.argmin(values)
-        print("ex transition:",fields[idx])
-    if tag == "sx":
-        idx = np.argmax(abs(values[1:]/values[:-1]) < 0.01) # arbitrary cutoff
-        print("sx transition:",fields[idx+1])
+    # plot mean spin vectors
+    spin_vecs = np.einsum("aij,ti,tj->ta", spin_op_vecs[dim], states.conj(), states)
+    bloch = make_bloch(spin_vecs)
+    bloch.zlabel = [ r"$\log_{10}h=" + get_info(file, True)["log10_field"] + "$" , "" ]
+    bloch.zlpos[0] = 1.4
+    bloch.save(fig_name(file, "spin_vecs", "bloch"))
+    plt.close()
+
+    bloch = make_bloch(spin_vecs, [0,90])
+    bloch.save(fig_name(file, "spin_vecs", "top"))
+    plt.close()
+
+    bloch = make_bloch(spin_vecs, [0,0])
+    bloch.save(fig_name(file, "spin_vecs", "side"))
+    plt.close()
