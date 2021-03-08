@@ -39,34 +39,52 @@ def field_tensor(field_ops):
     return np.array(field_ops).transpose([1,2,0])
 
 # method computing the time derivative of a mean-field bosonic state
-def boson_time_deriv(state, field, coupling_op = None):
+def boson_time_deriv(state, field, coupling_op = -1):
     spin_dim, spin_num = state.shape
     state_triplet = ( state.conj(), state, state )
-    if coupling_op is None:
+
+    if np.isscalar(coupling_op) or coupling_op.ndim == 0:
         # uniform SU(n)-symmetric couplings
-        vec = np.einsum("nk,ak,ni->ai", *state_triplet) / spin_num \
-            + np.einsum("ani,ni->ai", field, state)
-    elif type(coupling_op) is np.ndarray and coupling_op.ndim == 2:
+        coupling_vec = coupling_op * np.einsum("nk,ak,ni->ai", *state_triplet)
+    elif coupling_op.ndim == 2:
         # inhomogeneous SU(n)-symmetric couplings
-        vec = np.einsum("ik,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
-            + np.einsum("ani,ni->ai", field, state)
-    elif type(coupling_op) is np.ndarray and coupling_op.ndim == 4:
+        coupling_vec = np.einsum("ik,rk,sk,ni->ai", coupling_op, *state_triplet)
+    elif coupling_op.ndim == 4:
         # uniform asymmetric couplings
-        vec = np.einsum("anrs,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
-            + np.einsum("ani,ni->ai", field, state)
-    elif type(coupling_op) is np.ndarray and coupling_op.ndim == 6:
+        coupling_vec = np.einsum("anrs,rk,sk,ni->ai", coupling_op, *state_triplet)
+    elif coupling_op.ndim == 6:
         # inhomogeneous asymmetric couplings
-        vec = np.einsum("anirsk,rk,sk,ni->ai", coupling_op, *state_triplet) / spin_num \
-            + np.einsum("ani,ni->ai", field, state)
+        coupling_vec = np.einsum("anirsk,rk,sk,ni->ai", coupling_op, *state_triplet)
     else:
         # couplings that factorize into an "operator" part and a "spatial" part
-        vec = np.einsum("anrs,ik,rk,sk,ni->ai", *coupling_op, *state_triplet) / spin_num \
-            + np.einsum("ani,ni->ai", field, state)
-    return -1j * vec
+        coupling_vec = np.einsum("anrs,ik,rk,sk,ni->ai", *coupling_op, *state_triplet)
+
+    if type(field) in [ list, tuple ]:
+        # field consists of a single operator with inhomogeneous coefficients
+        field_op, field_coef = field
+        if field_op.ndim == 1:
+            # diagonal operator
+            field_vec = np.einsum("a,i,ai->ai", field_op, field_coef, state)
+        elif field_op.ndim == 2:
+            # general operator
+            field_vec = np.einsum("an,i,ni->ai", field_op, field_coef, state)
+    elif field.ndim == 1:
+        # homogeneous field with diagonal operator
+        field_vec = np.einsum("n,ni->ai", field, state)
+    elif field.shape == state.shape:
+        # inhomogeneous field with diagonal operator
+        field_vec = np.einsum("ai,ai->ai", field, state)
+    elif field.shape == (spin_dim,)*2:
+        # homogeneous field with general operator
+        field_vec = np.einsum("an,ni->ai", field, state)
+    elif field.ndim == 3:
+        # general inhomogeneous field
+        field_vec = np.einsum("ani,ni->ai", field, state)
+
+    return -1j * ( coupling_vec/spin_num + field_vec )
 
 # wrapper for the numerical integrator, for dealing with multi-spin_dimensional state
-def evolve_mft(initial_state, sim_time, field, coupling_op = None,
-               ivp_tolerance = 1e-10):
+def evolve_mft(initial_state, times, field, coupling_op = -1, ivp_tolerance = 1e-10):
     state_shape = initial_state.shape
     initial_state.shape = initial_state.size
 
@@ -76,8 +94,8 @@ def evolve_mft(initial_state, sim_time, field, coupling_op = None,
         state.shape = state.size
         return vec
 
-    ivp_args = [ time_deriv_flat, (0, sim_time), initial_state ]
-    ivp_kwargs = dict( rtol = ivp_tolerance, atol = ivp_tolerance )
+    ivp_args = [ time_deriv_flat, (0, times[-1]), initial_state ]
+    ivp_kwargs = dict( t_eval = times, rtol = ivp_tolerance, atol = ivp_tolerance )
     ivp_solution = scipy.integrate.solve_ivp(*ivp_args, **ivp_kwargs)
 
     times = ivp_solution.t
@@ -86,16 +104,7 @@ def evolve_mft(initial_state, sim_time, field, coupling_op = None,
     states = states.transpose([2,0,1])
 
     initial_state.shape = state_shape
-    return times, states
-
-# get the angle associated with a given spin number <--> quasimomentum
-def spin_angle(qq, spin_num):
-    return 2*np.pi*(qq+1/2)/spin_num
-
-# construct an on-site external field
-def bare_lattice_field(qq, soc_angle, spin_dim, spin_num):
-    spin_vals = np.diag(spin_op_z_dicke(spin_dim-1).todense())
-    return np.diag([ -np.cos(spin_angle(qq, spin_num) + mu * soc_angle) for mu in spin_vals ])
+    return states
 
 def compute_mean_state(state):
     spin_dim, spin_num = state.shape
