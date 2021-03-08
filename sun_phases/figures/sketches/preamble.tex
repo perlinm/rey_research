@@ -1,0 +1,31 @@
+% basic math
+\usepackage{physics,amsmath,amssymb}
+\newcommand{\f}{\frac}
+\newcommand{\p}[1]{\left(#1\right)}
+\newcommand{\set}[1]{\left\{#1\right\}}
+
+% color definitions (used in a figure)
+\usepackage{xcolor}
+\definecolor{orange}{RGB}{255,127,14}
+\definecolor{green}{RGB}{44,160,44}
+
+% proper coloring inside math environment
+\makeatletter
+\def\mathcolor#1#{\@mathcolor{#1}}
+\def\@mathcolor#1#2#3{
+  \protect\leavevmode
+  \begingroup
+    \color#1{#2}#3
+  \endgroup
+}
+\makeatother
+
+% particle diagrams
+\usepackage{tikz}
+\tikzset{
+  baseline = (current bounding box.center)
+}
+\usetikzlibrary{math}
+\usetikzlibrary{calc}
+\usetikzlibrary{patterns}
+\usetikzlibrary{decorations.pathmorphing}

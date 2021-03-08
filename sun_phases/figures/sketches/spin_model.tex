@@ -1,0 +1,47 @@
+\documentclass[preview,varwidth]{standalone}
+\input{preamble.tex}
+
+% for \bm and \xleftrightarrow
+\usepackage{bm,mathtools}
+\usetikzlibrary{tikzmark}
+
+\begin{document}
+$
+\tikzmarknode{a}{}
+\hspace{.5em}
+\vcenter{\hbox{
+    \includegraphics{lattice.pdf}
+  }}
+\hspace{1.5em}
+\tikzmarknode{b}{}
+\vcenter{\hbox{
+    \includegraphics{frozen_modes.pdf}
+  }}
+$ \\
+$
+\tikzmarknode{c}{}
+\vcenter{\hbox{
+    \includegraphics{spins_int.pdf}
+  }}
+\! \xleftrightarrow{\scalebox{1}{$\bm s_p\cdot\bm s_q$}} \,
+\vcenter{\hbox{
+    \includegraphics{spins_int_swap.pdf}
+  }}
+\hspace{.5em}
+\tikzmarknode{d}{}
+\vcenter{\hbox{
+    \includegraphics{many_int.pdf}
+  }}
+$
+\begin{tikzpicture}[overlay, remember picture]
+  \node[right, yshift = 3em] at (a) {{\bf\large (a)}};
+  \node[right, yshift = 3em, xshift = -1.75em] at (b) {{\bf\large (b)}};
+  \node[right, yshift = 2.5em] at (c) {{\bf\large (c)}};
+  \node[right, yshift = 2.5em, xshift = -1em] at (d) {{\bf\large (d)}};
+\end{tikzpicture}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

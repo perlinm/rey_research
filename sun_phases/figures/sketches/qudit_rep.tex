@@ -1,0 +1,30 @@
+\documentclass[preview,varwidth]{standalone}
+\input{preamble.tex}
+
+\usepackage{stackengine} % for stacking with \stackunder
+
+\begin{document}
+$
+\vcenter{\hbox{
+    \stackunder{\includegraphics[width=5em]{bloch_x.pdf}}
+    {\footnotesize $n=2$}
+  }}
+~~
+\to
+~~
+\vcenter{\hbox{
+    \stackunder{\includegraphics[width=5em]{qubit_dist.pdf}}
+    {\footnotesize $n=2$}
+  }}
+~~~~
+\vcenter{\hbox{
+    \stackunder{\includegraphics[width=5em]{qudit_dist.pdf}}
+    {\footnotesize $n=10$}
+  }}
+$
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

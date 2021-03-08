@@ -1,0 +1,30 @@
+\documentclass[preview,varwidth]{standalone}
+\input{preamble.tex}
+
+\begin{document}
+\begin{tikzpicture}
+  % energy levels
+  \coordinate (bl) at (0,0);
+  \coordinate (tl) at ($ (bl) + (0,3em) $);
+  \coordinate (br) at ($ (bl) + (5em,0) $);
+  \coordinate (tr) at ($ (tl) + (5em,0) $);
+  \coordinate (bc) at ($ (bl)!.5!(br) $);
+  \coordinate (tc) at ($ (tl)!.5!(tr) $);
+  \draw[thick] (bl) -- (br);
+  \draw[thick] (tl) -- (tr);
+  \coordinate (bg) at ($ (bl)!.5!(br) + (0,.2em) $);
+  \coordinate (tg) at ($ (tl)!.5!(tr) - (0,.2em) $);
+  \draw[<->] (bg) -- (tg) node[pos=.5,right] {$U$};
+  % spin sketches
+  \node[right, xshift=.3em] at (tr) {\includegraphics[scale=0.7]{many_diff.pdf}};
+  \node[right, xshift=.3em] at (br) {\includegraphics[scale=0.7]{many_same.pdf}};
+  % state text
+  \node[above,align=center] at (tc) {asymmetric};
+  \node[below,align=center] at (bc) {permutationally \\[-.3em] symmetric};
+\end{tikzpicture}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
