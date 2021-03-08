@@ -102,8 +102,8 @@ except ModuleNotFoundError:
     def sphere_cmap(color_vals):
         return plt.cm.get_cmap("inferno")(color_vals)
 
-def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = None,
-                     rasterized = True):
+def plot_dicke_state(state, grid_size = 101, single_sphere = False, figsize = None,
+                     rasterized = True, view_angles = [0,0], shade = True):
     spin_num = state.shape[0]-1
     if figsize is None:
         figsize = plt.figaspect( 1 if single_sphere else 0.5 )
@@ -136,19 +136,20 @@ def plot_dicke_state(state, grid_size = 101, single_sphere = True, figsize = Non
                  figure.add_subplot(122, projection = "3d") ]
 
     axes[0].plot_surface(x_vals, y_vals, z_vals, rstride = 1, cstride = 1,
-                         facecolors = color_map, rasterized = rasterized)
+                         facecolors = color_map, rasterized = rasterized, shade = shade)
     if not single_sphere:
         axes[1].plot_surface(-x_vals, -y_vals, z_vals, rstride = 1, cstride = 1,
-                             facecolors = color_map, rasterized = rasterized)
+                             facecolors = color_map, rasterized = rasterized, shade = shade)
 
     # clean up figure
 
+    elev, azim = view_angles
     ax_lims = np.array([-1,1]) * 0.7
     for axis in axes:
         axis.set_xlim(ax_lims)
         axis.set_ylim(ax_lims)
         axis.set_zlim(ax_lims * 0.8)
-        axis.view_init(elev = 0, azim = 0)
+        axis.view_init(elev = elev, azim = azim)
         axis.set_axis_off()
 
     left = -0.01
