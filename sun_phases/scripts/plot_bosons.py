@@ -159,12 +159,3 @@ for angle_idx, ( angle_tag, time_files ) in enumerate(angle_time_files.items()):
 
     figure.savefig(fig_dir + f"ss_spect_{sys_tag}_a{angle_tag}.pdf")
     plt.close(figure)
-
-##########################################################################################
-# plot bulk data
-##########################################################################################
-
-# [to be completed...]
-# for each angle, plot:
-# - spectrum of SS as a function of field strength
-# - time-series spectrum of density matrix for each fild strength

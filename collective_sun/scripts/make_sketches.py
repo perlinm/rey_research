@@ -80,9 +80,17 @@ angles = [ -np.pi/3, np.pi/6 ]
 colors = color_cycle[:2]
 labels = [ "i", "j" ]
 
+place_spins(centers, angles, colors)
+make_wiggles(centers)
+plt.savefig(fig_dir + "sketch_spins_empty.pdf")
+
 place_spins(centers, angles, colors, labels)
 make_wiggles(centers)
 plt.savefig(fig_dir + "sketch_spins.pdf")
+
+place_spins(centers, angles[::-1], colors[::-1])
+make_wiggles(centers)
+plt.savefig(fig_dir + "sketch_spins_swap_empty.pdf")
 
 place_spins(centers, angles[::-1], colors[::-1], labels)
 make_wiggles(centers)
