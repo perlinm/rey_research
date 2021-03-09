@@ -31,23 +31,20 @@ data_file = data_dir \
 genesis = time.time()
 ####################
 
-dim = int(spin_dim)
-spin = (spin_dim-1)/2
-log10_field = float(log10_field)
-field_strength = 10**log10_field
-
 # construct inhomogeneous magnetic field
-sz = spin_op_z_dicke(dim-1).diagonal()
-def spin_angle(qq):
-    return 2*np.pi*(qq+1/2)/spin_num
-field = [ field_strength * sz, np.sin(spin_angle(np.arange(spin_num))) ]
+field = 10**float(log10_field)
+sz = spin_op_z_dicke(spin_dim-1).diagonal()
+def spin_coeff(qq):
+    spin_angle = 2*np.pi*(qq+1/2)/spin_num
+    return np.sin(spin_angle)
+field_data = [ sz, field * spin_coeff(np.arange(spin_num)) ]
 
 # construct initial state
 init_state = polarized_state("+X", spin_dim, spin_num)
 
 # simulate using boson MFT
 times = np.linspace(0, sim_time, int(sim_time/time_step+1))
-states = evolve_mft(init_state, times, field)
+states = evolve_mft(init_state, times, field_data, ivp_tolerance = ivp_tolerance)
 
 # compute mean spin state in the ensemble at each time point
 mean_states = compute_mean_states(states)
