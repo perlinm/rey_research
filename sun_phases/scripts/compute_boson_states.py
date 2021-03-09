@@ -25,8 +25,9 @@ data_dir = f"../data/spin_bosons/"
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
-data_file = data_dir \
-          + f"states_{init_state_str}_d{spin_dim}_N{spin_num}_h{log10_field}.txt"
+sys_tag = f"states_{init_state_str}_d{spin_dim}_N{spin_num}_h{log10_field}"
+def data_file(tag):
+    return data_dir + f"{tag}_{sys_tag}.txt"
 
 genesis = time.time()
 ####################
@@ -54,6 +55,11 @@ header = "time"
 for mu, nu in zip(*np.triu_indices(spin_dim)):
     header += f", ({mu},{nu})"
 data = np.hstack([ times[:,None], mean_states ])
-np.savetxt(data_file, data, header = header)
+np.savetxt(data_file("states"), data, header = header)
+
+# save long-time average state
+header = "sim_time, time_step: {sim_time}, {time_step}\n" + header
+mean_state = np.mean(data[:,1:], axis = -1)
+np.savetxt(data_file("mean"), mean_state, axis = , header = header)
 
 print("runtime:", time.time()-genesis, "seconds")
