@@ -8,14 +8,14 @@ from boson_methods import polarized_state, field_tensor, evolve_mft, compute_mea
 
 np.set_printoptions(linewidth = 200)
 
-spin_dim = int(sys.argv[1])
-spin_num = int(sys.argv[2])
-log10_field = sys.argv[3]
-init_state_str = sys.argv[4]
+init_state_str = sys.argv[1]
+spin_dim = int(sys.argv[2])
+spin_num = int(sys.argv[3])
+log10_field = sys.argv[4]
 
+assert( init_state_str in [ "X" ] )
 assert( spin_dim % 2 == 0 )
 assert( spin_num % 2 == 0 )
-assert( init_state_str in [ "X" ] )
 
 sim_time = 10**4
 time_step = 0.1
