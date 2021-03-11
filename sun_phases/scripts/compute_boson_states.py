@@ -59,7 +59,7 @@ np.savetxt(data_file("states"), data, header = header)
 
 # save long-time average state
 header = "sim_time, time_step: {sim_time}, {time_step}\n" + header
-mean_state = np.mean(data[:,1:], axis = 0)
+mean_state = np.mean(mean_states, axis = 0)
 np.savetxt(data_file("mean_state"), mean_state, header = header)
 
 print("runtime:", time.time()-genesis, "seconds")
