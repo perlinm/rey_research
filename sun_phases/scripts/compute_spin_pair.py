@@ -19,7 +19,9 @@ data_dir = f"../data/spin_pair/"
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
-data_file = data_dir + f"states_d{dim}_h{log10_field}.txt"
+sys_tag = f"d{dim}_h{log10_field}"
+def data_file(tag):
+    return data_dir + f"{tag}_{sys_tag}.txt"
 
 genesis = time.time()
 ####################
@@ -86,6 +88,6 @@ initial_state = join(initial_B0, initial_B1)
 states = evolve(initial_state, time_deriv, times)
 
 data = np.vstack([ times, states ]).T
-np.savetxt(data_file, data, header = "time, state")
+np.savetxt(data_file("states"), data, header = "time, state")
 
 print("runtime:", time.time()-genesis, "seconds")

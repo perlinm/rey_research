@@ -17,7 +17,7 @@ assert( init_state_str in [ "X" ] )
 assert( spin_dim % 2 == 0 )
 assert( spin_num % 2 == 0 )
 
-sim_time = 10**4
+sim_time = 10**3
 time_step = 0.1
 ivp_tolerance = 2.220446049250313e-14 # smallest value allowed
 
@@ -25,7 +25,7 @@ data_dir = f"../data/spin_bosons/"
 if not os.path.isdir(data_dir):
     os.makedirs(data_dir)
 
-sys_tag = f"states_{init_state_str}_d{spin_dim}_N{spin_num}_h{log10_field}"
+sys_tag = f"{init_state_str}_d{spin_dim}_N{spin_num}_h{log10_field}"
 def data_file(tag):
     return data_dir + f"{tag}_{sys_tag}.txt"
 
@@ -59,7 +59,7 @@ np.savetxt(data_file("states"), data, header = header)
 
 # save long-time average state
 header = "sim_time, time_step: {sim_time}, {time_step}\n" + header
-mean_state = np.mean(data[:,1:], axis = -1)
-np.savetxt(data_file("mean"), mean_state, header = header)
+mean_state = np.mean(data[:,1:], axis = 0)
+np.savetxt(data_file("mean_state"), mean_state, header = header)
 
 print("runtime:", time.time()-genesis, "seconds")

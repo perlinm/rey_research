@@ -35,26 +35,28 @@ params = { "font.family" : "serif",
 plt.rcParams.update(params)
 
 # convert upper triangle of density matrix to full density matrix
-def mean_vals_to_states(mean_vals):
-    mean_states = np.empty(( mean_vals.shape[0], spin_dim, spin_dim ), dtype = complex)
+def vals_to_states(vals):
+    if vals.ndim == 1: vals = np.array([vals])
+    states = np.empty(( vals.shape[0], spin_dim, spin_dim ), dtype = complex)
     for idx, ( mu, nu ) in enumerate(zip(*np.triu_indices(spin_dim))):
-        mean_states[:,mu,nu] = mean_vals[:,idx]
+        states[:,mu,nu] = vals[:,idx]
         if mu != nu:
-            mean_states[:,nu,mu] = mean_vals[:,idx].conj()
-    return mean_states
+            states[:,nu,mu] = vals[:,idx].conj()
+    return states
 
-X_op = spin_op_x_dicke(spin_dim-1).todense() / spin
-mean_X_vals = {}
-for file in glob.glob(data_dir + f"states_{sys_tag}*"):
-    data = np.loadtxt(file, dtype = complex)
-    times, vals = data[:,0], data[:,1:]
-    states = mean_vals_to_states(vals)
-
+X_op_vec = np.array(spin_op_x_dicke(spin_dim-1).todense()).ravel() / spin
+mean_X = {}
+for file in glob.glob(data_dir + f"mean_state_{sys_tag}*"):
     log10_field = float(file.split("_")[-1][1:-4])
-    mean_X_vals[log10_field] = np.einsum("tij,ji->", states, X_op).real / times.size
+    state = vals_to_states(np.loadtxt(file, dtype = complex))
+    mean_X[log10_field] = ( state.ravel().conj() @ X_op_vec ).real
+
+results = sorted(zip(mean_X.keys(), mean_X.values()), key = lambda x : x[0])
+for result in results:
+    print(10**result[0], result[1])
 
 plt.figure(figsize = (3,2))
-plt.plot(mean_X_vals.keys(), mean_X_vals.values(), "ko")
+plt.plot(mean_X.keys(), mean_X.values(), "ko")
 plt.xlabel(r"$\log_{10}(J\phi)$")
 plt.ylabel(r"$\braket{\bar\sigma_{\mathrm{x}}}$")
 plt.tight_layout()
