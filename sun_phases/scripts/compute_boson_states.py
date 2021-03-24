@@ -53,16 +53,18 @@ states = evolve_mft(init_state, times, field_data, ivp_tolerance = ivp_tolerance
 
 # compute mean spin state in the ensemble at each time point
 mean_states = compute_mean_states(states)
+
+header_fst = f"sim_time, time_step: {sim_time}, {time_step}"
 indices = ", ".join(map(str,zip(*np.triu_indices(2))))
 
 # save simulation results
 if save_all_states:
-    header = "time, " + indices
+    header = header_fst + "\ntime, " + indices
     data = np.hstack([ times[:,None], mean_states ])
     np.savetxt(data_file("states"), data, header = header)
 
 # save long-time average state
-header = f"sim_time, time_step: {sim_time}, {time_step}\n" + indices
+header =  header_fst + "\n" + indices
 mean_state = np.mean(mean_states, axis = 0)
 np.savetxt(data_file("mean_state"), mean_state, header = header)
 
