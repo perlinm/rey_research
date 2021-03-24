@@ -235,15 +235,26 @@ def plot_sphere(vectors, points = None, color = "#d62728", width = 2):
     sphere.point_color = [ color ]
 
     sphere.render()
+    plt.gca().set_zlim(-.55,.55)
     return sphere
 
 sphere = plot_sphere([0,1,0])
 plt.savefig("bloch_x.pdf")
 
+def vec_xy(angle = 0):
+    xhat = np.array([1,0,0])
+    yhat = np.array([0,1,0])
+    return np.cos(angle) * yhat - np.sin(angle) * xhat
+
+angle = 2*np.pi * 2/3
+points = 10
+points = [ vec_xy(part) for part in np.linspace(0,angle,points) ]
+sphere = plot_sphere(vec_xy(angle), points)
+plt.savefig("bloch_xy.pdf")
+
 import scipy.stats
 from dicke_methods import coherent_spin_state, spin_op_z_dicke, plot_dicke_state
 
-grid_size = 501
 kwargs = dict( single_sphere = True, shade = False, grid_size = 501 )
 
 qubit_state = coherent_spin_state("+X", 1)

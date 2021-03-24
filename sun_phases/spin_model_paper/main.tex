@@ -39,8 +39,13 @@
 \newcommand{\z}{\text{z}}
 \newcommand{\g}{\text{g}}
 \newcommand{\e}{\text{e}}
-\newcommand{\su}{\mathfrak{su}}
 \renewcommand{\SS}{\mathbb{S}}
+\renewcommand{\O}{\mathcal{O}}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\su}{\mathfrak{su}}
+\newcommand{\MFT}{\text{MFT}}
+
+\renewcommand{\ss}{\bar{\v s}\c\bar{\v s}}
 
 %%% figures
 \usepackage{graphicx} % for figures
@@ -93,8 +98,8 @@ In the spirit of quantum simulation, further investigations of this sort can pla
 For example, SU(2)-symmetric spin interactions can be harnessed to develop quantum sensors that surpass classical limits on measurement precision \cite{he2019engineering, perlin2020spin}.
 The exciting prospect of similarly exploiting larger SU($n$) symmetries to achieve a technological advantage is still an unexplored avenue of research with enormous potential.
 
-\red{[finish intro, summarize paper]}
-% (un)interested reader can ...
+In this work, we ... \red{[finish intro, summarize paper]}
+% the (un)interested reader can ...
 % main results in/below Eqs. ...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -169,7 +174,7 @@ The dimension of the PS manifold, or the ground-state degeneracy of $H_{\t{int}}
 
 \begin{figure}
 \centering
-\includegraphics[width=\linewidth]{sketches/spin_model.pdf}
+\includegraphics[width=\linewidth]{spin_model.pdf}
 \caption{
 (a) Ultracold atoms on a lattice can tunnel between neighboring lattice sites at a rate $J$, and locally repel each other with interaction energy $U_0$.
 (b,c) When the interaction energy $U_0$ is smaller than the single-particle bandwidth $\sim J$, the frozen-mode approximation enables writing the interaction Hamiltonian as a spin model consisting of exchange terms $\v s_p\c\v s_q$, which swap the states two spins pinned to momentum modes $p,q$.
@@ -190,7 +195,7 @@ The dimension $n$ is reflected in $Q_\rho$ by the fact that it can be decomposed
 
 \begin{figure}
 \centering
-\includegraphics[width=\linewidth]{sketches/qudit_rep.pdf}
+\includegraphics[width=\linewidth]{qudit_rep.pdf}
 \caption{
 Whereas the state of a two-level spin (qubit) can be represented by a point on (or inside) the Bloch sphere, the state of a $n$-level spin is more generally represented by a probability distribution on the sphere, decomposable into spherical harmonics $Y_{\ell m}$ of degree $\ell<n$.
 The distribution shown for $n=10$ corresponds to a Haar-random pure state.
@@ -254,7 +259,7 @@ Despite complicating details, the change from two-level to $n$-level spins thus 
 
 \begin{figure}
 \centering
-\includegraphics{sketches/soc_panels.pdf}
+\includegraphics{soc_panels.pdf}
 \caption{
 Spin-orbit coupling for 2-level ({\bf a},{\bf c}) and 4-level ({\bf b},{\bf d}) spins.
 Colors indicate different spin projections $\mu$.
@@ -302,7 +307,7 @@ In principle, making the gauge transformation $c_{q\mu}^\dag\to c_{q-\mu\phi,\mu
   c_{q-\nu\phi,\nu}^\dag c_{q-\mu\phi,\mu}.
 \end{align}
 However, $H_{\t{int}}^{(\phi)}$ cannot be exactly reduced to a spin Hamiltonian that addresses the same spin degrees of freedom as $H_{\t{kin}}^{(\phi)}$.
-Nonetheless, in the weak SOC limit $s\phi\ll1$ the effect of $H_{\t{int}}^{(\phi)}$ may be approximated by $H_{\t{int}}^{(0)}=H_{\t{int}}$, which has previously been benchmarked for SU(2)-symmetric interactions \cite{he2019engineering, smale2019observation}.
+Nonetheless, for sufficiently weak SOC (small $\phi$) the effect of $H_{\t{int}}^{(\phi)}$ may be approximated by $H_{\t{int}}^{(0)}=H_{\t{int}}$, which has previously been benchmarked for SU(2)-symmetric interactions \cite{he2019engineering, smale2019observation}.
 To ensure that $H_{\t{kin}}^{(\phi)}$ does not become trivial as $\phi\to0$, we can simultaneously take $J\to\infty$ while keeping $J\phi$ constant.
 Altogether, the interacting spin Hamiltonian in the gauged frame becomes
 \begin{align}
@@ -320,14 +325,14 @@ Each laser is indexed by an axis of propagation, $\v v$, and a drive amplitude $
 An electronic ${^1}\t{S}_0\to {^3}\t{P}_0$ transition is thus accompanied by a nuclear spin transition $\mu_{\v v}\to\mu_{\v v}\pm1$, where $\mu_{\v v}$ is the projection of nuclear spin onto the axis $\v v$.
 Furthermore, a laser pointing along $\v v$ will generally imprint a phase $e^{-\i\kappa\v v\c\v\ell j}$ on lattice site $j$, where $\kappa$ is the laser's wavenumber (in units with lattice spacing $a=1$) and $\v\ell$ is a fixed unit vector parallel to the lattice.
 Altogether, the multi-laser drive Hamiltonian can be written in the form
-\begin{multline}
+\begin{align}
   H_{\t{drive}}^{\t{full}}
   = \sum_{j,\v v,\sigma} \Omega_{\v v\sigma}
-  \p{e^{-\i\kappa\v v\c\v\ell j} s_{\v v\sigma j}\otimes\op{\e}{\g}_j + \t{h.c.}} \\
-  + \Delta \sum_j \1_j \otimes \op{\e}_j,
+  \p{e^{-\i\kappa\v v\c\v\ell j} s_{\v v\sigma j}\otimes\op{\e}{\g}_j + \t{h.c.}}
+  + \Delta N_\e,
   \label{eq:drive_full}
-\end{multline}
-where $\sigma\in\set{+1,-1}$ indexes a polarization of light; $s_{\v v\sigma j}$ is a $n$-level spin-raising ($\sigma=+1$) or spin-lowering ($\sigma=-1$) operator along axis $\v v$ for atom $j$ (clarified below); $\ket\g_j$ and $\ket\e_j$ respectively denote the ground (${^1}\t{S}_0$) and excited (${^3}\t{P}_0$) electronic states of an atom on site $j$; $\1_j\equiv\sum_\mu s_{\mu\mu j}$ is an identity operator for the spin of atom $j$; and we work in a rotating frame in which the energy difference between ground and excited electronic states is $\Delta$.
+\end{align}
+where $\sigma\in\set{+1,-1}$ indexes a polarization of light; $s_{\v v\sigma j}$ is a $n$-level spin-raising ($\sigma=+1$) or spin-lowering ($\sigma=-1$) operator along axis $\v v$ for atom $j$ (clarified below); $\ket\g_j$ and $\ket\e_j$ respectively denote the ground (${^1}\t{S}_0$) and excited (${^3}\t{P}_0$) electronic states of an atom on site $j$; and $N_\e=\1\otimes\sum_j\op\e_j$ is the number of excited atoms (with $\1$ the identity operator on all spin degrees of freedom).
 
 To define the spin-raising/lowering operators $s_{\v v\sigma j}$, we first define $s_{\x,j}$ similarly to $s_{\x,q}$ in Eq.~\eqref{eq:spin_x_op} with $q\leftrightarrow j$.
 The spin-raising operator $s_{+,j}$ is then twice the spin-raising part of $s_{\x,j}$, just as in the case of SU(2) where $s_\x=\frac12\op{\up}{\dn}+\t{h.c.}$, and the spin-lowering operator is $s_{-,j}\equiv s_{+,j}^\dag$.
@@ -344,7 +349,7 @@ In particular, one is always free to set $n=2$ and expand Eq.~\eqref{eq:spin_rot
 
 \begin{figure}
 \centering
-\includegraphics[width=\linewidth]{sketches/3LD.pdf}
+\includegraphics[width=\linewidth]{3LD.pdf}
 \caption{
 Sketch of the three-laser drive used to address nuclear spins on a one-dimensional lattice.
 Two counter-propagating lasers with right-circular polarization and amplitudes $\Omega_\pm$ point at an angle $\theta$ to the lattice axis.
@@ -357,12 +362,12 @@ Absorbing a photon from the laser with amplitude $\Omega_m$ induces a transition
 In order to make the drive Hamiltonian in Eq.~\eqref{eq:drive_full} more tractable, we orient the lattice along the $z$ axis, $\v\ell=(0,0,1)$, and consider a three-laser drive with a geometry sketched in Figure \ref{fig:3LD}.
 In this setup, two counter-propagating right-circularly polarized lasers point in directions at an angle $\theta$ with the lattice axis, $\v v_\pm=\pm(0,-\sin\theta,\cos\theta)$, and a third linearly-polarized laser points along $\v v_0=(1,0,0)$.
 Choosing $\v v_+$ as the spin quantization axis, we can define new drive amplitudes $\Omega_0\equiv-(\Omega_{\v v_0,+}+\Omega_{\v v_0,-})$ and $\Omega_\pm\equiv\pm\Omega_{\v v_\pm,+}$, as well as a SOC angle $\phi\equiv\kappa\v v_+\c\v\ell=\kappa\cos\theta$, in terms of which the drive Hamiltonian becomes
-\begin{multline}
+\begin{align}
   H_{\t{3LD}}^{\t{full}}
   = \sum_{j,m} \Omega_m
-  \p{e^{-\i m\phi j} s_{mj} \otimes\op{\e}{\g}_j + \t{h.c.}} \\
-  + \Delta \sum_j \1_j \otimes \op{\e}_j,
-\end{multline}
+  \p{e^{-\i m\phi j} s_{mj} \otimes\op{\e}{\g}_j + \t{h.c.}}
+  + \Delta N_\e,
+\end{align}
 where $m\in\set{+1,0,-1}$ indexes the laser pointing along $\v v_m$; and $s_{0,j}\equiv s_{\z,j}$ for shorthand.
 In the far-detuned limit $\abs{\Delta}\gg\abs{\Omega_m}$, a second-order perturbative treatment of electronic excitations ($\ket\e$) yields an effective drive Hamiltonian that only addresses ground-state nuclear spins.
 After a gauge transformation $c_{j\mu}^\dag\to e^{\i\phi\mu j} c_{j\mu}^\dag$ (equivalently $s_{mj}\to e^{\i m\phi j}s_{mj}$), we can then make the simplifying assumption (or requirement) that all $\Omega_m$ are real to write
@@ -425,26 +430,87 @@ The capability to perform arbitrary spatial rotations, together with the capabil
 We leave open the question of whether and how a suitable choice of time-dependent amplitudes $\tilde\Omega_m$ in Eq.~\eqref{eq:drive_single} enables generating arbitrary SU($n$) rotations.
 
 Finally, we comment on the preparation of initial states.
-Initial states are nominally prepared in the ``lab gauge'', and must be transformed according to the gauge transformation $c_{j\mu}^\dag\to e^{\i\phi\mu j} c_{j\mu}^\dag$ prior to evolution under the ``gauged'' spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin}.
+Initial states are nominally prepared in the ``lab frame'', and must be transformed according to the gauge transformation $c_{q\mu}^\dag\to c_{q-\mu\phi,\mu}^\dag$ prior to evolution under the ``gauged frame'' spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin} or the three-laser drive $H_{\t{3LD}}$ in Eq.~\eqref{eq:drive_all}.
 We assume the capability to prepare an initial state in which all spins are maximally polarized along $\v v$, i.e.~$\ket{\v v}^{\otimes N}=\ket{s}^{\otimes N}$, which is unaffected by the gauge transformation (up to a global phase).
 The three-laser then allows us to rotate this state into one that is polarized along any spatial axis (in the gauged frame).
 In addition, when $n>2$ the three-laser drive allows us to prepare product states with nontrivial intra-spin correlations.
-For example, by choosing $H_{\t{drive}}^{\t{single}}\propto s_\x^2$ (see Table \ref{tab:drives}), we can transform the polarized state $\ket{s}^{\otimes N}$ into $\p{\ket{+s}+\ket{-s}}^{\otimes N}$, where every spin is in a coherent superposition of states pointing in opposite directions along $\v v$.
+For example, by choosing $H_{\t{drive}}^{\t{single}}\propto s_\x^2$ (see Table \ref{tab:drives}), we can transform the polarized state $\ket{s}^{\otimes N}$ into $\p{\ket{s}+\ket{-s}}^{\otimes N}$, where every spin is in a coherent superposition of states pointing in opposite directions along $\v v$.
 When $n>2$, this state has a vanishing mean spin vector, $\bk{S_\x}=\bk{S_\y}=\bk{S_\z}=0$ (where $S_\alpha = \sum_j s_{\alpha j}$), but $\bk{S_\z^2}=Ns^2$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{A simple model}
-\label{sec:simple_model}
+\section{Mean-field theory and dynamical phases}
+\label{sec:mean_field}
+
+We now return to the spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin}, and henceforth work exclusively in the ``gauged frame'' of this Hamiltonian and the three-laser drive $H_{\t{3LD}}$ in Eq.~\eqref{eq:drive_all}.
+At a fixed atom number $N$, the spin Hamiltonian $H_{\t{spin}}$ essentially has one free parameter: the ratio $J\phi/U$ that determines the relative strength of the single-particle and interaction terms.
+On a high level, for an initial $N$-fold tensor product state $\ket\psi^{\otimes N}$ one should expect distinct dynamical behaviors when $J\phi/U\ll1$, in which case spin-locking through strong $\v S\c\v S$ interactions restricts dynamics to the permutationally symmetric manifold, as opposed to $J\phi/U\gg1$, in which case individual spins should dephase due to the inhomogeneous magnetic field.
+To investigate these behaviors quantitatively at the mean-field level, we first decompose individual spin operators into Schwinger bosons as $s_{\mu\nu q} = b_{\mu q}^\dag b_{\nu q}$, such that the spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin} becomes
+\begin{align}
+  H_{\t{boson}} = -\f{U}{2N} \sum_{p,q,\mu,\nu}
+  b_{\mu p}^\dag b_{\nu p} b_{\nu q}^\dag b_{\mu q}
+  + J\phi\sum_{q,\mu} \mu\, b_{\mu q}^\dag b_{\mu q}.
+\end{align}
+The Heisenberg equations of motion for the Schwinger boson operators are (see Appendix \ref{sec:bosons})
+\begin{align}
+  \i \d_t b_{\mu q}
+  = -\f{U}{N} \sum_{\nu,p} b_{\nu p}^\dag b_{\mu p} b_{\nu q}
+  + \mu\, b_{\mu q}.
+\end{align}
+Our mean-field theory (MFT) then treats all boson operators in these equations of motion as complex numbers, $b_{\mu q}\to\bk{b_{\mu q}}_\MFT$, with the initial value $\bk{b_{\mu q}\p{t=0}}_\MFT$ equal to the initial amplitude of spin $q$ in state $\mu$.
+Specifically, we will consider initial $N$-fold product states $\ket\psi^{\otimes N}$ with $\ket\psi = \sum_\mu \psi_\mu \ket\mu$, for which we set all $\bk{b_{\mu q}\p{t=0}}_\MFT = \psi_\mu$.
+For pure initial product states, this mean-field treatment of the boson operators $b_{\mu q}$ is mathematically equivalent to a mean-field treatment of the spin operators $s_{\mu\nu q}$, but reduces the number of variables to keep track of by a factor of $\sim n$.
+
+\vspace{1cm}
+
+\red{[Text that will depend on the figures]}
+
+\vspace{1cm}
+
+To identify dynamical phases, we examine long-time-averaged observables of the form
+\begin{align}
+  \bbk{\O}_\MFT = \lim_{T\to\infty} \f1T \int_0^T \dd t\, \bk{\O\p{t}}_\MFT,
+\end{align}
+where $\bk{\O\p{t}}_\MFT$ is the mean-field value of $\O$ at time $t$.
+Specifically, we consider the observables
+\begin{align}
+  \bar\sigma_\x \equiv \f{S_\x}{\norm{S_\x}},
+  &&
+  \ss = \f{\v S}{N}\c\f{\v S}{N},
+\end{align}
+where $S_\x=\sum_q s_{\x,q}$ is a collective spin-$x$ operator with operator norm $\norm{S_\x}=Ns$, and $\bar{\v s}\equiv\frac1N\sum_q\v s_q$ is the average spin matrix (related to the average single-particle density operator $\bar\rho$ by $\bar{\v s} = \bar\rho^\dag$).
+By design, these observables to have norm $\norm{\bar\sigma_\x}=\norm{\ss}=1$ independent of the system size $N$ or spin dimension $n$.
+
+\vspace{1cm}
+
+\red{[Discussion of figures]}
+
+\vspace{1cm}
+
+\begin{figure}
+\centering
+\includegraphics{mean_x_ss.pdf}
+\caption{
+Long-time averages of $\bar\sigma_\x$ and $\ss$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins up to a maximal time $T=10^4/U$.
+}
+\label{fig:mean_x_ss}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{crit_fields.pdf}
+\caption{
+The critical value of $\p{J\phi/U}_{\t{crit}}$ as determined by mean-field simulations of $N=100$ spins, and a single-parameter fit to $\p{J\phi/U}_{\t{crit}}=\p{n/2}^\alpha$, which finds $\alpha=-0.333(4)$.
+The fit agrees with all mean-field results to within an uncertainty determined by the resolution of $J\phi/U$ in mean-field simulations.
+}
+\label{fig:crit_fields}
+\end{figure}
 
 
-
-% use/simulate sinusoidal dispersion
 % initial state in |X>
 % repeat analysis with different initial state
 % -- look at class of initial states (e.g. back-to-back, tipping angle)
 
-\bibliography{\jobname.bib}
-
+\bibliography{main.bib}
 \onecolumngrid
 \appendix
 
@@ -458,10 +524,10 @@ We begin with a general spin Hamiltonian of the form
   H = \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
   h^{\mu\nu j}_{\rho\sigma k} s_{\mu\nu j} s_{\rho\sigma k}
   + \sum_{\mu,\nu,j} \epsilon_{\mu\nu j} s_{\mu\nu j},
-  \label{eq:spin}
+  \label{eq:quadratic_spin}
 \end{align}
 where $\mu,\nu$ index orthogonal states of an $n$-level spin; $j,k$ index one of $N$ spins; $h^{\mu\nu j}_{\rho\sigma k}$ and $\epsilon_{\mu\nu j}$ are scalars; and $s_{\mu\nu j}=\op{\mu}{\nu}_j$ is a transition operator for spin $j$.
-Strictly speaking, Eq.~\eqref{eq:spin} only defines the couplings $h^{\mu\nu j}_{\rho\sigma k}$ for $j<k$, so we enforce $h^{\mu\nu k}_{\rho\sigma j}=h^{\mu\nu j}_{\rho\sigma k}$ and $h^{\mu\nu j}_{\rho\sigma j}=0$ for completion.
+Strictly speaking, Eq.~\eqref{eq:quadratic_spin} only defines the couplings $h^{\mu\nu j}_{\rho\sigma k}$ for $j<k$, so we enforce $h^{\mu\nu k}_{\rho\sigma j}=h^{\mu\nu j}_{\rho\sigma k}$ and $h^{\mu\nu j}_{\rho\sigma j}=0$ for completion.
 Decomposing spin operators into Schwinger bosons as $s_{\mu\nu j}=b_{\mu j}^\dag b_{\nu j}$, where $b_{\nu j}$ a annihilates a boson of type $\nu$ on site $j$, we can write this Hamiltonian as
 \begin{align}
   H = \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
