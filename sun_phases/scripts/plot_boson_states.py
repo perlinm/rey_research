@@ -4,7 +4,9 @@ import os, sys, glob
 import numpy as np
 import matplotlib.pyplot as plt
 
-import scipy, scipy.optimize
+import scipy, scipy.optimize, scipy.special
+import mpl_toolkits
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from dicke_methods import spin_op_x_dicke
 
@@ -17,12 +19,9 @@ figsize = (3,2)
 big_figsize = (3,3.5)
 
 data_dir = "../data/spin_bosons/"
-fig_dir = "../figures/spin_bosons/"
+fig_dir = "../spin_model_paper/figures/"
 def sys_tag(spin_dim):
     return f"{init_state_str}_d{spin_dim}_N{spin_num}"
-
-if not os.path.isdir(fig_dir):
-    os.makedirs(fig_dir)
 
 fontsize = 9
 preamble = r"""
@@ -57,7 +56,10 @@ def vals_to_states(vals, dim):
             states[:,nu,mu] = vals[:,idx].conj()
     return states
 
+inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
 figure, axes = plt.subplots(2, figsize = big_figsize, sharex = True, sharey = True)
+sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
+             inset(axes[1], "35%", "35%", loc = "upper right") ]
 
 files = glob.glob(data_dir + f"mean_state_{sys_tag('*')}*")
 dims = np.array(sorted(set([ get_info(file)["dim"] for file in files ])))
@@ -70,6 +72,7 @@ for dim_idx, dim in enumerate(dims):
                         for file in files if get_info(file)["dim"] == dim ]))
     log10_fields = np.array(log10_fields)
 
+    # collect long-time averages
     spin = (dim-1)/2
     x_op_vec = np.array(spin_op_x_dicke(dim-1).todense()).ravel() / spin
     mean_x = np.zeros(log10_fields.size)
@@ -79,9 +82,6 @@ for dim_idx, dim in enumerate(dims):
         state_vec = state.ravel()
         mean_x[idx] = ( state_vec.conj() @ x_op_vec ).real
         mean_ss[idx] =  ( state_vec.conj() @ state_vec ).real
-
-    axes[0].plot(log10_fields, mean_x, "o", label = dim, zorder = -dim)
-    axes[1].plot(log10_fields, mean_ss, "o", label = dim, zorder = -dim)
 
     # locate when <<sx>> first hits zero
     dx = mean_x[1:] - mean_x[:-1]
@@ -96,12 +96,34 @@ for dim_idx, dim in enumerate(dims):
     log10_crits[dim_idx] = min(np.roots(fit)[-1], log10_fields[zero_start])
     log10_errs[dim_idx] = log10_fields[zero_start] - log10_fields[zero_start-1]
 
+    # plot main data
+    axes[0].plot(log10_fields, mean_x, "o", label = dim, zorder = -dim)
+    axes[1].plot(log10_fields, mean_ss, "o", label = dim, zorder = -dim)
+
+    # plot insets
+    reduced_fields = log10_fields + np.log10((dim/2)**(1/3))
+    fac_x = (dim-1)**0.6
+    fac_ss = np.sqrt(np.pi) * scipy.special.gamma(dim) / scipy.special.gamma(dim-1/2)
+    sub_axes[0].plot(reduced_fields, mean_x*fac_x, ".", label = dim, zorder = -dim)
+    sub_axes[1].plot(reduced_fields, mean_ss*fac_ss-1, ".", label = dim, zorder = -dim)
+
+# label axes and set axis ticks
 axes[0].set_ylabel(op_text(r"\bar\sigma_{\mathrm{x}}"))
 axes[1].set_ylabel(op_text(r"\bar{\bm s}\cdot\bar{\bm s}"))
 axes[1].set_xlabel(r"$\log_{10}(J\phi/U)$")
-axes[0].legend(loc = "best", framealpha = 1)
-plt.tight_layout()
-plt.savefig(fig_dir + "mean_x_ss.pdf")
+for axis in sub_axes:
+    axis.set_xticks([])
+    axis.set_yticks([0,1])
+
+# make legend and save figure
+handles, labels = axes[0].get_legend_handles_labels()
+legend = figure.legend(handles, labels, loc = "lower center",
+                       bbox_to_anchor = (0.5,0.88),
+                       handletextpad = 0.1,
+                       ncol = dims.size, columnspacing = 0.5)
+plt.subplots_adjust(hspace = 0.08)
+kwargs = dict( bbox_extra_artists = (legend,), bbox_inches = "tight" )
+plt.savefig(fig_dir + "mean_x_ss.pdf", **kwargs)
 
 ##################################################
 
