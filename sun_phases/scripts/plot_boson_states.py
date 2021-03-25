@@ -24,7 +24,7 @@ def sys_tag(spin_dim):
 if not os.path.isdir(fig_dir):
     os.makedirs(fig_dir)
 
-fontsize = 10
+fontsize = 9
 preamble = r"""
 \usepackage{braket,bm}
 """
@@ -57,7 +57,7 @@ def vals_to_states(vals, dim):
             states[:,nu,mu] = vals[:,idx].conj()
     return states
 
-figure, axes = plt.subplots(2, figsize = big_figsize, sharex = True)
+figure, axes = plt.subplots(2, figsize = big_figsize, sharex = True, sharey = True)
 
 files = glob.glob(data_dir + f"mean_state_{sys_tag('*')}*")
 dims = np.array(sorted(set([ get_info(file)["dim"] for file in files ])))
@@ -83,7 +83,7 @@ for dim_idx, dim in enumerate(dims):
     axes[0].plot(log10_fields, mean_x, "o", label = dim, zorder = -dim)
     axes[1].plot(log10_fields, mean_ss, "o", label = dim, zorder = -dim)
 
-    # locate when <<sx>> first hits "zero"
+    # locate when <<sx>> first hits zero
     dx = mean_x[1:] - mean_x[:-1]
     dh = log10_fields[1:] - log10_fields[:-1]
     slope_peak = abs(dx/dh).argmax()
@@ -99,7 +99,6 @@ for dim_idx, dim in enumerate(dims):
 axes[0].set_ylabel(op_text(r"\bar\sigma_{\mathrm{x}}"))
 axes[1].set_ylabel(op_text(r"\bar{\bm s}\cdot\bar{\bm s}"))
 axes[1].set_xlabel(r"$\log_{10}(J\phi/U)$")
-for axis in axes: axis.set_ylim(-0.05, 1.05)
 axes[0].legend(loc = "best", framealpha = 1)
 plt.tight_layout()
 plt.savefig(fig_dir + "mean_x_ss.pdf")
@@ -115,7 +114,7 @@ def fun(nn, aa): return (nn/2)**aa
 popt, pcov = scipy.optimize.curve_fit(fun, dims, crits)
 
 plt.figure(figsize = figsize)
-plt.errorbar(dims, crits, yerr = crit_errs, fmt = "ko", label = "MFT", zorder = -1)
+plt.errorbar(dims, crits, yerr = crit_errs, fmt = "ko", zorder = -1, label = "MFT")
 plt.plot(dims, fun(dims, *popt), "r.", label = r"fit: $(n/2)^\alpha$")
 plt.xlabel(r"spin dimension $n$")
 plt.ylabel(r"$(J\phi/U)_{\mathrm{crit}}$")
