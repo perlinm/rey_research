@@ -26,8 +26,7 @@ preamble = r"""
 \newcommand{\MFT}{\mathrm{MFT}}
 \newcommand{\bbk}[1]{\langle\!\langle #1 \rangle\!\rangle}
 """
-params = { "font.family" : "serif",
-           "font.serif" : "Computer Modern",
+params = { "font.serif" : "Computer Modern",
            "font.size" : fontsize,
            "axes.titlesize" : fontsize,
            "axes.labelsize" : fontsize,
@@ -52,6 +51,9 @@ def vals_to_states(vals, dim):
         if mu != nu:
             states[:,nu,mu] = vals[:,idx].conj()
     return states
+
+def gamma(kk):
+    return scipy.special.gamma(kk-1/2) / ( np.sqrt(np.pi) * scipy.special.gamma(kk) )
 
 inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
 figure, axes = plt.subplots(2, figsize = (2.6,3), sharex = True, sharey = True)
@@ -105,10 +107,8 @@ for dim_idx, dim in enumerate(dims):
     axes[1].plot(log10_fields, mean_ss, markers[dim_idx], label = dim, zorder = -dim)
 
     # plot insets
-    fac_x = (dim-1)**0.6
-    fac_ss = np.sqrt(np.pi) * scipy.special.gamma(dim) / scipy.special.gamma(dim-1/2)
-    sub_axes[0].plot(log10_fields_reduced, mean_x*fac_x, ".", label = dim, zorder = -dim)
-    sub_axes[1].plot(log10_fields_reduced, mean_ss*fac_ss-1, ".", label = dim, zorder = -dim)
+    sub_axes[0].plot(log10_fields_reduced, mean_x/gamma(dim/2), ".", label = dim, zorder = -dim)
+    sub_axes[1].plot(log10_fields_reduced, mean_ss/gamma(dim)-1, ".", label = dim, zorder = -dim)
 
 # label axes and set axis ticks
 axes[0].set_ylabel(r"$\bbk{\bar\sigma_{\mathrm{x}}}_\MFT$")
@@ -130,26 +130,13 @@ plt.savefig(fig_dir + "mean_x_ss.pdf", **kwargs)
 
 ##################################################
 
-figure, axes = plt.subplots(2, figsize = (2.4,2.8), sharex = True)
-
 crits = 10**log10_crits
 def fun(dim, aa): return (dim/2)**(-aa)
 popt, pcov = scipy.optimize.curve_fit(fun, dims, crits)
-print(popt, np.sqrt(pcov))
-axes[0].plot(dims, crits, "ko", label = "MFT")
-axes[0].plot(dims, fun(dims, *popt), "r.", label = r"fit:~$(n/2)^\alpha$")
-
-def fun(dim, bb): return (dim-1)**(-bb)
-popt, pcov = scipy.optimize.curve_fit(fun, dims, mean_x_max)
-print(popt, np.sqrt(pcov))
-axes[1].plot(dims, mean_x_max, "ko", label = "MFT")
-axes[1].plot(dims, fun(dims, *popt), "r.", label = r"fit:~$(2s)^\beta$")
-
-axes[0].set_ylabel(r"$(J\phi/U)_{\mathrm{crit}}$")
-axes[1].set_ylabel(r"$\bbk{\bar\sigma_{\mathrm{x}}}_\MFT^0$")
-axes[1].set_xlabel(r"spin dimension $n$")
-axes[1].set_xticks(dims)
-
-for axis in axes: axis.legend(loc = "best")
-plt.subplots_adjust(hspace = 0.08)
+print("alpha:", popt, np.sqrt(pcov))
+plt.figure(figsize = (2.4,1.4))
+plt.plot(dims, crits, "ko", label = "MFT")
+plt.plot(dims, fun(dims, *popt), "r.", label = r"fit:~$(n/2)^{-\alpha}$")
+plt.ylabel(r"$(J\phi/U)_{\mathrm{crit}}$")
+plt.legend(loc = "best")
 plt.savefig(fig_dir + "crit_fields.pdf", bbox_inches = "tight")
