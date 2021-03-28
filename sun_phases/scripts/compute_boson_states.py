@@ -17,7 +17,7 @@ spin_dim = int(sys.argv[2])
 spin_num = int(sys.argv[3])
 log10_field = sys.argv[4]
 
-assert( init_state_str in [ "X" ] )
+assert( init_state_str in [ "X", "XX" ] )
 assert( spin_dim % 2 == 0 )
 assert( spin_num % 2 == 0 )
 
@@ -45,7 +45,12 @@ def spin_coeff(qq):
 field_data = [ sz, field * spin_coeff(np.arange(spin_num)) ]
 
 # construct initial state
-init_state = polarized_state("+X", spin_dim, spin_num)
+if init_state_str == "X":
+    init_state = polarized_state("+X", spin_dim, spin_num)
+if init_state_str == "XX":
+    init_state = polarized_state("+X", spin_dim, spin_num) \
+               + polarized_state("-X", spin_dim, spin_num)
+    init_state /= np.sqrt(2)
 
 # simulate using boson MFT
 times = np.linspace(0, sim_time, int(sim_time/time_step+1))
