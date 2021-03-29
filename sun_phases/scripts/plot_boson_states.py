@@ -55,6 +55,12 @@ def vals_to_states(vals, dim):
 def gamma(kk):
     return scipy.special.gamma(kk-1/2) / ( np.sqrt(np.pi) * scipy.special.gamma(kk) )
 
+def op_vec(dim):
+    op = spin_op_x_dicke(dim-1).todense() / spin
+    if init_state_str == "XX":
+        op = op @ op
+    return np.array(op).ravel()
+
 inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
 figure, axes = plt.subplots(2, figsize = (2.6,3), sharex = True, sharey = True)
 sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
@@ -63,7 +69,7 @@ sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
 files = glob.glob(data_dir + f"mean_state_{sys_tag('*')}*")
 dims = np.array(sorted(set([ get_info(file)["dim"] for file in files ])))
 log10_crits = np.zeros(dims.size)
-mean_x_max = np.zeros(dims.size)
+mean_op_max = np.zeros(dims.size)
 
 for dim_idx, dim in enumerate(dims):
     log10_fields, dim_files \
@@ -74,40 +80,38 @@ for dim_idx, dim in enumerate(dims):
 
     # collect long-time averages
     spin = (dim-1)/2
-    x_op_vec = np.array(spin_op_x_dicke(dim-1).todense()).ravel() / spin
-    mean_x = np.zeros(log10_fields.size)
+    mean_op = np.zeros(log10_fields.size)
     mean_ss = np.zeros(log10_fields.size)
     for idx, file in enumerate(dim_files):
-        state = vals_to_states(np.loadtxt(file, dtype = complex), dim)
-        state_vec = state.ravel()
-        mean_x[idx] = ( state_vec.conj() @ x_op_vec ).real
-        mean_ss[idx] =  ( state_vec.conj() @ state_vec ).real
+        state_vec = vals_to_states(np.loadtxt(file, dtype = complex), dim).ravel()
+        mean_op[idx] = ( state_vec.conj() @ op_vec(dim) ).real
+        mean_ss[idx] = ( state_vec.conj() @ state_vec ).real
 
     # locate when <<sx>> first hits zero
-    dx = mean_x[1:] - mean_x[:-1]
+    dx = mean_op[1:] - mean_op[:-1]
     dh = log10_fields[1:] - log10_fields[:-1]
     slope_peak = abs(dx/dh).argmax()
-    max_zero = max(abs(mean_x[slope_peak+2:]))
-    zero_start = np.argmax(mean_x < 2*max_zero)
+    max_zero = max(abs(mean_op[slope_peak+2:]))
+    zero_start = np.argmax(mean_op < 2*max_zero)
 
     # find the critical field at which <<sx>> = 0 by fitting to a polynomial
     indices = slice(zero_start-3, zero_start)
-    fit = np.polyfit(log10_fields[indices], mean_x[indices], 2)
+    fit = np.polyfit(log10_fields[indices], mean_op[indices], 2)
     log10_crits[dim_idx] = min(np.roots(fit)[-1], log10_fields[zero_start])
 
     # determine \lim_{h->0} <<sx>>
     if dim == 2:
         log10_fields_2 = log10_fields
-        mean_x_2 = mean_x
-    equiv_mean_x_2 = np.interp(log10_fields_reduced[0], log10_fields_2, mean_x_2)
-    mean_x_max[dim_idx] = mean_x[0] / equiv_mean_x_2
+        mean_op_2 = mean_op
+    equiv_mean_op_2 = np.interp(log10_fields_reduced[0], log10_fields_2, mean_op_2)
+    mean_op_max[dim_idx] = mean_op[0] / equiv_mean_op_2
 
     # plot main data
-    axes[0].plot(log10_fields, mean_x, markers[dim_idx], label = dim, zorder = -dim)
+    axes[0].plot(log10_fields, mean_op, markers[dim_idx], label = dim, zorder = -dim)
     axes[1].plot(log10_fields, mean_ss, markers[dim_idx], label = dim, zorder = -dim)
 
     # plot insets
-    sub_axes[0].plot(log10_fields_reduced, mean_x/gamma(dim/2), ".", label = dim, zorder = -dim)
+    sub_axes[0].plot(log10_fields_reduced, mean_op/gamma(dim/2), ".", label = dim, zorder = -dim)
     sub_axes[1].plot(log10_fields_reduced, mean_ss/gamma(dim)-1, ".", label = dim, zorder = -dim)
 
 # label axes and set axis ticks
@@ -115,6 +119,8 @@ axes[0].set_ylabel(r"$\bbk{\bar\sigma_{\mathrm{x}}}_\MFT$")
 axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MFT$")
 axes[1].set_xlabel(r"$\log_{10}(J\phi/U)$")
 for axis in sub_axes:
+    xlim = log10_fields_2[[0,-1]] - log10_crits[0]
+    axis.set_xlim(xlim)
     axis.set_xticks([])
     axis.set_yticks([0,1])
 
@@ -126,7 +132,7 @@ legend = axes[0].legend(handles, labels, loc = "lower center",
                         ncol = dims.size, columnspacing = 0.4)
 plt.subplots_adjust(hspace = 0.08)
 kwargs = dict( bbox_extra_artists = (legend,), bbox_inches = "tight" )
-plt.savefig(fig_dir + "mean_x_ss.pdf", **kwargs)
+plt.savefig(fig_dir + f"mean_op_ss_{init_state_str}.pdf", **kwargs)
 
 ##################################################
 
@@ -139,4 +145,4 @@ plt.plot(dims, crits, "ko", label = "MFT")
 plt.plot(dims, fun(dims, *popt), "r.", label = r"fit:~$(n/2)^{-\alpha}$")
 plt.ylabel(r"$(J\phi/U)_{\mathrm{crit}}$")
 plt.legend(loc = "best")
-plt.savefig(fig_dir + "crit_fields.pdf", bbox_inches = "tight")
+plt.savefig(fig_dir + f"crit_fields_{init_state_str}.pdf", bbox_inches = "tight")
