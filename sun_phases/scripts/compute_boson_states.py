@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import os, sys, time
+import os, sys, time, scipy
 import numpy as np
 
-from dicke_methods import spin_op_z_dicke
-from boson_methods import polarized_state, field_tensor, evolve_mft, compute_mean_states
+from dicke_methods import spin_op_z_dicke, spin_op_y_dicke
+from boson_methods import polarized_state, boson_mft_state, \
+    evolve_mft, compute_mean_states
 
 np.set_printoptions(linewidth = 200)
 
@@ -48,9 +49,11 @@ field_data = [ sz, field * spin_coeff(np.arange(spin_num)) ]
 if init_state_str == "X":
     init_state = polarized_state("+X", spin_dim, spin_num)
 if init_state_str == "XX":
-    init_state = polarized_state("+X", spin_dim, spin_num) \
-               + polarized_state("-X", spin_dim, spin_num)
-    init_state /= np.sqrt(2)
+    state_zz = np.zeros(spin_dim)
+    state_zz[0] = state_zz[-1] = 1 # |-z> + |+z>
+    sy = spin_op_y_dicke(spin_dim-1)
+    state_xx = scipy.sparse.linalg.expm_multiply(-1j*np.pi/2*sy, state_zz)
+    init_state = boson_mft_state(state_xx, spin_dim, spin_num)
 
 # simulate using boson MFT
 times = np.linspace(0, sim_time, int(sim_time/time_step+1))
