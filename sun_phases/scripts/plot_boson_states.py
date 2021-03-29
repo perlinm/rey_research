@@ -56,6 +56,7 @@ def gamma(kk):
     return scipy.special.gamma(kk-1/2) / ( np.sqrt(np.pi) * scipy.special.gamma(kk) )
 
 def op_vec(dim):
+    spin = (dim-1)/2
     op = spin_op_x_dicke(dim-1).todense() / spin
     if init_state_str == "XX":
         op = op @ op
@@ -79,7 +80,6 @@ for dim_idx, dim in enumerate(dims):
     log10_fields_reduced = log10_fields + np.log10((dim/2)**(1/3))
 
     # collect long-time averages
-    spin = (dim-1)/2
     mean_op = np.zeros(log10_fields.size)
     mean_ss = np.zeros(log10_fields.size)
     for idx, file in enumerate(dim_files):
