@@ -4,14 +4,8 @@ import os, sys, time, scipy
 import numpy as np
 
 from dicke_methods import spin_op_z_dicke, spin_op_y_dicke
-from boson_methods import polarized_state, boson_mft_state, \
-    evolve_mft, compute_mean_states
-
-np.set_printoptions(linewidth = 200)
-
-save_all_states = "all" in sys.argv
-if save_all_states:
-    sys.argv.remove("all")
+from boson_methods import polarized_state, boson_mft_state, evolve_mft, \
+    compute_avg_var_vals
 
 init_state_str = sys.argv[1]
 spin_dim = int(sys.argv[2])
@@ -22,9 +16,10 @@ assert( init_state_str in [ "X", "XX" ] )
 assert( spin_dim % 2 == 0 )
 assert( spin_num % 2 == 0 )
 
-sim_time = 10**4
+sim_time = 10**5
 time_step = 0.1
-ivp_tolerance = 2.220446049250313e-14 # smallest value allowed
+save_points = 100
+ivp_tolerance = 1e-10 # smallest value allowed = 2.220446049250313e-14
 
 data_dir = f"../data/spin_bosons/"
 if not os.path.isdir(data_dir):
@@ -55,25 +50,29 @@ if init_state_str == "XX":
     state_xx = scipy.sparse.linalg.expm_multiply(-1j*np.pi/2*sy, state_zz)
     init_state = boson_mft_state(state_xx, spin_dim, spin_num)
 
-# simulate using boson MFT
-times = np.linspace(0, sim_time, int(sim_time/time_step+1))
-states = evolve_mft(init_state, times, field_data, ivp_tolerance = ivp_tolerance)
+# data file header and "initial" time-averaged data
+prev_mean = 0 # running spacetime-averaged state
+prev_steps = 0 # running number of time points
 
-# compute mean spin state in the ensemble at each time point
-mean_states = compute_mean_states(states)
+# simulate using boson mean-field theory
+save_times = np.linspace(0, sim_time, save_points+1)
+for save_idx, ( time_start, time_end ) in enumerate(zip(save_times[:-1], save_times[1:])):
+    interval = time_end - time_start
+    times = np.linspace(time_start, time_end, int(interval/time_step+1))
+    states = evolve_mft(init_state, times, field_data, ivp_tolerance = ivp_tolerance)
 
-header_fst = f"sim_time, time_step: {sim_time}, {time_step}"
-indices = ", ".join(map(str,zip(*np.triu_indices(2))))
+    # compute spacetime average of states \rho and their second moments \rho\otimes\rho
+    this_mean = compute_avg_var_vals(states[1:,:,:])
+    this_steps = times.size-1 # number of averaged time points
 
-# save simulation results
-if save_all_states:
-    header = header_fst + "\ntime, " + indices
-    data = np.hstack([ times[:,None], mean_states ])
-    np.savetxt(data_file("states"), data, header = header)
+    # compute and save running average
+    prev_ratio = prev_steps / ( prev_steps + this_steps )
+    this_ratio = this_steps / ( prev_steps + this_steps )
+    save_mean = prev_mean * prev_ratio + this_mean * this_ratio
+    header = f"sim_time, time_step: {time_end}, {time_step}"
+    np.savetxt(data_file("means"), save_mean, header = header)
 
-# save long-time average state
-header =  header_fst + "\n" + indices
-mean_state = np.mean(mean_states, axis = 0)
-np.savetxt(data_file("mean_state"), mean_state, header = header)
-
-print("runtime:", time.time()-genesis, "seconds")
+    # update running state and number of time points
+    prev_mean = save_mean
+    prev_steps += this_steps
+    print(f"save {save_idx}:", time.time()-genesis, "seconds")

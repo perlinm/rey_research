@@ -60,7 +60,7 @@ def boson_time_deriv(state, field, coupling_op = -1):
         coupling_vec = np.einsum("anrs,ik,rk,sk,ni->ai", *coupling_op, *state_triplet)
 
     if type(field) in [ list, tuple ]:
-        # field consists of a single operator with inhomogeneous coefficients
+        # homogeneous operator with inhomogeneous coefficients
         field_op, field_coef = field
         if field_op.ndim == 1:
             # diagonal operator
@@ -74,9 +74,6 @@ def boson_time_deriv(state, field, coupling_op = -1):
     elif field.shape == state.shape:
         # inhomogeneous field with diagonal operator
         field_vec = np.einsum("ai,ai->ai", field, state)
-    elif field.shape == (spin_dim,)*2:
-        # homogeneous field with general operator
-        field_vec = np.einsum("an,ni->ai", field, state)
     elif field.ndim == 3:
         # general inhomogeneous field
         field_vec = np.einsum("ani,ni->ai", field, state)
@@ -94,7 +91,7 @@ def evolve_mft(initial_state, times, field, coupling_op = -1, ivp_tolerance = 1e
         state.shape = state.size
         return vec
 
-    ivp_args = [ time_deriv_flat, (0, times[-1]), initial_state ]
+    ivp_args = [ time_deriv_flat, (times[0], times[-1]), initial_state ]
     ivp_kwargs = dict( t_eval = times, rtol = ivp_tolerance, atol = ivp_tolerance )
     ivp_solution = scipy.integrate.solve_ivp(*ivp_args, **ivp_kwargs)
 
@@ -106,9 +103,50 @@ def evolve_mft(initial_state, times, field, coupling_op = -1, ivp_tolerance = 1e
     initial_state.shape = state_shape
     return states
 
-def compute_mean_state(state):
-    spin_dim, spin_num = state.shape
-    return np.array([ state[mu,:] @ state[nu,:].conj() / spin_num
-                      for mu, nu in zip(*np.triu_indices(spin_dim)) ], dtype = complex)
-def compute_mean_states(states):
-    return np.array([ compute_mean_state(state) for state in states ])
+##########################################################################################
+# saving and loading simulated states
+##########################################################################################
+
+import itertools
+
+# "upper triangular" indices for a density matrix \rho and its 2nd moment \rho\otimes\rho
+def tri_indices(spin_dim):
+    yield from itertools.combinations_with_replacement(range(spin_dim), r = 2)
+def var_indices(spin_dim):
+    for mm in range(spin_dim):
+        for nn, aa, bb in itertools.product(range(mm, spin_dim), repeat = 3):
+            yield mm, nn, aa, bb
+
+# convert a mean-field (pure product) state into
+#  (i) a space-averaged density matrix \bar\rho
+# (ii) the second moment \bar\rho \otimes \bar\rho
+def compute_avg_var_vals(state_MF):
+    if state_MF.ndim == 2:
+        spin_dim, spin_num = state_MF.shape
+        # avg_state = np.einsum("mq,nq->mn", state_MF, state_MF.conj()) / spin_num
+        avg_state = ( state_MF @ state_MF.conj().T ) / spin_num
+        vals = np.array([ avg_state[mm,nn] for mm, nn in tri_indices(spin_dim) ] +
+                        [ avg_state[mm,nn] * avg_state[aa,bb]
+                          for mm, nn, aa, bb in var_indices(spin_dim) ])
+    elif state_MF.ndim == 3:
+        vals = np.mean([ compute_avg_var_vals(_state_MF)
+                         for _state_MF in state_MF ],
+                       axis = 0)
+    if np.allclose(vals, vals.real): vals = vals.real
+    return vals
+
+# convert a vector of the "upper-triangular entries" of a density matrix \rho
+#   and its second moment \rho\otimes\rho into the full matrices
+def extract_avg_var_state(avg_var_vals, spin_dim):
+    num_tri_vals = len(list(tri_indices(spin_dim)))
+    avg_vals = avg_var_vals[:num_tri_vals]
+    var_vals = avg_var_vals[num_tri_vals:]
+    avg_state = np.empty((spin_dim,)*2, dtype = avg_var_vals.dtype)
+    var_state = np.empty((spin_dim,)*4, dtype = avg_var_vals.dtype)
+    for val, ( mm, nn ) in zip(avg_vals, tri_indices(spin_dim)):
+        avg_state[mm,nn] = val
+        avg_state[nn,mm] = val.conj()
+    for val, ( mm, nn, aa, bb ) in zip(var_vals, var_indices(spin_dim)):
+        var_state[mm,nn,aa,bb] = var_state[aa,bb,mm,nn] = val
+        var_state[nn,mm,bb,aa] = var_state[bb,aa,nn,mm] = val.conj()
+    return avg_state, var_state

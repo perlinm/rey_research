@@ -9,6 +9,7 @@ import mpl_toolkits
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 from dicke_methods import spin_op_x_dicke
+from boson_methods import extract_avg_var_state
 
 init_state_str = sys.argv[1]
 spin_num = int(sys.argv[2])
@@ -23,7 +24,7 @@ def sys_tag(spin_dim):
 fontsize = 9
 preamble = r"""
 \usepackage{braket,bm}
-\newcommand{\MFT}{\mathrm{MFT}}
+\newcommand{\MF}{\mathrm{MF}}
 \newcommand{\bbk}[1]{\langle\!\langle #1 \rangle\!\rangle}
 """
 params = { "font.serif" : "Computer Modern",
@@ -42,32 +43,23 @@ def get_info(file):
     log10_field = float(file.split("_")[-1][1:-4])
     return { "dim" : dim, "log10_field" : log10_field }
 
-# convert upper triangle of density matrix to full density matrix
-def vals_to_states(vals, dim):
-    if vals.ndim == 1: vals = np.array([vals])
-    states = np.empty(( vals.shape[0], dim, dim ), dtype = complex)
-    for idx, ( mu, nu ) in enumerate(zip(*np.triu_indices(dim))):
-        states[:,mu,nu] = vals[:,idx]
-        if mu != nu:
-            states[:,nu,mu] = vals[:,idx].conj()
-    return states
-
 def gamma(kk):
     return scipy.special.gamma(kk-1/2) / ( np.sqrt(np.pi) * scipy.special.gamma(kk) )
 
-def op_vec(dim):
+# operator for the long-time average
+def spin_op(dim):
     spin = (dim-1)/2
     op = spin_op_x_dicke(dim-1).todense() / spin
     if init_state_str == "XX":
         op = op @ op
-    return np.array(op).ravel()
+    return np.array(op)
 
 inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
 figure, axes = plt.subplots(2, figsize = (2.6,3), sharex = True, sharey = True)
 sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
              inset(axes[1], "35%", "35%", loc = "upper right") ]
 
-files = glob.glob(data_dir + f"mean_state_{sys_tag('*')}*")
+files = glob.glob(data_dir + f"means_{sys_tag('*')}*")
 dims = np.array(sorted(set([ get_info(file)["dim"] for file in files ])))
 log10_crits = np.zeros(dims.size)
 mean_op_max = np.zeros(dims.size)
@@ -83,23 +75,24 @@ for dim_idx, dim in enumerate(dims):
     mean_op = np.zeros(log10_fields.size)
     mean_ss = np.zeros(log10_fields.size)
     for idx, file in enumerate(dim_files):
-        state_vec = vals_to_states(np.loadtxt(file, dtype = complex), dim).ravel()
-        mean_op[idx] = ( state_vec.conj() @ op_vec(dim) ).real
-        mean_ss[idx] = ( state_vec.conj() @ state_vec ).real
+        avg_state, var_state \
+            = extract_avg_var_state(np.loadtxt(file, dtype = complex), dim)
+        mean_op[idx] = ( avg_state.ravel().conj() @ spin_op(dim).ravel() ).real
+        mean_ss[idx] = np.einsum("mnnm->", var_state).real
 
-    # locate when <<sx>> first hits zero
+    # locate when <<op>> first hits zero
     dx = mean_op[1:] - mean_op[:-1]
     dh = log10_fields[1:] - log10_fields[:-1]
     slope_peak = abs(dx/dh).argmax()
     max_zero = max(abs(mean_op[slope_peak+2:]))
     zero_start = np.argmax(mean_op < 2*max_zero)
 
-    # find the critical field at which <<sx>> = 0 by fitting to a polynomial
+    # find the critical field at which <<op>> = 0 by fitting to a polynomial
     indices = slice(zero_start-3, zero_start)
     fit = np.polyfit(log10_fields[indices], mean_op[indices], 2)
     log10_crits[dim_idx] = min(np.roots(fit)[-1], log10_fields[zero_start])
 
-    # determine \lim_{h->0} <<sx>>
+    # determine \lim_{h->0} <<op>>
     if dim == 2:
         log10_fields_2 = log10_fields
         mean_op_2 = mean_op
@@ -111,13 +104,16 @@ for dim_idx, dim in enumerate(dims):
     axes[1].plot(log10_fields, mean_ss, markers[dim_idx], label = dim, zorder = -dim)
 
     # plot insets
-    sub_axes[0].plot(log10_fields_reduced, mean_op/gamma(dim/2), ".", label = dim, zorder = -dim)
-    sub_axes[1].plot(log10_fields_reduced, mean_ss/gamma(dim)-1, ".", label = dim, zorder = -dim)
+    mean_op_inset = mean_op / gamma(dim/2)
+    mean_ss_inset = ( mean_ss - gamma(dim) ) / ( 1 - gamma(dim) )
+    sub_axes[0].plot(log10_fields_reduced, mean_op_inset, ".", label = dim, zorder = -dim)
+    sub_axes[1].plot(log10_fields_reduced, mean_ss_inset, ".", label = dim, zorder = -dim)
 
 # label axes and set axis ticks
-axes[0].set_ylabel(r"$\bbk{\bar\sigma_{\mathrm{x}}}_\MFT$")
-axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MFT$")
+axes[0].set_ylabel(r"$\bbk{\bar\sigma_{\mathrm{x}}}_\MF$")
+axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MF$")
 axes[1].set_xlabel(r"$\log_{10}(J\phi/U)$")
+axes[1].set_xlim(-1,1)
 for axis in sub_axes:
     xlim = log10_fields_2[[0,-1]] - log10_crits[0]
     axis.set_xlim(xlim)
