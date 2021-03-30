@@ -43,9 +43,18 @@
 \renewcommand{\O}{\mathcal{O}}
 \newcommand{\I}{\mathcal{I}}
 \newcommand{\su}{\mathfrak{su}}
-\newcommand{\MFT}{\text{MFT}}
+\newcommand{\MF}{\text{MF}}
 
 \renewcommand{\ss}{\bar{\v s}\c\bar{\v s}}
+\DeclareMathOperator{\diag}{diag}
+
+%%% for in-line enumerated lists
+\usepackage[inline]{enumitem}
+\setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
+\setlist{nolistsep} % more compact spacing between environments
+
+% use alphanumeric tags for footnotes
+\renewcommand*{\thefootnote}{\alph{footnote}}
 
 %%% figures
 \usepackage{graphicx} % for figures
@@ -53,9 +62,6 @@
 
 % for text markup
 \newcommand{\red}[1]{{\color{red} #1}}
-
-% use alphanumeric tags for footnotes
-\renewcommand*{\thefootnote}{\alph{footnote}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
@@ -147,10 +153,10 @@ To further simplify notation and write the interaction Hamiltonian in a form sug
 \end{align}
 and for any pair of such operator-valued matrices $\v A,\v B$, we define the inner product
 \begin{align}
-  \v A \c \v B \equiv \Tr\p{\v A^\dag\v B}
+  \v A \c \v B \equiv \Tr_{\t{aux}}\p{\v A^\dag\v B}
   = \sum_{\mu,\nu} A_{\mu\nu}^\dag B_{\mu\nu},
 \end{align}
-where the trace is performed only over the auxiliary matrix degrees of freedom.
+where the trace is performed over the auxiliary matrix degrees of freedom.
 These definitions allow us to write the spin Hamiltonian in Eq.~\eqref{eq:H_int_start} as
 \begin{align}
   H_{\t{int}} = -\f{U}{2N} \sum_{p,q} \v s_p\c\v s_q
@@ -192,6 +198,7 @@ We omit this normalization factor for convenience.} $Q_\psi$ on the sphere $\SS^
 The value $Q_\psi\p{\v v}$ at a point $\v v\in\SS^2$ equal to the overlap of $\ket\psi$ with a pure state $\ket{\v v}$ maximally polarized along $\v v$: $Q_\psi\equiv\abs{\bk{\v v|\psi}}^2$ (see Figure \ref{fig:spin_dist}).
 In the case of a mixed state $\rho$, this distribution is defined by $Q_\rho\equiv\bk{\v v|\rho|\v v}$.
 The dimension $n$ is reflected in $Q_\rho$ by the fact that it can be decomposed into spherical harmonics $Y_{\ell m}$ with degree $\ell<n$ (that is, $Q_\rho$ is ``low resolution'' or ``band-limited'' at degree $n$) \cite{perlin2020qudit}, as well as in the normalization $\int_{\v v\in\SS^2}\dd^2\v v\,Q_\rho\p{\v v}=\frac{4\pi}{d}$.
+Closely related spherical representations of multilevel spin operators are discussed in Ref.~\cite{li2013weylwignermoyal}.
 
 \begin{figure}
 \centering
@@ -206,7 +213,6 @@ The distribution shown for $n=10$ corresponds to a Haar-random pure state.
 In fact, $Q_\rho$ is essentially the Husimi-$Q$ function commonly used (e.g.~in the spin squeezing community \cite{ma2011quantum}) to represent collective states of spin-$\frac{1}{2}$ particles in the Dicke manifold.
 This correspondence is made precise by identifying the Hilbert space of a single $n$-level spin with the Dicke manifold of $n-1$ spin-$\frac{1}{2}$ particles.
 The Hilbert space of a 10-level (spin-$\frac92$) nucleus of a ${}^{87}$Sr atom, for example, can be thought of as the Dicke manifold of 9 ``excess'' proton and neutron spins.
-This representation of a $n$-level quantum system is a useful picture to keep in mind for angular-momentum-like degrees of freedom, and will be used freely throughout this work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Spin-orbit coupling and gauge transformation}
@@ -289,7 +295,7 @@ where
 \end{align}
 For two-level spins, $w_{+,q}^{(\phi)}$ is proportional to the identity operator, and $w_{+,q}^{(\phi)}=2\sin\p{\phi/2} s_{q,\z}$, where $s_{\z,q}=\sum_\mu \mu\, s_{\mu\mu q}$ is a spin-$z$ operator for spin $q$, so the kinetic Hamiltonian in the gauged frame describes a (synthetic) inhomogeneous magnetic field:
 \begin{align}
-  \left. H_{\t{kin}}^{(\phi)} \right|_{d=2}
+  \left. H_{\t{kin}}^{(\phi)} \right|_{n=2}
   = 2\sin\p{\phi/2} J \sum_q \sin\p{q} s_{\z,q}.
 \end{align}
 When $n>2$, an inhomogeneous magnetic field is likewise recovered in the limit of weak SOC, $s\phi\ll1$, in which case
@@ -370,7 +376,7 @@ Choosing $\v v_+$ as the spin quantization axis, we can define new drive amplitu
 \end{align}
 where $m\in\set{+1,0,-1}$ indexes the laser pointing along $\v v_m$; and $s_{0,j}\equiv s_{\z,j}$ for shorthand.
 In the far-detuned limit $\abs{\Delta}\gg\abs{\Omega_m}$, a second-order perturbative treatment of electronic excitations ($\ket\e$) yields an effective drive Hamiltonian that only addresses ground-state nuclear spins.
-After a gauge transformation $c_{j\mu}^\dag\to e^{\i\phi\mu j} c_{j\mu}^\dag$ (equivalently $s_{mj}\to e^{\i m\phi j}s_{mj}$), we can then make the simplifying assumption (or requirement) that all $\Omega_m$ are real to write
+After a gauge transformation $c_{j\mu}^\dag\to e^{\i\phi\mu j} c_{j\mu}^\dag$ (equivalently $s_{mj}\to e^{\i m\phi j}s_{mj}$), we can then make the simplifying assumption that all $\Omega_m$ are real to write
 \begin{align}
   H_{\t{3LD}} = \sum_j H_{\t{3LD},j}^{\t{single}},
   \label{eq:drive_all}
@@ -425,9 +431,9 @@ Eqs.~\eqref{eq:drive_all} and \eqref{eq:drive_single} are the main technical res
 There are three important observations to make about these results.
 First, the fact that $H_{\t{3LD}}$ acts identically on all spins means we can freely replace the site index $j$ with a momentum index $q$ (as can be verified by substituting $c_{j\mu}=\frac1{\sqrt{L}}\sum_k e^{-\i q\c j} c_{q\mu}$), which is important to ensure that this drive addresses the same spin degrees of freedom as the spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin}.
 Second, each of $\tilde\Omega_0,\tilde\Omega_+,\tilde\Omega_-$ can be tuned independently by changing the amplitudes of the driving lasers; some particular Hamiltonians for specific values of these amplitudes are shown in Table \ref{tab:drives}.
-Third, due to the appearance of mutually commuting pairs of Hamiltonians in Table \ref{tab:drives}, specifically $-s_\alpha^2$ and $\pm s_\alpha+s_\alpha^2$ for $\alpha\in\set{\z,\x}$, the three-laser drive admits pulse sequences that can implement arbitrary SU(2) (spatial) rotations of the form $e^{-\i\chi\vec n\c\vec s}$, where $\chi$ is a rotation angle, $\vec n$ is a rotation axis, and $\vec s\equiv(s_\x,s_\y,s_\z)$.
+Third, due to the appearance of mutually commuting pairs of Hamiltonians in Table \ref{tab:drives}, specifically $-s_\alpha^2$ and $\pm s_\alpha+s_\alpha^2$ for $\alpha\in\set{\z,\x}$, the three-laser drive admits pulse sequences that exactly implement arbitrary SU(2) (spatial) rotations of the form $e^{-\i\chi\vec n\c\vec s}$, where $\chi$ is a rotation angle, $\vec n$ is a rotation axis, and $\vec s\equiv(s_\x,s_\y,s_\z)$.
 The capability to perform arbitrary spatial rotations, together with the capability to measure the number of atoms with spin projection $\mu$ onto a fixed quantization axis, $\bk{S_{\mu\mu}}$ (where $S_{\mu\nu}=\sum_js_{\mu\nu j}$), implies the capability to reconstruct all components of the mean collective spin matrix $\bk{\v S}=\sum_{\mu\nu}\bk{S_{\mu\nu}}\op{\mu}{\nu}$ via spin qudit tomography \cite{newton1968measurability, perlin2020qudit}.
-We leave open the question of whether and how a suitable choice of time-dependent amplitudes $\tilde\Omega_m$ in Eq.~\eqref{eq:drive_single} enables generating arbitrary SU($n$) rotations.
+Moreover, we expect that advanced quantum optimal control techniques (similar to those of Refs.~\cite{anderson2015accurate, lucarelli2018quantum}) can be used to implement arbitrary SU($n$) rotations by designing suitable time-dependent drive amplitudes $\Omega_m$.
 
 Finally, we comment on the preparation of initial states.
 Initial states are nominally prepared in the ``lab frame'', and must be transformed according to the gauge transformation $c_{q\mu}^\dag\to c_{q-\mu\phi,\mu}^\dag$ prior to evolution under the ``gauged frame'' spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin} or the three-laser drive $H_{\t{3LD}}$ in Eq.~\eqref{eq:drive_all}.
@@ -441,78 +447,132 @@ When $n>2$, this state has a vanishing mean spin vector, $\bk{S_\x}=\bk{S_\y}=\b
 \section{Mean-field theory and dynamical phases}
 \label{sec:mean_field}
 
-We now return to the spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin}, and henceforth work exclusively in the ``gauged frame'' of this Hamiltonian and the three-laser drive $H_{\t{3LD}}$ in Eq.~\eqref{eq:drive_all}.
-At a fixed atom number $N$, the spin Hamiltonian $H_{\t{spin}}$ essentially has one free parameter: the ratio $J\phi/U$ that determines the relative strength of the single-particle and interaction terms.
-On a high level, for an initial $N$-fold tensor product state $\ket\psi^{\otimes N}$ one should expect distinct dynamical behaviors when $J\phi/U\ll1$, in which case spin-locking through strong $\v S\c\v S$ interactions restricts dynamics to the permutationally symmetric manifold, as opposed to $J\phi/U\gg1$, in which case individual spins should dephase due to the inhomogeneous magnetic field.
-To investigate these behaviors quantitatively at the mean-field level, we first decompose individual spin operators into Schwinger bosons as $s_{\mu\nu q} = b_{\mu q}^\dag b_{\nu q}$, such that the spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin} becomes
+We now return to the spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin}, which is valid in the weak-SOC limit $s\phi\ll1$, and henceforth work exclusively in the ``gauged frame'' of this $H_{\t{spin}}$ and the three-laser drive $H_{\t{3LD}}$ in Eq.~\eqref{eq:drive_all}.
+At the mean-field (MF) level, the spin Hamiltonian becomes
 \begin{align}
-  H_{\t{boson}} = -\f{U}{2N} \sum_{p,q,\mu,\nu}
+  H_\MF = \sum_q\sp{-U\bk{\bar{\v s}}\c\v s_q
+    + J\phi \sum_q \sin\p{q} s_{\z,q}}.
+  \label{eq:H_MF}
+\end{align}
+where $\bar{\v s}\equiv\frac1N\sum_q\v s_q$ is the average spin matrix.
+Fixing the atom number $N$, the spin Hamiltonian has one free parameter: the reduced field $J\phi/U$ that determines the relative strength of the single-particle and interaction terms.
+For an initial $N$-fold tensor product state $\ket\psi^{\otimes N}$ one should expect distinct dynamical behaviors when $J\phi/U\ll1$, in which case strong spin-locking interactions should give rise to a long-range ordered phase, as opposed to $J\phi/U\gg1$, in which case long-range order should be destroyed by the strong inhomogeneous magnetic field.
+
+To investigate these behaviors quantitatively, we examine long-time-averaged observables of the form
+\begin{align}
+  \bbk{\O}_\MF = \lim_{T\to\infty} \f1T \int_0^T \dd t\, \bk{\O\p{t}}_\MF,
+\end{align}
+where $\bk{\O\p{t}}_\MF$ is the mean-field value of observable $\O$ at time $t$ (see Appendices \ref{sec:MFT} and \ref{sec:bosons} for details about our mean-field simulations).
+Specifically, we consider long-time averages of the normalized transverse magnetization and interaction energy
+\begin{align}
+  \bar\sigma_\x \equiv \f{S_\x}{\norm{S_\x}},
+  &&
+  \ss = \f{\v S\c\v S}{N^2},
+\end{align}
+where $\norm{S_\x}=Ns$ is the operator norm of $S_\x$.
+By design, these observables to have norm $\norm{\bar\sigma_\x}=\norm{\ss}=1$ independent of the system size $N$ or spin dimension $n$.
+
+\begin{figure}
+\centering
+\includegraphics{mean_op_ss_X.pdf}
+\caption{
+Long-time averages of $\bar\sigma_\x$ and $\ss$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\x^{\otimes N}$.
+Insets show same data with a rescaling $J\phi/U\to J\phi/U \times (n/2)^{1/3}$, $\bbk{\bar\sigma_x}_\MF\to\bbk{\bar\sigma_x}_\MF/\gamma\p{n/2}$, and $\bbk{\ss}_\MF\to\bbk{\ss}_\MF/\gamma\p{n}-1$, where $\gamma\p{k}$ is defined in Eq.~\eqref{eq:gamma}.
+}
+\label{fig:mean_op_ss_X}
+\end{figure}
+
+Figure \ref{fig:mean_op_ss_X} shows the long-time averages of the transverse magnetization $\bar\sigma_\x$ and interaction energy $\ss$ as computed by mean-field simulations of $N=100$ spins in an initial $x$-polarized state $\ket\x^{\otimes N}$, where
+\begin{align}
+  \ket\x \equiv e^{-\i\frac{\pi}{2}s_\y}\ket{s}
+  = \f1{2^s} \sum_\mu { 2s \choose s+\mu }^{1/2} \ket{\mu}.
+  \label{eq:state_x}
+\end{align}
+Here ${m \choose k}$ is a binomial coefficient.
+As expected, the spin model exhibits a mean-field dynamical phase transition between an ordered phase at small $J\phi/U$ and a disordered phase at large $J\phi/U$.
+The ordered phase has a non-zero transverse magnetization $\bbk{\sigma_\x}_\MF$ and a large interaction energy $\bbk{\ss}_\MF$, while the disordered phase has no transverse magnetization and a minimal interaction energy.
+Numerically, we find that the transition between these phases occurs at a critical field $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields_X}).
+
+\begin{figure}
+\centering
+\includegraphics{crit_fields_X.pdf}
+\caption{
+The critical value of $\p{J\phi/U}_{\t{crit}}$ as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\x^{\otimes N}$.
+A single-parameter fit to $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ finds $\alpha=0.333(5)$, and $\alpha=1/3$ is consistent with all mean-field results to within an uncertainty determined by the resolution of $J\phi/U$ in mean-field simulations.
+}
+\label{fig:crit_fields_X}
+\end{figure}
+
+As shown in insets of Figure \ref{fig:mean_op_ss_X}, mean-field results for different spin dimensions $n$ collapse onto each other when normalizing the field $J\phi/U$ to its critical value, $\p{J\phi/U}\to\p{J\phi/U}\times\p{n/2}^{1/3}$, and rescaling $\bbk{\bar\sigma_x}_\MF\to\bbk{\bar\sigma_x}_\MF/\gamma\p{n/2}$ and $\bbk{\ss}_\MF\to\bbk{\ss}_\MF/\gamma\p{n}-1$, where
+\begin{align}
+  \gamma\p{k} \equiv \f{\Gamma\p{k-\frac12}}{\sqrt\pi\,\Gamma\p{k}}.
+  \label{eq:gamma}
+\end{align}
+The rescaling of transverse magnetization and interaction energy can be understood by considering their limiting behavior as $J\phi/U\to\infty$ or $J\phi/U\to0^+$.
+
+In the strong-field limit $J\phi/U\to\infty$, we can ignore interactions and treat spins as though they simply precess at different rates.
+The long-time-averaged transverse magnetization $\bbk{\bar\sigma_\x}_\MF$ then trivially vanishes as $J\phi/U\to\infty$.
+The interaction energy $\bk{\ss}_\MF = \bk{\bar{\v s}}_\MF \c \bk{\bar{\v s}}_\MF$, meanwhile, has contributions from
+\begin{enumerate*}
+\item the diagonal parts of the mean spin matrix $\bk{\bar{\v s}}_\MF$, which are conserved by inhomogeneous spin precession, and
+\item the off-diagonal parts of $\bk{\bar{\v s}}_\MF$, whose oscillations average to zero when evaluating the long-time average $\bbk{\ss}_\MF$.
+\end{enumerate*}
+Altogether, the interaction energy $\bbk{\ss}_\MF$ in the strong-field limit is determined by the time-independent diagonal part $\diag\bk{\bar{\v s}\p{t}} = \diag\op\x$, namely
+\begin{align}
+  \lim_{J\phi/U\to\infty} \bbk{\ss}_\MF
+  = \Tr\sp{\p{\diag\op\x}^2}
+  = \gamma\p{n} \approx \f1{\sqrt{2\pi s}}.
+\end{align}
+The same result can be obtained by considering the interaction energy of two counter-rotating spins, whose long-time average is essentially the time-averaged overlap of their phase-space distributions (see Figure \ref{fig:spin_dist}).
+
+In the weak-field limit $J\phi/U\to0^+$, the spin-locking $\v S\c\v S$ interactions of the spin Hamiltonian $H_{\t{spin}}$ effectively restrict dynamics to the permutationally-symmetric (PS) manifold.
+At second order in perturbation theory, the spin Hamiltonian thus becomes
+\begin{align}
+  H_{\t{spin}}^{\t{eff}}
+  = \f{\p{J\phi}^2}{\p{N-1}U}
+  \times \sp{S_\z^2 - N\sum_q s_{\z,q}^2}.
+\end{align}
+However, mean-field theory fails to capture inter-spin correlations that accumulate throughout evolution under $H_{\t{spin}}^{\t{eff}}$.
+For example, $\ss$ is constant (equal to 1) in the PS manifold, but $\lim_{J\phi/U\to0^+}\bbk{\ss}_\MF<1$ when $n>2$ in Figure \ref{fig:mean_op_ss_X}.
+Treating $H_{\t{spin}}^{\t{eff}}$ at the mean-field level would also yield a homogeneous Hamiltonian that conserves $\ss$, which is again inconsistent with the weak-field limits of $\bbk{\ss}_\MF$.
+This inconsistency between mean-field theories stems from the fact that applying perturbation theory does not commute with a mean-field factorization of spin operators.
+In order to reproduce the weak-field asymptotic values of $\bbk{\bar\sigma_\x}_\MF$ and $\bbk{\ss}_\MF$, therefore, we must instead consider the mean-field Hamiltonian $H_\MF$ in Eq.~\eqref{eq:H_MF}.
+
+
+
+
+\vspace{3cm}
+
+
+\bibliography{main.bib}
+\onecolumngrid
+\appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Mean-field theory}
+\label{sec:MFT}
+
+Here we describe the mean-field theory used to simulate the spin Hamiltonian
+\begin{align}
+  H_{\t{spin}} = -\f{U}{2N}\v S\c\v S + J\phi \sum_q \sin\p{q} s_{\z,q}
+\end{align}
+in Eq.~\eqref{eq:H_spin} of the main text.
+We begin by decomposing individual spin operators into Schwinger bosons as $s_{\mu\nu q} = b_{\mu q}^\dag b_{\nu q}$, such that the spin Hamiltonian becomes
+\begin{align}
+  H_{\t{spin}} \to H_{\t{boson}}
+  = -\f{U}{2N} \sum_{p,q,\mu,\nu}
   b_{\mu p}^\dag b_{\nu p} b_{\nu q}^\dag b_{\mu q}
-  + J\phi\sum_{q,\mu} \mu\, b_{\mu q}^\dag b_{\mu q}.
+  + J\phi \sum_{q,\mu} \sin\p{q} \mu\, b_{\mu q}^\dag b_{\mu q}.
 \end{align}
 The Heisenberg equations of motion for the Schwinger boson operators are (see Appendix \ref{sec:bosons})
 \begin{align}
   \i \d_t b_{\mu q}
   = -\f{U}{N} \sum_{\nu,p} b_{\nu p}^\dag b_{\mu p} b_{\nu q}
-  + \mu\, b_{\mu q}.
+  + J\phi \sin\p{q} \mu\, b_{\mu q}.
 \end{align}
-Our mean-field theory (MFT) then treats all boson operators in these equations of motion as complex numbers, $b_{\mu q}\to\bk{b_{\mu q}}_\MFT$, with the initial value $\bk{b_{\mu q}\p{t=0}}_\MFT$ equal to the initial amplitude of spin $q$ in state $\mu$.
-Specifically, we will consider initial $N$-fold product states $\ket\psi^{\otimes N}$ with $\ket\psi = \sum_\mu \psi_\mu \ket\mu$, for which we set all $\bk{b_{\mu q}\p{t=0}}_\MFT = \psi_\mu$.
-For pure initial product states, this mean-field treatment of the boson operators $b_{\mu q}$ is mathematically equivalent to a mean-field treatment of the spin operators $s_{\mu\nu q}$, but reduces the number of variables to keep track of by a factor of $\sim n$.
-
-\vspace{1cm}
-
-\red{[Text that will depend on the figures]}
-
-\vspace{1cm}
-
-To identify dynamical phases, we examine long-time-averaged observables of the form
-\begin{align}
-  \bbk{\O}_\MFT = \lim_{T\to\infty} \f1T \int_0^T \dd t\, \bk{\O\p{t}}_\MFT,
-\end{align}
-where $\bk{\O\p{t}}_\MFT$ is the mean-field value of $\O$ at time $t$.
-Specifically, we consider the observables
-\begin{align}
-  \bar\sigma_\x \equiv \f{S_\x}{\norm{S_\x}},
-  &&
-  \ss = \f{\v S}{N}\c\f{\v S}{N},
-\end{align}
-where $S_\x=\sum_q s_{\x,q}$ is a collective spin-$x$ operator with operator norm $\norm{S_\x}=Ns$, and $\bar{\v s}\equiv\frac1N\sum_q\v s_q$ is the average spin matrix (related to the average single-particle density operator $\bar\rho$ by $\bar{\v s} = \bar\rho^\dag$).
-By design, these observables to have norm $\norm{\bar\sigma_\x}=\norm{\ss}=1$ independent of the system size $N$ or spin dimension $n$.
-
-\vspace{1cm}
-
-\red{[Discussion of figures]}
-
-\vspace{1cm}
-
-\begin{figure}
-\centering
-\includegraphics{mean_x_ss.pdf}
-\caption{
-Long-time averages of $\bar\sigma_\x$ and $\ss$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins up to a maximal time $T=10^4/U$.
-}
-\label{fig:mean_x_ss}
-\end{figure}
-
-\begin{figure}
-\centering
-\includegraphics{crit_fields.pdf}
-\caption{
-The critical value of $\p{J\phi/U}_{\t{crit}}$ as determined by mean-field simulations of $N=100$ spins, and a single-parameter fit to $\p{J\phi/U}_{\t{crit}}=\p{n/2}^\alpha$, which finds $\alpha=-0.333(4)$.
-The fit agrees with all mean-field results to within an uncertainty determined by the resolution of $J\phi/U$ in mean-field simulations.
-}
-\label{fig:crit_fields}
-\end{figure}
-
-
-% initial state in |X>
-% repeat analysis with different initial state
-% -- look at class of initial states (e.g. back-to-back, tipping angle)
-
-\bibliography{main.bib}
-\onecolumngrid
-\appendix
+Our mean-field theory then treats all boson operators in these equations of motion as complex numbers, $b_{\mu q}\to\bk{b_{\mu q}}_\MF$, with the initial value $\bk{b_{\mu q}\p{t=0}}_\MF$ equal to the initial amplitude of spin $q$ in state $\mu$.
+Specifically, for an $N$-fold product state of the form $\ket\psi=\bigotimes_q\sum_\mu\psi_{\mu q}\ket{\mu}$ we set $\bk{b_{\mu q}\p{t=0}}_\MF = \psi_{\mu q}$.
+For pure initial product states, this mean-field treatment of the boson operators $b_{\mu q}$ is mathematically equivalent to a mean-field treatment of the spin operators $s_{\mu\nu q}$, as in Eq.~\eqref{eq:H_MF}, but reduces the number of variables to keep track of by a factor of $\sim n$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Schwinger boson equations of motion}
