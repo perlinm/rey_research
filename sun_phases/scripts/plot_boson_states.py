@@ -70,6 +70,8 @@ for dim_idx, dim in enumerate(dims):
                         for file in files if get_info(file)["dim"] == dim ]))
     log10_fields = np.array(log10_fields)
     log10_fields_reduced = log10_fields + np.log10((dim/2)**(1/3))
+    fields = 10**log10_fields
+    fields_reduced = 10**log10_fields_reduced
 
     # collect long-time averages
     mean_op = np.zeros(log10_fields.size)
@@ -100,25 +102,27 @@ for dim_idx, dim in enumerate(dims):
     mean_op_max[dim_idx] = mean_op[0] / equiv_mean_op_2
 
     # plot main data
-    axes[0].plot(log10_fields, mean_op, markers[dim_idx], label = dim, zorder = -dim)
-    axes[1].plot(log10_fields, mean_ss, markers[dim_idx], label = dim, zorder = -dim)
+    axes[0].semilogx(fields, mean_op, markers[dim_idx], label = dim, zorder = -dim)
+    axes[1].semilogx(fields, mean_ss, markers[dim_idx], label = dim, zorder = -dim)
 
     # plot insets
     mean_op_inset = mean_op / gamma(dim/2)
     mean_ss_inset = ( mean_ss - gamma(dim) ) / ( 1 - gamma(dim) )
-    sub_axes[0].plot(log10_fields_reduced, mean_op_inset, ".", label = dim, zorder = -dim)
-    sub_axes[1].plot(log10_fields_reduced, mean_ss_inset, ".", label = dim, zorder = -dim)
+    sub_axes[0].semilogx(fields_reduced, mean_op_inset, ".", label = dim, zorder = -dim)
+    sub_axes[1].semilogx(fields_reduced, mean_ss_inset, ".", label = dim, zorder = -dim)
 
 # label axes and set axis ticks
 axes[0].set_ylabel(r"$\bbk{\bar\sigma_{\mathrm{x}}}_\MF$")
 axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MF$")
-axes[1].set_xlabel(r"$\log_{10}(J\phi/U)$")
-axes[1].set_xlim(-1,1)
+axes[1].set_xlabel(r"$J\phi/U$")
+axes[1].set_xlim(0.1,10)
 for axis in sub_axes:
-    xlim = log10_fields_2[[0,-1]] - log10_crits[0]
-    axis.set_xlim(xlim)
-    axis.set_xticks([])
+    axis.set_xlim(0.1,10)
+    axis.set_ylim(-0.1,1.1)
+    axis.set_xticks([0.1,1,10])
     axis.set_yticks([0,1])
+sub_axes[0].set_xticklabels(["",r"$10^0$",""])
+sub_axes[1].set_xticklabels([])
 
 # make legend and save figure
 handles, labels = axes[0].get_legend_handles_labels()

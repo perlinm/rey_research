@@ -19,7 +19,7 @@ assert( spin_num % 2 == 0 )
 sim_time = 10**5
 time_step = 0.1
 save_points = 100
-ivp_tolerance = 1e-10 # smallest value allowed = 2.220446049250313e-14
+ivp_tolerance = 2.220446049250313e-14 # smallest value allowed
 
 data_dir = f"../data/spin_bosons/"
 if not os.path.isdir(data_dir):
