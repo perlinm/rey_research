@@ -50,8 +50,6 @@ def gamma(kk):
 def spin_op(dim):
     spin = (dim-1)/2
     op = spin_op_x_dicke(dim-1).todense() / spin
-    if init_state_str == "XX":
-        op = op @ op
     return np.array(op)
 
 inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
@@ -61,7 +59,7 @@ sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
 
 files = glob.glob(data_dir + f"means_{sys_tag('*')}*")
 dims = np.array(sorted(set([ get_info(file)["dim"] for file in files ])))
-log10_crits = np.zeros(dims.size)
+crits = np.zeros(dims.size)
 mean_op_max = np.zeros(dims.size)
 
 for dim_idx, dim in enumerate(dims):
@@ -92,7 +90,7 @@ for dim_idx, dim in enumerate(dims):
     # find the critical field at which <<op>> = 0 by fitting to a polynomial
     indices = slice(zero_start-3, zero_start)
     fit = np.polyfit(log10_fields[indices], mean_op[indices], 2)
-    log10_crits[dim_idx] = min(np.roots(fit)[-1], log10_fields[zero_start])
+    crits[dim_idx] = 10**min(np.roots(fit)[-1], log10_fields[zero_start])
 
     # determine \lim_{h->0} <<op>>
     if dim == 2:
@@ -101,15 +99,17 @@ for dim_idx, dim in enumerate(dims):
     equiv_mean_op_2 = np.interp(log10_fields_reduced[0], log10_fields_2, mean_op_2)
     mean_op_max[dim_idx] = mean_op[0] / equiv_mean_op_2
 
+    kwargs = dict( label = dim, zorder = -dim )
+
     # plot main data
-    axes[0].semilogx(fields, mean_op, markers[dim_idx], label = dim, zorder = -dim)
-    axes[1].semilogx(fields, mean_ss, markers[dim_idx], label = dim, zorder = -dim)
+    axes[0].semilogx(fields, mean_op, markers[dim_idx], **kwargs)
+    axes[1].semilogx(fields, mean_ss, markers[dim_idx], **kwargs)
 
     # plot insets
     mean_op_inset = mean_op / gamma(dim/2)
     mean_ss_inset = ( mean_ss - gamma(dim) ) / ( 1 - gamma(dim) )
-    sub_axes[0].semilogx(fields_reduced, mean_op_inset, ".", label = dim, zorder = -dim)
-    sub_axes[1].semilogx(fields_reduced, mean_ss_inset, ".", label = dim, zorder = -dim)
+    sub_axes[0].semilogx(fields_reduced, mean_op_inset, ".", **kwargs)
+    sub_axes[1].semilogx(fields_reduced, mean_ss_inset, ".", **kwargs)
 
 # label axes and set axis ticks
 axes[0].set_ylabel(r"$\bbk{\bar\sigma_{\mathrm{x}}}_\MF$")
@@ -136,7 +136,6 @@ plt.savefig(fig_dir + f"mean_op_ss_{init_state_str}.pdf", **kwargs)
 
 ##################################################
 
-crits = 10**log10_crits
 def fun(dim, aa): return (dim/2)**(-aa)
 popt, pcov = scipy.optimize.curve_fit(fun, dims, crits)
 print("alpha:", popt, np.sqrt(pcov))
