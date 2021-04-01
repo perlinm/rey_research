@@ -138,7 +138,8 @@ For simplicity, we now assume a periodic lattice of $L$ sites, and expand the on
 \end{align}
 where $N$ is the total number of atoms on the lattice, we define $U\equiv U_0\times N/L$ for convenience, $\delta_{k+p,\ell+q}=1$ if $k+p=\ell+q$ and zero otherwise (enforcing conservation of momentum), and we work in units with lattice spacing $a=1$.
 
-If the interaction energy $U_0$ is smaller than the single-particle bandwidth $\sim J$, then the mode-changing collisions in $H_{\t{int}}$ become off-resonant, motivating the frozen-mode approximation $\set{k,p}=\set{\ell,q}$ (which we assume for the remainder of this work).
+If the interaction energy $U_0$ is smaller than the single-particle bandwidth $\sim J$, then the mode-changing collisions in $H_{\t{int}}$ become off-resonant, motivating the frozen-mode approximation $\set{k,p}=\set{\ell,q}$ (which we assume for the remainder of this work)\footnote{Note that the frozen-mode approximation neglects correlated momentum-hopping terms of the form $c_{\pi-p,\mu}^\dag c_{\pi-q,\mu} c_{p\nu}^\dag c_{q\nu}$, which conserve both momentum and energy.
+We defer a careful treatment of these terms to future work, noting only that they vanish on the manifold of permutationally-symmetric spin states with one atom per lattice site.}.
 The operator content of terms with $k=\ell$ and $p=q$ takes the form $c_{\ell\mu}^\dag c_{\ell\mu} c_{q\nu}^\dag c_{q\nu}$, so these terms contribute an overall energy $\frac12NU$ that can be neglected in the absence of coherent atom number fluctuations.
 Defining the spin operators $s_{\mu\nu q}\equiv c_{q\mu}^\dag c_{q\nu}$, the remaining terms of the kinetic and interaction Hamiltonians become
 \begin{align}
@@ -172,12 +173,24 @@ These definitions allow us to write the spin Hamiltonian in Eq.~\eqref{eq:H_int_
 \end{align}
 Here $\v S$ is a collective spin matrix, analogous to the collective spin vector $\vec S=\p{S_\x,S_\y,S_\z}$ in the case of SU(2) \cite{he2019engineering}, with $\v S\c\v S \simeq 2 \vec S\c\vec S = 2 \sum_{\alpha\in\set{\x,\y,\z}}S_\alpha^2$ when $n=2$ (with $\simeq$ denoting equality after modding out identity terms).
 
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{spin_model.pdf}
+\caption{
+(a) Ultracold atoms on a lattice of $L$ sites can tunnel between neighboring lattice sites at a rate $J$, and locally repel each other with interaction energy $U_0$.
+(b,c) When the interaction energy $U_0$ is smaller than the single-particle bandwidth $\sim J$, the frozen-mode approximation enables writing the interaction Hamiltonian as a spin model consisting of exchange terms $\v s_p\c\v s_q$, which swap the states two spins pinned to momentum modes $p,q$.
+(d) Interactions thereby open an energy gap $U=U_0\times N/L$ between the manifold of permutationally-symmetric states of $N$ spins, and the orthogonal complement of states that break spin-permutation symmetry.
+}
+\label{fig:spin_model}
+\end{figure}
+
 We now discuss the spin Hamiltonian $H_{\t{int}}$ in Eq.~\eqref{eq:H_int}.
 The operator $\v s_p\c\v s_q$ simply swaps the nuclear spin states of two atoms pinned to modes $p,q$.
 The term $-\v s_p\c\v s_q$ thereby assigns a definite energy of $-1$ ($+1$) to a pair of spins that are symmetric (anti-symmetric) under exchange.
 In this sense, $\v s_p\c\v s_q$ is analogous to the enforcement of SU(2) spin alignment by ferromagnetic interactions, which similarly assigns (distinct) definite energies to anti-symmetric spin-0 singlet $\ket{\up\dn}-\ket{\dn\up}$ and the symmetric spin-1 triplets $\set{\ket{\up\up},\ket{\dn\dn},\ket{\up\dn}+\ket{\dn\up}}$.
-
 By summing over all pair-wise exchange terms $\v s_p\c\v s_q$, the interaction Hamiltonian $H_{\t{int}}$ energetically enforces a permutational symmetry among all spins, opening an energy gap $U$ between the manifold of all permutationally-symmetric (PS) states and the orthogonal complement of excited (e.g.~spin-wave) states that break permutational symmetry.
+See Figure \ref{fig:spin_model} for a summary of this section thus far.
+
 In the case of SU(2), the PS manifold is precisely the Dicke manifold of collective states $\ket{m_\z}$ with total spin $S=\frac{N}{2}$ and definite spin projection $m_\z\in\set{S,S-1,\cdots,-S}$ onto a fixed quantization axis.
 Equivalently, Dicke states $\ket{m_\z}=\ket{m_\up,m_\dn}$ can be labeled by a definite number of spins $m_\up=S+m_\z$ ($m_\dn=S-m_\z$) pointing up (down) along the spin quantization axis, with $m_\up+m_\dn=N$.
 In the general case of SU($n$), the PS manifold is similarly spanned by states $\ket{m_s,m_{s-1},\cdots,m_{-s}}$ with a definite number $m_\mu$ of spins in state $\mu$, and $\sum_\mu m_\mu=N$.
@@ -186,17 +199,6 @@ The dimension of the PS manifold is equal to the number of ways of assigning $N$
 External fields or additional interactions that respect permutational symmetry can induce nontrivial dynamics within the PS manifold.
 Even if additional Hamiltonian terms break permutational symmetry, as long as the coupling to states outside of the PS manifold is small (compared to the energy gap $U$) these terms can be restricted to the PS manifold perturbatively (see Appendix \ref{sec:pert_theory}).
 Simulating dynamics within the PS manifold requires calculating matrix elements $\bk{\ell|\O|m}$ of spin operators $\O$ with respect to PS states $\ket\ell,\ket{m}$; we discuss this calculation in Appendix \ref{sec:PS_ops}.
-
-\begin{figure}
-\centering
-\includegraphics[width=\linewidth]{spin_model.pdf}
-\caption{
-(a) Ultracold atoms on a lattice can tunnel between neighboring lattice sites at a rate $J$, and locally repel each other with interaction energy $U_0$.
-(b,c) When the interaction energy $U_0$ is smaller than the single-particle bandwidth $\sim J$, the frozen-mode approximation enables writing the interaction Hamiltonian as a spin model consisting of exchange terms $\v s_p\c\v s_q$, which swap the states two spins pinned to momentum modes $p,q$.
-(d) Interactions thereby open an energy gap $U$ between the manifold of permutationally-symmetric states, and the orthogonal complement of states that break permutational symmetry.
-}
-\label{fig:spin_model}
-\end{figure}
 
 Finally, we take a moment to discuss individual $n$-level spins.
 Whenever possible, it is desirable to find geometric representations of abstract mathematical objects, such as the state of a quantum system.
@@ -314,9 +316,9 @@ When $n>2$, an inhomogeneous magnetic field is likewise recovered in the limit o
 \end{align}
 As the strength of SOC is increased, this Hamiltonian acquires terms with higher powers of $s_{\z,q}$, up to $s_{\z,q}^{n-1}$.
 
-In principle, making the gauge transformation $c_{q\mu}^\dag\to c_{q-\mu\phi,\mu}^\dag$ also transforms the interaction Hamiltonian as
+In principle, making the gauge transformation $c_{q\mu}^\dag\to c_{q-\mu\phi,\mu}^\dag$ also transforms the interaction Hamiltonian as $H_{\t{int}} \to H_{\t{int}}^{(\phi)}$, where
 \begin{align}
-  H_{\t{int}} \to H_{\t{int}}^{(\phi)}
+  H_{\t{int}}^{(\phi)}
   \equiv -\f{U}{2N} \sum_{p,q,\mu,\nu}
   c_{p-\mu\phi,\mu}^\dag c_{p-\nu\phi,\nu}
   c_{q-\nu\phi,\nu}^\dag c_{q-\mu\phi,\mu}.
@@ -449,8 +451,20 @@ Initial states are nominally prepared in the ``lab frame'', and must be transfor
 We assume the capability to prepare an initial state in which all spins are maximally polarized along $\v v_+$, i.e.~$\ket{\v v_+}^{\otimes N}=\ket{s}^{\otimes N}$, which is unaffected by the gauge transformation (up to a global phase).
 The three-laser then allows us to rotate this state into one that is polarized along any spatial axis (in the gauged frame).
 In addition, when $n>2$ the three-laser drive allows us to prepare product states with nontrivial intra-spin correlations.
-For example, by choosing $H_{\t{drive}}^{\t{single}}\propto s_\x^2$ (see Table \ref{tab:drives}), we can transform the polarized state $\ket{s}^{\otimes N}$ into $\p{\ket{s}+\ket{-s}}^{\otimes N}$, where every spin is in a coherent superposition of states pointing in opposite directions along $\v v_+$.
-This state has a mean spin vector that rapidly vanishes with a growing spin dimension $n=2s+1$, $\bk{S_\y}=\bk{S_\z}=0$ and $\bk{S_\x}=N\times 2s/2^{2s}=O(s/4^s)$ (where $S_\alpha = \sum_j s_{\alpha j}$), but a growing axial spin variance $\bk{S_\z^2}=Ns^2$.
+For example, we can prepare an $N$-fold product of the state
+\begin{align}
+  \ket{\x\x} \equiv e^{-\i\frac{\pi}{2}s_\y^2} \ket{s}
+  \simeq \ket{+\x} + \ket{-\x},
+\end{align}
+where $\simeq$ denotes equality up to a global phase and normalization factor, and
+\begin{align}
+  \ket{\pm\x} \equiv e^{\mp\i\frac{\pi}{2}s_\y} \ket{s}
+  = \f1{2^s} \sum_\mu \p{\pm1}^{s-\mu}
+  { 2s \choose s+\mu }^{1/2} \ket{\mu}
+\end{align}
+are states of a single spin polarized in opposite directions along the $x$ axis.
+Here ${m \choose k}$ is a binomial coefficient.
+The state $\ket{\x\x}$ has a vanishing mean spin vector, $\bk{S_\x}=\bk{S_\y}=\bk{S_\z}=0$, (where $S_\alpha = \sum_j s_{\alpha j}$), but variances $\bk{S_\x^2}=N\times s^2$ and $\bk{S_\y^2}=\bk{S_\z^2}=N\times s/2$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Mean-field theory and dynamical phases}
@@ -485,19 +499,13 @@ By design, these observables to have norm $\norm{\bar\sigma_\x}=\norm{\ss}=1$ in
 \centering
 \includegraphics{mean_op_ss_X.pdf}
 \caption{
-Long-time averages of $\bar\sigma_\x$ and $\ss$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\x^{\otimes N}$ up to a time $T=10^5/U$.
+Long-time averages of $\bar\sigma_\x$ and $\ss$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket{+\x}^{\otimes N}$ up to a time $T=10^5/U$.
 Insets show same data after normalizing $J\phi/U\to J\phi/U \times (n/2)^{1/3}$, as well as transforming $\bbk{\bar\sigma_\x}_\MF$ and $\bbk{\ss}_\MF$ according to Eq.~\eqref{eq:rescale}.
 }
 \label{fig:mean_op_ss_X}
 \end{figure}
 
-Figure \ref{fig:mean_op_ss_X} shows the long-time averages of the transverse magnetization $\bar\sigma_\x$ and interaction energy $\ss$ as computed by mean-field simulations of $N=100$ spins in an initial $x$-polarized state $\ket\x^{\otimes N}$, where
-\begin{align}
-  \ket\x \equiv e^{-\i\frac{\pi}{2}s_\y}\ket{s}
-  = \f1{2^s} \sum_\mu { 2s \choose s+\mu }^{1/2} \ket{\mu}.
-  \label{eq:state_x}
-\end{align}
-Here ${m \choose k}$ is a binomial coefficient.
+Figure \ref{fig:mean_op_ss_X} shows the long-time averages of the transverse magnetization $\bar\sigma_\x$ and interaction energy $\ss$ as computed by mean-field simulations of $N=100$ spins in an initial $x$-polarized state $\ket{+\x}^{\otimes N}$.
 As expected, the spin model exhibits a mean-field dynamical phase transition between an ordered phase at small $J\phi/U$ and a disordered phase at large $J\phi/U$.
 The ordered phase has a non-zero transverse magnetization $\bbk{\sigma_\x}_\MF$ and a large interaction energy $\bbk{\ss}_\MF$, while the disordered phase has no transverse magnetization and an interaction energy close to its minimal value.
 Numerically, we find that the transition between these phases occurs at a critical field $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields_X}).

@@ -3,7 +3,7 @@
 import os, sys, time, scipy
 import numpy as np
 
-from dicke_methods import spin_op_z_dicke, spin_op_y_dicke
+from dicke_methods import spin_op_z_dicke, spin_op_y_dicke, coherent_spin_state
 from boson_methods import polarized_state, boson_mft_state, evolve_mft, \
     compute_avg_var_vals
 
@@ -12,7 +12,7 @@ spin_dim = int(sys.argv[2])
 spin_num = int(sys.argv[3])
 log10_field = sys.argv[4]
 
-assert( init_state_str in [ "X" ] )
+assert( init_state_str in [ "X", "XX" ] )
 assert( spin_dim % 2 == 0 )
 assert( spin_num % 2 == 0 )
 
@@ -41,7 +41,13 @@ def spin_coeff(qq):
 field_data = [ sz, field * spin_coeff(np.arange(spin_num)) ]
 
 # construct initial state
-init_state = polarized_state("+X", spin_dim, spin_num)
+if init_state_str == "X":
+    init_state = polarized_state("+X", spin_dim, spin_num)
+elif init_state_str == "XX":
+    sy = spin_op_y_dicke(spin_dim-1)
+    state_z = coherent_spin_state("+Z", spin_dim-1)
+    state_xx = scipy.sparse.linalg.expm_multiply(-1j * np.pi/2 * sy @ sy, state_z)
+    init_state = boson_mft_state(state_xx, spin_dim, spin_num)
 
 prev_state = init_state # state at last simulated time
 prev_mean = 0 # running time-averaged state

@@ -14,7 +14,7 @@ from boson_methods import extract_avg_var_state
 init_state_str = sys.argv[1]
 spin_num = int(sys.argv[2])
 
-assert( init_state_str in [ "X" ] )
+assert( init_state_str in [ "X", "XX" ] )
 
 data_dir = "../data/spin_bosons/"
 fig_dir = "../spin_model_paper/figures/"
@@ -50,7 +50,10 @@ def gamma(kk):
 def spin_op(dim):
     spin = (dim-1)/2
     op = spin_op_x_dicke(dim-1).todense() / spin
+    if init_state_str == "XX": op = op @ op
     return np.array(op)
+op_str = r"\bar\sigma_{\mathrm{x}}"
+if init_state_str == "XX": op_str += r"^2"
 
 inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
 figure, axes = plt.subplots(2, figsize = (2.6,3), sharex = True, sharey = True)
@@ -112,7 +115,7 @@ for dim_idx, dim in enumerate(dims):
     sub_axes[1].semilogx(fields_reduced, mean_ss_inset, ".", **kwargs)
 
 # label axes and set axis ticks
-axes[0].set_ylabel(r"$\bbk{\bar\sigma_{\mathrm{x}}}_\MF$")
+axes[0].set_ylabel(r"$\bbk{" + op_str + r"}_\MF$")
 axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MF$")
 axes[1].set_xlabel(r"$J\phi/U$")
 axes[1].set_xlim(0.1,10)
