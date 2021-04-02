@@ -19,7 +19,7 @@ assert( init_state_str in [ "X", "XX" ] )
 data_dir = "../data/spin_bosons/"
 fig_dir = "../spin_model_paper/figures/"
 def sys_tag(spin_dim):
-    return f"{init_state_str}_d{spin_dim}_N{spin_num}"
+    return f"{init_state_str}_d{spin_dim}_N{spin_num}_"
 
 fontsize = 9
 preamble = r"""
