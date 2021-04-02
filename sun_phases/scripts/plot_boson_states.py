@@ -17,9 +17,9 @@ spin_num = int(sys.argv[2])
 assert( init_state_str in [ "X", "XX" ] )
 
 data_dir = "../data/spin_bosons/"
-fig_dir = "../spin_model_paper/figures/"
-def sys_tag(spin_dim):
-    return f"{init_state_str}_d{spin_dim}_N{spin_num}_"
+fig_dir = "../figures/spin_bosons/"
+def sys_tag(dim):
+    return f"{init_state_str}_d{dim}_N{spin_num}_"
 
 fontsize = 9
 preamble = r"""
@@ -34,7 +34,11 @@ params = { "font.serif" : "Computer Modern",
            "text.usetex" : True,
            "text.latex.preamble" : preamble }
 plt.rcParams.update(params)
-markers = [ "o", "h", "p", "s", "^" ]
+marker_color = {  2 : ( "o", "tab:blue" ),
+                  4 : ( "h", "tab:orange" ),
+                  6 : ( "p", "tab:green" ),
+                  8 : ( "s", "tab:red" ),
+                 10 : ( "^", "tab:purple" ) }
 
 ##########################################################################################
 
@@ -46,19 +50,11 @@ def get_info(file):
 def gamma(kk):
     return scipy.special.gamma(kk-1/2) / ( np.sqrt(np.pi) * scipy.special.gamma(kk) )
 
-# operator for the long-time average
-def spin_op(dim):
-    spin = (dim-1)/2
-    op = spin_op_x_dicke(dim-1).todense() / spin
-    if init_state_str == "XX": op = op @ op
-    return np.array(op)
-op_str = r"\bar\sigma_{\mathrm{x}}"
-if init_state_str == "XX": op_str += r"^2"
-
-inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
-figure, axes = plt.subplots(2, figsize = (2.6,3), sharex = True, sharey = True)
-sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
-             inset(axes[1], "35%", "35%", loc = "upper right") ]
+if init_state_str != "XX":
+    inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
+    figure, axes = plt.subplots(2, figsize = (2.6,3), sharex = True, sharey = True)
+    sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
+                 inset(axes[1], "35%", "35%", loc = "upper right") ]
 
 files = glob.glob(data_dir + f"means_{sys_tag('*')}*")
 dims = np.array(sorted(set([ get_info(file)["dim"] for file in files ])))
@@ -73,41 +69,75 @@ for dim_idx, dim in enumerate(dims):
     fields = 10**log10_fields
     fields_reduced = 10**log10_fields_reduced
 
-    # collect long-time averages
-    mean_op = np.zeros(log10_fields.size)
+    # normalized spin-x operator
+    spin = (dim-1)/2
+    sx_vec = np.array(spin_op_x_dicke(dim-1).todense()).ravel() / spin
+
+    # collect long-time average data
+    mean_sx = np.zeros(log10_fields.size)
     mean_ss = np.zeros(log10_fields.size)
+    avg_spect = np.zeros((log10_fields.size,dim))
+    var_spect = np.zeros((log10_fields.size,dim**2))
     for idx, file in enumerate(dim_files):
         avg_state, var_state \
             = extract_avg_var_state(np.loadtxt(file, dtype = complex), dim)
-        mean_op[idx] = ( avg_state.ravel().conj() @ spin_op(dim).ravel() ).real
+        mean_sx[idx] = ( avg_state.ravel().conj() @ sx_vec ).real
         mean_ss[idx] = np.einsum("mnnm->", var_state).real
 
-    # locate when <<op>> first hits zero
-    dx = mean_op[1:] - mean_op[:-1]
-    dh = log10_fields[1:] - log10_fields[:-1]
-    slope_peak = abs(dx/dh).argmax()
-    max_zero = max(abs(mean_op[slope_peak+2:]))
-    zero_start = np.argmax(mean_op < 2*max_zero)
+        var_state = np.reshape(np.transpose(var_state, [0,2,1,3]), (dim**2,)*2)
+        avg_spect[idx,:] = np.linalg.eigvalsh(avg_state)[::-1]
+        var_spect[idx,:] = np.linalg.eigvalsh(var_state)[::-1]
 
-    # find the critical field at which <<op>> = 0 by fitting to a polynomial
-    indices = slice(zero_start-3, zero_start)
-    fit = np.polyfit(log10_fields[indices], mean_op[indices], 2)
-    crits[dim_idx] = 10**min(np.roots(fit)[-1], log10_fields[zero_start])
+    # plot spectrum of <<\bar\rho>>
+    plt.figure(figsize = (3,2.4))
+    plt.semilogx(fields, avg_spect, ".")
+    plt.xlabel(r"$J\phi/U$")
+    plt.ylabel(r"$\mathrm{spect}\,\bbk{\bar\rho}_\MF$")
+    plt.tight_layout()
+    plt.savefig(fig_dir + f"avg_spect_{init_state_str}_n{dim:02d}.pdf")
+    plt.close()
+
+    # plot spectrum of <<\bar\rho\otimes\bar\rho>>
+    plt.figure(figsize = (3,2.4))
+    plt.semilogx(fields, var_spect, ".")
+    plt.xlabel(r"$J\phi/U$")
+    plt.ylabel(r"$\mathrm{spect}\,\bbk{\bar\rho\otimes\bar\rho}_\MF$")
+    plt.tight_layout()
+    plt.savefig(fig_dir + f"var_spect_{init_state_str}_n{dim:02d}.pdf")
+    plt.close()
+
+    # skip plotting <<sx>> and <<ss>> for XX initial state
+    if init_state_str == "XX": continue
 
     # plot main data
-    kwargs = dict( label = dim, zorder = -dim )
-    axes[0].semilogx(fields, mean_op, markers[dim_idx], **kwargs)
-    axes[1].semilogx(fields, mean_ss, markers[dim_idx], **kwargs)
+    marker, color = marker_color[dim]
+    kwargs = dict( color = color, label = dim, zorder = -dim )
+    axes[0].semilogx(fields, mean_sx, marker, **kwargs)
+    axes[1].semilogx(fields, mean_ss, marker, **kwargs)
 
     # plot insets
     kwargs.update(dict( markersize = 3 ))
-    mean_op_inset = mean_op / gamma(dim/2)
+    mean_sx_inset = mean_sx / gamma(dim/2)
     mean_ss_inset = ( mean_ss - gamma(dim) ) / ( 1 - gamma(dim) )
-    sub_axes[0].semilogx(fields_reduced, mean_op_inset, markers[dim_idx], **kwargs)
-    sub_axes[1].semilogx(fields_reduced, mean_ss_inset, markers[dim_idx], **kwargs)
+    sub_axes[0].semilogx(fields_reduced, mean_sx_inset, marker, **kwargs)
+    sub_axes[1].semilogx(fields_reduced, mean_ss_inset, marker, **kwargs)
+
+    # locate when <<op>> first hits zero
+    dx = mean_sx[1:] - mean_sx[:-1]
+    dh = log10_fields[1:] - log10_fields[:-1]
+    slope_peak = abs(dx/dh).argmax()
+    max_zero = max(abs(mean_sx[slope_peak+2:]))
+    zero_start = np.argmax(mean_sx < 2*max_zero)
+
+    # find the critical field at which <<op>> = 0 by fitting to a polynomial
+    indices = slice(zero_start-3, zero_start)
+    fit = np.polyfit(log10_fields[indices], mean_sx[indices], 2)
+    crits[dim_idx] = 10**min(np.roots(fit)[-1], log10_fields[zero_start])
+
+if init_state_str == "XX": exit()
 
 # label axes and set axis ticks
-axes[0].set_ylabel(r"$\bbk{" + op_str + r"}_\MF$")
+axes[0].set_ylabel(r"$\bbk{\bar\sigma_{\mathrm{x}}}_\MF$")
 axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MF$")
 axes[1].set_xlabel(r"$J\phi/U$")
 axes[1].set_xlim(0.1,10)
@@ -127,7 +157,8 @@ legend = axes[0].legend(handles, labels, loc = "lower center",
                         ncol = dims.size, columnspacing = 0.4)
 plt.subplots_adjust(hspace = 0.08)
 kwargs = dict( bbox_extra_artists = (legend,), bbox_inches = "tight" )
-plt.savefig(fig_dir + f"mean_op_ss_{init_state_str}.pdf", **kwargs)
+plt.savefig(fig_dir + f"mean_sx_ss.pdf", **kwargs)
+plt.close()
 
 ##################################################
 
@@ -139,4 +170,5 @@ plt.plot(dims, crits, "ko", label = "mean-field")
 plt.plot(dims, fun(dims, *popt), "r.", label = r"fit:~$(n/2)^{-\alpha}$")
 plt.ylabel(r"$(J\phi/U)_{\mathrm{crit}}$")
 plt.legend(loc = "best")
-plt.savefig(fig_dir + f"crit_fields_{init_state_str}.pdf", bbox_inches = "tight")
+plt.savefig(fig_dir + f"crit_fields.pdf", bbox_inches = "tight")
+plt.close()
