@@ -122,14 +122,14 @@ for dim_idx, dim in enumerate(dims):
     sub_axes[0].semilogx(fields_reduced, mean_sx_inset, marker, **kwargs)
     sub_axes[1].semilogx(fields_reduced, mean_ss_inset, marker, **kwargs)
 
-    # locate when <<op>> first hits zero
+    # locate when <<sx>> first hits zero
     dx = mean_sx[1:] - mean_sx[:-1]
     dh = log10_fields[1:] - log10_fields[:-1]
     slope_peak = abs(dx/dh).argmax()
     max_zero = max(abs(mean_sx[slope_peak+2:]))
     zero_start = np.argmax(mean_sx < 2*max_zero)
 
-    # find the critical field at which <<op>> = 0 by fitting to a polynomial
+    # find the critical field at which <<sx>> = 0 by fitting to a polynomial
     indices = slice(zero_start-3, zero_start)
     fit = np.polyfit(log10_fields[indices], mean_sx[indices], 2)
     crits[dim_idx] = 10**min(np.roots(fit)[-1], log10_fields[zero_start])
