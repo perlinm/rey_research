@@ -94,17 +94,17 @@ for dim_idx, dim in enumerate(dims):
     fit = np.polyfit(log10_fields[indices], mean_op[indices], 2)
     crits[dim_idx] = 10**min(np.roots(fit)[-1], log10_fields[zero_start])
 
-    kwargs = dict( label = dim, zorder = -dim )
-
     # plot main data
+    kwargs = dict( label = dim, zorder = -dim )
     axes[0].semilogx(fields, mean_op, markers[dim_idx], **kwargs)
     axes[1].semilogx(fields, mean_ss, markers[dim_idx], **kwargs)
 
     # plot insets
+    kwargs.update(dict( markersize = 3 ))
     mean_op_inset = mean_op / gamma(dim/2)
     mean_ss_inset = ( mean_ss - gamma(dim) ) / ( 1 - gamma(dim) )
-    sub_axes[0].semilogx(fields_reduced, mean_op_inset, ".", **kwargs)
-    sub_axes[1].semilogx(fields_reduced, mean_ss_inset, ".", **kwargs)
+    sub_axes[0].semilogx(fields_reduced, mean_op_inset, markers[dim_idx], **kwargs)
+    sub_axes[1].semilogx(fields_reduced, mean_ss_inset, markers[dim_idx], **kwargs)
 
 # label axes and set axis ticks
 axes[0].set_ylabel(r"$\bbk{" + op_str + r"}_\MF$")
