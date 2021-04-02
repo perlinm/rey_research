@@ -63,7 +63,6 @@ sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
 files = glob.glob(data_dir + f"means_{sys_tag('*')}*")
 dims = np.array(sorted(set([ get_info(file)["dim"] for file in files ])))
 crits = np.zeros(dims.size)
-mean_op_max = np.zeros(dims.size)
 
 for dim_idx, dim in enumerate(dims):
     log10_fields, dim_files \
@@ -94,13 +93,6 @@ for dim_idx, dim in enumerate(dims):
     indices = slice(zero_start-3, zero_start)
     fit = np.polyfit(log10_fields[indices], mean_op[indices], 2)
     crits[dim_idx] = 10**min(np.roots(fit)[-1], log10_fields[zero_start])
-
-    # determine \lim_{h->0} <<op>>
-    if dim == 2:
-        log10_fields_2 = log10_fields
-        mean_op_2 = mean_op
-    equiv_mean_op_2 = np.interp(log10_fields_reduced[0], log10_fields_2, mean_op_2)
-    mean_op_max[dim_idx] = mean_op[0] / equiv_mean_op_2
 
     kwargs = dict( label = dim, zorder = -dim )
 
