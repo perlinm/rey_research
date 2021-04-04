@@ -171,7 +171,7 @@ These definitions allow us to write the spin Hamiltonian in Eq.~\eqref{eq:H_int_
   \v S \equiv \sum_q \v s_q.
   \label{eq:H_int}
 \end{align}
-Here $\v S$ is a collective spin matrix, analogous to the collective spin vector $\vec S=\p{S_\x,S_\y,S_\z}$ in the case of SU(2) \cite{he2019engineering}, with $\v S\c\v S \simeq 2 \vec S\c\vec S = 2 \sum_{\alpha\in\set{\x,\y,\z}}S_\alpha^2$ when $n=2$ (with $\simeq$ denoting equality after modding out identity terms).
+Here $\v S$ is a collective spin matrix, analogous to the collective spin vector $\vec S=\p{S_\x,S_\y,S_\z}$ in the case of SU(2) \cite{he2019engineering}, with $\v S\c\v S \simeq 2 \vec S\c\vec S = 2 \sum_{\alpha\in\set{\x,\y,\z}}S_\alpha^2$ when $n=2$ (here $\simeq$ denotes equality after modding out identity terms).
 
 \begin{figure}
 \centering
@@ -451,20 +451,12 @@ Initial states are nominally prepared in the ``lab frame'', and must be transfor
 We assume the capability to prepare an initial state in which all spins are maximally polarized along $\v v_+$, i.e.~$\ket{\v v_+}^{\otimes N}=\ket{s}^{\otimes N}$, which is unaffected by the gauge transformation (up to a global phase).
 The three-laser then allows us to rotate this state into one that is polarized along any spatial axis (in the gauged frame).
 In addition, when $n>2$ the three-laser drive allows us to prepare product states with nontrivial intra-spin correlations.
-For example, we can prepare an $N$-fold product of the state
+For example, when $n$ is even we can prepare an $N$-fold product of the state
 \begin{align}
-  \ket{\x\x} \equiv e^{-\i\frac{\pi}{2}s_\y^2} \ket{s}
-  \simeq \ket{+\x} + \ket{-\x},
+  e^{-\i\frac{\pi}{2}\p{s_\y+s_\y^2}} \ket{s} \simeq \ket{s} + \ket{-s},
 \end{align}
-where $\simeq$ denotes equality up to a global phase and normalization factor, and
-\begin{align}
-  \ket{\pm\x} \equiv e^{\mp\i\frac{\pi}{2}s_\y} \ket{s}
-  = \f1{2^s} \sum_\mu \p{\pm1}^{s-\mu}
-  { 2s \choose s+\mu }^{1/2} \ket{\mu}
-\end{align}
-are states of a single spin polarized in opposite directions along the $x$ axis.
-Here ${m \choose k}$ is a binomial coefficient.
-The state $\ket{\x\x}$ has a vanishing mean spin vector, $\bk{S_\x}=\bk{S_\y}=\bk{S_\z}=0$ (where $S_\alpha = \sum_j s_{\alpha j}$), but variances $\bk{S_\x^2}=N\times s^2$ and $\bk{S_\y^2}=\bk{S_\z^2}=N\times s/2$.
+where $\simeq$ denotes equality up to a global phase and normalization factor.
+This state has a vanishing mean spin vector, $\bk{s_\x}=\bk{s_\y}=\bk{s_\z}=0$, but variances $\bk{s_\x^2}=\bk{s_\y^2}=s/2$ and $\bk{s_\z^2}=s^2$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Mean-field theory and dynamical phases}
@@ -479,7 +471,7 @@ At the mean-field (MF) level, up to constant energy shifts the undriven spin Ham
 \end{align}
 where $\bar{\v s}\equiv\frac1N\sum_q\v s_q$ is the average spin matrix.
 Fixing the atom number $N$, the spin Hamiltonian has one free parameter: the reduced field $J\phi/U$ that determines the relative strength of the single-particle and interaction terms.
-For an initial $N$-fold tensor product state $\ket\psi^{\otimes N}$ one should expect distinct dynamical behaviors when $J\phi/U\ll1$, in which case strong spin-locking interactions should give rise to a long-range ordered phase, as opposed to $J\phi/U\gg1$, in which case long-range order should be destroyed by the strong inhomogeneous magnetic field.
+One should therefore expect distinct dynamical behaviors when $J\phi/U\ll1$, in which case strong spin-locking interactions should give rise to a long-range ordered phase, as opposed to $J\phi/U\gg1$, in which case long-range order should be destroyed by the strong inhomogeneous magnetic field.
 
 To investigate these behaviors quantitatively, we examine long-time-averaged observables of the form
 \begin{align}
@@ -488,24 +480,29 @@ To investigate these behaviors quantitatively, we examine long-time-averaged obs
 where $\bk{\O\p{t}}_\MF$ is the mean-field value of observable $\O$ at time $t$ (see Appendices \ref{sec:MFT} and \ref{sec:bosons} for details about our mean-field simulations).
 Specifically, we consider long-time averages of the normalized transverse magnetization and interaction energy
 \begin{align}
-  \bar\sigma_\x \equiv \f{S_\x}{\norm{S_\x}},
+  \bar\sigma_\x \equiv \f1{Ns} \sum_q s_{\x,q},
   &&
-  \ss = \f{\v S\c\v S}{N^2},
+  \ss = \f{\v S\c\v S}{N^2}.
 \end{align}
-where $\norm{S_\x}=Ns$ is the operator norm of $S_\x$.
-By design, these observables to have norm $\norm{\bar\sigma_\x}=\norm{\ss}=1$ independent of the system size $N$ or spin dimension $n$.
+By design, these observables to have operator norm $\norm{\bar\sigma_\x}=\norm{\ss}=1$ independent of the system size $N$ or spin dimension $n$.
+In the remainder of this section we will assume that $n$ is even, both for the sake of experimental relevance (most relevant atomic nuclei are fermionic) and to avoid complications from parity effects.
 
 \begin{figure}
 \centering
 \includegraphics{mean_sx_ss.pdf}
 \caption{
-Long-time averages of $\bar\sigma_\x$ and $\ss$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket{+\x}^{\otimes N}$ up to a time $T=10^5/U$.
+Long-time averages of $\bar\sigma_\x$ and $\ss$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket{\x}^{\otimes N}$ up to a time $T=10^5/U$.
 Insets show same data after normalizing $J\phi/U\to J\phi/U \times (n/2)^{1/3}$, as well as transforming $\bbk{\bar\sigma_\x}_\MF$ and $\bbk{\ss}_\MF$ according to Eq.~\eqref{eq:rescale}.
 }
 \label{fig:mean_sx_ss}
 \end{figure}
 
-Figure \ref{fig:mean_sx_ss} shows the long-time averages of the transverse magnetization $\bar\sigma_\x$ and interaction energy $\ss$ as computed by mean-field simulations of $N=100$ spins in an initial $x$-polarized state $\ket{+\x}^{\otimes N}$.
+Figure \ref{fig:mean_sx_ss} shows the long-time averages of the transverse magnetization $\bar\sigma_\x$ and interaction energy $\ss$ as computed by mean-field simulations of $N=100$ spins in an initial $x$-polarized state $\ket{\x}^{\otimes N}$, where
+\begin{align}
+  \ket{\x} \equiv e^{-\i\frac{\pi}{2}s_\y} \ket{s}
+  = \f1{2^s} \sum_\mu { 2s \choose s+\mu }^{1/2} \ket{\mu}.
+\end{align}
+Here ${ m \choose k }$ is a binomial coefficient.
 As expected, the spin model exhibits a mean-field dynamical phase transition between an ordered phase at small $J\phi/U$ and a disordered phase at large $J\phi/U$.
 The ordered phase has a non-zero transverse magnetization $\bbk{\sigma_\x}_\MF$ and an interaction energy $\bbk{\ss}_\MF$ that asymptotically approaches its maximal value as $J\phi/U\to0^+$.
 The disordered phase has no transverse magnetization, $\bbk{\bar\sigma_\x}_\MF=0$, but an interaction energy $\bbk{\ss}_\MF$ that nonetheless indicates persistent (albeit small) nontrivial inter-spin correlations when $n>2$.
@@ -544,10 +541,10 @@ The interaction energy $\bk{\ss}_\MF = \bk{\bar{\v s}}_\MF \c \bk{\bar{\v s}}_\M
 \item the diagonal parts of the mean spin matrix $\bk{\bar{\v s}}_\MF$, which are conserved by inhomogeneous spin precession, and
 \item the off-diagonal parts of $\bk{\bar{\v s}}_\MF$, whose oscillations average to zero when evaluating the long-time average $\bbk{\ss}_\MF$.
 \end{enumerate*}
-Altogether, the interaction energy $\bbk{\ss}_\MF$ in the strong-field limit is determined by the time-independent diagonal part $\diag\bk{\bar{\v s}\p{t}} = \diag\op{+\x}$, namely
+Altogether, the interaction energy $\bbk{\ss}_\MF$ in the strong-field limit is determined by the time-independent diagonal part $\diag\bk{\bar{\v s}}_\MF = \diag\op{\x}$, namely
 \begin{align}
   \lim_{J\phi/U\to\infty} \bbk{\ss}_\MF
-  = \Tr\sp{\p{\diag\op{+\x}}^2}
+  = \Tr\sp{\p{\diag\op{\x}}^2}
   = \gamma\p{n}.
 \end{align}
 The same result can be obtained by computing the long-time-averaged interaction energy of two spins precessing at different rates.
@@ -568,7 +565,7 @@ The weak-field effective Hamiltonian thus preserves permutational symmetry, so $
 \begin{align}
   \lim_{J\phi/U\to0^+} \bbk{\bar\sigma_\z}_\MF
   = \lim_{T\to\infty} \f1T \int_0^T \dd\tau
-  \bk{+\x|\sigma_\x\p{\tau}|+\x},
+  \bk{\x|\sigma_\x\p{\tau}|\x},
 \end{align}
 where
 \begin{align}
@@ -576,11 +573,11 @@ where
 \end{align}
 By mapping the Hilbert space of an $n$-level spin onto the PS (Dicke) manifold of $n-1$ spin-$\frac12$ particles, we can adapt exact analytical results for the Ising model \cite{foss-feig2013nonequilibrium}\footnote{See Appendix K of Ref.~\cite{perlin2020shorttime} for a simpler adaptation of the analytics in Ref.~\cite{foss-feig2013nonequilibrium} to the one-axis twisting model $H_{\t{OAT}}=\chi s_\z^2$.} to find that
 \begin{align}
-  \bk{+\x|\sigma_\x\p{\tau}|+\x} = \p{\cos\tau}^{n-2},
+  \bk{\x|\sigma_\x\p{\tau}|\x} = \p{\cos\tau}^{n-2},
 \end{align}
 so for even $n$
 \begin{align}
-  \lim_{J\phi/U\to0^+} \bbk{\bar\sigma_\z}_\MF
+  \lim_{J\phi/U\to0^+} \bbk{\bar\sigma_\x}_\MF
   = \f1{2\pi} \int_0^{2\pi} \dd\tau \p{\cos\tau}^{n-2}
   = \gamma\p{\f{n}{2}}.
 \end{align}
