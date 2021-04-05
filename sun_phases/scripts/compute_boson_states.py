@@ -3,16 +3,15 @@
 import os, sys, time, scipy
 import numpy as np
 
-from dicke_methods import spin_op_z_dicke, spin_op_y_dicke, coherent_spin_state
-from boson_methods import polarized_state, boson_mft_state, evolve_mft, \
-    compute_avg_var_vals
+from dicke_methods import spin_op_vec_dicke, coherent_spin_state
+from boson_methods import boson_mft_state, evolve_mft, compute_avg_var_vals
 
 init_state_str = sys.argv[1]
 spin_dim = int(sys.argv[2])
 spin_num = int(sys.argv[3])
 log10_field = sys.argv[4]
 
-assert( init_state_str in [ "X", "XX" ] )
+assert( init_state_str in [ "X", "XX", "XXI" ] )
 assert( spin_dim % 2 == 0 )
 assert( spin_num % 2 == 0 )
 
@@ -32,24 +31,29 @@ def data_file(tag):
 genesis = time.time()
 ####################
 
+sz, sx, sy = spin_op_vec_dicke(spin_dim-1)
+
 # construct inhomogeneous magnetic field
 field = 10**float(log10_field)
-sz = spin_op_z_dicke(spin_dim-1).diagonal()
 def spin_coeff(qq):
     spin_angle = 2*np.pi*(qq+1/2)/spin_num
     return np.sin(spin_angle)
-field_data = [ sz, field * spin_coeff(np.arange(spin_num)) ]
+field_data = [ sz.diagonal(), field * spin_coeff(np.arange(spin_num)) ]
 
-# construct initial state
+# construct initial spin state
+state_x = coherent_spin_state("+X", spin_dim-1)
+state_dn = coherent_spin_state("-Z", spin_dim-1)
+state_xx = scipy.sparse.linalg.expm_multiply(-1j * np.pi/2 * sy @ sy, state_dn)
+state_xxi = scipy.sparse.linalg.expm_multiply(-1j * np.pi/2 * sx, state_xx)
 if init_state_str == "X":
-    init_state = polarized_state("+X", spin_dim, spin_num)
+    init_state = state_x
 elif init_state_str == "XX":
-    sy = spin_op_y_dicke(spin_dim-1)
-    state_z = coherent_spin_state("+Z", spin_dim-1)
-    state_xx = scipy.sparse.linalg.expm_multiply(-1j * np.pi/2 * sy @ sy, state_z)
-    init_state = boson_mft_state(state_xx, spin_dim, spin_num)
+    init_state = state_xx
+elif init_state_str == "XXI":
+    init_state = state_xxi
+del state_x, state_dn, state_xx, state_xxi
 
-prev_state = init_state # state at last simulated time
+prev_state = boson_mft_state(init_state, spin_dim, spin_num) # state at last simulated time
 prev_mean = 0 # running time-averaged state
 prev_steps = 0 # running number of time points
 

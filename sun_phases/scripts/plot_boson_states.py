@@ -14,7 +14,7 @@ from boson_methods import extract_avg_var_state
 init_state_str = sys.argv[1]
 spin_num = int(sys.argv[2])
 
-assert( init_state_str in [ "X", "XX" ] )
+assert( init_state_str in [ "X", "XX", "XXI" ] )
 
 data_dir = "../data/spin_bosons/"
 fig_dir = "../figures/spin_bosons/"
@@ -108,10 +108,7 @@ for dim_idx, dim in enumerate(dims):
     plt.savefig(fig_dir + f"var_spect_{init_state_str}_n{dim:02d}.pdf")
     plt.close()
 
-    # skip plotting m_MF and <<ss>>_MF for XX initial state
-    if init_state_str == "XX": continue
-
-    # plot main data
+    # plot magnetization and interaction data
     marker, color = marker_color[dim]
     kwargs = dict( color = color, label = dim, zorder = -dim )
     axes[0].semilogx(fields, mean_mag, marker, **kwargs)
@@ -124,6 +121,9 @@ for dim_idx, dim in enumerate(dims):
     sub_axes[0].semilogx(fields_reduced, mean_mag_inset, marker, **kwargs)
     sub_axes[1].semilogx(fields_reduced, mean_int_inset, marker, **kwargs)
 
+    # only locate phase transition for x-polarized initial state
+    if init_state_str != "X": continue
+
     # locate when m_MF first hits zero
     dx = mean_mag[1:] - mean_mag[:-1]
     dh = log10_fields[1:] - log10_fields[:-1]
@@ -135,8 +135,6 @@ for dim_idx, dim in enumerate(dims):
     indices = slice(zero_start-3, zero_start)
     fit = np.polyfit(log10_fields[indices], mean_mag[indices], 2)
     crits[dim_idx] = 10**min(np.roots(fit)[-1], log10_fields[zero_start])
-
-if init_state_str == "XX": exit()
 
 # label axes and set axis ticks
 axes[0].set_ylabel(r"$m_\MF$")
@@ -161,6 +159,8 @@ plt.subplots_adjust(hspace = 0.08)
 kwargs = dict( bbox_extra_artists = (legend,), bbox_inches = "tight" )
 plt.savefig(fig_dir + f"mean_mag_int.pdf", **kwargs)
 plt.close()
+
+if init_state_str != "X": exit()
 
 ##################################################
 
