@@ -8,7 +8,7 @@ import scipy, scipy.optimize, scipy.special
 import mpl_toolkits
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-from dicke_methods import spin_op_x_dicke
+from dicke_methods import spin_op_vec_dicke
 from boson_methods import extract_avg_var_state
 
 init_state_str = sys.argv[1]
@@ -65,24 +65,26 @@ for dim_idx, dim in enumerate(dims):
         = zip(*sorted([ ( get_info(file)["log10_field"], file )
                         for file in files if get_info(file)["dim"] == dim ]))
     log10_fields = np.array(log10_fields)
-    log10_fields_reduced = log10_fields + np.log10((dim/2)**(1/3))
     fields = 10**log10_fields
-    fields_reduced = 10**log10_fields_reduced
+    fields_reduced = fields * (dim/2)**(1/3)
 
-    # normalized spin-x operator
+    # normalized spin operator vector
     spin = (dim-1)/2
-    sx_vec = np.array(spin_op_x_dicke(dim-1).todense()).ravel() / spin
+    spin_op_vec = np.array([ np.array(op.todense()).ravel() / spin
+                             for op in spin_op_vec_dicke(dim-1) ]).T
 
     # collect long-time average data
-    mean_sx = np.zeros(log10_fields.size)
-    mean_ss = np.zeros(log10_fields.size)
-    avg_spect = np.zeros((log10_fields.size,dim))
-    var_spect = np.zeros((log10_fields.size,dim**2))
+    mean_mag = np.zeros(fields.size)
+    mean_int = np.zeros(fields.size)
+    avg_spect = np.zeros((fields.size,dim))
+    var_spect = np.zeros((fields.size,dim**2))
+    avg_states = []
     for idx, file in enumerate(dim_files):
         avg_state, var_state \
             = extract_avg_var_state(np.loadtxt(file, dtype = complex), dim)
-        mean_sx[idx] = ( avg_state.ravel().conj() @ sx_vec ).real
-        mean_ss[idx] = np.einsum("mnnm->", var_state).real
+        mean_mag[idx] = np.linalg.norm( avg_state.ravel().conj() @ spin_op_vec )
+        mean_int[idx] = np.einsum("mnnm->", var_state).real
+        avg_states += [ avg_state ]
 
         var_state = np.reshape(np.transpose(var_state, [0,2,1,3]), (dim**2,)*2)
         avg_spect[idx,:] = np.linalg.eigvalsh(avg_state)[::-1]
@@ -106,38 +108,38 @@ for dim_idx, dim in enumerate(dims):
     plt.savefig(fig_dir + f"var_spect_{init_state_str}_n{dim:02d}.pdf")
     plt.close()
 
-    # skip plotting <<sx>> and <<ss>> for XX initial state
+    # skip plotting m_MF and <<ss>>_MF for XX initial state
     if init_state_str == "XX": continue
 
     # plot main data
     marker, color = marker_color[dim]
     kwargs = dict( color = color, label = dim, zorder = -dim )
-    axes[0].semilogx(fields, mean_sx, marker, **kwargs)
-    axes[1].semilogx(fields, mean_ss, marker, **kwargs)
+    axes[0].semilogx(fields, mean_mag, marker, **kwargs)
+    axes[1].semilogx(fields, mean_int, marker, **kwargs)
 
     # plot insets
     kwargs.update(dict( markersize = 3 ))
-    mean_sx_inset = mean_sx / gamma(dim/2)
-    mean_ss_inset = ( mean_ss - gamma(dim) ) / ( 1 - gamma(dim) )
-    sub_axes[0].semilogx(fields_reduced, mean_sx_inset, marker, **kwargs)
-    sub_axes[1].semilogx(fields_reduced, mean_ss_inset, marker, **kwargs)
+    mean_mag_inset = mean_mag / gamma(dim/2)
+    mean_int_inset = ( mean_int - gamma(dim) ) / ( 1 - gamma(dim) )
+    sub_axes[0].semilogx(fields_reduced, mean_mag_inset, marker, **kwargs)
+    sub_axes[1].semilogx(fields_reduced, mean_int_inset, marker, **kwargs)
 
-    # locate when <<sx>> first hits zero
-    dx = mean_sx[1:] - mean_sx[:-1]
+    # locate when m_MF first hits zero
+    dx = mean_mag[1:] - mean_mag[:-1]
     dh = log10_fields[1:] - log10_fields[:-1]
     slope_peak = abs(dx/dh).argmax()
-    max_zero = max(abs(mean_sx[slope_peak+2:]))
-    zero_start = np.argmax(mean_sx < 2*max_zero)
+    max_zero = max(abs(mean_mag[slope_peak+2:]))
+    zero_start = np.argmax(mean_mag < 2*max_zero)
 
-    # find the critical field at which <<sx>> = 0 by fitting to a polynomial
+    # find the critical field at which m_MF = 0 by fitting to a polynomial
     indices = slice(zero_start-3, zero_start)
-    fit = np.polyfit(log10_fields[indices], mean_sx[indices], 2)
+    fit = np.polyfit(log10_fields[indices], mean_mag[indices], 2)
     crits[dim_idx] = 10**min(np.roots(fit)[-1], log10_fields[zero_start])
 
 if init_state_str == "XX": exit()
 
 # label axes and set axis ticks
-axes[0].set_ylabel(r"$\bbk{\bar\sigma_{\mathrm{x}}}_\MF$")
+axes[0].set_ylabel(r"$m_\MF$")
 axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MF$")
 axes[1].set_xlabel(r"$J\phi/U$")
 axes[1].set_xlim(0.1,10)
@@ -157,7 +159,7 @@ legend = axes[0].legend(handles, labels, loc = "lower center",
                         ncol = dims.size, columnspacing = 0.4)
 plt.subplots_adjust(hspace = 0.08)
 kwargs = dict( bbox_extra_artists = (legend,), bbox_inches = "tight" )
-plt.savefig(fig_dir + f"mean_sx_ss.pdf", **kwargs)
+plt.savefig(fig_dir + f"mean_mag_int.pdf", **kwargs)
 plt.close()
 
 ##################################################

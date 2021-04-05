@@ -473,41 +473,45 @@ where $\bar{\v s}\equiv\frac1N\sum_q\v s_q$ is the average spin matrix.
 Fixing the atom number $N$, the spin Hamiltonian has one free parameter: the reduced field $J\phi/U$ that determines the relative strength of the single-particle and interaction terms.
 One should therefore expect distinct dynamical behaviors when $J\phi/U\ll1$, in which case strong spin-locking interactions should give rise to a long-range ordered phase, as opposed to $J\phi/U\gg1$, in which case long-range order should be destroyed by the strong inhomogeneous magnetic field.
 
-To investigate these behaviors quantitatively, we examine long-time-averaged observables of the form
+To investigate these behaviors quantitatively, we examine time-averaged observables of the form
 \begin{align}
   \bbk{\O}_\MF = \lim_{T\to\infty} \f1T \int_0^T \dd t \bk{\O\p{t}}_\MF,
 \end{align}
 where $\bk{\O\p{t}}_\MF$ is the mean-field value of observable $\O$ at time $t$ (see Appendices \ref{sec:MFT} and \ref{sec:bosons} for details about our mean-field simulations).
-Specifically, we consider long-time averages of the normalized transverse magnetization and interaction energy
+Specifically, we consider the time-averaged magnetization
 \begin{align}
-  \bar\sigma_\x \equiv \f1{Ns} \sum_q s_{\x,q},
+  m_\MF \equiv \abs{\bbk{\vec\sigma}_\MF},
   &&
-  \ss = \f{\v S\c\v S}{N^2}.
+  \vec\sigma \equiv \f1{Ns} \times \p{S_\x,S_\y,S_\z},
 \end{align}
-By design, these observables to have operator norm $\norm{\bar\sigma_\x}=\norm{\ss}=1$ independent of the system size $N$ or spin dimension $n$.
+where $S_\alpha \equiv \sum_q s_{\alpha,q}$, and the time-averaged interaction energy
+\begin{align}
+  \bbk{\ss}_\MF = \f1{N^2} \times \bbk{\v S\c\v S}_\MF.
+\end{align}
+By design, these quantities are non-negative and normalized to a maximal value of one, independent of the system size $N$ or spin dimension $n$.
 In the remainder of this section we will assume that $n$ is even, both for the sake of experimental relevance (most relevant atomic nuclei are fermionic) and to avoid complications from parity effects.
 
 \begin{figure}
 \centering
-\includegraphics{mean_sx_ss.pdf}
+\includegraphics{mean_mag_int.pdf}
 \caption{
-Long-time averages of $\bar\sigma_\x$ and $\ss$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket{\x}^{\otimes N}$ up to a time $T=10^5/U$.
+Time-averaged magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\x^{\otimes N}$ up to a time $T=10^5/U$.
 Insets show same data after normalizing $J\phi/U\to J\phi/U \times (n/2)^{1/3}$, as well as transforming $\bbk{\bar\sigma_\x}_\MF$ and $\bbk{\ss}_\MF$ according to Eq.~\eqref{eq:rescale}.
 }
-\label{fig:mean_sx_ss}
+\label{fig:mean_mag_int}
 \end{figure}
 
-Figure \ref{fig:mean_sx_ss} shows the long-time averages of the transverse magnetization $\bar\sigma_\x$ and interaction energy $\ss$ as computed by mean-field simulations of $N=100$ spins in an initial $x$-polarized state $\ket{\x}^{\otimes N}$, where
+Figure \ref{fig:mean_mag_int} shows the time-averages of the magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ as computed by mean-field simulations of $N=100$ spins in an initial $x$-polarized state $\ket\x^{\otimes N}$, where
 \begin{align}
-  \ket{\x} \equiv e^{-\i\frac{\pi}{2}s_\y} \ket{s}
+  \ket\x \equiv e^{-\i\frac{\pi}{2}s_\y} \ket{s}
   = \f1{2^s} \sum_\mu { 2s \choose s+\mu }^{1/2} \ket{\mu}.
 \end{align}
 Here ${ m \choose k }$ is a binomial coefficient.
 As expected, the spin model exhibits a mean-field dynamical phase transition between an ordered phase at small $J\phi/U$ and a disordered phase at large $J\phi/U$.
-The ordered phase has a non-zero transverse magnetization $\bbk{\sigma_\x}_\MF$ and an interaction energy $\bbk{\ss}_\MF$ that asymptotically approaches its maximal value as $J\phi/U\to0^+$.
-The disordered phase has no transverse magnetization, $\bbk{\bar\sigma_\x}_\MF=0$, but an interaction energy $\bbk{\ss}_\MF$ that nonetheless indicates persistent (albeit small) nontrivial inter-spin correlations when $n>2$.
+The ordered phase has a non-zero magnetization $m_\MF$ and an interaction energy $\bbk{\ss}_\MF$ that asymptotically approaches its maximal value as $J\phi/U\to0^+$.
+The disordered phase has no (time-averaged) magnetization, $m_\MF=0$, but an interaction energy $\bbk{\ss}_\MF$ that nonetheless indicates persistent nontrivial inter-spin correlations when $n>2$.
 These nontrivial inter-spin correlations vanish as $J\phi/U\to\infty$, in which case $\bbk{\ss}_\MF$ approaches the minimal value allowed by conservation laws (clarified below).
-By minimizing the reduced field $J\phi/U$ for which $\bbk{\sigma_\x}_\MF=0$, we numerically find that the transition between ordered and disordered phases occurs at a critical field $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields}).
+By minimizing the reduced field $J\phi/U$ for which $m_\MF=0$, we numerically find that the transition between ordered and disordered phases occurs at a critical field $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields}).
 
 \begin{figure}
 \centering
@@ -519,9 +523,9 @@ A single-parameter fit to $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ finds $\alp
 \label{fig:crit_fields}
 \end{figure}
 
-As shown in insets of Figure \ref{fig:mean_sx_ss}, mean-field results for different spin dimensions $n$ collapse onto each other when normalizing the field $J\phi/U$ to its critical value, $\p{J\phi/U}\to\p{J\phi/U}\times\p{n/2}^{1/3}$, and rescaling
+As shown in insets of Figure \ref{fig:mean_mag_int}, mean-field results for different spin dimensions $n$ collapse onto each other when normalizing the field $J\phi/U$ to its critical value, $\p{J\phi/U}\to\p{J\phi/U}\times\p{n/2}^{1/3}$, and rescaling
 \begin{align}
-  \bbk{\bar\sigma_x}_\MF \to \f{\bbk{\bar\sigma_x}_\MF}{\gamma\p{n/2}},
+  m_\MF \to \f{m_\MF}{\gamma\p{n/2}},
   &&
   \bbk{\ss}_\MF \to \f{\bbk{\ss}_\MF-\gamma\p{n}}{1-\gamma\p{n}},
   \label{eq:rescale}
@@ -532,14 +536,14 @@ where
   \stackrel{k\ge2}{\approx} \f1{\sqrt{\pi(k-1)}}.
   \label{eq:gamma}
 \end{align}
-The rescaling of transverse magnetization and interaction energy can be understood by considering their limiting behavior as $J\phi/U\to\infty$ or $J\phi/U\to0^+$.
+The rescaling of magnetization and interaction energy can be understood by considering their limiting behavior as $J\phi/U\to\infty$ or $J\phi/U\to0^+$.
 
 In the strong-field limit $J\phi/U\to\infty$, we can ignore interactions and treat spins as though they simply precess at different rates.
-The long-time-averaged transverse magnetization $\bbk{\bar\sigma_\x}_\MF$ then trivially vanishes as $J\phi/U\to\infty$.
+The time-averaged transverse magnetization $m_\MF$ then trivially vanishes as $J\phi/U\to\infty$.
 The interaction energy $\bk{\ss}_\MF = \bk{\bar{\v s}}_\MF \c \bk{\bar{\v s}}_\MF$, meanwhile, has contributions from
 \begin{enumerate*}
 \item the diagonal parts of the mean spin matrix $\bk{\bar{\v s}}_\MF$, which are conserved by inhomogeneous spin precession, and
-\item the off-diagonal parts of $\bk{\bar{\v s}}_\MF$, whose oscillations average to zero when evaluating the long-time average $\bbk{\ss}_\MF$.
+\item the off-diagonal parts of $\bk{\bar{\v s}}_\MF$, whose oscillations average to zero when evaluating the time average in $\bbk{\ss}_\MF$.
 \end{enumerate*}
 Altogether, the interaction energy $\bbk{\ss}_\MF$ in the strong-field limit is determined by the time-independent diagonal part $\diag\bk{\bar{\v s}}_\MF = \diag\op{\x}$, namely
 \begin{align}
@@ -547,25 +551,31 @@ Altogether, the interaction energy $\bbk{\ss}_\MF$ in the strong-field limit is 
   = \Tr\sp{\p{\diag\op{\x}}^2}
   = \gamma\p{n}.
 \end{align}
-The same result can be obtained by computing the long-time-averaged interaction energy of two spins precessing at different rates.
+The same result can be obtained by computing the time-averaged interaction energy of two spins precessing at different rates.
 
-In the weak-field limit $J\phi/U\to0^+$, the spin-locking $\v S\c\v S$ interactions of the spin Hamiltonian $H_{\t{spin}}$ effectively restrict dynamics to the permutationally-symmetric (PS) manifold.
+In the weak-field limit $J\phi/U\to0^+$, the spin-locking $\v S\c\v S$ interactions of the spin Hamiltonian $H_{\t{spin}}$ energetically restrict dynamics to the permutationally-symmetric (PS) manifold.
 At second order in perturbation theory, the effective spin Hamiltonian within the PS manifold becomes (see Appendix \ref{sec:pert_theory})
 \begin{align}
   H_{\t{spin}}^{\t{eff}}
   = \f{\p{J\phi}^2}{\p{N-1}U}
   \times \sp{S_\z^2 - N\sum_q s_{\z,q}^2},
 \end{align}
-which at the mean-field level becomes
+whose mean-field version is
 \begin{align}
   H_{\t{MFT}}^{\t{eff}} = -\f{\p{J\phi}^2}{U} \sum_q s_{\z,q}^2,
 \end{align}
 where we have used the fact that the axial magnetizations $\bk{s_{\z,q}}=0$ are conserved.
-The weak-field effective Hamiltonian thus preserves permutational symmetry, so $\bbk{\ss}_\MF\to1$ as $J\phi/U\to0^+$, while the transverse magnetization $\bbk{\bar\sigma_\x}_\MF$ approaches the long-time average of $\sigma_\x\equiv s_\x/s$ for a single spin:
+The weak-field effective Hamiltonian preserves permutational symmetry, so $\bbk{\ss}_\MF\to1$ as $J\phi/U\to0^+$.
+In addition, invariance of the initial state $\ket\x^{\otimes N}$ and the effective Hamiltonian $H_{\t{spin}}^{\t{eff}}$ under rotation by $e^{-\i\pi S_\x}$ implies that
 \begin{align}
-  \lim_{J\phi/U\to0^+} \bbk{\bar\sigma_\z}_\MF
-  = \lim_{T\to\infty} \f1T \int_0^T \dd\tau
-  \bk{\x|\sigma_\x\p{\tau}|\x},
+  \bk{S_\y} = \bk{e^{\i\pi S_\x} S_\y e^{-\i\pi S_\x}} = -\bk{S_\y}
+\end{align}
+at all times, so $\bk{S_\y}=0$.
+Together with permutational symmetry, the fact that $\bk{S_\y}=\bk{S_\z}=0$ implies that the magnetization $m_\MF$ is determined by the time-average of $\sigma_\x\equiv s_\x/s$ for a single spin:
+\begin{align}
+  \lim_{J\phi/U\to0^+} m_\MF
+  = \abs{\lim_{T\to\infty} \f1T \int_0^T \dd\tau
+  \bk{\x|\sigma_\x\p{\tau}|\x}},
 \end{align}
 where
 \begin{align}
@@ -577,8 +587,8 @@ By mapping the Hilbert space of an $n$-level spin onto the PS (Dicke) manifold o
 \end{align}
 so for even $n$
 \begin{align}
-  \lim_{J\phi/U\to0^+} \bbk{\bar\sigma_\x}_\MF
-  = \f1{2\pi} \int_0^{2\pi} \dd\tau \p{\cos\tau}^{n-2}
+  \lim_{J\phi/U\to0^+} m_\MF
+  = \abs{\f1{2\pi} \int_0^{2\pi} \dd\tau \p{\cos\tau}^{n-2}}
   = \gamma\p{\f{n}{2}}.
 \end{align}
 
