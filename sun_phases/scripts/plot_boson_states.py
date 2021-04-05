@@ -50,9 +50,9 @@ def get_info(file):
 def gamma(kk):
     return scipy.special.gamma(kk-1/2) / ( np.sqrt(np.pi) * scipy.special.gamma(kk) )
 
+inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
+figure, axes = plt.subplots(2, figsize = (2.6,3), sharex = True, sharey = True)
 if init_state_str != "XX":
-    inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
-    figure, axes = plt.subplots(2, figsize = (2.6,3), sharex = True, sharey = True)
     sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
                  inset(axes[1], "35%", "35%", loc = "upper right") ]
 
@@ -114,15 +114,15 @@ for dim_idx, dim in enumerate(dims):
     axes[0].semilogx(fields, mean_mag, marker, **kwargs)
     axes[1].semilogx(fields, mean_int, marker, **kwargs)
 
+    # don't plot insets or identify critical fields for the XX initial state
+    if init_state_str == "XX": continue
+
     # plot insets
     kwargs.update(dict( markersize = 3 ))
     mean_mag_inset = mean_mag / gamma(dim/2)
     mean_int_inset = ( mean_int - gamma(dim) ) / ( 1 - gamma(dim) )
     sub_axes[0].semilogx(fields_reduced, mean_mag_inset, marker, **kwargs)
     sub_axes[1].semilogx(fields_reduced, mean_int_inset, marker, **kwargs)
-
-    # only locate phase transition for x-polarized initial state
-    if init_state_str != "X": continue
 
     # locate when m_MF first hits zero
     dx = mean_mag[1:] - mean_mag[:-1]
@@ -141,13 +141,14 @@ axes[0].set_ylabel(r"$m_\MF$")
 axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MF$")
 axes[1].set_xlabel(r"$J\phi/U$")
 axes[1].set_xlim(0.1,10)
-for axis in sub_axes:
-    axis.set_xlim(0.1,10)
-    axis.set_ylim(-0.1,1.1)
-    axis.set_xticks([0.1,1,10])
-    axis.set_yticks([0,1])
-sub_axes[0].set_xticklabels(["",r"$10^0$",""])
-sub_axes[1].set_xticklabels([])
+if init_state_str != "XX":
+    for axis in sub_axes:
+        axis.set_xlim(0.1,10)
+        axis.set_ylim(-0.1,1.1)
+        axis.set_xticks([0.1,1,10])
+        axis.set_yticks([0,1])
+    sub_axes[0].set_xticklabels(["",r"$10^0$",""])
+    sub_axes[1].set_xticklabels([])
 
 # make legend and save figure
 handles, labels = axes[0].get_legend_handles_labels()
@@ -157,10 +158,10 @@ legend = axes[0].legend(handles, labels, loc = "lower center",
                         ncol = dims.size, columnspacing = 0.4)
 plt.subplots_adjust(hspace = 0.08)
 kwargs = dict( bbox_extra_artists = (legend,), bbox_inches = "tight" )
-plt.savefig(fig_dir + f"mean_mag_int.pdf", **kwargs)
+plt.savefig(fig_dir + f"mean_mag_int_{init_state_str}.pdf", **kwargs)
 plt.close()
 
-if init_state_str != "X": exit()
+if init_state_str == "XX": exit()
 
 ##################################################
 
@@ -172,5 +173,5 @@ plt.plot(dims, crits, "ko", label = "mean-field")
 plt.plot(dims, fun(dims, *popt), "r.", label = r"fit:~$(n/2)^{-\alpha}$")
 plt.ylabel(r"$(J\phi/U)_{\mathrm{crit}}$")
 plt.legend(loc = "best")
-plt.savefig(fig_dir + f"crit_fields.pdf", bbox_inches = "tight")
+plt.savefig(fig_dir + f"crit_fields_{init_state_str}.pdf", bbox_inches = "tight")
 plt.close()
