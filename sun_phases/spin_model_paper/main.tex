@@ -499,37 +499,38 @@ In the remainder of this section we will assume that $n$ is even, both for the s
 
 \begin{figure}
 \centering
-\includegraphics{mean_mag_int.pdf}
+\includegraphics{mean_mag_int_X.pdf}
 \caption{
 Time-averaged magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\x^{\otimes N}$ for a time $T=10^5/U$.
 Insets show same data after normalizing $J\phi/U\to J\phi/U \times (n/2)^{1/3}$, as well as transforming $m_\MF$ and $\bbk{\ss}_\MF$ according to Eq.~\eqref{eq:rescale}.
 }
-\label{fig:mean_mag_int}
+\label{fig:mean_mag_int_X}
 \end{figure}
 
-Figure \ref{fig:mean_mag_int} shows the time-averages of the magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ as computed by mean-field simulations of $N=100$ spins in an initial $x$-polarized state $\ket\x^{\otimes N}$, where
+Figure \ref{fig:mean_mag_int_X} shows the time-averages of the magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ as computed by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\x^{\otimes N}$, where
 \begin{align}
   \ket\x \equiv e^{-\i\frac{\pi}{2}s_\y} \ket{s}
   = \f1{2^s} \sum_\mu { 2s \choose s+\mu }^{1/2} \ket{\mu}.
+  \label{eq:state_x}
 \end{align}
 Here ${ m \choose k }$ is a binomial coefficient.
 As expected, the spin model exhibits a mean-field dynamical phase transition between an ordered phase at small $J\phi/U$ and a disordered phase at large $J\phi/U$.
 The ordered phase has a non-zero magnetization $m_\MF$ and an interaction energy $\bbk{\ss}_\MF$ that asymptotically approach their maximal values as $J\phi/U\to0^+$.
 The disordered phase has no (time-averaged) magnetization, $m_\MF=0$, but the interaction energy $\bbk{\ss}_\MF$ nonetheless indicates persistent nontrivial inter-spin correlations when $n>2$.
 These nontrivial correlations vanish as $J\phi/U\to\infty$, in which case $\bbk{\ss}_\MF$ approaches the minimal value allowed by conservation laws (clarified below).
-By minimizing the reduced field $J\phi/U$ for which $m_\MF=0$, we numerically find that the transition between ordered and disordered phases occurs at a critical field $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields}).
+By minimizing the reduced field $J\phi/U$ for which $m_\MF=0$, we numerically find that the transition between ordered and disordered phases occurs at a critical field $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields_X}).
 
 \begin{figure}
 \centering
-\includegraphics{crit_fields.pdf}
+\includegraphics{crit_fields_X.pdf}
 \caption{
 The critical value of $\p{J\phi/U}_{\t{crit}}$ as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\x^{\otimes N}$.
 A single-parameter fit to $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ finds $\alpha=0.333(5)$, and $\alpha=1/3$ is consistent with all mean-field results to within an uncertainty determined by the resolution of $J\phi/U$ in mean-field simulations.
 }
-\label{fig:crit_fields}
+\label{fig:crit_fields_X}
 \end{figure}
 
-As shown in insets of Figure \ref{fig:mean_mag_int}, mean-field results for different spin dimensions $n$ collapse onto each other when normalizing the field $J\phi/U$ to its critical value, $\p{J\phi/U}\to\p{J\phi/U}\times\p{n/2}^{1/3}$, and rescaling
+As shown in insets of Figure \ref{fig:mean_mag_int_X}, mean-field results for different spin dimensions $n$ collapse onto each other when normalizing the field $J\phi/U$ to its critical value, $\p{J\phi/U}\to\p{J\phi/U}\times\p{n/2}^{1/3}$, and rescaling
 \begin{align}
   m_\MF \to \f{m_\MF}{\gamma\p{n/2}},
   &&
@@ -570,9 +571,14 @@ whose mean-field version is
 \begin{align}
   H_{\t{MFT}}^{\t{eff}} = -\f{\p{J\phi}^2}{U} \sum_q s_{\z,q}^2,
 \end{align}
-where we have used the fact that the axial magnetizations $\bk{s_{\z,q}}=\frac1N\bk{S_\z}$ within the PS manifold, and $\bk{S_\z}=0$ is conserved by $H_{\t{spin}}^{\t{eff}}$.
+where we have used the fact that the axial magnetizations $\bk{s_{\z,q}}=\frac1N\bk{S_\z}$ within the PS manifold, and $\bk{S_\z}=0$ is conserved by $H_{\t{spin}}$.
 The weak-field effective Hamiltonian preserves permutational symmetry, so $\bbk{\ss}_\MF\to1$ as $J\phi/U\to0^+$.
-Moreover, permutational symmetry together with the fact that $\bk{S_\z}=\bk{S_\y}=0$ are conserved\footnote{Both the initial state $\ket\x^{\otimes N}$ and the spin Hamiltonian $H_{\t{spin}}$ are invariant under the action of $U_\x=e^{-\i\pi S_\x}\sum_{q>0}\v s_q\c\v s_{-q}$, so $\bk{S_\y}=\bk{U_\x^\dag S_\y U_\x}=-\bk{S_\y}=0$ at all times.} implies that the magnetization $m_\MF$ is determined by the time-average of $\sigma_\x\equiv s_\x/s$ for a single spin:
+Moreover, both the spin Hamiltonian $H_{\t{spin}}$ and the initial state $\ket\x^{\otimes N}$ are invariant (up to global phase) under the action of $R_\x = e^{-\i\pi S_\x}\sum_{q>0}\v s_q\c\v s_{-q}$, so
+\begin{align}
+  \bk{S_\y} = \bk{R_\x S_\y R_\x^\dag} = -\bk{S_\y} = 0
+\end{align}
+at all times.
+Conservation of $\bk{S_\z}=\bk{S_\y}=0$ and permutational symmetry together imply that the magnetization $m_\MF$ is determined by the time-average of $\sigma_\x\equiv s_\x/s$ for a single spin:
 \begin{align}
   \lim_{J\phi/U\to0^+} m_\MF
   = \abs{\lim_{T\to\infty} \f1T \int_0^T \dd\tau
@@ -602,11 +608,36 @@ We now consider the same setup as above, but with the initial ``multi-cat'' stat
   \ket{\x\x_\i} &\equiv \f{\ket{\x} + \p{-1}^s \ket{-\x}}{\sqrt{2}}
   \simeq e^{-\i\frac{\pi}{2}s_\x} \ket{\x\x}.
 \end{align}
-Here $\ket{-\x}\equiv e^{-\i\frac{\pi}{2}s_\y}\ket{-s}$, and $\simeq$ denotes equality up to a global phase.
+Here $\simeq$ denotes equality up to a global phase, and $\ket{-\x}$ is a state polarized along $-x$, defined similarly to $\ket\x$ in Eq.~\eqref{eq:state_x}:
+\begin{align}
+  \ket{-\x} \equiv e^{-\i\frac{\pi}{2}s_\y}\ket{-s}
+  = \f1{2^s} \sum_\mu \p{-1}^{s+\mu}
+  { 2s \choose s+\mu }^{1/2} \ket{\mu}.
+\end{align}
 
 
 
-\vspace{3cm}
+\begin{figure}
+\centering
+\includegraphics{mean_mag_int_XX.pdf}
+\caption{
+Numerical results similar to Figure \ref{fig:mean_mag_int_X}, but for an initial multi-cat state $\ket{\x\x}^{\otimes N}$:
+time-averaged magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins for a time $T=10^5/U$.
+}
+\label{fig:mean_mag_int_XX}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{mean_mag_int_XXI.pdf}
+\caption{
+Numerical results similar to Figure \ref{fig:mean_mag_int_X}, but for an initial multi-cat state $\ket{\x\x_\i}^{\otimes N}$:
+time-averaged magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins for a time $T=10^5/U$.
+Insets show same data after normalizing $J\phi/U\to J\phi/U \times (n/2)^{1/3}$, as well as transforming $m_\MF$ and $\bbk{\ss}_\MF$ according to Eq.~\eqref{eq:rescale}.
+}
+\label{fig:mean_mag_int_XXI}
+\end{figure}
+
 
 
 \bibliography{main.bib}
@@ -672,7 +703,7 @@ We begin by decomposing individual spin operators into Schwinger bosons as $s_{\
 \end{align}
 The Heisenberg equations of motion for the Schwinger boson operators are (see Appendix \ref{sec:bosons})
 \begin{align}
-  \i \d_t b_{\mu q}
+  \i \partial_t b_{\mu q}
   = -\f{U}{N} \sum_{\nu,p} b_{\nu p}^\dag b_{\mu p} b_{\nu q}
   + J\phi \sin\p{q} \mu\, b_{\mu q}.
 \end{align}
@@ -688,34 +719,34 @@ Here we decompose a quadratic spin Hamiltonian into Schwinger bosons, and derive
 We begin with a general spin Hamiltonian of the form
 \begin{align}
   H = \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
-  h^{\mu\nu j}_{\rho\sigma k} s_{\mu\nu j} s_{\rho\sigma k}
+  g^{\mu\nu j}_{\rho\sigma k} s_{\mu\nu j} s_{\rho\sigma k}
   + \sum_{\mu,\nu,j} \epsilon_{\mu\nu j} s_{\mu\nu j},
   \label{eq:quadratic_spin}
 \end{align}
-where $\mu,\nu$ index orthogonal states of an $n$-level spin; $j,k$ index one of $N$ spins; $h^{\mu\nu j}_{\rho\sigma k}$ and $\epsilon_{\mu\nu j}$ are scalars; and $s_{\mu\nu j}=\op{\mu}{\nu}_j$ is a transition operator for spin $j$.
-Strictly speaking, Eq.~\eqref{eq:quadratic_spin} only defines the couplings $h^{\mu\nu j}_{\rho\sigma k}$ for $j<k$, so we enforce $h^{\mu\nu k}_{\rho\sigma j}=h^{\mu\nu j}_{\rho\sigma k}$ and $h^{\mu\nu j}_{\rho\sigma j}=0$ for completion.
+where $\mu,\nu$ index orthogonal states of an $n$-level spin; $j,k$ index one of $N$ spins; $g^{\mu\nu j}_{\rho\sigma k}$ and $\epsilon_{\mu\nu j}$ are scalars; and $s_{\mu\nu j}=\op{\mu}{\nu}_j$ is a transition operator for spin $j$.
+Strictly speaking, Eq.~\eqref{eq:quadratic_spin} only defines the couplings $g^{\mu\nu j}_{\rho\sigma k}$ for $j<k$, so we enforce $g^{\mu\nu k}_{\rho\sigma j}=g^{\mu\nu j}_{\rho\sigma k}$ and $g^{\mu\nu j}_{\rho\sigma j}=0$ for completion.
 Decomposing spin operators into Schwinger bosons as $s_{\mu\nu j}=b_{\mu j}^\dag b_{\nu j}$, where $b_{\nu j}$ a annihilates a boson of type $\nu$ on site $j$, we can write this Hamiltonian as
 \begin{align}
   H = \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
-  h^{\mu\nu j}_{\rho\sigma k}
+  g^{\mu\nu j}_{\rho\sigma k}
   b_{\mu j}^\dag b_{\nu j} b_{\rho k}^\dag b_{\sigma k}
   + \sum_{\mu,\nu,j} \epsilon_{\mu\nu j} b_{\mu j}^\dag b_{\nu j}.
 \end{align}
 The Heisenberg equations of motion for the boson operators are then
 \begin{align}
-  \i \d_t b_{\alpha\ell} = \sp{b_{\alpha\ell}, H}
+  \i \partial_t b_{\alpha\ell} = \sp{b_{\alpha\ell}, H}
   &= \sum_{\substack{\mu,\nu,\rho,\sigma\\j<k}}
-  h^{\mu\nu j}_{\rho\sigma k}
+  g^{\mu\nu j}_{\rho\sigma k}
   \sp{b_{\alpha\ell}, b_{\mu j}^\dag b_{\nu j} b_{\rho k}^\dag b_{\sigma k}}
   + \sum_{\mu,\nu,j} \epsilon_{\mu\nu j}
   \sp{b_{\alpha\ell}, b_{\mu j}^\dag b_{\nu j}} \\
-  &= \sum_{\mu,\nu,\rho,\sigma,k} h^{\mu\nu\ell}_{\rho\sigma k}
+  &= \sum_{\mu,\nu,\rho,\sigma,k} g^{\mu\nu\ell}_{\rho\sigma k}
   \sp{b_{\alpha\ell}, b_{\mu\ell}^\dag b_{\nu\ell}}
   b_{\rho k}^\dag b_{\sigma k}
   + \sum_{\mu,\nu} \epsilon_{\mu\nu\ell}
   \sp{b_{\alpha\ell}, b_{\mu\ell}^\dag b_{\nu\ell}} \\
   &= \sum_{\mu,\nu} \p{\sum_{\rho,\sigma,k}
-    h^{\mu\nu\ell}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
+    g^{\mu\nu\ell}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
     + \epsilon_{\mu\nu\ell}}
   \sp{b_{\alpha\ell}, b_{\mu\ell}^\dag b_{\nu\ell}}
 \end{align}
@@ -728,25 +759,124 @@ where
 \end{align}
 so
 \begin{align}
-  \i \d_t b_{\alpha\ell}
+  \i \partial_t b_{\alpha\ell}
   = \sum_\nu \p{\sum_{\rho,\sigma,k}
-    h^{\alpha\nu\ell}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
+    g^{\alpha\nu\ell}_{\rho\sigma k} b_{\rho k}^\dag b_{\sigma k}
     + \epsilon_{\alpha\nu\ell}} b_{\nu\ell}.
 \end{align}
-In the case of uniform SU($n$)-symmetric interactions of the form $\frac{h}{2}\v S\c\v S$ and a diagonal external field, we have
+In the case of uniform SU($n$)-symmetric interactions of the form $\frac{g}{2}\v S\c\v S$ and a diagonal external field, we have
 \begin{align}
-  h^{\alpha\nu\ell}_{\rho\sigma k}
-  = h \times \delta_{\alpha\sigma} \delta_{\nu\rho},
+  g^{\alpha\nu\ell}_{\rho\sigma k}
+  = g \times \delta_{\alpha\sigma} \delta_{\nu\rho},
   &&
   \epsilon_{\alpha\nu\ell}
   = \epsilon_{\alpha\ell} \times \delta_{\alpha\nu}
 \end{align}
 so
 \begin{align}
-  \i \d_t b_{\alpha\ell}
-  = h \sum_{\nu,k} b_{\nu k}^\dag b_{\alpha k} b_{\nu\ell}
+  \i \partial_t b_{\alpha\ell}
+  = g \sum_{\nu,k} b_{\nu k}^\dag b_{\alpha k} b_{\nu\ell}
   + \epsilon_{\alpha\ell} b_{\alpha\ell}.
 \end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Lax vector analysis}
+
+We start with the spin Hamiltonian
+\begin{align}
+  H_{\t{spin}}
+  = -\f{U}{2N} \sum_{\mu,\nu} S_{\mu\nu} S_{\nu\mu}
+  + J\phi \sum_q \sin\p{q} s_{\z,q},
+\end{align}
+where $S_{\mu\nu} = \sum_q s_{\mu\nu q}$.
+The single-body operators involved have normalizations
+\begin{align}
+  \tr\p{s_{\mu\nu q}^\dag s_{\mu\nu q}} = 1
+  &&
+  \t{and}
+  &&
+  \tr\p{s_{\z,q}^\dag s_{\z,q}}
+  = \sum_\mu \mu^2
+  = \f1{12} (n+1) n (n-1)
+  \equiv \eta^2.
+\end{align}
+The Lax formulation requires all single-body operators involved to have the same normalization, so we substitute $s_{\tilde\z,q}\equiv s_{\z,q}/\eta$ to expand
+\begin{align}
+  U^{-1} H_{\t{spin}}
+  = -\f1{2N} \sum_{\mu,\nu} S_{\mu\nu} S_{\nu\mu}
+  + \eta h \sum_q \sin\p{q} s_{\tilde\z,q},
+  &&
+  \t{where}
+  &&
+  h \equiv \f{J\phi}{U}.
+\end{align}
+In the thermodynamic limit $N\to\infty$, the ``normalized'' Lax vector $\vec\ell\p{z}$ associated with $H_{\t{spin}}$ has components
+\begin{align}
+  \ell_\alpha\p{z}
+  = \lim_{N\to\infty} \f1N \sum_q \f{s_{\alpha,q}}{z-\sin q}
+    + \delta_{\alpha,\tilde\z} \, \eta h,
+\end{align}
+where $\alpha$ indexes elements of basis $\set{s_\alpha}$ of self-adjoint generators of SU($n$), with normalization $\tr\p{s_\alpha^2}=1$.
+Within the permutationally symmetric manifold, we can replace $s_{\alpha,q}\to\bar s_\alpha\equiv\frac1N\sum_q s_{\alpha,q}$ at the cost of $O(1/N)$ errors that vanish as $N\to\infty$, so
+\begin{align}
+  \ell_\alpha\p{z}
+  = \I\p{z} \bar s_\alpha
+  + \delta_{\alpha,\tilde\z} \, \eta h,
+\end{align}
+where
+\begin{align}
+  \I\p{z} \equiv \lim_{N\to\infty} \f1N \sum_q \f1{z-\sin\p{q}}
+  = \f1{2\pi} \int_{-\pi}^\pi \f{\dd q}{z-\sin\p{q}}
+  = \f1{\sqrt{z^2-1}} \times
+  \begin{cases}
+    +1 & \arg\p{z} \in (-\pi/2,\pi/2] \\
+    -1 & \t{otherwise}
+  \end{cases}
+  &&
+  \t{for}
+  &&
+  z \notin \sp{-1,1}.
+\end{align}
+The ``squared norm'' of the Lax vector is therefore
+\begin{align}
+  \vec\ell\p{z}^2
+  = \sum_\alpha \ell_\alpha\p{z}^2
+  = \I\p{z}^2 \sum_{\alpha\ne\tilde\z} \bar s_\alpha^2
+  + \sp{\I\p{z} \bar s_{\tilde\z} + \eta h}^2,
+\end{align}
+where we can define $Q^2\equiv\sum_\alpha \bar s_\alpha^2$ to simplify
+\begin{align}
+  \vec\ell\p{z}^2
+  = \I\p{z}^2 \p{Q^2 - \bar s_{\tilde\z}^2}
+  + \sp{\I\p{z} \bar s_{\tilde\z} + \eta h}^2
+  = \I\p{z}^2 Q^2 + \eta^2 h^2
+  + 2 \I\p{z} \eta h \bar s_{\tilde\z}.
+\end{align}
+For initial states with $\bar s_\z=0$, we thus find that
+\begin{align}
+  \vec\ell\p{z}^2 = \f{Q^2}{z^2-1} + \eta^2 h^2,
+\end{align}
+which is zero when
+\begin{align}
+  z = \pm \sqrt{1 - \p{\f{Q}{\eta h}}^2}.
+\end{align}
+These roots change character when $z=0$, suggesting that the critical field $h_{\t{crit}}$ separating dynamical phases satisfies
+\begin{align}
+  h_{\t{crit}}^2 = \f{Q^2}{\eta^2}.
+\end{align}
+For a permutationally symmetric state, up to vanishing $O(1/N)$ corrections we can expand
+\begin{align}
+  Q^2 = \sum_\alpha \bar s_\alpha^2
+  = \sum_{\mu,\nu} \bar s_{\mu\nu} \bar s_{\nu\mu} - \f1n
+  = 1 - \f1n
+  = \f{n-1}{n},
+\end{align}
+which implies that
+\begin{align}
+  h_{\t{crit}}^2 = \f{n-1}{n} \times \f{12}{(n+1)n(n-1)}
+  = \f{12}{n^2\p{n+1}}.
+\end{align}
+This Lax analysis correctly predicts that $h_{\t{crit}}=1$ when $n=2$, but otherwise predicts $h_{\t{crit}}\sim n^{-3/2}$, which is inconsistent with the finding that $h_{\t{crit}}\sim n^{-1/3}$ in mean-field simulations (see Figure \ref{fig:crit_fields_X} of the main text).
 
 \end{document}
 
