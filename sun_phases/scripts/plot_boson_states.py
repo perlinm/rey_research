@@ -52,9 +52,8 @@ def gamma(kk):
 
 inset = mpl_toolkits.axes_grid1.inset_locator.inset_axes
 figure, axes = plt.subplots(2, figsize = (2.6,3), sharex = True, sharey = True)
-if init_state_str != "XX":
-    sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
-                 inset(axes[1], "35%", "35%", loc = "upper right") ]
+sub_axes = [ inset(axes[0], "35%", "35%", loc = "upper right"),
+             inset(axes[1], "35%", "35%", loc = "upper right") ]
 
 files = glob.glob(data_dir + f"means_{sys_tag('*')}*")
 dims = np.array(sorted(set([ get_info(file)["dim"] for file in files ])))
@@ -78,13 +77,11 @@ for dim_idx, dim in enumerate(dims):
     mean_int = np.zeros(fields.size)
     avg_spect = np.zeros((fields.size,dim))
     var_spect = np.zeros((fields.size,dim**2))
-    avg_states = []
     for idx, file in enumerate(dim_files):
         avg_state, var_state \
             = extract_avg_var_state(np.loadtxt(file, dtype = complex), dim)
         mean_mag[idx] = np.linalg.norm( avg_state.ravel().conj() @ spin_op_vec )
         mean_int[idx] = np.einsum("mnnm->", var_state).real
-        avg_states += [ avg_state ]
 
         var_state = np.reshape(np.transpose(var_state, [0,2,1,3]), (dim**2,)*2)
         avg_spect[idx,:] = np.linalg.eigvalsh(avg_state)[::-1]
@@ -114,15 +111,16 @@ for dim_idx, dim in enumerate(dims):
     axes[0].semilogx(fields, mean_mag, marker, **kwargs)
     axes[1].semilogx(fields, mean_int, marker, **kwargs)
 
-    # don't plot insets or identify critical fields for the XX initial state
-    if init_state_str == "XX": continue
-
     # plot insets
     kwargs.update(dict( markersize = 3 ))
     mean_mag_inset = mean_mag / gamma(dim/2)
-    mean_int_inset = ( mean_int - gamma(dim) ) / ( 1 - gamma(dim) )
+    mean_int_fac = gamma(dim) if init_state_str != "XX" else 2*gamma(dim)
+    mean_int_inset = ( mean_int - mean_int_fac ) / ( 1 - mean_int_fac )
     sub_axes[0].semilogx(fields_reduced, mean_mag_inset, marker, **kwargs)
     sub_axes[1].semilogx(fields_reduced, mean_int_inset, marker, **kwargs)
+
+    # don't identify critical fields for the XX initial state
+    if init_state_str == "XX": continue
 
     # locate when m_MF first hits zero
     dx = mean_mag[1:] - mean_mag[:-1]
@@ -141,14 +139,13 @@ axes[0].set_ylabel(r"$m_\MF$")
 axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MF$")
 axes[1].set_xlabel(r"$J\phi/U$")
 axes[1].set_xlim(0.1,10)
-if init_state_str != "XX":
-    for axis in sub_axes:
-        axis.set_xlim(0.1,10)
-        axis.set_ylim(-0.1,1.1)
-        axis.set_xticks([0.1,1,10])
-        axis.set_yticks([0,1])
-    sub_axes[0].set_xticklabels(["",r"$10^0$",""])
-    sub_axes[1].set_xticklabels([])
+for axis in sub_axes:
+    axis.set_xlim(0.1,10)
+    axis.set_ylim(-0.1,1.1)
+    axis.set_xticks([0.1,1,10])
+    axis.set_yticks([0,1])
+sub_axes[0].set_xticklabels(["",r"$10^0$",""])
+sub_axes[1].set_xticklabels([])
 
 # make legend and save figure
 handles, labels = axes[0].get_legend_handles_labels()
