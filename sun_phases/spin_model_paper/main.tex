@@ -168,6 +168,7 @@ and for any pair of such operator-valued matrices $\v A,\v B$, we define the inn
 \begin{align}
   \v A \c \v B \equiv \Tr_{\t{aux}}\p{\v A^\dag\v B}
   = \sum_{\mu,\nu} A_{\mu\nu}^\dag B_{\mu\nu},
+  \label{eq:dot_product}
 \end{align}
 where the trace is performed over the auxiliary matrix degrees of freedom.
 These definitions allow us to write the spin Hamiltonian in Eq.~\eqref{eq:H_int_start} as
@@ -490,7 +491,7 @@ To investigate these behaviors quantitatively, we examine time-averaged observab
 where $\bk{\O\p{t}}_\MF$ is the mean-field value of observable $\O$ at time $t$ (see Appendices \ref{sec:MFT} and \ref{sec:bosons} for details about our mean-field simulations).
 Specifically, we consider the time-averaged magnetization
 \begin{align}
-  m_\MF \equiv \abs{\bbk{\vec\sigma}_\MF},
+  \sigma_\MF \equiv \abs{\bbk{\vec\sigma}_\MF},
   &&
   \vec\sigma \equiv \f1{Ns} \times \p{S_\x,S_\y,S_\z},
 \end{align}
@@ -501,19 +502,20 @@ where $S_\alpha \equiv \sum_q s_{\alpha,q}$, and the time-averaged interaction e
 By design, these non-negative quantities are normalized to a maximal value of one, independent of the system size $N$ or spin dimension $n$.
 In the remainder of this section we will assume that $n$ is even, both for the sake of experimental relevance (most relevant atomic nuclei are fermionic) and to avoid complications from parity effects.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Spin-polarized initial state}
 
 \begin{figure}
 \centering
 \includegraphics{mean_mag_int_X.pdf}
 \caption{
-Time-averaged magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\X$ for a time $T=10^5/U$.
-Insets show same data after normalizing $J\phi/U\to J\phi/U \times (n/2)^{1/3}$, as well as transforming $m_\MF$ and $\bbk{\ss}_\MF$ according to Eq.~\eqref{eq:rescale}.
+Time-averaged magnetization $\sigma_\MF$ and interaction energy $\bbk{\ss}_\MF$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\X$ for a time $T=10^5/U$.
+Insets show same data after rescaling $J\phi/U\to J\phi/U \times (n/2)^{1/3}$, and transforming vertical axes according to Eq.~\eqref{eq:rescale}.
 }
 \label{fig:mean_mag_int_X}
 \end{figure}
 
-Figure \ref{fig:mean_mag_int_X} shows the time-averages of the magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ as computed by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\X\equiv\ket\x^{\otimes N}$, where
+Figure \ref{fig:mean_mag_int_X} shows the time-averages of the magnetization $\sigma_\MF$ and interaction energy $\bbk{\ss}_\MF$ as computed by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\X\equiv\ket\x^{\otimes N}$, where
 \begin{align}
   \ket\x \equiv e^{-\i\frac{\pi}{2}s_\y} \ket{s}
   = \f1{2^s} \sum_\mu { 2s \choose s+\mu }^{1/2} \ket{\mu}.
@@ -521,10 +523,10 @@ Figure \ref{fig:mean_mag_int_X} shows the time-averages of the magnetization $m_
 \end{align}
 Here ${ m \choose k }$ is a binomial coefficient.
 As expected, the spin model exhibits a mean-field dynamical phase transition between an ordered phase at small $J\phi/U$ and a disordered phase at large $J\phi/U$.
-The ordered phase has a non-zero magnetization $m_\MF$ and an interaction energy $\bbk{\ss}_\MF$ that asymptotically approach their maximal values as $J\phi/U\to0^+$.
-The disordered phase has no (time-averaged) magnetization, $m_\MF=0$, but the interaction energy $\bbk{\ss}_\MF$ nonetheless indicates persistent nontrivial inter-spin correlations when $n>2$.
+The ordered phase has a non-zero magnetization $\sigma_\MF$ and an interaction energy $\bbk{\ss}_\MF$ that asymptotically approach their maximal values as $J\phi/U\to0^+$.
+The disordered phase has no (time-averaged) magnetization, $\sigma_\MF=0$, but the interaction energy $\bbk{\ss}_\MF$ nonetheless indicates persistent nontrivial inter-spin correlations when $n>2$.
 These nontrivial correlations vanish as $J\phi/U\to\infty$, in which case $\bbk{\ss}_\MF$ approaches the minimal value allowed by conservation laws (clarified below).
-By minimizing the reduced field $J\phi/U$ for which $m_\MF=0$, we numerically find that the transition between ordered and disordered phases occurs at a critical field $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields_X}).
+By minimizing the reduced field $J\phi/U$ for which $\sigma_\MF=0$, we numerically find that the transition between ordered and disordered phases occurs at a critical field $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields_X}).
 
 \begin{figure}
 \centering
@@ -538,7 +540,7 @@ A single-parameter fit to $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ finds $\alp
 
 As shown in insets of Figure \ref{fig:mean_mag_int_X}, mean-field results for different spin dimensions $n$ collapse onto each other when normalizing the field $J\phi/U$ to its critical value, $\p{J\phi/U}\to\p{J\phi/U}\times\p{n/2}^{1/3}$, and rescaling
 \begin{align}
-  m_\MF \to \f{m_\MF}{\gamma\p{n/2}},
+  \sigma_\MF \to \f{\sigma_\MF}{\gamma\p{n/2}},
   &&
   \bbk{\ss}_\MF \to \f{\bbk{\ss}_\MF-\gamma\p{n}}{1-\gamma\p{n}},
   \label{eq:rescale}
@@ -552,7 +554,7 @@ where
 The rescaling of magnetization and interaction energy can be understood by considering their limiting behavior as $J\phi/U\to\infty$ or $J\phi/U\to0^+$.
 
 In the strong-field limit $J\phi/U\to\infty$, we can ignore interactions and treat spins as though they simply precess at different rates.
-The time-averaged transverse magnetization $m_\MF$ then trivially vanishes as $J\phi/U\to\infty$.
+The time-averaged transverse magnetization $\sigma_\MF$ then trivially vanishes as $J\phi/U\to\infty$.
 The interaction energy $\bk{\ss}_\MF = \bk{\bar{\v s}}_\MF \c \bk{\bar{\v s}}_\MF$, meanwhile, has contributions from
 \begin{enumerate*}
 \item the diagonal parts of the mean spin matrix $\bk{\bar{\v s}}_\MF$, which are conserved by inhomogeneous spin precession, and
@@ -580,15 +582,24 @@ whose mean-field version is
 \end{align}
 where we have used the fact that the axial magnetizations $\bk{s_{\z,q}}=\frac1N\bk{S_\z}$ within the PS manifold, and $\bk{S_\z}=0$ is conserved by $H_{\t{spin}}$.
 The weak-field effective Hamiltonian preserves permutational symmetry, so $\bbk{\ss}_\MF\to1$ as $J\phi/U\to0^+$.
-Moreover, both the spin Hamiltonian $H_{\t{spin}}$ and the initial state $\ket\X$ are invariant (up to global phase) under the action of $R_\x \equiv e^{-\i\pi S_\x}\sum_{q>0}\v s_q\c\v s_{-q}$ (i.e.~a $\pi$ rotation about the $x$ axis followed by a permutation of spins $q\leftrightarrow -q$), so
+Moreover, both the spin Hamiltonian $H_{\t{spin}}$ and the initial state $\ket\X$ are invariant (up to global phase) under the action of $\Pi R_\x^\pi$, where $R_\x^\theta \equiv e^{-\i\theta S_\x}$ is a rotation about the $x$ axis by $\theta$ and $\Pi\equiv\sum_{q>0}\v s_q\c\v s_{-q}$ is a permutation of spins $q\leftrightarrow-q$, which is to say that
 \begin{align}
-  \bk{S_\y} = \bk{R_\x S_\y R_\x^\dag} = -\bk{S_\y} = 0
-  \label{eq:sym_y}
+  e^{-\i t H_{\t{spin}}} \ket\X
+  &\simeq \p{\Pi R_\x^\pi e^{-\i t H_{\t{spin}}} {R_\x^\pi}^\dag \Pi^\dag} \Pi R_\x^\pi \ket\X
+  \label{eq:sym_x_start} \\
+  &\simeq \Pi R_\x^\pi e^{-\i t H_{\t{spin}}} \ket\X,
+\end{align}
+so
+\begin{align}
+  \bk{S_\y}
+  = \bk{{R_\x^\pi}^\dag \Pi^\dag S_\y \Pi R_\x^\pi}
+  = -\bk{S_\y} = 0
+  \label{eq:sym_x_end}
 \end{align}
 at all times.
-Conservation of $\bk{S_\z}=\bk{S_\y}=0$ and permutational symmetry together imply that the magnetization $m_\MF$ is determined by the time-average of $\sigma_\x\equiv s_\x/s$ for a single spin:
+Conservation of $\bk{S_\y}=\bk{S_\z}=0$ and permutational symmetry together imply that the magnetization $\sigma_\MF$ is determined by the time-average of $\sigma_\x\equiv s_\x/s$ for a single spin:
 \begin{align}
-  \lim_{J\phi/U\to0^+} m_\MF
+  \lim_{J\phi/U\to0^+} \sigma_\MF
   = \abs{\lim_{T\to\infty} \f1T \int_0^T \dd\tau
   \bk{\x|\sigma_\x\p{\tau}|\x}},
 \end{align}
@@ -602,32 +613,19 @@ By mapping the Hilbert space of an $n$-level spin onto the PS (Dicke) manifold o
 \end{align}
 so for even $n$
 \begin{align}
-  \lim_{J\phi/U\to0^+} m_\MF
+  \lim_{J\phi/U\to0^+} \sigma_\MF
   = \f1{2\pi} \int_0^{2\pi} \dd\tau \p{\cos\tau}^{n-2}
   = \gamma\p{\f{n}{2}}.
 \end{align}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Multi-cat initial states}
-
-We now consider the same setup as above, but with the initial ``multi-cat'' states $\ket\XX\equiv\ket\xx^{\otimes N}$ and $\ket\XXI\equiv\ket\xxi^{\otimes N}$, where
-\begin{align}
-  \ket\xx &\equiv \f{\ket{\x} + \ket{-\x}}{\sqrt{2}}
-  \simeq e^{-\i\frac{\pi}{2}s_\y^2} \ket{-s}, \\
-  \ket\xxi &\equiv \f{\ket{\x} + \p{-1}^s \ket{-\x}}{\sqrt{2}}
-  \simeq e^{-\i\frac{\pi}{2}s_\x} \ket\xx.
-\end{align}
-Here $\simeq$ denotes equality up to a global phase, and $\ket{-\x}$ is a state polarized along $-x$, defined similarly to $\ket\x$ in Eq.~\eqref{eq:state_x}:
-\begin{align}
-  \ket{-\x} \equiv e^{-\i\frac{\pi}{2}s_\y}\ket{-s}
-  = \f1{2^s} \sum_\mu \p{-1}^{s+\mu}
-  { 2s \choose s+\mu }^{1/2} \ket{\mu}.
-\end{align}
 
 \begin{figure}
 \centering
 \includegraphics{mean_mag_int_XX.pdf}
 \caption{
-A near-replica of Figure \ref{fig:mean_mag_int_X} for the initial state $\ket\XX$.
+A corollary of Figure \ref{fig:mean_mag_int_X} for the initial state $\ket\XX$.
 The inset for interaction energy $\bbk{\ss}_\MF$ in Figure \ref{fig:mean_mag_int_X} subtracts off the minimal value of $\bbk{\ss}_\MF$ and rescales to lie on the interval $[0,1]$, as prescribed by Eq.~\eqref{eq:rescale}.
 Here the subtracting and rescaling is identical, but with a minimal value of $2\gamma\p{n}$ rather than $\gamma\p{n}$.
 }
@@ -638,29 +636,67 @@ Here the subtracting and rescaling is identical, but with a minimal value of $2\
 \centering
 \includegraphics{mean_mag_int_XXI.pdf}
 \caption{
-A replica of Figure \ref{fig:mean_mag_int_X} for the initial state $\ket\XXI$.
+A corollary of Figure \ref{fig:mean_mag_int_X} for the initial state $\ket\XXI$.
 Insets show the same data shifted and rescaled identically to Figure \ref{fig:mean_mag_int_X}.
 }
 \label{fig:mean_mag_int_XXI}
 \end{figure}
 
-Similarly to Figure \ref{fig:mean_mag_int_X}, Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} respectively show the time-averaged magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ throughout mean-field dynamics of the initial states $\ket\XX$ and $\ket\XXI$.
-These figures exclude the trivial case of spin dimension $n=2$, for which $\ket\xx=\ket{-s}$ is an eigenstate of $H_{\t{spin}}$ and $\ket\xxi=e^{-i\frac{\pi}{2}s_\z}\ket\x$ is still an equatorially-polarized state.
+We now consider the same setup as above, but with the initial ``multi-cat'' states $\ket\XX\equiv\ket\xx^{\otimes N}$ and $\ket\XXI\equiv\ket\xxi^{\otimes N}$, where
+\begin{align}
+  \ket\xx \equiv \f{\ket{\x} + \ket{-\x}}{\sqrt{2}},
+  &&
+  \ket\xxi \equiv \f{\ket{\x} + \p{-1}^s \ket{-\x}}{\sqrt{2}},
+\end{align}
+and $\ket{-\x}$ is a state polarized along $-x$, defined similarly to $\ket\x$ in Eq.~\eqref{eq:state_x}:
+\begin{align}
+  \ket{-\x} \equiv e^{-\i\frac{\pi}{2}s_\y}\ket{-s}
+  = \f1{2^s} \sum_\mu \p{-1}^{s+\mu}
+  { 2s \choose s+\mu }^{1/2} \ket{\mu}.
+\end{align}
+Similarly to Figure \ref{fig:mean_mag_int_X}, Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} respectively show the time-averaged magnetization $\sigma_\MF$ and interaction energy $\bbk{\ss}_\MF$ throughout mean-field dynamics of the initial states $\ket\XX$ and $\ket\XXI$.
+These figures exclude the trivial case of spin dimension $n=2$, for which $\ket\xx=\ket{-s}$ is an eigenstate of $H_{\t{spin}}$ and $\ket\xxi=e^{-\i\frac{\pi}{2}s_\z}\ket\x\equiv\ket\y$.
 The first and perhaps most interesting observation to make about Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} is that they are different, signifying the importance of intra-spin coherences for the dynamical behavior of multilevel spin models.
 
-Unlike the case of an initial spin-polarized state $\ket\X$, the mean-field dynamics of the initial multi-cat state $\ket\XX$ (Figure \ref{fig:mean_mag_int_XX}) exhibit no sharp transition between distinct dynamical phases: the time-averaged magnetization $m_\MF=0$ for all values of the field $J\phi/U$, and the interaction energy $\bbk{\ss}_\MF$ smoothly crosses over from a maximal value of 1 to a minimal value of $2\gamma\p{n}$.
-The minimal value of $\bbk{\ss}_\MF$ approached as $J\phi/U\to\infty$ can be explained using arguments identical to those above Eq.~\eqref{eq:lim_ss}, which now imply that
+Unlike the case of an initial spin-polarized state $\ket\X$, the mean-field dynamics of the initial multi-cat state $\ket\XX$ (Figure \ref{fig:mean_mag_int_XX}) exhibit no sharp transition between distinct dynamical phases: the time-averaged magnetization $\sigma_\MF=0$ for all values of the field $J\phi/U$, and the interaction energy $\bbk{\ss}_\MF$ smoothly crosses over from a maximal value of 1 to a minimal value of $2\gamma\p{n}$.
+The minimal value of $\bbk{\ss}_\MF$ approached as $J\phi/U\to\infty$ can be explained with arguments identical to those above Eq.~\eqref{eq:lim_ss}, which now imply that
 \begin{align}
   \lim_{J\phi/U\to\infty} \bbk{\ss}_\MF
   = \Tr\sp{\p{\diag\op{\xx}}^2}
   = 2\gamma\p{n}.
 \end{align}
-The vanishing magnetization $m_\MF=0$ in Figure \ref{fig:mean_mag_int_XX} is protected by symmetries of $H_{\t{spin}}$ and $\ket\XX$.
+The vanishing magnetization $\sigma_\MF=0$ in Figure \ref{fig:mean_mag_int_XX} is protected by symmetries of $H_{\t{spin}}$ and $\ket\XX$.
 For all initial states that we have considered, the value of $\bk{S_\z}=0$ is conserved by the spin Hamiltonian $H_{\t{spin}}$.
-Moreover, as discussed above Eq.~\eqref{eq:sym_y}, the invariance of $H_{\t{spin}}$ and all initial states under the action of $R_\x\equiv e^{-\i\pi S_\x}\sum_{q>0}\v s_q\c\v s_{-q}$ implies that $\bk{S_\y}=0$ at all times.
-The state $\ket\XX$ is additionally invariant under the action of $R_\y\equiv e^{-\i\pi S_\y}\sum_{q>0}\v s_q\c\v s_{-q}$, which analogously ensures that $\bk{S_\x}=0$, and thereby $m_\MF=0$.
+Moreover, both the spin Hamiltonian $H_{\t{spin}}$ and the state $\ket\XX$ are invariant (up to global phase) under the action of $R_\z^\pi$, where $R_\z^\theta\equiv e^{-\i\theta S_\z}$.
+Similarly to Eqs.~\eqref{eq:sym_x_start}--\eqref{eq:sym_x_end}, this symmetry implies that
+\begin{align}
+  &\bk{S_\x} = \bk{{R_\z^\pi}^\dag S_\x R_\z^\pi} = -\bk{S_\x} = 0, \\
+  &\bk{S_\y} = \bk{{R_\z^\pi}^\dag S_\y R_\z^\pi} = -\bk{S_\y} = 0
+\end{align}
+at all times, so altogether $\sigma_\MF=0$.
 
-Turning now to mean-field results for the initial multi-cat state $\ket\XXI$ in Figure \ref{fig:mean_mag_int_XXI}, we remark that the magnetization $m_\MF$ and interaction energy $\bbk{\ss}_\MF$ behave identically to those for the initial spin-polarized state $\ket\X$ in Figure \ref{fig:mean_mag_int_X}.
+Turning now to mean-field results for the initial multi-cat state $\ket\XXI$ in Figure \ref{fig:mean_mag_int_XXI}, we remark that the magnetization $\sigma_\MF$ and interaction energy $\bbk{\ss}_\MF$ behave identically to those for the initial spin-polarized state $\ket\X$ in Figure \ref{fig:mean_mag_int_X}.
+This finding can be understood through the fact that
+\begin{align}
+  \ket\XXI \simeq R_\z^{\pi/2} T_\z^{\pi/2} \ket\X,
+\end{align}
+where $T_\z^\theta\equiv e^{-\i\theta S_\z^2}$.
+The operators $R_\z^\theta$ and $T_\z^\theta$ are generated by axial fields that respect permutational symmetry, and therefore commute with the spin Hamiltonian $H_{\t{spin}}$, so
+\begin{align}
+  e^{-\i t H_{\t{spin}}} \ket\XXI
+  &\simeq e^{-\i t H_{\t{spin}}} R_\z^{\pi/2} T_\z^{\pi/2} \ket\X \\
+  &\simeq R_\z^{\pi/2} T_\z^{\pi/2} e^{-\i t H_{\t{spin}}} \ket\X.
+\end{align}
+In turn, expanding $\ss$ according to Eq.~\eqref{eq:dot_product} shows that
+\begin{align}
+  {T_\z^\theta}^\dag {R_\z^\theta}^\dag \, \ss \, R_\z^\theta T_\z^\theta
+  = \ss,
+\end{align}
+which implies that the interaction energy $\bk{\ss}$ throughout dynamics of the initial multi-cat state $\ket\XXI$ is the same as that of the initial spin-polarized state $\ket\X$.
+
+To make sense of why the magnetization $\sigma_\MF$ should behave identically in Figure \ref{fig:mean_mag_int_XXI} for $\ket\XXI$ as in Figure \ref{fig:mean_mag_int_X} for $\ket\X$, we can ignore the time-independent factors $R_\z^\theta$, which only rotate the mean spin vector $\bbk{\vec\sigma}_\MF$ without changing its magnitude.
+
+\red{[explain $\sigma_\MF$ is identical in Figures \ref{fig:mean_mag_int_X} and \ref{fig:mean_mag_int_XXI}]}
 
 
 
@@ -835,14 +871,14 @@ The Lax formulation requires all single-body operators involved to have the same
   &&
   h \equiv \f{J\phi}{U}.
 \end{align}
-In the thermodynamic limit $N\to\infty$, the ``normalized'' Lax vector $\vec\ell\p{z}$ associated with $H_{\t{spin}}$ has components
+The normalized Lax vector $\vec\ell\p{z}$ associated with $H_{\t{spin}}$ has components
 \begin{align}
   \ell_\alpha\p{z}
-  = \lim_{N\to\infty} \f1N \sum_q \f{s_{\alpha,q}}{z-\sin q}
-    + \delta_{\alpha,\tilde\z} \, \eta h,
+  = \f1N \sum_q \f{s_{\alpha,q}}{z-\sin q}
+  + \delta_{\alpha,\tilde\z} \, \eta h,
 \end{align}
 where $\alpha$ indexes elements of basis $\set{s_\alpha}$ of self-adjoint generators of SU($n$), with normalization $\tr\p{s_\alpha^2}=1$.
-Within the permutationally symmetric manifold, we can replace $s_{\alpha,q}\to\bar s_\alpha\equiv\frac1N\sum_q s_{\alpha,q}$ at the cost of $O(1/N)$ errors that vanish as $N\to\infty$, so
+Within the permutationally symmetric manifold, we can replace $s_{\alpha,q}\to\bar s_\alpha\equiv\frac1N\sum_q s_{\alpha,q}$ at the cost of $O(1/N)$ errors that vanish as $N\to\infty$, so taking this limit we find
 \begin{align}
   \ell_\alpha\p{z}
   = \I\p{z} \bar s_\alpha
@@ -850,13 +886,9 @@ Within the permutationally symmetric manifold, we can replace $s_{\alpha,q}\to\b
 \end{align}
 where
 \begin{align}
-  \I\p{z} \equiv \lim_{N\to\infty} \f1N \sum_q \f1{z-\sin\p{q}}
-  = \f1{2\pi} \int_{-\pi}^\pi \f{\dd q}{z-\sin\p{q}}
-  = \f1{\sqrt{z^2-1}} \times
-  \begin{cases}
-    +1 & \arg\p{z} \in (-\pi/2,\pi/2] \\
-    -1 & \t{otherwise}
-  \end{cases}
+  \I\p{z} \equiv \f1N \sum_q \f1{z-\sin\p{q}}
+  = \f1{2\pi} \int_0^{2\pi} \f{\dd q}{z-\sin\p{q}}
+  = \f1{\sqrt{z^2-1}}
   &&
   \t{for}
   &&

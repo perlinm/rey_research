@@ -135,7 +135,7 @@ for dim_idx, dim in enumerate(dims):
     crits[dim_idx] = 10**min(np.roots(fit)[-1], log10_fields[zero_start])
 
 # label axes and set axis ticks
-axes[0].set_ylabel(r"$m_\MF$")
+axes[0].set_ylabel(r"$\sigma_\MF$")
 axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MF$")
 axes[1].set_xlabel(r"$J\phi/U$")
 axes[1].set_xlim(0.1,10)
