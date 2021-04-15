@@ -43,6 +43,8 @@
 \newcommand{\ZZ}{\mathbb{Z}}
 \newcommand{\A}{\mathcal{A}}
 \newcommand{\C}{\mathcal{C}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
 \newcommand{\I}{\mathcal{I}}
 \renewcommand{\O}{\mathcal{O}}
 \renewcommand{\P}{\mathcal{P}}
@@ -52,15 +54,20 @@
 \newcommand{\X}{\text{X}}
 \newcommand{\XX}{\X\X}
 \newcommand{\XXI}{\X\X_\i}
-\newcommand{\su}{\mathfrak{su}}
+\newcommand{\spin}{\text{spin}}
+\newcommand{\eff}{\text{eff}}
+\newcommand{\crit}{\text{crit}}
 \newcommand{\MF}{\text{MF}}
+\newcommand{\su}{\mathfrak{su}}
 \renewcommand{\ss}{\bar{\v s}\c\bar{\v s}}
 \DeclareMathOperator{\diag}{diag}
+
+\newcommand{\col}{\underline}
+\newcommand{\mean}{\overline}
 
 %%% for in-line enumerated lists
 \usepackage[inline]{enumitem}
 \setlist[enumerate,1]{label={(\roman*)}} % default in-line numbering
-\setlist{nolistsep} % more compact spacing between environments
 
 % use alphanumeric tags for footnotes
 \renewcommand*{\thefootnote}{\alph{footnote}}
@@ -146,7 +153,7 @@ For simplicity, we now assume a periodic lattice of $L$ sites, and expand the on
 where $N$ is the total number of atoms on the lattice, we define $U\equiv U_0\times N/L$ for convenience, $\delta_{k+p,\ell+q}=1$ if $k+p=\ell+q$ and zero otherwise (enforcing conservation of momentum), and we work in units with lattice spacing $a=1$.
 
 If the interaction energy $U_0$ is smaller than the single-particle bandwidth $\sim J$, then the mode-changing collisions in $H_{\t{int}}$ become off-resonant, motivating the frozen-mode approximation $\set{k,p}=\set{\ell,q}$ (which we assume for the remainder of this work)\footnote{Note that the frozen-mode approximation neglects correlated momentum-hopping terms of the form $c_{\pi-p,\mu}^\dag c_{\pi-q,\mu} c_{p\nu}^\dag c_{q\nu}$, which conserve both momentum and energy.
-We defer a careful treatment of these terms to future work, noting only that they vanish on the manifold of permutationally-symmetric spin states with one atom per lattice site.}.
+We defer a careful treatment of these terms to future work, noting only that they vanish on the manifold of permutationally symmetric spin states with one atom per lattice site.}.
 The operator content of terms with $k=\ell$ and $p=q$ takes the form $c_{\ell\mu}^\dag c_{\ell\mu} c_{q\nu}^\dag c_{q\nu}$, so these terms contribute an overall energy $\frac12NU$ that can be neglected in the absence of coherent atom number fluctuations.
 Defining the spin operators $s_{\mu\nu q}\equiv c_{q\mu}^\dag c_{q\nu}$, the remaining terms of the kinetic and interaction Hamiltonians become
 \begin{align}
@@ -187,7 +194,7 @@ Here $\v S$ is a collective spin matrix, analogous to the collective spin vector
 \caption{
 (a) Ultracold atoms on a lattice of $L$ sites can tunnel between neighboring lattice sites at a rate $J$, and locally repel each other with interaction energy $U_0$.
 (b,c) When the interaction energy $U_0$ is smaller than the single-particle bandwidth $\sim J$, the frozen-mode approximation enables writing the interaction Hamiltonian as a spin model consisting of exchange terms $\v s_p\c\v s_q$, which swap the states two spins pinned to momentum modes $p,q$.
-(d) Interactions thereby open an energy gap $U=U_0\times N/L$ between the manifold of permutationally-symmetric states of $N$ spins, and the orthogonal complement of states that break spin-permutation symmetry.
+(d) Interactions thereby open an energy gap $U=U_0\times N/L$ between the manifold of permutationally symmetric states of $N$ spins, and the orthogonal complement of states that break spin-permutation symmetry.
 }
 \label{fig:spin_model}
 \end{figure}
@@ -196,7 +203,7 @@ We now discuss the spin Hamiltonian $H_{\t{int}}$ in Eq.~\eqref{eq:H_int}.
 The operator $\v s_p\c\v s_q$ simply swaps the nuclear spin states of two atoms pinned to modes $p,q$.
 The term $-\v s_p\c\v s_q$ thereby assigns a definite energy of $-1$ ($+1$) to a pair of spins that are symmetric (anti-symmetric) under exchange.
 In this sense, $\v s_p\c\v s_q$ is analogous to the enforcement of SU(2) spin alignment by ferromagnetic interactions, which similarly assigns (distinct) definite energies to anti-symmetric spin-0 singlet $\ket{\up\dn}-\ket{\dn\up}$ and the symmetric spin-1 triplets $\set{\ket{\up\up},\ket{\dn\dn},\ket{\up\dn}+\ket{\dn\up}}$.
-By summing over all pair-wise exchange terms $\v s_p\c\v s_q$, the interaction Hamiltonian $H_{\t{int}}$ energetically enforces a permutational symmetry among all spins, opening an energy gap $U$ between the manifold of all permutationally-symmetric (PS) states and the orthogonal complement of excited (e.g.~spin-wave) states that break permutational symmetry.
+By summing over all pair-wise exchange terms $\v s_p\c\v s_q$, the interaction Hamiltonian $H_{\t{int}}$ energetically enforces a permutational symmetry among all spins, opening an energy gap $U$ between the manifold of all permutationally symmetric (PS) states and the orthogonal complement of excited (e.g.~spin-wave) states that break permutational symmetry.
 See Figure \ref{fig:spin_model} for a summary of this section thus far.
 
 In the case of SU(2), the PS manifold is precisely the Dicke manifold of collective states $\ket{m_\z}$ with total spin $S=\frac{N}{2}$ and definite spin projection $m_\z\in\set{S,S-1,\cdots,-S}$ onto a fixed quantization axis.
@@ -205,7 +212,7 @@ In the general case of SU($n$), the PS manifold is similarly spanned by states $
 The dimension of the PS manifold is equal to the number of ways of assigning $N$ identical spins to $n$ distinct internal states, or ${N+n-1 \choose n-1} \sim N^{n-1}$.
 
 External fields or additional interactions that respect permutational symmetry can induce nontrivial dynamics within the PS manifold.
-Even if additional Hamiltonian terms break permutational symmetry, as long as the coupling to states outside of the PS manifold is small (compared to the energy gap $U$) these terms can be restricted to the PS manifold perturbatively (see Appendix \ref{sec:pert_theory}).
+Even if additional Hamiltonian terms break permutational symmetry, as long as the coupling to states outside of the PS manifold is small (compared to the energy gap $U$) these terms can be restricted to the PS manifold perturbatively (see Appendix \ref{sec:pert_theory}) \cite{bravyi2011schrieffer}.
 Simulating dynamics within the PS manifold requires calculating matrix elements $\bk{\ell|\O|m}$ of spin operators $\O$ with respect to PS states $\ket\ell,\ket{m}$; we discuss this calculation in Appendix \ref{sec:PS_ops}.
 
 Finally, we take a moment to discuss individual $n$-level spins.
@@ -336,7 +343,7 @@ Nonetheless, for sufficiently weak SOC (small $s\phi$) the effect of $H_{\t{int}
 To ensure that $H_{\t{kin}}^{(\phi)}$ does not become trivial as $\phi\to0$, we can simultaneously take $J\to\infty$ ($J$ large compared to $U$) while keeping $J\phi$ constant.
 Altogether, the interacting spin Hamiltonian in the gauged frame becomes
 \begin{align}
-  H_{\t{spin}} = -\f{U}{2N} \v S\c\v S + J\phi \sum_q \sin\p{q} s_{\z,q},
+  H_\spin = -\f{U}{2N} \v S\c\v S + J\phi \sum_q \sin\p{q} s_{\z,q},
   \label{eq:H_spin}
 \end{align}
 consisting of a spin-locking $\v S\c\v S$ term that energetically favors permutational symmetry, and an inhomogeneous magnetic field that causes inter-spin dephasing.
@@ -449,14 +456,14 @@ The drives shown here are equal to that Eq.~\eqref{eq:drive_single} up to a poss
 
 Eqs.~\eqref{eq:drive_all} and \eqref{eq:drive_single} are the main technical results of this section.
 There are three important observations to make about these results.
-First, the fact that $H_{\t{3LD}}$ acts identically on all spins means we can freely replace the site index $j$ with a momentum index $q$ (as can be verified by substituting $c_{j\mu}=\frac1{\sqrt{L}}\sum_k e^{-\i q\c j} c_{q\mu}$), which is important to ensure that this drive addresses the same spin degrees of freedom as the spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin}.
+First, the fact that $H_{\t{3LD}}$ acts identically on all spins means we can freely replace the site index $j$ with a momentum index $q$ (as can be verified by substituting $c_{j\mu}=\frac1{\sqrt{L}}\sum_k e^{-\i q\c j} c_{q\mu}$), which is important to ensure that this drive addresses the same spin degrees of freedom as the spin Hamiltonian $H_\spin$ in Eq.~\eqref{eq:H_spin}.
 Second, each of $\tilde\Omega_0,\tilde\Omega_+,\tilde\Omega_-$ can be tuned independently by changing the amplitudes of the driving lasers; some particular Hamiltonians for specific values of these amplitudes are shown in Table \ref{tab:drives}.
 Third, due to the appearance of mutually commuting pairs of Hamiltonians in Table \ref{tab:drives}, specifically $-s_\alpha^2$ and $\pm s_\alpha+s_\alpha^2$ for $\alpha\in\set{\z,\x}$, the three-laser drive admits pulse sequences that exactly implement arbitrary SU(2) (spatial) rotations of the form $e^{-\i\chi\vec n\c\vec s}$, where $\chi$ is a rotation angle, $\vec n$ is a rotation axis, and $\vec s\equiv(s_\x,s_\y,s_\z)$.
 The capability to perform arbitrary spatial rotations, together with the capability to measure the number of atoms with spin projection $\mu$ onto a fixed quantization axis, $\bk{S_{\mu\mu}}$ (where $S_{\mu\nu}=\sum_js_{\mu\nu j}$), implies the capability to reconstruct all components of the mean collective spin matrix $\bk{\v S}=\sum_{\mu\nu}\bk{S_{\mu\nu}}\op{\mu}{\nu}$ via spin qudit tomography \cite{newton1968measurability, perlin2020qudit}.
 Moreover, we expect that advanced quantum optimal control techniques (similar to those of Refs.~\cite{anderson2015accurate, lucarelli2018quantum}) can be used to implement arbitrary SU($n$) rotations by designing suitable time-dependent drive amplitudes $\Omega_m$.
 
 Finally, we comment on the preparation of initial states.
-Initial states are nominally prepared in the ``lab frame'', and must be transformed according to the gauge transformation $c_{q\mu}^\dag\to c_{q-\mu\phi,\mu}^\dag$ prior to evolution under the ``gauged frame'' spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin} or the three-laser drive $H_{\t{3LD}}$ in Eq.~\eqref{eq:drive_all}.
+Initial states are nominally prepared in the ``lab frame'', and must be transformed according to the gauge transformation $c_{q\mu}^\dag\to c_{q-\mu\phi,\mu}^\dag$ prior to evolution under the ``gauged frame'' spin Hamiltonian $H_\spin$ in Eq.~\eqref{eq:H_spin} or the three-laser drive $H_{\t{3LD}}$ in Eq.~\eqref{eq:drive_all}.
 We assume the capability to prepare an initial state in which all spins are maximally polarized along $\v v_+$, i.e.~$\ket{\v v_+}^{\otimes N}=\ket{s}^{\otimes N}$, which is unaffected by the gauge transformation (up to a global phase).
 The three-laser then allows us to rotate this state into one that is polarized along any spatial axis (in the gauged frame).
 In addition, when $n>2$ the three-laser drive allows us to prepare product states with nontrivial intra-spin correlations.
@@ -472,7 +479,7 @@ This state has a vanishing mean spin vector, $\bk{s_\x}=\bk{s_\y}=\bk{s_\z}=0$, 
 \section{Mean-field theory and dynamical phases}
 \label{sec:mean_field}
 
-We now return to the spin Hamiltonian $H_{\t{spin}}$ in Eq.~\eqref{eq:H_spin}, which is valid in the weak-SOC limit $s\phi\ll1$, and henceforth work exclusively in the ``gauged frame'' of $H_{\t{spin}}$ and the three-laser drive $H_{\t{3LD}}$ in Eq.~\eqref{eq:drive_all}.
+We now return to the spin Hamiltonian $H_\spin$ in Eq.~\eqref{eq:H_spin}, which is valid in the weak-SOC limit $s\phi\ll1$, and henceforth work exclusively in the ``gauged frame'' of $H_\spin$ and the three-laser drive $H_{\t{3LD}}$ in Eq.~\eqref{eq:drive_all}.
 At the mean-field (MF) level, up to constant energy shifts the undriven spin Hamiltonian becomes
 \begin{align}
   H_\MF = \sum_q\sp{-U\bk{\bar{\v s}}\c\v s_q
@@ -523,17 +530,20 @@ Figure \ref{fig:mean_mag_int_X} shows the time-averages of the magnetization $\s
 \end{align}
 Here ${ m \choose k }$ is a binomial coefficient.
 As expected, the spin model exhibits a mean-field dynamical phase transition between an ordered phase at small $J\phi/U$ and a disordered phase at large $J\phi/U$.
-The ordered phase has a non-zero magnetization $\sigma_\MF$ and an interaction energy $\bbk{\ss}_\MF$ that asymptotically approach their maximal values as $J\phi/U\to0^+$.
+The ordered phase has a non-zero magnetization $\sigma_\MF$ and an interaction energy $\bbk{\ss}_\MF$ that asymptotically approach their maximal values as $J\phi/U\to0$.
 The disordered phase has no (time-averaged) magnetization, $\sigma_\MF=0$, but the interaction energy $\bbk{\ss}_\MF$ nonetheless indicates persistent nontrivial inter-spin correlations when $n>2$.
 These nontrivial correlations vanish as $J\phi/U\to\infty$, in which case $\bbk{\ss}_\MF$ approaches the minimal value allowed by conservation laws (clarified below).
-By minimizing the reduced field $J\phi/U$ for which $\sigma_\MF=0$, we numerically find that the transition between ordered and disordered phases occurs at a critical field $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields_X}).
+By minimizing the reduced field $J\phi/U$ for which $\sigma_\MF=0$, we numerically find that the transition between ordered and disordered phases occurs at a critical field $\p{J\phi/U}_\crit=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields_X}).
+When $n=2$, this transition is consistent with the predictions of a Lax vector analysis \cite{yuzbashyan2005nonequilibrium, yuzbashyan2006dynamical, yuzbashyan2006relaxation, yuzbashyan2015quantum, smale2019observation} that exploits integrability of $H_\spin$ to determine long-time behavior.
+However, a straightforward application of the same analysis fails to predict the mean-field transition for $n>2$, so additional theoretical tools are necessary to understand this transition.
+We elaborate on this point in Appendix \ref{sec:lax}.
 
 \begin{figure}
 \centering
 \includegraphics{crit_fields_X.pdf}
 \caption{
-The critical value of $\p{J\phi/U}_{\t{crit}}$ as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\X$.
-A single-parameter fit to $\p{J\phi/U}_{\t{crit}}=\p{n/2}^{-\alpha}$ finds $\alpha=0.333(5)$, and $\alpha=1/3$ is consistent with all mean-field results to within an uncertainty determined by the resolution of $J\phi/U$ in mean-field simulations.
+The critical value of $\p{J\phi/U}_\crit$ as determined by mean-field simulations of $N=100$ spins initially in the $x$-polarized state $\ket\X$.
+A single-parameter fit to $\p{J\phi/U}_\crit=\p{n/2}^{-\alpha}$ finds $\alpha=0.333(5)$, and $\alpha=1/3$ is consistent with all mean-field results to within an uncertainty determined by the resolution of $J\phi/U$ in mean-field simulations.
 }
 \label{fig:crit_fields_X}
 \end{figure}
@@ -551,7 +561,7 @@ where
   \stackrel{k\ge2}{\approx} \f1{\sqrt{\pi(k-1)}}.
   \label{eq:gamma}
 \end{align}
-The rescaling of magnetization and interaction energy can be understood by considering their limiting behavior as $J\phi/U\to\infty$ or $J\phi/U\to0^+$.
+The rescaling of magnetization and interaction energy can be understood by considering their limiting behavior as $J\phi/U\to\infty$ or $J\phi/U\to0$.
 
 In the strong-field limit $J\phi/U\to\infty$, we can ignore interactions and treat spins as though they simply precess at different rates.
 The time-averaged transverse magnetization $\sigma_\MF$ then trivially vanishes as $J\phi/U\to\infty$.
@@ -569,37 +579,38 @@ Altogether, the interaction energy $\bbk{\ss}_\MF$ in the strong-field limit is 
 \end{align}
 The same result can be obtained by computing the time-averaged interaction energy of two spins precessing at different rates.
 
-In the weak-field limit $J\phi/U\to0^+$, the spin-locking $\v S\c\v S$ interactions of the spin Hamiltonian $H_{\t{spin}}$ energetically restrict dynamics to the permutationally-symmetric (PS) manifold.
+In the weak-field limit $J\phi/U\to0$, the spin-locking $\v S\c\v S$ interactions of the spin Hamiltonian $H_\spin$ energetically restrict dynamics to the permutationally symmetric (PS) manifold.
 At second order in perturbation theory, the effective spin Hamiltonian within the PS manifold becomes (see Appendix \ref{sec:pert_theory})
 \begin{align}
-  H_{\t{spin}}^{\t{eff}}
-  = \f{\p{J\phi}^2}{\p{N-1}U}
+  H_\spin^\eff
+  = \f{\p{J\phi}^2}{2\p{N-1}U}
   \times \sp{S_\z^2 - N\sum_q s_{\z,q}^2},
+  \label{eq:H_spin_eff}
 \end{align}
 whose mean-field version is
 \begin{align}
-  H_{\t{MFT}}^{\t{eff}} = -\f{\p{J\phi}^2}{U} \sum_q s_{\z,q}^2,
+  H_\MF^\eff = -\f{\p{J\phi}^2}{2U} \sum_q s_{\z,q}^2,
 \end{align}
-where we have used the fact that the axial magnetizations $\bk{s_{\z,q}}=\frac1N\bk{S_\z}$ within the PS manifold, and $\bk{S_\z}=0$ is conserved by $H_{\t{spin}}$.
-The weak-field effective Hamiltonian preserves permutational symmetry, so $\bbk{\ss}_\MF\to1$ as $J\phi/U\to0^+$.
-Moreover, both the spin Hamiltonian $H_{\t{spin}}$ and the initial state $\ket\X$ are invariant (up to global phase) under the action of $\Pi R_\x^\pi$, where $R_\x^\theta \equiv e^{-\i\theta S_\x}$ is a rotation about the $x$ axis by $\theta$ and $\Pi\equiv\sum_{q>0}\v s_q\c\v s_{-q}$ is a permutation of spins $q\leftrightarrow-q$, which is to say that
+where we have used the fact that the axial magnetizations $\bk{s_{\z,q}}=\frac1N\bk{S_\z}$ within the PS manifold, and the initial value of $\bk{S_\z}=0$ is conserved by $H_\spin$.
+The weak-field effective Hamiltonian preserves permutational symmetry, so $\bbk{\ss}_\MF\to1$ as $J\phi/U\to0$.
+Moreover, both the spin Hamiltonian $H_\spin$ and the initial state $\ket\X$ are invariant (up to global phase) under the action of $\Pi_\z R_\x^\pi$, where $R_\x^\theta \equiv e^{-\i\theta S_\x}$ is a rotation about the $x$ axis by $\theta$ and $\Pi_\z\equiv\sum_{q>0}\v s_q\c\v s_{-q}$ is a permutation of spins $q\leftrightarrow-q$\footnote{$\Pi_\z$ can also be thought of a reflection operator that inverts momentum along the $z$ axis.}, which is to say that
 \begin{align}
-  e^{-\i t H_{\t{spin}}} \ket\X
-  &\simeq \p{\Pi R_\x^\pi e^{-\i t H_{\t{spin}}} {R_\x^\pi}^\dag \Pi^\dag} \Pi R_\x^\pi \ket\X
+  e^{-\i t H_\spin} \ket\X
+  &\simeq \p{\Pi_\z R_\x^\pi e^{-\i t H_\spin} {R_\x^\pi}^\dag \Pi_\z^\dag} \Pi_\z R_\x^\pi \ket\X
   \label{eq:sym_x_start} \\
-  &\simeq \Pi R_\x^\pi e^{-\i t H_{\t{spin}}} \ket\X,
+  &\simeq \Pi_\z R_\x^\pi e^{-\i t H_\spin} \ket\X,
 \end{align}
 so
 \begin{align}
   \bk{S_\y}
-  = \bk{{R_\x^\pi}^\dag \Pi^\dag S_\y \Pi R_\x^\pi}
+  = \bk{{R_\x^\pi}^\dag \Pi_\z^\dag S_\y \Pi_\z R_\x^\pi}
   = -\bk{S_\y} = 0
   \label{eq:sym_x_end}
 \end{align}
 at all times.
 Conservation of $\bk{S_\y}=\bk{S_\z}=0$ and permutational symmetry together imply that the magnetization $\sigma_\MF$ is determined by the time-average of $\sigma_\x\equiv s_\x/s$ for a single spin:
 \begin{align}
-  \lim_{J\phi/U\to0^+} \sigma_\MF
+  \lim_{J\phi/U\to0} \sigma_\MF
   = \abs{\lim_{T\to\infty} \f1T \int_0^T \dd\tau
   \bk{\x|\sigma_\x\p{\tau}|\x}},
 \end{align}
@@ -613,10 +624,11 @@ By mapping the Hilbert space of an $n$-level spin onto the PS (Dicke) manifold o
 \end{align}
 so for even $n$
 \begin{align}
-  \lim_{J\phi/U\to0^+} \sigma_\MF
+  \lim_{J\phi/U\to0} \sigma_\MF
   = \f1{2\pi} \int_0^{2\pi} \dd\tau \p{\cos\tau}^{n-2}
   = \gamma\p{\f{n}{2}}.
 \end{align}
+When going beyond mean-field theory, correlations induced by $S_\z^2$ in Eq.~\eqref{eq:H_spin_eff} will cause $\bk{S_\x}$ to decay on time scales that diverge as $N\to\infty$, so the mean-field magnetization $\sigma_\MF$ should be interpreted as the ``intermediate-time-average'' of $\vec\sigma$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Multi-cat initial states}
@@ -654,20 +666,20 @@ and $\ket{-\x}$ is a state polarized along $-x$, defined similarly to $\ket\x$ i
   = \f1{2^s} \sum_\mu \p{-1}^{s+\mu}
   { 2s \choose s+\mu }^{1/2} \ket{\mu}.
 \end{align}
-Similarly to Figure \ref{fig:mean_mag_int_X}, Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} respectively show the time-averaged magnetization $\sigma_\MF$ and interaction energy $\bbk{\ss}_\MF$ throughout mean-field dynamics of the initial states $\ket\XX$ and $\ket\XXI$.
-These figures exclude the trivial case of spin dimension $n=2$, for which $\ket\xx=\ket{-s}$ is an eigenstate of $H_{\t{spin}}$ and $\ket\xxi=e^{-\i\frac{\pi}{2}s_\z}\ket\x\equiv\ket\y$.
+Similarly to Figure \ref{fig:mean_mag_int_X}, Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} show the time-averaged magnetization $\sigma_\MF$ and interaction energy $\bbk{\ss}_\MF$ throughout mean-field dynamics of the initial states $\ket\XX$ and $\ket\XXI$.
+These figures exclude the trivial case of spin dimension $n=2$, for which $\ket\xx=\ket{-s}$ is an eigenstate of $H_\spin$ and $\ket\xxi=e^{-\i\frac{\pi}{2}s_\z}\ket\x\equiv\ket\y$ is spin-polarized along $y$.
 The first and perhaps most interesting observation to make about Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} is that they are different, signifying the importance of intra-spin coherences for the dynamical behavior of multilevel spin models.
 
-Unlike the case of an initial spin-polarized state $\ket\X$, the mean-field dynamics of the initial multi-cat state $\ket\XX$ (Figure \ref{fig:mean_mag_int_XX}) exhibit no sharp transition between distinct dynamical phases: the time-averaged magnetization $\sigma_\MF=0$ for all values of the field $J\phi/U$, and the interaction energy $\bbk{\ss}_\MF$ smoothly crosses over from a maximal value of 1 to a minimal value of $2\gamma\p{n}$.
-The minimal value of $\bbk{\ss}_\MF$ approached as $J\phi/U\to\infty$ can be explained with arguments identical to those above Eq.~\eqref{eq:lim_ss}, which now imply that
+Unlike Figure \ref{fig:mean_mag_int_X} (for $\ket\X$), Figure \ref{fig:mean_mag_int_XX} (for $\ket\XX$) exhibits no sharp transition between distinct dynamical phases: the time-averaged magnetization $\sigma_\MF=0$ for all values of the field $J\phi/U$, and the interaction energy $\bbk{\ss}_\MF$ smoothly crosses over from a maximal value of 1 to a minimal value of $2\gamma\p{n}$.
+The minimal value of $\bbk{\ss}_\MF$ approached as $J\phi/U\to\infty$ can be explained with arguments identical to those above and below Eq.~\eqref{eq:lim_ss}, which now imply that
 \begin{align}
   \lim_{J\phi/U\to\infty} \bbk{\ss}_\MF
   = \Tr\sp{\p{\diag\op{\xx}}^2}
   = 2\gamma\p{n}.
 \end{align}
-The vanishing magnetization $\sigma_\MF=0$ in Figure \ref{fig:mean_mag_int_XX} is protected by symmetries of $H_{\t{spin}}$ and $\ket\XX$.
-For all initial states that we have considered, the value of $\bk{S_\z}=0$ is conserved by the spin Hamiltonian $H_{\t{spin}}$.
-Moreover, both the spin Hamiltonian $H_{\t{spin}}$ and the state $\ket\XX$ are invariant (up to global phase) under the action of $R_\z^\pi$, where $R_\z^\theta\equiv e^{-\i\theta S_\z}$.
+The vanishing magnetization $\sigma_\MF=0$ in Figure \ref{fig:mean_mag_int_XX} is protected by symmetries of $H_\spin$ and $\ket\XX$.
+For all initial states that we have considered, the value of $\bk{S_\z}=0$ is conserved by the spin Hamiltonian $H_\spin$.
+Moreover, both the spin Hamiltonian $H_\spin$ and the state $\ket\XX$ are invariant (up to global phase) under the action of $R_\z^\pi$, where $R_\z^\theta\equiv e^{-\i\theta S_\z}$.
 Similarly to Eqs.~\eqref{eq:sym_x_start}--\eqref{eq:sym_x_end}, this symmetry implies that
 \begin{align}
   &\bk{S_\x} = \bk{{R_\z^\pi}^\dag S_\x R_\z^\pi} = -\bk{S_\x} = 0, \\
@@ -678,26 +690,54 @@ at all times, so altogether $\sigma_\MF=0$.
 Turning now to mean-field results for the initial multi-cat state $\ket\XXI$ in Figure \ref{fig:mean_mag_int_XXI}, we remark that the magnetization $\sigma_\MF$ and interaction energy $\bbk{\ss}_\MF$ behave identically to those for the initial spin-polarized state $\ket\X$ in Figure \ref{fig:mean_mag_int_X}.
 This finding can be understood through the fact that
 \begin{align}
-  \ket\XXI \simeq R_\z^{\pi/2} T_\z^{\pi/2} \ket\X,
+  \ket\XXI \simeq T_\z^{\pi/2} R_\z^{\pi/2} \ket\X,
 \end{align}
 where $T_\z^\theta\equiv e^{-\i\theta S_\z^2}$.
-The operators $R_\z^\theta$ and $T_\z^\theta$ are generated by axial fields that respect permutational symmetry, and therefore commute with the spin Hamiltonian $H_{\t{spin}}$, so
+The operators $R_\z^\theta$ and $T_\z^\theta$ are generated by axial fields that respect permutational symmetry, and therefore commute with the spin Hamiltonian $H_\spin$, so
 \begin{align}
-  e^{-\i t H_{\t{spin}}} \ket\XXI
-  &\simeq e^{-\i t H_{\t{spin}}} R_\z^{\pi/2} T_\z^{\pi/2} \ket\X \\
-  &\simeq R_\z^{\pi/2} T_\z^{\pi/2} e^{-\i t H_{\t{spin}}} \ket\X.
+  e^{-\i t H_\spin} \ket\XXI
+  &\simeq e^{-\i t H_\spin} T_\z^{\pi/2} R_\z^{\pi/2} \ket\X \\
+  &\simeq T_\z^{\pi/2} R_\z^{\pi/2} e^{-\i t H_\spin} \ket\X.
 \end{align}
 In turn, expanding $\ss$ according to Eq.~\eqref{eq:dot_product} shows that
 \begin{align}
-  {T_\z^\theta}^\dag {R_\z^\theta}^\dag \, \ss \, R_\z^\theta T_\z^\theta
+  {R_\z^\theta}^\dag {T_\z^\theta}^\dag \, \ss \, T_\z^\theta R_\z^\theta
   = \ss,
 \end{align}
-which implies that the interaction energy $\bk{\ss}$ throughout dynamics of the initial multi-cat state $\ket\XXI$ is the same as that of the initial spin-polarized state $\ket\X$.
+which implies that the interaction energy $\bk{\ss}$ throughout dynamics of the initial multi-cat state $\ket\XXI$ is the same as that of the spin-polarized state $\ket\X$.
 
-To make sense of why the magnetization $\sigma_\MF$ should behave identically in Figure \ref{fig:mean_mag_int_XXI} for $\ket\XXI$ as in Figure \ref{fig:mean_mag_int_X} for $\ket\X$, we can ignore the time-independent factors $R_\z^\theta$, which only rotate the mean spin vector $\bbk{\vec\sigma}_\MF$ without changing its magnitude.
+To make sense of why the magnetization $\sigma_\MF$ is identical in Figure \ref{fig:mean_mag_int_XXI} for $\ket\XXI$ as in Figure \ref{fig:mean_mag_int_X} for $\ket\X$, we follow a four-part argument:
+\begin{enumerate}
+\item \label{pt:spin_mat} The time-averaged magnetization vector $\bbk{\vec\sigma}_\MF$ can be written as a function of the time-averaged spin matrix $\bbk{\bar{\v s}}_\MF$.
+\item \label{pt:diags} The spin matrix $\bbk{\bar{\v s}}_\MF$ is only ever nonzero on its diagonal and anti-diagonal, regardless of the initial state.
+That is, nonzero components $\bbk{\bar s_{\mu\nu}}_\MF$ of $\bbk{\bar{\v s}}_\MF$ always have $\mu=\pm\nu$ (see discussion below).
+\item \label{pt:twist} The twist operator $T_\z^\theta$ acts trivially on the diagonal and anti-diagonal components of $\bar{\v s}$, which together with point \ref{pt:diags} implies that $\bbk{{T_\z^\theta}^\dag \, \bar{\v s} \, T_\z^\theta}_\MF = \bbk{\bar{\v s}}_\MF$.
+\item \label{pt:rot} The rotation operator $R_\z^\theta$ merely rotates the magnetization vector $\bbk{\vec\sigma}_\MF$ without changing its magnitude.
+\end{enumerate}
+Altogether, points \ref{pt:spin_mat}--\ref{pt:rot} imply that the magnetization
+\begin{align}
+  \sigma_\MF = \abs{\bbk{\vec\sigma}_\MF}
+  = \abs{\bbk{{R_\z^\theta}^\dag {T_\z^\theta}^\dag \,
+      \vec\sigma \, T_\z^\theta R_\z^\theta}_\MF}
+\end{align}
+is the same for the initial state $\ket\XXI$ as for $\ket\X$.
 
-\red{[explain $\sigma_\MF$ is identical in Figures \ref{fig:mean_mag_int_X} and \ref{fig:mean_mag_int_XXI}]}
+The only nontrivial step in the above argument is point \ref{pt:diags}, which says that $\bbk{\bar s_{\mu\nu}}_\MF$ is guaranteed to be zero unless $\mu=\pm\nu$.
+This observation, nominally a numerical result of mean-field simulations, can be understood as follows.
+The eigenstates $\ket{m,w}$ of $H_\spin$ are uniquely identified by definite numbers $m=(m_s,m_{s-1},\cdots,m_{-s})$ of atoms occupying each internal spin state $\mu\in\set{s,s-1,\cdots,-s}$, and an auxiliary index $w$ that encodes how $\ket{m,w}$ transforms under permutations of all spins (see Appendix \ref{sec:pert_theory})\footnote{Seen otherwise, since $S_{\mu\mu}$ commutes with $H_\spin$, eigenvectors of $H_\spin$ can be indexed by eigenvalues of $S_{\mu\mu}$.
+The number $m_\mu$ is then the eigenvalue of $\ket{m,w}$ with respect to $S_{\mu\mu}$, i.e.~$S_{\mu\mu}\ket{m,w} = m_\mu\ket{m,w}$, while $w$ encodes all other information required to uniquely specify $\ket{m,w}$.}.
+The operator $\bar s_{\mu\nu}=\frac1N S_{\mu\nu}$ with $\mu\ne\nu$ couples the state $\ket{m,w}$ to states $\ket{m',w'}$ in which $(m_\mu',m'_\nu)=(m_\mu+1,m_\nu-1)$.
+Generically, states $\ket{m,w}$ and $\ket{m',w'}$ with $m\ne m'$ will have different energies, so their coherence averages to zero when evaluating time-averaged expectation values.
 
+However, degeneracies yield stationary (time-independent) coherences that survive time-averaging.
+In the weak-field limit $J\phi/U\to0$, such a degeneracy occurs at the mean-field level between PS states differing only in the populations $m_\mu,m_{-\mu}$ (with a fixed value of $m_\mu+m_{-\mu}$), as the effective Hamiltonian becomes $H_\MF^\eff\propto\sum_\mu\mu^2m_\mu$.
+This symmetry is preserved at all orders in perturbation theory\footnote{Only even powers of the ``perturbation'' $\sum_q\sin\p{q}s_{\z,q}$ can be nonzero within the PS manifold, and even powers of this perturbation exhibit the same mean-field degeneracy between states differing only in the populations $m_\mu,m_{-\mu}$.}, so some coherence between such states is preserved as $(J\phi/U)\to(J\phi/U)_\crit$, although this coherence decays as perturbative corrections to degenerate eigenstates cause them to leak out of the PS manifold (and thereby have a smaller overlap with the initial state $\ket\X$).
+Note that beyond-mean-field effects break the symmetry protecting anti-diagonal components of $\bbk{\v s}_\MF$, causing them to decay on time scales that should diverge as $N\to\infty$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusions}
+
+\red{[to be completed]}
 
 
 
@@ -709,16 +749,247 @@ To make sense of why the magnetization $\sigma_\MF$ should behave identically in
 \section{Perturbation theory for SU($n$) ferromagnets}
 \label{sec:pert_theory}
 
-\red{[to be completed]}
+Here we work out a general perturbation theory for SU($n$) ferromagnets with a gapped permutationally symmetric (PS) manifold.
+We begin with an SU($n$)-symmetric interaction Hamiltonian of the form
+\begin{align}
+  H_0 = \sum_{i<j} g_{ij} \, \Pi_{ij},
+  &&
+  \Pi_{ij} \equiv \v s_i\c\v s_j
+  = \sum_{\mu,\nu} s_{\mu\nu i} s_{\nu\mu j},
+  \label{eq:H_0}
+\end{align}
+where $g_{ij}$ are (real) scalar coefficients for the permutation operators $\Pi_{ij}$, and $s_{\mu\nu i}\equiv c_{\mu i}^\dag c_{\nu i}$ is a transition operator for spin $i$.
+We can then consider the addition of, for example, an inhomogeneous magnetic field or Ising couplings,
+\begin{align}
+  H_{\t{field}} = \sum_i B_i s_{\z,i},
+  &&
+  H_{\t{Ising}} = \sum_{i\ne j} J_{ij} s_{\z,i} s_{\z,j},
+  \label{eq:field_ising}
+\end{align}
+or more generally an $M$-body operator
+\begin{align}
+  \O\p{w,X} = \sum_{k\in\D_N\p{M}} w_k X_k,
+\end{align}
+where $w$ is a dimension-$M$ (i.e.~$M$-index) tensor of scalar
+coefficients $w_k\equiv w_{k_1k_2\cdots k_M}$; $X$ is an $M$-spin
+operator, e.g.~$s_\z\otimes s_\z$ in the case of Ising interactions
+with $M=2$; $k\equiv\p{k_1,k_2,\cdots,k_M}$ is a list of the
+individual spins $k_i\in\ZZ_N\equiv\set{1,2,\cdots,N}$ that the operator $X_k\equiv X_{k_1k_2\cdots k_M}$ acts on; and
+\begin{align}
+  \D_N\p{M} \equiv
+  \set{ k \in \ZZ_N^M : \t{all entries $k_i$ of $k$ are distinct} },
+\end{align}
+is the strictly ``off-diagonal'' part of $\ZZ_N^M$, which is necessary to identify for a consistent definition of $X_k$ as an $M$-body operator.
+In this notation, the magnetic field and Ising Hamiltonians in Eq.~\eqref{eq:field_ising} respectively become $\O\p{B,s_{\z}}$ and $\O\p{J,s_\z\otimes s_\z}$.
+
+If the addition $\O\p{w,X}$ to the SU($n$)-symmetric Hamiltonian $H_0$ in Eq.~\eqref{eq:H_0} is sufficiently small, namely with operator norm $\norm{\O\p{w,X}}$ less than half the spectral gap $\Delta_{\t{gap}}$ of $H_0$, $\norm{\O\p{w,X}}<\Delta_{\t{gap}}/2$, then we can treat the effect of $\O\p{w,X}$ on the ground-state PS manifold $\E_0$ perturbatively.
+The effective Hamiltonians $H_\eff^{(1)}$ and $H_\eff^{(2)}$ induced by $\O\p{w,X}$ on the PS manifold $\E_0$ at leading orders in perturbation theory are \cite{bravyi2011schrieffer}
+\begin{align}
+  H_\eff^{(1)} = \P_0 \O\p{w,X} \P_0,
+  &&
+  H_\eff^{(2)} = - \sum_{\Delta\ne0}
+  \f1\Delta \P_0 \O\p{w,X} \P_\Delta \O\p{w,X} \P_0,
+  \label{eq:H_eff}
+\end{align}
+where $\P_\Delta$ is a projector onto the eigenspace $\E_\Delta$ of $H_0$ with interaction energy $\Delta$ above that of the PS manifold.
+The first order effective Hamiltonian $H_\eff^{(1)}$ simply projects $\O\p{w,X}$ onto the PS manifold $\E_0$, and takes the form
+\begin{align}
+  H_\eff^{(1)} = \mean w \, \col X,
+  \label{eq:H_eff_1}
+\end{align}
+where the coefficient $\mean w$ is the average of all coefficients $w_k$; and $\col X$ is a collective version of $X$:
+\begin{align}
+  \mean w \equiv \f1{\abs{\D_N\p{M}}}
+  \sum_{k\in\D_N\p{M}} w_k,
+  &&
+  \col X \equiv \sum_{k\in\D_N\p{M}} X_k,
+  \label{eq:mean_col}
+\end{align}
+with $\abs{\D_N\p{M}}=\prod_{j=0}^{M-1}\p{N-j}$.
+In the case of a magnetic field $s_\z$ or Ising interactions  $s_\z\otimes s_\z$, for example,
+\begin{align}
+  \col{s_\z} = \sum_i s_\z^{(i)} = S_\z,
+  &&
+  \col{s_\z\otimes s_\z}
+  = \sum_{i\ne j} s_\z^{(i)} s_\z^{(j)}
+  = S_\z^2 - N \sum_i s_{\z,i}^2.
+\end{align}
+The second order effective Hamiltonian $H_\eff^{(2)}$ in Eq.~\eqref{eq:H_eff} takes more work to simplify due to the presence of a projector $\P_\Delta$ onto the manifold $\E_\Delta$ of states with excitation energy $\Delta$.
+This projector essentially picks off the part of $\O\p{w,X}$ that is strictly off-diagonal with respect to the ground- and excited-state manifolds $\E_0$ and $\E_\Delta$.
+We therefore need to decompose $\O\p{w,X}$ into components that generate states of definite excitation energy when acting on PS states $\ket\psi\in\E_0$.
+The SU($n$) symmetry of $H_0$ enables such a decomposition to take the form
+\begin{align}
+  H_0 \O\p{w,X} \ket\psi
+  = \sum_\Delta \p{E_0+\Delta} \O\p{w^\Delta,X} \ket\psi,
+  &&
+  E_0 \equiv \sum_{i<j} g_{ij},
+  \label{eq:excitation}
+\end{align}
+where $E_0$ is the interaction energy of PS states, and thinking of the tensor $w$ as a $\abs{\D_N\p{M}}$-component vector, the tensor $w^\Delta$ can be found by
+\begin{enumerate*}
+\item using the coefficients $g_{ij}$ to construct a matrix $g^{(M)}$ of dimensions $\abs{\D_N\p{M}}\times\abs{\D_N\p{M}}\sim N^M\times N^M$, and
+\item projecting $w$ onto the eigenspace of $g^{(M)}$ with eigenvalue $\Delta$.
+\end{enumerate*}
+We construct $g^{(M)}$ for the single-body ($M=1$) case in Appendix \ref{sec:eigenstates}, and provide explicit forms of $g^{(M)}$ with arbitrary $M$.
+
+Equipped with the decomposition $\O\p{w,X}=\sum_\Delta\O\p{w^\Delta,X}$ with terms $\O\p{w^\Delta,X}$ that generate states of definite excitation energy $\Delta$, we can expand
+\begin{align}
+  H_{\t{eff}}^{(2)} = -\sum_{\Delta\ne0} \f1\Delta
+  \P_0 \O\p{w^\Delta,X}^2 \P_0.
+\end{align}
+If $X$ is a single-body operator, then
+\begin{align}
+  H_{\t{eff}}^{(2)}
+  = \sum_{\Delta\ne0} \f{w^\Delta\c w^\Delta}{N\p{N-1}\Delta}
+  \p{\col{X}^2 - N \col{X^2}},
+\end{align}
+and if furthermore all $g_{ij}=-U/N$, as for $H_{\t{int}}$ in Eq.~\eqref{eq:H_int}, then the only relevant excitation energy is $\Delta=U$, and
+\begin{align}
+  w^U\c w^U = \sum_i \p{w_i-\mean w}^2 = N \widetilde{w}^2
+\end{align}
+is simply $N$ times the variance $\widetilde{w}^2$ of $w$, so
+\begin{align}
+  H_{\t{eff}}^{(2)}
+  = \f{\widetilde{w}^2}{\p{N-1}U} \p{\col{X}^2 - N \col{X^2}}.
+\end{align}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Restricting spin operators to the permutationally-symmetric manifold}
+\subsection{Generating excitation energy eigenstates}
+\label{sec:eigenstates}
+
+Here we construct the matrix $g^{(M)}$ that enables decomposing $M$-body operators $\O\p{w,X}$ into terms $\O\p{w^\Delta,X}$ that generate states of definite excitation energy $\Delta$ above the PS manifold, as in Eq.~\eqref{eq:excitation}.
+We work through the calculation of $g^{(1)}$ explicitly, and provide the result for $g^{(M)}$ from a generalized version of the same calculation.
+To this end, we consider the action of a single-body operator $\O\p{w,X}=\sum_iw_iX_i$ on an arbitrary PS state $\ket\psi\in\E_0$ and expand
+\begin{align}
+  H_0 \O\p{w,X} \ket\psi
+  = \f12 \sum_{i\ne j} \sum_k g_{ij} w_k \Pi_{ij} X_k \ket\psi,
+  \label{eq:single_body_diagnosis_start}
+\end{align}
+where strictly speaking $g_{ij}$ has only been defined for $i<j$, so for completeness we define $g_{ji}=g_{ij}$ and $g_{ii}=0$.
+The sum in Eq.~\eqref{eq:single_body_diagnosis_start} has terms with $k\in\set{i,j}$ and terms with $k\notin\set{i,j}$.
+In the case of $k\notin\set{i,j}$, the permutation operator $\Pi_{ij}$ commutes with $X_k$ and annihilates on $\ket\psi$, and we can replace the sum
+\begin{align}
+  \sum_{k\notin\set{i,j}} \to \sum_k - \sum_{k\in\set{i,j}},
+\end{align}
+allowing us to simplify
+\begin{align}
+  \f12 \sum_{i\ne j} \sum_{k\notin\set{i,j}}
+  g_{ij} w_k \Pi_{ij} X_k \ket\psi
+  = E_0 \O\p{w,X} \ket\psi
+  - \f12 \sum_{i\ne j} \sum_{k\in\set{i,j}} g_{ij} w_k X_k \ket\psi,
+\end{align}
+where $E_0=\frac12\sum_{i\ne j}g_{ij}$ is the interaction energy the PS state $\ket\psi\in\E_0$.
+Switching the order of sums over $i\ne j$ and $k\in\set{i,j}$ as
+\begin{align}
+  \sum_{i\ne j} \sum_{k\in\set{i,j}}
+  \to \sum_k \sum_{\substack{i\ne j\\\set{i,j}\ni k}},
+\end{align}
+we can simplify
+\begin{align}
+  \f12 \sum_{\substack{i\ne j\\\set{i,j}\ni k}} g_{ij}
+  = \f12 \sum_i g_{ik} + \f12 \sum_j g_{kj}
+  = g_k,
+  &&
+  g_k \equiv \sum_i g_{ik},
+\end{align}
+which implies that the terms in Eq.~\eqref{eq:single_body_diagnosis_start}
+with $k\notin\set{i,j}$ are
+\begin{align}
+  \f12 \sum_{i\ne j} \sum_{k\notin\set{i,j}}
+  g_{ij} w_k \Pi_{ij} X_k \ket\psi
+  = E_0 \O\p{w,X} \ket\psi - \sum_k g_k w_k X_k \ket\psi.
+\end{align}
+The terms in Eq.~\eqref{eq:single_body_diagnosis_start} with
+$k\in\set{i,j}$, meanwhile, are
+\begin{align}
+  \f12 \sum_{\substack{i\ne j\\k\in\set{i,j}}}
+  g_{ij} w_k \Pi_{ij} X_k \ket\psi
+  = \sum_{i,j} g_{ij} w_j X_i \ket\psi.
+\end{align}
+so in total
+\begin{align}
+  H_0 \O\p{w,X} \ket\psi
+  = E_0 \O\p{w,X} \ket\psi
+  + \sum_k \sp{\sum_j g_{kj} w_j - g_k w_k} X_k \ket\psi.
+\end{align}
+The action of the single-body perturbation $\O\p{w,X}$ on a permutationally symmetric state therefore generates an eigenstate of $H_0$ with interaction energy $E_0+\Delta$ if the vector $w=\sum_k w_k \ket{k}$ satisfies the eigenvalue equation
+\begin{align}
+  g^{(1)} \c w = \Delta w, && g^{(1)} \equiv g - \diag\vec g,
+  \label{eq:single_body_eig}
+\end{align}
+where $g \equiv\sum_{i,j} g_{ij} \op{i}{j}$ is a matrix of all couplings $g_{ij}$; the vector $\vec g \equiv \sum_{i,j} g_{ij} \ket{i} = \sum_i g_i \ket{i}$ is the sum of all columns of $g$; and the matrix $\diag\vec g \equiv \sum_i g_i \op{i}$ has $\vec g$ on the diagonal and zeroes everywhere else.
+
+A similar calculation as above with arbitrary $M$ yields an eigenvalue equation of the form
+\begin{align}
+  g^{(M)} \c w = \Delta w,
+  \label{eq:multi_body_problem}
+\end{align}
+where we treat $w$ as an $\abs{\D_N\p{M}}$-component vector, and $g^{(M)}$ is a matrix with dimensions $\abs{\D_N\p{M}}\times\abs{\D_N\p{M}}$.
+In the case of $M=2$, we have
+\begin{align}
+  g^{(2)} = \sum_{\p{k,\ell}\in\D_N\p{2}} \ket{k\ell}
+  \sp{\sum_{\substack{i\in\ZZ_N\\i\notin\set{k,\ell}}}
+    \p{ g_{ik} \bra{i\ell} + g_{i\ell} \bra{ki} }
+    + g_{k\ell} \bra{\ell k}
+    - \p{g_k + g_\ell - g_{k\ell}} \bra{k\ell}},
+  \label{eq:two_body_mat}
+\end{align}
+and more generally
+\begin{align}
+  g^{(M)} = \sum_{k\in\D_N\p{M}} \ket{k}
+  \sp{\sum_{a\in\ZZ_M} \sum_{\substack{i\in\ZZ_N\\i\notin k}}
+    g_{ik_a} \bra{k_{a:i}}
+    + \sum_{\set{a,b}\in\C_M\p{2}} g_{k_ak_b} \bra{k_{a\leftrightarrow b}}
+    - \tilde g_k \bra{k}},
+  \label{eq:multi_body_mat}
+\end{align}
+where $k_a\in k=\p{k_1,k_2,\cdots,k_M}$; $k_{a:i}$ a list that is equal to $k$ except at the $a$-th position, where $k_a$ replaced is by $i$, i.e.~$k_{a:i}=\p{\cdots,k_{a-1},i,k_{a+1},\cdots}$; $\C_L\p{p}$ is the set of all subsets (``choices'') of $p$ elements from $\ZZ_L$; $k_{a\leftrightarrow b}$ is equal to $k$ except at the $a$-th and $b$-th positions, at which $k_a$ and $k_b$ are switched; and
+\begin{align}
+  \tilde g_k
+  \equiv \sum_{\substack{\set{i,j}\in\C_N\p{2}\\i\in k~\t{or}~j\in k}} g_{ij}
+  = \sum_{i\in k} g_i - \sum_{\set{a,b}\in\C_M\p{2}} g_{k_ak_b}.
+\end{align}
+If the tensor $w$ is permutationally symmetric, meaning that $w_k$ is invariant under arbitrary permutations of $k$, then this symmetry is preserved by $g^{(M)}$.
+In this case, we can replace sums over $k\in\D_N\p{M}$ in Eqs.~\eqref{eq:two_body_mat} and \eqref{eq:multi_body_mat} by sums over $k\in\C_N\p{M}$, and replace vectors $\ket{k_1,k_2,\cdots,k_M}\to\ket{\set{k_1,k_2,\cdots,k_M}}$, such that e.g.~$\ket{k_{a\leftrightarrow b}}=\ket{k}$.
+These replacements reduce the size of $g^{(M)}$ from $\abs{\D_N\p{M}}\times\abs{\D_N\p{M}}$ to $\abs{\C_N\p{M}}\times\abs{\C_N\p{M}}$, where $\abs{\D_N\p{M}}=\prod_{j=0}^{M-1}\p{N-j}=M!\times{N\choose M}$ and $\abs{\C_N\p{M}}={N\choose M}$.
+Additional symmetries of $g$ and $w$, such as translational invariance or lattice symmetries, can be used to further reduce the computational complexity of the eigenvalue problem in Eq.~\eqref{eq:multi_body_problem}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Recovering spin-wave theory}
+
+If the interaction Hamiltonian $H_0$ is translationally invariant, then the single-body eigenvalue problem in Eq.~\eqref{eq:single_body_eig} is solvable analytically.
+In this case, the couplings $g_{ij}$ depend only on the separation $\abs{i-j}$, so eigenvectors of $g$ are plane waves of the form
+\begin{align}
+  w_k \equiv \sum_{d\in\ZZ_L^D} e^{\i d\c k} \ket{d},
+\end{align}
+where on a $D$-dimensional periodic lattice of $N=L^D$ spins, lattice sites are indexed by vectors $d\in\ZZ_L^D$, and wavenumbers take on values $k\in\ZZ_L^D\times2\pi/L$.
+The eigenvalues of $g$ can be determined by expanding
+\begin{align}
+  g \c w_k
+  = \sum_{c,d\in\ZZ_L^D} g_{cd} e^{\i d\c k} \ket{c}
+  = \sum_{c,d\in\ZZ_L^D} g_{c,c+d} e^{\i\p{c+d}\c k} \ket{c}
+  = \sum_{d\in\ZZ_L^D} g_{0,d} \cos\p{d\c k} w_k,
+\end{align}
+where the imaginary contributions vanish in the sum over $d$ because $g_{0,d}=g_{0,-d}$.
+The remainder of Eq.~\eqref{eq:single_body_eig} that we need to sort out is $\diag\vec g$, where all $g_i = \sum_{i,j}g_{ij} = \sum_d g_{0,d}$ are equal, which implies that $\diag\vec g = \sum_d g_{0,d}$ is a scalar.
+We thus find that
+\begin{align}
+  g^{(1)} \c w_k = \Delta_k w_k,
+  &&
+  \Delta_k \equiv \sum_{d\in\ZZ_L^D} g_{0,d} \sp{\cos\p{d\c k}-1},
+\end{align}
+in agreement with standard spin-wave theory.
+Excitations generated by the action of $\O\p{w_k,X}$ on PS states $\ket\psi\in\E_0$ are known as spin-waves.
+If $g_{ij}=-U/N$ is constant, then the spin-wave excitation energies are $\Delta_k=U$ independent of the wavenumber $k$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Restricting spin operators to the permutationally symmetric manifold}
 \label{sec:PS_ops}
 
-Here we provide the restriction of a general $M$-body spin operator $\O$ to the permutationally-symmetric (PS) manifold of $N$ spins (each with $n$ internal states).
-Denoting the projector onto the PS manifold by $\P$, our task is essentially to find the coefficients of the expansion
+Here we provide the restriction of a general $M$-body spin operator $\O$ to the permutationally symmetric (PS) manifold of $N$ spins (each with $n$ internal states).
+Denoting the projector onto the PS manifold by $\P_0$, our task is essentially to find the coefficients of the expansion
 \begin{align}
-  \P \O_M \P = \sum_{a,b\in\A_n\p{N}} \bk{a|\O_M|b} \op{a}{b},
+  \P_0 \O_M \P_0 = \sum_{a,b\in\A_n\p{N}} \bk{a|\O_M|b} \op{a}{b},
 \end{align}
 where $\A_n\p{N}$ is the set of all ways to assign $N$ (identical) spins to $n$ (distinct) states, such that for any $a\in\A_n\p{N}$ the state $\ket{a}=\ket{a_1,a_2,\cdots,a_n}$ is labeled by the occupation number $a_\mu$ of state $\mu$, with $\sum_\mu a_\mu=N$.
 Written out explicitly,
@@ -744,7 +1015,7 @@ Using these states, with some combinatorics we can expand
 \end{align}
 where the restriction $\alpha\le a$ and the difference $a-\alpha$ are evaluated element-wise, i.e.~$\alpha\le a\implies\alpha_\mu\le a_\mu$ and $\p{a-\alpha}_\mu=a_\mu-\alpha_\mu$ for all $\mu$; and $\delta_{cd}=1$ if $c=d$ and zero otherwise.
 We sum over both $\alpha$ and $\beta$ above merely to keep the expression symmetric with respect to transposition $\p{a,\alpha}\leftrightarrow\p{b,\beta}$; in practice, one can simply sum over $\alpha\in\A_n\p{M}$ and set $\beta=b-a+\alpha$, throwing out terms with any $\beta_\mu<0$.
-Note that, by slight abuse of notation, the operator $\O_M$ on the left of \eqref{eq:multi_body_eval} acts on an arbitrary choice of $M$ spins (out of $N$), whereas the operator $\O_M$ on the right of \eqref{eq:multi_body_eval} is simply an $M$-spin operator, with matrix elements $\bk{\alpha|\O_M|\beta}$ evaluated with respect to the PS $M$-spin states $\ket\alpha,\ket\beta\in\A_n\p{M}$.
+Note that, by slight abuse of notation, the operator $\O_M$ on the left of Eq.~\eqref{eq:multi_body_eval} acts on an arbitrary choice of $M$ spins (out of $N$), whereas the operator $\O_M$ on the right of Eq.~\eqref{eq:multi_body_eval} is simply an $M$-spin operator, with matrix elements $\bk{\alpha|\O_M|\beta}$ evaluated with respect to the PS $M$-spin states $\ket\alpha,\ket\beta\in\A_n\p{M}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Mean-field theory}
@@ -752,12 +1023,12 @@ Note that, by slight abuse of notation, the operator $\O_M$ on the left of \eqre
 
 Here we describe the mean-field theory used to simulate the spin Hamiltonian
 \begin{align}
-  H_{\t{spin}} = -\f{U}{2N}\v S\c\v S + J\phi \sum_q \sin\p{q} s_{\z,q}
+  H_\spin = -\f{U}{2N}\v S\c\v S + J\phi \sum_q \sin\p{q} s_{\z,q}
 \end{align}
 in Eq.~\eqref{eq:H_spin} of the main text.
 We begin by decomposing individual spin operators into Schwinger bosons as $s_{\mu\nu q} = b_{\mu q}^\dag b_{\nu q}$, such that the spin Hamiltonian becomes
 \begin{align}
-  H_{\t{spin}} \to H_{\t{boson}}
+  H_\spin \to H_{\t{boson}}
   = -\f{U}{2N} \sum_{p,q,\mu,\nu}
   b_{\mu p}^\dag b_{\nu p} b_{\nu q}^\dag b_{\mu q}
   + J\phi \sum_{q,\mu} \sin\p{q} \mu\, b_{\mu q}^\dag b_{\mu q}.
@@ -842,15 +1113,16 @@ so
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Lax vector analysis}
+\label{sec:lax}
 
 We start with the spin Hamiltonian
 \begin{align}
-  H_{\t{spin}}
+  H_\spin
   = -\f{U}{2N} \sum_{\mu,\nu} S_{\mu\nu} S_{\nu\mu}
   + J\phi \sum_q \sin\p{q} s_{\z,q},
 \end{align}
 where $S_{\mu\nu} = \sum_q s_{\mu\nu q}$.
-The single-body operators involved have normalizations
+The single-body operators that appear in this Hamiltonian have squared norms
 \begin{align}
   \tr\p{s_{\mu\nu q}^\dag s_{\mu\nu q}} = 1
   &&
@@ -861,9 +1133,9 @@ The single-body operators involved have normalizations
   = \f1{12} (n+1) n (n-1)
   \equiv \eta^2.
 \end{align}
-The Lax formulation requires all single-body operators involved to have the same normalization, so we substitute $s_{\tilde\z,q}\equiv s_{\z,q}/\eta$ to expand
+The Lax formulation (following Refs.~\cite{yuzbashyan2005nonequilibrium, yuzbashyan2006dynamical, yuzbashyan2006relaxation, yuzbashyan2015quantum, smale2019observation}) requires all single-body operators involved to have the same normalization, so we substitute $s_{\tilde\z,q}\equiv s_{\z,q}/\eta$ to expand
 \begin{align}
-  U^{-1} H_{\t{spin}}
+  \f{H_\spin}{U}
   = -\f1{2N} \sum_{\mu,\nu} S_{\mu\nu} S_{\nu\mu}
   + \eta h \sum_q \sin\p{q} s_{\tilde\z,q},
   &&
@@ -871,13 +1143,21 @@ The Lax formulation requires all single-body operators involved to have the same
   &&
   h \equiv \f{J\phi}{U}.
 \end{align}
-The normalized Lax vector $\vec\ell\p{z}$ associated with $H_{\t{spin}}$ has components
+The normalized, dimensionless, $(n^2-1)$-component Lax vector $\vec\ell\p{z}$ associated with $H_\spin$, which is defined with an auxiliary complex parameter $z$, has components
 \begin{align}
   \ell_\alpha\p{z}
   = \f1N \sum_q \f{s_{\alpha,q}}{z-\sin q}
   + \delta_{\alpha,\tilde\z} \, \eta h,
 \end{align}
-where $\alpha$ indexes elements of basis $\set{s_\alpha}$ of self-adjoint generators of SU($n$), with normalization $\tr\p{s_\alpha^2}=1$.
+where $\alpha$ indexes elements of a basis $\set{s_\alpha}$ of self-adjoint generators of SU($n$), with normalization $\tr\p{s_\alpha^2}=1$.
+The squared magnitude $\vec\ell\p{z}^2=\sum_\alpha\ell_\alpha\p{z}^2$ is a constant of motion (for any $z$), and its residues provide $N$ mutually commuting quantities whose weighted sum recovers $H_\spin$.
+When $n=2$, conservation of these residues provides sufficient dynamical constraints to make the spin system fully integrable.
+In this case, dynamical behavior is governed by the roots of $\vec\ell\p{z}^2$, and the presence (or absence) of complex roots marks distinct dynamical phases of $H_\spin$.
+However, the size of Hilbert space grows with $n$, while the number of conserved quantities provided by the Lax analysis (namely, $N$) does not.
+When $n>2$, there is therefore no guarantee that the roots of $\vec\ell\p{z}^2$ will similarly govern dynamical behavior.
+In fact, a straightforward generalization of the Lax analysis to $n>2$ makes predictions that are inconsistent with the mean-field results in Figures \ref{fig:mean_mag_int_X}--\ref{fig:mean_mag_int_XXI} of the main text.
+We substantiate this claim with a direct calculation of the roots of $\vec\ell\p{z}^2$ below.
+
 Within the permutationally symmetric manifold, we can replace $s_{\alpha,q}\to\bar s_\alpha\equiv\frac1N\sum_q s_{\alpha,q}$ at the cost of $O(1/N)$ errors that vanish as $N\to\infty$, so taking this limit we find
 \begin{align}
   \ell_\alpha\p{z}
@@ -886,7 +1166,7 @@ Within the permutationally symmetric manifold, we can replace $s_{\alpha,q}\to\b
 \end{align}
 where
 \begin{align}
-  \I\p{z} \equiv \f1N \sum_q \f1{z-\sin\p{q}}
+  \I\p{z} \equiv \lim_{N\to\infty} \f1N \sum_q \f1{z-\sin\p{q}}
   = \f1{2\pi} \int_0^{2\pi} \f{\dd q}{z-\sin\p{q}}
   = \f1{\sqrt{z^2-1}}
   &&
@@ -894,7 +1174,7 @@ where
   &&
   z \notin \sp{-1,1}.
 \end{align}
-The ``squared norm'' of the Lax vector is therefore
+The squared magnitude of the Lax vector is therefore
 \begin{align}
   \vec\ell\p{z}^2
   = \sum_\alpha \ell_\alpha\p{z}^2
@@ -919,9 +1199,9 @@ We avoid this issue by analytically continuing $\I\p{z}^2$ to the interval $z\in
   z = \pm \sqrt{1 - \p{\f{Q}{\eta h}}^2}.
   \label{eq:lax_zeros}
 \end{align}
-These roots change character when $z=0$, suggesting that the critical field $h_{\t{crit}}$ separating dynamical phases satisfies
+These roots change character when $z=0$, suggesting that the critical field $h_\crit$ separating dynamical phases satisfies
 \begin{align}
-  h_{\t{crit}}^2 = \f{Q^2}{\eta^2}.
+  h_\crit^2 = \f{Q^2}{\eta^2}.
 \end{align}
 For a permutationally symmetric state, up to vanishing $O(1/N)$ corrections we can expand
 \begin{align}
@@ -932,10 +1212,10 @@ For a permutationally symmetric state, up to vanishing $O(1/N)$ corrections we c
 \end{align}
 which implies that
 \begin{align}
-  h_{\t{crit}}^2 = \f{n-1}{n} \times \f{12}{(n+1)n(n-1)}
+  h_\crit^2 = \f{n-1}{n} \times \f{12}{(n+1)n(n-1)}
   = \f{12}{n^2\p{n+1}}.
 \end{align}
-This Lax analysis correctly predicts that $h_{\t{crit}}=1$ when $n=2$, but otherwise predicts $h_{\t{crit}}\sim n^{-3/2}$, which is inconsistent with the finding that $h_{\t{crit}}\sim n^{-1/3}$ in mean-field simulations (see Figure \ref{fig:crit_fields_X} of the main text).
+This Lax analysis correctly predicts that $h_\crit=1$ when $n=2$, but otherwise predicts $h_\crit\sim n^{-3/2}$, which is inconsistent with the finding that $h_\crit\sim n^{-1/3}$ in the mean-field results of the main text (see Figure \ref{fig:crit_fields_X}).
 
 \end{document}
 
