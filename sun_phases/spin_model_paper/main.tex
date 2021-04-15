@@ -212,7 +212,7 @@ In the general case of SU($n$), the PS manifold is similarly spanned by states $
 The dimension of the PS manifold is equal to the number of ways of assigning $N$ identical spins to $n$ distinct internal states, or ${N+n-1 \choose n-1} \sim N^{n-1}$.
 
 External fields or additional interactions that respect permutational symmetry can induce nontrivial dynamics within the PS manifold.
-Even if additional Hamiltonian terms break permutational symmetry, as long as the coupling to states outside of the PS manifold is small (compared to the energy gap $U$) these terms can be restricted to the PS manifold perturbatively (see Appendix \ref{sec:pert_theory}) \cite{bravyi2011schrieffer}.
+Even if additional Hamiltonian terms break permutational symmetry, as long as the coupling to states outside of the PS manifold is small compared to the interaction energy $U$, these terms can be restricted to the PS manifold perturbatively (see Appendix \ref{sec:pert_theory}) \cite{bravyi2011schrieffer}.
 Simulating dynamics within the PS manifold requires calculating matrix elements $\bk{\ell|\O|m}$ of spin operators $\O$ with respect to PS states $\ket\ell,\ket{m}$; we discuss this calculation in Appendix \ref{sec:PS_ops}.
 
 Finally, we take a moment to discuss individual $n$-level spins.
@@ -308,7 +308,7 @@ Making a gauge transformation to simplify the drive comes at the cost of making 
   \equiv -J \sum_q \cos\p{q+\mu\phi} s_{\mu\mu q},
 \end{align}
 as visualized in Figure \ref{fig:soc_panels}.
-To better interpret this Hamiltonian, we can write it in the simplified form
+To better interpret this Hamiltonian, we can write it in the form
 \begin{align}
   H_{\t{kin}}^{(\phi)}
   = -J \sum_q
@@ -319,7 +319,7 @@ where
   w_{+,q}^{(\phi)} &\equiv \sum_\mu \cos\p{\mu\phi} s_{\mu\mu q}, \\
   w_{-,q}^{(\phi)} &\equiv \sum_\mu \sin\p{\mu\phi} s_{\mu\mu q}.
 \end{align}
-For two-level spins, $w_{+,q}^{(\phi)}$ is proportional to the identity operator, and $w_{+,q}^{(\phi)}=2\sin\p{\phi/2} s_{q,\z}$, where $s_{\z,q}=\sum_\mu \mu\, s_{\mu\mu q}$ is a spin-$z$ operator for spin $q$, so the kinetic Hamiltonian in the gauged frame describes a (synthetic) inhomogeneous magnetic field:
+For two-level spins, $w_{+,q}^{(\phi)}$ is proportional to the identity operator, and $w_{+,q}^{(\phi)}=2\sin\p{\phi/2} s_{\z,q}$, where $s_{\z,q}=\sum_\mu \mu\, s_{\mu\mu q}$ is a spin-$z$ operator for spin $q$, so the kinetic Hamiltonian in the gauged frame describes a (synthetic) inhomogeneous magnetic field:
 \begin{align}
   \left. H_{\t{kin}}^{(\phi)} \right|_{n=2}
   = 2\sin\p{\phi/2} J \sum_q \sin\p{q} s_{\z,q}.
@@ -403,7 +403,7 @@ Choosing $\v v_+$ as the spin quantization axis, we can define new drive amplitu
 \end{align}
 where $m\in\set{+1,0,-1}$ indexes the laser pointing along $\v v_m$; and $s_{0,j}\equiv s_{\z,j}$ for shorthand.
 In the far-detuned limit $\abs{\Delta}\gg\abs{\Omega_m}$, a second-order perturbative treatment of electronic excitations ($\ket\e$) yields an effective drive Hamiltonian that only addresses ground-state nuclear spins.
-After a gauge transformation $c_{j\mu}^\dag\to e^{\i\phi\mu j} c_{j\mu}^\dag$ (equivalently $s_{mj}\to e^{\i m\phi j}s_{mj}$), we can then make the simplifying assumption that all $\Omega_m$ are real to write
+After additionally making the gauge transformation $c_{j\mu}^\dag\to e^{\i\phi\mu j} c_{j\mu}^\dag$ (equivalently $s_{mj}\to e^{\i m\phi j}s_{mj}$), the drive Hamiltonian then becomes
 \begin{align}
   H_{\t{3LD}} = \sum_j H_{\t{3LD},j}^{\t{single}},
   \label{eq:drive_all}
@@ -422,8 +422,10 @@ with
 \begin{align}
   \tilde\Omega_0 \equiv -\f{\Omega_0}{\sqrt\Delta},
   &&
-  \tilde\Omega_\pm \equiv \f{\Omega_+\pm\Omega_-}{\sqrt\Delta}.
+  \tilde\Omega_\pm \equiv \f{\Omega_+\pm\Omega_-}{\sqrt\Delta},
 \end{align}
+where we have made the simplifying assumption that all drive amplitudes are real to arrive at the form of $H_{\t{3LD}}^{\t{single}}$ in Eq.~\eqref{eq:drive_single}.
+We relax the assumption of real drive amplitudes in Appendix \ref{sec:full_drive}.
 
 \begin{table}
 \centering
@@ -502,11 +504,11 @@ Specifically, we consider the time-averaged magnetization
   &&
   \vec\sigma \equiv \f1{Ns} \times \p{S_\x,S_\y,S_\z},
 \end{align}
-where $S_\alpha \equiv \sum_q s_{\alpha,q}$, and the time-averaged interaction energy
+where $S_\alpha \equiv \sum_q s_{\alpha,q}$, and the time-averaged (dimensionless) interaction energy
 \begin{align}
   \bbk{\ss}_\MF = \f1{N^2} \times \bbk{\v S\c\v S}_\MF.
 \end{align}
-By design, these non-negative quantities are normalized to a maximal value of one, independent of the system size $N$ or spin dimension $n$.
+By design, these non-negative quantities are normalized to lie on the interval $[0,1]$, independent of the system size $N$ or spin dimension $n$.
 In the remainder of this section we will assume that $n$ is even, both for the sake of experimental relevance (most relevant atomic nuclei are fermionic) and to avoid complications from parity effects.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -628,7 +630,7 @@ so for even $n$
   = \f1{2\pi} \int_0^{2\pi} \dd\tau \p{\cos\tau}^{n-2}
   = \gamma\p{\f{n}{2}}.
 \end{align}
-When going beyond mean-field theory, correlations induced by $S_\z^2$ in Eq.~\eqref{eq:H_spin_eff} will cause $\bk{S_\x}$ to decay on time scales that diverge as $N\to\infty$, so the mean-field magnetization $\sigma_\MF$ should be interpreted as the ``intermediate-time-average'' of $\vec\sigma$.
+When going beyond mean-field theory, inter-spin correlations generated by $S_\z^2$ in Eq.~\eqref{eq:H_spin_eff} will cause $\bk{S_\x}$ to decay on time scales that diverge as $N\to\infty$, so the mean-field magnetization $\sigma_\MF$ should be interpreted as an ``intermediate-time-average'' of $\vec\sigma$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Multi-cat initial states}
@@ -671,7 +673,7 @@ These figures exclude the trivial case of spin dimension $n=2$, for which $\ket\
 The first and perhaps most interesting observation to make about Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} is that they are different, signifying the importance of intra-spin coherences for the dynamical behavior of multilevel spin models.
 
 Unlike Figure \ref{fig:mean_mag_int_X} (for $\ket\X$), Figure \ref{fig:mean_mag_int_XX} (for $\ket\XX$) exhibits no sharp transition between distinct dynamical phases: the time-averaged magnetization $\sigma_\MF=0$ for all values of the field $J\phi/U$, and the interaction energy $\bbk{\ss}_\MF$ smoothly crosses over from a maximal value of 1 to a minimal value of $2\gamma\p{n}$.
-The minimal value of $\bbk{\ss}_\MF$ approached as $J\phi/U\to\infty$ can be explained with arguments identical to those above and below Eq.~\eqref{eq:lim_ss}, which now imply that
+The minimal value of $\bbk{\ss}_\MF$ approached as $J\phi/U\to\infty$ can be explained with arguments identical to those in the paragraph containing Eq.~\eqref{eq:lim_ss}, which now imply that
 \begin{align}
   \lim_{J\phi/U\to\infty} \bbk{\ss}_\MF
   = \Tr\sp{\p{\diag\op{\xx}}^2}
@@ -766,7 +768,8 @@ We can then consider the addition of, for example, an inhomogeneous magnetic fie
   H_{\t{Ising}} = \sum_{i\ne j} J_{ij} s_{\z,i} s_{\z,j},
   \label{eq:field_ising}
 \end{align}
-or more generally an $M$-body operator
+or more generally an $M$-body operator\footnote{At face value, an $M$-body operator with $M>2$ does not typically appear in nature.
+Nonetheless, considering $M>2$ illuminates the structure of eigenstates (and eigenvalues) of $H_0$, and allows us to go to high orders in perturbation theory with single- and two-body perturbations.}
 \begin{align}
   \O\p{w,X} = \sum_{k\in\D_N\p{M}} w_k X_k,
 \end{align}
@@ -1018,6 +1021,29 @@ We sum over both $\alpha$ and $\beta$ above merely to keep the expression symmet
 Note that, by slight abuse of notation, the operator $\O_M$ on the left of Eq.~\eqref{eq:multi_body_eval} acts on an arbitrary choice of $M$ spins (out of $N$), whereas the operator $\O_M$ on the right of Eq.~\eqref{eq:multi_body_eval} is simply an $M$-spin operator, with matrix elements $\bk{\alpha|\O_M|\beta}$ evaluated with respect to the PS $M$-spin states $\ket\alpha,\ket\beta\in\A_n\p{M}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Three-laser drive with complex amplitudes}
+\label{sec:full_drive}
+
+In order to arrive at the single-spin drive Hamiltonian in Eq.~\eqref{eq:drive_single} of the main text, we made the simplifying assumption that all drive amplitudes were real, which essentially enforces a phase-locking condition between the driving lasers.
+If the drive amplitudes are complex, $\Omega_m\to\Omega_me^{-\i\eta_m}$ (with real $\Omega_m,\eta_m$), then the single-spin drive Hamiltonian becomes
+\begin{multline}
+  \Delta \times H_{\t{3LD}}^{\t{single}}
+  = \p{\Omega_+^2 - \Omega_-^2} s_\z
+  - \sum_{\sigma\in\set{\pm1}} \Omega_0 \Omega_\sigma
+  \p{\sigma s_{\tilde\eta_\sigma,\x}
+    + s_\z s_{\tilde\eta_\sigma,\x}
+    + s_{\tilde\eta_\sigma,\x} s_\z} \\
+  - \Omega_0^2 s_\z^2 - \p{\Omega_+ + \Omega_-}^2 s_{\tilde\eta_0,\x}^2
+  - \p{\Omega_+ - \Omega_-}^2 s_{\tilde\eta_0,\y}^2,
+\end{multline}
+where $s_{\eta\alpha} \equiv e^{-\i\eta s_\z} s_\alpha e^{\i\eta s_\z}$ is a rotated spin-$\alpha$ operator (with e.g.~$s_{\pi/2,\x}=s_\y$), and
+\begin{align}
+  \tilde\eta_\pm \equiv \pm \p{\eta_\pm - \eta_0},
+  &&
+  \tilde\eta_0 \equiv \f{\eta_+ - \eta_-}{2}.
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Mean-field theory}
 \label{sec:MFT}
 
@@ -1201,8 +1227,9 @@ We avoid this issue by analytically continuing $\I\p{z}^2$ to the interval $z\in
 \end{align}
 These roots change character when $z=0$, suggesting that the critical field $h_\crit$ separating dynamical phases satisfies
 \begin{align}
-  h_\crit^2 = \f{Q^2}{\eta^2}.
+  h_\crit^2 \stackrel{?}{=} \f{Q^2}{\eta^2},
 \end{align}
+where we use the relation $\stackrel{?}{=}$ to indicate that this ``prediction'' of the Lax analysis is not necessarily valid for all $n$.
 For a permutationally symmetric state, up to vanishing $O(1/N)$ corrections we can expand
 \begin{align}
   Q^2 = \sum_\alpha \bar s_\alpha^2
@@ -1212,7 +1239,7 @@ For a permutationally symmetric state, up to vanishing $O(1/N)$ corrections we c
 \end{align}
 which implies that
 \begin{align}
-  h_\crit^2 = \f{n-1}{n} \times \f{12}{(n+1)n(n-1)}
+  h_\crit^2 \stackrel{?}{=} \f{n-1}{n} \times \f{12}{(n+1)n(n-1)}
   = \f{12}{n^2\p{n+1}}.
 \end{align}
 This Lax analysis correctly predicts that $h_\crit=1$ when $n=2$, but otherwise predicts $h_\crit\sim n^{-3/2}$, which is inconsistent with the finding that $h_\crit\sim n^{-1/3}$ in the mean-field results of the main text (see Figure \ref{fig:crit_fields_X}).
