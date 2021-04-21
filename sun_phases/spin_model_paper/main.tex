@@ -1,4 +1,5 @@
-\documentclass[nofootinbib,twocolumn]{revtex4-2}
+\documentclass[aps,pra,nofootinbib,twocolumn,superscriptaddress]{revtex4-2}
+\usepackage[T1]{fontenc}
 
 %%% linking references
 \usepackage[dvipsnames]{xcolor}
@@ -79,26 +80,42 @@
 % for text markup
 \newcommand{\red}[1]{{\color{red} #1}}
 
+% affiliations
+\newcommand{\JILA}{JILA, National Institute of Standards and Technology and University of Colorado, 440 UCB, Boulder, Colorado 80309, USA}
+\newcommand{\CTQM}{Center for Theory of Quantum Matter, University of Colorado, Boulder, CO, 80309, USA}
+\newcommand{\UO}{Homer L. Dodge Department of Physics and Astronomy, The University of Oklahoma, Norman, Oklahoma 73019, USA}
+\newcommand{\CQRT}{Center for Quantum Research and Technology, The University of Oklahoma, Norman, Oklahoma 73019, USA}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 \interfootnotelinepenalty=10000 % don't split footnotes between pages
 
-\title{Multilevel spin models in cold atomic systems}
+\title{Engineering an infinite-range SU($n$) spin model with ultracold fermions in an optical lattice}
 \author{Michael A. Perlin}
 % \orcid{https://orcid.org/0000-0002-9316-1596}
 \email{mika.perlin@gmail.com}
 \author{Diego Barbarena}
+\affiliation{\JILA}
+\affiliation{\CTQM}
 \author{Robert J.~Lewis-Swan}
+\affiliation{\UO}
+\affiliation{\CQRT}
 % \orcid{https://orcid.org/0000-0002-0201-281X}
 \author{Ana Maria Rey}
 % \orcid{http://orcid.org/0000-0001-7176-9413}
-\affiliation{JILA, National Institute of Standards and Technology and University of Colorado, 440 UCB, Boulder, Colorado 80309, USA}
-\affiliation{Center for Theory of Quantum Matter, University of Colorado, Boulder, CO, 80309, USA}
+\affiliation{\JILA}
+\affiliation{\CTQM}
 
 \date{\today}
 
 \begin{abstract}
-  Abstract.
+We study multilevel fermions in an optical lattice, with dynamics described by the Hubbard model with on site SU($n$)-symmetric interactions.
+We show that in an appropriate parameter regime, this system can be mapped onto a multilevel Heisenberg spin model with all-to-all SU($n$)-symmetric couplings.
+The use of Raman pulses to address internal spin states modifies the atomic dispersion relation and induces spin-orbit coupling, which can act as a synthetic inhomogeneous magnetic field that competes with the SU($n$) exchange interactions.
+We investigate the non-equilibrium mean-field dynamical phases of the resulting model as a function of $n$ and different initial configurations that are accessible with the Raman pulses.
+In agreement with previous studies with $n=2$, we find that for some initial states the spin model exhibits two distinct dynamical phases that obey simple scaling relations with $n$.
+When $n>2$, we find that dynamical behavior can be highly sensitive to initial intra-spin coherences.
+Our predictions are readily testable in current experiments with ultracold alkalike-earth(-like) atoms.
 \end{abstract}
 
 \maketitle
@@ -114,16 +131,24 @@ In a condensed matter setting, SU(2) appears ubiquitously as a symmetry of the H
 The extension of SU(2) Hubbard and spin models to SU($n$) has led to predictions of exotic phases of matter such as valence bond solids \cite{read1989valencebond, rokhsar1990quadratic, kaul2012lattice, hermele2011topological} and chiral spin liquids \cite{hermele2009mott, hermele2011topological, chen2016syntheticgaugefield, nataf2016chiral}, as well as the potential to perform universal topological quantum computation \cite{freedman2004class, nayak2008nonabelian} and other phenomena \cite{nataf2014exact, nataf2016exact}.
 Furthermore, the consideration of disordered SU($n$) spin models has opened analytically tractable avenues for studying quantum chaos and information scrambling \cite{sachdev1993gapless, bentsen2019integrable}.
 
-The tremendous theoretical significance of SU($n$) symmetries makes it all the more exciting that they appear naturally in experimental atomic, molecular, and optical (AMO) platforms \cite{gorshkov2010twoorbital, beverland2016realizing, cazalilla2014ultracold, taie2012su, hofrichter2016direct, cappellini2014direct, scazza2014observation, zhang2014spectroscopic, goban2018emergence, perlin2019effective} with exquisite degrees of microscopic control.
-In the simplest example, this symmetry arises through the independence of atomic orbital and interaction parameters on the $n$ nuclear spin states of alkaline-earth(-like) atoms, with e.g.~$n=10$ in the case of ${}^{87}$Sr \cite{cazalilla2014ultracold}.
-As a result, experiments can directly probe the SU($n$) Hubbard model, leading to experimental observations of SU($n$) Hubbard phases and phase transitions \cite{taie2012su, hofrichter2016direct}, two-orbital SU($n$) magnetism \cite{cappellini2014direct, scazza2014observation, zhang2014spectroscopic}, and multi-body SU($n$)-symmetric interactions \cite{goban2018emergence, perlin2019effective}.
-In the spirit of quantum simulation, further investigations of this sort can play an important role in understanding SU($n$) symmetries' consequences for fundamental questions in physics, as well as their practical use in technological applications.
+The tremendous theoretical significance of SU($n$) symmetries makes it all the more exciting that they appear naturally in experimental atomic, molecular, and optical (AMO) platforms \cite{wu2003exact, cazalilla2009ultracold, gorshkov2010twoorbital, beverland2016realizing, cazalilla2014ultracold, taie2012su, hofrichter2016direct, cappellini2014direct, scazza2014observation, zhang2014spectroscopic, goban2018emergence, perlin2019effective} with exquisite degrees of microscopic control.
+In the simplest example, this symmetry arises through the independence of atomic orbital and interaction parameters on the $n$ nuclear spin states of alkaline-earth(-like) atoms, with e.g.~$n=10$ in the case of ${}^{87}$Sr \cite{wu2003exact, cazalilla2009ultracold, cazalilla2014ultracold}.
+As a result, experiments can directly probe the role SU($n$) interactions in controllable settings.
+Recent progress includes the experimental observations of bosonization and faster thermalization in multi-component Fermi gas with $SU(n)$ symmetry \cite{song2020evidence, sonderhouse2020thermodynamics}, SU($n$) Hubbard phases and phase transitions \cite{taie2012su, hofrichter2016direct, taie2020observation}, two-orbital SU($n$) magnetism \cite{cappellini2014direct, scazza2014observation, zhang2014spectroscopic}, and multi-body SU($n$)-symmetric interactions \cite{goban2018emergence, perlin2019effective}.
+In the spirit of quantum simulation, further investigations in controlled settings will play an important role in understanding SU($n$) symmetries' consequences for fundamental questions in physics, as well as their practical use in technological applications.
 For example, SU(2)-symmetric spin interactions can be harnessed to develop quantum sensors that surpass classical limits on measurement precision \cite{he2019engineering, perlin2020spin}.
-The exciting prospect of similarly exploiting larger SU($n$) symmetries to achieve a technological advantage is still an unexplored avenue of research with enormous potential.
+The prospect of similarly exploiting larger SU($n$) symmetries to achieve a technological advantage is still an unexplored avenue of research with untapped potential.
 
-In this work, we ... \red{[finish intro, summarize paper]}
-% the (un)interested reader can ...
-% main results in/below Eqs. ...
+In this work, we consider an experimentally relevant and theoretically tractable regime of the SU($n$) Hubbard model, highlighting differences and similarities with the more familiar case of SU(2).
+Working at ultracold temperatures and unit spatial filling (one atom per lattice site), we begin by mapping the SU($n$) Hubbard model onto a multilevel spin model with all-to-all SU($n$)-symmetric interactions in Section \ref{sec:spin_model}.
+We consider the effect of spin-orbit coupling (SOC) in Section \ref{sec:SOC}, finding in particular that the weak-SOC limit generally gives rise to a (synthetic) inhomogeneous magnetic field, extending previously known results to $n>2$ \cite{wall2016synthetic, livi2016synthetic, kolkowitz2016spinorbitcoupled, bromley2018dynamics, he2019engineering}.
+We take a look at control fields to address nuclear spins (and generate SOC) in Section \ref{sec:controls}, finding a simple three-laser driving scheme that allows for the preparation of interesting states with nontrivial intra-spin correlations when $n>2$.
+Putting all of these ingredients together, we examine mean-field dynamical behaviors of the SU($n$) spin model in Section \ref{sec:mean_field}, finding that
+\begin{enumerate*}
+\item long-time-averaged observables obey simple scaling relations with the spin dimension $n$, exhibiting (for spin-polarized initial states) a magnetized and a de-magnetized dynamical phase, as previously seen for the case of $n=2$ \cite{smale2019observation, lewis-swan2021cavityqed}, and
+\item when $n>2$ long-time dynamics can be highly sensitive to the intra-spin coherences of the initial state.
+\end{enumerate*}
+We conclude and discuss future outlooks in Section \ref{sec:conclusions}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{From lattice fermions to an SU($n$) spin model}
@@ -249,7 +274,7 @@ In order to ensure validity of the $\v S\c\v S$ spin Hamiltonian in Eq.~\eqref{e
 However, a spin polarized state is an eigenstate of the $\v S\c\v S$ spin Hamiltonian, so we need additional ingredients for nontrivial behavior.
 Here, we consider the addition of spin-orbit coupling (SOC) induced by external driving fields.
 
-Before discussing SOC for $n$-level fermions, we first consider the well-studied case of two-level SOC on a one-dimensional lattice \cite{wall2016synthetic, bromley2018dynamics}.
+Before discussing SOC for $n$-level fermions, we first consider the well-studied case of two-level SOC on a one-dimensional lattice \cite{wall2016synthetic, kolkowitz2016spinorbitcoupled, bromley2018dynamics, he2019engineering}.
 In this case, SOC is induced by an external driving field that imprints a phase $e^{-\i\phi j}$ on lattice site $j$, or equivalently imparts a momentum kick $q\to q+\phi$, upon the absorption of a photon:
 \begin{align}
   H_{\t{drive}}^{(\phi)}
@@ -471,10 +496,9 @@ The three-laser then allows us to rotate this state into one that is polarized a
 In addition, when $n>2$ the three-laser drive allows us to prepare product states with nontrivial intra-spin correlations.
 For example, when $n$ is even we can prepare an $N$-fold product of the state
 \begin{align}
-  \frac{\ket{s} + \ket{-s}}{\sqrt{2}}
-  \simeq e^{-\i\frac{\pi}{2}\p{s_\y + s_\y^2}} \ket{s},
+  e^{-\i\frac{\pi}{2}\p{s_\y + s_\y^2}} \ket{s}
+  \propto \ket{s} + \ket{-s}.
 \end{align}
-where $\simeq$ denotes equality up to a global phase.
 This state has a vanishing mean spin vector, $\bk{s_\x}=\bk{s_\y}=\bk{s_\z}=0$, but variances $\bk{s_\x^2}=\bk{s_\y^2}=s/2$ and $\bk{s_\z^2}=s^2$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -602,7 +626,8 @@ Moreover, both the spin Hamiltonian $H_\spin$ and the initial state $\ket\X$ are
   \label{eq:sym_x_start} \\
   &\simeq \Pi_\z R_\x^\pi e^{-\i t H_\spin} \ket\X,
 \end{align}
-so
+where $\simeq$ denotes equality up to a global phase.
+The permutation $\Pi_\z$ commutes with $S_\y$, while the rotation $R_\x^\pi$ takes $S_\y\to-S_\y$, so
 \begin{align}
   \bk{S_\y}
   = \bk{{R_\x^\pi}^\dag \Pi_\z^\dag S_\y \Pi_\z R_\x^\pi}
@@ -610,7 +635,7 @@ so
   \label{eq:sym_x_end}
 \end{align}
 at all times.
-Conservation of $\bk{S_\y}=\bk{S_\z}=0$ and permutational symmetry together imply that the magnetization $\sigma_\MF$ is determined by the time-average of $\sigma_\x\equiv s_\x/s$ for a single spin:
+In turn, conservation of $\bk{S_\y}=\bk{S_\z}=0$ and permutational symmetry together imply that the magnetization $\sigma_\MF$ is determined by the time-average of $\sigma_\x\equiv s_\x/s$ for a single spin:
 \begin{align}
   \lim_{J\phi/U\to0} \sigma_\MF
   = \abs{\lim_{T\to\infty} \f1T \int_0^T \dd\tau
@@ -737,11 +762,21 @@ This symmetry is preserved at all orders in perturbation theory\footnote{Only ev
 Note that beyond-mean-field effects break the symmetry protecting anti-diagonal components of $\bbk{\v s}_\MF$, causing them to decay on time scales that should diverge as $N\to\infty$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Conclusions}
+\section{Conclusions and outlooks}
+\label{sec:conclusions}
 
-\red{[to be completed]}
+Starting with an SU($n$) Hubbard model describing ultracold fermionic alkaline-earth(-like) atoms on an optical lattice, we derived a momentum-space multilevel spin model with all-to-all SU($n$)-symmetric interactions.
+We then considered the effect of spin-orbit coupling (SOC) induced by external driving lasers, finding that maintaining integrity of the spin model seems to require weak SOC, which in turn gives rise to a (synthetic) inhomogeneous magnetic field.
+Taking a closer look at the external controls that induce SOC, we found a simple three-laser drive that enables homogeneously addressing nuclear spins with a variety of spin Hamiltonians, enabling for example the preparation of ``multi-cat'' states in which each spin is in a coherent superposition of states spin-polarized in opposite directions.
+Finally, we examined dynamical behavior of the SU($n$) spin model at the mean-field level, finding that long-time observables obey simple scaling relations with $n$, and that when $n>2$ dynamical behavior can be highly sensitive to intra-spin coherences.
 
-
+Our work makes important progress in understanding the SU($n$) Fermi-Hubbard model in experimentally relevant parameter regimes, and we expect our findings to be readily testable in experiments with ultracold atoms.
+We hope this work provides a starting point for simulating SYK-like models in cold atomic platforms.
+In follow-up work, it would be interesting to study the the relationship between initial states and dynamical phases of our SU($n$) spin model more systematically, or to consider the effect of quantum corrections to mean-field behavior.
+There is also room to improve on the three-laser drive we described in this work, where it is natural to ask what ingredients and techniques are necessary to implement universal control of individual nuclear spins.
+Universal control would allow for an experimental study of $n$-dependence (including even/odd-$n$ parity effects) in a single experimental platform, simply by controlling the occupation and coherence of internal spin states.
+Finally, one can also study the SU($n$) Hubbard model in the super-exchange regime that gives rise to a real-space (as opposed to momentum-space) spin model, where SOC gives rise to chiral multilevel spin interactions.
+Unlike our present work, the super-exchange regime does not require weak SOC, and therefore has a larger parameter space in which to explore dynamical behaviors.
 
 \bibliography{main.bib}
 \onecolumngrid
@@ -768,7 +803,7 @@ We can then consider the addition of, for example, an inhomogeneous magnetic fie
   H_{\t{Ising}} = \sum_{i\ne j} J_{ij} s_{\z,i} s_{\z,j},
   \label{eq:field_ising}
 \end{align}
-or more generally an $M$-body operator\footnote{At face value, an $M$-body operator with $M>2$ does not typically appear in nature.
+or more generally an $M$-body operator\footnote{At face value, an $M$-body operator with $M>2$ does not typically appear in experiments.
 Nonetheless, considering $M>2$ illuminates the structure of eigenstates (and eigenvalues) of $H_0$, and allows us to go to high orders in perturbation theory with single- and two-body perturbations.}
 \begin{align}
   \O\p{w,X} = \sum_{k\in\D_N\p{M}} w_k X_k,
@@ -846,7 +881,7 @@ If $X$ is a single-body operator, then
   = \sum_{\Delta\ne0} \f{w^\Delta\c w^\Delta}{N\p{N-1}\Delta}
   \p{\col{X}^2 - N \col{X^2}},
 \end{align}
-and if furthermore all $g_{ij}=-U/N$, as for $H_{\t{int}}$ in Eq.~\eqref{eq:H_int}, then the only relevant excitation energy is $\Delta=U$, and
+and if furthermore all $g_{ij}=-U/N$, as for $H_{\t{int}}$ in Eq.~\eqref{eq:H_int}, then the only relevant excitation energy is $\Delta=U$ (see Section \ref{sec:spin_wave}), and
 \begin{align}
   w^U\c w^U = \sum_i \p{w_i-\mean w}^2 = N \widetilde{w}^2
 \end{align}
@@ -959,6 +994,7 @@ Additional symmetries of $g$ and $w$, such as translational invariance or lattic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Recovering spin-wave theory}
+\label{sec:spin_wave}
 
 If the interaction Hamiltonian $H_0$ is translationally invariant, then the single-body eigenvalue problem in Eq.~\eqref{eq:single_body_eig} is solvable analytically.
 In this case, the couplings $g_{ij}$ depend only on the separation $\abs{i-j}$, so eigenvectors of $g$ are plane waves of the form
