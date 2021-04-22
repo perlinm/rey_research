@@ -90,7 +90,7 @@ for dim_idx, dim in enumerate(dims):
     # plot spectrum of <<\bar\rho>>
     plt.figure(figsize = (3,2.4))
     plt.semilogx(fields, avg_spect, ".")
-    plt.xlabel(r"$J\phi/U$")
+    plt.xlabel(r"$h$")
     plt.ylabel(r"$\mathrm{spect}\,\bbk{\bar\rho}_\MF$")
     plt.tight_layout()
     plt.savefig(fig_dir + f"avg_spect_{init_state_str}_n{dim:02d}.pdf")
@@ -99,7 +99,7 @@ for dim_idx, dim in enumerate(dims):
     # plot spectrum of <<\bar\rho\otimes\bar\rho>>
     plt.figure(figsize = (3,2.4))
     plt.semilogx(fields, var_spect, ".")
-    plt.xlabel(r"$J\phi/U$")
+    plt.xlabel(r"$h$")
     plt.ylabel(r"$\mathrm{spect}\,\bbk{\bar\rho\otimes\bar\rho}_\MF$")
     plt.tight_layout()
     plt.savefig(fig_dir + f"var_spect_{init_state_str}_n{dim:02d}.pdf")
@@ -137,7 +137,7 @@ for dim_idx, dim in enumerate(dims):
 # label axes and set axis ticks
 axes[0].set_ylabel(r"$\sigma_\MF$")
 axes[1].set_ylabel(r"$\bbk{\bar{\bm s}\cdot\bar{\bm s}}_\MF$")
-axes[1].set_xlabel(r"$J\phi/U$")
+axes[1].set_xlabel(r"$h$")
 axes[1].set_xlim(0.1,10)
 for axis in sub_axes:
     axis.set_xlim(0.1,10)
@@ -168,7 +168,7 @@ print("alpha:", popt, np.sqrt(pcov))
 plt.figure(figsize = (2.4,1.4))
 plt.plot(dims, crits, "ko", label = "mean-field")
 plt.plot(dims, fun(dims, *popt), "r.", label = r"fit:~$(n/2)^{-\alpha}$")
-plt.ylabel(r"$(J\phi/U)_{\mathrm{crit}}$")
+plt.ylabel(r"$h_{\mathrm{crit}}$")
 plt.xlabel(r"$n$")
 plt.xticks(dims)
 plt.legend(loc = "best")

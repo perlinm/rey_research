@@ -63,7 +63,7 @@ x_vals = 1+0.06*np.sin(5*np.pi*(y_vals-top_y)/(top_y-btm_y))
 plt.plot(x_vals, y_vals, "r", linewidth = 1)
 plt.plot([1], [btm_y], **marker_kw(dn_color))
 plt.plot([1], [top_y], **marker_kw(up_color))
-plt.annotate(r"$U_0$", (0.77, y_lim*0.9), ha = "center", va = "center")
+plt.annotate(r"$U$", (0.8, y_lim*0.9), ha = "center", va = "center")
 
 plt.axis("off")
 plt.subplots_adjust(0,0.05,1,1.2,0,0)
@@ -86,14 +86,19 @@ plt.xlim(-np.pi,np.pi)
 plt.xticks([])
 plt.yticks([])
 
-axis.annotate("", xytext = (1.1,0), xy = (1.1,1),
+ylim = axis.get_ylim()
+yrange = ylim[1] - ylim[0]
+btm = (-1-ylim[0]) / yrange
+top = (+1-ylim[0]) / yrange
+
+axis.annotate("", xytext = (1.1,btm), xy = (1.1,top),
               xycoords = "axes fraction",
               arrowprops = dict( arrowstyle = "<->" ))
-for hh in [ 0, 1 ]:
+for hh in [ btm, top ]:
     axis.annotate("", xytext = (1.05,hh), xy = (1.15,hh),
                   xycoords = "axes fraction",
                   arrowprops = dict( arrowstyle = "-" ))
-axis.annotate(r"$\sim J$", xy = (1.15,.5),
+axis.annotate(r"$4J$", xy = (1.15,.5),
               xycoords = "axes fraction",
               va = "center", ha = "left")
 
@@ -108,7 +113,7 @@ for hh in [ h1, h2 ]:
     axis.annotate("", xytext = (.45,hh), xy = (.55,hh),
                   xycoords = "axes fraction",
                   arrowprops = dict( arrowstyle = "-" ))
-axis.annotate(r"$U_0$", xy = (.62,(h1+h2)/2),
+axis.annotate(r"$U$", xy = (.62,(h1+h2)/2),
               xycoords = "axes fraction",
               va = "center", ha = "center")
 
@@ -456,14 +461,18 @@ class Arrow3D(patches.FancyArrowPatch):
         self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
         patches.FancyArrowPatch.draw(self, renderer)
 
-def wave(start, end, ampl = 0.05, num = 20, points = 1000):
+def wave(start, end, ampl = 0.05, num = 20, points = 1000, spiral = False):
     line = np.linspace(start, end, points)
-    return line, ampl*np.sin(line*np.pi*num)
+    xs, ys = line, -ampl*np.cos(line*np.pi*num)
+    if not spiral: return xs, ys
+    else:
+        zs = ampl*np.sin(line*np.pi*num)
+        return xs, ys, zs
 
 def rot(xs, ys, angle):
     xs, ys = np.array(xs), np.array(ys)
-    return [  np.cos(angle) * xs + np.sin(angle) * ys,
-              -np.sin(angle) * xs + np.cos(angle) * ys ]
+    return [ np.cos(angle) * xs + np.sin(angle) * ys,
+            -np.sin(angle) * xs + np.cos(angle) * ys ]
 
 def draw_lasers(colors, name):
     figure = plt.figure()
@@ -477,35 +486,43 @@ def draw_lasers(colors, name):
     axis.plot([-1,+1,+1,-1,-1], [0]*5, [-1,-1,+1,+1,-1], color = "gray")
 
     # lattice
+    height = 0.1
     peaks = 10
-    xs, ys = wave(-1, 1, 0.1, peaks)
+    angle = np.pi/5
+    xlim  = 1 / max( np.cos(angle), np.sin(angle) )
+    xs, ys = rot(*wave(-2, 2, height, peaks), angle)
+    in_bounds = (abs(xs) < 1) & (abs(ys) < 1)
+    xs, ys = xs[in_bounds], ys[in_bounds]
     axis.plot(xs, 0*xs, ys, color = "k")
-    for xx in np.arange(-1+1.5/peaks, 1.01, 2/peaks):
-        axis.plot([xx], [0], "o", color = color_cycle[0], markeredgecolor = "k")
+    xxs = 2/peaks * (np.arange(2*peaks)-peaks) - 0.005 # fudge factor
+    for xx in xxs:
+        xx, yy = rot(xx, 0, angle)
+        if abs(xx) > 1 or abs(yy) > 1: continue
+        axis.plot(xx, 0, yy, "o", color = color_cycle[0], markeredgecolor = "k")
 
-    # z-laser
-    xs, ys = wave(-1,-0.3)
+    # x-laser
+    xs, ys = wave(-1,-0.32)
     axis.plot(ys, xs, color = colors[0])
-    axis.add_artist(Arrow3D([0,0], [-0.33,-0.18], [0,0], color = colors[0], zorder = 2))
+    axis.add_artist(Arrow3D([0,0], [-0.34,-0.19], [0,0], color = colors[0], zorder = 2))
 
     # up/dn-lasers
-    angle = np.pi/5
-    xs, ys = rot(*wave(1.2,0.5), angle)
-    arrow_xs, arrow_ys = rot([0.53,0.41], [0,0], angle)
+    xs, ys, zs = wave(+1, +0.35, 0.04, spiral = True)
+    arrow_xs = 0.38 + np.array([0,-0.14])
+    arrow_ys = np.array([0,0])
 
-    axis.plot(+xs, 0*xs, +ys, color = colors[1])
-    axis.plot(-xs, 0*xs, -ys, color = colors[2])
+    axis.plot(+xs, +ys, +zs, color = colors[1])
+    axis.plot(-xs, -ys, -zs, color = colors[2])
     axis.add_artist(Arrow3D(+arrow_xs, 0*arrow_xs, +arrow_ys, color = colors[1], zorder = 2))
     axis.add_artist(Arrow3D(-arrow_xs, 0*arrow_xs, -arrow_ys, color = colors[2], zorder = 2))
 
     # arrows for angles between up/dn-lasers and lattice
-    anchor, offset = ( 0.8, 0 ), angle/15
+    anchor, offset = ( 0.84, 0 ), angle/15
     start = rot(*anchor, offset)
     end = rot(*anchor, angle-offset)
     xs, zs = map(np.array,zip(start, end))
     kwargs = dict( arrowstyle = "<|-|>,head_width=0.1,head_length=.2",
                    connectionstyle = "arc3,rad=-.4" )
-    axis.add_artist(Arrow3D(xs, (0,0), zs, zorder = 2, **kwargs))
+    axis.add_artist(Arrow3D(+xs, (0,0), +zs, zorder = 2, **kwargs))
     axis.add_artist(Arrow3D(-xs, (0,0), -zs, zorder = 2, **kwargs))
 
     # text for angles between up/dn-lasers and lattice
@@ -515,10 +532,21 @@ def draw_lasers(colors, name):
     axis.text(-xx, 0, -zz, r"\Large$\theta$", va = "center", ha = "center")
 
     # text for laser drive amplitudes
-    xx, zz = 0.8, -0.8
+    xx, zz = 0.8, 0.2
     axis.text(+xx, 0, +zz, r"\Large$\Omega_-$", va = "center", ha = "center")
     axis.text(-xx, 0, -zz, r"\Large$\Omega_+$", va = "center", ha = "center")
     axis.text(-0.2, -0.8, 0, r"\Large$\Omega_0$", va = "center", ha = "center")
+
+    # arrows for axes
+    base = np.array([0.6,0,1.2])
+    kwargs = dict( arrowstyle = "-|>,head_width=0.1,head_length=.2" )
+    for dd, ll in [ [ (0.75,0,0), "z" ], [ (0,1,0), "x" ], [ (0,0,0.9), "y" ] ]:
+        start = base - 0.03*np.array(dd)
+        end = base + 0.3*np.array(dd)
+        xs, ys, zs = map(np.array, zip(start,end))
+        axis.add_artist(Arrow3D(xs, ys, zs, zorder = 2, **kwargs))
+        xx, yy, zz = end + 0.05*np.array(dd)
+        axis.text(xx, yy, zz, ll, va = "center", ha = "center")
 
     # save figure
     plt.tight_layout(pad = 0)
@@ -526,3 +554,4 @@ def draw_lasers(colors, name):
     plt.savefig(name, bbox_inches = bbox)
 
 draw_lasers("rrr", "3LD_geometry.pdf")
+plt.close("all")
