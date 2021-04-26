@@ -317,7 +317,7 @@ axis.annotate(r"$\ket\downarrow$", (q_i-0.1,E_i+0.1), va = "bottom", ha = "right
 axis.annotate(r"$\ket\uparrow$", (q_f-0.1,E_f+0.1), va = "bottom", ha = "right")
 
 ##################################################
-# SU(2), gauged frame
+# SU(2), gauge frame
 
 axis = axes[1,0]
 axis.plot(momenta, -np.cos(momenta-phi/2), color = dn_color)
@@ -376,7 +376,7 @@ axis.annotate(r"$\ket{\mu+1}$", (q_2+0.6,E_2), ha = "left", va = "center")
 axis.annotate(r"$\ket{\mu+2}$", (q_3-0.1,E_3), ha = "right", va = "bottom")
 
 ##################################################
-# SU(d), gauged frame
+# SU(d), gauge frame
 
 phi = np.pi/2 * 0.8
 qq = np.pi*5/9
@@ -427,7 +427,7 @@ axes[0,0].set_title("$n=2$")
 axes[0,1].set_title(f"$n={levels}$")
 
 for loc, tag in [ [ (0,1), "lab" ],
-                  [ (1,1), "gauged" ] ]:
+                  [ (1,1), "gauge" ] ]:
     axis = axes[loc].twinx()
     axis.yaxis.tick_right()
     axis.set_yticks([])
