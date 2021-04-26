@@ -7,7 +7,7 @@ import networkx as nx
 import functools, operator
 
 from itertools_extension import multinomial, unique_permutations, \
-    assignments, multinomial, set_diagrams
+    assignments, set_diagrams
 
 _chars = "abcdefghijklmnopqrstuvwxyz"
 _chars += _chars.upper()
