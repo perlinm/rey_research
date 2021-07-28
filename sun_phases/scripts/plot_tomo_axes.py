@@ -16,8 +16,15 @@ plt.rcParams.update(params)
 
 figsize = (3,2)
 
-dims = [ 10, 40, 20, 80 ]
-colors = [ "k", "tab:orange", "tab:blue", "tab:green" ]
+colors = [ "k", "tab:blue", "tab:orange", "tab:green" ]
+dims = [ 10, 20, 40, 80 ]
+
+# quantum error scales achievable with the method in newton1968measurability,
+#   optimized over all polar angles
+old_scales = { 10 : 5.205453968693979,
+               20 : 8.689567681451933,
+               40 : 14.26455397815116,
+               80 : 23.36684910939962 }
 
 ##################################################
 
@@ -32,6 +39,9 @@ for dim, color in zip(dims, colors):
     excess_axes = axes - (2*dim-1)
     plt.plot(excess_axes/dim, scales/scales[0],
              ".", label = f"$d={dim}$", color = color)
+
+    old_scale = old_scales[dim] * np.sqrt(2*dim-1)
+    plt.axhline(old_scale/scales[0], color = color, linewidth = 1, zorder = 0)
 
 plt.gca().set_ylim(bottom = 0)
 plt.gca().tick_params(right = True)
