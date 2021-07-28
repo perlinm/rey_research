@@ -18,7 +18,9 @@ def get_svdvals(matrix):
         MM = matrix @ matrix.conj().T
     else:
         MM = matrix.conj().T @ matrix
-    return np.sqrt(scipy.linalg.eigvalsh(MM))
+    eigvals = scipy.linalg.eigvalsh(MM)
+    eigvals[np.isclose(eigvals,0)] = 0
+    return np.sqrt(eigvals)
 
 # get diagonal bands of a matrix
 def diagonals(mat, band_min = None, band_max = None):
@@ -105,7 +107,9 @@ def get_meas_methods(max_dim):
 
     # get the classical fixed-degree error scale
     def meas_scale(LL, axes):
-        return np.sqrt(sum(1/get_svdvals(meas_mat(LL, axes))**2))
+        sqr_svdvals = get_svdvals(meas_mat(LL, axes))
+        inv_sum = sum([ 1/val**2 for val in sqr_svdvals if val != 0 ])
+        return np.sqrt(inv_sum)
 
     # get all fixed-degree error scales
     def meas_scales(dim, axes):
