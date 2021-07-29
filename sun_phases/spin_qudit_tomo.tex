@@ -124,6 +124,7 @@ In Section \ref{sec:polarization_ops}, we introduce a set of qudit operators tha
 We then map the quantum problem of spin qudit tomography onto the classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby providing an interesting new perspective on spin qudit tomography.
 In Section \ref{sec:error} we provide a priori upper bounds and a posteriori estimates of the statistical error in a qudit state reconstructed from measurements of spin projection along a given set of $r$ measurement axes.
 The capability to determine upper bounds on reconstruction error a priori motivates a simple randomized tomography protocol that we outline in Section \ref{sec:protocol}, and for which we numerically find that using more measurement axes yields substantial benefits that plateau after $r\approx3d$.
+To facilitate the use of our protocols, we make all of our codes publicly available at Ref.~\cite{tomo_codes}, which also contains the best measurement axes we found for $d\le20$ and $r=3d$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Polarization operators}
@@ -492,7 +493,7 @@ and combine them into the estimate
   \approx \rho.
 \end{align}
 \end{enumerate}
-Th expected reconstruction error in $\tilde\rho_V$, or its root-mean-square distance from $\rho$, is provided by Eq.~\eqref{eq:error_cls}.
+The expected reconstruction error in $\tilde\rho_V$, or its root-mean-square distance from $\rho$, is provided by Eq.~\eqref{eq:error_cls}.
 If measurement error is shot-noise-limited, then the error in $\tilde\rho_V$ is approximately $\E_V\p{\rho}\approx\E_V\p{\tilde\rho_V}$ and can be computed from Eq.~\eqref{eq:error_qnt}.
 If $\tilde\rho_V$ has negative eigenvalues, its distance from $\rho$ can be reduced with maximum-likelihood corrections \cite{smolin2012efficient}.
 
@@ -511,7 +512,7 @@ This trade-off begs the question: how should one choose the number of measuremen
   \caption{Empirical measurement-adjusted error scales $\tilde\beta(p)$ with $p$ excess measurement axes, determined by minimizing over $10^3$ choices of measurement axes $V$ or 5 minutes of runtime (for each $p$), whichever comes first.
     Color indicates the qudit dimension $d$.
     The rapid initial drop in $\tilde\beta(p)$ implies that using more measurement axes can substantially lower the upper bound on reconstruction error provided in Eq.~\eqref{eq:bound}, and that these benefits plateau after $p\approx d$.
-    Horizontal reference lines mark the corresponding (normalized) minimal quantum error scales $\min_\theta\epsilon_{V(\theta)}/\tilde\beta(0)$ achievable with the method in Ref.~\cite{newton1968measurability}, which measures along $2d-1$ axes $V(\theta)$ equally spaced at a polar angle $\theta$.}
+    Horizontal reference lines mark the smallest measurement-adjusted error scales $\min_\theta\beta_\theta/\tilde\beta(0)$ achievable with the method in Ref.~\cite{newton1968measurability}, which is parameterized by an angle $\theta$.}
   \label{fig:axes}
 \end{figure}
 
@@ -525,13 +526,13 @@ as a function of $p$, the number of measurement axes exceeding $2d-1$.
 Though we cannot minimize over all suitable choices of measurement axes $V$ to compute $\beta(p)$, we can compute an empirical upper bound $\tilde\beta(p)\ge\beta(p)$ by minimizing over a large number of randomly chosen $V$.
 Figure \ref{fig:axes} shows the results of such empirical minimization, where we find that $\tilde\beta(p)$ drops substantially with $p$ before plateauing at $p\approx d$, after which there are only minor benefits to using more measurement axes.
 In the interest of reducing experimental complexity as well as the runtime of our randomized tomography protocol, which grow linearly in $\abs{V}$, we therefore conclude that this protocol should be performed with $\abs{V}\approx3d$ measurement axes.
+We provide the best measurement axes that we found for a randomized tomography protocol with $d\le20$ and $\abs{V}=3d$ in Ref.~\cite{tomo_codes}.
 
-% todo: paragraph on old method's appearance in fig:axes
-
-% todo: appendix on optimizing the old method that appears in fig:axes
-
-% todo: include table of good measurement axes for specific values of d
-% Yb-173 (6), Cr (7), Sr-87 (10), Er-168 (13), Dy (17), Er-167 (20)
+For reference, Figure \ref{fig:axes} also shows the smallest measurement-adjusted error scales $\beta_\theta$ achievable with the method of Ref.~\cite{newton1968measurability}, which is comparable to those achieved with our randomized protocol at $\abs{V}\approx3d$ ($p\approx d$).
+The method of Ref.~\cite{newton1968measurability} requires choosing an angle $\theta$, and provides no prescription for making this choice.
+We therefore find the optimal choice of $\theta$ by minimizing $\beta_\theta$ over all $\theta$ (see Appendix \ref{sec:angle_search}), and show $\min\beta_\theta/\tilde\beta(0)$ in Figure \ref{fig:axes}.
+Empirically, we find that the optimal angle for the method of Ref.~\cite{newton1968measurability} is $\theta_{\t{opt}}\approx\frac{\pi}{2}(1 - \frac1{1.34d})$ (see Appendix \ref{sec:angle_search}), although we note that a randomized tomography protocol is likely more robust to errors in axis orientation because measurement axes are generally more spaced out.
+We leave the question of robustness to errors in axis orientation and the effect of these errors on state reconstruction error to future work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{acknowledgments}
@@ -1042,7 +1043,7 @@ Equipped with $\sigma_V^\star$ and $\E_V\p{\sigma_V^\star}$, we can expand
 where $X_\ell\equiv\sum_m\obk{T_{\ell m}|X}\ket{m}$ is a vector of the degree-$\ell$ components of $X$ in the polarization operator basis, and $\norm{X}_V$ is a noise-weighted norm of $X$.
 Maximizing $\E_V$ over all qudit states $\rho$ thus amounts to finding the closest physical qudit state $\rho$ to $\sigma_V^\star$, with distance measured by the metric $D_V\p{X,Y}\equiv\norm{X-Y}_V$.
 We leave this minimization problem to future work, and note that solving it will likely require making use of the positivity conditions derived in Ref.~\cite{kryszewski2006positivity}.
-A loose lower bound on $\norm{\rho-\sigma_V^\star}$ can be found by minimization under the constraint $\norm{\rho}\le1$, which may provide a tighter upper bound on $\E_V\p{\rho}$ than that in Eq.~\eqref{eq:bound} of the main text.
+A loose lower bound on $\norm{\rho-\sigma_V^\star}_V$ can be found by minimization under the constraint $\norm{\rho}\le1$, which may provide a tighter upper bound on $\E_V\p{\rho}$ than that in Eq.~\eqref{eq:bound} of the main text.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Polarization operator product expansion}
@@ -1133,6 +1134,31 @@ This sum can be simplified by the introduction of Wigner 6-$j$ symbols, giving u
     s & s & s
   \end{Bmatrix}.
 \end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Optimizing the method of Newton and Young}
+\label{sec:angle_search}
+
+Ref.~\cite{newton1968measurability} constructs an explicit protocol for spin qudit tomography, which involves measuring spin projection along $2d-1$ axes equally spaced at a polar angle $\theta$.
+However, this method does not provide any prescription for choosing $\theta$.
+Here, we show the importance of making a good choice of $\theta$, and empirically find the optimal value of $\theta_{\t{opt}}$ that minimizes the corresponding quantum error scale $\epsilon_\theta$, which controls state reconstruction error.
+To this end, Figure \ref{fig:angle_sweep} shows the quantum error scale $\epsilon_\theta$ as a function of the polar angle $\theta$ in the tomography method of Ref.~\cite{newton1968measurability} for a few qudit dimensions $d$.
+While a good choice of $\theta$ yields an error scale $\epsilon_\theta\approx d$ (for the dimensions shown), this error scale can increase by orders of magnitude for poor choices of $\theta$.
+In turn, Figure \ref{fig:opt_angles} shows the optimal angle $\theta_{\t{opt}}$ as a function of the qudit dimension $d$, together with a fit to $\theta_{\t{opt}}=\frac{\pi}{2}(1-\frac1{xd})$ finding $x\approx1.34\pm0.008$.
+
+\begin{figure}
+  \centering
+  \includegraphics{angle_sweep.pdf}
+  \caption{Quantum error scale $\epsilon_\theta$ as a function of the polar angle $\theta$ in the tomography method of Ref.~\cite{newton1968measurability} for a few qudit dimensions $d$.}
+  \label{fig:angle_sweep}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics{opt_angles.pdf}
+  \caption{Optimum angle $\theta_{\t{opt}}$ as a function of qudit dimension $d$ for the tomography method of Ref.~\cite{newton1968measurability}, and a fit to $\theta_{\t{opt}}=\frac{\pi}{2}(1-\frac1{xd})$ finding $x\approx1.34\pm0.008$.}
+  \label{fig:opt_angles}
+\end{figure}
 
 \end{document}
 
