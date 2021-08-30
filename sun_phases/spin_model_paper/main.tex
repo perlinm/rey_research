@@ -69,7 +69,7 @@
 \newcommand{\crit}{\text{crit}}
 \newcommand{\MF}{\text{MF}}
 \newcommand{\su}{\mathfrak{su}}
-\renewcommand{\ss}{\bar{\v s}\cdot\bar{\v s}}
+\newcommand{\sds}{\bar{\v s}\cdot\bar{\v s}}
 \DeclareMathOperator{\diag}{diag}
 
 \newcommand{\col}{\underline}
@@ -96,11 +96,13 @@
 \begin{document}
 \interfootnotelinepenalty=10000 % don't split footnotes between pages
 
-\title{Engineering infinite-range SU($n$) interactions with spin-orbit coupled fermions in an optical lattice}
+\title{Engineering infinite-range SU($n$) interactions with spin-orbit-coupled fermions in an optical lattice}
 \author{Michael A. Perlin}
 % \orcid{https://orcid.org/0000-0002-9316-1596}
 \email{mika.perlin@gmail.com}
 \author{Diego Barberena}
+\author{Mikhail Mamaev}
+\author{Bhuvanesh Sundar}
 \affiliation{\JILA}
 \affiliation{\CTQM}
 \author{Robert J.~Lewis-Swan}
@@ -165,10 +167,12 @@ Here we derive a collective SU($n$) spin model for a system of ultracold alkalin
 Without external driving fields, the evolution of such atoms in their electronic ground state is governed by the single-body kinetic and two-body interaction Hamiltonians
 \begin{align}
   \H_{\t{kin}}
-  &= -J \sum_{\bk{j,j'},\mu} \c_{j\mu}^\dag \c_{j'\mu} + \t{h.c.}, \\
+  &= -J \sum_{\bk{j,j'},\mu} \c_{j\mu}^\dag \c_{j'\mu} + \t{h.c.},
+  \label{eq:H_kin_FH} \\
   \H_{\t{int}}
   &= \f{U}{2} \sum_{j,\mu,\nu}
   \c_{j\mu}^\dag \c_{j\mu} \c_{j\nu}^\dag \c_{j\nu},
+  \label{eq:H_int_FH}
 \end{align}
 where $\bk{j,j'}$ denotes neighboring lattice sites $j$ and $j'$; $\mu,\nu\in\set{s,s-1,\cdots,-s}$ index orthogonal spin states of a spin-$s$ nucleus, with $s=\frac{n-1}{2}$ (e.g.~$s=\frac{9}{2}$ in the case of ${}^{87}$Sr with $10$ nuclear spin states); $\c_{j\mu}$ is a fermionic annihilation operator, $J$ is a tunneling amplitude (for simplicity assumed to be the same in all directions); and $U$ is a two-body on-site interaction energy.
 In the present work, we neglect inter-site interactions and interaction-assisted hopping, which is a good approximation for a sufficiently deep lattice, namely when $J\lesssim E_{\t{R}}$, where $E_{\t{R}}$ is the atom recoil energy.
@@ -185,8 +189,8 @@ For simplicity, we now assume a one-dimensional periodic lattice of $L$ sites, a
 where $N$ is the total number of atoms on the lattice, we define $u\equiv U\times N/L$ for convenience, $\delta_{k+p,\ell+q}=1$ if $k+p=\ell+q$ and zero otherwise (enforcing conservation of momentum).
 
 If the interaction energy $U$ is small compared to the single-particle bandwidth $4J$, then the mode-changing collisions in $\H_{\t{int}}$ become off-resonant, motivating the frozen-mode approximation $\set{k,p}=\set{\ell,q}$ (which we assume for the remainder of this work)\footnote{Note that the frozen-mode approximation neglects correlated momentum-hopping terms of the form $\c_{\pi-p,\mu}^\dag \c_{\pi-q,\mu} \c_{p\nu}^\dag \c_{q\nu}$, which conserve both momentum and energy.
-We defer a careful treatment of these terms to future work, noting only that they vanish on the manifold of permutationally symmetric spin states with one atom per lattice site.}.
-The terms with $k=\ell$ and $p=q$ are $\frac{u}{2N} \sum \c_{\ell\mu}^\dag \c_{\ell\mu} \c_{q\nu}^\dag \c_{q\nu} = \frac12 N u$, which is an overall energy shift that we can freely neglect.
+We defer a careful treatment of these terms to future work, noting only that they vanish on the manifold of permutationally symmetric spin states with one atom per lattice site, and that the frozen-mode approximation is benchmarked in Refs.~\cite{he2019engineering, smale2019observation} and Appendix \ref{sec:benchmarking}.}.
+The terms with $k=\ell$ and $p=q$ are $\frac{u}{2N} \sum \c_{\ell\mu}^\dag \c_{\ell\mu} \c_{q\nu}^\dag \c_{q\nu} = \frac12 N u$, which is a constant  energy shift that we can freely neglect.
 Defining the spin operators $\s_{\mu\nu q}\equiv \c_{q\mu}^\dag \c_{q\nu}$, the remaining terms of the kinetic and interaction Hamiltonians are
 \begin{align}
   \H_{\t{kin}}
@@ -198,8 +202,9 @@ Defining the spin operators $\s_{\mu\nu q}\equiv \c_{q\mu}^\dag \c_{q\nu}$, the 
 \end{align}
 Throughout this work, we will assume that atomic modes are singly-occupied, e.g.~due to the initialization of a spin-polarized state with one atom per lattice site, in which multiple occupation of an atomic mode is forbidden by fermionic statistics (Pauli exclusion).
 In this case we can simply treat our system as $N$ distinguishable $n$-level quantum spins at ``lattice sites'' $p,q$.
-Note that the ``kinetic'' terms of this spin model ($\H_{\t{kin}}$) are proportional to the identity operator, contributing an overall shift in energy that we can neglect and this point.
+Note that the ``kinetic'' terms of this spin model ($\H_{\t{kin}}$) are proportional to the identity operator, contributing an overall shift in energy that we can neglect at this point.
 Nevertheless, these kinetic terms will become important in the presence of an external drive, which we discuss in Section \ref{sec:SOC}.
+The validity of approximating the Hubbard model in Eqs.~\eqref{eq:H_kin_FH}--\eqref{eq:H_int_FH} by the spin model in Eqs.~\eqref{H_kin_start}--\eqref{eq:H_int_start} has been previously benchmarked for SU(2)-symmetric interactions \cite{he2019engineering, smale2019observation}, and we provide additional benchmarking for SU(4) and SU(6) in Appendix \ref{sec:benchmarking}.
 
 To further simplify the interaction Hamiltonian $\H_{\t{int}}$ and write it in a form reminiscent of more familiar SU($2$) spin models, we now construct the operator-valued spin matrix
 \begin{align}
@@ -274,20 +279,6 @@ Specifically, we consider off-resonantly addressing an electronic $\ket\g\to\ket
 For simplicity, we will assume that the total spin $s$ of the ground- and excited-state (hyperfine) manifolds are the same, as e.g.~with the ${^1}\t{S}_0\to{^3}\t{P}_0$ transition of alkaline-earth-like atoms (AEAs).
 However, the results of this section (namely the general form of effective nuclear spin Hamiltonians, as well as the corresponding set of accessible observables and initial states) are the same for transitions that take $s\to s\pm1$, so in practice one is free to address the hyperfine manifolds of the ${^1}\t{S}_0\to{^3}\t{P}_1$ transition of AEAs.
 
-We assume that all driving lasers are detuned by $\Delta$ below an electronic transition.
-Each laser is indexed by an axis of propagation, $\v v$, and a drive amplitude $\Omega_{\v v,+}$ ($\Omega_{\v v,-}$) for right-circularly (left-circularly) polarized light.
-An electronic $\ket\g\to\ket\e$ excitation is thus accompanied by a nuclear spin transition $\mu_{\v v}\to\mu_{\v v}\pm1$, where $\mu_{\v v}$ is the projection of nuclear spin onto the axis $\v v$.
-Furthermore, a laser pointing along $\v v$ will generally imprint a phase $e^{-\i\kappa\v v\cdot\v\ell j}$ on lattice site $j$, where $\kappa$ is the wavenumber of the laser (in units with lattice spacing $a=1$) and $\v\ell$ is a fixed unit vector parallel to the lattice.
-On a one-dimensional lattice with transverse confinement, the multi-laser drive Hamiltonian is then
-\begin{align}
-  \H_{\t{drive}}^{\t{full}}
-  = \sum_{j,\v v,\sigma} \Omega_{\v v\sigma}
-  \p{e^{-\i\kappa\v v\cdot\v\ell j} \s_{\v v\sigma j}\otimes\op{\e}{\g}_j + \t{h.c.}}
-  + \Delta \hat N_\e,
-  \label{eq:H_drive_full}
-\end{align}
-where $\sigma\in\set{+1,-1}$ indexes a polarization of light; $\s_{\v v\sigma j}$ is an $n$-level spin-raising ($\sigma=+1$) or spin-lowering ($\sigma=-1$) operator along axis $\v v$ for an atom on lattice site $j$ (identical to that for $n-1$ spin-$\frac12$ particles in the Dicke manifold); $\ket\g_j$ and $\ket\e_j$ respectively denote the ground and excited electronic states of atom $j$; and $\hat N_\e=\1\otimes\sum_j\op\e_j$ counts the number of excited atoms (with $\1$ the identity operator on all spin degrees of freedom).
-
 \begin{figure}
 \centering
 \includegraphics[width=\linewidth]{3LD.pdf}
@@ -295,21 +286,29 @@ where $\sigma\in\set{+1,-1}$ indexes a polarization of light; $\s_{\v v\sigma j}
 Sketch of the three-laser drive used to address nuclear spins on a one-dimensional lattice.
 Two counter-propagating lasers with right-circular polarization and amplitudes $\Omega_\pm$ point at an angle $\theta$ to the lattice axis.
 A third, linearly polarized laser with amplitude $\Omega_0$ points in a direction orthogonal to both the lattice and the other driving lasers.
-Absorbing a photon from the laser with amplitude $\Omega_m$ induces a transition $(\g,\mu)\to(\e,\mu+m)$ for the (electronic, nuclear spin) state of an atom, where nuclear spin is quantized along the z axis.
+Absorbing a photon from the laser with amplitude $\Omega_m$ induces a transition $(\g,\mu)\to(\e,\mu+m)$ for the (electronic, nuclear spin) state of an atom, where nuclear spin is quantized along the $z$ axis.
 }
 \label{fig:3LD}
 \end{figure}
 
-We now consider a specific three-laser driving scheme with a geometry sketched in Figure \ref{fig:3LD}.
-Here the lattice lies in the y-z plane at an angle $\theta$ to the z axis, oriented along $\v\ell=(0,\sin\theta,\cos\theta)$; two counter-propagating right-circularly polarized lasers point in opposite directions along the z axis, $\v v_\pm=(0,0,\pm1)$; and a third linearly-polarized laser points along the x axis, $\v v_0=(1,0,0)$.
-Choosing $\v v_+$ (i.e.~the z axis) as the spin quantization axis, we can define new drive amplitudes $\Omega_0\equiv-(\Omega_{\v v_0,+}+\Omega_{\v v_0,-})$ and $\Omega_\pm\equiv\pm\Omega_{\v v_\pm,+}$, as well as a SOC angle $\phi\equiv\kappa\v v_+\cdot\v\ell=\kappa\cos\theta$, in terms of which the drive Hamiltonian becomes
+We consider a specific three-laser driving scheme with a geometry sketched in Figure \ref{fig:3LD}.
+Here the lattice lies in the $y$-$z$ plane at an angle $\theta$ to the $z$ axis, oriented along $\v\ell=(0,\sin\theta,\cos\theta)$.
+We set the spin quantization axis along $z$.
+The laser setup consists of
+\begin{enumerate*}
+\item two counter-propagating right-circularly polarized lasers with with drive amplitudes $\Omega_\pm$ and wavevectors $\kappa\v v_\pm$, propagating in opposite directions along the $z$ axis, $\v v_\pm=(0,0,\pm1)$, and
+\item a third laser linearly polarized along $z$, with drive amplitude $\Omega_0$ and wavevector $\kappa \v v_0$, propagating along the $x$ axis $\v v_0=(1,0,0)$.
+\end{enumerate*}
+All driving lasers are detuned by $\Delta$ below an electronic transition.
+The full Hamiltonian for this three-laser drive can be written as
 \begin{align}
   \H_{\t{3LD}}^{\t{full}}
   = \sum_{j,m} \Omega_m
   \p{e^{-\i m\phi j} \s_{mj} \otimes\op{\e}{\g}_j + \t{h.c.}}
   + \Delta \hat N_\e,
 \end{align}
-where $m\in\set{+1,0,-1}$ indexes the laser pointing along $\v v_m$; $\s_{0,j}\equiv\s_{\z,j}$ for shorthand; and $\s_{\z,j},\s_{+,j}\s_{-,j}$ are standard axial, spin-raising, and spin-lowering operators for spin $j$.
+where $m\in\set{+1,0,-1}$ indexes the laser pointing along $\v v_m$; the SOC angle $\phi\equiv\kappa\v v_+\cdot\v\ell=\kappa a \cos\theta$ (with $a$ the lattice spacing); $\s_{\z,j},\s_{+,j}\s_{-,j}$ are standard axial, spin-raising, and spin-lowering operators for spin $j$; $\s_{0,j}\equiv\s_{\z,j}$ for shorthand; $\ket\g_j$ and $\ket\e_j$ respectively denote the ground and excited electronic states of atom $j$; and $\hat N_\e=\1\otimes\sum_j\op\e_j$ counts the number of excited atoms (with $\1$ the identity operator on all spin degrees of freedom).
+
 In the far-detuned limit $\abs{\Delta}\gg\abs{\Omega_m}$, a second-order perturbative treatment of electronic excitations ($\ket\e$) yields an effective drive Hamiltonian that only addresses ground-state nuclear spins.
 After additionally making the gauge transformation $\s_{mj}\to e^{\i m\phi j}\s_{mj}$ (equivalently $\c_{j\mu}^\dag\to e^{\i\phi\mu j} \c_{j\mu}^\dag$), the drive Hamiltonian then becomes
 \begin{align}
@@ -377,7 +376,7 @@ See Appendix \ref{sec:full_drive} for additional details.
 
 Finally, we comment on the preparation of initial states.
 Initial states are nominally prepared in the ``lab frame'', and must be transformed according to the gauge transformation $\c_{j\mu}^\dag\to e^{\i\phi\mu j} \c_{j\mu}^\dag$ prior to evolution under the three-laser drive $\H_{\t{3LD}}$ in Eq.~\eqref{eq:H_3LD}, which is expressed in the ``gauge frame''.
-We assume the capability to prepare an initial state in which all spins are maximally polarized along the z axis, i.e.~$\ket{\z}^{\otimes N}=\ket{s}^{\otimes N}$, which is unaffected by the gauge transformation (up to a global phase).
+We assume the capability to prepare an initial state in which all spins are maximally polarized along the $z$ axis, i.e.~$\ket{\z}^{\otimes N}=\ket{s}^{\otimes N}$, which is unaffected by the gauge transformation (up to a global phase).
 The three-laser then allows us to rotate this state into one that is polarized along any spatial axis (in the gauge frame).
 In addition, when $n>2$ the three-laser drive allows us to prepare product states with nontrivial intra-spin correlations.
 For example, when $n$ is even we can prepare an $N$-fold product of the ``kitten'' state
@@ -410,7 +409,7 @@ where $\s_{\x,q}=\frac12 \c_{q,\up}^\dag \c_{q,\dn} + \t{h.c.}$ for two-level sp
 
 The two-level SOC drive in Eq.~\eqref{eq:drive_2} has been implemented with an external laser that couples the two electronic states of nuclear-spin-polarized atoms, with $\dn$ ($\up$) indexing the ground (excited) electronic state \cite{wall2016synthetic, livi2016synthetic, kolkowitz2016spinorbitcoupled, bromley2018dynamics, he2019engineering}.
 In contrast, the drive we considered in Section \ref{sec:controls} addresses electronic excitations off-resonantly, inducing an effective Hamiltonian in the ground-state hyperfine manifold with spin projections $\mu\in\set{s,s-1,\cdots,-s}$ (a similar scheme was used to study SOC in a subspace of the ground-state manifold in Ref.~\cite{mancini2015observation}).
-Nonetheless, both the two-level drive in Eq.~\eqref{eq:drive_2} and the $n$-level drive in Eq.~\eqref{eq:H_3LD} become homogeneous (i.e.~independent of the spatial mode index $j$ or $q$) and independent of the SOC angle $\phi$ after the same spin-symmetric gauge transformation\footnote{Note that the ``asymmetric'' gauge transformation $(\c_{j,\up}^\dag,\c_{j,\dn}^\dag)\to(e^{\i\phi j} \c_{j,\up}^\dag,\c_{j,\dn}^\dag)$, sometimes performed in the two-state SOC literature, does not generalize as nicely to $n>2$.} $\c_{j\mu}^\dag\to e^{\i\phi\mu j} \c_{j\mu}^\dag$.
+Nonetheless, both the two-level drive in Eq.~\eqref{eq:drive_2} and the $n$-level drive in Eq.~\eqref{eq:H_3LD} become homogeneous (i.e.~independent of the spatial mode index $j$ or $q$) and independent of the SOC angle $\phi$ after the same spin-symmetric gauge transformation\footnote{The ``asymmetric'' gauge transformation $(\c_{j,\up}^\dag,\c_{j,\dn}^\dag)\to(e^{\i\phi j} \c_{j,\up}^\dag,\c_{j,\dn}^\dag)$, sometimes performed in the two-state SOC literature, does not generalize as nicely to $n>2$.} $\c_{j\mu}^\dag\to e^{\i\phi\mu j} \c_{j\mu}^\dag$.
 
 Of course, spin-orbit coupling cannot be ``gauged away'' entirely.
 Making a gauge transformation to simplify the drive comes at the cost of making the kinetic energy in Eq.~\eqref{H_kin_start} spin-dependent, taking
@@ -457,13 +456,24 @@ Changing into the ``gauge frame'' ({\bf c},{\bf d}), essentially by shifting the
 In principle, making the gauge transformation $\c_{q\mu}^\dag\to \c_{q-\mu\phi,\mu}^\dag$ also transforms the interaction Hamiltonian as $\H_{\t{int}} \to \H_{\t{int}}^{(\phi)}$, where
 \begin{align}
   \H_{\t{int}}^{(\phi)}
-  \equiv -\f{u}{2N} \sum_{p,q,\mu,\nu}
-  \c_{p-\mu\phi,\mu}^\dag \c_{p-\nu\phi,\nu}
-  \c_{q-\nu\phi,\nu}^\dag \c_{q-\mu\phi,\mu}.
+  \equiv \f{u}{2N} \sum_{k,\ell,p,q,\mu,\nu}
+  \c_{k\mu}^{(\phi)\dag} \c_{\ell\mu}^{(\phi)}
+  \c_{p\nu}^{(\phi)\dag} \c_{q\nu}^{(\phi)}
+  \times \delta_{k+p,\ell+q},
 \end{align}
-However, $\H_{\t{int}}^{(\phi)}$ cannot be exactly reduced to a spin Hamiltonian that addresses the same spin degrees of freedom as $\H_{\t{kin}}^{(\phi)}$.
-Nonetheless, for sufficiently weak SOC (small $s\phi$) the effect of $\H_{\t{int}}^{(\phi)}$ may be approximated by $\H_{\t{int}}^{(0)}=\H_{\t{int}}$, which has previously been benchmarked for SU($2$)-symmetric interactions \cite{he2019engineering, smale2019observation}.
-To ensure that $\H_{\t{kin}}^{(\phi)}$ does not become trivial as $\phi\to0$, we can keep $J\phi/u$ constant (either by increasing $J/U$ or decreasing $N$).
+and $\c_{k\mu}^{(\phi)}\equiv\c_{k-\mu\phi,\mu}$.
+However, $\H_{\t{int}}^{(\phi)}$ cannot be reduced to a spin Hamiltonian that addresses the same spin degrees of freedom as $\H_{\t{kin}}^{(\phi)}$.
+Again making a frozen-mode approximation, or equivalently keeping only terms that preserve the coherences of an initially spin-polarized state, the gauge-transformed interaction Hamiltonian becomes
+\begin{align}
+  \H_{\t{int}}^{(\phi)}
+  \equiv -\f{u}{2N} \sum_{p,q,\mu,\nu}
+  \c_{p\mu}^{(\phi)\dag} \c_{p\nu}^{(\phi)}
+  \c_{q\nu}^{(\phi)\dag} \c_{q\mu}^{(\phi)}.
+\end{align}
+However, $\H_{\t{int}}^{(\phi)}$ cannot be reduced to a spin Hamiltonian that addresses the same spin degrees of freedom as $\H_{\t{kin}}^{(\phi)}$.
+Nonetheless, for sufficiently weak SOC (small $s\phi$) the effect of $\H_{\t{int}}^{(\phi)}$ may be approximated by $\H_{\t{int}}^{(0)}$, and in turn $\H_{\t{int}}$ in Eq.~\eqref{eq:H_int_start}.
+The validity of this approximation has been previously benchmarked for SU(2)-symmetric interactions \cite{he2019engineering, smale2019observation}, and we provide additional benchmarking for SU(4) and SU(6) in Appendix \ref{sec:benchmarking}.
+To ensure that $\H_{\t{kin}}^{(\phi)}$ does not become trivial as $\phi\to0$, we can keep $J\phi/u$ constant, either by increasing $J/U$ or decreasing $N/L$.
 Altogether, the interacting spin Hamiltonian in the gauge frame becomes
 \begin{align}
   \H_\spin = -\f{u}{2N} \v\S\cdot\v\S + 2J\phi \sum_q \sin\p{q} \s_{\z,q},
@@ -501,7 +511,7 @@ Specifically, we consider the time-averaged magnetization
 \end{align}
 where $\vec S\equiv(\S_\x,\S_\y,\S_\z)$ with $\S_\alpha \equiv \sum_q \s_{\alpha,q}$, and the time-averaged (dimensionless) interaction energy
 \begin{align}
-  \bbk{\ss}_\MF = \f1{N^2} \times \bbk{\v\S\cdot\v\S}_\MF.
+  \bbk{\sds}_\MF = \f1{N^2} \times \bbk{\v\S\cdot\v\S}_\MF.
 \end{align}
 By design, these non-negative quantities are normalized to lie on the interval $[0,1]$, independent of the system size $N$ or spin dimension $n$.
 In the remainder of this section we will assume that $n$ is even, both for the sake of experimental relevance (most relevant atomic nuclei are fermionic) and to avoid complications from parity effects.
@@ -517,13 +527,13 @@ See Appendices \ref{sec:MFT} and \ref{sec:bosons} for additional details about o
 \centering
 \includegraphics{mean_mag_int_X.pdf}
 \caption{
-Time-averaged magnetization $\sigma_\MF$ and interaction energy $\bbk{\ss}_\MF$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the x-polarized state $\ket\X$ for a time $T=10^5/u$.
+Time-averaged magnetization $\sigma_\MF$ and interaction energy $\bbk{\sds}_\MF$ for different spin dimensions $n$ (indicated in the legend) as determined by mean-field simulations of $N=100$ spins initially in the x-polarized state $\ket\X$ for a time $T=10^5/u$.
 Insets show same data after rescaling $h\to h \times (n/2)^{1/3}$, and transforming vertical axes according to Eq.~\eqref{eq:rescale}.
 }
 \label{fig:mean_mag_int_X}
 \end{figure}
 
-Figure \ref{fig:mean_mag_int_X} shows the time-averages of the magnetization $\sigma_\MF$ and interaction energy $\bbk{\ss}_\MF$ as computed by mean-field simulations of $N=100$ spins initially in the x-polarized state $\ket\X\equiv\ket\x^{\otimes N}$, where
+Figure \ref{fig:mean_mag_int_X} shows the time-averages of the magnetization $\sigma_\MF$ and interaction energy $\bbk{\sds}_\MF$ as computed by mean-field simulations of $N=100$ spins initially in the x-polarized state $\ket\X\equiv\ket\x^{\otimes N}$, where
 \begin{align}
   \ket\x \equiv e^{-\i\frac{\pi}{2}\s_\y} \ket{s}
   = \f1{2^s} \sum_\mu { 2s \choose s+\mu }^{1/2} \ket{\mu}.
@@ -531,9 +541,9 @@ Figure \ref{fig:mean_mag_int_X} shows the time-averages of the magnetization $\s
 \end{align}
 Here ${ m \choose k }$ is a binomial coefficient.
 As expected, the spin model exhibits a mean-field dynamical phase transition between an ordered phase at small $h$ and a disordered phase at large $h$.
-The ordered phase has a non-zero magnetization $\sigma_\MF$ and an interaction energy $\bbk{\ss}_\MF$ that asymptotically approach their maximal values as $h\to0$.
-The disordered phase has no (time-averaged) magnetization, $\sigma_\MF=0$, but the interaction energy $\bbk{\ss}_\MF$ nonetheless indicates persistent nontrivial inter-spin correlations when $n>2$.
-These nontrivial correlations vanish as $h\to\infty$, in which case $\bbk{\ss}_\MF$ approaches the minimal value allowed by conservation laws (clarified below).
+The ordered phase has a non-zero magnetization $\sigma_\MF$ and an interaction energy $\bbk{\sds}_\MF$ that asymptotically approach their maximal values as $h\to0$.
+The disordered phase has no (time-averaged) magnetization, $\sigma_\MF=0$, but the interaction energy $\bbk{\sds}_\MF$ nonetheless indicates persistent nontrivial inter-spin correlations when $n>2$.
+These nontrivial correlations vanish as $h\to\infty$, in which case $\bbk{\sds}_\MF$ approaches the minimal value allowed by conservation laws (clarified below).
 By minimizing the reduced field $h$ for which $\sigma_\MF=0$, we numerically find that the transition between ordered and disordered phases occurs at a critical field $h_\crit=\p{n/2}^{-\alpha}$ with $\alpha\approx1/3$ (see Figure \ref{fig:crit_fields_X}).
 When $n=2$, this transition is consistent with the predictions of a Lax vector analysis \cite{yuzbashyan2005nonequilibrium, yuzbashyan2006dynamical, yuzbashyan2006relaxation, yuzbashyan2015quantum, smale2019observation} that exploits integrability of $\H_\spin$ to determine long-time behavior.
 However, additional theoretical tools are necessary to understand this transition when $n>2$.
@@ -553,7 +563,7 @@ As shown in insets of Figure \ref{fig:mean_mag_int_X}, mean-field results for di
 \begin{align}
   \sigma_\MF \to \f{\sigma_\MF}{\gamma\p{n/2}},
   &&
-  \bbk{\ss}_\MF \to \f{\bbk{\ss}_\MF-\gamma\p{n}}{1-\gamma\p{n}},
+  \bbk{\sds}_\MF \to \f{\bbk{\sds}_\MF-\gamma\p{n}}{1-\gamma\p{n}},
   \label{eq:rescale}
 \end{align}
 where
@@ -566,14 +576,14 @@ The rescaling of magnetization and interaction energy can be understood by consi
 
 In the strong-field limit $h\to\infty$, we can ignore interactions and treat spins as though they simply precess at different rates.
 The time-averaged transverse magnetization $\sigma_\MF$ then trivially vanishes as $h\to\infty$.
-The interaction energy $\bk{\ss}_\MF = \bk{\bar{\v s}}_\MF \cdot \bk{\bar{\v s}}_\MF + O(1/N)$, meanwhile, has contributions from:
+The interaction energy $\bk{\sds}_\MF = \bk{\bar{\v s}}_\MF \cdot \bk{\bar{\v s}}_\MF + O(1/N)$, meanwhile, has contributions from:
 \begin{enumerate*}
 \item the diagonal parts of the mean spin matrix $\bk{\bar{\v s}}_\MF$, which are conserved by inhomogeneous spin precession, and
-\item the off-diagonal parts of $\bk{\bar{\v s}}_\MF$, whose oscillations average to zero when evaluating the time average in $\bbk{\ss}_\MF$.
+\item the off-diagonal parts of $\bk{\bar{\v s}}_\MF$, whose oscillations average to zero when evaluating the time average in $\bbk{\sds}_\MF$.
 \end{enumerate*}
-Altogether, the interaction energy $\bbk{\ss}_\MF$ in the strong-field limit is determined by the time-independent diagonal part $\diag\bk{\bar{\v s}}_\MF = \diag\op{\x}$, namely
+Altogether, the interaction energy $\bbk{\sds}_\MF$ in the strong-field limit is determined by the time-independent diagonal part $\diag\bk{\bar{\v s}}_\MF = \diag\op{\x}$, namely
 \begin{align}
-  \lim_{h\to\infty} \bbk{\ss}_\MF
+  \lim_{h\to\infty} \bbk{\sds}_\MF
   = \Tr\sp{\p{\diag\op{\x}}^2}
   = \gamma\p{n}.
   \label{eq:lim_ss}
@@ -601,7 +611,7 @@ which in the mean-field approximation becomes
   \H_\MF^\eff = -\frac12 h^2 u \sum_q \s_{\z,q}^2,
 \end{align}
 where we have used the fact that the axial magnetizations $\bk{\s_{\z,q}}=\frac1N\bk{\S_\z}$ within the PS manifold, and the initial value of $\bk{\S_\z}=0$ is conserved by $\H_\spin$.
-The weak-field effective Hamiltonian preserves permutational symmetry, so $\bbk{\ss}_\MF\to1$ as $h\to0$.
+The weak-field effective Hamiltonian preserves permutational symmetry, so $\bbk{\sds}_\MF\to1$ as $h\to0$.
 Moreover, the initial y-magnetization $\bk{\S_\y}=0$ is conserved by $\H_\spin$, so long-time-averaged magnetization $\sigma_\MF$ is determined by the time-average of $\s_\x$ for a single spin:
 \begin{align}
   \lim_{h\to0} \sigma_\MF
@@ -633,7 +643,7 @@ On a lattice of linear size $L$ without periodic boundary conditions, additional
 \includegraphics{mean_mag_int_XX.pdf}
 \caption{
 A corollary of Figure \ref{fig:mean_mag_int_X} for the initial state $\ket\XX$.
-The inset for interaction energy $\bbk{\ss}_\MF$ in Figure \ref{fig:mean_mag_int_X} subtracts off the minimal value of $\bbk{\ss}_\MF$ and rescales to lie on the interval $[0,1]$, as prescribed in Eq.~\eqref{eq:rescale}.
+The inset for interaction energy $\bbk{\sds}_\MF$ in Figure \ref{fig:mean_mag_int_X} subtracts off the minimal value of $\bbk{\sds}_\MF$ and rescales to lie on the interval $[0,1]$, as prescribed in Eq.~\eqref{eq:rescale}.
 Here the subtracting and rescaling is identical, but with a minimal value of $2\gamma\p{n}$ rather than $\gamma\p{n}$.
 }
 \label{fig:mean_mag_int_XX}
@@ -661,14 +671,14 @@ and $\ket{-\x}$ is a state polarized along $-$x, defined similarly to $\ket\x$ i
   = \f1{2^s} \sum_\mu \p{-1}^{s+\mu}
   { 2s \choose s+\mu }^{1/2} \ket{\mu}.
 \end{align}
-Similarly to Figure \ref{fig:mean_mag_int_X}, Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} show the time-averaged magnetization $\sigma_\MF$ and interaction energy \mbox{$\bbk{\ss}_\MF$} throughout mean-field dynamics of the initial states $\ket\XX$ and $\ket\XXI$.
+Similarly to Figure \ref{fig:mean_mag_int_X}, Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} show the time-averaged magnetization $\sigma_\MF$ and interaction energy \mbox{$\bbk{\sds}_\MF$} throughout mean-field dynamics of the initial states $\ket\XX$ and $\ket\XXI$.
 These figures exclude the trivial case of spin dimension $n=2$, for which $\ket\xx=\ket{-s}$ is an eigenstate of $\H_\spin$ and $\ket\xxi=e^{-\i\frac{\pi}{2}\s_\z}\ket\x\equiv\ket\y$ is spin-polarized along the y axis.
 The first and perhaps most interesting observation to make about Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} is that they are different, signifying the importance of intra-spin coherences for the dynamical behavior of multilevel spin models.
 
-Unlike Figure \ref{fig:mean_mag_int_X} (for $\ket\X$), Figure \ref{fig:mean_mag_int_XX} (for $\ket\XX$) exhibits no sharp transition between distinct dynamical phases: the time-averaged magnetization $\sigma_\MF=0$ for all values of the field $h$, and the interaction energy $\bbk{\ss}_\MF$ smoothly crosses over from a maximal value of 1 to a minimal value of $2\gamma\p{n}$.
-The minimal value of $\bbk{\ss}_\MF$ approached as $h\to\infty$ can be explained with arguments identical to those in the paragraph containing Eq.~\eqref{eq:lim_ss}, which now imply that
+Unlike Figure \ref{fig:mean_mag_int_X} (for $\ket\X$), Figure \ref{fig:mean_mag_int_XX} (for $\ket\XX$) exhibits no sharp transition between distinct dynamical phases: the time-averaged magnetization $\sigma_\MF=0$ for all values of the field $h$, and the interaction energy $\bbk{\sds}_\MF$ smoothly crosses over from a maximal value of 1 to a minimal value of $2\gamma\p{n}$.
+The minimal value of $\bbk{\sds}_\MF$ approached as $h\to\infty$ can be explained with arguments identical to those in the paragraph containing Eq.~\eqref{eq:lim_ss}, which now imply that
 \begin{align}
-  \lim_{h\to\infty} \bbk{\ss}_\MF
+  \lim_{h\to\infty} \bbk{\sds}_\MF
   = \Tr\sp{\p{\diag\op{\xx}}^2}
   = 2\gamma\p{n}.
 \end{align}
@@ -688,7 +698,7 @@ This symmetry implies that
 \end{align}
 at all times, so altogether $\sigma_\MF=0$.
 
-Turning now to mean-field results for the initial kitten state $\ket\XXI$ in Figure \ref{fig:mean_mag_int_XXI}, we remark that the magnetization $\sigma_\MF$ and interaction energy $\bbk{\ss}_\MF$ behave identically to those for the initial spin-polarized state $\ket\X$ in Figure \ref{fig:mean_mag_int_X}.
+Turning now to mean-field results for the initial kitten state $\ket\XXI$ in Figure \ref{fig:mean_mag_int_XXI}, we remark that the magnetization $\sigma_\MF$ and interaction energy $\bbk{\sds}_\MF$ behave identically to those for the initial spin-polarized state $\ket\X$ in Figure \ref{fig:mean_mag_int_X}.
 This finding can be understood through the fact that
 \begin{align}
   \ket\XXI \simeq \R_\z^{\pi/2} \T_\z^{\pi/2} \ket\X,
@@ -700,12 +710,12 @@ The operators $\R_\z^\theta$ and $\T_\z^\theta$ are generated by axial fields th
   &\simeq e^{-\i t \H_\spin} \R_\z^{\pi/2} \T_\z^{\pi/2} \ket\X \\
   &\simeq \R_\z^{\pi/2} \T_\z^{\pi/2} e^{-\i t \H_\spin} \ket\X.
 \end{align}
-In turn, expanding $\ss$ according to Eq.~\eqref{eq:dot_product} shows that
+In turn, expanding $\sds$ according to Eq.~\eqref{eq:dot_product} shows that
 \begin{align}
-  \T_\z^\theta{}^\dag \R_\z^\theta{}^\dag \, \ss \, \R_\z^\theta \T_\z^\theta
-  = \ss,
+  \T_\z^\theta{}^\dag \R_\z^\theta{}^\dag \, \sds \, \R_\z^\theta \T_\z^\theta
+  = \sds,
 \end{align}
-which implies that the interaction energy $\bk{\ss}$ throughout dynamics of the initial kitten state $\ket\XXI$ is the same as that of the spin-polarized state $\ket\X$.
+which implies that the interaction energy $\bk{\sds}$ throughout dynamics of the initial kitten state $\ket\XXI$ is the same as that of the spin-polarized state $\ket\X$.
 
 To make sense of why the magnetization $\sigma_\MF$ is identical in Figure \ref{fig:mean_mag_int_XXI} for $\ket\XXI$ as in Figure \ref{fig:mean_mag_int_X} for $\ket\X$, we follow a four-part argument:
 \begin{enumerate}
@@ -752,9 +762,48 @@ Universal control would allow for an experimental study of $n$-dependence (inclu
 Finally, one can also study the SU($n$) Hubbard model in the super-exchange regime that gives rise to a real-space (as opposed to momentum-space) spin model, where SOC gives rise to chiral multilevel spin interactions.
 Unlike our present work, the super-exchange regime does not require weak SOC, and therefore has a larger parameter space in which to explore dynamical behavior.
 
+\section*{Acknowledgements}
+
+We thank V.~Gurarie and E.~Yuzbashyan for useful discussions on the topic.
+This work was supported by the AFOSR grants FA9550-18-1-0319, FA9550-19-1-027, by the DARPA and ARO grant W911NF-16-1-0576, ARO W911NF-19-1-0210, DOE (QSA), NSF PHY1820885, NSF JILA-PFC PHY-1734006 and NSF QLCI-2016244 grants, and by NIST.
+
 \bibliography{main.bib}
 \onecolumngrid
 \appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Numerical benchmarking of the spin model}
+\label{sec:benchmarking}
+
+In this appendix we present numerical evidence to support the validity of the spin models derived in Sections \ref{sec:spin_model} and \ref{sec:SOC}.
+Figures \ref{fig:benchmarking_SU4} and \ref{fig:benchmarking_SU6} show a set of time-averaged observables computed with numerically exact simulations of a Fermi-Hubbard model and an effective spin model, respectively, with $n=4$ (Figure \ref{fig:benchmarking_SU4}) and $n=6$ (Figure \ref{fig:benchmarking_SU6}) internal levels per spin.
+Details for these simulations are provided in the caption of Figure \ref{fig:benchmarking_SU4}.
+Our main conclusion from these figures is that the two models show remarkable agreement for the observables considered in our work.
+Note that these results are only intended to benchmark the approximation of a Fermi-Hubbard model by a spin model; these results are not expected to agree with the mean-field theory in Section \ref{sec:mean_field} due to strong finite-size effects.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\textwidth]{benchmarking_SU4.pdf}
+\caption{
+Numerical results (analogous to Figures \ref{fig:mean_mag_int_X}, \ref{fig:mean_mag_int_XX}, and \ref{fig:mean_mag_int_XXI} of the main text) for the time-averaged interaction energy and magnetization (both normalized to a maximal value of 1) in a system of $L=5$ lattice sites, for both a Fermi-Hubbard model (dots) and spin model (lines) with $n=4$ internal states per spin.
+The corresponding initial state (defined in Section \ref{sec:mean_field} of the main text) is indicated in each panel, and observables are averaged over a time $tJ=200$.
+Color indicates the value of $U/J$, and the field $h$ corresponds to $2J\phi/u$ in the case of the Fermi-Hubbard model.
+Simulations are performed in real-space, with spin-orbit coupling (SOC) implemented through a homogeneous drive (with no site or $\phi$ dependence) and nearest-neighbor tunneling terms that contain factors of $e^{\pm\i\mu\phi}$.
+Results for the initial kitten state $\ket\XXI$ are excluded because they are identical to those of $\ket\X$, and magnetization for the initial state $\ket\XX$ is always $0$.
+Note that while panels (a) and (b) are representative of infinite-time behavior, the inset in panel (c) shows that the Fermi-Hubbard and spin models exhibit different behaviors on very long time scales, although good agreement is restored by rescaling time in the spin model, indicating the likelihood of a need to renormalize spin model parameters.
+In any case, such time scales are inaccessible in current experiments and diverge as $N\to\infty$, so these corrections do not affect the main results of our work.
+}
+\label{fig:benchmarking_SU4}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\textwidth]{benchmarking_SU6.pdf}
+\caption{
+Numerical results identical to Figure \ref{fig:benchmarking_SU4}, but with $L=4$ lattice sites and $n=6$ internal states per spin.
+}
+\label{fig:benchmarking_SU6}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Perturbation theory for SU($n$) ferromagnets}
@@ -1037,18 +1086,26 @@ Note that, by slight abuse of notation, the operator $\O_M$ on the left of Eq.~\
 In order to arrive at the drive Hamiltonian in Eq.~\eqref{eq:H_3LD_single} of the main text, we made two simplifying assumptions:
 \begin{enumerate*}
 \item that the excited-state hyperfine manifold had the same total spin $s$ as the ground-state manifold, and
-\item that all drive amplitudes are real, which enforces a phase-locking condition between the driving lasers.
+\item that all drive amplitudes are real (which enforces a phase-locking condition between the driving lasers).
 \end{enumerate*}
-If the excited-state hyperfine manifold has total spin $s+r$ (with $r\in\set{+1,0,-1}$), then the spin-raising/lowering operators $\s_\pm$ that appear in Eq.~\eqref{eq:H_drive_full} (where $\s_{\v v,\pm,j}$ raises or lowers the spin of atom $j$ along axis $\v v$) become
+To derive an effective drive Hamiltonian for the general case in which the excited-state hyperfine manifold has total spin $s+r$ with $r\in\set{+1,0,-1}$, we decompose all lasers into their right- and left-circular polarization components and write the full drive Hamiltonian in the form
+\begin{align}
+  \H_{\t{drive}}^{\t{full}}
+  = \sum_{j,\v v,\sigma} \Omega_{\v v\sigma}
+  \p{e^{-\i\kappa\v v\cdot\v\ell j} \s_{\v v\sigma j}^{(r)}
+    \otimes\op{\e}{\g}_j + \t{h.c.}}
+  + \Delta \hat N_\e,
+\end{align}
+where $\Omega_{\v v\sigma}$ is the amplitude of $\sigma$-polarized light propagating along axis $\v v$, with $\sigma=+1$ and $-1$ respectively for right and left circular polarizations; and $\s_{\v v\sigma j}$ is a spin-raising/lowering operator for atom $j$ along axis $\v v$, defined by appropriately rotating the single-atom spin operators
 \begin{align}
   \s_\pm^{(r)}
   \equiv -\sqrt{\f{n(n+1)(n-1)}{6}} \times \hat T_\pm^{(r)},
   &&
   \hat T_\pm^{(r)} \equiv \mp\sqrt{\f{2(s+r)+1}{2\ell+1}}
-  \sum_\mu \bk{s\mu;1,\pm1|s+r,\mu\pm1} \op{\mu\pm1}{\mu},
+  \sum_\mu \bk{s\mu;1,\pm1|s+r,\mu\pm1} \op{\mu\pm1}{\mu}.
 \end{align}
-where $\bk{j_1m_1;j_2m_2|j_3m_3}$ is a Clebsch-Gordan coefficient, and we have normalized $\hat T_\pm^{(r)}$ such that $\tr\sp{\hat T_\pm^{(r)}{}^\dag \hat T_\pm^{(r)}}=1$.
-Still assuming real drive amplitudes, the corresponding effective drive Hamiltonian that replaces Eq.~\eqref{eq:H_3LD_single} is then
+Here $\bk{j_1m_1;j_2m_2|j_3m_3}$ is a Clebsch-Gordan coefficient, and we have normalized $\hat T_\pm^{(r)}$ such that $\tr\sp{\hat T_\pm^{(r)}{}^\dag \hat T_\pm^{(r)}}=1$.
+Still assuming real drive amplitudes, the corresponding effective drive Hamiltonian that replaces Eq.~\eqref{eq:H_3LD_single} in the far-detuned limit $\abs{\Delta}\gg\abs{\Omega_{\v v\sigma}}$ is then
 \begin{align}
   \H_{\t{3LD}}^{\t{single}}
   = f_r^{(1)} \sp{\tilde\Omega_+ \tilde\Omega_- \s_\z
@@ -1060,7 +1117,7 @@ Still assuming real drive amplitudes, the corresponding effective drive Hamilton
       + \tilde\Omega_-^2 \s_\y^2}}
   - f_r^{(3)} \sum_m \tilde\Omega_m^2,
 \end{align}
-where $f_r^{(k)}$ are $n$-dependent scalars:
+where $f_r^{(k)}$ are scalars that depend on the spin dimension $n$:
 \begin{align}
   f_0^{(1)} &= 1, &
   f_{+1}^{(1)} &= -s, &
@@ -1220,7 +1277,7 @@ The Lax formulation (following Refs.~\cite{yuzbashyan2005nonequilibrium, yuzbash
   &&
   h \equiv \f{2J\phi}{u}.
 \end{align}
-The normalized, dimensionless, $(n^2-1)$-component Lax vector $\vec\ell\p{z}$ associated with $\H_\spin$, which is defined with an auxiliary complex parameter $z$, has components
+The intensive, dimensionless, $(n^2-1)$-component Lax vector $\vec\ell\p{z}$ associated with $\H_\spin$, which is defined with an auxiliary complex parameter $z$, has components
 \begin{align}
   \ell_\alpha\p{z}
   = \f1N \sum_q \f{\s_{\alpha,q}}{z-\sin q}
