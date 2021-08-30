@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
+
+if len(sys.argv) < 3:
+    print(f"usage: {sys.argv[0]} [lattice_shape] [cutoff] [max_manifold]")
+    exit()
+cutoff_text = sys.argv[2]
+
+lattice_shape = tuple(map(int, sys.argv[1].split("x")))
+cutoff = float(cutoff_text) # range of square-well interaction (in units of lattice spacing)
+max_manifold = int(sys.argv[3])
+
+data_dir = "../data/shells_XX/"
+lattice_name = "x".join([ str(size) for size in lattice_shape ])
+name_tag = f"L{lattice_name}_c{cutoff_text}_M{max_manifold}"
+
+data_file = data_dir + f"sim_{name_tag}.txt"
+manifold_shells = {}
+with open(data_file) as file:
+    for line in file:
+        if line[:10] != "# manifold": continue
+        parts = line.split()
+        manifold = int(parts[2])
+        shells = list(map(int,parts[4:]))
+        manifold_shells[manifold] = np.array(shells)
+manifolds = list(manifold_shells.keys())
+data = np.loadtxt(data_file, dtype = complex)
+
+times = data[:,0].real
+str_ops = [ "Z", "+", "ZZ", "++", "+Z", "+-" ]
+correlators = {}
+for str_op, op in zip(str_ops, data[:,1:].T):
+    correlators[str_op] = op
+sqz = data[:,len(str_ops)+1].real
+pops = data[:,len(str_ops)+2:].real
+
+plt.figure()
+plt.plot(times, sqz)
+plt.xlabel("time")
+plt.ylabel("squeezing")
+plt.tight_layout()
+
+plt.figure()
+for manifold, shells in manifold_shells.items():
+    plt.plot(times, pops[:,shells].sum(axis = 1), label = manifold)
+plt.xlabel("time")
+plt.ylabel("population")
+plt.legend()
+plt.tight_layout()
+plt.show()
