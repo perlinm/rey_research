@@ -70,7 +70,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 
-\title{Spin qudit tomography and reconstruction error}
+\title{Spin qudit tomography and state reconstruction error}
 \author{Michael A.~Perlin}
 \email{mika.perlin@gmail.com}
 \author{Diego Barberena}
@@ -97,11 +97,11 @@ The central importance of quantum state tomography has led to the development of
 These techniques are typically developed in a general, information-theoretic setting, and make minimal assumptions about the physical medium of a quantum state.
 As a consequence, even well-established techniques can be ill-suited for physical platforms with unique or limited capabilities.
 
-Due to advancements in experimental capabilities to address nuclear spin states (i.e.~hyperfine levels) in ultracold atomic systems \cite{daley2011quantum, mischuck2012control, smith2013quantum, cazalilla2014ultracold}, as well as developments in the control of ultracold molecular systems \cite{bohn2017cold, zeppenfeld2012sisyphus, kozyryev2017sisyphus, puri2017synthesis, wu2017cryofuge, marco2019degenerate, liu2019molecular, anderegg2019optical, chou2020frequencycomb, lin2020quantum}, a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.  Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{hemmer2018squeezing, evrard2019enhanced}, enable quantum simulations of SU($d$) magnetism \cite{cazalilla2014ultracold, banerjee2013atomic, zhang2014spectroscopic, scazza2014observation, goban2018emergence}, % todo: cite SU(n) spin model paper!
+Due to advancements in experimental capabilities to address nuclear spin states (i.e.~hyperfine levels) in ultracold atomic systems \cite{daley2011quantum, lu2011strongly, mischuck2012control, aikawa2012boseeinstein, smith2013quantum, cazalilla2014ultracold}, as well as developments in the control of ultracold molecular systems \cite{bohn2017cold, takekoshi2014ultracold, zeppenfeld2012sisyphus, kozyryev2017sisyphus, puri2017synthesis, wu2017cryofuge, marco2019degenerate, liu2019molecular, anderegg2019optical, chou2020frequencycomb, lin2020quantum}, a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.  Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{hemmer2018squeezing, evrard2019enhanced}, enable quantum simulations of SU($d$) magnetism \cite{cazalilla2014ultracold, banerjee2013atomic, zhang2014spectroscopic, scazza2014observation, goban2018emergence}, % todo: cite SU(n) spin model paper!
 and offer unique capabilities for quantum error correction \cite{albert2020robust, gross2021designing}.
 In all cases, quantum state tomography is necessary to take full advantage of a spin qudit\footnote{Note that the measurement of collective observables for quantum sensing or simulation can be recast as a single-spin tomography task.}.
 
-The problem of qudit tomography is not new, with an extensive literature on a variety of techniques \cite{newton1968measurability, hofmann2004quantumstate, filippov2010inverse, schmied2011tomographic, evrard2019enhanced, flammia2005minimal, thew2002qudit, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, stefano2019set, palici2020oam, filippov2010inverse, hofmann2004quantumstate, filippov2010inverse}.
+The problem of qudit tomography is not new, with an extensive literature on a variety of techniques \cite{newton1968measurability, hofmann2004quantumstate, filippov2010inverse, schmied2011tomographic, evrard2019enhanced, flammia2005minimal, thew2002qudit, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, stefano2019set, palici2020oam}.
 However, most existing protocols either rely on infinite-dimensional representations of a quantum spin \cite{manko1997spin, schmied2011tomographic, evrard2019enhanced}, or require the capability to perform essentially arbitrary operations on a qudit \cite{thew2002qudit, flammia2005minimal, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, stefano2019set, palici2020oam}, generally resulting in tomographic protocols that can be highly inefficient or unachievable in practice.
 The protocols based on infinite-dimensional representations of a quantum spin have the advantage of reconstructing its state from measurements of spin projection onto different spatial axes, which are generally accessible with any spin qudit.
 Nonetheless, these protocols obfuscate the minimal requirements for performing full state tomography, provide no straightforward error bounds or guarantees of accuracy, and (with the notable exception of Ref.~\cite{schmied2011tomographic}) generally extract only a small fraction of the information contained in measurement data.
@@ -138,7 +138,7 @@ One such basis is that of the {\it polarization operators} \cite{kryszewski2006p
   \bk{s\mu;\ell m|s\nu} \op{\nu}{\mu},
   \label{eq:trans_op}
 \end{align}
-where $\bk{s\mu;\ell m|s\nu}$ is a Clebsh-Gordan coefficient that enforces $\ell\in\set{0,1,\cdots,d-1}$ and $m\in\set{-\ell,-\ell+1,\cdots,\ell}$, such that there are $d^2$ polarization operators in total.
+where $\ket\mu$ is an eigenstate of the axial spin projection operator $S_\z\ket\mu=\mu\ket\mu$; and $\bk{s\mu;\ell m|s\nu}$ is a Clebsh-Gordan coefficient that enforces $\ell\in\set{0,1,\cdots,d-1}$ and $m\in\set{-\ell,-\ell+1,\cdots,\ell}$, such that there are $d^2$ polarization operators in total.
 For brevity, we will generally treat the value of $d$ as constant but arbitrary throughout this work, and we will suppress any explicit dependence of quantities or operators such as $T_{\ell m}$ on $d$.
 The polarization operators are orthonormal with respect to the trace inner product, and transform nicely under conjugation:
 \begin{align}
@@ -210,10 +210,10 @@ We clarify the connection between the quantum problem of reconstructing $\rho$ f
 
 Our goal is to reconstruct an arbitrary state $\rho$ of a spin qudit from measurements of spin projection onto different quantization axes.
 We are thus nominally restricted to measuring projectors $\Pi_{\bm v\mu} \equiv \op{\mu_{\bm v}}$, where $\ket{\mu_{\bm v}}\equiv R\p{\bm v}\ket{\mu}$ is a state with spin projection $\mu$ onto the measurement axis $\bm v$.
-For any fixed axis $\bm v$, the sets $\set{\Pi_{\bm v\mu}}$ and $\set{T_{\bm v\ell,0}}$ are both complete bases for the space of operators that are diagonal in the basis $\set{\ket{\mu_{\bm v}}}$.
+For any fixed axis $\bm v$, the sets $\set{\Pi_{\bm v\mu}}$ and $\set{T_{\bm v\ell,0}}$ (i.e.~all $T_{\bm v\ell m}$ with $m=0$) are both complete bases for the space of operators that are diagonal in the basis $\set{\ket{\mu_{\bm v}}}$.
 Measuring the projectors $\set{\Pi_{\bm v\mu}}$ is therefore equivalent to measuring the polarization operators $\set{T_{\bm v\ell,0}}$, and provides data on the expectation values $\bk{T_{\bm v\ell,0}}_\rho$.
 
-In order to reconstruct an arbitrary density operator $\rho$ from the expectation values $\bk{T_{\bm v\ell,0}}_\rho$, we essentially need to to find a set of coefficients $C_{\ell mk}\p{\bm v}$ that would allow us to recover any matrix element $\rho_{\ell m}$ of $\rho$ through
+In order to reconstruct an arbitrary density operator $\rho$ from the expectation values $\bk{T_{\bm v\ell,0}}_\rho$, we essentially need to find a set of coefficients $C_{\ell mk}\p{\bm v}$ that would allow us to recover any matrix element $\rho_{\ell m}$ of $\rho$ through
 \begin{align}
   \rho_{\ell m}^* = \bk{T_{\ell m}}_\rho
   = \sum_{\bm v,k} C_{\ell mk}\p{\bm v} \bk{T_{\bm vk,0}}_\rho.
@@ -462,9 +462,6 @@ Here $\tilde g_{L\ell}$ is essentially a matrix of structure constants for the p
 \section{Tomography protocol}
 \label{sec:protocol}
 
-% todo: look up and cite randomized protocols
-% see JQI / Jake Taylor / Mohammad Hafezi
-
 The ability to certify a statistical error bound on the empirical estimate $\tilde\rho_V$ of an unknown quantum state $\rho$ motivates the following protocol for spin qudit tomography:
 \begin{enumerate}
 \item Select a random set of measurement axes $V$ by uniformly sampling points on the sphere\footnote{To sample a point $\p{\alpha,\beta}$ from the uniform distribution on the sphere (with azimuthal angle $\alpha$ and polar angle $\beta$), you can sample a point $\p{a,b}\in[0,1]\times[0,1]$ from the uniform distribution on the unit square, and then set $\alpha=2\pi a$ and $\beta=\arccos\p{1-2b}$.}, and use any standard minimization algorithm to optimize the $2\abs{V}$ parameters in $V$ (two angles for each point $\bm v\in V$) by minimizing the quantum error scale $\epsilon_V$ in Eq.~\eqref{eq:bound}.
@@ -684,7 +681,7 @@ where the double brackets $\bbk{\cdot}$ to denote statistical averaging over exp
 However, the covariance between statistical errors $\epsilon_\O$ and $\epsilon_\Q$ on the empirical estimates $\tilde\O$ and $\tilde\Q$ of observables $\O$ and $\Q$ is
 \begin{align}
   \bbk{\epsilon_\O \epsilon_\Q}
-  = \bbk{\p{\tilde\O - \bk{\O}} \p{\tilde\Q - \bk{\Q}}}
+  = \Bbk{\p{\tilde\O - \bk{\O}} \p{\tilde\Q - \bk{\Q}}}
   = \bk{\p{\O - \bk{\O}} \p{\Q - \bk{\Q}}}
   = \bk{\O\Q} - \bk{\O} \bk{\Q}.
 \end{align}
@@ -706,7 +703,7 @@ in the empirical estimate of $\bk{\Pi_{i\mu}}_{\rho}$, and use Eq.~\eqref{eq:mea
     \bk{\Pi_{i'\mu'}^{j'}}_{\rho^{\otimes N}}}.
   \label{eq:proj_cov_start}
 \end{align}
-If $\p{i,j}\ne\p{i',j'}$, then $\Pi_{i\mu}^j$ and $\Pi_{i'\mu'}^{j'}$ address different tensor factors of the product state $\rho^{\otimes N}$, so the expectation value of their product factorizes due to the identity $\tr\sp{\p{A\otimes B}\p{A'\otimes B'}} = \tr\p{AA'}\times\tr\p{BB'}$.
+If $\p{i,j}\ne\p{i',j'}$, then $\Pi_{i\mu}^j$ and $\Pi_{i'\mu'}^{j'}$ address different tensor factors of the product state $\rho^{\otimes N}$, so the expectation value of their product factorizes due to the fact that $\tr\sp{\p{A\otimes B}\p{A'\otimes B'}} = \tr\p{AA'}\times\tr\p{BB'}$.
 This factorization can also be seen as a consequence of the fact that if $\p{i,j}\ne\p{i',j'}$, then $\Pi_{i\mu}^j$ and $\Pi_{i'\mu'}^{j'}$ are ``spatially separated'' on $\rho^{\otimes N}$, which means that their expectation values cannot have quantum correlations.
 The terms in Eq.~\eqref{eq:proj_cov_start} with $\p{i,j}\ne\p{i',j'}$ therefore vanish, so
 \begin{align}
