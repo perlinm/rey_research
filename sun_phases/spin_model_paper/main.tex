@@ -337,28 +337,28 @@ We relax the assumption of real drive amplitudes in Appendix \ref{sec:full_drive
 \begin{table}
 \centering
 \caption{
-Drive Hamiltonians (left column) that can be implemented with different amplitude-matching conditions (right column), some of which are specified by an arbitrary sign $\sigma\in\set{+1,-1}$.
-The drives shown here are equal to that Eq.~\eqref{eq:H_3LD_single} up to a possible energy shift of $\s_\x^2+\s_\y^2+\s_\z^2=s(s+1)$, and come in mutually commuting pairs: a drive with $\Omega_m=1$ and $\Omega_n=0$ for both $n\ne m$ commutes with the drive in which $\Omega_m=0$ and both $\abs*{\Omega_n}=1$.
+Drive Hamiltonians (left column) that can be implemented with different amplitude-matching conditions (right three columns), some of which are specified by an arbitrary sign $\sigma\in\set{+1,-1}$.
+The drives shown here are equal to that Eq.~\eqref{eq:H_3LD_single} up to a possible energy shift of $\s_\x^2+\s_\y^2+\s_\z^2=s(s+1)$, and come in mutually commuting pairs: a drive with $\abs*{\Omega_m}=1$ and $\Omega_n=0$ for both $n\ne m$ commutes with the drive in which $\Omega_m=0$ and both $\abs*{\Omega_n}=1$.
 }
 \vspace{.5em}
-\begin{tabular}{c|c}
+\begin{tabular}{c||c|c|c}
   $\H_{\t{drive}}^{\t{single}}$
-  & $(\tilde\Omega_0,\tilde\Omega_+,\tilde\Omega_-)$
+  & $\tilde\Omega_0$ & $\tilde\Omega_+$ & $\tilde\Omega_-$
   \\ \hline\hline
-  $-\s_\z^2$ & $\p{1,0,0}$
+  $-\s_\z^2$ & 1 & 0 & 0
   \\ \hline
-   $-\s_\x^2$ & $\p{0,1,0}$
+   $-\s_\x^2$ & 0 & 1 & 0
   \\ \hline
-  $-\s_\y^2$ & $\p{0,0,1}$
+  $-\s_\y^2$ & 0 & 0 & 1
   \\ \hline
-  $\sigma \s_\z + \s_\z^2$ & $\p{0,1,\sigma}$
+  $\sigma \s_\z + \s_\z^2$ & 0 & 1 & $\sigma$
   \\ \hline
-  $\sigma \s_\x + \s_\x^2$ & $\p{1,0,\sigma}$
+  $\sigma \s_\x + \s_\x^2$ & 1 & 0 & $\sigma$
   \\ \hline
-  $\sigma\p{\s_\z \s_\x+\s_\x \s_\z} + \s_\y^2$ & $\p{1,\sigma,0}$
+  $\sigma\p{\s_\z \s_\x+\s_\x \s_\z} + \s_\y^2$ & 1 & $\sigma$ & 0
   \\ \hline
   $\pm \s_\z \pm \sigma \s_\x + \sigma (\s_\z \s_\x + \s_\x \s_\z)$
-  & $\p{1,\sigma,\pm\sigma}$
+  & 1 & $\sigma$ & $\pm\sigma$
 \end{tabular}
 \label{tab:drives}
 \end{table}
@@ -453,26 +453,10 @@ Changing into the ``gauge frame'' ({\bf c},{\bf d}), essentially by shifting the
 \label{fig:soc_panels}
 \end{figure}
 
-In principle, making the gauge transformation $\c_{q\mu}^\dag\to \c_{q-\mu\phi,\mu}^\dag$ also transforms the interaction Hamiltonian as $\H_{\t{int}} \to \H_{\t{int}}^{(\phi)}$, where
-\begin{align}
-  \H_{\t{int}}^{(\phi)}
-  \equiv \f{u}{2N} \sum_{k,\ell,p,q,\mu,\nu}
-  \c_{k\mu}^{(\phi)\dag} \c_{\ell\mu}^{(\phi)}
-  \c_{p\nu}^{(\phi)\dag} \c_{q\nu}^{(\phi)}
-  \times \delta_{k+p,\ell+q},
-\end{align}
-and $\c_{k\mu}^{(\phi)}\equiv\c_{k-\mu\phi,\mu}$.
-However, $\H_{\t{int}}^{(\phi)}$ cannot be reduced to a spin Hamiltonian that addresses the same spin degrees of freedom as $\H_{\t{kin}}^{(\phi)}$.
-Again making a frozen-mode approximation, or equivalently keeping only terms that preserve the coherences of an initially spin-polarized state, the gauge-transformed interaction Hamiltonian becomes
-\begin{align}
-  \H_{\t{int}}^{(\phi)}
-  \equiv -\f{u}{2N} \sum_{p,q,\mu,\nu}
-  \c_{p\mu}^{(\phi)\dag} \c_{p\nu}^{(\phi)}
-  \c_{q\nu}^{(\phi)\dag} \c_{q\mu}^{(\phi)}.
-\end{align}
-However, $\H_{\t{int}}^{(\phi)}$ cannot be reduced to a spin Hamiltonian that addresses the same spin degrees of freedom as $\H_{\t{kin}}^{(\phi)}$.
-Nonetheless, for sufficiently weak SOC (small $s\phi$) the effect of $\H_{\t{int}}^{(\phi)}$ may be approximated by $\H_{\t{int}}^{(0)}$, and in turn $\H_{\t{int}}$ in Eq.~\eqref{eq:H_int_start}.
-The validity of this approximation has been previously benchmarked for SU(2)-symmetric interactions \cite{he2019engineering, smale2019observation}, and we provide additional benchmarking for SU(4) and SU(6) in Appendix \ref{sec:benchmarking}.
+Finally, the gauge transformation $\c_{q\mu}^\dag\to \c_{q-\mu\phi,\mu}^\dag$ also transforms the interaction Hamiltonian.
+Applying this transformation to Eq.~\eqref{eq:H_int_momenta} and keeping only terms that respect the coherences imposed on initial states by the laser drive, we can again derive an effective spin model.
+For sufficiently weak SOC ($s\phi\to0$) this spin model is still well-approximated by $\H_{\t{int}}$ in Eqs.~\eqref{eq:H_int_start} and \eqref{eq:H_int}.
+The validity of this approximation has been previously benchmarked for SU(2)-symmetric interactions \cite{he2019engineering, smale2019observation}, and we provide additional benchmarking for SU(4) and SU(6) in Appendix \ref{sec:benchmarking} (which finds that the spin model works well even for {\it large} $\phi$).
 To ensure that $\H_{\t{kin}}^{(\phi)}$ does not become trivial as $\phi\to0$, we can keep $J\phi/u$ constant, either by increasing $J/U$ or decreasing $N/L$.
 Altogether, the interacting spin Hamiltonian in the gauge frame becomes
 \begin{align}
@@ -665,14 +649,14 @@ We now consider the same setup as above, but with the initial ``kitten'' states 
   &&
   \ket\xxi \equiv \f{\ket{\x} + \p{-1}^s \ket{-\x}}{\sqrt{2}},
 \end{align}
-and $\ket{-\x}$ is a state polarized along $-$x, defined similarly to $\ket\x$ in Eq.~\eqref{eq:state_x}:
+and $\ket{-\x}$ is a state polarized along $-x$, defined similarly to $\ket\x$ in Eq.~\eqref{eq:state_x}:
 \begin{align}
   \ket{-\x} \equiv e^{-\i\frac{\pi}{2}\s_\y}\ket{-s}
   = \f1{2^s} \sum_\mu \p{-1}^{s+\mu}
   { 2s \choose s+\mu }^{1/2} \ket{\mu}.
 \end{align}
 Similarly to Figure \ref{fig:mean_mag_int_X}, Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} show the time-averaged magnetization $\sigma_\MF$ and interaction energy \mbox{$\bbk{\sds}_\MF$} throughout mean-field dynamics of the initial states $\ket\XX$ and $\ket\XXI$.
-These figures exclude the trivial case of spin dimension $n=2$, for which $\ket\xx=\ket{-s}$ is an eigenstate of $\H_\spin$ and $\ket\xxi=e^{-\i\frac{\pi}{2}\s_\z}\ket\x\equiv\ket\y$ is spin-polarized along the y axis.
+These figures exclude the trivial case of spin dimension $n=2$, for which $\ket\xx=\ket{-s}$ is an eigenstate of $\H_\spin$ and $\ket\xxi=e^{-\i\frac{\pi}{2}\s_\z}\ket\x\equiv\ket\y$ is spin-polarized along the $y$ axis.
 The first and perhaps most interesting observation to make about Figures \ref{fig:mean_mag_int_XX} and \ref{fig:mean_mag_int_XXI} is that they are different, signifying the importance of intra-spin coherences for the dynamical behavior of multilevel spin models.
 
 Unlike Figure \ref{fig:mean_mag_int_X} (for $\ket\X$), Figure \ref{fig:mean_mag_int_XX} (for $\ket\XX$) exhibits no sharp transition between distinct dynamical phases: the time-averaged magnetization $\sigma_\MF=0$ for all values of the field $h$, and the interaction energy $\bbk{\sds}_\MF$ smoothly crosses over from a maximal value of 1 to a minimal value of $2\gamma\p{n}$.
