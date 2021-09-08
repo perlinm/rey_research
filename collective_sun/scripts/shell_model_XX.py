@@ -7,14 +7,14 @@ import os, sys, functools
 import time, glob
 
 from squeezing_methods import squeezing_from_correlators
-from dicke_methods import coherent_spin_state as coherent_state_PS
+from dicke_methods import coherent_spin_state
 from multibody_methods import dist_method, get_multibody_states
 from operator_product_methods import build_shell_operator
 
 np.set_printoptions(linewidth = 200)
 
 if len(sys.argv) < 4:
-    print(f"usage: {sys.argv[0]} [test?] [lattice_shape] [cutoff] [max_manifold]")
+    print(f"usage: {sys.argv[0]} [test?] [scar?] [lattice_shape] [cutoff] [max_manifold]")
     exit()
 
 # determine whether this is a test run
@@ -23,9 +23,15 @@ if "test" in sys.argv:
     sys.argv.remove("test")
 else:
     test_run = False
-cutoff_text = sys.argv[2]
+# determine whether to project the initial state |X> onto the "scar manifold"
+if "scar" in sys.argv:
+    scar_proj = True
+    sys.argv.remove("scar")
+else:
+    scar_proj = False
 
 lattice_shape = tuple(map(int, sys.argv[1].split("x")))
+cutoff_text = sys.argv[2]
 cutoff = float(cutoff_text) # range of square-well interaction (in units of lattice spacing)
 max_manifold = int(sys.argv[3])
 
@@ -227,47 +233,79 @@ collective_ops["++"] = collective_ops["+"] @ collective_ops["+"]
 collective_ops["+Z"] = collective_ops["+"] @ collective_ops["Z"]
 collective_ops["+-"] = collective_ops["+"] @ collective_ops["+"].conj().T
 
+##########################################################################################
+# diagonalize the Hamiltonian within each Z-projection manifold
+##########################################################################################
+print(runtime(), "identifying Hamiltonian spectrum")
+sys.stdout.flush()
+
+energies_file = data_dir + f"energies_{name_tag}.txt"
+eig_states_file = data_dir + f"eig_states_{name_tag}.txt"
+
+try:
+    print(runtime(), "attempting to import Hamiltonian spectrum... ", end = "")
+    with open(energies_file,"r") as file:
+        for line in file:
+            energies_shape = list(map(int,line.split()[1:]))
+            break
+    with open(eig_states_file,"r") as file:
+        for line in file:
+            eig_states_shape = list(map(int,line.split()[1:]))
+            break
+    energies = np.loadtxt(energies_file, dtype = float).reshape(energies_shape)
+    eig_states = np.loadtxt(eig_states_file, dtype = complex).reshape(eig_states_shape)
+    print("success!")
+
+except:
+    print("failed!")
+    print(runtime(), "computing Hamiltonian spectrum")
+    sys.stdout.flush()
+
+    # energies and energy eigenstates within each sector of fixed spin projection
+    energies = np.zeros( ( shell_num, spin_num+1 ) )
+    eig_states = np.zeros( ( shell_num, shell_num, spin_num+1 ), dtype = complex )
+
+    for spins_up in range(spin_num+1):
+        # construct the Hamiltonian at this Z projection, from SU(n) + ZZ couplings
+        _proj_hamiltonian = np.diag(sunc["energies"]) - shell_coupling_op[:,:,spins_up]
+
+        # diagonalize the net Hamiltonian at this Z projection
+        energies[:,spins_up], eig_states[:,:,spins_up] = np.linalg.eigh(_proj_hamiltonian)
+
+        spins_dn = spin_num - spins_up
+        if spins_up >= spins_dn: break
+        energies[:,spins_dn], eig_states[:,:,spins_dn] \
+            = energies[:,spins_up], eig_states[:,:,spins_up]
+
+    np.savetxt(data_dir + f"energies_{name_tag}.txt", energies.ravel(),
+               header = " ".join(map(str,energies.shape)))
+    np.savetxt(data_dir + f"eig_states_{name_tag}.txt", eig_states.ravel(),
+               header = " ".join(map(str,eig_states.shape)))
+
 # if this is a test run, we can exit now
 if test_run: exit()
-
-##########################################################################################
-# methods to build states (and energies)
-##########################################################################################
-
-# energies and energy eigenstates within each sector of fixed spin projection
-energies = np.zeros( ( shell_num, spin_num+1 ) )
-eig_states = np.zeros( ( shell_num, shell_num, spin_num+1 ), dtype = complex )
-
-for spins_up in range(spin_num+1):
-    # construct the Hamiltonian at this Z projection, from SU(n) + ZZ couplings
-    _proj_hamiltonian = np.diag(sunc["energies"]) - shell_coupling_op[:,:,spins_up]
-
-    # diagonalize the net Hamiltonian at this Z projection
-    energies[:,spins_up], eig_states[:,:,spins_up] = np.linalg.eigh(_proj_hamiltonian)
-
-    spins_dn = spin_num - spins_up
-    if spins_up >= spins_dn: break
-    energies[:,spins_dn], eig_states[:,:,spins_dn] \
-        = energies[:,spins_up], eig_states[:,:,spins_up]
-
-# coherent spin state
-def coherent_spin_state(vec):
-    zero_shell = np.zeros(shell_num)
-    zero_shell[0] = 1
-    return np.outer(zero_shell, coherent_state_PS(vec,spin_num))
 
 ##########################################################################################
 # simulate!
 ##########################################################################################
 
+# coherent spin state pointing along X
+zero_shell = np.zeros(shell_num)
+zero_shell[0] = 1
+state_X_0 = coherent_spin_state([0,1,0],spin_num)
+state_X = np.outer(zero_shell, state_X_0)
+
 chi_eff_bare = sunc["mat"].sum() / (spin_num * (spin_num-1))
-state_X = coherent_spin_state([0,1,0])
+if scar_proj:
+    args = ( eig_states[:,0,:], eig_states.conj()[:,0,:], state_X )
+    state_X = np.einsum("sz,Sz,Sz->sz", *args)
+    name_tag += "_scar"
 
 def _states(initial_state, times):
-    init_state_eig = np.einsum("Ssz,Sz->sz", eig_states, initial_state)
+    init_state_eig = np.einsum("sez,sz->ez", eig_states, initial_state)
     phases = np.exp(-1j * np.tensordot(times, energies, axes = 0))
     evolved_eig_states = phases * init_state_eig[None,:,:]
-    return np.einsum("sSz,tSz->tsz", eig_states, evolved_eig_states)
+    return np.einsum("sez,tez->tsz", eig_states, evolved_eig_states)
 
 def simulate(sim_time = None, max_tau = 2, points = 500):
     # determine how long to simulate
