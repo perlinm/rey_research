@@ -119,7 +119,7 @@ Other works provide insightful discussions into the problem of spin qudit tomogr
 We address these shortcomings in this work, and identify remaining avenues for refining spin qudit tomography protocols.
 
 In Section \ref{sec:polarization_ops}, we introduce a set of qudit operators that are closely related to the spherical harmonics, and which play a central role in our work.
-We then map the quantum problem of spin qudit tomography onto the classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby providing an interesting new perspective on spin qudit tomography.
+We then map the quantum problem of spin qudit tomography onto the classical problem of signal recovery on the sphere in Section \ref{sec:signal_recovery}, thereby providing an intuitive perspective on spin qudit tomography.
 In Section \ref{sec:error} we provide a priori upper bounds and a posteriori estimates of the statistical error in a qudit state reconstructed from measurements of spin projection along a given set of $r$ measurement axes.
 The capability to determine upper bounds on reconstruction error a priori motivates a simple randomized tomography protocol that we outline in Section \ref{sec:protocol}, and for which we numerically find that using more measurement axes yields substantial benefits that plateau after $r\approx3d$.
 To facilitate the use of our protocols, we make all of our codes publicly available at Ref.~\cite{tomo_codes}, which also contains the best measurement axes we found for $d\le30$ and $r=3d$.
@@ -191,11 +191,11 @@ The phase-space representation of a spin qudit operator $X$ assigns, to each poi
 \end{align}
 where $\ket{s_{\bm v}}\equiv R\p{\bm v}\ket{s}$ is the state of a spin qudit polarized along $\bm v$.
 This representation is faithful in the sense that $X$ is uniquely determined by the phase-space values $X^{\t{PS}}\p{\bm v}$ at all points $\bm v$ on the sphere.
-The transformation rules for polarization operators in Eq.~\eqref{eq:trans_rot}, together with the fact that $\bk{s|T_{\ell m}|s}=0$ unless $m=0$, suffice to show that (see Appendix \ref{sec:rotations})
+The transformation rules for polarization operators in Eq.~\eqref{eq:trans_rot}, together with the fact that $\bk{s|T_{\ell m}|s}=0$ unless $m=0$, suffice to show that
 \begin{align}
   T_{\ell m}^{\t{PS}}\p{\bm v} = c_\ell Y_{\ell m}\p{\bm v},
 \end{align}
-where the scalar $c_\ell$ simply enforces $\obk{T_{\ell m}|T_{\ell m}}=1$.
+where the scalar $c_\ell$ simply enforces $\obk{T_{\ell m}|T_{\ell m}}=1$ (see Appendix \ref{sec:rotations}).
 The polarization operators $T_{\ell m}$ are thus a quantum analogue of the spherical harmonics $Y_{\ell m}$, and play an important role in phase-space formalisms for spin qudits \cite{li2013weylwignermoyal}.
 
 As a special case, the phase-space representation $\rho^{\t{PS}}$ of a spin qudit state $\rho$ is commonly known as its Husimi distribution.
@@ -294,7 +294,7 @@ Flattening each $d\times d$ matrix $T_{\bm v\ell,0}$ into the $d^2$-component co
   \label{eq:meas_mat}
 \end{align}
 Here $\bm v$ and $\ell$ label a row of $M_V$, or equivalently label a standard (``one-hot'') basis vector $\ket{\bm v\ell}$ of a $\p{\abs{V}\times d}$-dimensional vector space, and $\obra{T_{\bm v\ell,0}}$ is the conjugate transpose of $\oket{T_{\bm v\ell,0}}$.
-A necessary and sufficient condition for $V$ to allow for full state tomography is that the measured polarization operators $T_{\bm v\ell,0}$, or equivalently the columns of $M_V$, span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit.
+A necessary and sufficient condition for $V$ to allow for full state tomography is that the measured polarization operators $T_{\bm v\ell,0}$, or equivalently the rows of $M_V$, span the entire ($d^2$-dimensional) space of operators on a $d$-level spin qudit.
 In this case $M_V$ must be full rank, with $d^2$ nonzero singular values.
 Indexing these singular values $M^V_k$ and the corresponding (normalized) left singular vectors $\bm x^V_k\equiv \sum_j x^V_{kj} \ket{j}$ by an integer $k\in\set{1,2,\cdots,d^2}$, we can construct the orthonormal qudit operators
 \begin{align}
@@ -314,7 +314,7 @@ Given empirical estimates $\tilde T_j$ of the expectation values $\bk{T_j}_\rho$
   \tilde\rho_V \equiv \sum_k \tilde\rho^V_k Q^V_k,
   \label{eq:reconstructed_state}
 \end{align}
-where, using the fact that $T_j=T_j^\dag$ (because they are diagonal, degree $m=0$ polarization operators),
+where, using the fact that $T_j=T_j^\dag$ (because they are diagonal polarization operators with degree $m=0$),
 \begin{align}
   \tilde\rho^V_k \equiv \sum_j q^V_{kj} \tilde T_j
   \approx \sum_j q^V_{kj} \bk{T_j}_\rho
@@ -394,7 +394,7 @@ If we assume that $\abs{V}\sim d$, then computing the classical error scale $\S_
 \end{figure}
 
 The assumption that observables can be estimated up to uncorrelated noise with maximal variance $\epsilon^2$, summarized by Eq.~\eqref{eq:error_assumption}, is reasonable when measurement error is dominated by classical sources of experimental noise.
-However, this assumption breaks down when measurement error is limited by fundamental quantum (shot) noise.
+However, this assumption breaks down when measurement error is limited by fundamental quantum shot noise (i.e.~finite sampling error).
 We relax the assumption of Eq.~\eqref{eq:error_assumption} in Appendix \ref{sec:bound}, where we instead assume that $\tilde\rho_V$ is built from $n$ independent measurements of spin projection along every axis $\bm v\in V$, with shot noise the dominant source of error.
 In this case, the constraints that $\tr\p\rho=1$ and $\bk{\Pi_{\bm v\mu}}_\rho\ge0$ allow us to bound the mean squared distance between $\tilde\rho_V$ and $\rho$ as
 \begin{align}
@@ -403,7 +403,7 @@ In this case, the constraints that $\tr\p\rho=1$ and $\bk{\Pi_{\bm v\mu}}_\rho\g
   \epsilon_V^2 \equiv \sum_\ell \Gamma_\ell^2 \S_{V\ell}^2,
   \label{eq:bound}
 \end{align}
-where the {\it quantum error scale} $\epsilon_V$, so called because the bound in Eq.~\eqref{eq:bound} is set by quantum shot noise, is defined in terms of the spectral range of $T_{\ell,0}$:
+where the {\it quantum error scale} $\epsilon_V$ is defined in terms of the spectral range of $T_{\ell,0}$:
 \begin{align}
   \Gamma_\ell \equiv \f{\max_\mu t_{\ell\mu} - \min_\mu t_{\ell\mu}}{2},
   &&
@@ -415,9 +415,9 @@ The factors $\Gamma_\ell^2$ are quick to compute and can be recycled for every n
 
 Though straightforward to compute, the bound in Eq.~\eqref{eq:bound} is not tight, as it is acquired by bounding the statistical error $\epsilon_{\bm v\ell}$ in the empirical estimate $\tilde T_{\bm v\ell,0}$ of $\bk{T_{\bm v\ell,0}}_\rho$ by $\bbk{\epsilon_{\bm v\ell}^2}\le\Gamma_\ell^2$.
 The individual bounds on $\bbk{\epsilon_{\bm v\ell}^2}$ for each axis $\bm v$ and degree $\ell$ are tight, but these bounds cannot all be achieved simultaneously.
-There is therefore still room for improvement on the bound in Eq.~\eqref{eq:bound} by maximizing $\E_V$ over the set of all qudit states $\rho$.
+There is therefore still room for improvement on the bound in Eq.~\eqref{eq:bound} by maximizing $\E_V$ over the set of all physical qudit states $\rho$.
 We discuss this maximization problem in Appendix \ref{sec:exact}, but leave its full solution to future work.
-We also note that the (squared) reconstruction error bound in Eq.~\eqref{eq:bound} obeys the ``standard quantum limit'' of $\sim1/n$ scaling in the number of measurements.
+We also note that the reconstruction error bound in Eq.~\eqref{eq:bound} obeys the ``standard quantum limit'' of $\sim1/n$ scaling in the number of measurements.
 In principle, this scaling can be improved to $\sim1/n^2$ by preparing and measuring entangled copies of many qudits \cite{giovannetti2006quantum}.
 
 The error scales $\S_V$ and $\epsilon_V$ provide pessimistic upper bounds on statistical error, which can be calculated without prior knowledge of the true qudit state $\rho$.
@@ -469,12 +469,12 @@ If $\abs{V}$ is too large for such optimization, you can simply generate many se
 Note that computing the error scale $\epsilon_V$ requires, for each $\ell\in\set{0,1,\cdots,d-1}$, constructing the measurement matrix $M_{V\ell}$ in Eq.~\eqref{eq:block} and computing its singular value decomposition.
 Save all measurement matrix data associated with the final measurement axes $V$ for later use.
 \item For each axis $\bm v\in V$, make $n$ measurements of spin projection, and set $\tilde\Pi_{\bm v\mu}\approx\bk{\Pi_{\bm v\mu}}_\rho$ to the fraction of times in which the measurement outcome was $\mu$.
-\item Use the the estimates $\tilde\Pi_{\bm v\mu}$ of $\bk{\Pi_{\bm v\mu}}_\rho$ to compute the estimates
+\item Use the the estimates $\tilde\Pi_{\bm v\mu}$ of $\bk{\Pi_{\bm v\mu}}_\rho$ to compute estimates of $\bk{T_{\bm v\ell,0}}_\rho$,
 \begin{align}
   \tilde T_{\bm v\ell,0}
-  \equiv \sum_\mu \bk{\mu|T_{\ell,0}|\mu} \tilde\Pi_{\bm v\mu}
+  \equiv \sum_\mu \bk{\mu|T_{\ell,0}|\mu} \tilde\Pi_{\bm v\mu},
 \end{align}
-of $\bk{T_{\bm v\ell,0}}_\rho$, where the matrix elements of $T_{\ell,0}$ are provided in Eq.~\eqref{eq:trans_op}.
+where the matrix elements of $T_{\ell,0}$ are provided in Eq.~\eqref{eq:trans_op}.
 \item Denoting the nonzero singular values of $M_{V\ell}$ by $M^V_{\ell k}$ and the corresponding left singular vectors by $\bm x^V_{\ell k} = \sum_{\bm v} x^V_{\ell k \bm v} \ket{\bm v}$, compute the  operators and coefficients
 \begin{align}
   Q_{\ell k} &\equiv \f1{M^V_{\ell k}} \sum_{\bm v}
@@ -521,13 +521,16 @@ In the interest of reducing experimental complexity as well as the runtime of ou
 We provide the best measurement axes that we found for a randomized tomography protocol with $d\le30$ and $\abs{V}=3d$ in Ref.~\cite{tomo_codes}.
 
 For reference, Figure \ref{fig:axes} also shows the smallest measurement-adjusted error scales $\beta_\theta$ achievable with the method of Ref.~\cite{newton1968measurability}, which is comparable to those achieved with our randomized protocol at $\abs{V}\approx3d$.
-The method of Ref.~\cite{newton1968measurability} requires choosing an angle $\theta$, and provides no prescription for making this choice.
+The method of Ref.~\cite{newton1968measurability} requires choosing an angle $\theta$, namely the polar angle of all measurement axes, and provides no prescription for making this choice.
 We therefore find the optimal choice of $\theta$ by minimizing the error scale $\beta_\theta$ over all $\theta$ (see Appendix \ref{sec:angle_search}), and show $\min\beta_\theta/\tilde\beta(0)$ in Figure \ref{fig:axes}.
-Empirically, we find that the optimal angle for the method of Ref.~\cite{newton1968measurability} is $\theta_{\t{opt}}\approx\frac{\pi}{2}(1 - \frac1{1.34d})$ (see Appendix \ref{sec:angle_search}), although we note that a randomized tomography protocol is likely more robust to errors in axis orientation because measurement axes are generally more spaced out.
-We leave the question of robustness to errors in axis orientation and the effect of these errors on state reconstruction error to future work.
+Empirically, we find that the optimal angle for the method of Ref.~\cite{newton1968measurability} is $\theta_{\t{opt}}\approx\frac{\pi}{2}(1-\frac1{1.34d})$ (see Appendix \ref{sec:angle_search}), which approaches $\pi/2$ as $d\to\infty$.
+However, the error scale $\beta_{\pi/2}=\infty$, reflecting the fact that full state tomography is impossible with measurement axes lying in a single plane.
+The method of Ref.~\cite{newton1968measurability} therefore requires extremely careful fine-tuning of measurement axis orientations for large spin dimensions.
+For this reason, we expect our randomized tomography protocol be be more robust to errors in axis orientation.
+We leave a detailed analysis of robustness to errors in axis orientation and the effect of these errors on state reconstruction to future work.
 
 As a final point, we note that any information about an unknown qudit state $\rho$, obtained from prior knowledge or preliminary measurement data, can be used to construct tailored or adaptive measurement protocols \cite{huszar2012adaptive, ferrie2014selfguided, granade2016practical, pereira2018adaptive} that are more efficient in terms of the number of measurements required to estimate $\rho$ to a fixed precision.
-We leave the development of tailored and adaptive measurement protocols to future work.
+We leave the development of tailored and adaptive measurement protocols to future work as well.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{acknowledgments}
@@ -537,7 +540,6 @@ This work is supported  by the DARPA DRINQs grant, the ARO single investigator a
 
 \bibliography{spin_qudit_tomo.bib}
 \onecolumngrid
-\newpage
 \appendix
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
