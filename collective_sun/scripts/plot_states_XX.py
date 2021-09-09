@@ -119,19 +119,18 @@ for spins_up in range(spin_num//2+1):
 
 plt.figure("spect")
 plt.tight_layout()
-# plt.savefig(fig_dir + f"spect_{name_tag}.pdf")
+plt.savefig(fig_dir + f"spect_{name_tag}.pdf")
 
 plt.figure("spect_X")
 plt.tight_layout()
-# plt.savefig(fig_dir + f"spect_X_{name_tag}.pdf")
+plt.savefig(fig_dir + f"spect_X_{name_tag}.pdf")
 
 plt.figure("SS")
 plt.ylim(0,1)
 plt.tight_layout()
-# plt.savefig(fig_dir + f"SS_{name_tag}.pdf")
+plt.savefig(fig_dir + f"SS_{name_tag}.pdf")
 
 plt.figure("SS_X")
 plt.ylim(0,1)
 plt.tight_layout()
-# plt.savefig(fig_dir + f"SS_X_{name_tag}.pdf")
-plt.show()
+plt.savefig(fig_dir + f"SS_X_{name_tag}.pdf")
