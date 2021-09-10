@@ -55,8 +55,9 @@ plt.ylim(y_btm_new, 1.3)
 plt.tight_layout()
 
 plt.figure()
+norm = pops.sum(axis = 1)
 for manifold, shells in manifold_shells.items():
-    plt.plot(times, pops[:,shells].sum(axis = 1), label = manifold)
+    plt.plot(times, pops[:,shells].sum(axis = 1)/norm, label = manifold)
 plt.xlabel("time")
 plt.ylabel("population")
 plt.legend()
