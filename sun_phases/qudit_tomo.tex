@@ -97,8 +97,8 @@ The central importance of quantum state tomography has led to the development of
 These techniques are typically developed in a general, information-theoretic setting, and make minimal assumptions about the physical medium of a quantum state.
 As a consequence, even well-established techniques can be ill-suited for physical platforms with unique or limited capabilities.
 
-Due to advancements in experimental capabilities to address nuclear spin states (i.e.~hyperfine levels) in ultracold atomic systems \cite{daley2011quantum, lu2011strongly, mischuck2012control, aikawa2012boseeinstein, smith2013quantum, cazalilla2014ultracold}, as well as developments in the control of ultracold molecular systems \cite{bohn2017cold, takekoshi2014ultracold, zeppenfeld2012sisyphus, kozyryev2017sisyphus, puri2017synthesis, wu2017cryofuge, marco2019degenerate, liu2019molecular, anderegg2019optical, chou2020frequencycomb, lin2020quantum}, a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.  Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{hemmer2018squeezing, evrard2019enhanced}, enable quantum simulations of SU($d$) magnetism \cite{cazalilla2014ultracold, banerjee2013atomic, zhang2014spectroscopic, scazza2014observation, goban2018emergence}, % todo: cite SU(n) spin model paper!
-and offer unique capabilities for quantum computation and error correction \cite{albert2020robust, gross2021designing, barnes2021assembly}.
+Due to advancements in experimental capabilities to address nuclear spin states (i.e.~hyperfine levels) in ultracold atomic systems \cite{daley2011quantum, lu2011strongly, mischuck2012control, aikawa2012boseeinstein, smith2013quantum, cazalilla2014ultracold}, as well as developments in the control of ultracold molecular systems \cite{bohn2017cold, takekoshi2014ultracold, zeppenfeld2012sisyphus, kozyryev2017sisyphus, puri2017synthesis, wu2017cryofuge, marco2019degenerate, liu2019molecular, anderegg2019optical, chou2020frequencycomb, lin2020quantum}, a particular setting of growing interest is the spin qudit, or a multilevel quantum angular momentum degree of freedom.
+Spin qudits can provide advantages over their qubit counterparts for quantum sensing \cite{hemmer2018squeezing, evrard2019enhanced}, enable quantum simulations of SU($d$) magnetism \cite{cazalilla2014ultracold, banerjee2013atomic, zhang2014spectroscopic, scazza2014observation, goban2018emergence, perlin2021engineering}, and offer unique capabilities for quantum computation and error correction \cite{albert2020robust, gross2021designing, barnes2021assembly}.
 In all cases, quantum state tomography is necessary to take full advantage of a spin qudit\footnote{Note that the measurement of collective observables for quantum sensing or simulation can be recast as a single-spin tomography task.}.
 
 The problem of qudit tomography is not new, with an extensive literature on a variety of techniques \cite{newton1968measurability, hofmann2004quantumstate, filippov2010inverse, schmied2011tomographic, evrard2019enhanced, flammia2005minimal, thew2002qudit, salazar2012quantum, sosa-martinez2017quantum, ha2018minimal, stefano2019set, palici2020oam}.
@@ -236,7 +236,7 @@ for all $\ell$.
   \centering
   \includegraphics[width=0.4\columnwidth]{sphere_points.pdf}
   \caption{Signal recovery on the sphere is the problem of reconstructing an unknown function $f$ (red distribution) from its values $f\p{\bm v}$ at specific points $\bm v\in V$ (blue dots) on the sphere.
-    For most choices of $V$, reconstruction of $f$ is possible if there are at least as many points in $V$ as there are degrees of freedom in $f$.}
+    For almost all choices of $V$, reconstruction of $f$ is possible if there are at least as many points in $V$ as there are degrees of freedom in $f$.}
   \label{fig:sphere_points}
 \end{figure}
 
