@@ -103,7 +103,8 @@ except ModuleNotFoundError:
         return plt.cm.get_cmap("inferno")(color_vals)
 
 def plot_dicke_state(state, grid_size = 101, single_sphere = False, figsize = None,
-                     rasterized = True, view_angles = [0,0], shade = True):
+                     rasterized = True, view_angles = [0,0], shade = True,
+                     color_max = None):
     spin_num = state.shape[0]-1
     if figsize is None:
         figsize = plt.figaspect( 1 if single_sphere else 0.5 )
@@ -122,7 +123,10 @@ def plot_dicke_state(state, grid_size = 101, single_sphere = False, figsize = No
         else:
             return np.einsum("i,ij,j->", angle_state.conjugate(), state, angle_state).real
     color_vals = np.vectorize(color_val)(theta, phi)
-    vmax = np.max(abs(color_vals))
+    if color_max:
+        vmax = color_max
+    else:
+        vmax = np.max(abs(color_vals))
     norm = colors.Normalize(vmax = vmax, vmin = -vmax, clip = False)
     color_map = sphere_cmap(norm(color_vals))
 

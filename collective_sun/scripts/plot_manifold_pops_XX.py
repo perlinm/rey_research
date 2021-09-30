@@ -21,7 +21,7 @@ data_dir = "../data/shells_XX/"
 partial_dir = data_dir + "partial/"
 fig_dir = "../figures/shells_XX/"
 
-name_tag = f"L*_c*_M{max_manifold}"
+name_tag = f"L*_r*_M{max_manifold}"
 
 ############################################################
 # population of |X> within the scar-state manifold
@@ -32,13 +32,13 @@ lines = [None]*3
 plt.figure(figsize = (3,2))
 
 for file in glob.glob(data_dir + f"scar_pop_X_{name_tag}.txt"):
-    cutoff = int(file.split("_")[-2][1:])
+    radius = int(file.split("_")[-2][1:])
     lattice_shape = file.split("_")[-3][1:]
     spin_num = np.prod([ int(size) for size in lattice_shape.split("x") ])
     pop = np.loadtxt(file)
-    lines[cutoff-1] = plt.plot(spin_num, pop, "k" + markers[cutoff])[0]
+    lines[radius-1] = plt.plot(spin_num, pop, "k" + markers[radius])[0]
 
-labels = [ r"$r_\mathrm{b}=" + f"{cutoff}$" for cutoff in markers.keys() ]
+labels = [ r"$r_\mathrm{b}=" + f"{radius}$" for radius in markers.keys() ]
 kwargs = dict( loc = "best", handlelength = 0.5, labelspacing = 0.3 )
 plt.legend(lines, labels, **kwargs)
 
@@ -61,7 +61,7 @@ colors = { 0 : "tab:blue",
 plt.figure(figsize = (3.5,2))
 
 for file in glob.glob(data_dir + f"sim_{name_tag}_scar.txt"):
-    cutoff = int(file.split("_")[-3][1:])
+    radius = int(file.split("_")[-3][1:])
     lattice_shape = file.split("_")[-4][1:]
     spin_num = np.prod([ int(size) for size in lattice_shape.split("x") ])
 
@@ -80,7 +80,7 @@ for file in glob.glob(data_dir + f"sim_{name_tag}_scar.txt"):
     manifold_pops = { manifold : shell_pops[shells].sum()/norm
                       for manifold, shells in manifold_shells.items() }
     for manifold, pop in manifold_pops.items():
-        kwargs = dict( marker = markers[cutoff], color = colors[manifold],
+        kwargs = dict( marker = markers[radius], color = colors[manifold],
                        zorder = manifold )
         plt.plot(spin_num, pop, **kwargs)
 

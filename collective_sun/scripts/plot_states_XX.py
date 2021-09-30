@@ -13,12 +13,12 @@ params = { "font.size" : 12,
 plt.rcParams.update(params)
 
 if len(sys.argv) != 4:
-    print(f"usage: {sys.argv[0]} [lattice_shape] [cutoff] [max_manifold]")
+    print(f"usage: {sys.argv[0]} [lattice_shape] [radius] [max_manifold]")
     exit()
 
 lattice_shape = tuple(map(int, sys.argv[1].split("x")))
-cutoff_text = sys.argv[2]
-cutoff = float(cutoff_text) # range of square-well interaction (in units of lattice spacing)
+radius_text = sys.argv[2]
+radius = float(radius_text) # range of square-well interaction (in units of lattice spacing)
 max_manifold = int(sys.argv[3])
 
 data_dir = "../data/shells_XX/"
@@ -26,7 +26,7 @@ partial_dir = data_dir + "partial/"
 fig_dir = "../figures/shells_XX/"
 
 lattice_name = "x".join([ str(size) for size in lattice_shape ])
-name_tag = f"L{lattice_name}_c{cutoff_text}_M{max_manifold}"
+name_tag = f"L{lattice_name}_r{radius_text}_M{max_manifold}"
 
 lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)
