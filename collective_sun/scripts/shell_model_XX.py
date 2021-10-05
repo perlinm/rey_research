@@ -13,8 +13,8 @@ from operator_product_methods import build_shell_operator
 
 np.set_printoptions(linewidth = 200)
 
-if len(sys.argv) < 4:
-    print(f"usage: {sys.argv[0]} [test?] [scar?] [lattice_shape] [radius] [max_manifold]")
+if len(sys.argv) < 5:
+    print(f"usage: {sys.argv[0]} [test?] [scar?] [lattice_shape] [radius] [alpha] [max_manifold]")
     exit()
 
 # determine whether this is a test run
@@ -31,9 +31,15 @@ else:
     scar_proj = False
 
 lattice_shape = tuple(map(int, sys.argv[1].split("x")))
-radius_text = sys.argv[2]
-radius = float(radius_text) # range of square-well interaction (in units of lattice spacing)
-max_manifold = int(sys.argv[3])
+radius_text = sys.argv[2] # blockade radius
+alpha_text = sys.argv[3] # power-law coefficient
+max_manifold = int(sys.argv[4])
+
+radius = float(radius_text)
+if alpha_text == "inf":
+    alpha = np.inf
+else:
+    alpha = int(alpha_text)
 
 max_time = 10 # in units of the coupling strength
 ivp_tolerance = 1e-10 # error tolerance in the numerical integrator
@@ -42,7 +48,7 @@ data_dir = "../data/shells_XX/"
 partial_dir = "../data/shells_XX/partial/" # directory for storing partial results
 
 lattice_name = "x".join([ str(size) for size in lattice_shape ])
-name_tag = f"L{lattice_name}_r{radius_text}_M{max_manifold}"
+name_tag = f"L{lattice_name}_r{radius_text}_a{alpha_text}_M{max_manifold}"
 
 ##################################################
 
@@ -68,7 +74,8 @@ dist = dist_method(lattice_shape)
 sunc = {}
 sunc["mat"] = np.zeros((spin_num,spin_num))
 for pp, qq in it.combinations(range(spin_num),2):
-    sunc["mat"][pp,qq] = sunc["mat"][qq,pp] = -1 if dist(pp,qq) <= radius else 0
+    coupling = -1 / ( 1 + (dist(pp,qq)/radius)**alpha )
+    sunc["mat"][pp,qq] = sunc["mat"][qq,pp] = coupling
 sunc["TI"] = True
 
 # build generators of interaction eigenstates (and associated data)
