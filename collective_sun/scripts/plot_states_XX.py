@@ -12,21 +12,27 @@ params = { "font.size" : 12,
            "text.latex.preamble" : r"\usepackage{braket,bm}" }
 plt.rcParams.update(params)
 
-if len(sys.argv) != 4:
-    print(f"usage: {sys.argv[0]} [lattice_shape] [radius] [max_manifold]")
+if len(sys.argv) != 5:
+    print(f"usage: {sys.argv[0]} [lattice_shape] [radius] [alpha] [max_manifold]")
     exit()
 
 lattice_shape = tuple(map(int, sys.argv[1].split("x")))
-radius_text = sys.argv[2]
-radius = float(radius_text) # range of square-well interaction (in units of lattice spacing)
-max_manifold = int(sys.argv[3])
+radius_text = sys.argv[2] # blockade radius
+alpha_text = sys.argv[3] # power-law coefficient
+max_manifold = int(sys.argv[4])
+
+radius = float(radius_text)
+if alpha_text == "inf":
+    alpha = np.inf
+else:
+    alpha = int(alpha_text)
 
 data_dir = "../data/shells_XX/"
 partial_dir = data_dir + "partial/"
 fig_dir = "../figures/shells_XX/"
 
 lattice_name = "x".join([ str(size) for size in lattice_shape ])
-name_tag = f"L{lattice_name}_r{radius_text}_M{max_manifold}"
+name_tag = f"L{lattice_name}_r{radius_text}_a{alpha_text}_M{max_manifold}"
 
 lattice_dim = len(lattice_shape)
 spin_num = np.product(lattice_shape)

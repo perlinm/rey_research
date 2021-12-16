@@ -223,7 +223,7 @@ shifts_total = shifts_1 + shifts_2 + shifts_3_3 + shifts_3_4
 # total potential error from renormalization
 errs_ren \
     = ( shifts_1 + shifts_2 + shifts_3_3 + shifts_3_4 ) \
-    - ( err_shifts_1 + err_shifts_2 + err_shifts_3_3 + err_shifts_3_4 ) )
+    - ( err_shifts_1 + err_shifts_2 + err_shifts_3_3 + err_shifts_3_4 )
 
 ##########################################################################################
 # reading / writing interaction energies
@@ -487,7 +487,7 @@ plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 
 plt.xlabel("Detuning $\Delta$ ($2\pi$ kHz)")
-plt.ylabel(r"Lattice depth $\mathcal{U}$ ($E_R$)")
+plt.ylabel(r"Lattice depth $V$ ($E_\mathrm{R}$)")
 
 # legend
 plt.plot([], [], "k.", label = r"Experiment")
@@ -514,7 +514,7 @@ plt.gca().text(peaks[6]-0.00*HR, depths[-1]+0.08*VR, r"$3^+$", color = colors[2]
 plt.gca().text(peaks[7]-0.00*HR, depths[-1]+0.08*VR, r"$4^+$", color = colors[3])
 plt.gca().text(peaks[8]-0.02*HR, depths[-1]+0.08*VR, r"$5^+$", color = colors[4])
 
-plt.tight_layout(rect = (0,0,1,0.95))
+plt.tight_layout(pad = 0.1)
 if save:
     plt.savefig(fig_dir + "shifts_summary.pdf")
     plt.close()

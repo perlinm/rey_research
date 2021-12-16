@@ -14,7 +14,8 @@ from ising_squeezing import ising_squeezing_optimum, ising_minimal_SS
 np.set_printoptions(linewidth = 200)
 
 data_dir = "../data/"
-fig_dir = "../figures/XXZ/"
+# fig_dir = "../figures/XXZ/"
+fig_dir = "./tmp/"
 
 params = { "font.size" : 9,
            "text.usetex" : True,
@@ -156,274 +157,274 @@ def shade_exclusions(axis = None):
 ##################################################
 # make TS_4 population plot
 
-plt.figure(figsize = (3,1.8))
-for idx, pops in enumerate(max_pops.T):
-    plt.plot(zz_coupling, pops, ".", label = pop_label(idx+1))
-shade_exclusions()
-plt.xticks(shell_xticks)
-plt.xlabel(label_zz)
-plt.ylabel("population")
-plt.legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.63,0.67))
-plt.tight_layout(pad = 0.2)
-plt.savefig(fig_dir + f"populations_{name_tag}.pdf")
+# plt.figure(figsize = (3,1.8))
+# for idx, pops in enumerate(max_pops.T):
+#     plt.plot(zz_coupling, pops, ".", label = pop_label(idx+1))
+# shade_exclusions()
+# plt.xticks(shell_xticks)
+# plt.xlabel(label_zz)
+# plt.ylabel("population")
+# plt.legend(loc = "center", handlelength = 0.5, bbox_to_anchor = (0.63,0.67))
+# plt.tight_layout(pad = 0.2)
+# plt.savefig(fig_dir + f"populations_{name_tag}.pdf")
 
-plt.close("all")
-##################################################
-# make DTWA benchmarking plot
+# plt.close("all")
+# ##################################################
+# # make DTWA benchmarking plot
 
-max_SS = spin_num/2 * (spin_num/2+1)
+# max_SS = spin_num/2 * (spin_num/2+1)
 
-figsize = (6,1.8)
-figure, axes = plt.subplots(1, 2, figsize = figsize, sharex = True)
+# figsize = (6,1.8)
+# figure, axes = plt.subplots(1, 2, figsize = figsize, sharex = True)
 
-# plot shell model results
-axes[0].plot(zz_coupling, to_dB(min_sqz), "k.", label = "TS$_4$")
-axes[1].plot(zz_coupling, min_SS / max_SS, "k.")
+# # plot shell model results
+# axes[0].plot(zz_coupling, to_dB(min_sqz), "k.", label = "TS$_4$")
+# axes[1].plot(zz_coupling, min_SS / max_SS, "k.")
 
-# plot DTWA results
-name_tag_dtwa = make_name_tag(lattice_text, alpha, "dtwa")
-zz_coupling, min_sqz_dB, min_SS_normed \
-    = np.loadtxt(data_dir + f"DTWA/optima/dtwa_{name_tag_dtwa}.txt", unpack = True)
-axes[0].plot(zz_coupling, -min_sqz_dB, "r.", label = "DTWA")
-axes[1].plot(zz_coupling, min_SS_normed, "r.")
+# # plot DTWA results
+# name_tag_dtwa = make_name_tag(lattice_text, alpha, "dtwa")
+# zz_coupling, min_sqz_dB, min_SS_normed \
+#     = np.loadtxt(data_dir + f"DTWA/optima/dtwa_{name_tag_dtwa}.txt", unpack = True)
+# axes[0].plot(zz_coupling, -min_sqz_dB, "r.", label = "DTWA")
+# axes[1].plot(zz_coupling, min_SS_normed, "r.")
 
-# reference: collective and Ising limits
-kwargs = { "color" : "k", "linestyle" : "--", "zorder" : 0 }
-_, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = periodic)
-axes[0].axhline(to_dB(sqz_OAT), **kwargs, label = "OAT")
-axes[1].axhline(1, **kwargs)
+# # reference: collective and Ising limits
+# kwargs = { "color" : "k", "linestyle" : "--", "zorder" : 0 }
+# _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = periodic)
+# axes[0].axhline(to_dB(sqz_OAT), **kwargs, label = "OAT")
+# axes[1].axhline(1, **kwargs)
 
-kwargs["linestyle"] = ":"
-_, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = periodic)
-_, min_SS_ising = ising_minimal_SS(sunc_mat, TI = periodic)
-axes[0].axhline(to_dB(sqz_ising), **kwargs, label = "Ising")
-axes[1].axhline(min_SS_ising/max_SS, **kwargs)
+# kwargs["linestyle"] = ":"
+# _, sqz_ising = ising_squeezing_optimum(sunc_mat, TI = periodic)
+# _, min_SS_ising = ising_minimal_SS(sunc_mat, TI = periodic)
+# axes[0].axhline(to_dB(sqz_ising), **kwargs, label = "Ising")
+# axes[1].axhline(min_SS_ising/max_SS, **kwargs)
 
-# tweak axis limits
-axes[0].set_ylim(bottom = np.floor(to_dB(sqz_ising)))
-axes[1].set_ylim(bottom = np.floor(min_SS_ising/max_SS * 10)/10)
-axes[0].set_xticks(shell_xticks)
+# # tweak axis limits
+# axes[0].set_ylim(bottom = np.floor(to_dB(sqz_ising)))
+# axes[1].set_ylim(bottom = np.floor(min_SS_ising/max_SS * 10)/10)
+# axes[0].set_xticks(shell_xticks)
 
-axes[0].set_xlabel(label_zz)
-axes[1].set_xlabel(label_zz)
-axes[0].set_ylabel(label_sqz_opt)
-axes[1].set_ylabel(label_SS_min)
-shade_exclusions(axes[0])
-shade_exclusions(axes[1])
-axes[0].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.6,0.45))
-plt.tight_layout(pad = 0.5)
-plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
+# axes[0].set_xlabel(label_zz)
+# axes[1].set_xlabel(label_zz)
+# axes[0].set_ylabel(label_sqz_opt)
+# axes[1].set_ylabel(label_SS_min)
+# shade_exclusions(axes[0])
+# shade_exclusions(axes[1])
+# axes[0].legend(loc = "center", handlelength = 1.7, bbox_to_anchor = (0.6,0.45))
+# plt.tight_layout(pad = 0.5)
+# plt.savefig(fig_dir + f"benchmarking_{name_tag}.pdf")
 
-plt.close("all")
-##########################################################################################
-# plot time-series data (DTWA)
+# plt.close("all")
+# ##########################################################################################
+# # plot time-series data (DTWA)
 
-def get_zz_coupling(file):
-    return float(file.split("_")[-1][1:-4])
+# def get_zz_coupling(file):
+#     return float(file.split("_")[-1][1:-4])
 
-def get_time_sqz_SS(file):
-    lattice_text = file.split("_")[-3][1:]
-    spin_num = np.prod([ int(dim) for dim in lattice_text.split("x") ])
-    file_data = np.loadtxt(file)
-    time = file_data[:,0]
-    sqz = -file_data[:,4]
-    norm_SS = ( file_data[:,11] * spin_num )**2 / ( spin_num/2 * (spin_num/2+1) )
-    return time, sqz, norm_SS
+# def get_time_sqz_SS(file):
+#     lattice_text = file.split("_")[-3][1:]
+#     spin_num = np.prod([ int(dim) for dim in lattice_text.split("x") ])
+#     file_data = np.loadtxt(file)
+#     time = file_data[:,0]
+#     sqz = -file_data[:,4]
+#     norm_SS = ( file_data[:,11] * spin_num )**2 / ( spin_num/2 * (spin_num/2+1) )
+#     return time, sqz, norm_SS
 
-def plot_sqz_SS(axes, name_tag, zz_lims, max_time = 10):
-    # collect all data files and identify range of ZZ couplings
-    name_format = data_dir + "DTWA/system_size/dtwa_" + name_tag + "*.txt"
-    data_files = sorted([ ( zz_coupling, file ) for file in glob.glob(name_format)
-                          if ( zz_coupling := get_zz_coupling(file) ) >= min(zz_lims)
-                          and zz_coupling <= max(zz_lims) ])[::-1]
-    zz_range = max(zz_lims) - min(zz_lims)
+# def plot_sqz_SS(axes, name_tag, zz_lims, max_time = 10):
+#     # collect all data files and identify range of ZZ couplings
+#     name_format = data_dir + "DTWA/system_size/dtwa_" + name_tag + "*.txt"
+#     data_files = sorted([ ( zz_coupling, file ) for file in glob.glob(name_format)
+#                           if ( zz_coupling := get_zz_coupling(file) ) >= min(zz_lims)
+#                           and zz_coupling <= max(zz_lims) ])[::-1]
+#     zz_range = max(zz_lims) - min(zz_lims)
 
-    # keep track of the (properly normalized) optimal squeezing time
-    opt_time = np.zeros(len(data_files))
+#     # keep track of the (properly normalized) optimal squeezing time
+#     opt_time = np.zeros(len(data_files))
 
-    # plot squeezing over time for all ZZ couplings
-    for idx, ( zz_coupling, file ) in enumerate(data_files):
-        color_val = ( zz_coupling - min(zz_lims) ) / zz_range
-        time, sqz, norm_SS = get_time_sqz_SS(file)
-        time_scale = abs( zz_coupling - 1 ) # rescale time by | J_z - J_perp |
-        axes[0].plot(time * time_scale, sqz, color = color_map_r(color_val))
-        axes[1].plot(time * time_scale, norm_SS, color = color_map_r(color_val))
-        opt_time[idx] = time[sqz.argmax()] * time_scale
+#     # plot squeezing over time for all ZZ couplings
+#     for idx, ( zz_coupling, file ) in enumerate(data_files):
+#         color_val = ( zz_coupling - min(zz_lims) ) / zz_range
+#         time, sqz, norm_SS = get_time_sqz_SS(file)
+#         time_scale = abs( zz_coupling - 1 ) # rescale time by | J_z - J_perp |
+#         axes[0].plot(time * time_scale, sqz, color = color_map_r(color_val))
+#         axes[1].plot(time * time_scale, norm_SS, color = color_map_r(color_val))
+#         opt_time[idx] = time[sqz.argmax()] * time_scale
 
-    # highlight squeezing over time immediately to the right of the transition
-    transition_idx = abs(opt_time[1:]-opt_time[:-1]).argmax()
-    zz_coupling, file = data_files[transition_idx]
-    time, sqz, norm_SS = get_time_sqz_SS(file)
-    time_scale = abs( zz_coupling - 1 )
-    axes[0].plot(time * time_scale, sqz, color = "red", linewidth = "2")
-    axes[1].plot(time * time_scale, norm_SS, color = "red", linewidth = "2")
+#     # highlight squeezing over time immediately to the right of the transition
+#     transition_idx = abs(opt_time[1:]-opt_time[:-1]).argmax()
+#     zz_coupling, file = data_files[transition_idx]
+#     time, sqz, norm_SS = get_time_sqz_SS(file)
+#     time_scale = abs( zz_coupling - 1 )
+#     axes[0].plot(time * time_scale, sqz, color = "red", linewidth = "2")
+#     axes[1].plot(time * time_scale, norm_SS, color = "red", linewidth = "2")
 
-    # set axis ticks and limits
-    time_locator = mpl.ticker.MaxNLocator(5, integer = True)
-    for axis in axes:
-        axis.xaxis.set_major_locator(time_locator)
-        axis.set_xlim(0,max_time)
-    sqz_locator = mpl.ticker.MaxNLocator(5, integer = True)
-    axes[0].yaxis.set_major_locator(sqz_locator)
-    axes[1].set_ylim(-0.02,1.02)
-    axes[1].set_yticks([0,0.5,1])
+#     # set axis ticks and limits
+#     time_locator = mpl.ticker.MaxNLocator(5, integer = True)
+#     for axis in axes:
+#         axis.xaxis.set_major_locator(time_locator)
+#         axis.set_xlim(0,max_time)
+#     sqz_locator = mpl.ticker.MaxNLocator(5, integer = True)
+#     axes[0].yaxis.set_major_locator(sqz_locator)
+#     axes[1].set_ylim(-0.02,1.02)
+#     axes[1].set_yticks([0,0.5,1])
 
-    return axes, zz_coupling
+#     return axes, zz_coupling
 
-##############################
-# individual time series plot
+# ##############################
+# # individual time series plot
 
-alpha = 3
-zz_lims = (-1,-3)
-sqz_range = (-5,25)
-figsize = (max_width,1.25)
+# alpha = 3
+# zz_lims = (-1,-3)
+# sqz_range = (-5,25)
+# figsize = (max_width,1.25)
 
-figure = plt.figure(figsize = figsize, constrained_layout = False)
-data_gs = figure.add_gridspec(1, 2, left = 0.13, right = 0.825, wspace = 0.55)
-axes = [ figure.add_subplot(gs) for gs in data_gs ]
+# figure = plt.figure(figsize = figsize, constrained_layout = False)
+# data_gs = figure.add_gridspec(1, 2, left = 0.13, right = 0.825, wspace = 0.55)
+# axes = [ figure.add_subplot(gs) for gs in data_gs ]
 
-name_tag = make_name_tag("64x64", alpha, "dtwa")
-_, zz_mark = plot_sqz_SS(axes, name_tag, zz_lims)
-axes[0].set_ylim(sqz_range)
+# name_tag = make_name_tag("64x64", alpha, "dtwa")
+# _, zz_mark = plot_sqz_SS(axes, name_tag, zz_lims)
+# axes[0].set_ylim(sqz_range)
 
-# label each phase
-if alpha == 3:
-    sc_y, si_y = 21, 0
-if alpha == 4:
-    sc_y, si_y = 16, 0
-max_x = axes[0].get_xlim()[1]
-axes[0].text(max_x/2, sc_y, "S-collective", va = "center", ha = "center")
-axes[0].text(max_x/2, si_y, "S-Ising", va = "center", ha = "center")
+# # label each phase
+# if alpha == 3:
+#     sc_y, si_y = 21, 0
+# if alpha == 4:
+#     sc_y, si_y = 16, 0
+# max_x = axes[0].get_xlim()[1]
+# axes[0].text(max_x/2, sc_y, "S-collective", va = "center", ha = "center")
+# axes[0].text(max_x/2, si_y, "S-Ising", va = "center", ha = "center")
 
-# # add color bar
-data_gs = figure.add_gridspec(1, 1, left = 0.845, right = 0.86)
-cbar_axis = figure.add_subplot(data_gs[0])
-color_norm = mpl.colors.Normalize(vmin = zz_lims[0], vmax = zz_lims[1])
-color_obj = mpl.cm.ScalarMappable(cmap = color_map_r, norm = color_norm)
-color_bar = figure.colorbar(color_obj, cax = cbar_axis)
-color_bar.set_label(label_zz)
-color_bar.ax.plot(zz_lims, [zz_mark]*2, color = "red", linewidth = "2")
+# # # add color bar
+# data_gs = figure.add_gridspec(1, 1, left = 0.845, right = 0.86)
+# cbar_axis = figure.add_subplot(data_gs[0])
+# color_norm = mpl.colors.Normalize(vmin = zz_lims[0], vmax = zz_lims[1])
+# color_obj = mpl.cm.ScalarMappable(cmap = color_map_r, norm = color_norm)
+# color_bar = figure.colorbar(color_obj, cax = cbar_axis)
+# color_bar.set_label(label_zz)
+# color_bar.ax.plot(zz_lims, [zz_mark]*2, color = "red", linewidth = "2")
 
-# label axes, save figure
-axes[0].set_xlabel(label_time_rescaled)
-axes[1].set_xlabel(label_time_rescaled)
-axes[0].set_ylabel(label_sqz)
-axes[1].set_ylabel(label_SS)
-figure.subplots_adjust(bottom = 0.32)
-figure.savefig(fig_dir + f"time_series_{name_tag}.pdf")
+# # label axes, save figure
+# axes[0].set_xlabel(label_time_rescaled)
+# axes[1].set_xlabel(label_time_rescaled)
+# axes[0].set_ylabel(label_sqz)
+# axes[1].set_ylabel(label_SS)
+# figure.subplots_adjust(bottom = 0.32)
+# figure.savefig(fig_dir + f"time_series_{name_tag}.pdf")
 
-##############################
-# panel of time series plots
+# ##############################
+# # panel of time series plots
 
-max_time = 10
-figsize = (6,2.25)
-for zz_lims in [ (0,-3), (2,0) ]:
-    for lattice, alpha_vals in [ ( "64x64", [3,4,5] ),
-                                 ( "16x16x16", [5,6,"nn"] ) ]:
+# max_time = 10
+# figsize = (6,2.25)
+# for zz_lims in [ (0,-3), (2,0) ]:
+#     for lattice, alpha_vals in [ ( "64x64", [3,4,5] ),
+#                                  ( "16x16x16", [5,6,"nn"] ) ]:
 
-        figure, all_axes = plt.subplots(2, 4, figsize = figsize, sharex = True, sharey = "row",
-                                        gridspec_kw = dict( width_ratios = [20]*3 + [1] ))
-        axes = all_axes[:,:-1] # plotting axes
-        for alpha, alpha_ax in zip(alpha_vals, axes.T):
-            name_tag = make_name_tag(lattice, alpha, "dtwa")
-            plot_sqz_SS(alpha_ax, name_tag, zz_lims)
+#         figure, all_axes = plt.subplots(2, 4, figsize = figsize, sharex = True, sharey = "row",
+#                                         gridspec_kw = dict( width_ratios = [20]*3 + [1] ))
+#         axes = all_axes[:,:-1] # plotting axes
+#         for alpha, alpha_ax in zip(alpha_vals, axes.T):
+#             name_tag = make_name_tag(lattice, alpha, "dtwa")
+#             plot_sqz_SS(alpha_ax, name_tag, zz_lims)
 
-            alpha_str = str(alpha).replace("nn", r"\infty")
-            alpha_ax[0].set_title(r"$\alpha=" + f"{alpha_str}$")
-            alpha_ax[0].set_ylim(bottom = 0)
+#             alpha_str = str(alpha).replace("nn", r"\infty")
+#             alpha_ax[0].set_title(r"$\alpha=" + f"{alpha_str}$")
+#             alpha_ax[0].set_ylim(bottom = 0)
 
-        # add color bar
-        cbar_gs = all_axes[0,-1].get_gridspec()
-        for axis in all_axes[:,-1]: axis.remove()
-        cbar_ax = figure.add_subplot(cbar_gs[:,-1])
-        color_norm = mpl.colors.Normalize(vmin = zz_lims[0], vmax = zz_lims[1])
-        color_obj = mpl.cm.ScalarMappable(cmap = color_map_r, norm = color_norm)
-        color_bar = figure.colorbar(color_obj, cax = cbar_ax)
-        color_bar.set_label(label_zz)
+#         # add color bar
+#         cbar_gs = all_axes[0,-1].get_gridspec()
+#         for axis in all_axes[:,-1]: axis.remove()
+#         cbar_ax = figure.add_subplot(cbar_gs[:,-1])
+#         color_norm = mpl.colors.Normalize(vmin = zz_lims[0], vmax = zz_lims[1])
+#         color_obj = mpl.cm.ScalarMappable(cmap = color_map_r, norm = color_norm)
+#         color_bar = figure.colorbar(color_obj, cax = cbar_ax)
+#         color_bar.set_label(label_zz)
 
-        # label axes
-        for axis in axes[1,:]:
-            axis.set_xlabel(label_time_rescaled)
-        axes[0,0].set_ylabel(label_sqz)
-        axes[1,0].set_ylabel(label_SS)
-        figure.tight_layout(pad = 0.2)
+#         # label axes
+#         for axis in axes[1,:]:
+#             axis.set_xlabel(label_time_rescaled)
+#         axes[0,0].set_ylabel(label_sqz)
+#         axes[1,0].set_ylabel(label_SS)
+#         figure.tight_layout(pad = 0.2)
 
-        # save figure
-        old_name_tag = make_name_tag(lattice, alpha_vals[0], "dtwa")
-        old_alpha_tag = f"a{alpha_vals[0]}"
-        new_alpha_tag = "_".join([ f"a{alpha}" for alpha in alpha_vals ])
-        new_name_tag = old_name_tag.replace(old_alpha_tag, new_alpha_tag)
-        suffix = f"z{max(zz_lims)}_z{min(zz_lims)}"
-        figure.savefig(fig_dir + f"time_series_{new_name_tag}_{suffix}.pdf")
+#         # save figure
+#         old_name_tag = make_name_tag(lattice, alpha_vals[0], "dtwa")
+#         old_alpha_tag = f"a{alpha_vals[0]}"
+#         new_alpha_tag = "_".join([ f"a{alpha}" for alpha in alpha_vals ])
+#         new_name_tag = old_name_tag.replace(old_alpha_tag, new_alpha_tag)
+#         suffix = f"z{max(zz_lims)}_z{min(zz_lims)}"
+#         figure.savefig(fig_dir + f"time_series_{new_name_tag}_{suffix}.pdf")
 
-plt.close("all")
-##########################################################################################
-# plot benchmarking with exact simulations
+# plt.close("all")
+# ##########################################################################################
+# # plot benchmarking with exact simulations
 
-lattices = [ "3x3", "4x4" ]
-figsize = (5,4)
-zz_lims = (-3,3)
+# lattices = [ "3x3", "4x4" ]
+# figsize = (5,4)
+# zz_lims = (-3,3)
 
-def get_file(sim_type, lattice, alpha):
-    sim_dir = "DTWA" if sim_type == "dtwa" else sim_type
-    return data_dir + f"{sim_dir}/benchmarking/{sim_type}_L{lattice}_a{alpha}.txt"
+# def get_file(sim_type, lattice, alpha):
+#     sim_dir = "DTWA" if sim_type == "dtwa" else sim_type
+#     return data_dir + f"{sim_dir}/benchmarking/{sim_type}_L{lattice}_a{alpha}.txt"
 
-figure, all_axes = plt.subplots(2, len(lattices), figsize = figsize,
-                                sharex = True, sharey = "row")
-sqz_axes, SS_axes = all_axes
+# figure, all_axes = plt.subplots(2, len(lattices), figsize = figsize,
+#                                 sharex = True, sharey = "row")
+# sqz_axes, SS_axes = all_axes
 
-for lattice, sqz_axis, SS_axis in zip(lattices, sqz_axes, SS_axes):
-    dim = len(lattice.split("x"))
+# for lattice, sqz_axis, SS_axis in zip(lattices, sqz_axes, SS_axes):
+#     dim = len(lattice.split("x"))
 
-    # add a reference line for the OAT limit
-    spin_num = np.prod([ int(size) for size in lattice.split("x") ])
-    _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
-    sqz_axis.axhline(to_dB(sqz_OAT), color = "k", linestyle = "--", label = "OAT")
-    SS_axis.axhline(1, color = "k", linestyle = "--", label = "OAT")
+#     # add a reference line for the OAT limit
+#     spin_num = np.prod([ int(size) for size in lattice.split("x") ])
+#     _, sqz_OAT = ising_squeezing_optimum(np.ones((spin_num,spin_num)), TI = True)
+#     sqz_axis.axhline(to_dB(sqz_OAT), color = "k", linestyle = "--", label = "OAT")
+#     SS_axis.axhline(1, color = "k", linestyle = "--", label = "OAT")
 
-    # identify values of the power-law exponent \alpha
-    alpha_vals = [ set([ int(file.split("_")[-1][1:-4])
-                         for file in glob.glob(get_file(sim_type, lattice, "?")) ])
-                   for sim_type in [ "dtwa", "exact" ] ]
-    alpha_vals = sorted(set.intersection(*alpha_vals))
+#     # identify values of the power-law exponent \alpha
+#     alpha_vals = [ set([ int(file.split("_")[-1][1:-4])
+#                          for file in glob.glob(get_file(sim_type, lattice, "?")) ])
+#                    for sim_type in [ "dtwa", "exact" ] ]
+#     alpha_vals = sorted(set.intersection(*alpha_vals))
 
-    # plot all squeezing data
-    for alpha in alpha_vals:
-        def _get_vals(sim_type):
-            data = np.loadtxt(get_file(sim_type,lattice,alpha), unpack = True)
-            zz_couplings, sqz_min, SS_min = data[0,:], data[1,:], data[-1,:]
-            keep = np.where( ( np.around(zz_couplings, decimals = 1) >= zz_lims[0] ) &
-                             ( np.around(zz_couplings, decimals = 1) <= zz_lims[1] ) &
-                             ( zz_couplings != 1 ) )[0]
-            return zz_couplings[keep], -sqz_min[keep], SS_min[keep]
+#     # plot all squeezing data
+#     for alpha in alpha_vals:
+#         def _get_vals(sim_type):
+#             data = np.loadtxt(get_file(sim_type,lattice,alpha), unpack = True)
+#             zz_couplings, sqz_min, SS_min = data[0,:], data[1,:], data[-1,:]
+#             keep = np.where( ( np.around(zz_couplings, decimals = 1) >= zz_lims[0] ) &
+#                              ( np.around(zz_couplings, decimals = 1) <= zz_lims[1] ) &
+#                              ( zz_couplings != 1 ) )[0]
+#             return zz_couplings[keep], -sqz_min[keep], SS_min[keep]
 
-        exact_zz, exact_sqz, exact_SS = _get_vals("exact")
-        dtwa_zz, dtwa_sqz, dtwa_SS = _get_vals("dtwa")
+#         exact_zz, exact_sqz, exact_SS = _get_vals("exact")
+#         dtwa_zz, dtwa_sqz, dtwa_SS = _get_vals("dtwa")
 
-        exact_plot = sqz_axis.plot(exact_zz, exact_sqz, label = alpha)
-        color = exact_plot[0].get_color()
-        sqz_axis.plot(dtwa_zz, dtwa_sqz, ".", color = color, markersize = 2)
+#         exact_plot = sqz_axis.plot(exact_zz, exact_sqz, label = alpha)
+#         color = exact_plot[0].get_color()
+#         sqz_axis.plot(dtwa_zz, dtwa_sqz, ".", color = color, markersize = 2)
 
-        SS_axis.plot(exact_zz, exact_SS, color = color, label = alpha)
-        SS_axis.plot(dtwa_zz, dtwa_SS, ".", color = color, markersize = 2)
+#         SS_axis.plot(exact_zz, exact_SS, color = color, label = alpha)
+#         SS_axis.plot(dtwa_zz, dtwa_SS, ".", color = color, markersize = 2)
 
-    title_text = lattice.replace("x", r"\times")
-    sqz_axis.set_title(f"${title_text}$")
-    SS_axis.set_xlabel(label_zz)
+#     title_text = lattice.replace("x", r"\times")
+#     sqz_axis.set_title(f"${title_text}$")
+#     SS_axis.set_xlabel(label_zz)
 
-sqz_axes[0].set_ylabel(label_sqz_opt)
-SS_axes[0].set_ylabel(label_SS_min)
-sqz_axes[0].legend(loc = "center", ncol = 2, handlelength = 1.5,
-                   bbox_to_anchor = (0.29,0.78), columnspacing = 1)
-sqz_axes[0].set_xlim(-1,2)
-plt.tight_layout()
+# sqz_axes[0].set_ylabel(label_sqz_opt)
+# SS_axes[0].set_ylabel(label_SS_min)
+# sqz_axes[0].legend(loc = "center", ncol = 2, handlelength = 1.5,
+#                    bbox_to_anchor = (0.29,0.78), columnspacing = 1)
+# sqz_axes[0].set_xlim(-1,2)
+# plt.tight_layout()
 
-lattice_label = "_L".join(lattices)
-plt.savefig(fig_dir + f"exact_L{lattice_label}.pdf")
+# lattice_label = "_L".join(lattices)
+# plt.savefig(fig_dir + f"exact_L{lattice_label}.pdf")
 
-plt.close("all")
-##########################################################################################
-# plot summary of DTWA results
+# plt.close("all")
+# ##########################################################################################
+# # plot summary of DTWA results
 
 # plot DTWA data for a given lattice on a given set of axes
 def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
@@ -478,13 +479,13 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
                       interpolation = "nearest", cmap = "inferno",
                       extent = axis_lims )
     fin_axes[0].imshow(-fin_data["min_sqz"], **plot_args)
-    fin_axes[1].imshow(+fin_data["sqr_len"], **plot_args)
-    fin_axes[2].imshow(+fin_data["opt_tim"], **plot_args, norm = mpl.colors.LogNorm())
+    # fin_axes[1].imshow(+fin_data["sqr_len"], **plot_args)
+    # fin_axes[2].imshow(+fin_data["opt_tim"], **plot_args, norm = mpl.colors.LogNorm())
 
     plot_args["extent"] = axis_lims[:2] + [-1,1]
     inf_axes[0].imshow([-inf_data["min_sqz"]], **plot_args)
-    inf_axes[1].imshow([+inf_data["sqr_len"]], **plot_args)
-    inf_axes[2].imshow([+inf_data["opt_tim"]], **plot_args, norm = mpl.colors.LogNorm())
+    # inf_axes[1].imshow([+inf_data["sqr_len"]], **plot_args)
+    # inf_axes[2].imshow([+inf_data["opt_tim"]], **plot_args, norm = mpl.colors.LogNorm())
 
     if add_markup:
         # mark \alpha = D
@@ -530,38 +531,44 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         text_args = dict( color = "black",
                           horizontalalignment = "center",
                           verticalalignment = "center" )
-        fin_axes[0].text(-1, 1.25, "S-collective", **text_args)
+        fin_axes[0].text(-1, 1.25, "collective", **text_args)
         text_args["color"] = "white"
-        fin_axes[0].text(2.1, 5, "S-Ising", **text_args)
+        fin_axes[0].text(2.1, 5, "Ising", **text_args)
         if dim == 2:
-            fin_axes[0].text(-2, 5, "S-Ising", **text_args)
+            fin_axes[0].text(-2, 5, "Ising", **text_args)
         if dim == 3:
-            fin_axes[0].text(-2.35, 5.6, "S-I", **text_args)
+            fin_axes[0].text(-2.35, 5.6, "Ising", **text_args)
 
-        marker_args = dict( linewidth = 1, markersize = 1.5, clip_on = False )
+        marker_args = dict( linewidth = 2, markersize = 4, clip_on = False )
 
-        # mark parameters for neutral atoms
-        if dim in [ 2, 3 ]:
-            inf_axes[1].plot(zz_lims, [0,0], "c-", **marker_args)
-
-        # mark parameters for polar molecules
         if dim == 2:
-            fin_axes[1].plot(zz_lims, [3,3], "g-", **marker_args)
+            for idx, zz in enumerate([ 0.5, 0, -0.5, -1.0, -1.5 ]):
+                color_val = idx / 4
+                color = color_map(color_val)
+                fin_axes[0].plot([zz], [3], "o", color = color, **marker_args)
 
-        # mark parameters for ions
-        if dim == 2:
-            fin_axes[1].plot([0,0], [ alpha_vals[0], 3 ], "b-", **marker_args)
+        # # mark parameters for neutral atoms
+        # if dim in [ 2, 3 ]:
+        #     inf_axes[0].plot(zz_lims, [0,0], "c-", **marker_args)
 
-        # mark parameters for Rydberg atoms
-        if dim in [ 2, 3 ]:
-            fin_axes[1].plot([0], [6], "ro", zorder = 4, **marker_args)
-        if dim == 2:
-            fin_axes[1].plot([0], [3], "ro", zorder = 4, **marker_args)
-            fin_axes[1].plot([-0.73], [3], "ro", zorder = 4, **marker_args)
+        # # mark parameters for polar molecules
+        # if dim == 2:
+        #     fin_axes[0].plot(zz_lims, [3,3], "g-", **marker_args)
 
-        # mark parameters for magnetic atoms
-        if dim == 2:
-            fin_axes[1].plot([-2], [3], marker = "s", color = "tab:pink", **marker_args)
+        # # mark parameters for ions
+        # if dim == 2:
+        #     fin_axes[0].plot([0,0], [ alpha_vals[0], 3 ], "b-", **marker_args)
+
+        # # mark parameters for Rydberg atoms
+        # if dim in [ 2, 3 ]:
+        #     fin_axes[0].plot([0], [6], "ro", zorder = 4, **marker_args, markeredgecolor = "black")
+        # if dim == 2:
+        #     fin_axes[0].plot([0], [3], "ro", zorder = 4, **marker_args, markeredgecolor = "black")
+        #     fin_axes[0].plot([-0.73], [3], "ro", zorder = 4, **marker_args, markeredgecolor = "black")
+
+        # # mark parameters for magnetic atoms
+        # if dim == 2:
+        #     fin_axes[0].plot([-2], [3], marker = "s", color = "tab:pink", **marker_args, markeredgecolor = "black")
 
     # set axis ticks at integer values
     zz_ticks = sorted(set(map(int,map(round, zz_couplings))))
@@ -588,6 +595,7 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
         lattice_list = [ lattice_list ]
     cols = len(lattice_list)
 
+    figsize = (max_width, 1.6)
     if figsize == None:
         if cols == 1:
             figsize = (2.5, 4)
@@ -598,9 +606,9 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
 
     # set up figure with "primary" axes for plots and color bars
     widths = [35]*cols + [1]
-    figure, init_axes = plt.subplots(3, cols+1, figsize = figsize,
+    figure, init_axes = plt.subplots(1, cols+1, figsize = figsize,
                                      gridspec_kw = dict( width_ratios = widths ))
-    init_axes.shape = (3,-1)
+    init_axes.shape = (1,-1)
     fin_axes = init_axes[:,:-1] # axes for plotting data with finite \alpha
     bar_axes = init_axes[:,-1] # axes for colorbars
 
@@ -662,21 +670,27 @@ def make_dtwa_plots(lattice_list, alpha_text = "*",
         plt.rcParams.update({ "font.size" : orig_font_size })
     return figure
 
-lattice_text = "64x64"
-make_dtwa_plots(lattice_text, add_markup = False)
-plt.savefig(fig_dir + f"dtwa_L{lattice_text}.pdf")
+# lattice_text = "64x64"
+# make_dtwa_plots(lattice_text, add_markup = False)
+# plt.savefig(fig_dir + f"dtwa_L{lattice_text}.pdf")
 
-lattice_list = [ "4096", "64x64", "16x16x16" ]
-alpha_text = "?.0"
-make_dtwa_plots(lattice_list, alpha_text, add_markup = False)
-lattice_label = "_L".join(lattice_list)
-plt.savefig(fig_dir + f"dtwa_L{lattice_label}_int.pdf")
+# lattice_list = [ "4096", "64x64", "16x16x16" ]
+# alpha_text = "?.0"
+# make_dtwa_plots(lattice_list, alpha_text, add_markup = False)
+# lattice_label = "_L".join(lattice_list)
+# plt.savefig(fig_dir + f"dtwa_L{lattice_label}_int.pdf")
+
+# lattice_list = [ "64x64", "16x16x16" ]
+# make_dtwa_plots(lattice_list, font_size = 8)
+# lattice_label = "_L".join(lattice_list)
+# plt.savefig(fig_dir + f"dtwa_L{lattice_label}.pdf")
 
 lattice_list = [ "64x64", "16x16x16" ]
-make_dtwa_plots(lattice_list, font_size = 8)
-lattice_label = "_L".join(lattice_list)
-plt.savefig(fig_dir + f"dtwa_L{lattice_label}.pdf")
 
+# make_dtwa_plots(lattice_list, font_size = 8)
+# plt.savefig(fig_dir + "dtwa_results_scaling.pdf")
+
+# exit()
 plt.close("all")
 ##########################################################################################
 # plot system size scaling (DTWA)
@@ -685,7 +699,8 @@ dz = 0.1
 inspect_dz = 0.5
 label_alpha = [ 3 ]
 
-figsize = (2.8,1.6)
+figsize = (3.2,2)
+plt.rcParams.update({ "font.size" : 10 })
 
 def plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha = True):
     zz_couplings = np.arange(zz_lims[0], zz_lims[1] + dz/2, dz)
@@ -728,77 +743,80 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha = True)
     LL_image = lattice_lengths[LL_keep]
     size_lims = LL_image[0], LL_image[-1]
 
-    # plot squeezing data
-    figure = plt.figure(figsize = figsize)
-    axis_lims = [ zz_lims[0] - dz/2, zz_lims[1] + dz/2,
-                  size_lims[0] - lattice_res/2, size_lims[1] + lattice_res/2 ]
-    plot_args = dict( aspect = "auto", origin = "lower",
-                      interpolation = "nearest", cmap = "inferno",
-                      extent = axis_lims )
-    image = plt.imshow(sqz_data.T[LL_keep,:], **plot_args)
+    # # plot squeezing data
+    # figure = plt.figure(figsize = figsize)
+    # axis_lims = [ zz_lims[0] - dz/2, zz_lims[1] + dz/2,
+    #               size_lims[0] - lattice_res/2, size_lims[1] + lattice_res/2 ]
+    # plot_args = dict( aspect = "auto", origin = "lower",
+    #                   interpolation = "nearest", cmap = "inferno",
+    #                   extent = axis_lims )
+    # image = plt.imshow(sqz_data.T[LL_keep,:], **plot_args)
 
-    # add color bar
-    color_bar = figure.colorbar(image, label = label_sqz_opt)
-    fix_ticks(color_bar, 5)
+    # # add color bar
+    # color_bar = figure.colorbar(image, label = label_sqz_opt)
+    # fix_ticks(color_bar, 5)
 
-    # add reference line for dynamical phase boundary
-    def alternate(values, other_values):
-        return np.array(list(zip(values, other_values))).flatten()
-    def double(values):
-        return alternate(values,values)
-    LL_offsets = lattice_res/2 * alternate(- np.ones(len(LL_image)),
-                                           + np.ones(len(LL_image)))
-    plt.plot(double(zz_boundaries[LL_keep]), double(LL_image) + LL_offsets,
-             ":", color = "gray", linewidth = 1)
+    # # add reference line for dynamical phase boundary
+    # def alternate(values, other_values):
+    #     return np.array(list(zip(values, other_values))).flatten()
+    # def double(values):
+    #     return alternate(values,values)
+    # LL_offsets = lattice_res/2 * alternate(- np.ones(len(LL_image)),
+    #                                        + np.ones(len(LL_image)))
+    # plt.plot(double(zz_boundaries[LL_keep]), double(LL_image) + LL_offsets,
+    #          ":", color = "gray", linewidth = 1)
 
-    # label axes
-    plt.xlabel(label_zz)
-    plt.ylabel(r"$L$")
+    # # label axes
+    # plt.xlabel(label_zz)
+    # plt.ylabel(r"$L$")
 
-    # set axis ticks
-    zz_ticks = sorted(set([ int(zz) for zz in zz_couplings ]))
-    zz_labels = [ zz if zz % 2 == 0 else "" for zz in zz_ticks ]
-    plt.xticks(zz_ticks, zz_labels)
+    # # set axis ticks
+    # zz_ticks = sorted(set([ int(zz) for zz in zz_couplings ]))
+    # zz_labels = [ zz if zz % 2 == 0 else "" for zz in zz_ticks ]
+    # plt.xticks(zz_ticks, zz_labels)
 
-    if dim == 2:
-        LL_labels = [ LL if LL % 10 == 0 else "" for LL in LL_image ]
-    if dim == 3:
-        LL_labels = [ LL if LL % 5 == 0 else "" for LL in LL_image ]
-    plt.yticks(LL_image, LL_labels)
+    # if dim == 2:
+    #     LL_labels = [ LL if LL % 10 == 0 else "" for LL in LL_image ]
+    # if dim == 3:
+    #     LL_labels = [ LL if LL % 5 == 0 else "" for LL in LL_image ]
+    # plt.yticks(LL_image, LL_labels)
 
-    # label each dynamical phase
-    if alpha in label_alpha and dim == 2:
-        text_args = dict( horizontalalignment = "center",
-                          verticalalignment = "center" )
-        plt.text(-0.2, 35, "S-collective", color = "black", **text_args)
-        plt.text(-1.9, 15, "S-Ising", color = "white", **text_args)
-        plt.text(+1.6, 15, "S-I", color = "white", **text_args)
+    # # label each dynamical phase
+    # if alpha in label_alpha and dim == 2:
+    #     text_args = dict( horizontalalignment = "center",
+    #                       verticalalignment = "center" )
+    #     plt.text(-0.2, 35, "collective", color = "black", **text_args)
+    #     plt.text(-1.9, 15, "Ising", color = "white", **text_args)
+    #     plt.text(+1.6, 15, "Ising", color = "white", **text_args)
 
-    plt.tight_layout(pad = 0.1)
-    plt.savefig(fig_dir + f"size_scaling_D{dim}_a{alpha}.pdf")
+    # plt.tight_layout(pad = 0.1)
+    # plt.savefig(fig_dir + f"size_scaling_D{dim}_a{alpha}.pdf")
 
-    ### show logarithmic divergence of critical coupling
+    # ### show logarithmic divergence of critical coupling
+
+    # # get system sizes
+    # system_sizes = lattice_lengths**dim
+
+    # # DTWA results
+    # plt.figure(figsize = figsize)
+    # plt.semilogx(system_sizes, zz_boundaries, "ko", label = "DTWA")
+
+    # # find the best log fit of critical coupling as a function of system size
+    # if fit_div_alpha:
+    #     fit_slope, _ = scipy.optimize.curve_fit(log_form, system_sizes, zz_boundaries)
+    #     plt.semilogx(system_sizes, log_fit(system_sizes, fit_slope), "k--", label = "fit")
+    # if alpha in label_alpha:
+    #     plt.legend(loc = "best", handlelength = 1.7)
+
+    # plt.xlabel(r"$N$")
+    # plt.ylabel(r"$J_{\mathrm{z}}^{\mathrm{crit}}/J_\perp$")
+    # plt.tight_layout(pad = 0.1)
+    # plt.savefig(fig_dir + f"size_divergence_D{dim}_a{alpha}.pdf")
+
+    ### show power-law scaling of optimal squeezing
 
     # get system sizes
     system_sizes = lattice_lengths**dim
-
-    # DTWA results
-    plt.figure(figsize = figsize)
-    plt.semilogx(system_sizes, zz_boundaries, "ko", label = "DTWA")
-
-    # find the best log fit of critical coupling as a function of system size
-    if fit_div_alpha:
-        fit_slope, _ = scipy.optimize.curve_fit(log_form, system_sizes, zz_boundaries)
-        plt.semilogx(system_sizes, log_fit(system_sizes, fit_slope), "k--", label = "fit")
-    if alpha in label_alpha:
-        plt.legend(loc = "best", handlelength = 1.7)
-
-    plt.xlabel(r"$N$")
-    plt.ylabel(r"$J_{\mathrm{z}}^{\mathrm{crit}}/J_\perp$")
-    plt.tight_layout(pad = 0.1)
-    plt.savefig(fig_dir + f"size_divergence_D{dim}_a{alpha}.pdf")
-
-    ### show power-law scaling of optimal squeezing
 
     # determine the values of zz couplings to plot
     inspect_zz = np.arange(1-inspect_dz, min(zz_boundaries)-dz/2, -inspect_dz)
@@ -818,24 +836,34 @@ def plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha = True)
 
         color_val = idx / ( colors - 1 )
         color = color_map(color_val)
-        plt.semilogx(_system_sizes, _sqz_vals, "o", color = color)
-        plt.semilogx(_system_sizes, log_fit(_system_sizes, fit_params), "--", color = color)
+        plt.semilogx(_system_sizes, _sqz_vals, "o", color = color, zorder = 101)
+        plt.semilogx(_system_sizes, log_fit(_system_sizes, fit_params), "--", color = color, zorder = 101)
 
     fit_handles = [ mpl.lines.Line2D([0], [0], color = "k", linestyle = "none", marker = "o"),
                     mpl.lines.Line2D([0], [0], color = "k", linestyle = "--") ]
     fit_labels = [ "DTWA", "fit" ]
 
     # add the OAT limit as a reference
-    plt.semilogx(system_sizes, fit_sqz_OAT(system_sizes), "r:", label = "OAT")
+    plt.semilogx(system_sizes, fit_sqz_OAT(system_sizes), "r:", label = "OAT", zorder = 101)
     handles, labels = plt.gca().get_legend_handles_labels()
     fit_handles += handles
     fit_labels += labels
 
     plt.xlabel(r"$N$")
     plt.ylabel(label_sqz_opt)
-    if alpha in label_alpha:
-        plt.legend(fit_handles, fit_labels, loc = "best", handlelength = 1.7)
+    legend_1 = plt.legend(fit_handles, fit_labels, loc = "best", handlelength = 1.5)
 
+    plt.title(r"$D=2,~\alpha=3$")
+
+    kwargs = dict( linestyle = "none", marker = "o" )
+    zz_handles = [ mpl.lines.Line2D([0], [0], color = color_map(idx/4), **kwargs)
+                   for idx in range(5) ]
+    zz_labels = [ "$+0.5$", "$+0.0$", "$-0.5$", "$-1.0$", "$-1.5$" ]
+    legend_2 = plt.legend(zz_handles, zz_labels, handlelength = 0.8,
+                          title = r"$J_{\mathrm{z}}/J_\perp$",
+                          loc = "center left", bbox_to_anchor = (1,0.5))
+
+    plt.gca().add_artist(legend_1)
     plt.tight_layout(pad = 0.1)
     plt.savefig(fig_dir + f"power_law_D{dim}_a{alpha}.pdf")
 
@@ -847,40 +875,40 @@ dim = 2
 lattice_res = 5
 zz_lims = ( -2.5, 2 )
 colors = None
-for alpha in [ 3, 4, 5, 6, "nn" ]:
+for alpha in [ 3 ]:
     fit_div_alpha = alpha in [ 3, 4 ]
     colors = plot_scaling(dim, lattice_res, zz_lims, alpha, colors, fit_div_alpha)
 
-dim = 3
-lattice_res = 1
-zz_lims = ( -3, 2 )
-colors = None
-for alpha in [ 3, 4, 5, 6, "nn" ]:
-    colors = plot_scaling(dim, lattice_res, zz_lims, alpha, colors)
+# dim = 3
+# lattice_res = 1
+# zz_lims = ( -3, 2 )
+# colors = None
+# for alpha in [ 3, 4, 5, 6, "nn" ]:
+#     colors = plot_scaling(dim, lattice_res, zz_lims, alpha, colors)
 
-##########################################################################################
-# plot dependence on filling fraction (DTWA)
+# ##########################################################################################
+# # plot dependence on filling fraction (DTWA)
 
-figsize = (3,2)
+# figsize = (3,2)
 
-data = np.loadtxt(data_dir + "DTWA/filling_fraction.txt")
-markers = [ "o", "s", "^" ]
-labels = [ f"${zz}$" for zz in [ 0.9, 0, -1 ] ]
-spin_num = 50**2
+# data = np.loadtxt(data_dir + "DTWA/filling_fraction.txt")
+# markers = [ "o", "s", "^" ]
+# labels = [ f"${zz}$" for zz in [ 0.9, 0, -1 ] ]
+# spin_num = 50**2
 
-plt.figure(figsize = figsize)
-for zz_idx, marker, label in zip(reversed(range(1,4)), markers, labels):
-    plt.plot(data[:,0], -data[:,zz_idx], marker, label = label)
-plt.plot(data[:,0], fit_sqz_OAT(data[:,0] * spin_num), "k:", label = "OAT")
+# plt.figure(figsize = figsize)
+# for zz_idx, marker, label in zip(reversed(range(1,4)), markers, labels):
+#     plt.plot(data[:,0], -data[:,zz_idx], marker, label = label)
+# plt.plot(data[:,0], fit_sqz_OAT(data[:,0] * spin_num), "k:", label = "OAT")
 
-plt.gca().set_xlim(-0.05, 1.05)
-plt.gca().set_ylim(bottom = 0)
+# plt.gca().set_xlim(-0.05, 1.05)
+# plt.gca().set_ylim(bottom = 0)
 
-plt.xlabel("$f$")
-plt.ylabel(label_sqz_opt)
+# plt.xlabel("$f$")
+# plt.ylabel(label_sqz_opt)
 
-plt.legend(loc = "best", handlelength = 1.7)
-plt.tight_layout()
-plt.savefig(fig_dir + "filling_fraction_a3.pdf")
+# plt.legend(loc = "best", handlelength = 1.7)
+# plt.tight_layout()
+# plt.savefig(fig_dir + "filling_fraction_a3.pdf")
 
-plt.close("all")
+# plt.close("all")
