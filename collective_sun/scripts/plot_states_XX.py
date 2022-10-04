@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from dicke_methods import coherent_spin_state
 
+
 figsize = (4,3)
 params = { "font.size" : 12,
            "text.usetex" : True,
@@ -112,6 +113,9 @@ for spins_up in range(spin_num//2+1):
     _energies = energies[:,spins_up]
     add_to_plots("spect", r"$E/J_\perp$", spin_proj, _eig_pops, _energies)
 
+    _gaps = np.array([_energies[1] - _energies[0]])
+    add_to_plots("gaps", r"$\Delta/J_\perp$", spin_proj, _eig_pops, _gaps)
+
     _SS = SS[spins_up::spin_num+1,spins_up::spin_num+1].toarray()
     _eig_states = eig_states[:,:,spins_up]
     _SS_args = ( _eig_states.conj(), _SS, _eig_states )
@@ -130,6 +134,14 @@ plt.savefig(fig_dir + f"spect_{name_tag}.pdf")
 plt.figure("spect_X")
 plt.tight_layout()
 plt.savefig(fig_dir + f"spect_X_{name_tag}.pdf")
+
+plt.figure("gaps")
+plt.tight_layout()
+plt.savefig(fig_dir + f"gaps_{name_tag}.pdf")
+
+plt.figure("gaps_X")
+plt.tight_layout()
+plt.savefig(fig_dir + f"gaps_X_{name_tag}.pdf")
 
 plt.figure("SS")
 plt.ylim(0,1)

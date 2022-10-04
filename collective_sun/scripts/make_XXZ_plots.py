@@ -571,6 +571,7 @@ def plot_dtwa_data(fin_axes, inf_axes, lattice_text, alpha_text,
         #     fin_axes[0].plot([-2], [3], marker = "s", color = "tab:pink", **marker_args, markeredgecolor = "black")
 
     # set axis ticks at integer values
+
     zz_ticks = sorted(set(map(int,map(round, zz_couplings))))
     alpha_ticks = sorted(set(map(int,map(round, alpha_vals))))
     for axis in fin_axes:

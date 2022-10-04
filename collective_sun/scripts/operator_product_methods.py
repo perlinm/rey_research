@@ -382,7 +382,7 @@ def build_multi_local_op(spin_num, spin_dim, local_op,
         state_full_lft = np.array(state_full_lft)
         state_full_rht = np.array(state_full_rht)
         val = 0
-        log_coef_full = sum( np.log(multinomial(state))
+        log_coef_full = sum( np.log(float(multinomial(state)))
                              for state in [ state_full_lft, state_full_rht ] )
         state_full_diff = state_full_rht - state_full_lft
         for state_locl_lft in map(np.array, assignments(op_spins, spin_dim)):
@@ -393,7 +393,7 @@ def build_multi_local_op(spin_num, spin_dim, local_op,
             state_diff_rht = state_full_rht - state_locl_rht
             if any( state_diff_rht < 0 ): continue
 
-            log_coef_locl = sum( np.log(multinomial(state))
+            log_coef_locl = sum( np.log(float(multinomial(state)))
                                  for state in [ state_diff_lft, state_diff_rht ] )
             coef = np.exp( ( log_coef_locl - log_coef_full ) / 2 )
             val += coef * local_op_sym_mult[tuple(state_locl_lft),tuple(state_locl_rht)]
