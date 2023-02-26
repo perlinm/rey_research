@@ -45,6 +45,7 @@ class TypedInteger:
 
 class LatticeSite(TypedInteger):
     """A "site", indexing a physical location."""
+
     ...
 
 
@@ -311,7 +312,7 @@ class DenseMultiBodyOperators:
 # data structures to represent expectation values
 
 
-class ExpectationValues:
+class ExpectationValueProduct:
     """A product of expectation values of 'MultiBodyOperator's."""
 
     _op_to_exp: collections.defaultdict[MultiBodyOperator, int]
@@ -331,9 +332,9 @@ class ExpectationValues:
         yield from self._op_to_exp.items()
 
     def __mul__(
-        self, other: Union[MultiBodyOperator, "ExpectationValues"]
-    ) -> "ExpectationValues":
-        output = ExpectationValues()
+        self, other: Union[MultiBodyOperator, "ExpectationValueProduct"]
+    ) -> "ExpectationValueProduct":
+        output = ExpectationValueProduct()
         output._op_to_exp = self._op_to_exp.copy()
         if isinstance(other, MultiBodyOperator):
             output._op_to_exp[other] += 1
@@ -343,8 +344,8 @@ class ExpectationValues:
         return output
 
     def __rmul__(
-        self, other: Union[MultiBodyOperator, "ExpectationValues"]
-    ) -> "ExpectationValues":
+        self, other: Union[MultiBodyOperator, "ExpectationValueProduct"]
+    ) -> "ExpectationValueProduct":
         return self * other
 
 
@@ -352,7 +353,7 @@ class ExpectationValues:
 class OperatorPolynomial:
     """A polynomial of expectation values of 'MultiBodyOperator's."""
 
-    vec: dict[ExpectationValues, complex]
+    vec: dict[ExpectationValueProduct, complex]
 
     def __init__(self) -> None:
         self.vec = collections.defaultdict(complex)
@@ -360,7 +361,7 @@ class OperatorPolynomial:
     def __str__(self) -> str:
         return "\n".join(f"{scalar} {op}" for op, scalar in self)
 
-    def __iter__(self) -> Iterator[tuple[ExpectationValues, complex]]:
+    def __iter__(self) -> Iterator[tuple[ExpectationValueProduct, complex]]:
         yield from self.vec.items()
 
     def __add__(self, other: "OperatorPolynomial") -> "OperatorPolynomial":
@@ -410,7 +411,7 @@ class OperatorPolynomial:
                         for local_op, site in zip(op.local_ops, LatticeSite.range(op.num_sites))
                     ]
                     located_op = MultiBodyOperator(*located_ops)
-                    term = ExpectationValues(located_op)
+                    term = ExpectationValueProduct(located_op)
                     output.vec[term] += op.scalar * complex(op.tensor)
                     continue
 
@@ -424,17 +425,19 @@ class OperatorPolynomial:
                                 for local_op, site in zip(op.local_ops, op_sites)
                             ]
                             located_op = MultiBodyOperator(*located_ops)
-                            term = ExpectationValues(located_op)
+                            term = ExpectationValueProduct(located_op)
                             output.vec[term] += op.scalar * op.tensor[op_sites]
 
         return output
 
     def factorize(
-        self, factorize_rule: Callable[[MultiBodyOperator], "OperatorPolynomial"]
+        self, factorization_rule: Callable[[MultiBodyOperator], "OperatorPolynomial"]
     ) -> "OperatorPolynomial":
         output = OperatorPolynomial()
         for term, scalar in self:
-            factorized_factors = [factorize_rule(factor) ** exponent for factor, exponent in term]
+            factorized_factors = [
+                factorization_rule(factor) ** exponent for factor, exponent in term
+            ]
             product_of_factorized_factors = functools.reduce(
                 OperatorPolynomial.__mul__, factorized_factors
             )
@@ -446,7 +449,7 @@ class OperatorPolynomial:
 # methods for commuting operators
 
 
-def commute_ops(
+def commute_dense_ops(
     op_a: DenseMultiBodyOperators | DenseMultiBodyOperator,
     op_b: DenseMultiBodyOperators | DenseMultiBodyOperator,
     structure_factors: np.ndarray,
@@ -455,12 +458,12 @@ def commute_ops(
     op_b = DenseMultiBodyOperators(op_b)
     output = DenseMultiBodyOperators()
     for term_a, term_b in itertools.product(op_a.ops, op_b.ops):
-        output += _commute_op_terms(term_a, term_b, structure_factors)
+        output += _commute_dense_op_terms(term_a, term_b, structure_factors)
     output.simplify()
     return output
 
 
-def _commute_op_terms(
+def _commute_dense_op_terms(
     op_a: DenseMultiBodyOperator,
     op_b: DenseMultiBodyOperator,
     structure_factors: np.ndarray,
@@ -587,7 +590,7 @@ op_a = DenseMultiBodyOperator(tensor_a, op_Z)
 op_b = DenseMultiBodyOperator(tensor_b, op_Z, op_X)
 op_c = DenseMultiBodyOperator(tensor_c, op_Y, op_Z, op_X)
 
-op_joined = commute_ops(op_a, op_c, structure_factors)
+op_joined = commute_dense_ops(op_a, op_c, structure_factors)
 
 for op in op_joined:
     print(op.scalar, op)
@@ -613,15 +616,15 @@ print()
 op_poly = OperatorPolynomial.from_multibody_ops(op_sum)
 
 
-def factorize_rule(located_ops: MultiBodyOperator) -> OperatorPolynomial:
+def factorization_rule(located_ops: MultiBodyOperator) -> OperatorPolynomial:
     output = OperatorPolynomial()
     factors = [MultiBodyOperator(located_op) for located_op in located_ops]
-    product = ExpectationValues(*factors)
+    product = ExpectationValueProduct(*factors)
     output.vec[product] = 1
     return output
 
 
-op_poly = op_poly.factorize(factorize_rule)
+op_poly = op_poly.factorize(factorization_rule)
 print(op_poly)
 
 exit()
