@@ -13,6 +13,42 @@ def tensor_product(tensor_a: np.ndarray, tensor_b: np.ndarray) -> np.ndarray:
 
 
 ####################################################################################################
+# methods for computing structure factors
+
+
+def trace_inner_product(op_a: np.ndarray, op_b: np.ndarray) -> complex:
+    return op_a.ravel().conj() @ op_b.ravel() / op_a.shape[0]
+
+
+def multiply_mats(op_a: np.ndarray, op_b: np.ndarray) -> np.ndarray:
+    return op_a @ op_b
+
+
+def commute_mats(op_a: np.ndarray, op_b: np.ndarray) -> np.ndarray:
+    return op_a @ op_b - op_b @ op_a
+
+
+def get_structure_factors(
+    op_mat_I: np.ndarray,
+    *other_mats: np.ndarray,
+    binary_op: Callable[[np.ndarray, np.ndarray], np.ndarray] = multiply_mats,
+    inner_product: Callable[[np.ndarray, np.ndarray], complex] = trace_inner_product,
+) -> np.ndarray:
+    dim = op_mat_I.shape[0]
+    op_mats = [op_mat_I, *other_mats]
+    assert np.array_equal(op_mat_I, np.eye(dim))
+    assert len(op_mats) == dim**2
+
+    structure_factors = np.empty((len(op_mats),) * 3, dtype=complex)
+    for idx_a, mat_a in enumerate(other_mats, start=1):
+        for idx_b, mat_b in enumerate(other_mats, start=1):
+            mat_comm = binary_op(mat_a, mat_b)
+            mat_comm_vec = [inner_product(op_mat, mat_comm) for op_mat in op_mats]
+            structure_factors[idx_a, idx_b, :] = mat_comm_vec
+    return structure_factors
+
+
+####################################################################################################
 # classes for "typed" integers (or indices)
 
 
@@ -59,7 +95,7 @@ class AbstractSingleBodyOperator(TypedInteger):
     def __str__(self) -> str:
         return f"O_{self.index}"
 
-    def as_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
+    def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
         return op_mats[self.index]
 
 
@@ -165,13 +201,13 @@ class DenseMultiBodyOperator:
         local_ops = [self.local_ops[idx] for idx in argsort]
         return DenseMultiBodyOperator(tensor, *local_ops, scalar=self.scalar)
 
-    def as_tensor(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
+    def to_tensor(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
         spin_dim = int(np.round(np.sqrt(len(op_mats))))
         op_mat_I = np.eye(spin_dim)
         assert np.array_equal(op_mats[0], op_mat_I)
 
         iden_op_tensor = _get_iden_op_tensor(spin_dim, self.num_sites - self.locality)
-        local_op_tensors = [local_op.as_matrix(op_mats).ravel() for local_op in self.local_ops]
+        local_op_tensors = [local_op.to_matrix(op_mats).ravel() for local_op in self.local_ops]
         base_tensor = self.scalar * functools.reduce(
             tensor_product, local_op_tensors + [iden_op_tensor]
         )
@@ -181,7 +217,8 @@ class DenseMultiBodyOperator:
 
         op_tensors = (
             self.tensor[sites] * np.moveaxis(base_tensor, range(self.locality), sites)
-            for sites in np.ndindex(self.tensor.shape)
+            for addressed_sites in itertools.combinations(range(self.num_sites), self.locality)
+            for sites in itertools.permutations(addressed_sites)
             if self.tensor[sites]
         )
         return sum(op_tensors)
@@ -286,7 +323,7 @@ class DenseMultiBodyOperators:
                 ):
                     matrices = [op_mat_I] * num_sites
                     for idx, local_op in zip(non_iden_sites, local_ops):
-                        matrices[idx] = local_op.as_matrix(op_mats)
+                        matrices[idx] = local_op.to_matrix(op_mats)
                     pauli_op_matrix = functools.reduce(np.kron, matrices)
                     coefficient = trace_inner_product(pauli_op_matrix, matrix)
                     if coefficient:
@@ -294,11 +331,11 @@ class DenseMultiBodyOperators:
                         output += DenseMultiBodyOperator(tensor.copy(), *local_ops)
         return output
 
-    def as_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
+    def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
         spin_dim = int(np.round(np.sqrt(len(op_mats))))
         num_sites = self.num_sites
         final_shape = (spin_dim**num_sites,) * 2
-        op_tensor = sum((op.as_tensor(op_mats) for op in self.ops))
+        op_tensor = sum((op.to_tensor(op_mats) for op in self.ops))
         if not isinstance(op_tensor, np.ndarray):
             return np.zeros(final_shape)
         op_tensor.shape = (spin_dim,) * (2 * num_sites)
@@ -468,101 +505,79 @@ def _commute_dense_op_terms(
     op_b: DenseMultiBodyOperator,
     structure_factors: np.ndarray,
 ) -> DenseMultiBodyOperators:
+    assert op_a.num_sites == op_b.num_sites
+
     output = DenseMultiBodyOperators()
     op_dim = structure_factors.shape[-1]
 
-    for num_overlaps in range(1, min(op_a.locality, op_b.locality) + 1):
+    if op_a.is_identity_op or op_b.is_identity_op:
+        return output
+
+    min_overlaps = max(1, op_a.locality + op_b.locality - op_a.num_sites)
+    max_overlaps = min(op_a.locality, op_b.locality)
+    for num_overlaps in range(min_overlaps, max_overlaps + 1):
+
         overlap_index_set_a = itertools.combinations(range(op_a.locality), num_overlaps)
-        overlap_index_set_b = (
-            permuted_indices
-            for indices in itertools.combinations(range(op_b.locality), num_overlaps)
-            for permuted_indices in itertools.permutations(indices)
-        )
-
-        for overlap_indices_a, overlap_indices_b in itertools.product(
-            overlap_index_set_a, overlap_index_set_b
-        ):
-            # construct the tensor of coefficients for terms with these overlaps
+        for overlap_indices_a in overlap_index_set_a:
             indices_a = list(range(op_a.locality))
-            indices_b = list(range(op_a.locality, op_a.locality + op_b.locality))
-            for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
-                indices_b[idx_b] = idx_a
-            final_indices = indices_a + [idx for idx in indices_b if idx >= op_a.locality]
-            tensor = np.einsum(op_a.tensor, indices_a, op_b.tensor, indices_b, final_indices)
-
-            # construct a tentative list of local operators for terms with these overlaps
             local_ops_a = list(op_a.local_ops)
-            local_ops_b = [
-                op for idx, op in enumerate(op_b.local_ops) if idx not in overlap_indices_b
-            ]
-            local_ops = local_ops_a + local_ops_b
-
-            # construct lists of the local operators that will overlap
             overlap_ops_a = [op_a.local_ops[idx] for idx in overlap_indices_a]
-            overlap_ops_b = [op_b.local_ops[idx] for idx in overlap_indices_b]
 
-            # loop over terms in the commutator of 'operlap_ops_a' and 'overlap_ops_b'
-            for overlap_ops in itertools.product(
-                AbstractSingleBodyOperator.range(op_dim), repeat=num_overlaps
-            ):
-                # get the structure factors for this term
-                factors = [
-                    structure_factors[aa, bb, cc]
-                    for aa, bb, cc in zip(overlap_ops_a, overlap_ops_b, overlap_ops)
-                ]
-                if not all(factors):
+            overlap_index_set_b = (
+                permuted_indices
+                for indices in itertools.combinations(range(op_b.locality), num_overlaps)
+                for permuted_indices in itertools.permutations(indices)
+            )
+            for overlap_indices_b in overlap_index_set_b:
+
+                # construct the tensor of coefficients for terms with these overlaps
+                indices_b = list(range(op_a.locality, op_a.locality + op_b.locality))
+                for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
+                    indices_b[idx_b] = idx_a
+                final_indices = indices_a + [idx for idx in indices_b if idx >= op_a.locality]
+                tensor = np.einsum(op_a.tensor, indices_a, op_b.tensor, indices_b, final_indices)
+                if not tensor.any():
                     continue
 
-                # update the list of all local operators in this term
-                for idx, overlap_op in enumerate(overlap_ops):
-                    local_ops[overlap_indices_a[idx]] = overlap_op
+                # construct a tentative list of local operators for terms with these overlaps
+                local_ops_b = [
+                    op for idx, op in enumerate(op_b.local_ops) if idx not in overlap_indices_b
+                ]
+                local_ops = local_ops_a + local_ops_b
 
-                # add this term to the output
-                scalar = np.prod(factors) * op_a.scalar * op_b.scalar
-                output += DenseMultiBodyOperator(tensor, *local_ops, scalar=scalar)
+                # construct lists of the local operators that will overlap
+                overlap_ops_b = [op_b.local_ops[idx] for idx in overlap_indices_b]
+
+                # loop over terms in the commutator of 'operlap_ops_a' and 'overlap_ops_b'
+                for overlap_ops in itertools.product(
+                    AbstractSingleBodyOperator.range(op_dim), repeat=num_overlaps
+                ):
+                    # get the structure factors for this term
+                    factors_ab = [
+                        structure_factors[aa, bb, cc]
+                        for aa, bb, cc in zip(overlap_ops_a, overlap_ops_b, overlap_ops)
+                    ]
+                    factors_ba = [
+                        structure_factors[bb, aa, cc]
+                        for aa, bb, cc in zip(overlap_ops_a, overlap_ops_b, overlap_ops)
+                    ]
+                    factor = np.prod(factors_ab) - np.prod(factors_ba)
+                    if not factor:
+                        continue
+
+                    # update the list of all local operators in this term
+                    for idx, overlap_op in enumerate(overlap_ops):
+                        local_ops[overlap_indices_a[idx]] = overlap_op
+
+                    # add this term to the output
+                    scalar = factor * op_a.scalar * op_b.scalar
+                    output += DenseMultiBodyOperator(tensor, *local_ops, scalar=scalar)
 
     output.simplify()
     return output
 
 
 ####################################################################################################
-# methods for computing structure factors: [A, B] = sum_C f_{ABC} C
-
-
-def trace_inner_product(op_a: np.ndarray, op_b: np.ndarray) -> complex:
-    return op_a.ravel().conj() @ op_b.ravel() / op_a.shape[0]
-
-
-def multiply_mats(op_a: np.ndarray, op_b: np.ndarray) -> np.ndarray:
-    return op_a @ op_b
-
-
-def commute_mats(op_a: np.ndarray, op_b: np.ndarray) -> np.ndarray:
-    return op_a @ op_b - op_b @ op_a
-
-
-def get_structure_factors(
-    op_mat_I: np.ndarray,
-    *other_mats: np.ndarray,
-    binary_op: Callable[[np.ndarray, np.ndarray], np.ndarray] = commute_mats,
-) -> np.ndarray:
-    dim = op_mat_I.shape[0]
-    op_mats = [op_mat_I, *other_mats]
-    assert np.array_equal(op_mat_I, np.eye(dim))
-    assert len(op_mats) == dim**2
-
-    structure_factors = np.empty((len(op_mats),) * 3, dtype=complex)
-    for idx_a, mat_a in enumerate(other_mats, start=1):
-        for idx_b, mat_b in enumerate(other_mats, start=1):
-            mat_comm = binary_op(mat_a, mat_b)
-            mat_comm_vec = [trace_inner_product(op_mat, mat_comm) for op_mat in op_mats]
-            structure_factors[idx_a, idx_b, :] = mat_comm_vec
-    return structure_factors
-
-
-####################################################################################################
-
-sites = 3
 
 op_I = AbstractSingleBodyOperator(0)
 op_Z = AbstractSingleBodyOperator(1)
@@ -576,43 +591,35 @@ op_mat_X = np.array([[0, 1], [1, 0]])
 op_mat_Y = -1j * op_mat_Z @ op_mat_X
 op_mats = [op_mat_I, op_mat_Z, op_mat_X, op_mat_Y]
 
-structure_factors = get_structure_factors(*op_mats)
+strcture_factors = get_structure_factors(*op_mats)
 
-tensor_a = np.ones(sites)
-tensor_b = np.ones((sites, sites))
-tensor_c = np.ones((sites, sites, sites))
 
-for ii in range(sites):
-    tensor_b[ii, ii] = 0
-    tensor_c[:, ii, ii] = tensor_c[ii, :, ii] = tensor_c[ii, ii, :] = 0
+def get_random_op(num_sites: int) -> np.ndarray:
+    return np.random.random((2**num_sites,) * 2) + 1j * np.random.random((2**num_sites,) * 2)
 
-op_a = DenseMultiBodyOperator(tensor_a, op_Z)
-op_b = DenseMultiBodyOperator(tensor_b, op_Z, op_X)
-op_c = DenseMultiBodyOperator(tensor_c, op_Y, op_Z, op_X)
-
-op_joined = commute_dense_ops(op_a, op_c, structure_factors)
-
-for op in op_joined:
-    print(op.scalar, op)
-print()
-
-####################################################################################################
 
 np.random.seed(0)
 np.set_printoptions(linewidth=200)
 
 num_sites = 3
-hamiltonian = np.random.random((2**num_sites,) * 2) + 1j * np.random.random((2**num_sites,) * 2)
-hamiltonian = hamiltonian + hamiltonian.conj().T
 
-op_sum = DenseMultiBodyOperators.from_matrix(hamiltonian, op_mats)
-op_mat = op_sum.as_matrix(op_mats)
-success = np.allclose(op_mat, hamiltonian)
+mat_a = get_random_op(num_sites)
+mat_b = get_random_op(num_sites)
+mat_c = commute_mats(mat_a, mat_b)
+
+op_a = DenseMultiBodyOperators.from_matrix(mat_a, op_mats)
+op_b = DenseMultiBodyOperators.from_matrix(mat_b, op_mats)
+op_c = commute_dense_ops(op_a, op_b, strcture_factors)
+
+success = np.allclose(op_c.to_matrix(op_mats), mat_c)
 print("SUCCESS" if success else "FAILURE")
-print()
+exit()
+
 
 ####################################################################################################
 
+op_mat = get_random_op(num_sites)
+op_sum = DenseMultiBodyOperators.from_matrix(op_mat, op_mats)
 op_poly = OperatorPolynomial.from_multibody_ops(op_sum)
 
 
