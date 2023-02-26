@@ -388,34 +388,49 @@ def _commute_op_terms(
 
 @dataclasses.dataclass
 class LocatedOperator:
-    """A product of single-body operators located at specific sites."""
+    """A single-body operators located at a specific site."""
 
-    _data: frozenset[tuple[SingleBodyOperator, Site]]
-
-    def __init__(self, *ops_and_sites: tuple[SingleBodyOperator, Site]) -> None:
-        self._data = frozenset(ops_and_sites)
+    op: SingleBodyOperator
+    site: Site
 
     def __str__(self) -> str:
-        return " ".join(f"{op}({site})" for op, site in sorted(self._data))
+        return f"{self.op}({self.site})"
 
     def __hash__(self) -> int:
         return hash(str(self))
 
-    def __iter__(self) -> Iterator[tuple[SingleBodyOperator, Site]]:
-        yield from self._data
 
-    def __mul__(self, other: "LocatedOperator") -> "LocatedOperatorProduct":
-        return LocatedOperatorProduct((self, 1)) * LocatedOperatorProduct((other, 1))
+@dataclasses.dataclass
+class LocatedOperators:
+    """A product of single-body operators located at specific sites."""
+
+    ops: frozenset[LocatedOperator]
+
+    def __init__(self, *located_ops: LocatedOperator) -> None:
+        self.ops = frozenset(located_ops)
+
+    def __str__(self) -> str:
+        return " ".join(str(op) for op in self)
+
+    def __hash__(self) -> int:
+        return hash(str(self))
+
+    def __iter__(self) -> Iterator[LocatedOperator]:
+        yield from self.ops
+
+    def __mul__(self, other: "LocatedOperators") -> "ExpectationValueProduct":
+        return ExpectationValueProduct(self) * ExpectationValueProduct(other)
 
 
-class LocatedOperatorProduct:
+class ExpectationValueProduct:
     """A product of expectation values of 'LocatedOperator's."""
 
-    _op_to_exp: collections.defaultdict[LocatedOperator, int]
+    _op_to_exp: collections.defaultdict[LocatedOperators, int]
 
-    def __init__(self, *ops_and_exponents: tuple[LocatedOperator, int]) -> None:
+    def __init__(self, *located_ops: LocatedOperators) -> None:
         self._op_to_exp = collections.defaultdict(int)
-        self._op_to_exp.update(dict(ops_and_exponents))
+        for located_op in located_ops:
+            self._op_to_exp[located_op] += 1
 
     def __str__(self) -> str:
         return " ".join(f"<{op}>" if exp == 1 else f"<{op}>**{exp}" for op, exp in self)
@@ -423,15 +438,15 @@ class LocatedOperatorProduct:
     def __hash__(self) -> int:
         return hash(frozenset(self._op_to_exp.items()))
 
-    def __iter__(self) -> Iterator[tuple[LocatedOperator, int]]:
+    def __iter__(self) -> Iterator[tuple[LocatedOperators, int]]:
         yield from self._op_to_exp.items()
 
     def __mul__(
-        self, other: Union[LocatedOperator, "LocatedOperatorProduct"]
-    ) -> "LocatedOperatorProduct":
-        output = LocatedOperatorProduct()
+        self, other: Union[LocatedOperators, "ExpectationValueProduct"]
+    ) -> "ExpectationValueProduct":
+        output = ExpectationValueProduct()
         output._op_to_exp = self._op_to_exp.copy()
-        if isinstance(other, LocatedOperator):
+        if isinstance(other, LocatedOperators):
             output._op_to_exp[other] += 1
         else:
             for op, exp in other:
@@ -439,8 +454,8 @@ class LocatedOperatorProduct:
         return output
 
     def __rmul__(
-        self, other: Union[LocatedOperator, "LocatedOperatorProduct"]
-    ) -> "LocatedOperatorProduct":
+        self, other: Union[LocatedOperators, "ExpectationValueProduct"]
+    ) -> "ExpectationValueProduct":
         return self * other
 
 
@@ -448,35 +463,15 @@ class LocatedOperatorProduct:
 class OperatorPolynomial:
     """A polynomial of expectation values of 'LocatedOperator's."""
 
-    vec: dict[LocatedOperatorProduct, complex]
+    vec: dict[ExpectationValueProduct, complex]
 
-    def __init__(self, *terms: MultiBodyOperators | MultiBodyOperator) -> None:
+    def __init__(self) -> None:
         self.vec = collections.defaultdict(complex)
-        for op_sum in terms:
-            if isinstance(op_sum, MultiBodyOperator):
-                op_sum = MultiBodyOperators(op_sum)
-            op_sum.simplify()
-
-            for op in op_sum.ops:
-                if op.is_identity_op:
-                    located_op = LocatedOperator(*zip(op.local_ops, Site.range(op.num_sites)))
-                    term = LocatedOperatorProduct((located_op, 1))
-                    self.vec[term] += op.scalar * complex(op.tensor)
-                    continue
-
-                for addressed_sites in itertools.combinations(
-                    Site.range(op.num_sites), op.locality
-                ):
-                    for op_sites in itertools.permutations(addressed_sites):
-                        if op.tensor[op_sites]:
-                            located_op = LocatedOperator(*zip(op.local_ops, op_sites))
-                            term = LocatedOperatorProduct((located_op, 1))
-                            self.vec[term] += op.scalar * op.tensor[op_sites]
 
     def __str__(self) -> str:
         return "\n".join(f"{scalar} {op}" for op, scalar in self)
 
-    def __iter__(self) -> Iterator[tuple[LocatedOperatorProduct, complex]]:
+    def __iter__(self) -> Iterator[tuple[ExpectationValueProduct, complex]]:
         yield from self.vec.items()
 
     def __add__(self, other: "OperatorPolynomial") -> "OperatorPolynomial":
@@ -504,16 +499,53 @@ class OperatorPolynomial:
     def __pow__(self, exponent: int) -> "OperatorPolynomial":
         assert exponent > 0
         output = OperatorPolynomial()
-        for _ in range(exponent):
+        output.vec = self.vec.copy()
+        for _ in range(1, exponent):
             output = output * self
         return output
 
+    @classmethod
+    def from_multibody_ops(
+        self, *terms: MultiBodyOperators | MultiBodyOperator
+    ) -> "OperatorPolynomial":
+        output = OperatorPolynomial()
+        for multibody_ops in terms:
+            if isinstance(multibody_ops, MultiBodyOperator):
+                multibody_ops = MultiBodyOperators(multibody_ops)
+            multibody_ops.simplify()
+
+            for op in multibody_ops.ops:
+                if op.is_identity_op:
+                    located_ops = [
+                        LocatedOperator(local_op, site)
+                        for local_op, site in zip(op.local_ops, Site.range(op.num_sites))
+                    ]
+                    located_op = LocatedOperators(*located_ops)
+                    term = ExpectationValueProduct(located_op)
+                    output.vec[term] += op.scalar * complex(op.tensor)
+                    continue
+
+                for addressed_sites in itertools.combinations(
+                    Site.range(op.num_sites), op.locality
+                ):
+                    for op_sites in itertools.permutations(addressed_sites):
+                        if op.tensor[op_sites]:
+                            located_ops = [
+                                LocatedOperator(local_op, site)
+                                for local_op, site in zip(op.local_ops, op_sites)
+                            ]
+                            located_op = LocatedOperators(*located_ops)
+                            term = ExpectationValueProduct(located_op)
+                            output.vec[term] += op.scalar * op.tensor[op_sites]
+
+        return output
+
     def factorize(
-        self, factorize: Callable[[LocatedOperator], "OperatorPolynomial"]
+        self, factorize_rule: Callable[[LocatedOperators], "OperatorPolynomial"]
     ) -> "OperatorPolynomial":
         output = OperatorPolynomial()
         for term, scalar in self:
-            factorized_factors = [factorize(factor) ** exponent for factor, exponent in term]
+            factorized_factors = [factorize_rule(factor) ** exponent for factor, exponent in term]
             product_of_factorized_factors = functools.reduce(
                 OperatorPolynomial.__mul__, factorized_factors
             )
@@ -555,7 +587,7 @@ op_joined = commute_ops(op_a, op_c, structure_factors)
 
 for op in op_joined:
     print(op.scalar, op)
-    print()
+print()
 
 ####################################################################################################
 
@@ -574,7 +606,18 @@ print()
 
 ####################################################################################################
 
-op_poly = OperatorPolynomial(op_sum)
+op_poly = OperatorPolynomial.from_multibody_ops(op_sum)
+
+
+def factorize_rule(located_ops: LocatedOperators) -> OperatorPolynomial:
+    output = OperatorPolynomial()
+    factors = [LocatedOperators(located_op) for located_op in located_ops]
+    product = ExpectationValueProduct(*factors)
+    output.vec[product] = 1
+    return output
+
+
+op_poly = op_poly.factorize(factorize_rule)
 print(op_poly)
 
 exit()
