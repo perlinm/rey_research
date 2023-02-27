@@ -66,7 +66,7 @@ class TypedInteger:
         return hash(str(self))
 
     def __bool__(self) -> bool:
-        return self.index != 0
+        return bool(self.index)
 
     def __index__(self) -> int:
         return self.index
@@ -508,7 +508,6 @@ def _commute_dense_op_terms(
     assert op_a.num_sites == op_b.num_sites
 
     output = DenseMultiBodyOperators()
-    op_dim = structure_factors.shape[-1]
 
     if op_a.is_identity_op or op_b.is_identity_op:
         return output
@@ -554,22 +553,21 @@ def _commute_dense_op_terms(
                     op for idx, op in enumerate(op_b.local_ops) if idx not in overlap_indices_b
                 ]
 
-                # loop over terms in the commutator of 'operlap_ops_a' and 'overlap_ops_b'
-                for overlap_ops in itertools.product(
-                    AbstractSingleBodyOperator.range(op_dim), repeat=num_overlaps
-                ):
-                    # get the structure factors for this term
-                    factors_ab = [
-                        structure_factors[aa, bb, cc]
-                        for aa, bb, cc in zip(overlap_ops_a, overlap_ops_b, overlap_ops)
-                    ]
-                    factors_ba = [
-                        structure_factors[bb, aa, cc]
-                        for aa, bb, cc in zip(overlap_ops_a, overlap_ops_b, overlap_ops)
-                    ]
-                    factor = np.prod(factors_ab) - np.prod(factors_ba)
-                    if not factor:
-                        continue
+                # add nonzero terms in the commutator
+                structure_tensor_ab = functools.reduce(
+                    tensor_product,
+                    [structure_factors[aa, bb] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
+                )
+                structure_tensor_ba = functools.reduce(
+                    tensor_product,
+                    [structure_factors[bb, aa] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
+                )
+                structure_tensor = structure_tensor_ab - structure_tensor_ba
+                for overlap_ops_by_index in np.argwhere(structure_tensor):
+                    factor = structure_tensor[tuple(overlap_ops_by_index)]
+                    overlap_ops = tuple(
+                        AbstractSingleBodyOperator(cc) for cc in overlap_ops_by_index
+                    )
 
                     # update the list of all local operators in this term
                     for idx, overlap_op in enumerate(overlap_ops):
@@ -607,7 +605,7 @@ def get_random_op(num_sites: int) -> np.ndarray:
 np.random.seed(0)
 np.set_printoptions(linewidth=200)
 
-num_sites = 3
+num_sites = 4
 
 mat_a = get_random_op(num_sites)
 mat_b = get_random_op(num_sites)
