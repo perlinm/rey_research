@@ -3,7 +3,7 @@ import collections
 import dataclasses
 import functools
 import itertools
-from typing import Callable, Iterator, Sequence, TypeVar, Union
+from typing import Callable, Iterator, List, Sequence, Tuple, TypeVar, Union
 
 import numpy as np
 
@@ -507,11 +507,11 @@ def _commute_dense_op_terms(
 ) -> DenseMultiBodyOperators:
     assert op_a.num_sites == op_b.num_sites
 
-    output = DenseMultiBodyOperators()
-
     if op_a.is_identity_op or op_b.is_identity_op:
-        return output
+        return DenseMultiBodyOperators()
 
+    output = DenseMultiBodyOperators()
+    overlap_scalar = op_a.scalar * op_b.scalar
     min_overlaps = max(1, op_a.locality + op_b.locality - op_a.num_sites)
     max_overlaps = min(op_a.locality, op_b.locality)
     for num_overlaps in range(min_overlaps, max_overlaps + 1):
@@ -538,46 +538,92 @@ def _commute_dense_op_terms(
                     idx for idx in range(op_b.locality) if idx not in overlap_indices_b
                 ]
 
-                # construct the shared tensor of spacial (site) coefficients for these terms
-                indices_a = range(op_a.locality)
-                indices_b = list(range(op_a.locality, op_a.locality + op_b.locality))
-                for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
-                    indices_b[idx_b] = idx_a
-                indices_final = (
-                    overlap_indices_a
-                    + non_overlap_indices_a
-                    + tuple(idx for idx in indices_b if idx >= op_a.locality)
+                # construct the tensor of spacial (site) coefficients all terms with these overlaps
+                overlap_tensor = _get_overlap_tensor(
+                    op_a.tensor,
+                    op_b.tensor,
+                    overlap_indices_a + non_overlap_indices_a,
+                    overlap_indices_b,
                 )
-                tensor = np.einsum(op_a.tensor, indices_a, op_b.tensor, indices_b, indices_final)
-                if not tensor.any():
+                if not overlap_tensor.any():
                     continue
 
                 # construct list of the local operators that will overlap 'overlap_ops_a'
                 overlap_ops_b = [op_b.local_ops[idx] for idx in overlap_indices_b]
                 non_overlap_ops_b = [op_b.local_ops[idx] for idx in non_overlap_indices_b]
 
-                # identify coefficients for nonzero terms in the commutator of the overlapping ops
-                structure_tensor_ab = functools.reduce(
-                    tensor_product,
-                    [structure_factors[aa, bb] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
+                # add all terms in the commutator with these overlaps
+                output += _commute_local_ops(
+                    structure_factors,
+                    overlap_ops_a,
+                    overlap_ops_b,
+                    non_overlap_ops_a + non_overlap_ops_b,
+                    overlap_tensor,
+                    overlap_scalar,
                 )
-                structure_tensor_ba = functools.reduce(
-                    tensor_product,
-                    [structure_factors[bb, aa] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
-                )
-                structure_tensor = structure_tensor_ab - structure_tensor_ba
-
-                for overlap_ops_by_index in np.argwhere(structure_tensor):
-                    factor = structure_tensor[tuple(overlap_ops_by_index)]
-                    overlap_ops = [AbstractSingleBodyOperator(cc) for cc in overlap_ops_by_index]
-
-                    # add this term to the output
-                    scalar = factor * op_a.scalar * op_b.scalar
-                    local_ops = overlap_ops + non_overlap_ops_a + non_overlap_ops_b
-                    output += DenseMultiBodyOperator(tensor, *local_ops, scalar=scalar)
 
     output.simplify()
     return output
+
+
+def _get_overlap_tensor(
+    tensor_a: np.ndarray,
+    tensor_b: np.ndarray,
+    transposed_indices_a: Tuple[int, ...],
+    overlap_indices_b: Tuple[int, ...],
+) -> np.ndarray:
+    """
+    Construct the shared tensor for all overlaps between two dense operators in which indices
+    'overlap_indices_b' of 'tensor_b' are contracted with the first indices of 'tensor_a'.
+    """
+    indices_a = range(tensor_a.ndim)
+    indices_b = list(range(tensor_a.ndim, tensor_a.ndim + tensor_b.ndim))
+    for idx_a, idx_b in zip(transposed_indices_a, overlap_indices_b):
+        indices_b[idx_b] = idx_a
+    indices_final = transposed_indices_a + tuple(idx for idx in indices_b if idx >= tensor_a.ndim)
+    return np.einsum(tensor_a, indices_a, tensor_b, indices_b, indices_final)
+
+
+def _commute_local_ops(
+    structure_factors: np.ndarray,
+    overlap_ops_a: Sequence[AbstractSingleBodyOperator],
+    overlap_ops_b: Sequence[AbstractSingleBodyOperator],
+    additional_ops: Sequence[AbstractSingleBodyOperator],
+    tensor: np.ndarray,
+    scalar: complex = 1,
+) -> DenseMultiBodyOperators:
+    """Commute overlapping local operators."""
+    output = DenseMultiBodyOperators()
+
+    # identify coefficients for terms in the commutator of the overlapping ops
+    commutator_factors = _get_commutator_factors(structure_factors, overlap_ops_a, overlap_ops_b)
+
+    # add nonzero terms to the output
+    for overlap_ops_by_index in np.argwhere(commutator_factors):
+        factor = commutator_factors[tuple(overlap_ops_by_index)]
+        overlap_ops = [AbstractSingleBodyOperator(cc) for cc in overlap_ops_by_index]
+        output += DenseMultiBodyOperator(
+            tensor, *overlap_ops, *additional_ops, scalar=scalar * factor
+        )
+
+    return output
+
+
+def _get_commutator_factors(
+    structure_factors: np.ndarray,
+    overlap_ops_a: Sequence[AbstractSingleBodyOperator],
+    overlap_ops_b: Sequence[AbstractSingleBodyOperator],
+):
+    """Get the coefficients in the commutator of two products of local operators."""
+    factors_ab = functools.reduce(
+        tensor_product,
+        [structure_factors[aa, bb] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
+    )
+    factors_ba = functools.reduce(
+        tensor_product,
+        [structure_factors[bb, aa] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
+    )
+    return factors_ab - factors_ba
 
 
 ####################################################################################################
