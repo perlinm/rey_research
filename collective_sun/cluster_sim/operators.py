@@ -538,7 +538,7 @@ def _commute_dense_op_terms(
                     idx for idx in range(op_b.locality) if idx not in overlap_indices_b
                 ]
 
-                # construct the tensor of coefficients for these terms
+                # construct the shared tensor of spacial (site) coefficients for these terms
                 indices_a = range(op_a.locality)
                 indices_b = list(range(op_a.locality, op_a.locality + op_b.locality))
                 for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
@@ -556,7 +556,7 @@ def _commute_dense_op_terms(
                 overlap_ops_b = [op_b.local_ops[idx] for idx in overlap_indices_b]
                 non_overlap_ops_b = [op_b.local_ops[idx] for idx in non_overlap_indices_b]
 
-                # add nonzero terms in the commutator
+                # identify coefficients for nonzero terms in the commutator of the overlapping ops
                 structure_tensor_ab = functools.reduce(
                     tensor_product,
                     [structure_factors[aa, bb] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
@@ -566,6 +566,7 @@ def _commute_dense_op_terms(
                     [structure_factors[bb, aa] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
                 )
                 structure_tensor = structure_tensor_ab - structure_tensor_ba
+
                 for overlap_ops_by_index in np.argwhere(structure_tensor):
                     factor = structure_tensor[tuple(overlap_ops_by_index)]
                     overlap_ops = [AbstractSingleBodyOperator(cc) for cc in overlap_ops_by_index]
@@ -603,7 +604,7 @@ def get_random_op(num_sites: int) -> np.ndarray:
 np.random.seed(0)
 np.set_printoptions(linewidth=200)
 
-num_sites = 4
+num_sites = 5
 
 mat_a = get_random_op(num_sites)
 mat_b = get_random_op(num_sites)
