@@ -492,39 +492,50 @@ class OperatorPolynomial:
         return output
 
     @classmethod
-    def from_multibody_ops(
+    def from_multi_body_ops(
         self, *terms: DenseMultiBodyOperators | DenseMultiBodyOperator
     ) -> "OperatorPolynomial":
-        # TODO: comment
+        """
+        Construct an 'OperatorPolynomial' that represents a sum of the expectation values of
+        the given multibody operators.
+        """
         output = OperatorPolynomial()
-        for multibody_ops in terms:
-            if isinstance(multibody_ops, DenseMultiBodyOperator):
-                multibody_ops = DenseMultiBodyOperators(multibody_ops)
-            multibody_ops.simplify()
 
-            for op in multibody_ops.ops:
-                if op.is_identity_op:
-                    located_ops = [
-                        SingleBodyOperator(local_op, site)
-                        for local_op, site in zip(op.local_ops, LatticeSite.range(op.num_sites))
+        # loop over the given terms
+        for dense_ops in terms:
+            if isinstance(dense_ops, DenseMultiBodyOperator):
+                dense_ops = DenseMultiBodyOperators(dense_ops)
+            dense_ops.simplify()
+
+            # loop over individual 'DenseMultiBodyOperator's in this term
+            for dense_op in dense_ops.ops:
+
+                # deal with idendity operators as a special case
+                if dense_op.is_identity_op:
+                    iden_op = AbstractSingleBodyOperator(0)
+                    iden_ops = [
+                        SingleBodyOperator(iden_op, site)
+                        for site in LatticeSite.range(dense_op.locality)
                     ]
-                    located_op = MultiBodyOperator(*located_ops)
-                    term = ExpectationValueProduct(located_op)
-                    output.vec[term] += op.scalar * complex(op.tensor)
+                    net_op = MultiBodyOperator(*iden_ops)
+                    term = ExpectationValueProduct(net_op)
+                    output.vec[term] += dense_op.scalar * complex(dense_op.tensor)
                     continue
 
+                # loop over all choices of sites to address nontrivially
                 for addressed_sites in itertools.combinations(
-                    LatticeSite.range(op.num_sites), op.locality
+                    LatticeSite.range(dense_op.num_sites), dense_op.locality
                 ):
+                    # loop over all assignments of specific operators to specific sites
                     for op_sites in itertools.permutations(addressed_sites):
-                        if op.tensor[op_sites]:
-                            located_ops = [
+                        if dense_op.tensor[op_sites]:
+                            single_body_ops = [
                                 SingleBodyOperator(local_op, site)
-                                for local_op, site in zip(op.local_ops, op_sites)
+                                for local_op, site in zip(dense_op.local_ops, op_sites)
                             ]
-                            located_op = MultiBodyOperator(*located_ops)
-                            term = ExpectationValueProduct(located_op)
-                            output.vec[term] += op.scalar * op.tensor[op_sites]
+                            multi_body_op = MultiBodyOperator(*single_body_ops)
+                            term = ExpectationValueProduct(multi_body_op)
+                            output.vec[term] += dense_op.scalar * dense_op.tensor[op_sites]
 
         return output
 
@@ -737,7 +748,7 @@ exit()
 
 op_mat = get_random_op(num_sites)
 op_sum = DenseMultiBodyOperators.from_matrix(op_mat, op_mats)
-op_poly = OperatorPolynomial.from_multibody_ops(op_sum)
+op_poly = OperatorPolynomial.from_multi_body_ops(op_sum)
 
 
 def factorization_rule(located_ops: MultiBodyOperator) -> OperatorPolynomial:
