@@ -531,11 +531,15 @@ class OperatorPolynomial:
     def factorize(
         self, factorization_rule: Callable[[MultiBodyOperator], "OperatorPolynomial"]
     ) -> "OperatorPolynomial":
-        # TODO: comment
+        """
+        Factorize all terms in 'self' according to a given rule for factorizing the expectation
+        value of a 'MultiBodyOperator'.
+        """
         output = OperatorPolynomial()
-        for term, scalar in self:
+        for product_of_expectation_values, scalar in self:
             factorized_factors = [
-                factorization_rule(factor) ** exponent for factor, exponent in term
+                factorization_rule(expectation_value) ** exponent
+                for expectation_value, exponent in product_of_expectation_values
             ]
             product_of_factorized_factors = functools.reduce(
                 OperatorPolynomial.__mul__, factorized_factors
