@@ -519,12 +519,13 @@ def _commute_dense_op_terms(
         # loop over choices for which operators in 'op_a' to overlap with 'op_b'
         overlap_index_set_a = itertools.combinations(range(op_a.locality), num_overlaps)
         for overlap_indices_a in overlap_index_set_a:
-
-            # dummy indices for the sites of operators in 'op_a'
-            indices_a = list(range(op_a.locality))
+            non_overlap_indices_a = tuple(
+                idx for idx in range(op_a.locality) if idx not in overlap_indices_a
+            )
 
             # local operators in 'op_a' that will overlap in these terms
-            overlap_ops_a = tuple(op_a.local_ops[idx] for idx in overlap_indices_a)
+            overlap_ops_a = [op_a.local_ops[idx] for idx in overlap_indices_a]
+            non_overlap_ops_a = [op_a.local_ops[idx] for idx in non_overlap_indices_a]
 
             # loop over choices for operators in 'op_b' to overlap with 'overlap_ops_a'
             overlap_index_set_b = (
@@ -533,25 +534,27 @@ def _commute_dense_op_terms(
                 for permuted_indices in itertools.permutations(indices)
             )
             for overlap_indices_b in overlap_index_set_b:
+                non_overlap_indices_b = [
+                    idx for idx in range(op_b.locality) if idx not in overlap_indices_b
+                ]
 
-                # dummy indices for the sites of operators in 'op_a'
+                # construct the tensor of coefficients for these terms
+                indices_a = range(op_a.locality)
                 indices_b = list(range(op_a.locality, op_a.locality + op_b.locality))
                 for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
                     indices_b[idx_b] = idx_a
-
-                # construct the tensor of coefficients for these terms
-                final_indices = indices_a + [idx for idx in indices_b if idx >= op_a.locality]
-                tensor = np.einsum(op_a.tensor, indices_a, op_b.tensor, indices_b, final_indices)
+                indices_final = (
+                    overlap_indices_a
+                    + non_overlap_indices_a
+                    + tuple(idx for idx in indices_b if idx >= op_a.locality)
+                )
+                tensor = np.einsum(op_a.tensor, indices_a, op_b.tensor, indices_b, indices_final)
                 if not tensor.any():
                     continue
 
                 # construct list of the local operators that will overlap 'overlap_ops_a'
-                overlap_ops_b = tuple(op_b.local_ops[idx] for idx in overlap_indices_b)
-
-                # construct a tentative list of local operators for these terms
-                local_ops = list(op_a.local_ops) + [
-                    op for idx, op in enumerate(op_b.local_ops) if idx not in overlap_indices_b
-                ]
+                overlap_ops_b = [op_b.local_ops[idx] for idx in overlap_indices_b]
+                non_overlap_ops_b = [op_b.local_ops[idx] for idx in non_overlap_indices_b]
 
                 # add nonzero terms in the commutator
                 structure_tensor_ab = functools.reduce(
@@ -565,16 +568,11 @@ def _commute_dense_op_terms(
                 structure_tensor = structure_tensor_ab - structure_tensor_ba
                 for overlap_ops_by_index in np.argwhere(structure_tensor):
                     factor = structure_tensor[tuple(overlap_ops_by_index)]
-                    overlap_ops = tuple(
-                        AbstractSingleBodyOperator(cc) for cc in overlap_ops_by_index
-                    )
-
-                    # update the list of all local operators in this term
-                    for idx, overlap_op in enumerate(overlap_ops):
-                        local_ops[overlap_indices_a[idx]] = overlap_op
+                    overlap_ops = [AbstractSingleBodyOperator(cc) for cc in overlap_ops_by_index]
 
                     # add this term to the output
                     scalar = factor * op_a.scalar * op_b.scalar
+                    local_ops = overlap_ops + non_overlap_ops_a + non_overlap_ops_b
                     output += DenseMultiBodyOperator(tensor, *local_ops, scalar=scalar)
 
     output.simplify()
