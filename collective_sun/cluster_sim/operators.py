@@ -3,7 +3,7 @@ import collections
 import dataclasses
 import functools
 import itertools
-from typing import Callable, Iterator, List, Sequence, Tuple, TypeVar, Union
+from typing import Callable, Iterator, Sequence, Tuple, TypeVar, Union
 
 import numpy as np
 
@@ -17,6 +17,7 @@ def tensor_product(tensor_a: np.ndarray, tensor_b: np.ndarray) -> np.ndarray:
 
 
 def trace_inner_product(op_a: np.ndarray, op_b: np.ndarray) -> complex:
+    """Inner product: <A, B> = Tr[A^dag B] / dim."""
     return op_a.ravel().conj() @ op_b.ravel() / op_a.shape[0]
 
 
@@ -34,6 +35,11 @@ def get_structure_factors(
     binary_op: Callable[[np.ndarray, np.ndarray], np.ndarray] = multiply_mats,
     inner_product: Callable[[np.ndarray, np.ndarray], complex] = trace_inner_product,
 ) -> np.ndarray:
+    """
+    Compute the structure factors f_{ABC} for the operator algebra associated with the given
+    matrices:
+        A @ B = sum_C f_{ABC} C
+    """
     dim = op_mat_I.shape[0]
     op_mats = [op_mat_I, *other_mats]
     assert np.array_equal(op_mat_I, np.eye(dim))
@@ -168,15 +174,19 @@ class DenseMultiBodyOperator:
         return bool(self.scalar) and bool(self.tensor.any()) and bool(self.local_ops)
 
     def simplify(self) -> None:
+        """Simplify 'self' by removing any identity operators from 'self.local_ops'."""
         if any(not local_op for local_op in self.local_ops) and not self.is_identity_op:
+            # identity all nontrivial (non-identity) local operators
             non_identity_data = [
                 (idx, local_op) for idx, local_op in enumerate(self.local_ops) if local_op
             ]
             if non_identity_data:
+                # trace over the indices in the tensor associated with identity operators
                 non_identity_indices, non_identity_ops = zip(*non_identity_data)
                 self.tensor = np.einsum(self.tensor, range(self.tensor.ndim), non_identity_indices)
                 self.local_ops = non_identity_ops
             else:
+                # all local ops are identities --> 'self' is an identity operator
                 self.local_ops = (AbstractSingleBodyOperator(0),) * self.num_sites
                 self.scalar *= np.sum(self.tensor)
                 self.tensor = np.array(1)
@@ -196,12 +206,14 @@ class DenseMultiBodyOperator:
         return not self.tensor.ndim
 
     def in_canonical_form(self) -> "DenseMultiBodyOperator":
+        """Rearrange data to sort 'self.local_ops' by increasing index."""
         argsort = np.argsort([local_op.index for local_op in self.local_ops])
         tensor = np.transpose(self.tensor, argsort)
         local_ops = [self.local_ops[idx] for idx in argsort]
         return DenseMultiBodyOperator(tensor, *local_ops, scalar=self.scalar)
 
     def to_tensor(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
+        # TODO: comment
         spin_dim = int(np.round(np.sqrt(len(op_mats))))
         op_mat_I = np.eye(spin_dim)
         assert np.array_equal(op_mats[0], op_mat_I)
@@ -277,12 +289,18 @@ class DenseMultiBodyOperators:
         return self.ops[0].num_sites
 
     def simplify(self) -> None:
+        """
+        Simplify 'self' by removing trivial (zero) terms, and combining terms that have the same
+        operator content.
+        """
         # remove trivial (zero) terms
         self.ops = [op for op in self.ops if op]
+
         # combine terms that are the same up to a permutation of local operators
         local_op_counts = [collections.Counter(op.local_ops) for op in self.ops]
         for jj in reversed(range(1, len(local_op_counts))):
             for ii in range(jj):
+                # if terms ii and jj have the same operator content, merge term jj into ii
                 if local_op_counts[ii] == local_op_counts[jj]:
                     op_ii = self.ops[ii].in_canonical_form()
                     op_jj = self.ops[jj].in_canonical_form()
@@ -303,6 +321,10 @@ class DenseMultiBodyOperators:
     def from_matrix(
         cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray]
     ) -> "DenseMultiBodyOperators":
+        """
+        Construct a 'DenseMultiBodyOperators' object from the matrix representation of an operator
+        on a Hibert space.
+        """
         spin_dim = int(np.round(np.sqrt(len(op_mats))))
         num_sites = int(np.round(np.log(matrix.size) / np.log(spin_dim))) // 2
 
@@ -310,39 +332,56 @@ class DenseMultiBodyOperators:
         assert np.array_equal(op_mats[0], op_mat_I)
 
         output = DenseMultiBodyOperators()
+
+        # add an identity term, which gets special treatment in the 'DenseMultiBodyOperator' class
         identity_coefficient = trace_inner_product(np.eye(spin_dim**num_sites), matrix)
         if identity_coefficient:
             iden_ops = [AbstractSingleBodyOperator(0) for _ in range(num_sites)]
             output += DenseMultiBodyOperator(np.array(1), *iden_ops, scalar=identity_coefficient)
 
-        for non_iden_num in range(1, num_sites + 1):
-            for non_iden_sites in itertools.combinations(range(num_sites), non_iden_num):
-                tensor = np.zeros((num_sites,) * non_iden_num, dtype=complex)
+        # loop over all numbers of sites that may be addressed nontrivially
+        for locality in range(1, num_sites + 1):
+            # loop over all choices of specific sites that are addressed nontrivially
+            for non_iden_sites in itertools.combinations(range(num_sites), locality):
+
+                # initialize a coefficient tensor to populate with nonzero values
+                tensor = np.zeros((num_sites,) * locality, dtype=complex)
+
+                # loop over all choices of nontrivial operators at the chosen sites
                 for local_ops in itertools.product(
-                    AbstractSingleBodyOperator.range(1, len(op_mats)), repeat=non_iden_num
+                    AbstractSingleBodyOperator.range(1, len(op_mats)), repeat=locality
                 ):
+                    # compute the coefficient for this choice of local operators
                     matrices = [op_mat_I] * num_sites
                     for idx, local_op in zip(non_iden_sites, local_ops):
                         matrices[idx] = local_op.to_matrix(op_mats)
-                    pauli_op_matrix = functools.reduce(np.kron, matrices)
-                    coefficient = trace_inner_product(pauli_op_matrix, matrix)
+                    term_matrix = functools.reduce(np.kron, matrices)
+                    coefficient = trace_inner_product(term_matrix, matrix)
+
+                    # add this term to the output
                     if coefficient:
                         tensor[non_iden_sites] = coefficient
                         output += DenseMultiBodyOperator(tensor.copy(), *local_ops)
+
+        output.simplify()
         return output
 
     def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
+        """Return the matrix representation of 'self'."""
+        # TODO: comment
         spin_dim = int(np.round(np.sqrt(len(op_mats))))
         num_sites = self.num_sites
-        final_shape = (spin_dim**num_sites,) * 2
+        output_matrix_shape = (spin_dim**num_sites,) * 2
+
         op_tensor = sum((op.to_tensor(op_mats) for op in self.ops))
         if not isinstance(op_tensor, np.ndarray):
-            return np.zeros(final_shape)
+            return np.zeros(output_matrix_shape)
+
         op_tensor.shape = (spin_dim,) * (2 * num_sites)
         op_tensor = np.moveaxis(
             op_tensor, range(1, 2 * num_sites, 2), range(num_sites, 2 * num_sites)
         )
-        return op_tensor.reshape(final_shape)
+        return op_tensor.reshape(output_matrix_shape)
 
 
 ####################################################################################################
@@ -435,6 +474,7 @@ class OperatorPolynomial:
     def from_multibody_ops(
         self, *terms: DenseMultiBodyOperators | DenseMultiBodyOperator
     ) -> "OperatorPolynomial":
+        # TODO: comment
         output = OperatorPolynomial()
         for multibody_ops in terms:
             if isinstance(multibody_ops, DenseMultiBodyOperator):
@@ -470,6 +510,7 @@ class OperatorPolynomial:
     def factorize(
         self, factorization_rule: Callable[[MultiBodyOperator], "OperatorPolynomial"]
     ) -> "OperatorPolynomial":
+        # TODO: comment
         output = OperatorPolynomial()
         for term, scalar in self:
             factorized_factors = [
@@ -491,6 +532,7 @@ def commute_dense_ops(
     op_b: DenseMultiBodyOperators | DenseMultiBodyOperator,
     structure_factors: np.ndarray,
 ) -> DenseMultiBodyOperators:
+    """Compute the commutator of two dense multibody operators."""
     op_a = DenseMultiBodyOperators(op_a)
     op_b = DenseMultiBodyOperators(op_b)
     output = DenseMultiBodyOperators()
@@ -505,6 +547,7 @@ def _commute_dense_op_terms(
     op_b: DenseMultiBodyOperator,
     structure_factors: np.ndarray,
 ) -> DenseMultiBodyOperators:
+    """Compute the commutator of two 'DenseMultiBodyOperator's."""
     assert op_a.num_sites == op_b.num_sites
 
     if op_a.is_identity_op or op_b.is_identity_op:
