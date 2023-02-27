@@ -173,7 +173,7 @@ class DenseMultiBodyOperator:
 
     def simplify(self) -> None:
         """Simplify 'self' by removing any identity operators from 'self.local_ops'."""
-        if any(not local_op for local_op in self.local_ops) and not self.is_identity_op:
+        if any(not local_op for local_op in self.local_ops) and not self.is_identity_op():
             # identity all nontrivial (non-identity) local operators
             non_identity_data = [
                 (idx, local_op) for idx, local_op in enumerate(self.local_ops) if local_op
@@ -191,7 +191,7 @@ class DenseMultiBodyOperator:
 
     @property
     def num_sites(self) -> int:
-        if self.is_identity_op:
+        if self.is_identity_op():
             return self.locality
         return self.tensor.shape[0]
 
@@ -199,7 +199,6 @@ class DenseMultiBodyOperator:
     def locality(self) -> int:
         return len(self.local_ops)
 
-    @property
     def is_identity_op(self) -> bool:
         return not self.tensor.ndim
 
@@ -234,7 +233,7 @@ class DenseMultiBodyOperator:
 
         # construct a tensor for all sites addressed by the identity
         iden_op_tensor = _get_iden_op_tensor(spin_dim, self.num_sites - self.locality)
-        if self.is_identity_op:
+        if self.is_identity_op():
             return self.tensor * self.scalar * iden_op_tensor
 
         # vectorize all nontrivial operators in 'self'
@@ -417,10 +416,15 @@ class ExpectationValueProduct:
             self._op_to_exp[located_op] += 1
 
     def __str__(self) -> str:
+        if self.is_empty():
+            return "<1>"
         return " ".join(f"<{op}>" if exp == 1 else f"<{op}>**{exp}" for op, exp in self)
 
     def __hash__(self) -> int:
-        return hash(frozenset(self._op_to_exp.items()))
+        return hash(tuple(self._op_to_exp.items()))
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ExpectationValueProduct) and hash(self) == hash(other)
 
     def __iter__(self) -> Iterator[tuple[MultiBodyOperator, int]]:
         yield from self._op_to_exp.items()
@@ -441,6 +445,9 @@ class ExpectationValueProduct:
         self, other: Union[MultiBodyOperator, "ExpectationValueProduct"]
     ) -> "ExpectationValueProduct":
         return self * other
+
+    def is_empty(self) -> bool:
+        return not bool(self._op_to_exp)
 
 
 @dataclasses.dataclass
@@ -511,15 +518,9 @@ class OperatorPolynomial:
             for dense_op in dense_ops.ops:
 
                 # deal with idendity operators as a special case
-                if dense_op.is_identity_op:
-                    iden_op = AbstractSingleBodyOperator(0)
-                    iden_ops = [
-                        SingleBodyOperator(iden_op, site)
-                        for site in LatticeSite.range(dense_op.locality)
-                    ]
-                    net_op = MultiBodyOperator(*iden_ops)
-                    term = ExpectationValueProduct(net_op)
-                    output.vec[term] += dense_op.scalar * complex(dense_op.tensor)
+                if dense_op.is_identity_op():
+                    identity = ExpectationValueProduct()
+                    output.vec[identity] += dense_op.scalar * complex(dense_op.tensor)
                     continue
 
                 # loop over all choices of sites to address nontrivially
@@ -548,14 +549,21 @@ class OperatorPolynomial:
         """
         output = OperatorPolynomial()
         for product_of_expectation_values, scalar in self:
+
+            if product_of_expectation_values.is_empty():
+                # this is an identity term
+                output.vec[product_of_expectation_values] += scalar
+                continue
+
             factorized_factors = [
                 factorization_rule(expectation_value) ** exponent
                 for expectation_value, exponent in product_of_expectation_values
             ]
             product_of_factorized_factors = functools.reduce(
-                OperatorPolynomial.__mul__, factorized_factors
+                OperatorPolynomial.__mul__, factorized_factors,
             )
             output += scalar * product_of_factorized_factors
+
         return output
 
 
@@ -586,7 +594,7 @@ def _commute_dense_op_terms(
     """Compute the commutator of two 'DenseMultiBodyOperator's."""
     assert op_a.num_sites == op_b.num_sites
 
-    if op_a.is_identity_op or op_b.is_identity_op:
+    if op_a.is_identity_op() or op_b.is_identity_op():
         return DenseMultiBodyOperators()
 
     output = DenseMultiBodyOperators()
@@ -729,7 +737,7 @@ def get_random_op(num_sites: int) -> np.ndarray:
 np.random.seed(0)
 np.set_printoptions(linewidth=200)
 
-num_sites = 5
+num_sites = 4
 
 mat_a = get_random_op(num_sites)
 mat_b = get_random_op(num_sites)
@@ -760,8 +768,7 @@ def factorization_rule(located_ops: MultiBodyOperator) -> OperatorPolynomial:
 
 
 op_poly = op_poly.factorize(factorization_rule)
-print(op_poly)
-
+print(op_poly**2)
 exit()
 
 state = np.random.random(2**num_sites) * np.exp(-1j * np.random.random(2**num_sites))
