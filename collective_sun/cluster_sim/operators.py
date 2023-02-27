@@ -88,8 +88,6 @@ class TypedInteger:
 class LatticeSite(TypedInteger):
     """A "site", indexing a physical location."""
 
-    ...
-
 
 ####################################################################################################
 # data structures for representing operators
@@ -213,20 +211,41 @@ class DenseMultiBodyOperator:
         return DenseMultiBodyOperator(tensor, *local_ops, scalar=self.scalar)
 
     def to_tensor(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
-        # TODO: comment
+        """
+        Return a tensor representation of 'self'.
+
+        Consider an operator that can be factorized into a single local operator for each lattice
+        site.  Such an operator can be represented by a tensor of the form
+          't = otimes_{site s} vect(O_s)',
+        where
+        - 'otimes_{site s}' denotes a tensor product over all sites 's'
+        - 'O_s' is the operator addressing site 's', and
+        - 'vect(O)' is a vectorized version of the matrix representing 'O'.
+
+        Given this tensor representation of "product operators", we can represent 'self' with the
+        tensor
+            'T = sum_t c_t t',
+        where 'c_t' is the coefficient for 't' in 'self'.
+        """
         spin_dim = int(np.round(np.sqrt(len(op_mats))))
         op_mat_I = np.eye(spin_dim)
         assert np.array_equal(op_mats[0], op_mat_I)
+        self.simplify()
 
+        # construct a tensor for all sites addressed by the identity
         iden_op_tensor = _get_iden_op_tensor(spin_dim, self.num_sites - self.locality)
-        local_op_tensors = [local_op.to_matrix(op_mats).ravel() for local_op in self.local_ops]
+        if self.is_identity_op:
+            return self.tensor * self.scalar * iden_op_tensor
+
+        # vectorize all nontrivial operators in 'self'
+        local_op_vecs = [local_op.to_matrix(op_mats).ravel() for local_op in self.local_ops]
+
+        # take a tensor product of vectorized operators for all sites
         base_tensor = self.scalar * functools.reduce(
-            tensor_product, local_op_tensors + [iden_op_tensor]
+            tensor_product, local_op_vecs + [iden_op_tensor]
         )
 
-        if self.is_identity_op:
-            return self.tensor * base_tensor
-
+        # sum over all choices of sites to address nontrivially
         op_tensors = (
             self.tensor[sites] * np.moveaxis(base_tensor, range(self.locality), sites)
             for addressed_sites in itertools.combinations(range(self.num_sites), self.locality)
@@ -368,7 +387,6 @@ class DenseMultiBodyOperators:
 
     def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
         """Return the matrix representation of 'self'."""
-        # TODO: comment
         spin_dim = int(np.round(np.sqrt(len(op_mats))))
         num_sites = self.num_sites
         output_matrix_shape = (spin_dim**num_sites,) * 2
@@ -441,6 +459,7 @@ class OperatorPolynomial:
         yield from self.vec.items()
 
     def __add__(self, other: "OperatorPolynomial") -> "OperatorPolynomial":
+        """Add two 'OperatorPolynomial's."""
         output = OperatorPolynomial()
         output.vec = self.vec.copy()
         for term, scalar in other:
@@ -448,6 +467,7 @@ class OperatorPolynomial:
         return output
 
     def __mul__(self, other: Union[complex, "OperatorPolynomial"]) -> "OperatorPolynomial":
+        """Multiply an 'OperatorPolynomial' by a scalar, or by another 'OperatorPolynomial'."""
         output = OperatorPolynomial()
         if isinstance(other, OperatorPolynomial):
             for term_1, scalar_1 in self:
@@ -463,6 +483,7 @@ class OperatorPolynomial:
         return self * scalar
 
     def __pow__(self, exponent: int) -> "OperatorPolynomial":
+        """Raise this 'OperatorPolynomial' to a positive integer power."""
         assert exponent > 0
         output = OperatorPolynomial()
         output.vec = self.vec.copy()
