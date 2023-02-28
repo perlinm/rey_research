@@ -289,7 +289,9 @@ class DenseMultiBodyOperators:
         self, other: Union[DenseMultiBodyOperator, "DenseMultiBodyOperators"]
     ) -> "DenseMultiBodyOperators":
         assert self.num_sites == other.num_sites or self.num_sites == 0 or other.num_sites == 0
-        return DenseMultiBodyOperators(*self.ops, *DenseMultiBodyOperators(other).ops)
+        return DenseMultiBodyOperators(
+            *self.ops, *DenseMultiBodyOperators(other).ops, simplify=False
+        )
 
     def __iadd__(
         self, other: Union[DenseMultiBodyOperator, "DenseMultiBodyOperators"]
@@ -560,7 +562,8 @@ class OperatorPolynomial:
                 for expectation_value, exponent in product_of_expectation_values
             ]
             product_of_factorized_factors = functools.reduce(
-                OperatorPolynomial.__mul__, factorized_factors,
+                OperatorPolynomial.__mul__,
+                factorized_factors,
             )
             output += scalar * product_of_factorized_factors
 
@@ -575,6 +578,7 @@ def commute_dense_ops(
     op_a: DenseMultiBodyOperators | DenseMultiBodyOperator,
     op_b: DenseMultiBodyOperators | DenseMultiBodyOperator,
     structure_factors: np.ndarray,
+    simplify: bool = True,
 ) -> DenseMultiBodyOperators:
     """Compute the commutator of two dense multibody operators."""
     op_a = DenseMultiBodyOperators(op_a)
@@ -582,7 +586,8 @@ def commute_dense_ops(
     output = DenseMultiBodyOperators()
     for term_a, term_b in itertools.product(op_a.ops, op_b.ops):
         output += _commute_dense_op_terms(term_a, term_b, structure_factors)
-    output.simplify()
+    if simplify:
+        output.simplify()
     return output
 
 
@@ -649,7 +654,6 @@ def _commute_dense_op_terms(
                     overlap_scalar,
                 )
 
-    output.simplify()
     return output
 
 
