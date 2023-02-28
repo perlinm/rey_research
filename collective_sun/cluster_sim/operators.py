@@ -629,7 +629,7 @@ def _commute_dense_op_terms(
                 overlap_tensor = _get_overlap_tensor(
                     op_a.tensor,
                     op_b.tensor,
-                    overlap_indices_a + non_overlap_indices_a,
+                    overlap_indices_a,
                     overlap_indices_b,
                 )
                 if not overlap_tensor.any():
@@ -656,18 +656,23 @@ def _commute_dense_op_terms(
 def _get_overlap_tensor(
     tensor_a: np.ndarray,
     tensor_b: np.ndarray,
-    transposed_indices_a: Tuple[int, ...],
+    overlap_indices_a: Tuple[int, ...],
     overlap_indices_b: Tuple[int, ...],
 ) -> np.ndarray:
     """
-    Construct the shared tensor for all overlaps between two dense operators in which indices
-    'overlap_indices_b' of 'tensor_b' are contracted with the first indices of 'tensor_a'.
+    Construct the tensor obtained by enforcing that indices 'overlap_indices_a' of 'tensor_a' are
+    equal to indices 'overlap_indices_b' of 'tensor_b'.
+
+    Note that the overlapped indices will be the first indices of the output, while all other
+    indices preserve their order.
     """
     indices_a = range(tensor_a.ndim)
     indices_b = list(range(tensor_a.ndim, tensor_a.ndim + tensor_b.ndim))
-    for idx_a, idx_b in zip(transposed_indices_a, overlap_indices_b):
+    for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
         indices_b[idx_b] = idx_a
-    indices_final = transposed_indices_a + tuple(idx for idx in indices_b if idx >= tensor_a.ndim)
+    non_overlap_indices_a = tuple(idx for idx in indices_a if idx not in overlap_indices_a)
+    non_overlap_indices_b = tuple(idx for idx in indices_b if idx >= tensor_a.ndim)
+    indices_final = overlap_indices_a + non_overlap_indices_a + non_overlap_indices_b
     return np.einsum(tensor_a, indices_a, tensor_b, indices_b, indices_final)
 
 
@@ -737,7 +742,7 @@ def get_random_op(num_sites: int) -> np.ndarray:
 np.random.seed(0)
 np.set_printoptions(linewidth=200)
 
-num_sites = 4
+num_sites = 5
 
 mat_a = get_random_op(num_sites)
 mat_b = get_random_op(num_sites)
