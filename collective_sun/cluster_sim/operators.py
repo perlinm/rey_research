@@ -3,7 +3,7 @@ import collections
 import dataclasses
 import functools
 import itertools
-from typing import Callable, Iterator, Sequence, Tuple, TypeVar, Union
+from typing import Callable, Iterator, Sequence, TypeVar, Union
 
 import numpy as np
 
@@ -583,18 +583,53 @@ def commute_dense_ops(
     """Compute the commutator of two dense multibody operators."""
     op_a = DenseMultiBodyOperators(op_a)
     op_b = DenseMultiBodyOperators(op_b)
+
+    commutator_factor_func = _get_multibody_commutator_factor_func(structure_factors)
+
     output = DenseMultiBodyOperators()
     for term_a, term_b in itertools.product(op_a.ops, op_b.ops):
-        output += _commute_dense_op_terms(term_a, term_b, structure_factors)
+        output += _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
     if simplify:
         output.simplify()
     return output
 
 
+CommutatorFactorFuncType = Callable[
+    [tuple[AbstractSingleBodyOperator, ...], tuple[AbstractSingleBodyOperator, ...]],
+    np.ndarray,
+]
+
+
+def _get_multibody_commutator_factor_func(
+    structure_factors: np.ndarray,
+) -> CommutatorFactorFuncType:
+    """
+    Return a function that computes the coefficients in the commutator of two multibody operators.
+    """
+
+    @functools.cache
+    def commutator_factor_func(
+        overlap_ops_a: tuple[AbstractSingleBodyOperator, ...],
+        overlap_ops_b: tuple[AbstractSingleBodyOperator, ...],
+    ) -> np.ndarray:
+        """Get the coefficients in the commutator of two products of local operators."""
+        factors_ab = functools.reduce(
+            tensor_product,
+            [structure_factors[aa, bb] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
+        )
+        factors_ba = functools.reduce(
+            tensor_product,
+            [structure_factors[bb, aa] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
+        )
+        return factors_ab - factors_ba
+
+    return commutator_factor_func
+
+
 def _commute_dense_op_terms(
     op_a: DenseMultiBodyOperator,
     op_b: DenseMultiBodyOperator,
-    structure_factors: np.ndarray,
+    commutator_factor_func: CommutatorFactorFuncType,
 ) -> DenseMultiBodyOperators:
     """Compute the commutator of two 'DenseMultiBodyOperator's."""
     assert op_a.num_sites == op_b.num_sites
@@ -616,8 +651,8 @@ def _commute_dense_op_terms(
             )
 
             # local operators in 'op_a' that will overlap in these terms
-            overlap_ops_a = [op_a.local_ops[idx] for idx in overlap_indices_a]
-            non_overlap_ops_a = [op_a.local_ops[idx] for idx in non_overlap_indices_a]
+            overlap_ops_a = tuple(op_a.local_ops[idx] for idx in overlap_indices_a)
+            non_overlap_ops_a = tuple(op_a.local_ops[idx] for idx in non_overlap_indices_a)
 
             # loop over choices for operators in 'op_b' to overlap with 'overlap_ops_a'
             overlap_index_set_b = (
@@ -641,14 +676,15 @@ def _commute_dense_op_terms(
                     continue
 
                 # construct list of the local operators that will overlap 'overlap_ops_a'
-                overlap_ops_b = [op_b.local_ops[idx] for idx in overlap_indices_b]
-                non_overlap_ops_b = [op_b.local_ops[idx] for idx in non_overlap_indices_b]
+                overlap_ops_b = tuple(op_b.local_ops[idx] for idx in overlap_indices_b)
+                non_overlap_ops_b = tuple(op_b.local_ops[idx] for idx in non_overlap_indices_b)
+
+                # identify coefficients for terms in the commutator of the overlapping ops
+                commutator_factors = commutator_factor_func(overlap_ops_a, overlap_ops_b)
 
                 # add all terms in the commutator with these overlaps
                 output += _commute_local_ops(
-                    structure_factors,
-                    overlap_ops_a,
-                    overlap_ops_b,
+                    commutator_factors,
                     non_overlap_ops_a + non_overlap_ops_b,
                     overlap_tensor,
                     overlap_scalar,
@@ -660,8 +696,8 @@ def _commute_dense_op_terms(
 def _get_overlap_tensor(
     tensor_a: np.ndarray,
     tensor_b: np.ndarray,
-    overlap_indices_a: Tuple[int, ...],
-    overlap_indices_b: Tuple[int, ...],
+    overlap_indices_a: tuple[int, ...],
+    overlap_indices_b: tuple[int, ...],
 ) -> np.ndarray:
     """
     Construct the tensor obtained by enforcing that indices 'overlap_indices_a' of 'tensor_a' are
@@ -681,18 +717,13 @@ def _get_overlap_tensor(
 
 
 def _commute_local_ops(
-    structure_factors: np.ndarray,
-    overlap_ops_a: Sequence[AbstractSingleBodyOperator],
-    overlap_ops_b: Sequence[AbstractSingleBodyOperator],
-    additional_ops: Sequence[AbstractSingleBodyOperator],
+    commutator_factors: np.ndarray,
+    additional_ops: tuple[AbstractSingleBodyOperator, ...],
     tensor: np.ndarray,
     scalar: complex = 1,
 ) -> DenseMultiBodyOperators:
     """Commute overlapping local operators."""
     output = DenseMultiBodyOperators()
-
-    # identify coefficients for terms in the commutator of the overlapping ops
-    commutator_factors = _get_commutator_factors(structure_factors, overlap_ops_a, overlap_ops_b)
 
     # add nonzero terms to the output
     for overlap_ops_by_index in np.argwhere(commutator_factors):
@@ -703,23 +734,6 @@ def _commute_local_ops(
         )
 
     return output
-
-
-def _get_commutator_factors(
-    structure_factors: np.ndarray,
-    overlap_ops_a: Sequence[AbstractSingleBodyOperator],
-    overlap_ops_b: Sequence[AbstractSingleBodyOperator],
-):
-    """Get the coefficients in the commutator of two products of local operators."""
-    factors_ab = functools.reduce(
-        tensor_product,
-        [structure_factors[aa, bb] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
-    )
-    factors_ba = functools.reduce(
-        tensor_product,
-        [structure_factors[bb, aa] for aa, bb in zip(overlap_ops_a, overlap_ops_b)],
-    )
-    return factors_ab - factors_ba
 
 
 ####################################################################################################
@@ -736,7 +750,7 @@ op_mat_X = np.array([[0, 1], [1, 0]])
 op_mat_Y = -1j * op_mat_Z @ op_mat_X
 op_mats = [op_mat_I, op_mat_Z, op_mat_X, op_mat_Y]
 
-strcture_factors = get_structure_factors(*op_mats)
+structure_factors = get_structure_factors(*op_mats)
 
 
 def get_random_op(num_sites: int) -> np.ndarray:
@@ -754,7 +768,7 @@ mat_c = commute_mats(mat_a, mat_b)
 
 op_a = DenseMultiBodyOperators.from_matrix(mat_a, op_mats)
 op_b = DenseMultiBodyOperators.from_matrix(mat_b, op_mats)
-op_c = commute_dense_ops(op_a, op_b, strcture_factors)
+op_c = commute_dense_ops(op_a, op_b, structure_factors)
 
 success = np.allclose(op_c.to_matrix(op_mats), mat_c)
 print("SUCCESS" if success else "FAILURE")
