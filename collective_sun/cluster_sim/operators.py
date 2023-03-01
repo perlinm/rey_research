@@ -18,7 +18,7 @@ def tensor_product(tensor_a: np.ndarray, tensor_b: np.ndarray) -> np.ndarray:
 
 def trace_inner_product(op_a: np.ndarray, op_b: np.ndarray) -> complex:
     """Inner product: <A, B> = Tr[A^dag B] / dim."""
-    return op_a.ravel().conj() @ op_b.ravel() / op_a.shape[0]
+    return (op_a.conj() * op_b).sum() / op_a.shape[0]
 
 
 def multiply_mats(op_a: np.ndarray, op_b: np.ndarray) -> np.ndarray:
@@ -122,7 +122,7 @@ class SingleBodyOperator:
 
 @dataclasses.dataclass
 class MultiBodyOperator:
-    """A product of single-body operators located at specific sites."""
+    """A product of (non-identity) single-body operators located at specific sites."""
 
     ops: frozenset[SingleBodyOperator]
 
@@ -146,7 +146,7 @@ class MultiBodyOperator:
         return len(self.ops)
 
     def is_identity_op(self) -> bool:
-        return self.locality == 0
+        return len(self.ops) == 0
 
 
 @dataclasses.dataclass
@@ -172,10 +172,6 @@ class DenseMultiBodyOperator:
         self.local_ops = local_ops
         self.fixed_ops = fixed_ops
 
-        self._locality = self.fixed_ops.locality + len(
-            [op for op in local_ops if not op.is_identity_op()]
-        )
-
         if num_sites is not None:
             self._num_sites = num_sites
         elif tensor.ndim:
@@ -184,6 +180,10 @@ class DenseMultiBodyOperator:
             raise ValueError("not enough data provided to determine operator locality")
         if tensor.ndim:
             assert all(dim == self._num_sites for dim in tensor.shape)
+
+        self._locality = self.fixed_ops.locality + len(
+            [op for op in local_ops if not op.is_identity_op()]
+        )
 
         if simplify:
             self.simplify()
@@ -205,28 +205,25 @@ class DenseMultiBodyOperator:
         return bool(self.scalar) and bool(self.tensor.any())
 
     @property
-    def locality(self) -> int:
-        return self._locality
-
-    @property
     def num_sites(self) -> int:
         return self._num_sites
 
+    @property
+    def locality(self) -> int:
+        return self._locality
+
     def is_identity_op(self) -> bool:
-        return self.fixed_ops.is_identity_op() and not self.local_ops
+        return self._locality == 0
 
     def simplify(self) -> None:
         """Simplify 'self' by removing any identity operators from 'self.local_ops'."""
-        if (
-            any(local_op.is_identity_op() for local_op in self.local_ops)
-            and not self.is_identity_op()
-        ):
-            # identity all nontrivial (non-identity) local operators
-            non_identity_data = [
-                (idx, local_op)
-                for idx, local_op in enumerate(self.local_ops)
-                if not local_op.is_identity_op()
-            ]
+        # identity all nontrivial (non-identity) local operators
+        non_identity_data = [
+            (idx, local_op)
+            for idx, local_op in enumerate(self.local_ops)
+            if not local_op.is_identity_op()
+        ]
+        if len(non_identity_data) != self.tensor.ndim:
             # trace over the indices in the tensor associated with identity operators
             non_identity_indices, non_identity_ops = zip(*non_identity_data)
             self.tensor = np.einsum(self.tensor, range(self.tensor.ndim), non_identity_indices)
@@ -797,7 +794,9 @@ structure_factors = get_structure_factors(*op_mats)
 
 
 def get_random_op(num_sites: int) -> np.ndarray:
-    return np.random.random((2**num_sites,) * 2) + 1j * np.random.random((2**num_sites,) * 2)
+    real = np.random.random((2**num_sites,) * 2)
+    imag = np.random.random((2**num_sites,) * 2)
+    return real + 1j * imag
 
 
 np.random.seed(0)
