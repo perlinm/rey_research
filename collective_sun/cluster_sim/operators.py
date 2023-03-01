@@ -151,15 +151,15 @@ class MultiBodyOperator:
 
 @dataclasses.dataclass
 class DenseMultiBodyOperator:
-    scalar: complex
-    tensor: np.ndarray
     local_ops: tuple[AbstractSingleBodyOperator, ...]
+    tensor: np.ndarray
+    scalar: complex
     fixed_ops: MultiBodyOperator
 
     def __init__(
         self,
-        tensor: np.ndarray,
         *local_ops: AbstractSingleBodyOperator,
+        tensor: np.ndarray = np.array(1),
         scalar: complex = 1,
         fixed_ops: MultiBodyOperator = MultiBodyOperator(),
         num_sites: Optional[int] = None,
@@ -195,7 +195,7 @@ class DenseMultiBodyOperator:
 
     def __mul__(self, scalar: complex) -> "DenseMultiBodyOperator":
         new_scalar = self.scalar * scalar
-        return DenseMultiBodyOperator(self.tensor, *self.local_ops, scalar=new_scalar)
+        return DenseMultiBodyOperator(*self.local_ops, tensor=self.tensor, scalar=new_scalar)
 
     def __rmul__(self, scalar: complex) -> "DenseMultiBodyOperator":
         return self * scalar
@@ -234,7 +234,13 @@ class DenseMultiBodyOperator:
         argsort = np.argsort([local_op.index for local_op in self.local_ops])
         tensor = np.transpose(self.tensor, argsort)
         local_ops = [self.local_ops[idx] for idx in argsort]
-        return DenseMultiBodyOperator(tensor, *local_ops, scalar=self.scalar)
+        return DenseMultiBodyOperator(
+            *local_ops,
+            tensor=tensor,
+            scalar=self.scalar,
+            fixed_ops=self.fixed_ops,
+            num_sites=self.num_sites,
+        )
 
     def to_tensor(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
         """
@@ -367,13 +373,13 @@ class DenseMultiBodyOperators:
                         tensor = term_ii.tensor + term_jj.scalar / term_ii.scalar * term_jj.tensor
                         scalar = term_ii.scalar
                     new_op = DenseMultiBodyOperator(
-                        tensor, *local_ops, scalar=scalar, num_sites=self.num_sites
+                        *local_ops, tensor=tensor, scalar=scalar, num_sites=self.num_sites
                     )
                     self.terms[ii] = new_op
                     del self.terms[jj]
                     break
 
-        if pin_singular_terms:
+        if pin_singular_terms and False:
             # If any term has a tensor with only one nonzero element,
             # then "pin" the operators in that term, fixing them to lattice sites.
             for ii, term in enumerate(self.terms):
@@ -386,7 +392,7 @@ class DenseMultiBodyOperators:
                     ]
                     fixed_ops = MultiBodyOperator(*fixed_op_list, *term.fixed_ops)
                     self.terms[ii] = DenseMultiBodyOperator(
-                        np.array(1), scalar=scalar, fixed_ops=fixed_ops, num_sites=self.num_sites
+                        scalar=scalar, fixed_ops=fixed_ops, num_sites=self.num_sites
                     )
 
     @classmethod
@@ -408,9 +414,7 @@ class DenseMultiBodyOperators:
         # add an identity term, which gets special treatment in the 'DenseMultiBodyOperator' class
         identity_coefficient = trace_inner_product(np.eye(spin_dim**num_sites), matrix)
         if identity_coefficient:
-            output += DenseMultiBodyOperator(
-                np.array(1), scalar=identity_coefficient, num_sites=num_sites
-            )
+            output += DenseMultiBodyOperator(scalar=identity_coefficient, num_sites=num_sites)
 
         # loop over all numbers of sites that may be addressed nontrivially
         for locality in range(1, num_sites + 1):
@@ -434,9 +438,12 @@ class DenseMultiBodyOperators:
 
                     # add this term to the output
                     if coefficient:
-                        tensor[non_iden_sites] = coefficient
+                        tensor[non_iden_sites] = 1
                         output += DenseMultiBodyOperator(
-                            tensor.copy(), *local_ops, num_sites=num_sites
+                            *local_ops,
+                            tensor=tensor.copy(),
+                            scalar=coefficient,
+                            num_sites=num_sites,
                         )
 
         output.simplify(pin_singular_terms=True)
@@ -636,6 +643,7 @@ def commute_dense_ops(
     op_b: DenseMultiBodyOperators | DenseMultiBodyOperator,
     structure_factors: np.ndarray,
     simplify: bool = True,
+    pin_singular_terms: bool = True,
 ) -> DenseMultiBodyOperators:
     """Compute the commutator of two dense multibody operators."""
     op_a = DenseMultiBodyOperators(op_a)
@@ -647,7 +655,7 @@ def commute_dense_ops(
     for term_a, term_b in itertools.product(op_a.terms, op_b.terms):
         output += _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
     if simplify:
-        output.simplify(pin_singular_terms=True)
+        output.simplify(pin_singular_terms=pin_singular_terms)
     return output
 
 
@@ -787,7 +795,7 @@ def _commute_local_ops(
         factor = commutator_factors[tuple(overlap_ops_by_index)]
         overlap_ops = [AbstractSingleBodyOperator(cc) for cc in overlap_ops_by_index]
         output += DenseMultiBodyOperator(
-            tensor, *overlap_ops, *additional_ops, scalar=scalar * factor
+            *overlap_ops, *additional_ops, tensor=tensor, scalar=scalar * factor
         )
 
     return output
