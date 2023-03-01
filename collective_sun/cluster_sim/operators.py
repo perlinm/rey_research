@@ -261,10 +261,10 @@ class DenseMultiBodyOperator:
         assert np.array_equal(op_mats[0], op_mat_I)
 
         # construct a tensor for all sites addressed by the identity
-        self.simplify()
         iden_op_tensor = _get_iden_op_tensor(spin_dim, self.num_sites - self.locality)
 
         # vectorize all nontrivial operators in 'self', and identify fixed/nonfixed sites
+        self.simplify()
         local_op_vecs = [local_op.to_matrix(op_mats).ravel() for local_op in self.local_ops]
         if self.fixed_ops:
             fixed_op_vecs, fixed_op_sites = zip(
@@ -299,7 +299,7 @@ def _get_iden_op_tensor(spin_dim: int, num_sites: int) -> np.ndarray:
 
 @dataclasses.dataclass
 class DenseMultiBodyOperators:
-    ops: list[DenseMultiBodyOperator]
+    terms: list[DenseMultiBodyOperator]
 
     def __init__(
         self,
@@ -308,15 +308,16 @@ class DenseMultiBodyOperators:
     ) -> None:
         if terms:
             assert len(set(term.num_sites for term in terms)) == 1
-        self.ops = [term for term in terms if isinstance(term, DenseMultiBodyOperator)] + [
-            op for term in terms if isinstance(term, DenseMultiBodyOperators) for op in term.ops
-        ]
+        self.terms = [term for term in terms if isinstance(term, DenseMultiBodyOperator)]
+        for term in terms:
+            if isinstance(term, DenseMultiBodyOperators):
+                self.terms.extend(term.terms)
         if simplify:
             self.simplify()
 
     def __mul__(self, scalar: complex) -> "DenseMultiBodyOperators":
-        new_ops = [scalar * op for op in self.ops]
-        return DenseMultiBodyOperators(*new_ops)
+        new_terms = [scalar * term for term in self.terms]
+        return DenseMultiBodyOperators(*new_terms)
 
     def __rmul__(self, scalar: complex) -> "DenseMultiBodyOperators":
         return self * scalar
@@ -326,7 +327,7 @@ class DenseMultiBodyOperators:
     ) -> "DenseMultiBodyOperators":
         assert self.num_sites == other.num_sites or self.num_sites == 0 or other.num_sites == 0
         return DenseMultiBodyOperators(
-            *self.ops, *DenseMultiBodyOperators(other).ops, simplify=False
+            *self.terms, *DenseMultiBodyOperators(other).terms, simplify=False
         )
 
     def __iadd__(
@@ -335,14 +336,11 @@ class DenseMultiBodyOperators:
         self = self + other
         return self
 
-    def __iter__(self) -> Iterator[DenseMultiBodyOperator]:
-        yield from self.ops
-
     @property
     def num_sites(self) -> int:
-        if not self.ops:
+        if not self.terms:
             return 0
-        return self.ops[0].num_sites
+        return self.terms[0].num_sites
 
     def simplify(self) -> None:
         """
@@ -350,28 +348,28 @@ class DenseMultiBodyOperators:
         operator content.
         """
         # remove trivial (zero) terms
-        self.ops = [op for op in self.ops if not op.is_identity_op()]
+        self.terms = [term for term in self.terms if not term.is_identity_op()]
 
         # combine terms that are the same up to a permutation of local operators
-        local_op_counts = [collections.Counter(op.local_ops) for op in self.ops]
+        local_op_counts = [collections.Counter(op.local_ops) for op in self.terms]
         for jj in reversed(range(1, len(local_op_counts))):
             for ii in range(jj):
                 # if terms ii and jj have the same operator content, merge term jj into ii
                 if local_op_counts[ii] == local_op_counts[jj]:
-                    op_ii = self.ops[ii].in_canonical_form()
-                    op_jj = self.ops[jj].in_canonical_form()
-                    local_ops = op_ii.local_ops
-                    if np.array_equal(op_ii.tensor, op_jj.tensor):
-                        tensor = op_ii.tensor
-                        scalar = op_ii.scalar + op_jj.scalar
+                    term_ii = self.terms[ii].in_canonical_form()
+                    term_jj = self.terms[jj].in_canonical_form()
+                    local_ops = term_ii.local_ops
+                    if term_ii.tensor is term_jj.tensor:
+                        tensor = term_ii.tensor
+                        scalar = term_ii.scalar + term_jj.scalar
                     else:
-                        tensor = op_ii.tensor + op_jj.scalar / op_ii.scalar * op_jj.tensor
-                        scalar = op_ii.scalar
+                        tensor = term_ii.tensor + term_jj.scalar / term_ii.scalar * term_jj.tensor
+                        scalar = term_ii.scalar
                     new_op = DenseMultiBodyOperator(
                         tensor, *local_ops, scalar=scalar, num_sites=self.num_sites
                     )
-                    self.ops[ii] = new_op
-                    del self.ops[jj]
+                    self.terms[ii] = new_op
+                    del self.terms[jj]
                     break
 
     @classmethod
@@ -399,6 +397,7 @@ class DenseMultiBodyOperators:
 
         # loop over all numbers of sites that may be addressed nontrivially
         for locality in range(1, num_sites + 1):
+
             # loop over all choices of specific sites that are addressed nontrivially
             for non_iden_sites in itertools.combinations(range(num_sites), locality):
 
@@ -432,15 +431,16 @@ class DenseMultiBodyOperators:
         num_sites = self.num_sites
         output_matrix_shape = (spin_dim**num_sites,) * 2
 
-        op_tensor = sum((op.to_tensor(op_mats) for op in self.ops))
-        if not isinstance(op_tensor, np.ndarray):
+        tensor = sum((term.to_tensor(op_mats) for term in self.terms))
+        if not isinstance(tensor, np.ndarray):
             return np.zeros(output_matrix_shape)
 
-        op_tensor.shape = (spin_dim,) * (2 * num_sites)
-        op_tensor = np.moveaxis(
-            op_tensor, range(1, 2 * num_sites, 2), range(num_sites, 2 * num_sites)
-        )
-        return op_tensor.reshape(output_matrix_shape)
+        full_tensor_shape = (spin_dim,) * (2 * num_sites)
+        return np.moveaxis(
+            tensor.reshape(full_tensor_shape),
+            range(1, 2 * num_sites, 2),
+            range(num_sites, 2 * num_sites),
+        ).reshape(output_matrix_shape)
 
 
 ####################################################################################################
@@ -627,7 +627,7 @@ def commute_dense_ops(
     commutator_factor_func = _get_multibody_commutator_factor_func(structure_factors)
 
     output = DenseMultiBodyOperators()
-    for term_a, term_b in itertools.product(op_a.ops, op_b.ops):
+    for term_a, term_b in itertools.product(op_a.terms, op_b.terms):
         output += _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
     if simplify:
         output.simplify()
