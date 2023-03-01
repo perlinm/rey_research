@@ -265,18 +265,18 @@ class DenseMultiBodyOperator:
 
         # vectorize all nontrivial operators in 'self', and identify fixed/nonfixed sites
         self.simplify()
-        local_op_vecs = [local_op.to_matrix(op_mats).ravel() for local_op in self.local_ops]
+        local_op_vecs = tuple(local_op.to_matrix(op_mats).ravel() for local_op in self.local_ops)
         if self.fixed_ops:
             fixed_op_vecs, fixed_op_sites = zip(
-                *[(op.op.to_matrix(op_mats).ravel(), op.site) for op in self.fixed_ops]
+                *[(op.op.to_matrix(op_mats).ravel(), op.site.index) for op in self.fixed_ops]
             )
         else:
-            fixed_op_vecs, fixed_op_sites = [], ()
+            fixed_op_vecs, fixed_op_sites = (), ()
         non_fixed_op_sites = [idx for idx in range(self.num_sites) if idx not in fixed_op_sites]
 
         # take a tensor product of vectorized operators for all sites
         base_tensor = self.scalar * functools.reduce(
-            tensor_product, fixed_op_vecs + local_op_vecs + [iden_op_tensor]
+            tensor_product, fixed_op_vecs + local_op_vecs + (iden_op_tensor,)
         )
 
         # sum over all choices of sites to address nontrivially
@@ -305,6 +305,7 @@ class DenseMultiBodyOperators:
         self,
         *terms: Union[DenseMultiBodyOperator, "DenseMultiBodyOperators"],
         simplify: bool = True,
+        pin_singular_terms: bool = False,
     ) -> None:
         if terms:
             assert len(set(term.num_sites for term in terms)) == 1
@@ -313,7 +314,7 @@ class DenseMultiBodyOperators:
             if isinstance(term, DenseMultiBodyOperators):
                 self.terms.extend(term.terms)
         if simplify:
-            self.simplify()
+            self.simplify(pin_singular_terms=pin_singular_terms)
 
     def __mul__(self, scalar: complex) -> "DenseMultiBodyOperators":
         new_terms = [scalar * term for term in self.terms]
@@ -342,7 +343,7 @@ class DenseMultiBodyOperators:
             return 0
         return self.terms[0].num_sites
 
-    def simplify(self) -> None:
+    def simplify(self, pin_singular_terms: bool = False) -> None:
         """
         Simplify 'self' by removing trivial (zero) terms, and combining terms that have the same
         operator content.
@@ -371,6 +372,22 @@ class DenseMultiBodyOperators:
                     self.terms[ii] = new_op
                     del self.terms[jj]
                     break
+
+        if pin_singular_terms:
+            # If any term has a tensor with only one nonzero element,
+            # then "pin" the operators in that term, fixing them to lattice sites.
+            for ii, term in enumerate(self.terms):
+                if len(nonzero_site_indices := np.argwhere(term.tensor)) == 1:
+                    site_indices = tuple(nonzero_site_indices[0])
+                    scalar = term.scalar * term.tensor[site_indices]
+                    fixed_op_list = [
+                        SingleBodyOperator(local_op, LatticeSite(site_index))
+                        for site_index, local_op in zip(site_indices, term.local_ops)
+                    ]
+                    fixed_ops = MultiBodyOperator(*fixed_op_list, *term.fixed_ops)
+                    self.terms[ii] = DenseMultiBodyOperator(
+                        np.array(1), scalar=scalar, fixed_ops=fixed_ops, num_sites=self.num_sites
+                    )
 
     @classmethod
     def from_matrix(
@@ -422,7 +439,7 @@ class DenseMultiBodyOperators:
                             tensor.copy(), *local_ops, num_sites=num_sites
                         )
 
-        output.simplify()
+        output.simplify(pin_singular_terms=True)
         return output
 
     def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
@@ -554,10 +571,10 @@ class OperatorPolynomial:
         for dense_ops in terms:
             if isinstance(dense_ops, DenseMultiBodyOperator):
                 dense_ops = DenseMultiBodyOperators(dense_ops)
-            dense_ops.simplify()
+            dense_ops.simplify(pin_singular_terms=True)
 
             # loop over individual 'DenseMultiBodyOperator's in this term
-            for dense_op in dense_ops.ops:
+            for dense_op in dense_ops.terms:
 
                 # deal with idendity operators as a special case
                 if dense_op.is_identity_op():
@@ -630,7 +647,7 @@ def commute_dense_ops(
     for term_a, term_b in itertools.product(op_a.terms, op_b.terms):
         output += _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
     if simplify:
-        output.simplify()
+        output.simplify(pin_singular_terms=True)
     return output
 
 
@@ -804,15 +821,29 @@ np.set_printoptions(linewidth=200)
 
 num_sites = 4
 
-mat_a = get_random_op(num_sites)
-mat_b = get_random_op(num_sites)
-mat_c = commute_mats(mat_a, mat_b)
+mat_iden = functools.reduce(np.kron, [op_mat_I] * num_sites)
 
+
+def remove_identity(mat: np.ndarray):
+    return mat - trace_inner_product(mat_iden, mat) * mat_iden
+
+
+# mat_a = get_random_op(num_sites)
+mat_a = functools.reduce(np.kron, [op_mat_Z] + [op_mat_I] * (num_sites - 1))
 op_a = DenseMultiBodyOperators.from_matrix(mat_a, op_mats)
-op_b = DenseMultiBodyOperators.from_matrix(mat_b, op_mats)
-op_c = commute_dense_ops(op_a, op_b, structure_factors)
+success = np.allclose(op_a.to_matrix(op_mats), remove_identity(mat_a))
 
-success = np.allclose(op_c.to_matrix(op_mats), mat_c)
+mat_b = get_random_op(num_sites)
+op_b = DenseMultiBodyOperators.from_matrix(mat_b, op_mats)
+success &= np.allclose(op_b.to_matrix(op_mats), remove_identity(mat_b))
+
+mat_c = commute_mats(mat_a, mat_b)
+op_c = commute_dense_ops(op_a, op_b, structure_factors)
+success &= np.allclose(op_c.to_matrix(op_mats), remove_identity(mat_c))
+
+for term in op_c.terms:
+    print(term.tensor.shape, np.count_nonzero(term.tensor))
+
 print("SUCCESS" if success else "FAILURE")
 exit()
 
