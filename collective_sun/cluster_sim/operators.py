@@ -3,7 +3,7 @@ import collections
 import dataclasses
 import functools
 import itertools
-from typing import Callable, Iterator, Sequence, TypeVar, Union
+from typing import Callable, Iterator, Optional, Sequence, TypeVar, Union
 
 import numpy as np
 
@@ -71,9 +71,6 @@ class TypedInteger:
     def __hash__(self) -> int:
         return hash(str(self))
 
-    def __bool__(self) -> bool:
-        return bool(self.index)
-
     def __index__(self) -> int:
         return self.index
 
@@ -102,6 +99,9 @@ class AbstractSingleBodyOperator(TypedInteger):
     def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
         return op_mats[self.index]
 
+    def is_identity_op(self) -> bool:
+        return self.index == 0
+
 
 @dataclasses.dataclass
 class SingleBodyOperator:
@@ -116,6 +116,9 @@ class SingleBodyOperator:
     def __hash__(self) -> int:
         return hash(str(self))
 
+    def is_identity_op(self) -> bool:
+        return self.op.is_identity_op()
+
 
 @dataclasses.dataclass
 class MultiBodyOperator:
@@ -124,7 +127,7 @@ class MultiBodyOperator:
     ops: frozenset[SingleBodyOperator]
 
     def __init__(self, *located_ops: SingleBodyOperator) -> None:
-        self.ops = frozenset(located_ops)
+        self.ops = frozenset(op for op in located_ops if not op.is_identity_op())
 
     def __str__(self) -> str:
         return " ".join(str(op) for op in self)
@@ -135,31 +138,60 @@ class MultiBodyOperator:
     def __iter__(self) -> Iterator[SingleBodyOperator]:
         yield from self.ops
 
+    def __bool__(self) -> bool:
+        return bool(self.ops)
+
+    @property
+    def locality(self) -> int:
+        return len(self.ops)
+
+    def is_identity_op(self) -> bool:
+        return self.locality == 0
+
 
 @dataclasses.dataclass
 class DenseMultiBodyOperator:
     scalar: complex
     tensor: np.ndarray
     local_ops: tuple[AbstractSingleBodyOperator, ...]
+    fixed_ops: MultiBodyOperator
 
     def __init__(
         self,
         tensor: np.ndarray,
         *local_ops: AbstractSingleBodyOperator,
         scalar: complex = 1,
+        fixed_ops: MultiBodyOperator = MultiBodyOperator(),
+        num_sites: Optional[int] = None,
         simplify: bool = True,
     ) -> None:
-        if tensor.ndim and not tensor.ndim == len(local_ops):
+        if tensor.ndim != len(local_ops):
             raise ValueError("tensor dimension does not match operator locality")
         self.scalar = scalar
         self.tensor = tensor
         self.local_ops = local_ops
+        self.fixed_ops = fixed_ops
+
+        self._locality = self.fixed_ops.locality + len(
+            [op for op in local_ops if not op.is_identity_op()]
+        )
+
+        if num_sites is not None:
+            self._num_sites = num_sites
+        elif tensor.ndim:
+            self._num_sites = tensor.shape[0]
+        else:
+            raise ValueError("not enough data provided to determine operator locality")
+        if tensor.ndim:
+            assert all(dim == self._num_sites for dim in tensor.shape)
+
         if simplify:
             self.simplify()
 
     def __str__(self) -> str:
-        op_strs = " ".join(str(op) for op in self.local_ops)
-        return f"D({op_strs})"
+        fixed_op_str = "{self.fixed_op}; " if self.fixed_ops else ""
+        local_op_str = " ".join(str(op) for op in self.local_ops)
+        return f"D({fixed_op_str}{local_op_str})"
 
     def __mul__(self, scalar: complex) -> "DenseMultiBodyOperator":
         new_scalar = self.scalar * scalar
@@ -169,38 +201,36 @@ class DenseMultiBodyOperator:
         return self * scalar
 
     def __bool__(self) -> bool:
-        return bool(self.scalar) and bool(self.tensor.any()) and bool(self.local_ops)
-
-    def simplify(self) -> None:
-        """Simplify 'self' by removing any identity operators from 'self.local_ops'."""
-        if any(not local_op for local_op in self.local_ops) and not self.is_identity_op():
-            # identity all nontrivial (non-identity) local operators
-            non_identity_data = [
-                (idx, local_op) for idx, local_op in enumerate(self.local_ops) if local_op
-            ]
-            if non_identity_data:
-                # trace over the indices in the tensor associated with identity operators
-                non_identity_indices, non_identity_ops = zip(*non_identity_data)
-                self.tensor = np.einsum(self.tensor, range(self.tensor.ndim), non_identity_indices)
-                self.local_ops = non_identity_ops
-            else:
-                # all local ops are identities --> 'self' is an identity operator
-                self.local_ops = (AbstractSingleBodyOperator(0),) * self.num_sites
-                self.scalar *= np.sum(self.tensor)
-                self.tensor = np.array(1)
-
-    @property
-    def num_sites(self) -> int:
-        if self.is_identity_op():
-            return self.locality
-        return self.tensor.shape[0]
+        """Return 'True' if and only if this operator is nonzero."""
+        return bool(self.scalar) and bool(self.tensor.any())
 
     @property
     def locality(self) -> int:
-        return len(self.local_ops)
+        return self._locality
+
+    @property
+    def num_sites(self) -> int:
+        return self._num_sites
 
     def is_identity_op(self) -> bool:
-        return not self.tensor.ndim
+        return self.fixed_ops.is_identity_op() and not self.local_ops
+
+    def simplify(self) -> None:
+        """Simplify 'self' by removing any identity operators from 'self.local_ops'."""
+        if (
+            any(local_op.is_identity_op() for local_op in self.local_ops)
+            and not self.is_identity_op()
+        ):
+            # identity all nontrivial (non-identity) local operators
+            non_identity_data = [
+                (idx, local_op)
+                for idx, local_op in enumerate(self.local_ops)
+                if not local_op.is_identity_op()
+            ]
+            # trace over the indices in the tensor associated with identity operators
+            non_identity_indices, non_identity_ops = zip(*non_identity_data)
+            self.tensor = np.einsum(self.tensor, range(self.tensor.ndim), non_identity_indices)
+            self.local_ops = non_identity_ops
 
     def in_canonical_form(self) -> "DenseMultiBodyOperator":
         """Rearrange data to sort 'self.local_ops' by increasing index."""
@@ -227,29 +257,38 @@ class DenseMultiBodyOperator:
         where 'c_t' is the coefficient for 't' in 'self'.
         """
         spin_dim = int(np.round(np.sqrt(len(op_mats))))
+        if self.is_identity_op():
+            return self.tensor * self.scalar * _get_iden_op_tensor(spin_dim, self.num_sites)
+
         op_mat_I = np.eye(spin_dim)
         assert np.array_equal(op_mats[0], op_mat_I)
-        self.simplify()
 
         # construct a tensor for all sites addressed by the identity
+        self.simplify()
         iden_op_tensor = _get_iden_op_tensor(spin_dim, self.num_sites - self.locality)
-        if self.is_identity_op():
-            return self.tensor * self.scalar * iden_op_tensor
 
-        # vectorize all nontrivial operators in 'self'
+        # vectorize all nontrivial operators in 'self', and identify fixed/nonfixed sites
         local_op_vecs = [local_op.to_matrix(op_mats).ravel() for local_op in self.local_ops]
+        if self.fixed_ops:
+            fixed_op_vecs, fixed_op_sites = zip(
+                *[(op.op.to_matrix(op_mats).ravel(), op.site) for op in self.fixed_ops]
+            )
+        else:
+            fixed_op_vecs, fixed_op_sites = [], ()
+        non_fixed_op_sites = [idx for idx in range(self.num_sites) if idx not in fixed_op_sites]
 
         # take a tensor product of vectorized operators for all sites
         base_tensor = self.scalar * functools.reduce(
-            tensor_product, local_op_vecs + [iden_op_tensor]
+            tensor_product, fixed_op_vecs + local_op_vecs + [iden_op_tensor]
         )
 
         # sum over all choices of sites to address nontrivially
         op_tensors = (
-            self.tensor[sites] * np.moveaxis(base_tensor, range(self.locality), sites)
-            for addressed_sites in itertools.combinations(range(self.num_sites), self.locality)
-            for sites in itertools.permutations(addressed_sites)
-            if self.tensor[sites]
+            self.tensor[local_op_sites]
+            * np.moveaxis(base_tensor, range(self.locality), fixed_op_sites + local_op_sites)
+            for non_fixed_sites in itertools.combinations(non_fixed_op_sites, self.tensor.ndim)
+            for local_op_sites in itertools.permutations(non_fixed_sites)
+            if self.tensor[local_op_sites]
         )
         return sum(op_tensors)
 
@@ -328,11 +367,12 @@ class DenseMultiBodyOperators:
                     if np.array_equal(op_ii.tensor, op_jj.tensor):
                         tensor = op_ii.tensor
                         scalar = op_ii.scalar + op_jj.scalar
-                        new_op = DenseMultiBodyOperator(tensor, *local_ops, scalar=scalar)
                     else:
                         tensor = op_ii.tensor + op_jj.scalar / op_ii.scalar * op_jj.tensor
                         scalar = op_ii.scalar
-                        new_op = DenseMultiBodyOperator(tensor, *local_ops, scalar=scalar)
+                    new_op = DenseMultiBodyOperator(
+                        tensor, *local_ops, scalar=scalar, num_sites=self.num_sites
+                    )
                     self.ops[ii] = new_op
                     del self.ops[jj]
                     break
@@ -356,8 +396,9 @@ class DenseMultiBodyOperators:
         # add an identity term, which gets special treatment in the 'DenseMultiBodyOperator' class
         identity_coefficient = trace_inner_product(np.eye(spin_dim**num_sites), matrix)
         if identity_coefficient:
-            iden_ops = [AbstractSingleBodyOperator(0) for _ in range(num_sites)]
-            output += DenseMultiBodyOperator(np.array(1), *iden_ops, scalar=identity_coefficient)
+            output += DenseMultiBodyOperator(
+                np.array(1), scalar=identity_coefficient, num_sites=num_sites
+            )
 
         # loop over all numbers of sites that may be addressed nontrivially
         for locality in range(1, num_sites + 1):
@@ -381,7 +422,9 @@ class DenseMultiBodyOperators:
                     # add this term to the output
                     if coefficient:
                         tensor[non_iden_sites] = coefficient
-                        output += DenseMultiBodyOperator(tensor.copy(), *local_ops)
+                        output += DenseMultiBodyOperator(
+                            tensor.copy(), *local_ops, num_sites=num_sites
+                        )
 
         output.simplify()
         return output
@@ -760,7 +803,7 @@ def get_random_op(num_sites: int) -> np.ndarray:
 np.random.seed(0)
 np.set_printoptions(linewidth=200)
 
-num_sites = 5
+num_sites = 4
 
 mat_a = get_random_op(num_sites)
 mat_b = get_random_op(num_sites)
