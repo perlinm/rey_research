@@ -350,7 +350,7 @@ class DenseMultiBodyOperators:
         operator content.
         """
         # remove trivial (zero) terms
-        self.ops = [op for op in self.ops if op]
+        self.ops = [op for op in self.ops if not op.is_identity_op()]
 
         # combine terms that are the same up to a permutation of local operators
         local_op_counts = [collections.Counter(op.local_ops) for op in self.ops]
