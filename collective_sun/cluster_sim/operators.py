@@ -839,24 +839,6 @@ def _overlap_index_choices(
         yield fixed_overlap_indices, dist_overlap_indices
 
 
-def _get_tensor_indices(
-    overlap_indices: Sequence[int],
-    fixed_op_locality: int,
-    other_overlap_indices: Sequence[int],
-    other_fixed_op_locality: int,
-) -> tuple[tuple[int, ...], tuple[int, ...]]:
-    fixed_tensor_indices = []
-    dist_tensor_indices = []
-    for idx in other_overlap_indices:
-        tensor_index = idx - fixed_op_locality
-        if tensor_index >= 0:
-            if other_overlap_indices[idx] < other_fixed_op_locality:
-                fixed_tensor_indices.append(tensor_index)
-            else:
-                dist_tensor_indices.append(tensor_index)
-    return tuple(fixed_tensor_indices), tuple(dist_tensor_indices)
-
-
 def _get_overlap_tensor(
     tensor_a: np.ndarray,
     tensor_b: np.ndarray,
