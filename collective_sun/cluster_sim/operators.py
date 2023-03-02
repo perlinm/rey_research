@@ -773,6 +773,8 @@ def _commute_dense_op_terms(
                 commutator_factors = commutator_factor_func(overlap_ops_a, overlap_ops_b)
                 for overlap_ops_by_index in np.argwhere(commutator_factors):
                     commutator_factor = commutator_factors[tuple(overlap_ops_by_index)]
+
+                    # identify the operator content of this term in the commutator
                     overlap_fixed_ops = [
                         SingleBodyOperator(AbstractSingleBodyOperator(cc), site)
                         for cc, site in zip(overlap_ops_by_index, fixed_overlap_sites)
@@ -782,6 +784,7 @@ def _commute_dense_op_terms(
                         AbstractSingleBodyOperator(cc)
                         for cc in overlap_ops_by_index[op_a.fixed_op.locality :]
                     ]
+
                     output += DenseMultiBodyOperator(
                         *overlap_dist_ops,
                         *non_overlap_ops_a,
