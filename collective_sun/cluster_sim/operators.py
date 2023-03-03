@@ -948,7 +948,12 @@ def select_terms(matrix: np.ndarray, terms: Sequence[int]) -> np.ndarray:
     return new_matrix
 
 
+# terms = np.random.choice(range(4**num_sites), 15)
+terms_a = [6, 9]
+terms_b = [5]
+
 mat_a = get_random_op(num_sites)
+mat_a = select_terms(mat_a, terms_a)
 op_a = DenseMultiBodyOperators.from_matrix(mat_a, op_mats)
 success = np.allclose(op_a.to_matrix(op_mats), mat_a)
 print("SUCCESS" if success else "FAILURE")
@@ -956,6 +961,7 @@ if not success:
     exit()
 
 mat_b = get_random_op(num_sites)
+mat_b = select_terms(mat_b, terms_b)
 op_b = DenseMultiBodyOperators.from_matrix(mat_b, op_mats)
 success &= np.allclose(op_b.to_matrix(op_mats), mat_b)
 print("SUCCESS" if success else "FAILURE")
@@ -965,6 +971,15 @@ if not success:
 mat_c = commute_mats(mat_a, mat_b)
 op_c = commute_dense_ops(op_a, op_b, structure_factors)
 success &= np.allclose(op_c.to_matrix(op_mats), mat_c)
+
+print()
+print(mat_c)
+print()
+print(op_c.to_matrix(op_mats))
+print()
+for term in op_c.terms:
+    print(term)
+
 print("SUCCESS" if success else "FAILURE")
 exit()
 
