@@ -6,7 +6,7 @@ import itertools
 from typing import Callable, Iterator, Optional, Sequence, TypeVar, Union
 
 import numpy as np
-import sys ##########################################################
+import sys  ##########################################################
 
 
 def tensor_product(tensor_a: np.ndarray, tensor_b: np.ndarray) -> np.ndarray:
@@ -75,7 +75,7 @@ class TypedInteger:
     def __index__(self) -> int:
         return self.index
 
-    def __lt__(self, other: "TypedInteger") -> bool:
+    def __lt__(self, other: type[Self]) -> bool:
         return self.index < other.index
 
     @classmethod
@@ -117,6 +117,9 @@ class SingleBodyOperator:
     def __hash__(self) -> int:
         return hash(str(self))
 
+    def __lt__(self, other: "SingleBodyOperator") -> bool:
+        return self.site.index < other.site.index
+
     def is_identity_op(self) -> bool:
         return self.op.is_identity_op()
 
@@ -137,7 +140,7 @@ class MultiBodyOperator:
         return hash(str(self))
 
     def __iter__(self) -> Iterator[SingleBodyOperator]:
-        yield from self.ops
+        yield from sorted(self.ops)
 
     def __bool__(self) -> bool:
         return bool(self.ops)
@@ -190,12 +193,13 @@ class DenseMultiBodyOperator:
             self.simplify()
 
     def __str__(self) -> str:
-        fixed_op_str = f"{self.fixed_op}" if self.fixed_op else ""
-        local_op_str = " ".join(str(op) for op in self.dist_ops)
-        if not local_op_str:
-            return f"F({fixed_op_str})"
-        op_str = "; ".join([fixed_op_str, local_op_str])
-        return f"D({op_str})"
+        op_strs = []
+        if self.fixed_op:
+            op_strs.append(f"F[{self.fixed_op}]")
+        if self.dist_ops:
+            dist_op_str = " ".join(str(op) for op in self.dist_ops)
+            op_strs.append(f"D({dist_op_str})")
+        return "⋅".join(op_strs)
 
     def __mul__(self, scalar: complex) -> "DenseMultiBodyOperator":
         new_scalar = self.scalar * scalar
@@ -378,7 +382,10 @@ class DenseMultiBodyOperators:
         for jj in reversed(range(1, len(local_op_counts))):
             for ii in range(jj):
                 # if terms ii and jj have the same operator content, merge term jj into ii
-                if local_op_counts[ii] == local_op_counts[jj]:
+                if (
+                    self.terms[ii].fixed_op == self.terms[jj].fixed_op
+                    and local_op_counts[ii] == local_op_counts[jj]
+                ):
                     term_ii = self.terms[ii].in_canonical_form()
                     term_jj = self.terms[jj].in_canonical_form()
                     dist_ops = term_ii.dist_ops
@@ -413,7 +420,7 @@ class DenseMultiBodyOperators:
 
     @classmethod
     def from_matrix(
-        cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray]
+        cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray], pin_singular_terms=True
     ) -> "DenseMultiBodyOperators":
         """
         Construct a 'DenseMultiBodyOperators' object from the matrix representation of an operator
@@ -462,7 +469,7 @@ class DenseMultiBodyOperators:
                             num_sites=num_sites,
                         )
 
-        output.simplify(pin_singular_terms=True)
+        output.simplify(pin_singular_terms=pin_singular_terms)
         return output
 
     def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
@@ -715,6 +722,15 @@ def _commute_dense_op_terms(
     """Compute the commutator of two 'DenseMultiBodyOperator's."""
     assert op_a.num_sites == op_b.num_sites
     output = DenseMultiBodyOperators()
+    print()
+    print("START OPS")
+    print()
+    print("A", op_a)
+    print()
+    print("B", op_b)
+    print()
+    print("END OPS")
+    print()
 
     if op_a.is_identity_op() or op_b.is_identity_op():
         return output
@@ -723,51 +739,149 @@ def _commute_dense_op_terms(
     min_overlaps = max(1, op_a.locality + op_b.locality - op_a.num_sites)
     max_overlaps = min(op_a.locality, op_b.locality)
     for num_overlaps in range(min_overlaps, max_overlaps + 1):
+        print(num_overlaps)
 
         # loop over all choices of local operators in 'op_a' to overlap with 'op_b'
-        index_choices_a = _all_index_choices(num_overlaps, op_a.locality, op_a.fixed_op.locality)
-        for fixed_overlap_indices_a, dist_overlap_indices_a in index_choices_a:
-            overlap_indices_a = fixed_overlap_indices_a + dist_overlap_indices_a
+        index_choices_a = itertools.combinations(range(op_a.locality), num_overlaps)
+        for overlap_indices_a in index_choices_a:
             non_overlap_indices_a = tuple(
                 idx for idx in range(op_a.locality) if idx not in overlap_indices_a
             )
+            print(overlap_indices_a)
 
-            # identify the local operators in 'op_a' that will overlap in these terms
+            # identify the local operators in 'op_a' that will/won't overlap in these terms
             overlap_ops_a = tuple(op_a.local_ops[idx] for idx in overlap_indices_a)
-            non_overlap_ops_a = tuple(op_a.local_ops[idx] for idx in non_overlap_indices_a)
+            fixed_non_overlap_ops_a = [
+                op for idx, op in enumerate(op_a.fixed_op) if idx not in overlap_indices_a
+            ]
+            dist_non_overlap_ops_a = [
+                op
+                for idx, op in enumerate(op_a.dist_ops)
+                if idx + op_a.fixed_op.locality not in overlap_indices_a
+            ]
 
-            # identify the fixed lattice sites that are involved in this choice of overlaps
-            fixed_overlap_sites = [
-                site for idx, site in enumerate(op_a.fixed_sites) if idx in fixed_overlap_indices_a
+            # identify sites of fixed operators in overlap_ops_a
+            fixed_overlap_sites_a = [
+                site for idx, site in enumerate(op_a.fixed_sites) if idx in overlap_indices_a
             ]
 
             # loop over choices of local operators in 'op_b' to overlap with 'op_a'
-            index_choices_b = _overlap_index_choices(
-                num_overlaps,
-                op_b.locality,
-                op_b.fixed_op.locality,
-                op_b.fixed_sites,
-                fixed_overlap_sites,
+            index_choices_b = (
+                permuted_indices
+                for indices in itertools.combinations(range(op_b.locality), num_overlaps)
+                for permuted_indices in itertools.permutations(indices)
             )
-            for fixed_overlap_indices_b, dist_overlap_indices_b in index_choices_b:
-                overlap_indices_b = fixed_overlap_indices_b + dist_overlap_indices_b
-                non_overlap_indices_b = tuple(
-                    idx for idx in range(op_b.locality) if idx not in overlap_indices_b
-                )
+            for overlap_indices_b in index_choices_b:
+                # skip choices that involve overlapping fixed operators on different sites
+                # TODO: remove the need for this check by limiting 'index_choices_b'
+                if (
+                    op_a.fixed_op.locality
+                    and op_b.fixed_op.locality
+                    and any(
+                        idx_a < op_a.fixed_op.locality
+                        and idx_b < op_b.fixed_op.locality
+                        and op_a.fixed_sites[idx_a] != op_b.fixed_sites[idx_b]
+                        for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b)
+                    )
+                ):
+                    continue
 
-                # identify the local operators in 'op_b' that will overlap in these terms
+                # identify the local operators in 'op_b' that will/won't overlap in these terms
                 overlap_ops_b = tuple(op_b.local_ops[idx] for idx in overlap_indices_b)
-                non_overlap_ops_b = tuple(op_b.local_ops[idx] for idx in non_overlap_indices_b)
+                fixed_non_overlap_ops_b = [
+                    op for idx, op in enumerate(op_b.fixed_op) if idx not in overlap_indices_b
+                ]
+                dist_non_overlap_ops_b = [
+                    op
+                    for idx, op in enumerate(op_b.dist_ops)
+                    if idx + op_b.fixed_op.locality not in overlap_indices_b
+                ]
 
-                # construct the tensor of coefficients all terms with these overlaps
-                overlap_tensor = _get_overlap_tensor(
-                    op_a.tensor,
-                    op_b.tensor,
-                    [idx - op_a.fixed_op.locality for idx in dist_overlap_indices_a],
-                    [idx - op_b.fixed_op.locality for idx in dist_overlap_indices_b],
+                print("----------------------")
+                print("ops")
+                print(op_a)
+                print(op_b)
+                print()
+                print("overlap ops")
+                print(overlap_ops_a)
+                print(overlap_ops_b)
+                print()
+
+                # identify indices for einsum expression
+                tensor_indices_a = list(range(op_a.tensor.ndim))
+                tensor_indices_b = [idx + op_a.tensor.ndim for idx in range(op_b.tensor.ndim)]
+                for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
+                    tensor_index_a = idx_a - op_a.fixed_op.locality
+                    tensor_index_b = idx_b - op_b.fixed_op.locality
+                    if tensor_index_a >= 0 and tensor_index_b >= 0:
+                        tensor_indices_b[tensor_index_b] = tensor_index_a
+
+                # identify how to slice tensors to fix indices that overlap with fixed operators
+                tensor_slices_a = [slice(dim) for dim in op_a.tensor.shape]
+                tensor_slices_b = [slice(dim) for dim in op_b.tensor.shape]
+                for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
+                    tensor_index_a = idx_a - op_a.fixed_op.locality
+                    tensor_index_b = idx_b - op_b.fixed_op.locality
+                    if tensor_index_a >= 0 and idx_b < op_b.fixed_op.locality:
+                        val = op_b.fixed_sites[idx_b].index
+                        tensor_slices_a[tensor_index_a] = slice(val, val + 1)
+                    if tensor_index_b >= 0 and idx_a < op_a.fixed_op.locality:
+                        val = op_a.fixed_sites[idx_a].index
+                        tensor_slices_b[tensor_index_b] = slice(val, val + 1)
+
+                # collect indices of the combined tensor
+                rearranged_indices_a = overlap_indices_a + non_overlap_indices_a
+                final_indices_a = [
+                    idx
+                    for idx, idx_slice in zip(rearranged_indices_a, tensor_slices_a)
+                    if idx >= op_a.fixed_op.locality and idx_slice == slice(op_a.num_sites)
+                ]
+                final_indices_b = [
+                    idx
+                    for idx, idx_slice in zip(tensor_indices_b, tensor_slices_b)
+                    if idx not in tensor_indices_a and idx_slice == slice(op_b.num_sites)
+                ]
+
+                print("slices")
+                print(tensor_slices_a)
+                print(tensor_slices_b)
+                print()
+                print("tensor indices")
+                print(tensor_indices_a)
+                print(tensor_indices_b)
+                print()
+                print("final indices")
+                print(final_indices_a)
+                print(final_indices_b)
+                print()
+
+                overlap_tensor = np.einsum(
+                    op_a.tensor[tuple(tensor_slices_a)],
+                    tensor_indices_a,
+                    op_b.tensor[tuple(tensor_slices_b)],
+                    tensor_indices_b,
+                    final_indices_a + final_indices_b,
                 )
+                if overlap_tensor.shape == (1,):
+                    overlap_tensor = np.array(overlap_tensor[0])
+
+                print("overlap tensor")
+                print(overlap_tensor)
+                print(overlap_tensor.ndim)
+                print(overlap_tensor.shape)
+                print()
+                print(overlap_ops_a)
+                print(overlap_ops_b)
+                print()
+
                 if not overlap_tensor.any():
                     continue
+
+                # identify sites of fixed operators in overlap_ops_b
+                fixed_overlap_sites_b = [
+                    site for idx, site in enumerate(op_b.fixed_sites) if idx in overlap_indices_b
+                ]
+                fixed_overlap_sites = fixed_overlap_sites_a + fixed_overlap_sites_b
 
                 # add all nonzero terms in the commutator with these overlaps
                 commutator_factors = commutator_factor_func(overlap_ops_a, overlap_ops_b)
@@ -779,67 +893,48 @@ def _commute_dense_op_terms(
                         SingleBodyOperator(AbstractSingleBodyOperator(cc), site)
                         for cc, site in zip(overlap_ops_by_index, fixed_overlap_sites)
                     ]
-                    overlap_fixed_op = MultiBodyOperator(*overlap_fixed_ops)
+                    overlap_fixed_op = MultiBodyOperator(
+                        *overlap_fixed_ops,
+                        *fixed_non_overlap_ops_a,
+                        *fixed_non_overlap_ops_b,
+                    )
                     overlap_dist_ops = [
                         AbstractSingleBodyOperator(cc)
-                        for cc in overlap_ops_by_index[op_a.fixed_op.locality :]
+                        for cc in overlap_ops_by_index[len(fixed_overlap_sites) :]
                     ]
-
+                    # print(op_a)
+                    # print(op_b)
+                    # print(overlap_indices_a)
+                    # print(overlap_indices_b)
+                    # print()
+                    print()
+                    print(overlap_fixed_ops)
+                    print(fixed_non_overlap_ops_a)
+                    print(fixed_non_overlap_ops_b)
+                    print(overlap_fixed_op)
+                    print(commutator_factor)
+                    # print(overlap_dist_ops)
+                    # print(dist_non_overlap_ops_a)
+                    # print(dist_non_overlap_ops_b)
                     output += DenseMultiBodyOperator(
                         *overlap_dist_ops,
-                        *non_overlap_ops_a,
-                        *non_overlap_ops_b,
+                        *dist_non_overlap_ops_a,
+                        *dist_non_overlap_ops_b,
                         tensor=overlap_tensor,
                         scalar=op_a.scalar * op_b.scalar * commutator_factor,
                         fixed_op=overlap_fixed_op,
                         num_sites=op_a.num_sites,
                     )
+                # if commutator_factors.any():
+                #     for op in output.terms:
+                #         print("----------------------")
+                #         print(op)
+                #         print(op.tensor)
+                #         print(op.scalar)
+                #         print("----------------------")
+                #     # exit()
 
     return output
-
-
-def _all_index_choices(
-    num_indices: int,
-    total_op_locality: int,
-    fixed_op_locality: int,
-) -> Iterator[tuple[tuple[int, ...], tuple[int, ...]]]:
-    """Loop over all combinations of local operators (by index) in a 'DenseMultiBodyOperator'."""
-    overlap_index_set = itertools.combinations(range(total_op_locality), num_indices)
-    for overlap_indices in overlap_index_set:
-        fixed_overlap_indices = tuple(idx for idx in overlap_indices if idx < fixed_op_locality)
-        dist_overlap_indices = tuple(idx for idx in overlap_indices if idx >= fixed_op_locality)
-        yield fixed_overlap_indices, dist_overlap_indices
-
-
-def _overlap_index_choices(
-    num_overlaps: int,
-    total_op_locality: int,
-    fixed_op_locality: int,
-    fixed_op_sites: Sequence[LatticeSite],
-    fixed_overlap_sites: Sequence[LatticeSite],
-) -> Iterator[tuple[tuple[int, ...], tuple[int, ...]]]:
-    """
-    Loop over all choices of local operators (by index) to overlap with another
-    'DenseMultiBodyOperator'.
-
-    Here 'fixed_overlap_sites' are the sites at which the other 'DenseMultiBodyOperator' has fixed
-    local operators.
-    """
-    # identify which fixed operators *must* overlap
-    fixed_overlap_indices = tuple(
-        idx for idx, site in enumerate(fixed_op_sites) if site in fixed_overlap_sites
-    )
-
-    # loop over choices of distributed operators to overlap
-    dist_op_indices = range(fixed_op_locality, total_op_locality)
-    num_dist_overlaps = num_overlaps - len(fixed_overlap_indices)
-    dist_overlap_index_set = (
-        permuted_dist_indices
-        for dist_indices in itertools.combinations(dist_op_indices, num_dist_overlaps)
-        for permuted_dist_indices in itertools.permutations(dist_indices)
-    )
-    for dist_overlap_indices in dist_overlap_index_set:
-        yield fixed_overlap_indices, dist_overlap_indices
 
 
 def _get_overlap_tensor(
@@ -874,9 +969,9 @@ op_X = AbstractSingleBodyOperator(2)
 op_Y = AbstractSingleBodyOperator(3)
 ops = [op_I, op_Z, op_X, op_Y]
 
-op_mat_I = np.eye(2)
-op_mat_Z = np.array([[1, 0], [0, -1]])
-op_mat_X = np.array([[0, 1], [1, 0]])
+op_mat_I = np.eye(2, dtype=complex)
+op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
+op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
 op_mat_Y = -1j * op_mat_Z @ op_mat_X
 op_mats = [op_mat_I, op_mat_Z, op_mat_X, op_mat_Y]
 
@@ -892,7 +987,7 @@ def get_random_op(num_sites: int) -> np.ndarray:
 np.random.seed(0)
 np.set_printoptions(linewidth=200)
 
-num_sites = 4
+num_sites = 2
 
 mat_iden = functools.reduce(np.kron, [op_mat_I] * num_sites)
 
@@ -901,18 +996,37 @@ def remove_identity(mat: np.ndarray):
     return mat - trace_inner_product(mat_iden, mat) * mat_iden
 
 
-# mat_a = get_random_op(num_sites)
-mat_a = functools.reduce(np.kron, [op_mat_Z] + [op_mat_I] * (num_sites - 1))
+mat_a = get_random_op(num_sites)
+# mat_a = functools.reduce(np.kron, [op_mat_Z] + [op_mat_Y] * (num_sites - 1))
+# mat_a += functools.reduce(np.kron, [op_mat_Y] + [op_mat_X] * (num_sites - 1))
 op_a = DenseMultiBodyOperators.from_matrix(mat_a, op_mats)
 success = np.allclose(op_a.to_matrix(op_mats), remove_identity(mat_a))
+print("SUCCESS" if success else "FAILURE")
 
-mat_b = get_random_op(num_sites)
+# mat_b = get_random_op(num_sites)
+mat_b = functools.reduce(np.kron, [op_mat_X] + [op_mat_I] * (num_sites - 1))
+mat_b += functools.reduce(np.kron, [op_mat_X] + [op_mat_Y] * (num_sites - 1))
 op_b = DenseMultiBodyOperators.from_matrix(mat_b, op_mats)
 success &= np.allclose(op_b.to_matrix(op_mats), remove_identity(mat_b))
+print("SUCCESS" if success else "FAILURE")
 
 mat_c = commute_mats(mat_a, mat_b)
 op_c = commute_dense_ops(op_a, op_b, structure_factors)
 success &= np.allclose(op_c.to_matrix(op_mats), remove_identity(mat_c))
+
+
+print()
+print(op_c.to_matrix(op_mats))
+print()
+print(remove_identity(mat_c))
+print()
+for term in op_c.terms:
+    print(term)
+print()
+print("---------")
+print()
+for term in DenseMultiBodyOperators.from_matrix(mat_c, op_mats).terms:
+    print(term)
 
 print("SUCCESS" if success else "FAILURE")
 exit()
