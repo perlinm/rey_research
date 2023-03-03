@@ -6,7 +6,6 @@ import itertools
 from typing import Callable, Iterator, Optional, Sequence, TypeVar, Union
 
 import numpy as np
-import sys  ##########################################################
 
 
 def tensor_product(tensor_a: np.ndarray, tensor_b: np.ndarray) -> np.ndarray:
@@ -331,7 +330,6 @@ class DenseMultiBodyOperators:
         self,
         *terms: Union[DenseMultiBodyOperator, "DenseMultiBodyOperators"],
         simplify: bool = True,
-        pin_singular_terms: bool = False,
     ) -> None:
         if terms:
             assert len(set(term.num_sites for term in terms)) == 1
@@ -340,7 +338,7 @@ class DenseMultiBodyOperators:
             if isinstance(term, DenseMultiBodyOperators):
                 self.terms.extend(term.terms)
         if simplify:
-            self.simplify(pin_singular_terms=pin_singular_terms)
+            self.simplify()
 
     def __mul__(self, scalar: complex) -> "DenseMultiBodyOperators":
         new_terms = [scalar * term for term in self.terms]
@@ -353,9 +351,9 @@ class DenseMultiBodyOperators:
         self, other: Union[DenseMultiBodyOperator, "DenseMultiBodyOperators"]
     ) -> "DenseMultiBodyOperators":
         assert self.num_sites == other.num_sites or self.num_sites == 0 or other.num_sites == 0
-        return DenseMultiBodyOperators(
-            *self.terms, *DenseMultiBodyOperators(other).terms, simplify=False
-        )
+        if isinstance(other, DenseMultiBodyOperator):
+            other = DenseMultiBodyOperators(other, simplify=False)
+        return DenseMultiBodyOperators(*self.terms, *other.terms, simplify=False)
 
     def __iadd__(
         self, other: Union[DenseMultiBodyOperator, "DenseMultiBodyOperators"]
@@ -369,15 +367,26 @@ class DenseMultiBodyOperators:
             return 0
         return self.terms[0].num_sites
 
-    def simplify(self, pin_singular_terms: bool = False) -> None:
+    def _pin_local_terms(self) -> None:
         """
-        Simplify 'self' by removing trivial (zero) terms, and combining terms that have the same
-        operator content.
+        If any term has a tensor with only one nonzero element, then "pin" the operators in that
+        term, fixing them to lattice sites.
         """
-        # remove trivial (zero) terms
-        self.terms = [term for term in self.terms if not term.is_identity_op()]
+        for ii, term in enumerate(self.terms):
+            if len(nonzero_site_indices := np.argwhere(term.tensor)) == 1:
+                site_indices = tuple(nonzero_site_indices[0])
+                scalar = term.scalar * term.tensor[site_indices]
+                fixed_op_list = [
+                    SingleBodyOperator(local_op, LatticeSite(site_index))
+                    for local_op, site_index in zip(term.dist_ops, site_indices)
+                ]
+                fixed_op = MultiBodyOperator(*fixed_op_list, *term.fixed_op)
+                self.terms[ii] = DenseMultiBodyOperator(
+                    scalar=scalar, fixed_op=fixed_op, num_sites=self.num_sites
+                )
 
-        # combine terms that are the same up to a permutation of local operators
+    def _combine_similar_terms(self) -> None:
+        """Combine terms in 'self' that are the same up to a permutatino of local operators."""
         local_op_counts = [collections.Counter(op.dist_ops) for op in self.terms]
         for jj in reversed(range(1, len(local_op_counts))):
             for ii in range(jj):
@@ -396,31 +405,31 @@ class DenseMultiBodyOperators:
                         tensor = term_ii.tensor + term_jj.scalar / term_ii.scalar * term_jj.tensor
                         scalar = term_ii.scalar
                     new_op = DenseMultiBodyOperator(
-                        *dist_ops, tensor=tensor, scalar=scalar, num_sites=self.num_sites
+                        *dist_ops,
+                        tensor=tensor,
+                        scalar=scalar,
+                        num_sites=self.num_sites,
+                        fixed_op=self.terms[ii].fixed_op,
                     )
                     self.terms[ii] = new_op
                     del self.terms[jj]
                     break
 
-        if pin_singular_terms and len(sys.argv) > 1:
-            # If any term has a tensor with only one nonzero element,
-            # then "pin" the operators in that term, fixing them to lattice sites.
-            for ii, term in enumerate(self.terms):
-                if len(nonzero_site_indices := np.argwhere(term.tensor)) == 1:
-                    site_indices = tuple(nonzero_site_indices[0])
-                    scalar = term.scalar * term.tensor[site_indices]
-                    fixed_op_list = [
-                        SingleBodyOperator(local_op, LatticeSite(site_index))
-                        for site_index, local_op in zip(site_indices, term.dist_ops)
-                    ]
-                    fixed_op = MultiBodyOperator(*fixed_op_list, *term.fixed_op)
-                    self.terms[ii] = DenseMultiBodyOperator(
-                        scalar=scalar, fixed_op=fixed_op, num_sites=self.num_sites
-                    )
+    def simplify(self) -> None:
+        """
+        Simplify 'self' by removing trivial (zero) terms, and combining terms that have the same
+        operator content.
+        """
+        # remove trivial (zero) terms
+        self.terms = [term for term in self.terms if bool(term)]
+
+        self._combine_similar_terms()
+        self._pin_local_terms()
+        self._combine_similar_terms()
 
     @classmethod
     def from_matrix(
-        cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray], pin_singular_terms=True
+        cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray]
     ) -> "DenseMultiBodyOperators":
         """
         Construct a 'DenseMultiBodyOperators' object from the matrix representation of an operator
@@ -469,7 +478,7 @@ class DenseMultiBodyOperators:
                             num_sites=num_sites,
                         )
 
-        output.simplify(pin_singular_terms=pin_singular_terms)
+        output.simplify()
         return output
 
     def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
@@ -589,7 +598,8 @@ class OperatorPolynomial:
 
     @classmethod
     def from_multi_body_ops(
-        self, *terms: DenseMultiBodyOperators | DenseMultiBodyOperator
+        self,
+        *terms: DenseMultiBodyOperators | DenseMultiBodyOperator,
     ) -> "OperatorPolynomial":
         """
         Construct an 'OperatorPolynomial' that represents a sum of the expectation values of
@@ -601,7 +611,7 @@ class OperatorPolynomial:
         for dense_ops in terms:
             if isinstance(dense_ops, DenseMultiBodyOperator):
                 dense_ops = DenseMultiBodyOperators(dense_ops)
-            dense_ops.simplify(pin_singular_terms=True)
+            dense_ops.simplify()
 
             # loop over individual 'DenseMultiBodyOperator's in this term
             for dense_op in dense_ops.terms:
@@ -666,7 +676,6 @@ def commute_dense_ops(
     op_b: DenseMultiBodyOperators | DenseMultiBodyOperator,
     structure_factors: np.ndarray,
     simplify: bool = True,
-    pin_singular_terms: bool = True,
 ) -> DenseMultiBodyOperators:
     """Compute the commutator of two dense multibody operators."""
     op_a = DenseMultiBodyOperators(op_a)
@@ -678,7 +687,7 @@ def commute_dense_ops(
     for term_a, term_b in itertools.product(op_a.terms, op_b.terms):
         output += _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
     if simplify:
-        output.simplify(pin_singular_terms=pin_singular_terms)
+        output.simplify()
     return output
 
 
@@ -722,15 +731,6 @@ def _commute_dense_op_terms(
     """Compute the commutator of two 'DenseMultiBodyOperator's."""
     assert op_a.num_sites == op_b.num_sites
     output = DenseMultiBodyOperators()
-    print()
-    print("START OPS")
-    print()
-    print("A", op_a)
-    print()
-    print("B", op_b)
-    print()
-    print("END OPS")
-    print()
 
     if op_a.is_identity_op() or op_b.is_identity_op():
         return output
@@ -739,15 +739,10 @@ def _commute_dense_op_terms(
     min_overlaps = max(1, op_a.locality + op_b.locality - op_a.num_sites)
     max_overlaps = min(op_a.locality, op_b.locality)
     for num_overlaps in range(min_overlaps, max_overlaps + 1):
-        print(num_overlaps)
 
         # loop over all choices of local operators in 'op_a' to overlap with 'op_b'
         index_choices_a = itertools.combinations(range(op_a.locality), num_overlaps)
         for overlap_indices_a in index_choices_a:
-            non_overlap_indices_a = tuple(
-                idx for idx in range(op_a.locality) if idx not in overlap_indices_a
-            )
-            print(overlap_indices_a)
 
             # identify the local operators in 'op_a' that will/won't overlap in these terms
             overlap_ops_a = tuple(op_a.local_ops[idx] for idx in overlap_indices_a)
@@ -797,16 +792,6 @@ def _commute_dense_op_terms(
                     if idx + op_b.fixed_op.locality not in overlap_indices_b
                 ]
 
-                print("----------------------")
-                print("ops")
-                print(op_a)
-                print(op_b)
-                print()
-                print("overlap ops")
-                print(overlap_ops_a)
-                print(overlap_ops_b)
-                print()
-
                 # identify indices for einsum expression
                 tensor_indices_a = list(range(op_a.tensor.ndim))
                 tensor_indices_b = [idx + op_a.tensor.ndim for idx in range(op_b.tensor.ndim)]
@@ -830,49 +815,31 @@ def _commute_dense_op_terms(
                         tensor_slices_b[tensor_index_b] = slice(val, val + 1)
 
                 # collect indices of the combined tensor
-                rearranged_indices_a = overlap_indices_a + non_overlap_indices_a
                 final_indices_a = [
                     idx
-                    for idx, idx_slice in zip(rearranged_indices_a, tensor_slices_a)
-                    if idx >= op_a.fixed_op.locality and idx_slice == slice(op_a.num_sites)
+                    for idx, idx_slice in zip(tensor_indices_a, tensor_slices_a)
+                    if idx_slice == slice(op_a.num_sites)
                 ]
                 final_indices_b = [
                     idx
                     for idx, idx_slice in zip(tensor_indices_b, tensor_slices_b)
                     if idx not in tensor_indices_a and idx_slice == slice(op_b.num_sites)
                 ]
-
-                print("slices")
-                print(tensor_slices_a)
-                print(tensor_slices_b)
-                print()
-                print("tensor indices")
-                print(tensor_indices_a)
-                print(tensor_indices_b)
-                print()
-                print("final indices")
-                print(final_indices_a)
-                print(final_indices_b)
-                print()
+                final_indices = (
+                    [idx for idx in final_indices_a if idx in overlap_indices_a]
+                    + [idx for idx in final_indices_a if idx not in overlap_indices_a]
+                    + final_indices_b
+                )
 
                 overlap_tensor = np.einsum(
                     op_a.tensor[tuple(tensor_slices_a)],
                     tensor_indices_a,
                     op_b.tensor[tuple(tensor_slices_b)],
                     tensor_indices_b,
-                    final_indices_a + final_indices_b,
+                    final_indices,
                 )
                 if overlap_tensor.shape == (1,):
                     overlap_tensor = np.array(overlap_tensor[0])
-
-                print("overlap tensor")
-                print(overlap_tensor)
-                print(overlap_tensor.ndim)
-                print(overlap_tensor.shape)
-                print()
-                print(overlap_ops_a)
-                print(overlap_ops_b)
-                print()
 
                 if not overlap_tensor.any():
                     continue
@@ -902,20 +869,6 @@ def _commute_dense_op_terms(
                         AbstractSingleBodyOperator(cc)
                         for cc in overlap_ops_by_index[len(fixed_overlap_sites) :]
                     ]
-                    # print(op_a)
-                    # print(op_b)
-                    # print(overlap_indices_a)
-                    # print(overlap_indices_b)
-                    # print()
-                    print()
-                    print(overlap_fixed_ops)
-                    print(fixed_non_overlap_ops_a)
-                    print(fixed_non_overlap_ops_b)
-                    print(overlap_fixed_op)
-                    print(commutator_factor)
-                    # print(overlap_dist_ops)
-                    # print(dist_non_overlap_ops_a)
-                    # print(dist_non_overlap_ops_b)
                     output += DenseMultiBodyOperator(
                         *overlap_dist_ops,
                         *dist_non_overlap_ops_a,
@@ -925,14 +878,6 @@ def _commute_dense_op_terms(
                         fixed_op=overlap_fixed_op,
                         num_sites=op_a.num_sites,
                     )
-                # if commutator_factors.any():
-                #     for op in output.terms:
-                #         print("----------------------")
-                #         print(op)
-                #         print(op.tensor)
-                #         print(op.scalar)
-                #         print("----------------------")
-                #     # exit()
 
     return output
 
@@ -989,45 +934,37 @@ np.set_printoptions(linewidth=200)
 
 num_sites = 2
 
-mat_iden = functools.reduce(np.kron, [op_mat_I] * num_sites)
 
-
-def remove_identity(mat: np.ndarray):
-    return mat - trace_inner_product(mat_iden, mat) * mat_iden
+def select_terms(matrix: np.ndarray, terms: Sequence[int]) -> np.ndarray:
+    max_term = max(terms)
+    new_matrix = np.zeros_like(matrix)
+    for term, mats in enumerate(itertools.product(op_mats, repeat=num_sites)):
+        if term in terms:
+            mat = functools.reduce(np.kron, mats)
+            coefficient = trace_inner_product(mat, matrix)
+            new_matrix += coefficient * mat
+        if term > max_term:
+            break
+    return new_matrix
 
 
 mat_a = get_random_op(num_sites)
-# mat_a = functools.reduce(np.kron, [op_mat_Z] + [op_mat_Y] * (num_sites - 1))
-# mat_a += functools.reduce(np.kron, [op_mat_Y] + [op_mat_X] * (num_sites - 1))
 op_a = DenseMultiBodyOperators.from_matrix(mat_a, op_mats)
-success = np.allclose(op_a.to_matrix(op_mats), remove_identity(mat_a))
+success = np.allclose(op_a.to_matrix(op_mats), mat_a)
 print("SUCCESS" if success else "FAILURE")
+if not success:
+    exit()
 
-# mat_b = get_random_op(num_sites)
-mat_b = functools.reduce(np.kron, [op_mat_X] + [op_mat_I] * (num_sites - 1))
-mat_b += functools.reduce(np.kron, [op_mat_X] + [op_mat_Y] * (num_sites - 1))
+mat_b = get_random_op(num_sites)
 op_b = DenseMultiBodyOperators.from_matrix(mat_b, op_mats)
-success &= np.allclose(op_b.to_matrix(op_mats), remove_identity(mat_b))
+success &= np.allclose(op_b.to_matrix(op_mats), mat_b)
 print("SUCCESS" if success else "FAILURE")
+if not success:
+    exit()
 
 mat_c = commute_mats(mat_a, mat_b)
 op_c = commute_dense_ops(op_a, op_b, structure_factors)
-success &= np.allclose(op_c.to_matrix(op_mats), remove_identity(mat_c))
-
-
-print()
-print(op_c.to_matrix(op_mats))
-print()
-print(remove_identity(mat_c))
-print()
-for term in op_c.terms:
-    print(term)
-print()
-print("---------")
-print()
-for term in DenseMultiBodyOperators.from_matrix(mat_c, op_mats).terms:
-    print(term)
-
+success &= np.allclose(op_c.to_matrix(op_mats), mat_c)
 print("SUCCESS" if success else "FAILURE")
 exit()
 
