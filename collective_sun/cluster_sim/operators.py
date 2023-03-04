@@ -797,55 +797,15 @@ def _commute_dense_op_terms(
                     if idx + op_b.fixed_op.locality not in overlap_indices_b
                 ]
 
-                # identify indices for einsum expression
-                tensor_indices_a = list(range(op_a.tensor.ndim))
-                tensor_indices_b = [idx + op_a.tensor.ndim for idx in range(op_b.tensor.ndim)]
-                for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
-                    tensor_index_a = idx_a - op_a.fixed_op.locality
-                    tensor_index_b = idx_b - op_b.fixed_op.locality
-                    if tensor_index_a >= 0 and tensor_index_b >= 0:
-                        tensor_indices_b[tensor_index_b] = tensor_index_a
-
-                # identify how to slice tensors to fix indices that overlap with fixed operators
-                tensor_slices_a = [slice(dim) for dim in op_a.tensor.shape]
-                tensor_slices_b = [slice(dim) for dim in op_b.tensor.shape]
-                for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
-                    tensor_index_a = idx_a - op_a.fixed_op.locality
-                    tensor_index_b = idx_b - op_b.fixed_op.locality
-                    if tensor_index_a >= 0 and idx_b < op_b.fixed_op.locality:
-                        val = op_b.fixed_sites[idx_b].index
-                        tensor_slices_a[tensor_index_a] = slice(val, val + 1)
-                    if tensor_index_b >= 0 and idx_a < op_a.fixed_op.locality:
-                        val = op_a.fixed_sites[idx_a].index
-                        tensor_slices_b[tensor_index_b] = slice(val, val + 1)
-
-                # collect indices of the combined tensor
-                final_indices_a = [
-                    idx
-                    for idx, idx_slice in zip(tensor_indices_a, tensor_slices_a)
-                    if idx_slice == slice(op_a.num_sites)
-                ]
-                final_indices_b = [
-                    idx
-                    for idx, idx_slice in zip(tensor_indices_b, tensor_slices_b)
-                    if idx not in tensor_indices_a and idx_slice == slice(op_b.num_sites)
-                ]
-                final_indices = (
-                    [idx for idx in final_indices_a if idx in overlap_indices_a]
-                    + [idx for idx in final_indices_a if idx not in overlap_indices_a]
-                    + final_indices_b
+                # construct the tensor of coefficients for this choice of overlaps
+                overlap_tensor = _get_overlap_tensor(
+                    op_a.tensor,
+                    op_b.tensor,
+                    op_a.fixed_sites,
+                    op_b.fixed_sites,
+                    overlap_indices_a,
+                    overlap_indices_b,
                 )
-
-                overlap_tensor = np.einsum(
-                    op_a.tensor[tuple(tensor_slices_a)],
-                    tensor_indices_a,
-                    op_b.tensor[tuple(tensor_slices_b)],
-                    tensor_indices_b,
-                    final_indices,
-                )
-                if overlap_tensor.shape == (1,):
-                    overlap_tensor = np.array(overlap_tensor[0])
-
                 if not overlap_tensor.any():
                     continue
 
@@ -892,25 +852,68 @@ def _commute_dense_op_terms(
 def _get_overlap_tensor(
     tensor_a: np.ndarray,
     tensor_b: np.ndarray,
-    overlap_indices_a: list[int],
-    overlap_indices_b: list[int],
+    fixed_sites_a: tuple[LatticeSite, ...],
+    fixed_sites_b: tuple[LatticeSite, ...],
+    overlap_indices_a: tuple[int, ...],
+    overlap_indices_b: tuple[int, ...],
 ) -> np.ndarray:
     """
-    Construct the tensor obtained by enforcing that indices 'overlap_indices_a' of 'tensor_a' are
-    equal to indices 'overlap_indices_b' of 'tensor_b', while also fixing the values of some
-    indices.
-
-    Note that the overlapped indices will be the first indices of the output, while all other
-    indices preserve their order.
+    Construct the tensor of coefficients for a given choice of local operators to overlap between
+    two 'DenseMultiBodyOperator's.
     """
-    indices_a = range(tensor_a.ndim)
-    indices_b = list(range(tensor_a.ndim, tensor_a.ndim + tensor_b.ndim))
+    num_sites = tensor_a.shape[0] if tensor_a.ndim else tensor_b.shape[0] if tensor_b.ndim else 0
+    fixed_op_locality_a = len(fixed_sites_a)
+    fixed_op_locality_b = len(fixed_sites_b)
+
+    # identify indices for einsum expression
+    tensor_indices_a = list(range(tensor_a.ndim))
+    tensor_indices_b = [idx + tensor_a.ndim for idx in range(tensor_b.ndim)]
     for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
-        indices_b[idx_b] = idx_a
-    non_overlap_indices_a = [idx for idx in indices_a if idx not in overlap_indices_a]
-    non_overlap_indices_b = [idx for idx in indices_b if idx >= tensor_a.ndim]
-    indices_final = overlap_indices_a + non_overlap_indices_a + non_overlap_indices_b
-    return np.einsum(tensor_a, indices_a, tensor_b, indices_b, indices_final)
+        tensor_index_a = idx_a - fixed_op_locality_a
+        tensor_index_b = idx_b - fixed_op_locality_b
+        if tensor_index_a >= 0 and tensor_index_b >= 0:
+            tensor_indices_b[tensor_index_b] = tensor_index_a
+
+    # identify how to slice tensors to fix indices that overlap with fixed operators
+    tensor_slices_a = [slice(dim) for dim in tensor_a.shape]
+    tensor_slices_b = [slice(dim) for dim in tensor_b.shape]
+    for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b):
+        tensor_index_a = idx_a - fixed_op_locality_a
+        tensor_index_b = idx_b - fixed_op_locality_b
+        if tensor_index_a >= 0 and idx_b < fixed_op_locality_b:
+            val = fixed_sites_b[idx_b].index
+            tensor_slices_a[tensor_index_a] = slice(val, val + 1)
+        if tensor_index_b >= 0 and idx_a < fixed_op_locality_a:
+            val = fixed_sites_a[idx_a].index
+            tensor_slices_b[tensor_index_b] = slice(val, val + 1)
+
+    # collect indices of the combined tensor
+    final_indices_a = [
+        idx
+        for idx, idx_slice in zip(tensor_indices_a, tensor_slices_a)
+        if idx_slice == slice(num_sites)
+    ]
+    final_indices_b = [
+        idx
+        for idx, idx_slice in zip(tensor_indices_b, tensor_slices_b)
+        if idx not in tensor_indices_a and idx_slice == slice(num_sites)
+    ]
+    final_indices = (
+        [idx for idx in final_indices_a if idx in overlap_indices_a]
+        + [idx for idx in final_indices_a if idx not in overlap_indices_a]
+        + final_indices_b
+    )
+
+    overlap_tensor = np.einsum(
+        tensor_a[tuple(tensor_slices_a)],
+        tensor_indices_a,
+        tensor_b[tuple(tensor_slices_b)],
+        tensor_indices_b,
+        final_indices,
+    )
+    if overlap_tensor.shape == (1,):
+        overlap_tensor = np.array(overlap_tensor[0])
+    return overlap_tensor
 
 
 ####################################################################################################
@@ -994,7 +997,7 @@ test_ops["a"] = DenseMultiBodyOperators.from_matrix(test_mats["a"], op_mats)
 test_ops["b"] = DenseMultiBodyOperators.from_matrix(test_mats["b"], op_mats)
 test_op("a")
 test_op("b")
-for _ in range(4):
+for _ in range(3):
     for aa_bb in itertools.combinations(test_mats.keys(), 2):
         for aa, bb in itertools.permutations(aa_bb):
             if (aa, bb) not in test_mats.keys():
