@@ -758,25 +758,10 @@ def _commute_dense_op_terms(
             ) = _get_overlap_data(overlap_indices_a, op_a.dist_ops, op_a.fixed_op)
 
             # loop over choices of local operators in 'op_b' to overlap with 'op_a'
-            index_choices_b = (
-                permuted_indices
-                for indices in itertools.combinations(range(op_b.locality), num_overlaps)
-                for permuted_indices in itertools.permutations(indices)
+            index_choices_b = _get_overlap_index_choices(
+                overlap_indices_a, op_a.fixed_sites, op_b.fixed_sites, op_b.locality
             )
             for overlap_indices_b in index_choices_b:
-                # skip choices that involve overlapping fixed operators on different sites
-                # TODO: remove the need for this check by limiting 'index_choices_b'
-                if (
-                    op_a.fixed_op.locality
-                    and op_b.fixed_op.locality
-                    and any(
-                        idx_a < op_a.fixed_op.locality
-                        and idx_b < op_b.fixed_op.locality
-                        and op_a.fixed_sites[idx_a] != op_b.fixed_sites[idx_b]
-                        for idx_a, idx_b in zip(overlap_indices_a, overlap_indices_b)
-                    )
-                ):
-                    continue
 
                 # construct the tensor of coefficients for this choice of overlaps
                 overlap_tensor = _get_overlap_tensor(
@@ -823,6 +808,38 @@ def _commute_dense_op_terms(
                     )
 
     return output
+
+
+def _get_overlap_index_choices(
+    other_overlap_indices: tuple[int, ...],
+    other_fixed_sites: tuple[LatticeSite, ...],
+    fixed_sites: tuple[LatticeSite, ...],
+    locality: int,
+) -> Iterator[tuple[int, ...]]:
+    """Iterate over choices of local operators to overlap with another operator."""
+    num_overlaps = len(other_overlap_indices)
+    fixed_op_locality = len(fixed_sites)
+    other_fixed_op_locality = len(other_fixed_sites)
+
+    index_choices = (
+        permuted_indices
+        for indices in itertools.combinations(range(locality), num_overlaps)
+        for permuted_indices in itertools.permutations(indices)
+    )
+    for overlap_indices in index_choices:
+        # TODO: remove the need for this check
+        if (
+            fixed_op_locality
+            and other_fixed_op_locality
+            and any(
+                idx < fixed_op_locality
+                and other_idx < other_fixed_op_locality
+                and fixed_sites[idx] != other_fixed_sites[other_idx]
+                for idx, other_idx in zip(overlap_indices, other_overlap_indices)
+            )
+        ):
+            continue
+        yield overlap_indices
 
 
 def _get_overlap_data(
