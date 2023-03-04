@@ -32,31 +32,17 @@ def get_random_op(num_sites: int) -> np.ndarray:
 np.random.seed(0)
 np.set_printoptions(linewidth=200)
 
-num_sites = 2
-
 
 def get_nonzero_terms(matrix: np.ndarray, cutoff=1e-3) -> Iterator[str]:
+    num_sites = int(np.round(np.log2(matrix.shape[0])))
     for mats_labels in itertools.product(zip(op_mats, ["I", "Z", "X", "Y"]), repeat=num_sites):
         mats, labels = zip(*mats_labels)
         mat = functools.reduce(np.kron, mats)
-        if abs(operators.trace_inner_product(mat, matrix)) > 1e-3:
+        if abs(operators.trace_inner_product(mat, matrix)) > cutoff:
             yield "".join(labels)
 
 
-def select_terms(matrix: np.ndarray, terms: Sequence[int]) -> np.ndarray:
-    max_term = max(terms)
-    new_matrix = np.zeros_like(matrix)
-    for term, mats in enumerate(itertools.product(op_mats, repeat=num_sites)):
-        if term in terms:
-            mat = functools.reduce(np.kron, mats)
-            coefficient = operators.trace_inner_product(mat, matrix)
-            new_matrix += coefficient * mat
-        if term > max_term:
-            break
-    return new_matrix
-
-
-def test_commutation():
+def test_commutation(num_sites: int, depth: int = 3) -> None:
 
     test_mats: dict[str | tuple, np.ndarray] = {}
     test_ops: dict[str | tuple, operators.DenseMultiBodyOperators] = {}
@@ -66,7 +52,7 @@ def test_commutation():
         label: operators.DenseMultiBodyOperators.from_matrix(mat, op_mats)
         for label, mat in test_mats.items()
     }
-    for _ in range(3):
+    for _ in range(depth):
         for aa_bb in itertools.combinations(test_mats.keys(), 2):
             for aa, bb in itertools.permutations(aa_bb):
                 if (aa, bb) not in test_mats.keys():
@@ -75,12 +61,14 @@ def test_commutation():
                         test_ops[aa], test_ops[bb], structure_factors
                     )
 
-                    mat = test_mats[aa, bb]
-                    op = test_ops[aa, bb]
+                    key = (aa, bb)
+                    mat = test_mats[key]
+                    op = test_ops[key]
                     success = np.allclose(op.to_matrix(op_mats), mat)
-                    print("SUCCESS" if success else "FAILURE")
+                    print(key)
                     if not success:
-                        print((aa, bb))
+                        print()
+                        print("FAILURE")
                         print()
                         print(mat)
                         print()
@@ -94,4 +82,4 @@ def test_commutation():
                         exit()
 
 
-test_commutation()
+test_commutation(3)
