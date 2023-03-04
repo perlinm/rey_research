@@ -65,6 +65,9 @@ Self = TypeVar("Self", bound="TypedInteger")
 class TypedInteger:
     index: int
 
+    def __init__(self, index: int) -> None:
+        self.index = int(index)
+
     def __str__(self) -> str:
         return str(self.index)
 
@@ -293,11 +296,13 @@ class DenseMultiBodyOperator:
         local_op_vecs = tuple(local_op.to_matrix(op_mats).ravel() for local_op in self.dist_ops)
         if self.fixed_op:
             fixed_op_vecs, fixed_op_sites = zip(
-                *[(op.op.to_matrix(op_mats).ravel(), op.site.index) for op in self.fixed_op]
+                *[(op.op.to_matrix(op_mats).ravel(), op.site) for op in self.fixed_op]
             )
         else:
             fixed_op_vecs, fixed_op_sites = (), ()
-        non_fixed_op_sites = [idx for idx in range(self.num_sites) if idx not in fixed_op_sites]
+        non_fixed_op_sites = [
+            site for site in LatticeSite.range(self.num_sites) if site not in fixed_op_sites
+        ]
 
         # take a tensor product of vectorized operators for all sites
         base_tensor = self.scalar * functools.reduce(
@@ -846,7 +851,9 @@ def _commute_dense_op_terms(
 
                 # identify sites of fixed operators in overlap_ops_b
                 fixed_overlap_sites_b = [
-                    site for idx, site in enumerate(op_b.fixed_sites) if idx in overlap_indices_b
+                    op_b.fixed_sites[idx]
+                    for idx in overlap_indices_b
+                    if idx < op_b.fixed_op.locality
                 ]
                 fixed_overlap_sites = fixed_overlap_sites_a + fixed_overlap_sites_b
 
@@ -935,6 +942,14 @@ np.set_printoptions(linewidth=200)
 num_sites = 2
 
 
+def get_nonzero_terms(matrix: np.ndarray, cutoff=1e-3) -> Iterator[str]:
+    for mats_labels in itertools.product(zip(op_mats, ["I", "Z", "X", "Y"]), repeat=num_sites):
+        mats, labels = zip(*mats_labels)
+        mat = functools.reduce(np.kron, mats)
+        if abs(trace_inner_product(mat, matrix)) > 1e-3:
+            yield "".join(labels)
+
+
 def select_terms(matrix: np.ndarray, terms: Sequence[int]) -> np.ndarray:
     max_term = max(terms)
     new_matrix = np.zeros_like(matrix)
@@ -948,41 +963,46 @@ def select_terms(matrix: np.ndarray, terms: Sequence[int]) -> np.ndarray:
     return new_matrix
 
 
-# terms = np.random.choice(range(4**num_sites), 15)
-terms_a = [6, 9]
-terms_b = [5]
+test_mats: dict[str | tuple, np.ndarray] = {}
+test_ops: dict[str | tuple, DenseMultiBodyOperators] = {}
 
-mat_a = get_random_op(num_sites)
-mat_a = select_terms(mat_a, terms_a)
-op_a = DenseMultiBodyOperators.from_matrix(mat_a, op_mats)
-success = np.allclose(op_a.to_matrix(op_mats), mat_a)
-print("SUCCESS" if success else "FAILURE")
-if not success:
-    exit()
 
-mat_b = get_random_op(num_sites)
-mat_b = select_terms(mat_b, terms_b)
-op_b = DenseMultiBodyOperators.from_matrix(mat_b, op_mats)
-success &= np.allclose(op_b.to_matrix(op_mats), mat_b)
-print("SUCCESS" if success else "FAILURE")
-if not success:
-    exit()
+def test_op(key: str | tuple) -> None:
+    print(key)
+    mat = test_mats[key]
+    op = test_ops[key]
+    success = np.allclose(op.to_matrix(op_mats), mat)
+    print("SUCCESS" if success else "FAILURE")
+    if not success:
+        print(key)
+        print()
+        print(mat)
+        print()
+        print(op.to_matrix(op_mats))
+        print()
+        for term in op.terms:
+            print(term)
+        print()
+        for term_str in get_nonzero_terms(mat):
+            print(term_str)
+        exit()
 
-mat_c = commute_mats(mat_a, mat_b)
-op_c = commute_dense_ops(op_a, op_b, structure_factors)
-success &= np.allclose(op_c.to_matrix(op_mats), mat_c)
 
-print()
-print(mat_c)
-print()
-print(op_c.to_matrix(op_mats))
-print()
-for term in op_c.terms:
-    print(term)
+test_mats["a"] = get_random_op(num_sites)
+test_mats["b"] = get_random_op(num_sites)
+test_ops["a"] = DenseMultiBodyOperators.from_matrix(test_mats["a"], op_mats)
+test_ops["b"] = DenseMultiBodyOperators.from_matrix(test_mats["b"], op_mats)
+test_op("a")
+test_op("b")
+for _ in range(4):
+    for aa_bb in itertools.combinations(test_mats.keys(), 2):
+        for aa, bb in itertools.permutations(aa_bb):
+            if (aa, bb) not in test_mats.keys():
+                test_mats[aa, bb] = commute_mats(test_mats[aa], test_mats[bb])
+                test_ops[aa, bb] = commute_dense_ops(test_ops[aa], test_ops[bb], structure_factors)
+                test_op((aa, bb))
 
-print("SUCCESS" if success else "FAILURE")
 exit()
-
 
 ####################################################################################################
 
