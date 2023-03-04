@@ -961,115 +961,39 @@ def _get_commutator_term_ops(
     return overlap_dist_ops, overlap_fixed_op
 
 
-####################################################################################################
+if __name__ == "__main__":
+    op_I = AbstractSingleBodyOperator(0)
+    op_Z = AbstractSingleBodyOperator(1)
+    op_X = AbstractSingleBodyOperator(2)
+    op_Y = AbstractSingleBodyOperator(3)
+    ops = [op_I, op_Z, op_X, op_Y]
 
-op_I = AbstractSingleBodyOperator(0)
-op_Z = AbstractSingleBodyOperator(1)
-op_X = AbstractSingleBodyOperator(2)
-op_Y = AbstractSingleBodyOperator(3)
-ops = [op_I, op_Z, op_X, op_Y]
+    op_mat_I = np.eye(2, dtype=complex)
+    op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
+    op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
+    op_mat_Y = -1j * op_mat_Z @ op_mat_X
+    op_mats = [op_mat_I, op_mat_Z, op_mat_X, op_mat_Y]
 
-op_mat_I = np.eye(2, dtype=complex)
-op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
-op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
-op_mat_Y = -1j * op_mat_Z @ op_mat_X
-op_mats = [op_mat_I, op_mat_Z, op_mat_X, op_mat_Y]
+    structure_factors = get_structure_factors(*op_mats)
 
-structure_factors = get_structure_factors(*op_mats)
+    exit()
 
+    ####################################################################################################
 
-def get_random_op(num_sites: int) -> np.ndarray:
-    real = np.random.random((2**num_sites,) * 2)
-    imag = np.random.random((2**num_sites,) * 2)
-    return real + 1j * imag
+    op_mat = get_random_op(num_sites)
+    op_sum = DenseMultiBodyOperators.from_matrix(op_mat, op_mats)
+    op_poly = OperatorPolynomial.from_multi_body_ops(op_sum)
 
+    def factorization_rule(located_ops: MultiBodyOperator) -> OperatorPolynomial:
+        output = OperatorPolynomial()
+        factors = [MultiBodyOperator(located_op) for located_op in located_ops]
+        product = ExpectationValueProduct(*factors)
+        output.vec[product] = 1
+        return output
 
-np.random.seed(0)
-np.set_printoptions(linewidth=200)
+    op_poly = op_poly.factorize(factorization_rule)
+    print(op_poly**2)
+    exit()
 
-num_sites = 2
-
-
-def get_nonzero_terms(matrix: np.ndarray, cutoff=1e-3) -> Iterator[str]:
-    for mats_labels in itertools.product(zip(op_mats, ["I", "Z", "X", "Y"]), repeat=num_sites):
-        mats, labels = zip(*mats_labels)
-        mat = functools.reduce(np.kron, mats)
-        if abs(trace_inner_product(mat, matrix)) > 1e-3:
-            yield "".join(labels)
-
-
-def select_terms(matrix: np.ndarray, terms: Sequence[int]) -> np.ndarray:
-    max_term = max(terms)
-    new_matrix = np.zeros_like(matrix)
-    for term, mats in enumerate(itertools.product(op_mats, repeat=num_sites)):
-        if term in terms:
-            mat = functools.reduce(np.kron, mats)
-            coefficient = trace_inner_product(mat, matrix)
-            new_matrix += coefficient * mat
-        if term > max_term:
-            break
-    return new_matrix
-
-
-test_mats: dict[str | tuple, np.ndarray] = {}
-test_ops: dict[str | tuple, DenseMultiBodyOperators] = {}
-
-
-def test_op(key: str | tuple) -> None:
-    print(key)
-    mat = test_mats[key]
-    op = test_ops[key]
-    success = np.allclose(op.to_matrix(op_mats), mat)
-    print("SUCCESS" if success else "FAILURE")
-    if not success:
-        print(key)
-        print()
-        print(mat)
-        print()
-        print(op.to_matrix(op_mats))
-        print()
-        for term in op.terms:
-            print(term)
-        print()
-        for term_str in get_nonzero_terms(mat):
-            print(term_str)
-        exit()
-
-
-test_mats["a"] = get_random_op(num_sites)
-test_mats["b"] = get_random_op(num_sites)
-test_ops["a"] = DenseMultiBodyOperators.from_matrix(test_mats["a"], op_mats)
-test_ops["b"] = DenseMultiBodyOperators.from_matrix(test_mats["b"], op_mats)
-test_op("a")
-test_op("b")
-for _ in range(3):
-    for aa_bb in itertools.combinations(test_mats.keys(), 2):
-        for aa, bb in itertools.permutations(aa_bb):
-            if (aa, bb) not in test_mats.keys():
-                test_mats[aa, bb] = commute_mats(test_mats[aa], test_mats[bb])
-                test_ops[aa, bb] = commute_dense_ops(test_ops[aa], test_ops[bb], structure_factors)
-                test_op((aa, bb))
-
-exit()
-
-####################################################################################################
-
-op_mat = get_random_op(num_sites)
-op_sum = DenseMultiBodyOperators.from_matrix(op_mat, op_mats)
-op_poly = OperatorPolynomial.from_multi_body_ops(op_sum)
-
-
-def factorization_rule(located_ops: MultiBodyOperator) -> OperatorPolynomial:
-    output = OperatorPolynomial()
-    factors = [MultiBodyOperator(located_op) for located_op in located_ops]
-    product = ExpectationValueProduct(*factors)
-    output.vec[product] = 1
-    return output
-
-
-op_poly = op_poly.factorize(factorization_rule)
-print(op_poly**2)
-exit()
-
-state = np.random.random(2**num_sites) * np.exp(-1j * np.random.random(2**num_sites))
-state = state / np.linalg.norm(state)
+    state = np.random.random(2**num_sites) * np.exp(-1j * np.random.random(2**num_sites))
+    state = state / np.linalg.norm(state)
