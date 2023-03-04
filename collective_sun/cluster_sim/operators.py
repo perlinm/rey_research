@@ -821,22 +821,20 @@ def _get_overlap_index_choices(
     fixed_op_locality = len(fixed_sites)
     other_fixed_op_locality = len(other_fixed_sites)
 
+    check_for_fixed_op_overlaps = fixed_op_locality and other_fixed_op_locality
+
     index_choices = (
         permuted_indices
         for indices in itertools.combinations(range(locality), num_overlaps)
         for permuted_indices in itertools.permutations(indices)
     )
     for overlap_indices in index_choices:
-        # TODO: remove the need for this check
-        if (
-            fixed_op_locality
-            and other_fixed_op_locality
-            and any(
-                idx < fixed_op_locality
-                and other_idx < other_fixed_op_locality
-                and fixed_sites[idx] != other_fixed_sites[other_idx]
-                for idx, other_idx in zip(overlap_indices, other_overlap_indices)
-            )
+        # skip choices that overlap fixed operators at different sites
+        if check_for_fixed_op_overlaps and any(
+            idx < fixed_op_locality
+            and other_idx < other_fixed_op_locality
+            and fixed_sites[idx] != other_fixed_sites[other_idx]
+            for idx, other_idx in zip(overlap_indices, other_overlap_indices)
         ):
             continue
         yield overlap_indices
