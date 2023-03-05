@@ -66,7 +66,9 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
 
     test_mats = {"a": get_random_op(num_sites), "b": get_random_op(num_sites)}
 
+    terms = list(range(33, 37))
     test_mats["a"] = functools.reduce(np.kron, [op_mat_Z] + [op_mat_I] * (num_sites - 1))
+    test_mats["b"] = select_terms(test_mats["b"], terms)
 
     test_ops = {
         label: operators.DenseMultiBodyOperators.from_matrix(mat, op_mats)
@@ -92,16 +94,21 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
             success = np.allclose(op.to_matrix(op_mats), mat)
             if not success:
                 print("FAILURE")
-                # print()
-                # print(mat)
-                # print()
-                # print(op.to_matrix(op_mats))
-                # print()
-                # for term in op.terms:
-                #     print(term)
-                # print()
-                # for term_str in get_nonzero_terms(mat):
-                #     print(term_str)
+                print()
+                print(mat)
+                print()
+                print(op.to_matrix(op_mats))
+                print()
+                print("----------------------")
+                print()
+                for term in op.terms:
+                    print(term)
+                    for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
+                        print(term_str)
+                    print()
+                print()
+                for term_str in get_nonzero_terms(mat):
+                    print(term_str)
                 exit()
 
 

@@ -315,13 +315,25 @@ class DenseMultiBodyOperator:
 
         # sum over all choices of sites to address nontrivially
         op_tensors = (
-            self.tensor[local_op_sites]
-            * np.moveaxis(base_tensor, range(self.locality), fixed_op_sites + local_op_sites)
+            self.tensor[dist_op_sites]
+            * np.moveaxis(base_tensor, range(self.locality), fixed_op_sites + dist_op_sites)
             for non_fixed_sites in itertools.combinations(non_fixed_op_sites, self.tensor.ndim)
-            for local_op_sites in itertools.permutations(non_fixed_sites)
-            if self.tensor[local_op_sites]
+            for dist_op_sites in itertools.permutations(non_fixed_sites)
+            if self.tensor[dist_op_sites]
         )
         return sum(op_tensors)
+
+    def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
+        """Return a matrix representation of 'self'."""
+        spin_dim = int(np.round(np.sqrt(len(op_mats))))
+        num_sites = self.num_sites
+        split_tensor_shape = (spin_dim,) * (2 * num_sites)
+        output_matrix_shape = (spin_dim**num_sites,) * 2
+        return np.moveaxis(
+            self.to_tensor(op_mats).reshape(split_tensor_shape),
+            range(1, 2 * num_sites, 2),
+            range(num_sites, 2 * num_sites),
+        ).reshape(output_matrix_shape)
 
 
 @functools.cache
@@ -499,20 +511,13 @@ class DenseMultiBodyOperators:
 
     def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
         """Return the matrix representation of 'self'."""
-        spin_dim = int(np.round(np.sqrt(len(op_mats))))
-        num_sites = self.num_sites
-        output_matrix_shape = (spin_dim**num_sites,) * 2
-
-        tensor = sum((term.to_tensor(op_mats) for term in self.terms))
-        if not isinstance(tensor, np.ndarray):
+        matrix = sum((term.to_matrix(op_mats) for term in self.terms))
+        if not isinstance(matrix, np.ndarray):
+            spin_dim = int(np.round(np.sqrt(len(op_mats))))
+            num_sites = self.num_sites
+            output_matrix_shape = (spin_dim**num_sites,) * 2
             return np.zeros(output_matrix_shape)
-
-        full_tensor_shape = (spin_dim,) * (2 * num_sites)
-        return np.moveaxis(
-            tensor.reshape(full_tensor_shape),
-            range(1, 2 * num_sites, 2),
-            range(num_sites, 2 * num_sites),
-        ).reshape(output_matrix_shape)
+        return matrix
 
 
 ####################################################################################################
