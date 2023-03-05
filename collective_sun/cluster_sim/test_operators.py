@@ -70,14 +70,6 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
     test_mats["a"] = functools.reduce(np.kron, [op_mat_Z] + [op_mat_I] * (num_sites - 1))
     test_mats["b"] = select_terms(test_mats["b"], terms)
 
-    test_mats["a"] = functools.reduce(np.kron, [op_mat_I, op_mat_I, op_mat_I]) * 0
-    test_mats["a"] += functools.reduce(np.kron, [op_mat_X, op_mat_Z, op_mat_I])
-    test_mats["a"] += functools.reduce(np.kron, [op_mat_X, op_mat_I, op_mat_Z])
-
-    test_mats["b"] = functools.reduce(np.kron, [op_mat_I, op_mat_I, op_mat_I]) * 0
-    test_mats["b"] += functools.reduce(np.kron, [op_mat_Y, op_mat_Z, op_mat_I])
-    test_mats["b"] += functools.reduce(np.kron, [op_mat_Y, op_mat_I, op_mat_Z])
-
     test_ops = {
         label: operators.DenseMultiBodyOperators.from_matrix(mat, op_mats)
         for label, mat in test_mats.items()
@@ -97,7 +89,7 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
                         test_ops[bb],
                         structure_factors,
                         # _print = key == ('a', ('a', 'b'))
-                        _print=key == ("a", ("a", ("a", "b"))),
+                        _print=key == (('b', ('a', 'b')), 'b'),
                     )
 
                     mat = test_mats[key]
@@ -117,24 +109,60 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
                         print()
                         print("FAILURE")
                         print()
-                        print("actual matrix")
-                        print(mat)
-                        print()
-                        print("op.to_matrix")
-                        print(op.to_matrix(op_mats))
-                        print()
+                        # print("actual matrix")
+                        # print(mat)
+                        # print()
+                        # print("op.to_matrix")
+                        # print(op.to_matrix(op_mats))
+                        # print()
                         print("----------------------")
+                        print("TERM A")
                         print()
                         print("actual")
-                        for term_str in get_nonzero_terms(mat):
+                        print()
+                        for term_str in get_nonzero_terms(test_mats[aa]):
                             print(term_str)
                         print()
                         print("op")
-                        for term in op.terms:
+                        print()
+                        for term in test_ops[aa].terms:
                             print(term)
                             for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
                                 print(term_str)
                             print()
+                        print()
+                        print("----------------------")
+                        print("TERM B")
+                        print()
+                        print("actual")
+                        print()
+                        for term_str in get_nonzero_terms(test_mats[bb]):
+                            print(term_str)
+                        print()
+                        print("op")
+                        print()
+                        for term in test_ops[bb].terms:
+                            print(term)
+                            for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
+                                print(term_str)
+                            print()
+                        print()
+                        print("----------------------")
+                        print("COMMUTATOR")
+                        print()
+                        print("actual")
+                        print()
+                        for term_str in get_nonzero_terms(test_mats[key]):
+                            print(term_str)
+                        print()
+                        print("op")
+                        print()
+                        for term in test_ops[key].terms:
+                            print(term)
+                            for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
+                                print(term_str)
+                            print()
+                        print()
                         exit()
 
     print("SUCCESS")
