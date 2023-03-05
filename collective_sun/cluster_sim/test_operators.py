@@ -70,46 +70,71 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
     test_mats["a"] = functools.reduce(np.kron, [op_mat_Z] + [op_mat_I] * (num_sites - 1))
     test_mats["b"] = select_terms(test_mats["b"], terms)
 
+    test_mats["a"] = functools.reduce(np.kron, [op_mat_I, op_mat_I, op_mat_I]) * 0
+    test_mats["a"] += functools.reduce(np.kron, [op_mat_X, op_mat_Z, op_mat_I])
+    test_mats["a"] += functools.reduce(np.kron, [op_mat_X, op_mat_I, op_mat_Z])
+
+    test_mats["b"] = functools.reduce(np.kron, [op_mat_I, op_mat_I, op_mat_I]) * 0
+    test_mats["b"] += functools.reduce(np.kron, [op_mat_Y, op_mat_Z, op_mat_I])
+    test_mats["b"] += functools.reduce(np.kron, [op_mat_Y, op_mat_I, op_mat_Z])
+
     test_ops = {
         label: operators.DenseMultiBodyOperators.from_matrix(mat, op_mats)
         for label, mat in test_mats.items()
     }
 
-    # for _ in range(depth):
-    #     for aa_bb in itertools.combinations(test_mats.keys(), 2):
-    #         for aa, bb in itertools.permutations(aa_bb):
-    for aa, bb in [("a", "b"), ("b", ("a", "b"))]:
-        key = (aa, bb)
-        if key not in test_mats.keys():
-            print(key)
-            test_mats[key] = operators.commute_mats(test_mats[aa], test_mats[bb])
-            mat = test_mats[key]
+    # for aa, bb in [("a", "b"), ("b", ("a", "b"))]:
+    for _ in range(depth):
+        for aa_bb in itertools.combinations(test_mats.keys(), 2):
+            for aa, bb in itertools.permutations(aa_bb):
+                key = (aa, bb)
+                if key not in test_mats.keys():
+                    print(key)
+                    test_mats[key] = operators.commute_mats(test_mats[aa], test_mats[bb])
+                    mat = test_mats[key]
 
-            test_ops[key] = operators.commute_dense_ops(
-                test_ops[aa], test_ops[bb], structure_factors
-            )
-            op = test_ops[key]
-            # op = operators.DenseMultiBodyOperators.from_matrix(mat, op_mats)
+                    test_ops[key] = operators.commute_dense_ops(
+                        test_ops[aa], test_ops[bb], structure_factors,
+                        # _print = key == ('a', ('a', 'b'))
+                        _print = key == ('a', ('a', ('a', 'b')))
+                    )
+                    op = test_ops[key]
+                    # op = operators.DenseMultiBodyOperators.from_matrix(mat, op_mats)
 
-            success = np.allclose(op.to_matrix(op_mats), mat)
-            if not success:
-                print("FAILURE")
-                print()
-                print(mat)
-                print()
-                print(op.to_matrix(op_mats))
-                print()
-                print("----------------------")
-                print()
-                for term in op.terms:
-                    print(term)
-                    for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
-                        print(term_str)
-                    print()
-                print()
-                for term_str in get_nonzero_terms(mat):
-                    print(term_str)
-                exit()
+                    # for term in op.terms:
+                    #     print(term, term.scalar)
+                    #     for idx in np.ndindex(term.tensor.shape):
+                    #         val = term.tensor[idx]
+                    #         if val:
+                    #             print(idx, val)
+                    # exit()
+
+                    success = np.allclose(op.to_matrix(op_mats), mat)
+                    if not success:
+                        print()
+                        print("FAILURE")
+                        print()
+                        print("actual matrix")
+                        print(mat)
+                        print()
+                        print("op.to_matrix")
+                        print(op.to_matrix(op_mats))
+                        print()
+                        print("----------------------")
+                        print()
+                        print("actual")
+                        for term_str in get_nonzero_terms(mat):
+                            print(term_str)
+                        print()
+                        print("op")
+                        for term in op.terms:
+                            print(term)
+                            for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
+                                print(term_str)
+                            print()
+                        exit()
+
+    print("SUCCESS")
 
 
 test_commutation(3)

@@ -99,9 +99,6 @@ class AbstractSingleBodyOperator(TypedInteger):
     def __str__(self) -> str:
         return f"O_{self.index}"
 
-    def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
-        return op_mats[self.index]
-
     def is_identity_op(self) -> bool:
         return self.index == 0
 
@@ -194,6 +191,12 @@ class DenseMultiBodyOperator:
 
         if simplify:
             self.simplify()
+
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        for index in np.ndindex(self.tensor.shape):
+            if len(set(index)) != self.tensor.ndim:
+                self.tensor[index] = 0
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     def __str__(self) -> str:
         op_strs = []
@@ -297,10 +300,10 @@ class DenseMultiBodyOperator:
 
         # vectorize all nontrivial operators in 'self', and identify fixed/nonfixed sites
         self.simplify()
-        local_op_vecs = tuple(local_op.to_matrix(op_mats).ravel() for local_op in self.dist_ops)
+        local_op_vecs = tuple(op_mats[local_op.index].ravel() for local_op in self.dist_ops)
         if self.fixed_op:
             fixed_op_vecs, fixed_op_sites = zip(
-                *[(op.op.to_matrix(op_mats).ravel(), op.site) for op in self.fixed_op]
+                *[(op_mats[op.op.index].ravel(), op.site) for op in self.fixed_op]
             )
         else:
             fixed_op_vecs, fixed_op_sites = (), ()
@@ -492,7 +495,7 @@ class DenseMultiBodyOperators:
                     # compute the coefficient for this choice of local operators
                     matrices = [op_mat_I] * num_sites
                     for idx, local_op in zip(non_iden_sites, dist_ops):
-                        matrices[idx] = local_op.to_matrix(op_mats)
+                        matrices[idx] = op_mats[local_op.index]
                     term_matrix = functools.reduce(np.kron, matrices)
                     coefficient = trace_inner_product(term_matrix, matrix)
 
@@ -697,6 +700,7 @@ def commute_dense_ops(
     op_b: DenseMultiBodyOperators | DenseMultiBodyOperator,
     structure_factors: np.ndarray,
     simplify: bool = True,
+    _print=False,
 ) -> DenseMultiBodyOperators:
     """Compute the commutator of two dense multibody operators."""
     op_a = DenseMultiBodyOperators(op_a)
@@ -706,6 +710,33 @@ def commute_dense_ops(
 
     output = DenseMultiBodyOperators()
     for term_a, term_b in itertools.product(op_a.terms, op_b.terms):
+
+        if _print:
+            print()
+            print("term_a")
+            print(term_a)
+            print(term_a.tensor)
+            print()
+            print("term_b")
+            print(term_b)
+            print(term_b.tensor)
+            print()
+            print("comm")
+            comm = _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
+            comm.simplify()
+            for op in comm.terms:
+                print(op)
+                print(op.tensor)
+
+            op_mat_I = np.eye(2, dtype=complex)
+            op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
+            op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
+            op_mat_Y = -1j * op_mat_Z @ op_mat_X
+            op_mats = [op_mat_I, op_mat_Z, op_mat_X, op_mat_Y]
+            print()
+            print(comm.to_matrix(op_mats))
+            print()
+
         output += _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
     if simplify:
         output.simplify()
@@ -805,35 +836,6 @@ def _commute_dense_op_terms(
                     site for site in fixed_overlap_sites_b if site not in fixed_overlap_sites_a
                 )
 
-                ##########################################################################
-                fixed_ops = fixed_non_overlap_ops
-                if not len(fixed_ops) == len(set(op.site for op in fixed_ops)):
-                    print()
-                    print("fixed_non_overlap_ops_a")
-                    for op in fixed_non_overlap_ops_a:
-                        print(op)
-                    print()
-                    print("fixed_non_overlap_ops_b")
-                    for op in fixed_non_overlap_ops_b:
-                        print(op)
-                    print()
-                    print("op_a")
-                    print(op_a.fixed_op)
-                    print([str(op) for op in op_a.dist_ops])
-                    print()
-                    print("overlap_indices_a")
-                    print(overlap_indices_a)
-                    print()
-                    print("op_b")
-                    print(op_b.fixed_op)
-                    print([str(op) for op in op_b.dist_ops])
-                    print()
-                    print("overlap_indices_b")
-                    print(overlap_indices_b)
-                    print()
-                    assert len(fixed_ops) == len(set(op.site for op in fixed_ops))
-                ##########################################################################
-
                 # add all nonzero terms in the commutator with these overlaps
                 commutator_factors = commutator_factor_func(overlap_ops_a, overlap_ops_b)
                 for overlap_ops_by_index in np.argwhere(commutator_factors):
@@ -843,56 +845,6 @@ def _commute_dense_op_terms(
                     overlap_dist_ops, overlap_fixed_op = _get_commutator_term_ops(
                         overlap_ops_by_index, fixed_non_overlap_ops, fixed_overlap_sites
                     )
-
-                    try:
-                        DenseMultiBodyOperator(
-                            *overlap_dist_ops,
-                            *dist_non_overlap_ops_a,
-                            *dist_non_overlap_ops_b,
-                            tensor=overlap_tensor,
-                            scalar=op_a.scalar * op_b.scalar * commutator_factor,
-                            fixed_op=overlap_fixed_op,
-                            num_sites=op_a.num_sites,
-                        )
-                    except:
-                        print()
-                        print("num_overlaps:", num_overlaps)
-                        print("overlap_indices_a:", overlap_indices_a)
-                        print("overlap_indices_b:", overlap_indices_b)
-                        print()
-                        print("overlap_tensor.ndim:", overlap_tensor.ndim)
-                        print()
-                        print("op_a.fixed_ops:", op_a.fixed_op)
-                        print("op_a.dist_ops:", op_a.dist_ops)
-                        print()
-                        print("op_b.fixed_ops:", op_b.fixed_op)
-                        print("op_b.dist_ops:", op_b.dist_ops)
-                        print()
-                        print("overlap_ops_a:", overlap_ops_a)
-                        print("overlap_ops_b:", overlap_ops_b)
-                        print()
-                        print("overlap_ops_by_index:", overlap_ops_by_index)
-                        print("fixed_non_overlap_ops:", fixed_non_overlap_ops)
-                        print("fixed_overlap_sites:", fixed_overlap_sites)
-                        print("fixed_overlap_sites_a", fixed_overlap_sites_a)
-                        print("fixed_overlap_sites_b", fixed_overlap_sites_b)
-                        print()
-                        print("overlap_dist_ops:", overlap_dist_ops)
-                        print("overlap_fixed_op:", overlap_fixed_op)
-                        print()
-                        print("dist_non_overlap_ops_a:", dist_non_overlap_ops_a)
-                        print("dist_non_overlap_ops_b:", dist_non_overlap_ops_b)
-                        print()
-                        DenseMultiBodyOperator(
-                            *overlap_dist_ops,
-                            *dist_non_overlap_ops_a,
-                            *dist_non_overlap_ops_b,
-                            tensor=overlap_tensor,
-                            scalar=op_a.scalar * op_b.scalar * commutator_factor,
-                            fixed_op=overlap_fixed_op,
-                            num_sites=op_a.num_sites,
-                        )
-                        exit()
 
                     output += DenseMultiBodyOperator(
                         *overlap_dist_ops,
@@ -1103,22 +1055,22 @@ if __name__ == "__main__":
 
     exit()
 
-    ####################################################################################################
+    # ####################################################################################################
 
-    op_mat = get_random_op(num_sites)
-    op_sum = DenseMultiBodyOperators.from_matrix(op_mat, op_mats)
-    op_poly = OperatorPolynomial.from_multi_body_ops(op_sum)
+    # op_mat = get_random_op(num_sites)
+    # op_sum = DenseMultiBodyOperators.from_matrix(op_mat, op_mats)
+    # op_poly = OperatorPolynomial.from_multi_body_ops(op_sum)
 
-    def factorization_rule(located_ops: MultiBodyOperator) -> OperatorPolynomial:
-        output = OperatorPolynomial()
-        factors = [MultiBodyOperator(located_op) for located_op in located_ops]
-        product = ExpectationValueProduct(*factors)
-        output.vec[product] = 1
-        return output
+    # def factorization_rule(located_ops: MultiBodyOperator) -> OperatorPolynomial:
+    #     output = OperatorPolynomial()
+    #     factors = [MultiBodyOperator(located_op) for located_op in located_ops]
+    #     product = ExpectationValueProduct(*factors)
+    #     output.vec[product] = 1
+    #     return output
 
-    op_poly = op_poly.factorize(factorization_rule)
-    print(op_poly**2)
-    exit()
+    # op_poly = op_poly.factorize(factorization_rule)
+    # print(op_poly**2)
+    # exit()
 
-    state = np.random.random(2**num_sites) * np.exp(-1j * np.random.random(2**num_sites))
-    state = state / np.linalg.norm(state)
+    # state = np.random.random(2**num_sites) * np.exp(-1j * np.random.random(2**num_sites))
+    # state = state / np.linalg.norm(state)
