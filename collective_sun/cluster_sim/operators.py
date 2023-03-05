@@ -192,12 +192,6 @@ class DenseMultiBodyOperator:
         if simplify:
             self.simplify()
 
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        for index in np.ndindex(self.tensor.shape):
-            if len(set(index)) != self.tensor.ndim:
-                self.tensor[index] = 0
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
     def __str__(self) -> str:
         op_strs = []
         if self.fixed_op:
@@ -721,21 +715,21 @@ def commute_dense_ops(
             print(term_b)
             print(term_b.tensor)
             print()
-            print("comm")
-            comm = _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
-            comm.simplify()
-            for op in comm.terms:
-                print(op)
-                print(op.tensor)
+            # print("comm")
+            # comm = _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
+            # comm.simplify()
+            # for op in comm.terms:
+            #     print(op)
+            #     print(op.tensor)
 
-            op_mat_I = np.eye(2, dtype=complex)
-            op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
-            op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
-            op_mat_Y = -1j * op_mat_Z @ op_mat_X
-            op_mats = [op_mat_I, op_mat_Z, op_mat_X, op_mat_Y]
-            print()
-            print(comm.to_matrix(op_mats))
-            print()
+            # op_mat_I = np.eye(2, dtype=complex)
+            # op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
+            # op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
+            # op_mat_Y = -1j * op_mat_Z @ op_mat_X
+            # op_mats = [op_mat_I, op_mat_Z, op_mat_X, op_mat_Y]
+            # print()
+            # print(comm.to_matrix(op_mats))
+            # print()
 
         output += _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
     if simplify:
@@ -1006,6 +1000,7 @@ def _get_overlap_tensor(
         + final_indices_b
     )
 
+    # combine tensors with an einsum expression
     overlap_tensor = np.einsum(
         tensor_a[tuple(tensor_slices_a)],
         tensor_indices_a,
@@ -1013,8 +1008,24 @@ def _get_overlap_tensor(
         tensor_indices_b,
         final_indices,
     )
+    if overlap_tensor.ndim == 0:
+        return overlap_tensor
     if overlap_tensor.shape == (1,):
-        overlap_tensor = np.array(overlap_tensor[0])
+        return np.array(overlap_tensor[0])
+
+    # remove entries with nonzero coefficients for two ops to address the same site
+    num_sites = overlap_tensor.shape[0]
+    for ii, jj in itertools.combinations(range(overlap_tensor.ndim), 2):
+        indices: list[slice | int] = [slice(num_sites) for _ in overlap_tensor.shape]
+        for site_index in range(num_sites):
+            indices[ii] = indices[jj] = site_index
+            overlap_tensor[tuple(indices)] = 0
+    for ii in range(overlap_tensor.ndim):
+        indices = [slice(num_sites) for _ in overlap_tensor.shape]
+        for site in fixed_sites_a + fixed_sites_b:
+            indices[ii] = site.index
+            overlap_tensor[tuple(indices)] = 0
+
     return overlap_tensor
 
 

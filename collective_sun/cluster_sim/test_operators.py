@@ -91,13 +91,16 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
                 if key not in test_mats.keys():
                     print(key)
                     test_mats[key] = operators.commute_mats(test_mats[aa], test_mats[bb])
-                    mat = test_mats[key]
 
                     test_ops[key] = operators.commute_dense_ops(
-                        test_ops[aa], test_ops[bb], structure_factors,
+                        test_ops[aa],
+                        test_ops[bb],
+                        structure_factors,
                         # _print = key == ('a', ('a', 'b'))
-                        _print = key == ('a', ('a', ('a', 'b')))
+                        _print=key == ("a", ("a", ("a", "b"))),
                     )
+
+                    mat = test_mats[key]
                     op = test_ops[key]
                     # op = operators.DenseMultiBodyOperators.from_matrix(mat, op_mats)
 
