@@ -65,6 +65,7 @@ def test_commutation(num_sites: int, depth: int) -> None:
         for label, mat in test_mats.items()
     }
 
+    print()
     for _ in range(depth):
         for aa_bb in itertools.combinations(test_mats.keys(), 2):
             for aa, bb in itertools.permutations(aa_bb):
