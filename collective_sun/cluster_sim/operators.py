@@ -609,12 +609,15 @@ class OperatorPolynomial:
         return self * scalar
 
     def __pow__(self, exponent: int) -> "OperatorPolynomial":
-        """Raise this 'OperatorPolynomial' to a positive integer power."""
-        assert exponent > 0
+        """Raise this 'OperatorPolynomial' to a nonnegative integer power."""
+        assert exponent >= 0
         output = OperatorPolynomial()
-        output.vec = self.vec.copy()
-        for _ in range(1, exponent):
-            output = output * self
+        if exponent == 0:
+            output.vec[ExpectationValueProduct()] = 1
+        else:
+            output.vec = self.vec.copy()
+            for _ in range(1, exponent):
+                output = output * self
         return output
 
     @classmethod

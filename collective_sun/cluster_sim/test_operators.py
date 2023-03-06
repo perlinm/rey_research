@@ -4,19 +4,13 @@ import itertools
 from typing import Iterator, Optional, Sequence
 
 import numpy as np
+import pytest
 
 import operators
-
 
 np.random.seed(0)
 np.set_printoptions(linewidth=200, precision=3)
 
-
-op_I = operators.AbstractSingleBodyOperator(0)
-op_Z = operators.AbstractSingleBodyOperator(1)
-op_X = operators.AbstractSingleBodyOperator(2)
-op_Y = operators.AbstractSingleBodyOperator(3)
-ops = [op_I, op_Z, op_X, op_Y]
 
 op_mat_I = np.eye(2, dtype=complex)
 op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
@@ -60,13 +54,12 @@ def get_nonzero_terms(matrix: np.ndarray, cutoff=1e-3) -> Iterator[str]:
             yield "".join(labels) + " " + str(val)
 
 
-def test_commutation(num_sites: int, depth: int = 3) -> None:
-
+@pytest.mark.parametrize("num_sites,depth", [(3, 3)])
+def test_commutation(num_sites: int, depth: int) -> None:
     test_mats: dict[str | tuple, np.ndarray] = {}
     test_ops: dict[str | tuple, operators.DenseMultiBodyOperators] = {}
 
     test_mats = {"a": get_random_op(num_sites), "b": get_random_op(num_sites)}
-
     test_ops = {
         label: operators.DenseMultiBodyOperators.from_matrix(mat, op_mats)
         for label, mat in test_mats.items()
@@ -79,23 +72,8 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
                 if key not in test_mats.keys():
                     print(key)
                     test_mats[key] = operators.commute_mats(test_mats[aa], test_mats[bb])
-
                     test_ops[key] = operators.commute_dense_ops(
-                        test_ops[aa],
-                        test_ops[bb],
-                        structure_factors
+                        test_ops[aa], test_ops[bb], structure_factors
                     )
-
-                    mat = test_mats[key]
-                    op = test_ops[key]
-
-                    success = np.allclose(op.to_matrix(op_mats), mat)
-                    if not success:
-                        print()
-                        print("FAILURE")
-                        exit()
-
-    print("SUCCESS")
-
-
-test_commutation(4)
+                    success = np.allclose(test_ops[key].to_matrix(op_mats), test_mats[key])
+                    assert success
