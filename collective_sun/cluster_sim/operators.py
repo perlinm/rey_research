@@ -692,23 +692,6 @@ class OperatorPolynomial:
 # methods for commuting operators
 
 
-def get_nonzero_terms(matrix: np.ndarray, cutoff=1e-3) -> Iterator[str]:
-    num_sites = int(np.round(np.log2(matrix.shape[0])))
-    for mats_labels in itertools.product(zip(op_mats, ["I", "Z", "X", "Y"]), repeat=num_sites):
-        mats, labels = zip(*mats_labels)
-        mat = functools.reduce(np.kron, mats)
-        val = trace_inner_product(mat, matrix)
-        if abs(val) > cutoff:
-            yield "".join(labels) + " " + str(val)
-
-
-op_mat_I = np.eye(2, dtype=complex)
-op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
-op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
-op_mat_Y = -1j * op_mat_Z @ op_mat_X
-op_mats = [op_mat_I, op_mat_Z, op_mat_X, op_mat_Y]
-
-
 def commute_dense_ops(
     op_a: DenseMultiBodyOperators | DenseMultiBodyOperator,
     op_b: DenseMultiBodyOperators | DenseMultiBodyOperator,
