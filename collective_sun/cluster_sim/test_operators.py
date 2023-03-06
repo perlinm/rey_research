@@ -55,8 +55,9 @@ def get_nonzero_terms(matrix: np.ndarray, cutoff=1e-3) -> Iterator[str]:
     for mats_labels in itertools.product(zip(op_mats, ["I", "Z", "X", "Y"]), repeat=num_sites):
         mats, labels = zip(*mats_labels)
         mat = functools.reduce(np.kron, mats)
-        if abs(operators.trace_inner_product(mat, matrix)) > cutoff:
-            yield "".join(labels)
+        val = operators.trace_inner_product(mat, matrix)
+        if abs(val) > cutoff:
+            yield "".join(labels) + " " + str(val)
 
 
 def test_commutation(num_sites: int, depth: int = 3) -> None:
@@ -66,9 +67,21 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
 
     test_mats = {"a": get_random_op(num_sites), "b": get_random_op(num_sites)}
 
-    terms = list(range(33, 37))
-    test_mats["a"] = functools.reduce(np.kron, [op_mat_Z] + [op_mat_I] * (num_sites - 1))
-    test_mats["b"] = select_terms(test_mats["b"], terms)
+    # test_mats["a"] = functools.reduce(np.kron, [op_mat_Z] + [op_mat_I] * (num_sites - 1))
+
+    # terms = list(range(33, 37))
+    # test_mats["b"] = select_terms(test_mats["b"], terms)
+    # for term in get_nonzero_terms(test_mats["b"]):
+    #     print(term)
+    # exit()
+
+    # test_mats["a"] = test_mats["a"] * 0
+    # test_mats["a"] += functools.reduce(np.kron, [op_mat_Z, op_mat_I, op_mat_I]) * (-20)
+    # test_mats["a"] += functools.reduce(np.kron, [op_mat_Z, op_mat_Z, op_mat_Z]) * (-16)
+
+    # test_mats["b"] = test_mats["b"] * 0
+    # test_mats["b"] += functools.reduce(np.kron, [op_mat_X, op_mat_I, op_mat_Z])
+    # test_mats["b"] += functools.reduce(np.kron, [op_mat_X, op_mat_Z, op_mat_I]) * 2
 
     test_ops = {
         label: operators.DenseMultiBodyOperators.from_matrix(mat, op_mats)
@@ -88,8 +101,8 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
                         test_ops[aa],
                         test_ops[bb],
                         structure_factors,
-                        # _print = key == ('a', ('a', 'b'))
-                        _print=key == (('b', ('a', 'b')), 'b'),
+                        # _print=key == ('a', 'b'),
+                        # _print=key == (('b', ('a', 'b')), 'b'),
                     )
 
                     mat = test_mats[key]
@@ -115,38 +128,40 @@ def test_commutation(num_sites: int, depth: int = 3) -> None:
                         # print("op.to_matrix")
                         # print(op.to_matrix(op_mats))
                         # print()
-                        print("----------------------")
-                        print("TERM A")
-                        print()
-                        print("actual")
-                        print()
-                        for term_str in get_nonzero_terms(test_mats[aa]):
-                            print(term_str)
-                        print()
-                        print("op")
-                        print()
-                        for term in test_ops[aa].terms:
-                            print(term)
-                            for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
-                                print(term_str)
-                            print()
-                        print()
-                        print("----------------------")
-                        print("TERM B")
-                        print()
-                        print("actual")
-                        print()
-                        for term_str in get_nonzero_terms(test_mats[bb]):
-                            print(term_str)
-                        print()
-                        print("op")
-                        print()
-                        for term in test_ops[bb].terms:
-                            print(term)
-                            for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
-                                print(term_str)
-                            print()
-                        print()
+                        # print("----------------------")
+                        # print("TERM A")
+                        # print(aa)
+                        # print()
+                        # print("actual")
+                        # print()
+                        # for term_str in get_nonzero_terms(test_mats[aa]):
+                        #     print(term_str)
+                        # print()
+                        # print("op")
+                        # print()
+                        # for term in test_ops[aa].terms:
+                        #     print(term)
+                        #     for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
+                        #         print(term_str)
+                        #     print()
+                        # print()
+                        # print("----------------------")
+                        # print("TERM B")
+                        # print(bb)
+                        # print()
+                        # print("actual")
+                        # print()
+                        # for term_str in get_nonzero_terms(test_mats[bb]):
+                        #     print(term_str)
+                        # print()
+                        # print("op")
+                        # print()
+                        # for term in test_ops[bb].terms:
+                        #     print(term)
+                        #     for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
+                        #         print(term_str)
+                        #     print()
+                        # print()
                         print("----------------------")
                         print("COMMUTATOR")
                         print()

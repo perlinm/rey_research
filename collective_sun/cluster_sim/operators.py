@@ -697,8 +697,9 @@ def get_nonzero_terms(matrix: np.ndarray, cutoff=1e-3) -> Iterator[str]:
     for mats_labels in itertools.product(zip(op_mats, ["I", "Z", "X", "Y"]), repeat=num_sites):
         mats, labels = zip(*mats_labels)
         mat = functools.reduce(np.kron, mats)
-        if abs(trace_inner_product(mat, matrix)) > cutoff:
-            yield "".join(labels)
+        val = trace_inner_product(mat, matrix)
+        if abs(val) > cutoff:
+            yield "".join(labels) + " " + str(val)
 
 
 op_mat_I = np.eye(2, dtype=complex)
@@ -713,7 +714,6 @@ def commute_dense_ops(
     op_b: DenseMultiBodyOperators | DenseMultiBodyOperator,
     structure_factors: np.ndarray,
     simplify: bool = True,
-    _print=False,
 ) -> DenseMultiBodyOperators:
     """Compute the commutator of two dense multibody operators."""
     op_a = DenseMultiBodyOperators(op_a)
@@ -723,32 +723,7 @@ def commute_dense_ops(
 
     output = DenseMultiBodyOperators()
     for term_a, term_b in itertools.product(op_a.terms, op_b.terms):
-
-        if _print:
-            print()
-            print("---------------")
-            print()
-            print("term_a")
-            print(term_a)
-            for term_str in get_nonzero_terms(term_a.to_matrix(op_mats)):
-                print(term_str)
-            print()
-            print("term_b")
-            print(term_b)
-            for term_str in get_nonzero_terms(term_b.to_matrix(op_mats)):
-                print(term_str)
-            print()
-            comm = _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
-            comm.simplify()
-            print("comm")
-            for term in comm.terms:
-                print(term)
-                for term_str in get_nonzero_terms(term.to_matrix(op_mats)):
-                    print(term_str)
-                print()
-            print()
-
-        output += _commute_dense_op_terms(term_a, term_b, commutator_factor_func, _print)
+        output += _commute_dense_op_terms(term_a, term_b, commutator_factor_func)
     if simplify:
         output.simplify()
     return output
@@ -790,7 +765,6 @@ def _commute_dense_op_terms(
     op_a: DenseMultiBodyOperator,
     op_b: DenseMultiBodyOperator,
     commutator_factor_func: CommutatorFactorFuncType,
-    _print=False,
 ) -> DenseMultiBodyOperators:
     """Compute the commutator of two 'DenseMultiBodyOperator's."""
     assert op_a.num_sites == op_b.num_sites
@@ -862,66 +836,6 @@ def _commute_dense_op_terms(
                     overlap_dist_ops, overlap_fixed_op = _get_commutator_term_ops(
                         overlap_ops_by_index, fixed_overlap_sites, fixed_non_overlap_ops
                     )
-                    if _print:
-                        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-                        print()
-                        print("num_overlaps:", num_overlaps)
-                        print("overlap_indices_a:", overlap_indices_a)
-                        print("overlap_indices_b:", overlap_indices_b)
-                        print()
-                        print("overlap_tensor.ndim:", overlap_tensor.ndim)
-                        print()
-                        print("op_a.fixed_ops:", op_a.fixed_op)
-                        print("op_a.dist_ops:", op_a.dist_ops)
-                        print("op_a.tensor:")
-                        print(op_a.tensor)
-                        print()
-                        print("op_b.fixed_ops:", op_b.fixed_op)
-                        print("op_b.dist_ops:", op_b.dist_ops)
-                        print("op_b.tensor:")
-                        print(op_b.tensor)
-                        print()
-                        print("overlap_ops_a:", overlap_ops_a)
-                        print("overlap_ops_b:", overlap_ops_b)
-                        print()
-                        print("overlap_ops_by_index:", overlap_ops_by_index)
-                        print("fixed_non_overlap_ops:", fixed_non_overlap_ops)
-                        print("fixed_overlap_sites:", fixed_overlap_sites)
-                        print("fixed_overlap_sites_a", fixed_overlap_sites_a)
-                        print("fixed_overlap_sites_b", fixed_overlap_sites_b)
-                        print()
-                        print("overlap_dist_ops:", overlap_dist_ops)
-                        print("overlap_fixed_op:", overlap_fixed_op)
-                        print()
-                        print("dist_non_overlap_ops_a:", dist_non_overlap_ops_a)
-                        print("dist_non_overlap_ops_b:", dist_non_overlap_ops_b)
-                        print()
-                        _get_overlap_tensor(
-                            op_a.tensor,
-                            op_b.tensor,
-                            overlap_indices_a,
-                            overlap_indices_b,
-                            op_a.fixed_sites,
-                            op_b.fixed_sites,
-                            _print and False,
-                        )
-                        print("overlap_tensor:")
-                        print(overlap_tensor)
-                        print()
-                        op = DenseMultiBodyOperator(
-                            *overlap_dist_ops,
-                            *dist_non_overlap_ops_a,
-                            *dist_non_overlap_ops_b,
-                            tensor=overlap_tensor,
-                            scalar=op_a.scalar * op_b.scalar * commutator_factor,
-                            fixed_op=overlap_fixed_op,
-                            num_sites=op_a.num_sites,
-                        )
-                        for term_str in get_nonzero_terms(op.to_matrix(op_mats)):
-                            print(term_str)
-                        print()
-
-                        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 
                     output += DenseMultiBodyOperator(
                         *overlap_dist_ops,
@@ -1035,7 +949,6 @@ def _get_overlap_tensor(
     overlap_indices_b: tuple[int, ...],
     fixed_sites_a: tuple[LatticeSite, ...],
     fixed_sites_b: tuple[LatticeSite, ...],
-    _print=False,
 ) -> np.ndarray:
     """
     Construct the tensor of coefficients for a given choice of local operators to overlap between
@@ -1079,40 +992,10 @@ def _get_overlap_tensor(
         if idx not in tensor_indices_a and idx_slice == slice(num_sites)
     ]
     final_indices = (
-        [idx for idx in final_indices_a if idx in overlap_indices_a]
-        + [idx for idx in final_indices_a if idx not in overlap_indices_a]
+        [idx for idx in final_indices_a if idx + fixed_op_locality_a in overlap_indices_a]
+        + [idx for idx in final_indices_a if idx + fixed_op_locality_a not in overlap_indices_a]
         + final_indices_b
     )
-
-    if _print:
-        print()
-        print("tensor_a")
-        print(tensor_a)
-        print()
-        print("slice_a")
-        print(tuple(tensor_slices_a))
-        print()
-        print("sliced_tensor_a")
-        print(tensor_a[tuple(tensor_slices_a)])
-        print()
-        print("indices_a")
-        print(tensor_indices_a)
-        print()
-        print("tensor_b")
-        print(tensor_b)
-        print()
-        print("slice_b")
-        print(tuple(tensor_slices_b))
-        print()
-        print("sliced_tensor_b")
-        print(tensor_b[tuple(tensor_slices_b)])
-        print()
-        print("indices_b")
-        print(tensor_indices_b)
-        print()
-        print("final_indices")
-        print(final_indices)
-        print()
 
     # combine tensors with an einsum expression
     overlap_tensor = np.einsum(
