@@ -77,3 +77,22 @@ def test_commutation(num_sites: int, depth: int) -> None:
                     )
                     success = np.allclose(test_ops[key].to_matrix(op_mats), test_mats[key])
                     assert success
+
+
+@pytest.mark.parametrize("num_sites", [3])
+def test_op_poly(num_sites: int) -> None:
+    op_mat = get_random_op(num_sites)
+    op_sum = operators.DenseMultiBodyOperators.from_matrix(op_mat, op_mats)
+    op_poly = operators.OperatorPolynomial.from_multi_body_ops(op_sum)
+
+    def factorization_rule(
+        located_ops: operators.MultiBodyOperator,
+    ) -> operators.OperatorPolynomial:
+        output = operators.OperatorPolynomial()
+        factors = [operators.MultiBodyOperator(located_op) for located_op in located_ops]
+        product = operators.ExpectationValueProduct(*factors)
+        output.vec[product] = 1
+        return output
+
+    op_poly = op_poly.factorize(factorization_rule)
+    print(op_poly**2)

@@ -646,18 +646,26 @@ class OperatorPolynomial:
                     output.vec[identity] += dense_op.scalar * complex(dense_op.tensor)
                     continue
 
-                # loop over all choices of sites to address nontrivially
+                # collect operators that are fixed to specific lattice sites
+                fixed_ops = dense_op.fixed_op.ops
+
+                # loop over all choices of remaning sites to address nontrivially
+                available_sites = [
+                    site
+                    for site in LatticeSite.range(dense_op.num_sites)
+                    if site not in dense_op.fixed_sites
+                ]
                 for addressed_sites in itertools.combinations(
-                    LatticeSite.range(dense_op.num_sites), dense_op.locality
+                    available_sites, len(dense_op.dist_ops)
                 ):
                     # loop over all assignments of specific operators to specific sites
                     for op_sites in itertools.permutations(addressed_sites):
                         if dense_op.tensor[op_sites]:
-                            single_body_ops = [
-                                SingleBodyOperator(local_op, site)
-                                for local_op, site in zip(dense_op.local_ops, op_sites)
+                            dist_ops = [
+                                SingleBodyOperator(dist_op, site)
+                                for dist_op, site in zip(dense_op.dist_ops, op_sites)
                             ]
-                            multi_body_op = MultiBodyOperator(*single_body_ops)
+                            multi_body_op = MultiBodyOperator(*dist_ops, *fixed_ops)
                             term = ExpectationValueProduct(multi_body_op)
                             output.vec[term] += dense_op.scalar * dense_op.tensor[op_sites]
 
@@ -1030,44 +1038,3 @@ def _get_commutator_term_ops(
     )
     overlap_fixed_op = MultiBodyOperator(*overlap_fixed_ops, *fixed_non_overlap_ops)
     return overlap_dist_ops, overlap_fixed_op
-
-
-####################################################################################################
-
-
-if __name__ == "__main__":
-    op_I = AbstractSingleBodyOperator(0)
-    op_Z = AbstractSingleBodyOperator(1)
-    op_X = AbstractSingleBodyOperator(2)
-    op_Y = AbstractSingleBodyOperator(3)
-    ops = [op_I, op_Z, op_X, op_Y]
-
-    op_mat_I = np.eye(2, dtype=complex)
-    op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
-    op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
-    op_mat_Y = -1j * op_mat_Z @ op_mat_X
-    op_mats = [op_mat_I, op_mat_Z, op_mat_X, op_mat_Y]
-
-    structure_factors = get_structure_factors(*op_mats)
-
-    exit()
-
-    # ####################################################################################################
-
-    # op_mat = get_random_op(num_sites)
-    # op_sum = DenseMultiBodyOperators.from_matrix(op_mat, op_mats)
-    # op_poly = OperatorPolynomial.from_multi_body_ops(op_sum)
-
-    # def factorization_rule(located_ops: MultiBodyOperator) -> OperatorPolynomial:
-    #     output = OperatorPolynomial()
-    #     factors = [MultiBodyOperator(located_op) for located_op in located_ops]
-    #     product = ExpectationValueProduct(*factors)
-    #     output.vec[product] = 1
-    #     return output
-
-    # op_poly = op_poly.factorize(factorization_rule)
-    # print(op_poly**2)
-    # exit()
-
-    # state = np.random.random(2**num_sites) * np.exp(-1j * np.random.random(2**num_sites))
-    # state = state / np.linalg.norm(state)
