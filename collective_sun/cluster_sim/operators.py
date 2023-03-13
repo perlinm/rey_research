@@ -46,8 +46,8 @@ def get_structure_factors(
     assert len(op_mats) == dim**2
 
     structure_factors = np.empty((len(op_mats),) * 3, dtype=complex)
-    for idx_a, mat_a in enumerate(other_mats, start=1):
-        for idx_b, mat_b in enumerate(other_mats, start=1):
+    for idx_a, mat_a in enumerate(op_mats):
+        for idx_b, mat_b in enumerate(op_mats):
             mat_comm = binary_op(mat_a, mat_b)
             mat_comm_vec = [inner_product(op_mat, mat_comm) for op_mat in op_mats]
             structure_factors[idx_a, idx_b, :] = mat_comm_vec
