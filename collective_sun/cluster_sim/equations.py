@@ -2,7 +2,7 @@ import collections
 import dataclasses
 import functools
 import itertools
-from typing import Callable, Iterator, Union
+from typing import Callable, Iterator, Optional, Union
 
 import operators as ops
 
@@ -62,8 +62,13 @@ class OperatorPolynomial:
 
     vec: dict[ExpectationValueProduct, complex]
 
-    def __init__(self) -> None:
-        self.vec = collections.defaultdict(complex)
+    def __init__(
+        self, initial_vec: Optional[dict[ExpectationValueProduct, complex]] = None
+    ) -> None:
+        if initial_vec is not None:
+            self.vec = collections.defaultdict(complex, initial_vec)
+        else:
+            self.vec = collections.defaultdict(complex)
 
     def __str__(self) -> str:
         return "\n".join(f"{scalar} {op}" for op, scalar in self)
@@ -108,9 +113,9 @@ class OperatorPolynomial:
         return output
 
     @classmethod
-    def from_multi_body_ops(
+    def from_dense_ops(
         self,
-        *terms: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator,
+        *terms: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator | ops.MultiBodyOperator,
     ) -> "OperatorPolynomial":
         """
         Construct an 'OperatorPolynomial' that represents a sum of the expectation values of
@@ -119,9 +124,17 @@ class OperatorPolynomial:
         output = OperatorPolynomial()
 
         # loop over the given terms
-        for dense_ops in terms:
-            if isinstance(dense_ops, ops.DenseMultiBodyOperator):
-                dense_ops = ops.DenseMultiBodyOperators(dense_ops)
+        for term in terms:
+            # if this is a MultiBodyOperator, add its expectation value
+            if isinstance(term, ops.MultiBodyOperator):
+                product = ExpectationValueProduct(term)
+                output.vec[product] += 1
+                continue
+
+            if isinstance(term, ops.DenseMultiBodyOperator):
+                dense_ops = ops.DenseMultiBodyOperators(term)
+            else:  # isinstance(term, ops.DenseMultiBodyOperators)
+                dense_ops = term
             dense_ops.simplify()
 
             # loop over individual 'ops.DenseMultiBodyOperator's in this term
@@ -153,14 +166,12 @@ class OperatorPolynomial:
                                 for dist_op, site in zip(dense_op.dist_ops, op_sites)
                             ]
                             multi_body_op = ops.MultiBodyOperator(*dist_ops, *fixed_ops)
-                            term = ExpectationValueProduct(multi_body_op)
-                            output.vec[term] += dense_op.scalar * dense_op.tensor[op_sites]
+                            product = ExpectationValueProduct(multi_body_op)
+                            output.vec[product] += dense_op.scalar * dense_op.tensor[op_sites]
 
         return output
 
-    def factorize(
-        self, factorization_rule: Callable[[ops.MultiBodyOperator], "OperatorPolynomial"]
-    ) -> "OperatorPolynomial":
+    def factorize(self, factorization_rule: "FactorizationRule") -> "OperatorPolynomial":
         """
         Factorize all terms in 'self' according to a given rule for factorizing the expectation
         value of a 'ops.MultiBodyOperator'.
@@ -184,3 +195,29 @@ class OperatorPolynomial:
             output += scalar * product_of_factorized_factors
 
         return output
+
+
+FactorizationRule = Callable[[ops.MultiBodyOperator], OperatorPolynomial]
+
+
+def trivial_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
+    product = ExpectationValueProduct(op)
+    return OperatorPolynomial({product: 1})
+
+
+def mean_field_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
+    factors = [ops.MultiBodyOperator(located_op) for located_op in op]
+    product = ExpectationValueProduct(*factors)
+    return OperatorPolynomial({product: 1})
+
+
+####################################################################################################
+# methods for building equations of motion
+
+
+def build_equations_of_motion(
+    op_seed: ops.MultiBodyOperator,
+    hamiltonian: ops.DenseMultiBodyOperator,
+    factorization_rule: FactorizationRule = mean_field_factorizer,
+) -> None:
+    ...
