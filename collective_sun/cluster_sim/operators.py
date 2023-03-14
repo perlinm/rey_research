@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import collections
 import dataclasses
 import functools
@@ -8,17 +7,38 @@ from typing import Callable, Iterator, Optional, Sequence, TypeVar, Union
 import numpy as np
 
 
-def tensor_product(tensor_a: np.ndarray, tensor_b: np.ndarray) -> np.ndarray:
-    return np.tensordot(tensor_a, tensor_b, axes=0)
-
-
 ####################################################################################################
-# methods for computing structure factors
+# methods for building and manipulating operators as matrices
+
+
+def get_qubit_op_mats() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Single-qubit identity + Pauli matrices."""
+    op_mat_I = np.eye(2, dtype=complex)
+    op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
+    op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
+    op_mat_Y = -1j * op_mat_Z @ op_mat_X
+    return op_mat_I, op_mat_Z, op_mat_X, op_mat_Y
+
+
+def get_random_op(dim: int) -> np.ndarray:
+    """Build a random matrix acting on a Hilbert space of a given dimension."""
+    real = np.random.standard_normal((dim, dim))
+    imag = np.random.standard_normal((dim, dim))
+    return real + 1j * imag
+
+
+def tensor_product(tensor_a: np.ndarray, tensor_b: np.ndarray) -> np.ndarray:
+    """Tensor product of two tensors."""
+    return np.tensordot(tensor_a, tensor_b, axes=0)
 
 
 def trace_inner_product(op_a: np.ndarray, op_b: np.ndarray) -> complex:
     """Inner product: <A, B> = Tr[A^dag B] / dim."""
     return (op_a.conj() * op_b).sum() / op_a.shape[0]
+
+
+####################################################################################################
+# methods for computing structure factors
 
 
 def multiply_mats(op_a: np.ndarray, op_b: np.ndarray) -> np.ndarray:
@@ -859,182 +879,3 @@ def _get_commutator_term_ops(
     )
     overlap_fixed_op = MultiBodyOperator(*overlap_fixed_ops, *fixed_non_overlap_ops)
     return overlap_dist_ops, overlap_fixed_op
-
-
-####################################################################################################
-# data structures to represent expectation values and polynomials thereof
-
-
-class ExpectationValueProduct:
-    """A product of expectation values of 'MultiBodyOperator's."""
-
-    _op_to_exp: collections.defaultdict[MultiBodyOperator, int]
-
-    def __init__(self, *located_ops: MultiBodyOperator) -> None:
-        self._op_to_exp = collections.defaultdict(int)
-        for located_op in located_ops:
-            self._op_to_exp[located_op] += 1
-
-    def __str__(self) -> str:
-        if self.is_empty():
-            return "<1>"
-        return " ".join(f"<{op}>" if exp == 1 else f"<{op}>**{exp}" for op, exp in self)
-
-    def __hash__(self) -> int:
-        return hash(tuple(self._op_to_exp.items()))
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ExpectationValueProduct) and hash(self) == hash(other)
-
-    def __iter__(self) -> Iterator[tuple[MultiBodyOperator, int]]:
-        yield from self._op_to_exp.items()
-
-    def __mul__(
-        self, other: Union[MultiBodyOperator, "ExpectationValueProduct"]
-    ) -> "ExpectationValueProduct":
-        output = ExpectationValueProduct()
-        output._op_to_exp = self._op_to_exp.copy()
-        if isinstance(other, MultiBodyOperator):
-            output._op_to_exp[other] += 1
-        else:
-            for op, exp in other:
-                output._op_to_exp[op] += exp
-        return output
-
-    def __rmul__(
-        self, other: Union[MultiBodyOperator, "ExpectationValueProduct"]
-    ) -> "ExpectationValueProduct":
-        return self * other
-
-    def is_empty(self) -> bool:
-        return not bool(self._op_to_exp)
-
-
-@dataclasses.dataclass
-class OperatorPolynomial:
-    """A polynomial of expectation values of 'MultiBodyOperator's."""
-
-    vec: dict[ExpectationValueProduct, complex]
-
-    def __init__(self) -> None:
-        self.vec = collections.defaultdict(complex)
-
-    def __str__(self) -> str:
-        return "\n".join(f"{scalar} {op}" for op, scalar in self)
-
-    def __iter__(self) -> Iterator[tuple[ExpectationValueProduct, complex]]:
-        yield from self.vec.items()
-
-    def __add__(self, other: "OperatorPolynomial") -> "OperatorPolynomial":
-        """Add two 'OperatorPolynomial's."""
-        output = OperatorPolynomial()
-        output.vec = self.vec.copy()
-        for term, scalar in other:
-            output.vec[term] += scalar
-        return output
-
-    def __mul__(self, other: Union[complex, "OperatorPolynomial"]) -> "OperatorPolynomial":
-        """Multiply an 'OperatorPolynomial' by a scalar, or by another 'OperatorPolynomial'."""
-        output = OperatorPolynomial()
-        if isinstance(other, OperatorPolynomial):
-            for term_1, scalar_1 in self:
-                for term_2, scalar_2 in other:
-                    output.vec[term_1 * term_2] += scalar_1 * scalar_2
-            return output
-        else:
-            for term, scalar in self:
-                output.vec[term] = other * scalar
-            return output
-
-    def __rmul__(self, scalar: complex) -> "OperatorPolynomial":
-        return self * scalar
-
-    def __pow__(self, exponent: int) -> "OperatorPolynomial":
-        """Raise this 'OperatorPolynomial' to a nonnegative integer power."""
-        assert exponent >= 0
-        output = OperatorPolynomial()
-        if exponent == 0:
-            output.vec[ExpectationValueProduct()] = 1
-        else:
-            output.vec = self.vec.copy()
-            for _ in range(1, exponent):
-                output = output * self
-        return output
-
-    @classmethod
-    def from_multi_body_ops(
-        self,
-        *terms: DenseMultiBodyOperators | DenseMultiBodyOperator,
-    ) -> "OperatorPolynomial":
-        """
-        Construct an 'OperatorPolynomial' that represents a sum of the expectation values of
-        the given multibody operators.
-        """
-        output = OperatorPolynomial()
-
-        # loop over the given terms
-        for dense_ops in terms:
-            if isinstance(dense_ops, DenseMultiBodyOperator):
-                dense_ops = DenseMultiBodyOperators(dense_ops)
-            dense_ops.simplify()
-
-            # loop over individual 'DenseMultiBodyOperator's in this term
-            for dense_op in dense_ops.terms:
-
-                # deal with idendity operators as a special case
-                if dense_op.is_identity_op():
-                    identity = ExpectationValueProduct()
-                    output.vec[identity] += dense_op.scalar * complex(dense_op.tensor)
-                    continue
-
-                # collect operators that are fixed to specific lattice sites
-                fixed_ops = dense_op.fixed_op.ops
-
-                # loop over all choices of remaning sites to address nontrivially
-                available_sites = [
-                    site
-                    for site in LatticeSite.range(dense_op.num_sites)
-                    if site not in dense_op.fixed_sites
-                ]
-                for addressed_sites in itertools.combinations(
-                    available_sites, len(dense_op.dist_ops)
-                ):
-                    # loop over all assignments of specific operators to specific sites
-                    for op_sites in itertools.permutations(addressed_sites):
-                        if dense_op.tensor[op_sites]:
-                            dist_ops = [
-                                SingleBodyOperator(dist_op, site)
-                                for dist_op, site in zip(dense_op.dist_ops, op_sites)
-                            ]
-                            multi_body_op = MultiBodyOperator(*dist_ops, *fixed_ops)
-                            term = ExpectationValueProduct(multi_body_op)
-                            output.vec[term] += dense_op.scalar * dense_op.tensor[op_sites]
-
-        return output
-
-    def factorize(
-        self, factorization_rule: Callable[[MultiBodyOperator], "OperatorPolynomial"]
-    ) -> "OperatorPolynomial":
-        """
-        Factorize all terms in 'self' according to a given rule for factorizing the expectation
-        value of a 'MultiBodyOperator'.
-        """
-        output = OperatorPolynomial()
-        for product_of_expectation_values, scalar in self:
-
-            if product_of_expectation_values.is_empty():
-                # this is an identity term
-                output.vec[product_of_expectation_values] += scalar
-                continue
-
-            factorized_factors = [
-                factorization_rule(expectation_value) ** exponent
-                for expectation_value, exponent in product_of_expectation_values
-            ]
-            product_of_factorized_factors = functools.reduce(
-                OperatorPolynomial.__mul__,
-                factorized_factors,
-            )
-            output += scalar * product_of_factorized_factors
-
-        return output
