@@ -14,12 +14,12 @@ import operators as ops
 class ExpectationValueProduct:
     """A product of expectation values of 'MultiBodyOperator's."""
 
-    _op_to_exp: collections.defaultdict[ops.MultiBodyOperator, int]
+    op_to_exp: collections.defaultdict[ops.MultiBodyOperator, int]
 
     def __init__(self, *located_ops: ops.MultiBodyOperator) -> None:
-        self._op_to_exp = collections.defaultdict(int)
+        self.op_to_exp = collections.defaultdict(int)
         for located_op in located_ops:
-            self._op_to_exp[located_op] += 1
+            self.op_to_exp[located_op] += 1
 
     def __str__(self) -> str:
         if self.is_empty():
@@ -27,24 +27,24 @@ class ExpectationValueProduct:
         return " ".join(f"<{op}>" if exp == 1 else f"<{op}>**{exp}" for op, exp in self)
 
     def __hash__(self) -> int:
-        return hash(tuple(self._op_to_exp.items()))
+        return hash(tuple(self.op_to_exp.items()))
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ExpectationValueProduct) and hash(self) == hash(other)
 
     def __iter__(self) -> Iterator[tuple[ops.MultiBodyOperator, int]]:
-        yield from self._op_to_exp.items()
+        yield from self.op_to_exp.items()
 
     def __mul__(
         self, other: Union[ops.MultiBodyOperator, "ExpectationValueProduct"]
     ) -> "ExpectationValueProduct":
         output = ExpectationValueProduct()
-        output._op_to_exp = self._op_to_exp.copy()
+        output.op_to_exp = self.op_to_exp.copy()
         if isinstance(other, ops.MultiBodyOperator):
-            output._op_to_exp[other] += 1
+            output.op_to_exp[other] += 1
         else:
             for op, exp in other:
-                output._op_to_exp[op] += exp
+                output.op_to_exp[op] += exp
         return output
 
     def __rmul__(
@@ -53,7 +53,7 @@ class ExpectationValueProduct:
         return self * other
 
     def is_empty(self) -> bool:
-        return not bool(self._op_to_exp)
+        return not bool(self.op_to_exp)
 
 
 @dataclasses.dataclass
