@@ -226,11 +226,10 @@ def get_time_derivative(
     op: ops.MultiBodyOperator,
     hamiltonian: ops.DenseMultiBodyOperator,
     structure_factors: np.ndarray,
-    factorization_rule: FactorizationRule = mean_field_factorizer,
 ) -> OperatorPolynomial:
     dense_op = ops.DenseMultiBodyOperator(fixed_op=op, num_sites=hamiltonian.num_sites)
     time_deriv = -1j * ops.commute_dense_ops(dense_op, hamiltonian, structure_factors)
-    return OperatorPolynomial.from_dense_ops(time_deriv).factorize(factorization_rule)
+    return OperatorPolynomial.from_dense_ops(time_deriv)
 
 
 def build_equations_of_motion(
