@@ -2,7 +2,9 @@ import collections
 import dataclasses
 import functools
 import itertools
-from typing import Callable, Iterator, Optional, Union
+from typing import Callable, Iterator, Optional, Sequence, Union
+
+import numpy as np
 
 import operators as ops
 
@@ -171,6 +173,11 @@ class OperatorPolynomial:
 
         return output
 
+    @classmethod
+    def from_matrix(cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray]) -> "OperatorPolynomial":
+        dense_ops = ops.DenseMultiBodyOperators.from_matrix(matrix, op_mats)
+        return OperatorPolynomial.from_dense_ops(dense_ops)
+
     def factorize(self, factorization_rule: "FactorizationRule") -> "OperatorPolynomial":
         """
         Factorize all terms in 'self' according to a given rule for factorizing the expectation
@@ -213,6 +220,17 @@ def mean_field_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
 
 ####################################################################################################
 # methods for building equations of motion
+
+
+def get_time_derivative(
+    op: ops.MultiBodyOperator,
+    hamiltonian: ops.DenseMultiBodyOperator,
+    structure_factors: np.ndarray,
+    factorization_rule: FactorizationRule = mean_field_factorizer,
+) -> OperatorPolynomial:
+    dense_op = ops.DenseMultiBodyOperator(fixed_op=op, num_sites=hamiltonian.num_sites)
+    time_deriv = -1j * ops.commute_dense_ops(dense_op, hamiltonian, structure_factors)
+    return OperatorPolynomial.from_dense_ops(time_deriv).factorize(factorization_rule)
 
 
 def build_equations_of_motion(
