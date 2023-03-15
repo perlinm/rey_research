@@ -8,16 +8,7 @@ import numpy as np
 
 
 ####################################################################################################
-# methods for building and manipulating operators as matrices
-
-
-def get_qubit_op_mats() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Single-qubit identity + Pauli matrices."""
-    op_mat_I = np.eye(2, dtype=complex)
-    op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
-    op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
-    op_mat_Y = -1j * op_mat_Z @ op_mat_X
-    return op_mat_I, op_mat_Z, op_mat_X, op_mat_Y
+# methods for building and manipulating matrix operators
 
 
 def get_random_op(dim: int) -> np.ndarray:
@@ -72,6 +63,20 @@ def get_structure_factors(
             mat_comm_vec = [inner_product(op_mat, mat_comm) for op_mat in op_mats]
             structure_factors[idx_a, idx_b, :] = mat_comm_vec
     return structure_factors
+
+
+def get_qubit_structure_factors() -> np.ndarray:
+    """Get the structure factors for single-qubit operators."""
+    return get_structure_factors(*get_qubit_op_mats())
+
+
+def get_qubit_op_mats() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Single-qubit identity + Pauli matrices."""
+    op_mat_I = np.eye(2, dtype=complex)
+    op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
+    op_mat_X = np.array([[0, 1], [1, 0]], dtype=complex)
+    op_mat_Y = -1j * op_mat_Z @ op_mat_X
+    return op_mat_I, op_mat_Z, op_mat_X, op_mat_Y
 
 
 ####################################################################################################

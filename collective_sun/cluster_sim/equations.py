@@ -57,6 +57,12 @@ class ExpectationValueProduct:
     def is_empty(self) -> bool:
         return not bool(self.op_to_exp)
 
+    def num_factors(self) -> int:
+        return sum(self.op_to_exp.values(), start=0)
+
+    def num_prime_factors(self) -> int:
+        return len(self.op_to_exp)
+
 
 @dataclasses.dataclass
 class OperatorPolynomial:
@@ -235,6 +241,25 @@ def get_time_derivative(
 def build_equations_of_motion(
     op_seed: ops.MultiBodyOperator,
     hamiltonian: ops.DenseMultiBodyOperator,
+    structure_factors: np.ndarray,
     factorization_rule: FactorizationRule = mean_field_factorizer,
 ) -> None:
-    ...
+
+    # compute all time derivatives
+    time_derivs: dict[ops.MultiBodyOperator, OperatorPolynomial] = {}
+    ops_to_differentiate = set([op_seed])
+    while ops_to_differentiate:
+        op = ops_to_differentiate.pop()
+        time_deriv = get_time_derivative(op, hamiltonian, structure_factors)
+        time_deriv = time_deriv.factorize(factorization_rule)
+        time_derivs[op] = time_deriv
+
+        # update the set of ops_to_differentiate
+        for expectation_values, _ in time_deriv:
+            for factor, __ in expectation_values:
+                if factor not in time_derivs:
+                    ops_to_differentiate.add(factor)
+
+    # time_deriv_vec = collections.defaultdict(list)
+    # time_deriv_mat = collections.defaultdict(list)
+    # time_deriv_ten = collections.defaultdict(list)
