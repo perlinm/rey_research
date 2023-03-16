@@ -11,8 +11,8 @@ import operators as ops
 np.random.seed(0)
 np.set_printoptions(linewidth=200, precision=3)
 
-qubit_op_mats = ops.get_qubit_op_mats()
-structure_factors = ops.get_structure_factors(*qubit_op_mats)
+QUBIT_OP_MATS = ops.get_qubit_op_mats()
+STRUCTURE_FACTORS = ops.get_structure_factors(*QUBIT_OP_MATS)
 
 
 def select_terms(
@@ -22,7 +22,7 @@ def select_terms(
         num_sites = int(np.round(np.log2(matrix.shape[0])))
     max_term = max(terms)
     new_matrix = np.zeros_like(matrix)
-    for term, mats in enumerate(itertools.product(qubit_op_mats, repeat=num_sites)):
+    for term, mats in enumerate(itertools.product(QUBIT_OP_MATS, repeat=num_sites)):
         if term in terms:
             mat = functools.reduce(np.kron, mats)
             coefficient = ops.trace_inner_product(mat, matrix)
@@ -35,7 +35,7 @@ def select_terms(
 def get_nonzero_terms(matrix: np.ndarray, cutoff=1e-3) -> Iterator[str]:
     num_sites = int(np.round(np.log2(matrix.shape[0])))
     for mats_labels in itertools.product(
-        zip(qubit_op_mats, ["I", "Z", "X", "Y"]), repeat=num_sites
+        zip(QUBIT_OP_MATS, ["I", "Z", "X", "Y"]), repeat=num_sites
     ):
         mats, labels = zip(*mats_labels)
         mat = functools.reduce(np.kron, mats)
@@ -51,7 +51,7 @@ def test_commutation(num_sites: int, depth: int) -> None:
 
     test_mats = {"a": ops.get_random_op(2**num_sites), "b": ops.get_random_op(2**num_sites)}
     test_ops = {
-        label: ops.DenseMultiBodyOperators.from_matrix(mat, qubit_op_mats)
+        label: ops.DenseMultiBodyOperators.from_matrix(mat, QUBIT_OP_MATS)
         for label, mat in test_mats.items()
     }
 
@@ -64,7 +64,7 @@ def test_commutation(num_sites: int, depth: int) -> None:
                     print(key)
                     test_mats[key] = ops.commute_mats(test_mats[aa], test_mats[bb])
                     test_ops[key] = ops.commute_dense_ops(
-                        test_ops[aa], test_ops[bb], structure_factors
+                        test_ops[aa], test_ops[bb], STRUCTURE_FACTORS
                     )
-                    success = np.allclose(test_ops[key].to_matrix(qubit_op_mats), test_mats[key])
+                    success = np.allclose(test_ops[key].to_matrix(QUBIT_OP_MATS), test_mats[key])
                     assert success

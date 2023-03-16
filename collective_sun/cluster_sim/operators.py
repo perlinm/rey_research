@@ -65,11 +65,6 @@ def get_structure_factors(
     return structure_factors
 
 
-def get_qubit_structure_factors() -> np.ndarray:
-    """Get the structure factors for single-qubit operators."""
-    return get_structure_factors(*get_qubit_op_mats())
-
-
 def get_qubit_op_mats() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Single-qubit identity + Pauli matrices."""
     op_mat_I = np.eye(2, dtype=complex)
@@ -134,6 +129,14 @@ class SingleBodyOperator:
 
     op: AbstractSingleBodyOperator
     site: LatticeSite
+
+    def __init__(self, op: AbstractSingleBodyOperator | int, site: LatticeSite | int) -> None:
+        if isinstance(op, int):
+            op = AbstractSingleBodyOperator(op)
+        if isinstance(site, int):
+            site = LatticeSite(site)
+        self.op = op
+        self.site = site
 
     def __str__(self) -> str:
         return f"{self.op}({self.site})"
@@ -228,7 +231,14 @@ class DenseMultiBodyOperator:
 
     def __mul__(self, scalar: complex) -> "DenseMultiBodyOperator":
         new_scalar = self.scalar * scalar
-        return DenseMultiBodyOperator(*self.dist_ops, tensor=self.tensor, scalar=new_scalar)
+        return DenseMultiBodyOperator(
+            *self.dist_ops,
+            tensor=self.tensor,
+            scalar=new_scalar,
+            fixed_op=self.fixed_op,
+            num_sites=self.num_sites,
+            simplify=False,
+        )
 
     def __rmul__(self, scalar: complex) -> "DenseMultiBodyOperator":
         return self * scalar

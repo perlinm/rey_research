@@ -2,9 +2,11 @@ import collections
 import dataclasses
 import functools
 import itertools
+import operator
 from typing import Callable, Iterator, Optional, Sequence, Union
 
 import numpy as np
+import sparse
 
 import operators as ops
 
@@ -54,14 +56,17 @@ class ExpectationValueProduct:
     ) -> "ExpectationValueProduct":
         return self * other
 
-    def is_empty(self) -> bool:
-        return not bool(self.op_to_exp)
+    def factors(self) -> tuple[ops.MultiBodyOperator, ...]:
+        return functools.reduce(operator.add, [(op,) * exp for op, exp in self], ())
 
     def num_factors(self) -> int:
         return sum(self.op_to_exp.values(), start=0)
 
     def num_prime_factors(self) -> int:
         return len(self.op_to_exp)
+
+    def is_empty(self) -> bool:
+        return self.num_factors() == 0
 
 
 @dataclasses.dataclass
@@ -230,9 +235,11 @@ def mean_field_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
 
 def get_time_derivative(
     op: ops.MultiBodyOperator,
-    hamiltonian: ops.DenseMultiBodyOperator,
+    hamiltonian: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator,
     structure_factors: np.ndarray,
 ) -> OperatorPolynomial:
+    if isinstance(hamiltonian, ops.DenseMultiBodyOperator):
+        hamiltonian = ops.DenseMultiBodyOperators(hamiltonian)
     dense_op = ops.DenseMultiBodyOperator(fixed_op=op, num_sites=hamiltonian.num_sites)
     time_deriv = -1j * ops.commute_dense_ops(dense_op, hamiltonian, structure_factors)
     return OperatorPolynomial.from_dense_ops(time_deriv)
@@ -240,10 +247,12 @@ def get_time_derivative(
 
 def build_equations_of_motion(
     op_seed: ops.MultiBodyOperator,
-    hamiltonian: ops.DenseMultiBodyOperator,
+    hamiltonian: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator,
     structure_factors: np.ndarray,
     factorization_rule: FactorizationRule = mean_field_factorizer,
-) -> None:
+) -> tuple[dict[ops.MultiBodyOperator, int], dict[int, sparse.SparseArray]]:
+    if isinstance(hamiltonian, ops.DenseMultiBodyOperator):
+        hamiltonian = ops.DenseMultiBodyOperators(hamiltonian)
 
     # compute all time derivatives
     time_derivs: dict[ops.MultiBodyOperator, OperatorPolynomial] = {}
@@ -260,6 +269,23 @@ def build_equations_of_motion(
                 if factor not in time_derivs:
                     ops_to_differentiate.add(factor)
 
-    # time_deriv_vec = collections.defaultdict(list)
-    # time_deriv_mat = collections.defaultdict(list)
-    # time_deriv_ten = collections.defaultdict(list)
+    # assign an integer index to each operator
+    dim = len(time_derivs)
+    op_to_int = {op: ii for ii, op in enumerate(time_derivs.keys())}
+
+    # construct time derivative tensors
+    time_deriv_tensors = {}
+    for op, time_deriv in time_derivs.items():
+        for term, val in time_deriv:
+            factors = term.factors()
+            num_factors = len(factors)
+            if num_factors not in time_deriv_tensors:
+                shape = (dim,) * (num_factors + 1)
+                time_deriv_tensors[num_factors] = sparse.DOK(shape, dtype=complex)
+            time_deriv_tensors[num_factors]
+            indices = tuple(op_to_int[factor] for factor in (op,) + factors)
+            time_deriv_tensors[num_factors][indices] = val
+
+    time_deriv_tensors = {order: tensor.to_coo() for order, tensor in time_deriv_tensors.items()}
+
+    return op_to_int, time_deriv_tensors
