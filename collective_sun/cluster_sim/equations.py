@@ -250,7 +250,7 @@ def build_equations_of_motion(
     hamiltonian: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator,
     structure_factors: np.ndarray,
     factorization_rule: FactorizationRule = mean_field_factorizer,
-) -> tuple[Callable[..., tuple[int, ...]], dict[int, sparse.SparseArray]]:
+) -> tuple[dict[ops.MultiBodyOperator, int], dict[int, sparse.SparseArray]]:
     if isinstance(hamiltonian, ops.DenseMultiBodyOperator):
         hamiltonian = ops.DenseMultiBodyOperators(hamiltonian)
 
@@ -273,9 +273,6 @@ def build_equations_of_motion(
     dim = len(time_derivs)
     op_to_index = {op: ii for ii, op in enumerate(time_derivs.keys())}
 
-    def ops_to_index(*ops: ops.MultiBodyOperator) -> tuple[int, ...]:
-        return tuple(op_to_index[op] for op in ops)
-
     # construct time derivative tensors
     time_deriv_tensors = {}
     for op, time_deriv in time_derivs.items():
@@ -286,9 +283,9 @@ def build_equations_of_motion(
                 shape = (dim,) * (num_factors + 1)
                 time_deriv_tensors[num_factors] = sparse.DOK(shape, dtype=complex)
             time_deriv_tensors[num_factors]
-            indices = ops_to_index(op, *factors)
+            indices = tuple(op_to_index[factor] for factor in [op, *factors])
             time_deriv_tensors[num_factors][indices] = val
 
     time_deriv_tensors = {order: tensor.to_coo() for order, tensor in time_deriv_tensors.items()}
 
-    return ops_to_index, time_deriv_tensors
+    return op_to_index, time_deriv_tensors

@@ -30,7 +30,7 @@ def test_qubit_EOM() -> None:
 
     op_seed = op_X
     ham_op = ops.DenseMultiBodyOperator(scalar=0.5, fixed_op=op_Z, num_sites=1)
-    ops_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
+    op_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
         op_seed, ham_op, structure_factors
     )
     assert len(time_deriv_tensors) == 1
@@ -39,6 +39,6 @@ def test_qubit_EOM() -> None:
     assert order == 1
 
     expected_tensor = np.zeros((2, 2))
-    expected_tensor[ops_to_index(op_Y, op_X)] = 1
-    expected_tensor[ops_to_index(op_X, op_Y)] = -1
+    expected_tensor[op_to_index[op_Y], op_to_index[op_X]] = 1
+    expected_tensor[op_to_index[op_X], op_to_index[op_Y]] = -1
     assert np.allclose(expected_tensor, tensor.todense())
