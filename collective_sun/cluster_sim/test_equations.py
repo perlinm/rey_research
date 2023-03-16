@@ -3,6 +3,8 @@ import pytest
 import operators as ops
 import equations as eqs
 
+import numpy as np
+
 
 QUBIT_OP_MATS = ops.get_qubit_op_mats()
 
@@ -20,11 +22,23 @@ def test_op_poly(num_sites: int) -> None:
             assert op.locality == exp == 1
 
 
-@pytest.mark.parametrize("num_sites", [3])
-def test_EOM(num_sites: int) -> None:
-    ham_mat = ops.get_random_op(2**num_sites)
-    ham_op = ops.DenseMultiBodyOperators.from_matrix(ham_mat, QUBIT_OP_MATS)
-    op_seed = ops.MultiBodyOperator(ops.SingleBodyOperator(op=1, site=0))
+def test_qubit_EOM() -> None:
+    op_Z = ops.MultiBodyOperator(ops.SingleBodyOperator(1, 0))
+    op_X = ops.MultiBodyOperator(ops.SingleBodyOperator(2, 0))
+    op_Y = ops.MultiBodyOperator(ops.SingleBodyOperator(3, 0))
     structure_factors = ops.get_structure_factors(*QUBIT_OP_MATS)
 
-    eqs.build_equations_of_motion(op_seed, ham_op, structure_factors)
+    op_seed = op_X
+    ham_op = ops.DenseMultiBodyOperator(scalar=0.5, fixed_op=op_Z, num_sites=1)
+    ops_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
+        op_seed, ham_op, structure_factors
+    )
+    assert len(time_deriv_tensors) == 1
+
+    order, tensor = next(iter(time_deriv_tensors.items()))
+    assert order == 1
+
+    expected_tensor = np.zeros((2, 2))
+    expected_tensor[ops_to_index(op_Y, op_X)] = 1
+    expected_tensor[ops_to_index(op_X, op_Y)] = -1
+    assert np.allclose(expected_tensor, tensor.todense())
