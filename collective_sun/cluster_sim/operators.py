@@ -150,7 +150,9 @@ class SingleBodyOperator:
         return hash(str(self))
 
     def __lt__(self, other: "SingleBodyOperator") -> bool:
-        return self.site.index < other.site.index
+        if self.site.index != other.site.index:
+            return self.site.index < other.site.index
+        return self.op.index < other.op.index
 
     def is_identity_op(self) -> bool:
         return self.op.is_identity_op()
@@ -175,8 +177,10 @@ class MultiBodyOperator:
     def __iter__(self) -> Iterator[SingleBodyOperator]:
         yield from sorted(self.ops)
 
-    def __bool__(self) -> bool:
-        return bool(self.ops)
+    def __lt__(self, other: "MultiBodyOperator") -> bool:
+        if self.locality != other.locality:
+            return self.locality < other.locality
+        return tuple(self.ops) < tuple(other.ops)
 
     @property
     def locality(self) -> int:
