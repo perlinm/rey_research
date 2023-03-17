@@ -11,11 +11,16 @@ import numpy as np
 # methods for building and manipulating matrix operators
 
 
-def get_random_op(dim: int) -> np.ndarray:
+def get_random_op(dim: int, hermitian: bool = False, traceless: bool = False) -> np.ndarray:
     """Build a random matrix acting on a Hilbert space of a given dimension."""
     real = np.random.standard_normal((dim, dim))
     imag = np.random.standard_normal((dim, dim))
-    return real + 1j * imag
+    total = real + 1j * imag
+    if hermitian:
+        return (total + total.conj().T) / 2
+    if traceless:
+        total -= np.trace(total) / dim * np.eye(dim)
+    return total
 
 
 def tensor_product(tensor_a: np.ndarray, tensor_b: np.ndarray) -> np.ndarray:
@@ -491,7 +496,7 @@ class DenseMultiBodyOperators:
 
     @classmethod
     def from_matrix(
-        cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray]
+        cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray], cutoff: float = 0,
     ) -> "DenseMultiBodyOperators":
         """
         Construct a 'DenseMultiBodyOperators' object from the matrix representation of an operator
@@ -507,7 +512,7 @@ class DenseMultiBodyOperators:
 
         # add an identity term, which gets special treatment in the 'DenseMultiBodyOperator' class
         identity_coefficient = trace_inner_product(np.eye(spin_dim**num_sites), matrix)
-        if identity_coefficient:
+        if abs(identity_coefficient) > cutoff:
             output += DenseMultiBodyOperator(scalar=identity_coefficient, num_sites=num_sites)
 
         # loop over all numbers of sites that may be addressed nontrivially
@@ -531,7 +536,7 @@ class DenseMultiBodyOperators:
                     coefficient = trace_inner_product(term_matrix, matrix)
 
                     # add this term to the output
-                    if coefficient:
+                    if abs(coefficient) > cutoff:
                         tensor[non_iden_sites] = 1
                         output += DenseMultiBodyOperator(
                             *dist_ops,

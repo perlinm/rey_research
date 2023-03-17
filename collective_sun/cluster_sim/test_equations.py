@@ -1,3 +1,4 @@
+import itertools
 import pytest
 
 import operators as ops
@@ -29,9 +30,11 @@ def test_qubit_EOM() -> None:
     structure_factors = ops.get_structure_factors(*QUBIT_OP_MATS)
 
     op_seed = op_X
-    ham_op = ops.DenseMultiBodyOperator(scalar=0.5, fixed_op=op_Z, num_sites=1)
+    hamiltonian = ops.DenseMultiBodyOperator(scalar=0.5, fixed_op=op_Z, num_sites=1)
     op_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
-        op_seed, ham_op, structure_factors
+        op_seed,
+        hamiltonian=hamiltonian,
+        structure_factors=structure_factors,
     )
     assert len(time_deriv_tensors) == 1
 
@@ -42,3 +45,40 @@ def test_qubit_EOM() -> None:
     expected_tensor[op_to_index[op_Y], op_to_index[op_X]] = 1
     expected_tensor[op_to_index[op_X], op_to_index[op_Y]] = -1
     assert np.allclose(expected_tensor, tensor.todense())
+
+
+@pytest.mark.parametrize("num_sites", [3])
+def test_spin_model(num_sites: int) -> None:
+    structure_factors = ops.get_structure_factors(*QUBIT_OP_MATS)
+
+    ham_mat = ops.get_random_op(2**num_sites, hermitian=True)
+    hamiltonian = ops.DenseMultiBodyOperators.from_matrix(ham_mat, QUBIT_OP_MATS)
+
+    op_seeds = [
+        ops.MultiBodyOperator(
+            *[
+                ops.SingleBodyOperator(local_op, site)
+                for local_op, site in zip(local_ops, ops.LatticeSite.range(num_sites))
+            ]
+        )
+        for local_ops in itertools.product(
+            ops.AbstractSingleBodyOperator.range(4), repeat=num_sites
+        )
+    ]
+
+    print()
+    op_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
+        *op_seeds,
+        hamiltonian=hamiltonian,
+        structure_factors=structure_factors,
+        show_progress=True,
+    )
+    op_product_to_index = {
+        eqs.ExpectationValueProduct(op): index for op, index in op_to_index.items()
+    }
+
+    op_mat = ops.get_random_op(2**num_sites)
+    op_poly = eqs.OperatorPolynomial.from_matrix(op_mat, QUBIT_OP_MATS)
+
+    op_vec = op_poly.to_array(op_product_to_index)
+    print(op_vec)

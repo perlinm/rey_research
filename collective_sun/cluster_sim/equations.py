@@ -23,7 +23,8 @@ class ExpectationValueProduct:
     def __init__(self, *located_ops: ops.MultiBodyOperator) -> None:
         self.op_to_exp = collections.defaultdict(int)
         for located_op in located_ops:
-            self.op_to_exp[located_op] += 1
+            if not located_op.is_identity_op():
+                self.op_to_exp[located_op] += 1
 
     def __str__(self) -> str:
         if self.is_empty():
@@ -185,8 +186,10 @@ class OperatorPolynomial:
         return output
 
     @classmethod
-    def from_matrix(cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray]) -> "OperatorPolynomial":
-        dense_ops = ops.DenseMultiBodyOperators.from_matrix(matrix, op_mats)
+    def from_matrix(
+        cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray], cutoff: float = 0
+    ) -> "OperatorPolynomial":
+        dense_ops = ops.DenseMultiBodyOperators.from_matrix(matrix, op_mats, cutoff)
         return OperatorPolynomial.from_dense_ops(dense_ops)
 
     def factorize(self, factorization_rule: "FactorizationRule") -> "OperatorPolynomial":
@@ -212,6 +215,13 @@ class OperatorPolynomial:
             )
             output += scalar * product_of_factorized_factors
 
+        return output
+
+    def to_array(self, product_to_index: dict[ExpectationValueProduct, int]) -> np.ndarray:
+        """Convert this polynomial into an array."""
+        output = np.zeros(len(product_to_index), dtype=complex)
+        for product, value in self:
+            output[product_to_index[product]] = value
         return output
 
 
@@ -246,18 +256,21 @@ def get_time_derivative(
 
 
 def build_equations_of_motion(
-    op_seed: ops.MultiBodyOperator,
+    *op_seeds: ops.MultiBodyOperator,
     hamiltonian: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator,
     structure_factors: np.ndarray,
     factorization_rule: FactorizationRule = mean_field_factorizer,
+    show_progress: bool = False,
 ) -> tuple[dict[ops.MultiBodyOperator, int], dict[int, sparse.SparseArray]]:
     if isinstance(hamiltonian, ops.DenseMultiBodyOperator):
         hamiltonian = ops.DenseMultiBodyOperators(hamiltonian)
 
     # compute all time derivatives
     time_derivs: dict[ops.MultiBodyOperator, OperatorPolynomial] = {}
-    ops_to_differentiate = set([op_seed])
+    ops_to_differentiate = set(op_seeds)
     while ops_to_differentiate:
+        if show_progress:
+            print(len(ops_to_differentiate))
         op = ops_to_differentiate.pop()
         time_deriv = get_time_derivative(op, hamiltonian, structure_factors)
         time_deriv = time_deriv.factorize(factorization_rule)
