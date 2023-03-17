@@ -496,7 +496,10 @@ class DenseMultiBodyOperators:
 
     @classmethod
     def from_matrix(
-        cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray], cutoff: float = 0,
+        cls,
+        matrix: np.ndarray,
+        op_mats: Sequence[np.ndarray],
+        cutoff: float = 0,
     ) -> "DenseMultiBodyOperators":
         """
         Construct a 'DenseMultiBodyOperators' object from the matrix representation of an operator

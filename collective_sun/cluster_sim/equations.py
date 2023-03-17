@@ -261,7 +261,7 @@ def build_equations_of_motion(
     structure_factors: np.ndarray,
     factorization_rule: FactorizationRule = mean_field_factorizer,
     show_progress: bool = False,
-) -> tuple[dict[ops.MultiBodyOperator, int], dict[int, sparse.SparseArray]]:
+) -> tuple[dict[ops.MultiBodyOperator, int], tuple[sparse.SparseArray, ...]]:
     if isinstance(hamiltonian, ops.DenseMultiBodyOperator):
         hamiltonian = ops.DenseMultiBodyOperators(hamiltonian)
 
@@ -301,4 +301,25 @@ def build_equations_of_motion(
 
     time_deriv_tensors = {order: tensor.to_coo() for order, tensor in time_deriv_tensors.items()}
 
-    return op_to_index, time_deriv_tensors
+    return op_to_index, tuple(time_deriv_tensors.values())
+
+
+def time_deriv(
+    _: float, op_vec: np.ndarray, time_deriv_tensors: tuple[sparse.SparseArray | np.ndarray, ...]
+) -> np.ndarray:
+    output = sum(_single_time_deriv(op_vec, tensor) for tensor in time_deriv_tensors)
+    if not isinstance(output, np.ndarray):
+        return np.zeros_like(op_vec)
+    return output
+
+
+def _single_time_deriv(
+    op_vec: np.ndarray, time_deriv_tensor: sparse.SparseArray | np.ndarray
+) -> np.ndarray:
+    order = time_deriv_tensor.ndim - 1
+    vec_indices = "abcdefghijklmnopqrstuvwxyz"[:order]
+    indices = f"Z{vec_indices}," + ",".join(tuple(vec_indices)) + "->Z"
+    op_vecs = [op_vec] * order
+    if isinstance(time_deriv_tensor, sparse.SparseArray):
+        return sparse.einsum(indices, time_deriv_tensor, *op_vecs)
+    return np.einsum(indices, time_deriv_tensor, *op_vecs)
