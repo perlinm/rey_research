@@ -319,5 +319,5 @@ def _single_time_deriv(
     indices = f"Z{vec_indices}," + ",".join(tuple(vec_indices)) + "->Z"
     op_vecs = [op_vec] * order
     if isinstance(time_deriv_tensor, sparse.SparseArray):
-        return sparse.einsum(indices, time_deriv_tensor, *op_vecs)
+        return sparse.einsum(indices, time_deriv_tensor, *op_vecs).todense()
     return np.einsum(indices, time_deriv_tensor, *op_vecs)
