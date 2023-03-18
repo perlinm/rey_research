@@ -49,7 +49,10 @@ def test_commutation(num_sites: int, depth: int) -> None:
     test_mats: dict[str | tuple, np.ndarray] = {}
     test_ops: dict[str | tuple, ops.DenseMultiBodyOperators] = {}
 
-    test_mats = {"a": ops.get_random_op(2**num_sites), "b": ops.get_random_op(2**num_sites)}
+    test_mats = {
+        "a": ops.get_random_matrix(2**num_sites),
+        "b": ops.get_random_matrix(2**num_sites),
+    }
     test_ops = {
         label: ops.DenseMultiBodyOperators.from_matrix(mat, QUBIT_OP_MATS)
         for label, mat in test_mats.items()

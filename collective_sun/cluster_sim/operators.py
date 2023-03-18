@@ -12,16 +12,27 @@ import wigner
 # methods for building and manipulating matrix operators
 
 
-def get_random_op(dim: int, hermitian: bool = False, traceless: bool = False) -> np.ndarray:
+def get_random_matrix(
+    dim: int,
+    *,
+    hermitian: bool = False,
+    traceless: bool = False,
+    diagonal: bool = False,
+    real: bool = False,
+) -> np.ndarray:
     """Build a random matrix acting on a Hilbert space of a given dimension."""
-    real = np.random.standard_normal((dim, dim))
-    imag = np.random.standard_normal((dim, dim))
-    total = real + 1j * imag
+    matrix = np.random.standard_normal((dim, dim))
+    if not real:
+        phases = np.exp(1j * 2 * np.pi * np.random.random((dim, dim)))
+        matrix = matrix * phases
     if hermitian:
-        return (total + total.conj().T) / 2
+        matrix = (matrix + matrix.conj().T) / 2
     if traceless:
-        total -= np.trace(total) / dim * np.eye(dim)
-    return total
+        matrix -= np.trace(matrix) / dim * np.eye(dim)
+    if diagonal:
+        diags = np.arange(dim, dtype=int)
+        matrix[diags, diags] = 0
+    return matrix
 
 
 def tensor_product(tensor_a: np.ndarray, tensor_b: np.ndarray) -> np.ndarray:

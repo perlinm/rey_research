@@ -34,7 +34,7 @@ def get_all_ops(num_sites: int, dim: int) -> tuple[ops.MultiBodyOperator, ...]:
 
 @pytest.mark.parametrize("num_sites", [3])
 def test_op_poly(num_sites: int) -> None:
-    op_mat = ops.get_random_op(2**num_sites)
+    op_mat = ops.get_random_matrix(2**num_sites)
     op_poly = eqs.OperatorPolynomial.from_matrix(op_mat, QUBIT_OP_MATS)
 
     for term, _ in op_poly.factorize(eqs.trivial_factorizer):
@@ -52,7 +52,7 @@ def test_spin_model(num_sites: int) -> None:
     structure_factors = ops.get_structure_factors(*QUBIT_OP_MATS)
 
     # build a random Hamiltonian
-    ham_mat = ops.get_random_op(dim, hermitian=True)
+    ham_mat = ops.get_random_matrix(dim, hermitian=True)
     hamiltonian = ops.DenseMultiBodyOperators.from_matrix(ham_mat, QUBIT_OP_MATS)
 
     # build time derivative tensors
@@ -70,7 +70,7 @@ def test_spin_model(num_sites: int) -> None:
         time_deriv_tensors = tuple(tensor.todense() for tensor in time_deriv_tensors)
 
     # construct a random operator
-    op_mat = ops.get_random_op(dim)
+    op_mat = ops.get_random_matrix(dim)
     op_poly = eqs.OperatorPolynomial.from_matrix(op_mat, QUBIT_OP_MATS)
     op_vec = op_poly.to_array(op_product_to_index)
 
@@ -99,3 +99,24 @@ def test_spin_model(num_sites: int) -> None:
     expected_final_vec = expected_final_poly.to_array(op_product_to_index)
 
     assert np.allclose(final_vec, expected_final_vec, atol=1e-3)
+
+
+@pytest.mark.parametrize("num_sites", [10])
+def test_mean_field(num_sites: int) -> None:
+    local_dim = 2
+    dim = local_dim**num_sites
+    structure_factors = ops.get_structure_factors(*QUBIT_OP_MATS)
+
+    def get_random_coupling_matrix() -> np.ndarray:
+        return ops.get_random_matrix(dim, hermitian=True, diagonal=True, real=True)
+
+    # build a random 2-body Hamiltonian
+    ham_terms = [
+        ops.DenseMultiBodyOperator(op_a, op_b, tensor=get_random_coupling_matrix())
+        for op_a in ops.AbstractSingleBodyOperator.range(local_dim**2)
+        for op_b in ops.AbstractSingleBodyOperator.range(local_dim**2)
+    ]
+    ham_op = ops.DenseMultiBodyOperators(ham_terms)
+
+    # construct a Haar-random initial product state, indexed by (site, local_state)
+    init_state = scipy.stats.unitary_group.rvs(local_dim, size=num_sites)[:, :, 0]
