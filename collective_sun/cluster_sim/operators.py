@@ -5,6 +5,7 @@ import itertools
 from typing import Callable, Iterator, Optional, Sequence, TypeVar, Union
 
 import numpy as np
+import wigner
 
 
 ####################################################################################################
@@ -68,6 +69,17 @@ def get_structure_factors(
             mat_comm_vec = [inner_product(op_mat, mat_comm) for op_mat in op_mats]
             structure_factors[idx_a, idx_b, :] = mat_comm_vec
     return structure_factors
+
+
+def polarization_op_mat(dim: int, degree: int, order: int) -> np.ndarray:
+    """Qudit polarization operator."""
+    if degree >= dim or abs(order) > degree:
+        return np.zeros((dim, dim))
+    spin = (dim - 1) / 2
+    aa, bb, wigner_vals = wigner.wigner_3jm(degree, spin, spin, order)
+    signs = np.array([(-1) ** (dim - 1 + order + sm) for sm in range(dim)])
+    mat = np.diag(signs) @ np.diag(wigner_vals, order) * np.sqrt(2 * degree + 1)
+    return mat[::-1, ::-1]
 
 
 def get_qubit_op_mats() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
