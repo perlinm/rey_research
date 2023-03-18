@@ -15,6 +15,23 @@ np.set_printoptions(linewidth=200, precision=3)
 QUBIT_OP_MATS = ops.get_qubit_op_mats()
 
 
+def get_multi_body_op(*local_ops: int) -> ops.MultiBodyOperator:
+    """Place the given local operators on lattice sites 0, 1, 2, etc."""
+    op_list = [
+        ops.SingleBodyOperator(local_op, site)
+        for local_op, site in zip(local_ops, range(len(local_ops)))
+    ]
+    return ops.MultiBodyOperator(*op_list)
+
+
+def get_all_ops(num_sites: int, dim: int) -> tuple[ops.MultiBodyOperator, ...]:
+    """Get all operations on a given number lattice sites with a given local dimension."""
+    return tuple(
+        get_multi_body_op(*local_ops)
+        for local_ops in itertools.product(range(dim**2), repeat=num_sites)
+    )
+
+
 @pytest.mark.parametrize("num_sites", [3])
 def test_op_poly(num_sites: int) -> None:
     op_mat = ops.get_random_op(2**num_sites)
@@ -29,28 +46,18 @@ def test_op_poly(num_sites: int) -> None:
 
 
 @pytest.mark.parametrize("num_sites", [3])
-def test_exact_spin_model(num_sites: int) -> None:
-    dim = 2**num_sites
+def test_spin_model(num_sites: int) -> None:
+    local_dim = 2
+    dim = local_dim**num_sites
     structure_factors = ops.get_structure_factors(*QUBIT_OP_MATS)
 
     # build a random Hamiltonian
     ham_mat = ops.get_random_op(dim, hermitian=True)
     hamiltonian = ops.DenseMultiBodyOperators.from_matrix(ham_mat, QUBIT_OP_MATS)
 
-    # collect a sequence of single-body operators (by index) into a single multi-body operator
-    def multi_body_op(*local_ops: int):
-        op_list = [
-            ops.SingleBodyOperator(local_op, site)
-            for local_op, site in zip(local_ops, range(num_sites))
-        ]
-        return ops.MultiBodyOperator(*op_list)
-
     # build time derivative tensors
-    all_ops = [
-        multi_body_op(*local_ops) for local_ops in itertools.product(range(4), repeat=num_sites)
-    ]
     op_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
-        *all_ops,
+        *get_all_ops(num_sites, local_dim),
         hamiltonian=hamiltonian,
         structure_factors=structure_factors,
     )
