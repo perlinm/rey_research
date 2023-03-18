@@ -259,7 +259,7 @@ def build_equations_of_motion(
     *op_seeds: ops.MultiBodyOperator,
     hamiltonian: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator,
     structure_factors: np.ndarray,
-    factorization_rule: FactorizationRule = mean_field_factorizer,
+    factorization_rule: FactorizationRule = trivial_factorizer,
     show_progress: bool = False,
 ) -> tuple[dict[ops.MultiBodyOperator, int], tuple[sparse.SparseArray, ...]]:
     if isinstance(hamiltonian, ops.DenseMultiBodyOperator):
