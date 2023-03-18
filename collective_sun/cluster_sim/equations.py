@@ -224,7 +224,8 @@ class OperatorPolynomial:
         """Convert this polynomial into an array."""
         output = np.zeros(len(product_to_index), dtype=complex)
         for product, value in self:
-            output[product_to_index[product]] = value
+            index = product_to_index.get(product) or product_to_index.get(product.prime_factors())
+            output[index] = value
         return output
 
     @classmethod
