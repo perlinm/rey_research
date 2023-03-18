@@ -29,7 +29,7 @@ def test_op_poly(num_sites: int) -> None:
 
 
 @pytest.mark.parametrize("num_sites", [3])
-def test_spin_model(num_sites: int) -> None:
+def test_exact_spin_model(num_sites: int) -> None:
     dim = 2**num_sites
     structure_factors = ops.get_structure_factors(*QUBIT_OP_MATS)
 
