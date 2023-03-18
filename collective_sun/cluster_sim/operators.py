@@ -182,12 +182,15 @@ class MultiBodyOperator:
             return self.locality < other.locality
         return tuple(self.ops) < tuple(other.ops)
 
+    def __bool__(self) -> bool:
+        return bool(self.ops)
+
     @property
     def locality(self) -> int:
         return len(self.ops)
 
     def is_identity_op(self) -> bool:
-        return len(self.ops) == 0
+        return not bool(self.ops)
 
 
 @dataclasses.dataclass
