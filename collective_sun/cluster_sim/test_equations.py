@@ -56,9 +56,13 @@ def test_spin_model(num_sites: int) -> None:
     ham_mat = ops.get_random_matrix(dim, hermitian=True)
     hamiltonian = ops.DenseMultiBodyOperators.from_matrix(ham_mat, local_op_mats)
 
+    # construct a random operator
+    init_op_mat = ops.get_random_matrix(dim)
+    init_op_poly = eqs.OperatorPolynomial.from_matrix(init_op_mat, local_op_mats)
+
     # build time derivative tensors
     op_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
-        *get_all_ops(num_sites, local_dim),
+        *init_op_poly.vec.keys(),
         hamiltonian=hamiltonian,
         structure_factors=structure_factors,
     )
@@ -70,12 +74,8 @@ def test_spin_model(num_sites: int) -> None:
         # this sparse tensor library version does not support einsum, so convert to numpy arrays
         time_deriv_tensors = tuple(tensor.todense() for tensor in time_deriv_tensors)
 
-    # construct a random operator
-    init_op_mat = ops.get_random_matrix(dim)
-    init_op_poly = eqs.OperatorPolynomial.from_matrix(init_op_mat, local_op_mats)
-    init_op_vec = init_op_poly.to_array(op_product_to_index)
-
     # time-evolve the random operator
+    init_op_vec = init_op_poly.to_array(op_product_to_index)
     solution = scipy.integrate.solve_ivp(
         eqs.time_deriv,
         [0, 1],
@@ -123,6 +123,8 @@ def test_mean_field(num_sites: int) -> None:
     # construct a Haar-random initial product state, indexed by (site, local_state)
     init_state = scipy.stats.unitary_group.rvs(local_dim, size=num_sites)[:, :, 0]
     init_op_poly = eqs.OperatorPolynomial.from_product_state(init_state, local_op_mats)
+
+
     # init_op_vec = init_op_poly.to_array(op_product_to_index)
 
     structure_factors

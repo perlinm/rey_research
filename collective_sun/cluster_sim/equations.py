@@ -60,6 +60,9 @@ class ExpectationValueProduct:
     def factors(self) -> tuple[ops.MultiBodyOperator, ...]:
         return functools.reduce(operator.add, [(op,) * exp for op, exp in self], ())
 
+    def prime_factors(self) -> tuple[ops.MultiBodyOperator, ...]:
+        return tuple(op for op, _ in self)
+
     def num_factors(self) -> int:
         return sum(self.op_to_exp.values(), start=0)
 
@@ -67,7 +70,7 @@ class ExpectationValueProduct:
         return len(self.op_to_exp)
 
     def is_empty(self) -> bool:
-        return self.num_factors() == 0
+        return not bool(self.op_to_exp)
 
 
 @dataclasses.dataclass
@@ -281,7 +284,7 @@ def get_time_derivative(
 
 
 def build_equations_of_motion(
-    *op_seeds: ops.MultiBodyOperator,
+    *op_seeds: ops.MultiBodyOperator | ExpectationValueProduct,
     hamiltonian: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator,
     structure_factors: np.ndarray,
     factorization_rule: FactorizationRule = trivial_factorizer,
@@ -290,9 +293,19 @@ def build_equations_of_motion(
     if isinstance(hamiltonian, ops.DenseMultiBodyOperator):
         hamiltonian = ops.DenseMultiBodyOperators(hamiltonian)
 
+    # construct an initial set of ops to differentiate
+    ops_to_differentiate = set()
+    for seed in op_seeds:
+        if isinstance(seed, ops.MultiBodyOperator):
+            ops_to_differentiate.add(seed)
+        elif isinstance(seed, ExpectationValueProduct):
+            for op in seed.prime_factors():
+                ops_to_differentiate.add(op)
+            if seed.is_empty():
+                ops_to_differentiate.add(ops.MultiBodyOperator())
+
     # compute all time derivatives
     time_derivs: dict[ops.MultiBodyOperator, OperatorPolynomial] = {}
-    ops_to_differentiate = set(op_seeds)
     while ops_to_differentiate:
         if show_progress:
             print(len(ops_to_differentiate))
