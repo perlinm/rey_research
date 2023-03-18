@@ -220,12 +220,20 @@ class OperatorPolynomial:
 
         return output
 
-    def to_array(self, product_to_index: dict[ExpectationValueProduct, int]) -> np.ndarray:
+    def to_array(
+        self,
+        index_map: dict[ExpectationValueProduct, int] | dict[ops.MultiBodyOperator, int],
+    ) -> np.ndarray:
         """Convert this polynomial into an array."""
-        output = np.zeros(len(product_to_index), dtype=complex)
+        # insure that our index_map takes ExpectationValueProduct --> int
+        index_map = {
+            key if isinstance(key, ExpectationValueProduct) else ExpectationValueProduct(key): val
+            for key, val in index_map.items()
+        }
+        # construct the array
+        output = np.zeros(len(index_map), dtype=complex)
         for product, value in self:
-            index = product_to_index.get(product) or product_to_index.get(product.prime_factors())
-            output[index] = value
+            output[index_map[product]] = value
         return output
 
     @classmethod

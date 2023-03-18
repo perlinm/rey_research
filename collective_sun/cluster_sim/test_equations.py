@@ -66,16 +66,13 @@ def test_spin_model(num_sites: int) -> None:
         hamiltonian=hamiltonian,
         structure_factors=structure_factors,
     )
-    op_product_to_index = {
-        eqs.ExpectationValueProduct(op): index for op, index in op_to_index.items()
-    }
 
     if not hasattr(sparse, "einsum"):
         # this sparse tensor library version does not support einsum, so convert to numpy arrays
         time_deriv_tensors = tuple(tensor.todense() for tensor in time_deriv_tensors)
 
     # time-evolve the random operator
-    init_op_vec = init_op_poly.to_array(op_product_to_index)
+    init_op_vec = init_op_poly.to_array(op_to_index)
     solution = scipy.integrate.solve_ivp(
         eqs.time_deriv,
         [0, 1],
@@ -97,7 +94,7 @@ def test_spin_model(num_sites: int) -> None:
     )
     expected_final_mat = expected_solution.y[:, -1].reshape((dim, dim))
     expected_final_poly = eqs.OperatorPolynomial.from_matrix(expected_final_mat, local_op_mats)
-    expected_final_vec = expected_final_poly.to_array(op_product_to_index)
+    expected_final_vec = expected_final_poly.to_array(op_to_index)
 
     assert np.allclose(final_vec, expected_final_vec, atol=1e-3)
 
@@ -123,9 +120,6 @@ def test_mean_field(num_sites: int) -> None:
     # construct a Haar-random initial product state, indexed by (site, local_state)
     init_state = scipy.stats.unitary_group.rvs(local_dim, size=num_sites)[:, :, 0]
     init_op_poly = eqs.OperatorPolynomial.from_product_state(init_state, local_op_mats)
-
-
-    # init_op_vec = init_op_poly.to_array(op_product_to_index)
 
     structure_factors
     ham_op
