@@ -224,6 +224,31 @@ class OperatorPolynomial:
             output[product_to_index[product]] = value
         return output
 
+    @classmethod
+    def from_product_state(
+        cls, product_state: np.ndarray, op_mats: Sequence[np.ndarray]
+    ) -> "OperatorPolynomial":
+        """Construct local expectation values from a product state."""
+        norm = np.prod(np.einsum("sj,sj->s", product_state.conj(), product_state))
+        assert np.isclose(norm, 1)
+
+        # compute all local expectation values
+        output = OperatorPolynomial({ExpectationValueProduct(): 1})
+        num_sites, _ = product_state.shape
+        for site in ops.LatticeSite.range(num_sites):
+            for op_idx, op_mat in enumerate(op_mats[1:], start=1):
+                local_op = ops.SingleBodyOperator(op_idx, site)
+                op = ExpectationValueProduct(ops.MultiBodyOperator(local_op))
+                val = product_state[site, :].conj() @ op_mat @ product_state[site, :]
+                if np.isclose(val.imag, 0):
+                    val = val.real
+                if np.isclose(val.real, 0):
+                    val = val.imag
+                if val:
+                    output.vec[op] = val
+
+        return output
+
 
 FactorizationRule = Callable[[ops.MultiBodyOperator], OperatorPolynomial]
 
