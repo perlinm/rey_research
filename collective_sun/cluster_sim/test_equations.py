@@ -5,6 +5,7 @@ import operators as ops
 import equations as eqs
 
 import numpy as np
+import sparse
 import scipy
 
 
@@ -32,23 +33,24 @@ def test_spin_model(num_sites: int) -> None:
     dim = 2**num_sites
     structure_factors = ops.get_structure_factors(*QUBIT_OP_MATS)
 
+    # build a random Hamiltonian
     ham_mat = ops.get_random_op(dim, hermitian=True)
     hamiltonian = ops.DenseMultiBodyOperators.from_matrix(ham_mat, QUBIT_OP_MATS)
 
-    op_seeds = [
-        ops.MultiBodyOperator(
-            *[
-                ops.SingleBodyOperator(local_op, site)
-                for local_op, site in zip(local_ops, ops.LatticeSite.range(num_sites))
-            ]
-        )
-        for local_ops in itertools.product(
-            ops.AbstractSingleBodyOperator.range(4), repeat=num_sites
-        )
-    ]
+    # collect a sequence of single-body operators (by index) into a single multi-body operator
+    def multi_body_op(*local_ops: int):
+        op_list = [
+            ops.SingleBodyOperator(local_op, site)
+            for local_op, site in zip(local_ops, range(num_sites))
+        ]
+        return ops.MultiBodyOperator(*op_list)
 
+    # build time derivative tensors
+    all_ops = [
+        multi_body_op(*local_ops) for local_ops in itertools.product(range(4), repeat=num_sites)
+    ]
     op_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
-        *op_seeds,
+        *all_ops,
         hamiltonian=hamiltonian,
         structure_factors=structure_factors,
     )
@@ -56,13 +58,16 @@ def test_spin_model(num_sites: int) -> None:
         eqs.ExpectationValueProduct(op): index for op, index in op_to_index.items()
     }
 
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    time_deriv_tensors = tuple(tensor.todense() for tensor in time_deriv_tensors)
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if not hasattr(sparse, "einsum"):
+        # this sparse tensor library version does not support einsum, so convert to numpy arrays
+        time_deriv_tensors = tuple(tensor.todense() for tensor in time_deriv_tensors)
 
+    # construct a random operator
     op_mat = ops.get_random_op(dim)
     op_poly = eqs.OperatorPolynomial.from_matrix(op_mat, QUBIT_OP_MATS)
     op_vec = op_poly.to_array(op_product_to_index)
+
+    # time-evolve the random operator
     solution = scipy.integrate.solve_ivp(
         eqs.time_deriv,
         [0, 1],
@@ -72,6 +77,7 @@ def test_spin_model(num_sites: int) -> None:
     )
     final_vec = solution.y[:, -1]
 
+    # time-evolve the random operator by brute-force Heisenberg evolution
     iden = np.eye(dim)
     ham_gen: np.ndarray = np.kron(ham_mat, iden) - np.kron(iden, ham_mat.T)
     expected_solution = scipy.integrate.solve_ivp(
