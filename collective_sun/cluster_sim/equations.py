@@ -251,7 +251,7 @@ def get_time_derivative(
     if isinstance(hamiltonian, ops.DenseMultiBodyOperator):
         hamiltonian = ops.DenseMultiBodyOperators(hamiltonian)
     dense_op = ops.DenseMultiBodyOperator(fixed_op=op, num_sites=hamiltonian.num_sites)
-    time_deriv = -1j * ops.commute_dense_ops(dense_op, hamiltonian, structure_factors)
+    time_deriv = 1j * ops.commute_dense_ops(dense_op, hamiltonian, structure_factors)
     return OperatorPolynomial.from_dense_ops(time_deriv)
 
 
@@ -284,7 +284,7 @@ def build_equations_of_motion(
 
     # assign an integer index to each operator
     dim = len(time_derivs)
-    op_to_index = {op: ii for ii, op in enumerate(time_derivs.keys())}
+    op_to_index = {op: ii for ii, op in enumerate(sorted(time_derivs.keys()))}
 
     # construct time derivative tensors
     time_deriv_tensors = {}
@@ -299,9 +299,7 @@ def build_equations_of_motion(
             indices = tuple(op_to_index[factor] for factor in [op, *factors])
             time_deriv_tensors[num_factors][indices] = val
 
-    time_deriv_tensors = {order: tensor.to_coo() for order, tensor in time_deriv_tensors.items()}
-
-    return op_to_index, tuple(time_deriv_tensors.values())
+    return op_to_index, tuple(tensor.to_coo() for tensor in time_deriv_tensors.values())
 
 
 def time_deriv(
