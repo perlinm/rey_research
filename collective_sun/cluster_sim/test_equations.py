@@ -87,7 +87,7 @@ def test_spin_model(num_sites: int) -> None:
     iden = np.eye(dim)
     ham_gen: np.ndarray = np.kron(ham_mat, iden) - np.kron(iden, ham_mat.T)
     expected_solution = scipy.integrate.solve_ivp(
-        lambda _, vec, generator: 1j * (generator @ vec),
+        lambda _, vec, generator: -1j * (generator @ vec),
         [0, 1],
         init_op_mat.ravel(),
         t_eval=[1],
@@ -115,10 +115,21 @@ def test_mean_field(num_sites: int) -> None:
         for op_a in ops.AbstractSingleBodyOperator.range(local_dim**2)
         for op_b in ops.AbstractSingleBodyOperator.range(local_dim**2)
     ]
+    ham_terms = [
+        ops.DenseMultiBodyOperator(
+            ops.AbstractSingleBodyOperator(2),
+            tensor=np.ones(num_sites),
+            scalar=np.pi / 4,
+        )
+    ]  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     hamiltonian = ops.DenseMultiBodyOperators(*ham_terms)
 
     # construct a Haar-random initial product state, indexed by (site, local_state)
     init_state = scipy.stats.unitary_group.rvs(local_dim, size=num_sites)[:, :, 0]
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    init_state = np.ones((num_sites, local_dim))
+    init_state[:, 1] = 0
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     init_op_poly = eqs.OperatorPolynomial.from_product_state(init_state, local_op_mats)
 
     # build time derivative tensors
@@ -148,7 +159,7 @@ def test_mean_field(num_sites: int) -> None:
     expected_solution = scipy.integrate.solve_ivp(
         time_deriv_MF,
         [0, 1],
-        init_state.ravel(),
+        init_state.astype(complex).ravel(),
         t_eval=[1],
         args=(hamiltonian, np.array(local_op_mats)),
     )
@@ -164,7 +175,12 @@ def test_mean_field(num_sites: int) -> None:
         expected_final_vec[idx] = local_state.conj() @ op_mat @ local_state
 
     print()
-    print(np.vstack([final_vec, expected_final_vec]).T)
+    print()
+    print([str(key) for key in op_to_index.keys()])
+    print()
+    final_vec[np.isclose(final_vec, 0, atol=1e-4)] = 0
+    expected_final_vec[np.isclose(expected_final_vec, 0, atol=1e-4)] = 0
+    print(np.vstack([init_op_vec, final_vec, expected_final_vec]).T)
     # assert np.allclose(final_vec, expected_final_vec, atol=1e-3)
 
 
