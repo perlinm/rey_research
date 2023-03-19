@@ -1,5 +1,6 @@
 import itertools
 import pytest
+from typing import Sequence
 
 import operators as ops
 import equations as eqs
@@ -115,12 +116,105 @@ def test_mean_field(num_sites: int) -> None:
         for op_a in ops.AbstractSingleBodyOperator.range(local_dim**2)
         for op_b in ops.AbstractSingleBodyOperator.range(local_dim**2)
     ]
-    ham_op = ops.DenseMultiBodyOperators(*ham_terms)
+    hamiltonian = ops.DenseMultiBodyOperators(*ham_terms)
 
     # construct a Haar-random initial product state, indexed by (site, local_state)
     init_state = scipy.stats.unitary_group.rvs(local_dim, size=num_sites)[:, :, 0]
     init_op_poly = eqs.OperatorPolynomial.from_product_state(init_state, local_op_mats)
 
-    structure_factors
-    ham_op
-    init_op_poly
+    # build time derivative tensors
+    op_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
+        *init_op_poly.vec.keys(),
+        hamiltonian=hamiltonian,
+        structure_factors=structure_factors,
+        factorization_rule=eqs.mean_field_factorizer,
+    )
+
+    if not hasattr(sparse, "einsum"):
+        # this sparse tensor library version does not support einsum, so convert to numpy arrays
+        time_deriv_tensors = tuple(tensor.todense() for tensor in time_deriv_tensors)
+
+    # time-evolve the random operator
+    init_op_vec = init_op_poly.to_array(op_to_index)
+    solution = scipy.integrate.solve_ivp(
+        eqs.time_deriv,
+        [0, 1],
+        init_op_vec,
+        t_eval=[1],
+        args=(time_deriv_tensors,),
+    )
+
+    # time-evolve the initial state by "brute force" mean-field equations of motion
+    expected_solution = scipy.integrate.solve_ivp(
+        time_deriv_MF,
+        [0, 1],
+        init_state.ravel(),
+        t_eval=[1],
+        args=(hamiltonian, np.array(local_op_mats)),
+    )
+
+    solution
+    expected_solution
+
+
+def time_deriv_MF(
+    _: float,
+    state: np.ndarray,
+    hamiltonian: ops.DenseMultiBodyOperators,
+    op_mats: np.ndarray,
+) -> np.ndarray:
+    num_sites = hamiltonian.terms[0].num_sites
+    state.shape = (num_sites, -1)
+    op_state_vecs = np.einsum("oij,sj->soi", op_mats, state)
+    op_exp_vals = np.einsum("si,soi->so", state.conj(), op_state_vecs)
+    state.shape = (-1,)
+    time_deriv = sum(
+        (_time_deriv_MF(op_state_vecs, op_exp_vals, term) for term in hamiltonian.terms),
+        start=np.array(0),
+    )
+    return time_deriv.ravel()
+
+
+def _time_deriv_MF(
+    op_state_vecs: np.ndarray,
+    op_exp_vals: np.ndarray,
+    hamiltonian: ops.DenseMultiBodyOperator,
+) -> np.ndarray:
+    num_sites, _, local_dim = op_state_vecs.shape
+
+    fixed_ops = hamiltonian.fixed_ops
+    dist_ops = hamiltonian.dist_ops
+    fixed_sites = hamiltonian.fixed_sites
+    dist_sites = [
+        site for site in ops.LatticeSite.range(num_sites) if site not in hamiltonian.fixed_sites
+    ]
+    tensor = hamiltonian.tensor
+
+    def term_to_time_deriv_and_scalar(
+        op_sites: tuple[ops.LatticeSite, ...],
+        local_ops: tuple[ops.AbstractSingleBodyOperator, ...],
+    ) -> tuple[np.ndarray, complex]:
+        site_indices = np.array(site.index for site in op_sites)
+        local_op_indices = np.array(local_op.index for local_op in local_ops)
+        scalars = op_exp_vals[site_indices, local_op_indices]
+        time_deriv = op_state_vecs[site_indices, local_op_indices, :]
+        for site_idx, scalar in zip(site_indices, scalars):
+            other_site_indices = np.array(ss for ss in site_indices if ss != site_idx)
+            time_deriv[other_site_indices, :] *= scalar
+        return time_deriv, np.prod(scalars, dtype=complex)
+
+    # identify contributions from fixed ops
+    fixed_time_deriv, fixed_op_scalar = term_to_time_deriv_and_scalar(fixed_sites, fixed_ops)
+
+    # identify contributions from distributed ops
+    dist_time_deriv = np.zeros((num_sites, local_dim), dtype=complex)
+    dist_op_scalar = complex(1.0)
+    for addressed_sites in itertools.combinations(dist_sites, len(dist_ops)):
+        for sites in itertools.permutations(addressed_sites):
+            term_time_deriv, term_scalar = term_to_time_deriv_and_scalar(sites, dist_ops)
+            dist_op_scalar += tensor[sites] * term_scalar
+            dist_time_deriv[np.array(sites), :] += tensor[sites] * term_time_deriv
+
+    time_deriv = fixed_op_scalar * dist_time_deriv
+    time_deriv[np.array(fixed_sites), :] += dist_op_scalar * fixed_time_deriv
+    return time_deriv
