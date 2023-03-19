@@ -1,6 +1,6 @@
 import functools
 import itertools
-from typing import Iterator, Optional, Sequence
+from typing import Iterator
 
 import numpy as np
 import pytest
@@ -13,23 +13,6 @@ np.set_printoptions(linewidth=200, precision=3)
 
 QUBIT_OP_MATS = ops.get_qubit_op_mats()
 STRUCTURE_FACTORS = ops.get_structure_factors(*QUBIT_OP_MATS)
-
-
-def select_terms(
-    matrix: np.ndarray, terms: Sequence[int], num_sites: Optional[int] = None
-) -> np.ndarray:
-    if num_sites is None:
-        num_sites = int(np.round(np.log2(matrix.shape[0])))
-    max_term = max(terms)
-    new_matrix = np.zeros_like(matrix)
-    for term, mats in enumerate(itertools.product(QUBIT_OP_MATS, repeat=num_sites)):
-        if term in terms:
-            mat = functools.reduce(np.kron, mats)
-            coefficient = ops.trace_inner_product(mat, matrix)
-            new_matrix += coefficient * mat
-        if term > max_term:
-            break
-    return new_matrix
 
 
 def get_nonzero_terms(matrix: np.ndarray, cutoff=1e-3) -> Iterator[str]:
