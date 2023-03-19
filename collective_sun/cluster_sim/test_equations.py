@@ -100,15 +100,14 @@ def test_spin_model(num_sites: int) -> None:
     assert np.allclose(final_vec, expected_final_vec, atol=1e-3)
 
 
-@pytest.mark.parametrize("num_sites", [10])
+@pytest.mark.parametrize("num_sites", [4])
 def test_mean_field(num_sites: int) -> None:
     local_dim = 2
     local_op_mats = QUBIT_OP_MATS
-    dim = local_dim**num_sites
     structure_factors = ops.get_structure_factors(*local_op_mats)
 
     def get_random_coupling_matrix() -> np.ndarray:
-        return ops.get_random_matrix(dim, hermitian=True, diagonal=True, real=True)
+        return ops.get_random_matrix(num_sites, hermitian=True, diagonal=True, real=True)
 
     # build a random 2-body Hamiltonian
     ham_terms = [
@@ -143,6 +142,7 @@ def test_mean_field(num_sites: int) -> None:
         t_eval=[1],
         args=(time_deriv_tensors,),
     )
+    final_vec = solution.y[:, -1]
 
     # time-evolve the initial state by "brute force" mean-field equations of motion
     expected_solution = scipy.integrate.solve_ivp(
@@ -152,9 +152,20 @@ def test_mean_field(num_sites: int) -> None:
         t_eval=[1],
         args=(hamiltonian, np.array(local_op_mats)),
     )
+    final_state_MF = expected_solution.y[:, -1].reshape((num_sites, local_dim))
+    expected_final_vec = np.zeros_like(final_vec)
+    for multi_body_op, idx in op_to_index.items():
+        if multi_body_op.is_identity_op():
+            expected_final_vec[idx] = 1
+            continue
+        local_op = next(iter(multi_body_op.ops))
+        op_mat = local_op_mats[local_op.op]
+        local_state = final_state_MF[local_op.site, :]
+        expected_final_vec[idx] = local_state.conj() @ op_mat @ local_state
 
-    solution
-    expected_solution
+    print()
+    print(np.vstack([final_vec, expected_final_vec]).T)
+    # assert np.allclose(final_vec, expected_final_vec, atol=1e-3)
 
 
 def time_deriv_MF(
@@ -188,19 +199,19 @@ def _time_deriv_MF(
     dist_sites = [
         site for site in ops.LatticeSite.range(num_sites) if site not in hamiltonian.fixed_sites
     ]
-    tensor = hamiltonian.tensor
+    tensor = hamiltonian.scalar * hamiltonian.tensor
 
     def term_to_time_deriv_and_scalar(
         op_sites: tuple[ops.LatticeSite, ...],
         local_ops: tuple[ops.AbstractSingleBodyOperator, ...],
     ) -> tuple[np.ndarray, complex]:
-        site_indices = np.array(site.index for site in op_sites)
-        local_op_indices = np.array(local_op.index for local_op in local_ops)
+        site_indices = np.array([site.index for site in op_sites], dtype=int)
+        local_op_indices = np.array([local_op.index for local_op in local_ops], dtype=int)
         scalars = op_exp_vals[site_indices, local_op_indices]
         time_deriv = op_state_vecs[site_indices, local_op_indices, :]
-        for site_idx, scalar in zip(site_indices, scalars):
-            other_site_indices = np.array(ss for ss in site_indices if ss != site_idx)
-            time_deriv[other_site_indices, :] *= scalar
+        for idx, scalar in enumerate(scalars):
+            other_indices = np.array([ii for ii in range(len(op_sites)) if ii != idx], dtype=int)
+            time_deriv[other_indices, :] *= scalar
         return time_deriv, np.prod(scalars, dtype=complex)
 
     # identify contributions from fixed ops
@@ -213,8 +224,8 @@ def _time_deriv_MF(
         for sites in itertools.permutations(addressed_sites):
             term_time_deriv, term_scalar = term_to_time_deriv_and_scalar(sites, dist_ops)
             dist_op_scalar += tensor[sites] * term_scalar
-            dist_time_deriv[np.array(sites), :] += tensor[sites] * term_time_deriv
+            dist_time_deriv[np.array(sites, dtype=int), :] += tensor[sites] * term_time_deriv
 
     time_deriv = fixed_op_scalar * dist_time_deriv
-    time_deriv[np.array(fixed_sites), :] += dist_op_scalar * fixed_time_deriv
-    return time_deriv
+    time_deriv[np.array(fixed_sites, dtype=int), :] += dist_op_scalar * fixed_time_deriv
+    return -1j * time_deriv
