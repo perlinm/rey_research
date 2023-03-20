@@ -46,6 +46,7 @@ def test_spin_model(num_sites: int) -> None:
         *init_op_poly.vec.keys(),
         hamiltonian=hamiltonian,
         structure_factors=structure_factors,
+        factorization_rule=eqs.trivial_factorizer,
     )
 
     if not hasattr(sparse, "einsum"):
