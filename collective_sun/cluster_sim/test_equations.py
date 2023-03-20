@@ -1,36 +1,16 @@
-import itertools
-import pytest
-
-import operators as ops
-import equations as eqs
-
 import numpy as np
-import sparse
+import pytest
 import scipy
+import sparse
 
+import equations as eqs
+import operators as ops
 
 np.random.seed(0)
 np.set_printoptions(linewidth=200, precision=3)
 
 QUBIT_OP_MATS = ops.get_qubit_op_mats()
 INTEGRATION_OPTIONS = dict(method="DOP853", rtol=1e-8, atol=1e-8)
-
-
-def get_multi_body_op(*local_ops: int) -> ops.MultiBodyOperator:
-    """Place the given local operators on lattice sites 0, 1, 2, etc."""
-    op_list = [
-        ops.SingleBodyOperator(local_op, site)
-        for local_op, site in zip(local_ops, range(len(local_ops)))
-    ]
-    return ops.MultiBodyOperator(*op_list)
-
-
-def get_all_ops(num_sites: int, dim: int) -> tuple[ops.MultiBodyOperator, ...]:
-    """Get all operations on a given number lattice sites with a given local dimension."""
-    return tuple(
-        get_multi_body_op(*local_ops)
-        for local_ops in itertools.product(range(dim**2), repeat=num_sites)
-    )
 
 
 @pytest.mark.parametrize("num_sites", [3])

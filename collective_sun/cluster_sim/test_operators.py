@@ -7,7 +7,6 @@ import pytest
 
 import operators as ops
 
-
 np.random.seed(0)
 np.set_printoptions(linewidth=200, precision=3)
 

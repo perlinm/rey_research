@@ -2,12 +2,11 @@ import collections
 import dataclasses
 import functools
 import itertools
+import math
 from typing import Callable, Iterator, Optional, Sequence, TypeVar, Union
 
-import math
 import numpy as np
 import wigner
-
 
 ####################################################################################################
 # methods for building and manipulating matrix operators

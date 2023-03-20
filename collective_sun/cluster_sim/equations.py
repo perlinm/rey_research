@@ -10,7 +10,6 @@ import sparse
 
 import operators as ops
 
-
 ####################################################################################################
 # data structures to represent expectation values and polynomials thereof
 
