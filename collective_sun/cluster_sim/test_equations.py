@@ -13,7 +13,7 @@ np.random.seed(0)
 np.set_printoptions(linewidth=200, precision=3)
 
 QUBIT_OP_MATS = ops.get_qubit_op_mats()
-INTEGRATION_OPTIONS = dict(method="DOP853", rtol=1e-8)
+INTEGRATION_OPTIONS = dict(method="DOP853", rtol=1e-8, atol=1e-8)
 
 
 def get_multi_body_op(*local_ops: int) -> ops.MultiBodyOperator:
@@ -102,7 +102,7 @@ def test_spin_model(num_sites: int) -> None:
     assert np.allclose(final_vec, expected_final_vec, atol=1e-4)
 
 
-@pytest.mark.parametrize("num_sites", [3])
+@pytest.mark.parametrize("num_sites", [10])
 def test_mean_field(num_sites: int) -> None:
     local_dim = 2
     local_op_mats = QUBIT_OP_MATS
@@ -117,33 +117,10 @@ def test_mean_field(num_sites: int) -> None:
         for op_a in ops.AbstractSingleBodyOperator.range(local_dim**2)
         for op_b in ops.AbstractSingleBodyOperator.range(local_dim**2)
     ]
-    ##########################################################################
-    ##########################################################################
-    ##########################################################################
-    tensor = np.ones((num_sites, num_sites))
-    tensor[range(num_sites), range(num_sites)] = 0
-    ham_terms = [
-        ops.DenseMultiBodyOperator(
-            ops.AbstractSingleBodyOperator(1),
-            ops.AbstractSingleBodyOperator(2),
-            tensor=tensor,
-            scalar=np.pi / 4,
-        )
-    ]
-    ##########################################################################
-    ##########################################################################
-    ##########################################################################
     hamiltonian = ops.DenseMultiBodyOperators(*ham_terms)
 
     # construct a Haar-random initial product state, indexed by (site, local_state)
     init_state = scipy.stats.unitary_group.rvs(local_dim, size=num_sites)[:, :, 0]
-    ##########################################################################
-    ##########################################################################
-    ##########################################################################
-    init_state = np.ones((num_sites, local_dim)) / np.sqrt(2)
-    ##########################################################################
-    ##########################################################################
-    ##########################################################################
     init_op_poly = eqs.OperatorPolynomial.from_product_state(init_state, local_op_mats)
 
     # build time derivative tensors
@@ -174,22 +151,13 @@ def test_mean_field(num_sites: int) -> None:
     ham_tensors = tuple(term.to_coefficient_tensor(local_op_mats) for term in hamiltonian.terms)
     localities = tuple(term.locality for term in hamiltonian.terms)
     expected_solution = scipy.integrate.solve_ivp(
-        time_deriv_test,
+        time_deriv_MF,
         [0, 1],
         init_state.astype(complex).ravel(),
         t_eval=[1],
         args=(ham_tensors, localities, num_sites),
         **INTEGRATION_OPTIONS,
     )
-    # # time-evolve the random initial state by "brute force"
-    # expected_solution = scipy.integrate.solve_ivp(
-    #     time_deriv_MF,
-    #     [0, 1],
-    #     init_state.astype(complex).ravel(),
-    #     t_eval=[1],
-    #     args=(hamiltonian, np.array(local_op_mats)),
-    #     **INTEGRATION_OPTIONS,
-    # )
     final_state_MF = expected_solution.y[:, -1].reshape((num_sites, local_dim))
     expected_final_vec = np.zeros_like(final_vec)
     for multi_body_op, idx in op_to_index.items():
@@ -201,41 +169,10 @@ def test_mean_field(num_sites: int) -> None:
         local_state = final_state_MF[local_op.site, :]
         expected_final_vec[idx] = local_state.conj() @ op_mat @ local_state
 
-    ################################################################
-    ################################################################
-    ################################################################
-    # time_deriv_vec = eqs.time_deriv(0, init_op_vec, time_deriv_tensors)
-    # time_deriv_state_MF = time_deriv_test(
-    #     0, init_state.astype(complex).ravel(), ham_tensors, localities, num_sites
-    # ).reshape((num_sites, local_dim))
-
-    # expected_time_deriv_vec = np.zeros_like(time_deriv_vec)
-    # for multi_body_op, idx in op_to_index.items():
-    #     if multi_body_op.is_identity_op():
-    #         continue
-    #     local_op = next(iter(multi_body_op.ops))
-    #     op_mat = local_op_mats[local_op.op]
-    #     state = init_state[local_op.site, :]
-    #     time_deriv_state = time_deriv_state_MF[local_op.site, :]
-    #     expected_time_deriv_vec[idx] += state.conj() @ op_mat @ time_deriv_state
-    #     expected_time_deriv_vec[idx] += time_deriv_state.conj() @ op_mat @ state
-
-    # final_vec = time_deriv_vec
-    # expected_final_vec = expected_time_deriv_vec
-    ################################################################
-    ################################################################
-    ################################################################
-
-    print()
-    print([str(op) for op in op_to_index.keys()])
-    print()
-    print(np.vstack([init_op_vec, final_vec, expected_final_vec]).T)
-    print()
-    print(np.allclose(final_vec, expected_final_vec, atol=1e-4))
-    # assert np.allclose(final_vec, expected_final_vec, atol=1e-4)
+    assert np.allclose(final_vec, expected_final_vec, atol=1e-4)
 
 
-def time_deriv_test(
+def time_deriv_MF(
     _: float,
     state: np.ndarray,
     ham_tensors: tuple[np.ndarray, ...],
@@ -245,7 +182,7 @@ def time_deriv_test(
     state.shape = (num_sites, -1)
     time_deriv = sum(
         (
-            _time_deriv_test(state, tensor, locality)
+            _time_deriv_MF(state, tensor, locality)
             for tensor, locality in zip(ham_tensors, localities)
         ),
         start=np.array(0),
@@ -254,7 +191,7 @@ def time_deriv_test(
     return time_deriv.ravel()
 
 
-def _time_deriv_test(
+def _time_deriv_MF(
     state: np.ndarray,
     ham_tensor: np.ndarray,
     locality: int,
@@ -269,66 +206,3 @@ def _time_deriv_test(
     state_index_expr = ",".join(state_indices[:-2] + [state_indices[-1]])
     index_expr = f"{tensor_indices},{state_index_expr}->{state_indices[-2]}"
     return -1j * locality * np.einsum(index_expr, ham_tensor, *state_pairs, state)
-
-
-def time_deriv_MF(
-    _: float,
-    state: np.ndarray,
-    hamiltonian: ops.DenseMultiBodyOperators,
-    op_mats: np.ndarray,
-) -> np.ndarray:
-    num_sites = hamiltonian.terms[0].num_sites
-    state.shape = (num_sites, -1)
-    op_state_vecs = np.einsum("oij,sj->soi", op_mats, state)
-    op_exp_vals = np.einsum("si,soi->so", state.conj(), op_state_vecs)
-    state.shape = (-1,)
-    time_deriv = sum(
-        (_time_deriv_MF(op_state_vecs, op_exp_vals, term) for term in hamiltonian.terms),
-        start=np.array(0),
-    )
-    return time_deriv.ravel()
-
-
-def _time_deriv_MF(
-    op_state_vecs: np.ndarray,
-    op_exp_vals: np.ndarray,
-    hamiltonian: ops.DenseMultiBodyOperator,
-) -> np.ndarray:
-    num_sites, _, local_dim = op_state_vecs.shape
-
-    fixed_ops = hamiltonian.fixed_ops
-    dist_ops = hamiltonian.dist_ops
-    fixed_sites = hamiltonian.fixed_sites
-    dist_sites = [
-        site for site in ops.LatticeSite.range(num_sites) if site not in hamiltonian.fixed_sites
-    ]
-    tensor = hamiltonian.scalar * hamiltonian.tensor
-
-    def term_to_time_deriv_and_scalar(
-        op_sites: tuple[ops.LatticeSite, ...],
-        local_ops: tuple[ops.AbstractSingleBodyOperator, ...],
-    ) -> tuple[np.ndarray, complex]:
-        site_indices = np.array([site.index for site in op_sites], dtype=int)
-        local_op_indices = np.array([local_op.index for local_op in local_ops], dtype=int)
-        scalars = op_exp_vals[site_indices, local_op_indices]
-        time_deriv = op_state_vecs[site_indices, local_op_indices, :]
-        for idx, scalar in enumerate(scalars):
-            other_indices = np.array([ii for ii in range(len(op_sites)) if ii != idx], dtype=int)
-            time_deriv[other_indices, :] *= scalar
-        return time_deriv, np.prod(scalars, dtype=complex)
-
-    # identify contributions from fixed ops
-    fixed_time_deriv, fixed_op_scalar = term_to_time_deriv_and_scalar(fixed_sites, fixed_ops)
-
-    # identify contributions from distributed ops
-    dist_time_deriv = np.zeros((num_sites, local_dim), dtype=complex)
-    dist_op_scalar = complex(1.0)
-    for addressed_sites in itertools.combinations(dist_sites, len(dist_ops)):
-        for sites in itertools.permutations(addressed_sites):
-            term_time_deriv, term_scalar = term_to_time_deriv_and_scalar(sites, dist_ops)
-            dist_op_scalar += tensor[sites] * term_scalar
-            dist_time_deriv[np.array(sites, dtype=int), :] += tensor[sites] * term_time_deriv
-
-    time_deriv = fixed_op_scalar * dist_time_deriv
-    time_deriv[np.array(fixed_sites, dtype=int), :] += dist_op_scalar * fixed_time_deriv
-    return -1j * time_deriv
