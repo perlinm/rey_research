@@ -4,6 +4,7 @@ import functools
 import itertools
 from typing import Callable, Iterator, Optional, Sequence, TypeVar, Union
 
+import math
 import numpy as np
 import wigner
 
@@ -403,6 +404,52 @@ class DenseMultiBodyOperator:
             range(1, 2 * num_sites, 2),
             range(num_sites, 2 * num_sites),
         ).reshape(output_matrix_shape)
+
+    def to_coefficient_tensor(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
+        """Return the tensor `T` for which this operator can be written in the form
+        `sum_{i,j,k,...,a,b,c,...,A,B,C,...} T_{ijk...}^{aAbBcC...} |abc...><ABC...|_{ijk...}`
+        """
+        op_dim = len(op_mats)
+        local_dim = op_mats[0].shape[0]
+
+        dist_op_vecs = [op_mats[op.index].ravel() for op in self.dist_ops]
+        dist_op_tensor = functools.reduce(tensor_product, dist_op_vecs, np.array(1))
+        dist_coef_tensor = self.scalar * self.tensor
+
+        fixed_op_vecs = [op_mats[op.index].ravel() for op in self.fixed_ops]
+        fixed_op_tensor = functools.reduce(tensor_product, fixed_op_vecs, np.array(1))
+
+        if self.fixed_op:
+            fixed_coef_tensor = np.zeros((self.num_sites,) * self.fixed_op.locality, dtype=complex)
+            for idx, site in enumerate(self.fixed_sites):
+                indices: list[slice | int] = [slice(self.num_sites)] * self.fixed_op.locality
+                indices[idx] = site.index
+                fixed_coef_tensor[tuple(indices)] = 1
+        else:
+            fixed_coef_tensor = np.array(1)
+
+        tensors = [fixed_coef_tensor, dist_coef_tensor, fixed_op_tensor, dist_op_tensor]
+
+        # collect a tensor factorized as T_{(iaA),(jbB),(kcC),...}
+        tensor = np.moveaxis(
+            functools.reduce(tensor_product, tensors),
+            range(self.locality),
+            range(0, 2 * self.locality, 2),
+        ).reshape((self.num_sites * op_dim,) * self.locality)
+
+        # symmetrize the tensor
+        sym_tensor = np.zeros_like(tensor)
+        for sites in itertools.permutations(range(self.locality)):
+            sym_tensor += np.moveaxis(tensor, range(self.locality), sites)
+        sym_tensor /= math.factorial(self.locality)
+
+        # reshape as T_{ijk...}^{aAbBcC...}
+        final_shape = (self.num_sites,) * self.locality + (local_dim,) * 2 * self.locality
+        return np.moveaxis(
+            sym_tensor.reshape((self.num_sites, op_dim) * self.locality),
+            range(0, 2 * self.locality, 2),
+            range(self.locality),
+        ).reshape(final_shape)
 
 
 @functools.cache
