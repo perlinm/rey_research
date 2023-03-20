@@ -1,6 +1,5 @@
 import itertools
 import pytest
-from typing import Sequence
 
 import operators as ops
 import equations as eqs
@@ -14,6 +13,7 @@ np.random.seed(0)
 np.set_printoptions(linewidth=200, precision=3)
 
 QUBIT_OP_MATS = ops.get_qubit_op_mats()
+INTEGRATION_OPTIONS = dict(method="DOP853", rtol=1e-8)
 
 
 def get_multi_body_op(*local_ops: int) -> ops.MultiBodyOperator:
@@ -80,10 +80,11 @@ def test_spin_model(num_sites: int) -> None:
         init_op_vec,
         t_eval=[1],
         args=(time_deriv_tensors,),
+        **INTEGRATION_OPTIONS,
     )
     final_vec = solution.y[:, -1]
 
-    # time-evolve the random operator by brute-force Heisenberg evolution
+    # time-evolve the random operator by "brute force"
     iden = np.eye(dim)
     ham_gen: np.ndarray = np.kron(ham_mat, iden) - np.kron(iden, ham_mat.T)
     expected_solution = scipy.integrate.solve_ivp(
@@ -92,15 +93,16 @@ def test_spin_model(num_sites: int) -> None:
         init_op_mat.ravel(),
         t_eval=[1],
         args=(ham_gen,),
+        **INTEGRATION_OPTIONS,
     )
     expected_final_mat = expected_solution.y[:, -1].reshape((dim, dim))
     expected_final_poly = eqs.OperatorPolynomial.from_matrix(expected_final_mat, local_op_mats)
     expected_final_vec = expected_final_poly.to_array(op_to_index)
 
-    assert np.allclose(final_vec, expected_final_vec, atol=1e-3)
+    assert np.allclose(final_vec, expected_final_vec, atol=1e-4)
 
 
-@pytest.mark.parametrize("num_sites", [4])
+@pytest.mark.parametrize("num_sites", [10])
 def test_mean_field(num_sites: int) -> None:
     local_dim = 2
     local_op_mats = QUBIT_OP_MATS
@@ -115,21 +117,10 @@ def test_mean_field(num_sites: int) -> None:
         for op_a in ops.AbstractSingleBodyOperator.range(local_dim**2)
         for op_b in ops.AbstractSingleBodyOperator.range(local_dim**2)
     ]
-    ham_terms = [
-        ops.DenseMultiBodyOperator(
-            ops.AbstractSingleBodyOperator(2),
-            tensor=np.ones(num_sites),
-            scalar=np.pi / 4,
-        )
-    ]  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     hamiltonian = ops.DenseMultiBodyOperators(*ham_terms)
 
     # construct a Haar-random initial product state, indexed by (site, local_state)
     init_state = scipy.stats.unitary_group.rvs(local_dim, size=num_sites)[:, :, 0]
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    init_state = np.ones((num_sites, local_dim))
-    init_state[:, 1] = 0
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     init_op_poly = eqs.OperatorPolynomial.from_product_state(init_state, local_op_mats)
 
     # build time derivative tensors
@@ -144,7 +135,7 @@ def test_mean_field(num_sites: int) -> None:
         # this sparse tensor library version does not support einsum, so convert to numpy arrays
         time_deriv_tensors = tuple(tensor.todense() for tensor in time_deriv_tensors)
 
-    # time-evolve the random operator
+    # time-evolve the random initial state
     init_op_vec = init_op_poly.to_array(op_to_index)
     solution = scipy.integrate.solve_ivp(
         eqs.time_deriv,
@@ -152,16 +143,18 @@ def test_mean_field(num_sites: int) -> None:
         init_op_vec,
         t_eval=[1],
         args=(time_deriv_tensors,),
+        **INTEGRATION_OPTIONS,
     )
     final_vec = solution.y[:, -1]
 
-    # time-evolve the initial state by "brute force" mean-field equations of motion
+    # time-evolve the random initial state by "brute force"
     expected_solution = scipy.integrate.solve_ivp(
         time_deriv_MF,
         [0, 1],
         init_state.astype(complex).ravel(),
         t_eval=[1],
         args=(hamiltonian, np.array(local_op_mats)),
+        **INTEGRATION_OPTIONS,
     )
     final_state_MF = expected_solution.y[:, -1].reshape((num_sites, local_dim))
     expected_final_vec = np.zeros_like(final_vec)
@@ -174,14 +167,7 @@ def test_mean_field(num_sites: int) -> None:
         local_state = final_state_MF[local_op.site, :]
         expected_final_vec[idx] = local_state.conj() @ op_mat @ local_state
 
-    print()
-    print()
-    print([str(key) for key in op_to_index.keys()])
-    print()
-    final_vec[np.isclose(final_vec, 0, atol=1e-4)] = 0
-    expected_final_vec[np.isclose(expected_final_vec, 0, atol=1e-4)] = 0
-    print(np.vstack([init_op_vec, final_vec, expected_final_vec]).T)
-    # assert np.allclose(final_vec, expected_final_vec, atol=1e-3)
+    assert np.allclose(final_vec, expected_final_vec, atol=1e-4)
 
 
 def time_deriv_MF(
