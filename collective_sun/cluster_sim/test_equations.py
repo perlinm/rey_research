@@ -3,8 +3,8 @@ import pytest
 import scipy
 import sparse
 
-import equations as eqs
-import operators as ops
+import equations
+import operators
 
 np.random.seed(0)
 np.set_printoptions(linewidth=200, precision=3)
@@ -14,37 +14,37 @@ INTEGRATION_OPTIONS = dict(method="DOP853", rtol=1e-8, atol=1e-8)
 
 @pytest.mark.parametrize("num_sites", [3])
 def test_op_poly(num_sites: int) -> None:
-    op_mat = ops.get_random_matrix(2**num_sites)
-    op_poly = eqs.OperatorPolynomial.from_matrix(op_mat, ops.get_qubit_op_mats())
+    op_mat = operators.get_random_matrix(2**num_sites)
+    op_poly = equations.OperatorPolynomial.from_matrix(op_mat, operators.get_qubit_op_mats())
 
-    for term, _ in op_poly.factorize(eqs.trivial_factorizer):
+    for term, _ in op_poly.factorize(equations.trivial_factorizer):
         assert term.num_factors() == 1 or term.is_empty()
 
-    for term, _ in op_poly.factorize(eqs.mean_field_factorizer):
+    for term, _ in op_poly.factorize(equations.mean_field_factorizer):
         for op, exp in term:
             assert op.locality == exp == 1
 
 
 @pytest.mark.parametrize("num_sites, local_dim", [(3, 2), (2, 3)])
 def test_spin_model(num_sites: int, local_dim: int) -> None:
-    local_op_mats = ops.get_qudit_op_mats(local_dim)
+    local_op_mats = operators.get_qudit_op_mats(local_dim)
     dim = local_dim**num_sites
-    structure_factors = ops.get_structure_factors(*local_op_mats)
+    structure_factors = operators.get_structure_factors(*local_op_mats)
 
     # build a random Hamiltonian
-    ham_mat = ops.get_random_matrix(dim, hermitian=True)
-    hamiltonian = ops.DenseMultiBodyOperators.from_matrix(ham_mat, local_op_mats)
+    ham_mat = operators.get_random_matrix(dim, hermitian=True)
+    hamiltonian = operators.DenseMultiBodyOperators.from_matrix(ham_mat, local_op_mats)
 
     # construct a random operator
-    init_op_mat = ops.get_random_matrix(dim)
-    init_op_poly = eqs.OperatorPolynomial.from_matrix(init_op_mat, local_op_mats)
+    init_op_mat = operators.get_random_matrix(dim)
+    init_op_poly = equations.OperatorPolynomial.from_matrix(init_op_mat, local_op_mats)
 
     # build time derivative tensors
-    op_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
+    op_to_index, time_deriv_tensors = equations.build_equations_of_motion(
         *init_op_poly.vec.keys(),
         hamiltonian=hamiltonian,
         structure_factors=structure_factors,
-        factorization_rule=eqs.trivial_factorizer,
+        factorization_rule=equations.trivial_factorizer,
     )
 
     if not hasattr(sparse, "einsum"):
@@ -54,7 +54,7 @@ def test_spin_model(num_sites: int, local_dim: int) -> None:
     # time-evolve the random operator
     init_op_vec = init_op_poly.to_array(op_to_index)
     solution = scipy.integrate.solve_ivp(
-        eqs.time_deriv,
+        equations.time_deriv,
         [0, 1],
         init_op_vec,
         t_eval=[1],
@@ -75,7 +75,9 @@ def test_spin_model(num_sites: int, local_dim: int) -> None:
         **INTEGRATION_OPTIONS,
     )
     expected_final_mat = expected_solution.y[:, -1].reshape((dim, dim))
-    expected_final_poly = eqs.OperatorPolynomial.from_matrix(expected_final_mat, local_op_mats)
+    expected_final_poly = equations.OperatorPolynomial.from_matrix(
+        expected_final_mat, local_op_mats
+    )
     expected_final_vec = expected_final_poly.to_array(op_to_index)
 
     assert np.allclose(final_vec, expected_final_vec, atol=1e-4)
@@ -83,31 +85,31 @@ def test_spin_model(num_sites: int, local_dim: int) -> None:
 
 @pytest.mark.parametrize(
     "num_sites, local_dim, factorization_rule",
-    [(10, 2, eqs.mean_field_factorizer), (10, 2, eqs.get_cumulant_factorizer())],
+    [(10, 2, equations.mean_field_factorizer), (10, 2, equations.get_cumulant_factorizer())],
 )
 def test_mean_field(
-    num_sites: int, local_dim: int, factorization_rule: eqs.FactorizationRule
+    num_sites: int, local_dim: int, factorization_rule: equations.FactorizationRule
 ) -> None:
-    local_op_mats = ops.get_qudit_op_mats(local_dim)
-    structure_factors = ops.get_structure_factors(*local_op_mats)
+    local_op_mats = operators.get_qudit_op_mats(local_dim)
+    structure_factors = operators.get_structure_factors(*local_op_mats)
 
     def get_random_coupling_matrix() -> np.ndarray:
-        return ops.get_random_matrix(num_sites, real=True, off_diagonal=True)
+        return operators.get_random_matrix(num_sites, real=True, off_diagonal=True)
 
     # build a random 2-body Hamiltonian
     ham_terms = [
-        ops.DenseMultiBodyOperator(op_a, op_b, tensor=get_random_coupling_matrix())
-        for op_a in ops.AbstractSingleBodyOperator.range(local_dim**2)
-        for op_b in ops.AbstractSingleBodyOperator.range(local_dim**2)
+        operators.DenseMultiBodyOperator(op_a, op_b, tensor=get_random_coupling_matrix())
+        for op_a in operators.AbstractSingleBodyOperator.range(local_dim**2)
+        for op_b in operators.AbstractSingleBodyOperator.range(local_dim**2)
     ]
-    hamiltonian = ops.DenseMultiBodyOperators(*ham_terms)
+    hamiltonian = operators.DenseMultiBodyOperators(*ham_terms)
 
     # construct a Haar-random initial product state, indexed by (site, local_state)
     init_state = scipy.stats.unitary_group.rvs(local_dim, size=num_sites)[:, :, 0]
-    init_op_poly = eqs.OperatorPolynomial.from_product_state(init_state, local_op_mats)
+    init_op_poly = equations.OperatorPolynomial.from_product_state(init_state, local_op_mats)
 
     # build time derivative tensors
-    op_to_index, time_deriv_tensors = eqs.build_equations_of_motion(
+    op_to_index, time_deriv_tensors = equations.build_equations_of_motion(
         *init_op_poly.vec.keys(),
         hamiltonian=hamiltonian,
         structure_factors=structure_factors,
@@ -121,7 +123,7 @@ def test_mean_field(
     # time-evolve the random initial state
     init_op_vec = init_op_poly.to_array(op_to_index)
     solution = scipy.integrate.solve_ivp(
-        eqs.time_deriv,
+        equations.time_deriv,
         [0, 1],
         init_op_vec,
         t_eval=[1],
@@ -147,9 +149,9 @@ def test_mean_field(
         if multi_body_op.is_identity_op():
             expected_final_vec[idx] = 1
             continue
-        local_op = next(iter(multi_body_op.ops))
-        op_mat = local_op_mats[local_op.op]
-        local_state = final_state_MF[local_op.site, :]
+        single_body_op = next(iter(multi_body_op.ops))
+        op_mat = local_op_mats[single_body_op.op]
+        local_state = final_state_MF[single_body_op.site, :]
         expected_final_vec[idx] = local_state.conj() @ op_mat @ local_state
 
     assert np.allclose(final_vec, expected_final_vec, atol=1e-4)

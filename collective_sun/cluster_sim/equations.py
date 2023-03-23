@@ -9,7 +9,7 @@ from typing import Callable, Collection, Iterator, Optional, Sequence, TypeVar, 
 import numpy as np
 import sparse
 
-import operators as ops
+import operators
 
 GenericType = TypeVar("GenericType")
 
@@ -20,13 +20,15 @@ GenericType = TypeVar("GenericType")
 class ExpectationValueProduct:
     """A product of expectation values of 'MultiBodyOperator's."""
 
-    op_to_exp: collections.defaultdict[ops.MultiBodyOperator, int]
+    op_to_exp: collections.defaultdict[operators.MultiBodyOperator, int]
 
-    def __init__(self, *located_ops: ops.MultiBodyOperator) -> None:
+    def __init__(self, *ops: operators.MultiBodyOperator | operators.SingleBodyOperator) -> None:
         self.op_to_exp = collections.defaultdict(int)
-        for located_op in located_ops:
-            if not located_op.is_identity_op():
-                self.op_to_exp[located_op] += 1
+        for op in ops:
+            if isinstance(op, operators.SingleBodyOperator):
+                op = operators.MultiBodyOperator(op)
+            if not op.is_identity_op():
+                self.op_to_exp[op] += 1
 
     def __str__(self) -> str:
         if self.is_empty():
@@ -39,15 +41,15 @@ class ExpectationValueProduct:
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ExpectationValueProduct) and hash(self) == hash(other)
 
-    def __iter__(self) -> Iterator[tuple[ops.MultiBodyOperator, int]]:
+    def __iter__(self) -> Iterator[tuple[operators.MultiBodyOperator, int]]:
         yield from self.op_to_exp.items()
 
     def __mul__(
-        self, other: Union[ops.MultiBodyOperator, "ExpectationValueProduct"]
+        self, other: Union[operators.MultiBodyOperator, "ExpectationValueProduct"]
     ) -> "ExpectationValueProduct":
         output = ExpectationValueProduct()
         output.op_to_exp = self.op_to_exp.copy()
-        if isinstance(other, ops.MultiBodyOperator):
+        if isinstance(other, operators.MultiBodyOperator):
             output.op_to_exp[other] += 1
         else:
             for op, exp in other:
@@ -55,14 +57,14 @@ class ExpectationValueProduct:
         return output
 
     def __rmul__(
-        self, other: Union[ops.MultiBodyOperator, "ExpectationValueProduct"]
+        self, other: Union[operators.MultiBodyOperator, "ExpectationValueProduct"]
     ) -> "ExpectationValueProduct":
         return self * other
 
-    def factors(self) -> tuple[ops.MultiBodyOperator, ...]:
+    def factors(self) -> tuple[operators.MultiBodyOperator, ...]:
         return functools.reduce(operator.add, [(op,) * exp for op, exp in self], ())
 
-    def prime_factors(self) -> tuple[ops.MultiBodyOperator, ...]:
+    def prime_factors(self) -> tuple[operators.MultiBodyOperator, ...]:
         return tuple(op for op, _ in self)
 
     def num_factors(self) -> int:
@@ -77,7 +79,7 @@ class ExpectationValueProduct:
 
 @dataclasses.dataclass
 class OperatorPolynomial:
-    """A polynomial of expectation values of 'ops.MultiBodyOperator's."""
+    """A polynomial of expectation values of 'operators.MultiBodyOperator's."""
 
     vec: dict[ExpectationValueProduct, complex]
 
@@ -86,13 +88,11 @@ class OperatorPolynomial:
         initializer: Optional[
             dict[ExpectationValueProduct, complex]
             | ExpectationValueProduct
-            | ops.MultiBodyOperator
-            | ops.SingleBodyOperator
+            | operators.MultiBodyOperator
+            | operators.SingleBodyOperator
         ] = None,
     ) -> None:
-        if isinstance(initializer, ops.SingleBodyOperator):
-            initializer = ops.MultiBodyOperator(initializer)
-        if isinstance(initializer, ops.MultiBodyOperator):
+        if isinstance(initializer, (operators.SingleBodyOperator, operators.MultiBodyOperator)):
             initializer = ExpectationValueProduct(initializer)
         if isinstance(initializer, ExpectationValueProduct):
             initializer = {initializer: 1}
@@ -158,7 +158,9 @@ class OperatorPolynomial:
     @classmethod
     def from_ops(
         self,
-        *terms: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator | ops.MultiBodyOperator,
+        *terms: operators.DenseMultiBodyOperators
+        | operators.DenseMultiBodyOperator
+        | operators.MultiBodyOperator,
     ) -> "OperatorPolynomial":
         """
         Construct an 'OperatorPolynomial' that represents a sum of the expectation values of
@@ -169,18 +171,18 @@ class OperatorPolynomial:
         # loop over the given terms
         for term in terms:
             # if this is a MultiBodyOperator, add its expectation value
-            if isinstance(term, ops.MultiBodyOperator):
+            if isinstance(term, operators.MultiBodyOperator):
                 product = ExpectationValueProduct(term)
                 output.vec[product] += 1
                 continue
 
-            if isinstance(term, ops.DenseMultiBodyOperator):
-                dense_ops = ops.DenseMultiBodyOperators(term)
-            else:  # isinstance(term, ops.DenseMultiBodyOperators)
+            if isinstance(term, operators.DenseMultiBodyOperator):
+                dense_ops = operators.DenseMultiBodyOperators(term)
+            else:  # isinstance(term, operators.DenseMultiBodyOperators)
                 dense_ops = term
             dense_ops.simplify()
 
-            # loop over individual 'ops.DenseMultiBodyOperator's in this term
+            # loop over individual 'operators.DenseMultiBodyOperator's in this term
             for dense_op in dense_ops.terms:
 
                 # deal with idendity operators as a special case
@@ -195,7 +197,7 @@ class OperatorPolynomial:
                 # loop over all choices of remaning sites to address nontrivially
                 available_sites = [
                     site
-                    for site in ops.LatticeSite.range(dense_op.num_sites)
+                    for site in operators.LatticeSite.range(dense_op.num_sites)
                     if site not in dense_op.fixed_sites
                 ]
                 for addressed_sites in itertools.combinations(
@@ -205,10 +207,10 @@ class OperatorPolynomial:
                     for op_sites in itertools.permutations(addressed_sites):
                         if dense_op.tensor[op_sites]:
                             dist_ops = [
-                                ops.SingleBodyOperator(dist_op, site)
+                                operators.SingleBodyOperator(dist_op, site)
                                 for dist_op, site in zip(dense_op.dist_ops, op_sites)
                             ]
-                            multi_body_op = ops.MultiBodyOperator(*dist_ops, *fixed_ops)
+                            multi_body_op = operators.MultiBodyOperator(*dist_ops, *fixed_ops)
                             product = ExpectationValueProduct(multi_body_op)
                             output.vec[product] += dense_op.scalar * dense_op.tensor[op_sites]
 
@@ -218,13 +220,13 @@ class OperatorPolynomial:
     def from_matrix(
         cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray], cutoff: float = 0
     ) -> "OperatorPolynomial":
-        dense_ops = ops.DenseMultiBodyOperators.from_matrix(matrix, op_mats, cutoff)
-        return OperatorPolynomial.from_ops(dense_ops)
+        ops = operators.DenseMultiBodyOperators.from_matrix(matrix, op_mats, cutoff)
+        return OperatorPolynomial.from_ops(ops)
 
     def factorize(self, factorization_rule: "FactorizationRule") -> "OperatorPolynomial":
         """
         Factorize all terms in 'self' according to a given rule for factorizing the expectation
-        value of a 'ops.MultiBodyOperator'.
+        value of a 'operators.MultiBodyOperator'.
         """
         output = OperatorPolynomial()
         for product_of_expectation_values, scalar in self:
@@ -248,7 +250,7 @@ class OperatorPolynomial:
 
     def to_array(
         self,
-        index_map: dict[ExpectationValueProduct, int] | dict[ops.MultiBodyOperator, int],
+        index_map: dict[ExpectationValueProduct, int] | dict[operators.MultiBodyOperator, int],
     ) -> np.ndarray:
         """Convert this polynomial into an array."""
         # insure that our index_map takes ExpectationValueProduct --> int
@@ -271,19 +273,19 @@ class OperatorPolynomial:
         assert np.isclose(norm, 1)
 
         # compute all local expectation values
-        output = OperatorPolynomial(ops.MultiBodyOperator())
+        output = OperatorPolynomial(operators.MultiBodyOperator())
         num_sites, _ = product_state.shape
-        for site in ops.LatticeSite.range(num_sites):
+        for site in operators.LatticeSite.range(num_sites):
             for op_idx, op_mat in enumerate(op_mats[1:], start=1):
-                local_op = ops.SingleBodyOperator(op_idx, site)
-                op = ExpectationValueProduct(ops.MultiBodyOperator(local_op))
+                op = operators.SingleBodyOperator(op_idx, site)
+                term = ExpectationValueProduct(op)
                 val = product_state[site, :].conj() @ op_mat @ product_state[site, :]
                 if np.isclose(val.imag, 0):
                     val = val.real
                 if np.isclose(val.real, 0):
                     val = val.imag
                 if val:
-                    output.vec[op] = val
+                    output.vec[term] = val
 
         return output
 
@@ -292,25 +294,24 @@ class OperatorPolynomial:
 # methods for factorizing expectation values
 
 
-FactorizationRule = Callable[[ops.MultiBodyOperator], OperatorPolynomial]
+FactorizationRule = Callable[[operators.MultiBodyOperator], OperatorPolynomial]
 
 
-def trivial_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
+def trivial_factorizer(op: operators.MultiBodyOperator) -> OperatorPolynomial:
     return OperatorPolynomial.from_ops(op)
 
 
-def mean_field_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
-    factors = [ops.MultiBodyOperator(located_op) for located_op in op]
-    product = ExpectationValueProduct(*factors)
+def mean_field_factorizer(op: operators.MultiBodyOperator) -> OperatorPolynomial:
+    product = ExpectationValueProduct(*op.ops)
     return OperatorPolynomial(product)
 
 
 def get_cumulant_factorizer(
-    keep: Callable[[ops.MultiBodyOperator], bool] = lambda _: False
+    keep: Callable[[operators.MultiBodyOperator], bool] = lambda _: False
 ) -> FactorizationRule:
     """Construct a factorization rule obtained by setting cumulants to zero."""
 
-    def cumulant_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
+    def cumulant_factorizer(op: operators.MultiBodyOperator) -> OperatorPolynomial:
         """Factorize a multi-body operator by setting the cumulant of its local factors to zero."""
         if op.locality <= 1 or keep(op):
             return OperatorPolynomial(op)
@@ -320,14 +321,14 @@ def get_cumulant_factorizer(
     return cumulant_factorizer
 
 
-def get_cumulant(*local_ops: ops.SingleBodyOperator) -> OperatorPolynomial:
+def get_cumulant(*ops: operators.SingleBodyOperator) -> OperatorPolynomial:
     """Return the cumulant of a collection of local operators."""
-    assert len(set(op.site for op in local_ops)) == len(local_ops)
+    assert len(set(op.site for op in ops)) == len(ops)
     output = OperatorPolynomial()
-    for partition in partitions(local_ops):
+    for partition in partitions(ops):
         sign = (-1) ** (len(partition) - 1)
         prefactor = math.factorial(len(partition) - 1)
-        factors = [ops.MultiBodyOperator(*part) for part in partition]
+        factors = [operators.MultiBodyOperator(*part) for part in partition]
         product = ExpectationValueProduct(*factors)
         output += sign * prefactor * OperatorPolynomial(product)
     return output
@@ -361,40 +362,50 @@ def partitions(collection: Collection[GenericType]) -> Iterator[set[frozenset[Ge
 
 
 def get_time_derivative(
-    op: ops.MultiBodyOperator,
-    hamiltonian: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator,
+    op: operators.MultiBodyOperator,
+    hamiltonian: operators.DenseMultiBodyOperators | operators.DenseMultiBodyOperator,
     structure_factors: np.ndarray,
 ) -> OperatorPolynomial:
-    if isinstance(hamiltonian, ops.DenseMultiBodyOperator):
-        hamiltonian = ops.DenseMultiBodyOperators(hamiltonian)
-    dense_op = ops.DenseMultiBodyOperator(fixed_op=op, num_sites=hamiltonian.num_sites)
-    time_deriv = -1j * ops.commute_dense_ops(dense_op, hamiltonian, structure_factors)
+    if isinstance(hamiltonian, operators.DenseMultiBodyOperator):
+        hamiltonian = operators.DenseMultiBodyOperators(hamiltonian)
+    dense_op = operators.DenseMultiBodyOperator(fixed_op=op, num_sites=hamiltonian.num_sites)
+    time_deriv = -1j * operators.commute_dense_ops(dense_op, hamiltonian, structure_factors)
     return OperatorPolynomial.from_ops(time_deriv)
 
 
 def build_equations_of_motion(
-    *op_seeds: ops.MultiBodyOperator | ExpectationValueProduct,
-    hamiltonian: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator,
+    *op_seeds: operators.MultiBodyOperator | ExpectationValueProduct,
+    hamiltonian: operators.DenseMultiBodyOperators | operators.DenseMultiBodyOperator,
     structure_factors: np.ndarray,
     factorization_rule: FactorizationRule = trivial_factorizer,
     show_progress: bool = False,
-) -> tuple[dict[ops.MultiBodyOperator, int], tuple[sparse.SparseArray, ...]]:
-    if isinstance(hamiltonian, ops.DenseMultiBodyOperator):
-        hamiltonian = ops.DenseMultiBodyOperators(hamiltonian)
+) -> tuple[dict[operators.MultiBodyOperator, int], tuple[sparse.SparseArray, ...]]:
+    if isinstance(hamiltonian, operators.DenseMultiBodyOperator):
+        hamiltonian = operators.DenseMultiBodyOperators(hamiltonian)
+
+    if not op_seeds:
+        # seed with all local operators
+        op_dim = structure_factors.shape[0]
+        num_sites = hamiltonian.terms[0].num_sites
+        op_seeds = tuple(
+            operators.MultiBodyOperator(operators.SingleBodyOperator(op, site))
+            for op in range(1, op_dim)
+            for site in range(num_sites)
+        )
 
     # construct an initial set of ops to differentiate
     ops_to_differentiate = set()
     for seed in op_seeds:
-        if isinstance(seed, ops.MultiBodyOperator):
+        if isinstance(seed, operators.MultiBodyOperator):
             ops_to_differentiate.add(seed)
         elif isinstance(seed, ExpectationValueProduct):
             for op in seed.prime_factors():
                 ops_to_differentiate.add(op)
             if seed.is_empty():
-                ops_to_differentiate.add(ops.MultiBodyOperator())
+                ops_to_differentiate.add(operators.MultiBodyOperator())
 
     # compute all time derivatives
-    time_derivs: dict[ops.MultiBodyOperator, OperatorPolynomial] = {}
+    time_derivs: dict[operators.MultiBodyOperator, OperatorPolynomial] = {}
     while ops_to_differentiate:
         if show_progress:
             print(len(ops_to_differentiate))
