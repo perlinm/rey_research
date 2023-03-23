@@ -83,7 +83,11 @@ def get_structure_factors(
 
 
 def polarization_op_mat(dim: int, degree: int, order: int) -> np.ndarray:
-    """Qudit polarization operator."""
+    """Get the polarization operator for a spin qudit, `T_{lm}`.
+
+    Here `l <- [0, dim-1]` is the order and `m <- [-l, l]` is the degree.
+    The polarization operators are a quantum analogue of the complex spherical harmonics.
+    """
     if degree >= dim or abs(order) > degree:
         return np.zeros((dim, dim))
     spin = (dim - 1) / 2
@@ -93,7 +97,33 @@ def polarization_op_mat(dim: int, degree: int, order: int) -> np.ndarray:
     return mat[::-1, ::-1]
 
 
-def get_qubit_op_mats() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def drive_op_mat(dim: int, degree: int, order: int) -> np.ndarray:
+    """Get a drive operator for a spin qudit.
+
+    The drive operators are self-adjoint combinations of polarization operators.
+    """
+    polarization_op = polarization_op_mat(dim, degree, order)
+    if order == 0:
+        return polarization_op
+    prefactor = ((-1) ** order if order > 0 else -1j) / np.sqrt(2)
+    sign = 1 if order > 0 else -1
+    return prefactor * (polarization_op + sign * polarization_op.T)
+
+
+def get_spin_qudit_op_mats(dim: int) -> tuple[np.ndarray, ...]:
+    """Spin qudit drive matrices.
+
+    The first drive matrix is the identity operator.
+    Every drive matrix `D` is normalized such that `<D,D> = dim`.
+    """
+    return tuple(
+        np.sqrt(dim) * drive_op_mat(dim, degree, order)
+        for degree in range(dim)
+        for order in range(-degree, degree + 1)
+    )
+
+
+def get_qubit_op_mats() -> tuple[np.ndarray, ...]:
     """Single-qubit identity + Pauli matrices."""
     op_mat_I = np.eye(2, dtype=complex)
     op_mat_Z = np.array([[1, 0], [0, -1]], dtype=complex)
