@@ -58,8 +58,6 @@ if __name__ == "__main__":
 
     # identify factorization rule
     def keep_rule(op: operators.MultiBodyOperator):
-        if op.locality <= 1:
-            return True
         return not any(
             get_distance(op_a.site.index, op_b.site.index) > 2 * cluster_radius
             for op_a, op_b in itertools.combinations(op.ops, 2)
