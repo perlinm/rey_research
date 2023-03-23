@@ -2,13 +2,16 @@ import collections
 import dataclasses
 import functools
 import itertools
+import math
 import operator
-from typing import Callable, Iterator, Optional, Sequence, Union
+from typing import Collection, Callable, Iterator, Optional, Sequence, TypeVar, Union
 
 import numpy as np
 import sparse
 
 import operators as ops
+
+GenericType = TypeVar("GenericType")
 
 ####################################################################################################
 # data structures to represent expectation values and polynomials thereof
@@ -129,7 +132,7 @@ class OperatorPolynomial:
         return output
 
     @classmethod
-    def from_dense_ops(
+    def from_ops(
         self,
         *terms: ops.DenseMultiBodyOperators | ops.DenseMultiBodyOperator | ops.MultiBodyOperator,
     ) -> "OperatorPolynomial":
@@ -192,7 +195,7 @@ class OperatorPolynomial:
         cls, matrix: np.ndarray, op_mats: Sequence[np.ndarray], cutoff: float = 0
     ) -> "OperatorPolynomial":
         dense_ops = ops.DenseMultiBodyOperators.from_matrix(matrix, op_mats, cutoff)
-        return OperatorPolynomial.from_dense_ops(dense_ops)
+        return OperatorPolynomial.from_ops(dense_ops)
 
     def factorize(self, factorization_rule: "FactorizationRule") -> "OperatorPolynomial":
         """
@@ -261,18 +264,66 @@ class OperatorPolynomial:
         return output
 
 
+####################################################################################################
+# methods for factorizing expectation values
+
+
 FactorizationRule = Callable[[ops.MultiBodyOperator], OperatorPolynomial]
 
 
 def trivial_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
-    product = ExpectationValueProduct(op)
-    return OperatorPolynomial({product: 1})
+    return OperatorPolynomial.from_ops(op)
 
 
 def mean_field_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
     factors = [ops.MultiBodyOperator(located_op) for located_op in op]
     product = ExpectationValueProduct(*factors)
     return OperatorPolynomial({product: 1})
+
+
+def cumulant_factorizer(
+    op: ops.MultiBodyOperator, keep: Callable[[ops.MultiBodyOperator], bool]
+) -> OperatorPolynomial:
+    if op.locality <= 1:
+        return OperatorPolynomial({ExpectationValueProduct(op): 1})
+
+    return NotImplemented
+
+
+def cumulant(*local_ops: ops.SingleBodyOperator) -> OperatorPolynomial:
+    """Return the cumulant of a collection of local operators."""
+    assert len(set(op.site for op in local_ops)) == len(local_ops)
+    output = OperatorPolynomial()
+    for partition in partitions(local_ops):
+        sign = (-1) ** (len(partition) - 1)
+        prefactor = math.factorial(len(partition) - 1)
+        factors = [ops.MultiBodyOperator(*part) for part in partition]
+        expectation_values = ExpectationValueProduct(*factors)
+        output += sign * prefactor * OperatorPolynomial({expectation_values: 1})
+    return output
+
+
+def partitions(collection: Collection[GenericType]) -> Iterator[set[frozenset[GenericType]]]:
+    """Iterate over all partitions of a collection of unique items.
+    Algorithm adapted from https://stackoverflow.com/a/30134039.
+    """
+    if len(collection) == 1:
+        yield {frozenset(collection)}
+
+    else:
+        # convert the collection into a set, and pick out one ("first") item
+        items_set = set(collection)
+        first_item = items_set.pop()
+
+        # iterate over all partitions of the remaining items in the set
+        for sub_partition in partitions(items_set):
+
+            # put the `first_item` in its own subset
+            yield {frozenset([first_item])} | sub_partition
+
+            # insert the `first_item` into each of the `sub_partition`s subsets
+            for part in sub_partition:
+                yield (sub_partition - {part}) | {part | {first_item}}
 
 
 ####################################################################################################
@@ -288,7 +339,7 @@ def get_time_derivative(
         hamiltonian = ops.DenseMultiBodyOperators(hamiltonian)
     dense_op = ops.DenseMultiBodyOperator(fixed_op=op, num_sites=hamiltonian.num_sites)
     time_deriv = -1j * ops.commute_dense_ops(dense_op, hamiltonian, structure_factors)
-    return OperatorPolynomial.from_dense_ops(time_deriv)
+    return OperatorPolynomial.from_ops(time_deriv)
 
 
 def build_equations_of_motion(
