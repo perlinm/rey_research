@@ -110,7 +110,7 @@ def drive_op_mat(dim: int, degree: int, order: int) -> np.ndarray:
     return prefactor * (polarization_op + sign * polarization_op.T)
 
 
-def get_spin_qudit_op_mats(dim: int) -> tuple[np.ndarray, ...]:
+def get_qudit_op_mats(dim: int) -> tuple[np.ndarray, ...]:
     """Spin qudit drive matrices.
 
     The first drive matrix is the identity operator.

@@ -27,7 +27,7 @@ def test_op_poly(num_sites: int) -> None:
 
 @pytest.mark.parametrize("num_sites, local_dim", [(3, 2), (3, 3)])
 def test_spin_model(num_sites: int, local_dim: int) -> None:
-    local_op_mats = ops.get_spin_qudit_op_mats(local_dim)
+    local_op_mats = ops.get_qudit_op_mats(local_dim)
     dim = local_dim**num_sites
     structure_factors = ops.get_structure_factors(*local_op_mats)
 
@@ -96,7 +96,7 @@ def cumulant_mean_field_factorizer(op: ops.MultiBodyOperator) -> eqs.OperatorPol
 def test_mean_field(
     num_sites: int, local_dim: int, factorization_rule: eqs.FactorizationRule
 ) -> None:
-    local_op_mats = ops.get_spin_qudit_op_mats(local_dim)
+    local_op_mats = ops.get_qudit_op_mats(local_dim)
     structure_factors = ops.get_structure_factors(*local_op_mats)
 
     def get_random_coupling_matrix() -> np.ndarray:
