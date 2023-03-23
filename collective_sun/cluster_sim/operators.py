@@ -57,12 +57,7 @@ def commute_mats(op_a: np.ndarray, op_b: np.ndarray) -> np.ndarray:
     return op_a @ op_b - op_b @ op_a
 
 
-def get_structure_factors(
-    op_mat_I: np.ndarray,
-    *other_mats: np.ndarray,
-    binary_op: Callable[[np.ndarray, np.ndarray], np.ndarray] = multiply_mats,
-    inner_product: Callable[[np.ndarray, np.ndarray], complex] = trace_inner_product,
-) -> np.ndarray:
+def get_structure_factors(op_mat_I: np.ndarray, *other_mats: np.ndarray) -> np.ndarray:
     """
     Compute the structure factors f_{ABC} for the operator algebra associated with the given
     matrices:
@@ -76,8 +71,8 @@ def get_structure_factors(
     structure_factors = np.empty((len(op_mats),) * 3, dtype=complex)
     for idx_a, mat_a in enumerate(op_mats):
         for idx_b, mat_b in enumerate(op_mats):
-            mat_comm = binary_op(mat_a, mat_b)
-            mat_comm_vec = [inner_product(op_mat, mat_comm) for op_mat in op_mats]
+            mat_comm = mat_a @ mat_b
+            mat_comm_vec = [trace_inner_product(op_mat, mat_comm) for op_mat in op_mats]
             structure_factors[idx_a, idx_b, :] = mat_comm_vec
     return structure_factors
 
@@ -382,15 +377,15 @@ class DenseMultiBodyOperator:
             'T = sum_t c_t t',
         where 'c_t' is the coefficient for 't' in 'self'.
         """
-        spin_dim = int(np.round(np.sqrt(len(op_mats))))
+        local_dim = int(np.round(np.sqrt(len(op_mats))))
         if self.is_identity_op():
-            return self.tensor * self.scalar * _get_iden_op_tensor(spin_dim, self.num_sites)
+            return self.tensor * self.scalar * _get_iden_op_tensor(local_dim, self.num_sites)
 
-        op_mat_I = np.eye(spin_dim)
+        op_mat_I = np.eye(local_dim)
         assert np.allclose(op_mats[0], op_mat_I)
 
         # construct a tensor for all sites addressed by the identity
-        iden_op_tensor = _get_iden_op_tensor(spin_dim, self.num_sites - self.locality)
+        iden_op_tensor = _get_iden_op_tensor(local_dim, self.num_sites - self.locality)
 
         # vectorize all nontrivial operators in 'self', and identify fixed/nonfixed sites
         self.simplify()
@@ -422,12 +417,12 @@ class DenseMultiBodyOperator:
 
     def to_matrix(self, op_mats: Sequence[np.ndarray]) -> np.ndarray:
         """Return a matrix representation of 'self'."""
-        spin_dim = int(np.round(np.sqrt(len(op_mats))))
+        local_dim = int(np.round(np.sqrt(len(op_mats))))
         num_sites = self.num_sites
-        output_matrix_shape = (spin_dim**num_sites,) * 2
+        output_matrix_shape = (local_dim**num_sites,) * 2
         if not self:
             return np.zeros(output_matrix_shape)
-        split_tensor_shape = (spin_dim,) * (2 * num_sites)
+        split_tensor_shape = (local_dim,) * (2 * num_sites)
         return np.moveaxis(
             self.to_tensor(op_mats).reshape(split_tensor_shape),
             range(1, 2 * num_sites, 2),
@@ -482,9 +477,9 @@ class DenseMultiBodyOperator:
 
 
 @functools.cache
-def _get_iden_op_tensor(spin_dim: int, num_sites: int) -> np.ndarray:
+def _get_iden_op_tensor(local_dim: int, num_sites: int) -> np.ndarray:
     """Return a tensor product of flattened identity matrices."""
-    iden_tensors = [np.eye(spin_dim).ravel()] * num_sites
+    iden_tensors = [np.eye(local_dim).ravel()] * num_sites
     return functools.reduce(tensor_product, iden_tensors, np.array(1))
 
 
@@ -611,16 +606,16 @@ class DenseMultiBodyOperators:
         Construct a 'DenseMultiBodyOperators' object from the matrix representation of an operator
         on a Hibert space.
         """
-        spin_dim = int(np.round(np.sqrt(len(op_mats))))
-        num_sites = int(np.round(np.log(matrix.size) / np.log(spin_dim))) // 2
+        local_dim = int(np.round(np.sqrt(len(op_mats))))
+        num_sites = int(np.round(np.log(matrix.size) / np.log(local_dim))) // 2
 
-        op_mat_I = np.eye(spin_dim)
+        op_mat_I = np.eye(local_dim)
         assert np.allclose(op_mats[0], op_mat_I)
 
         output = DenseMultiBodyOperators()
 
         # add an identity term, which gets special treatment in the 'DenseMultiBodyOperator' class
-        identity_coefficient = trace_inner_product(np.eye(spin_dim**num_sites), matrix)
+        identity_coefficient = np.trace(matrix) / (local_dim**num_sites)
         if abs(identity_coefficient) > cutoff:
             output += DenseMultiBodyOperator(scalar=identity_coefficient, num_sites=num_sites)
 
@@ -662,9 +657,9 @@ class DenseMultiBodyOperators:
         self.simplify()
         matrix = sum((term.to_matrix(op_mats) for term in self.terms))
         if not isinstance(matrix, np.ndarray):
-            spin_dim = int(np.round(np.sqrt(len(op_mats))))
+            local_dim = int(np.round(np.sqrt(len(op_mats))))
             num_sites = self.num_sites
-            output_matrix_shape = (spin_dim**num_sites,) * 2
+            output_matrix_shape = (local_dim**num_sites,) * 2
             return np.zeros(output_matrix_shape)
         return matrix
 
