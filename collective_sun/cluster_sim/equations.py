@@ -115,6 +115,14 @@ class OperatorPolynomial:
             output.vec[term] += scalar
         return output
 
+    def __sub__(self, other: "OperatorPolynomial") -> "OperatorPolynomial":
+        """Subtract one 'OperatorPolynomial' from another."""
+        output = OperatorPolynomial()
+        output.vec = self.vec.copy()
+        for term, scalar in other:
+            output.vec[term] -= scalar
+        return output
+
     def __mul__(self, other: Union[complex, "OperatorPolynomial"]) -> "OperatorPolynomial":
         """Multiply an 'OperatorPolynomial' by a scalar, or by another 'OperatorPolynomial'."""
         output = OperatorPolynomial()
@@ -296,10 +304,10 @@ def mean_field_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
 def cumulant_factorizer(
     op: ops.MultiBodyOperator, keep: Callable[[ops.MultiBodyOperator], bool]
 ) -> OperatorPolynomial:
-    if op.locality <= 1:
+    if op.locality <= 1 or keep(op):
         return OperatorPolynomial(op)
-
-    return NotImplemented
+    factorized_op = OperatorPolynomial(op) - cumulant(*op.ops)
+    return factorized_op.factorize(lambda op: cumulant_factorizer(op, keep))
 
 
 def cumulant(*local_ops: ops.SingleBodyOperator) -> OperatorPolynomial:
