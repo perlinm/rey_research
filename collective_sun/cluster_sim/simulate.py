@@ -40,7 +40,7 @@ def get_coupling(
 
 if __name__ == "__main__":
 
-    axis_sizes = (10, 10)
+    axis_sizes = (6, 6)
     num_sites = np.prod(axis_sizes, dtype=int)
 
     cluster_radius = 1
@@ -68,4 +68,5 @@ if __name__ == "__main__":
         hamiltonian=hamiltonian,
         structure_factors=structure_factors,
         factorization_rule=equations.get_cumulant_factorizer(keep_rule),
+        show_progress=True,
     )

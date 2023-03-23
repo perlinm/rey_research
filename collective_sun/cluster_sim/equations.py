@@ -408,7 +408,7 @@ def build_equations_of_motion(
     time_derivs: dict[operators.MultiBodyOperator, OperatorPolynomial] = {}
     while ops_to_differentiate:
         if show_progress:
-            print(len(ops_to_differentiate))
+            print(len(time_derivs), len(ops_to_differentiate))
         op = ops_to_differentiate.pop()
         time_deriv = get_time_derivative(op, hamiltonian, structure_factors)
         time_deriv = time_deriv.factorize(factorization_rule)
