@@ -4,7 +4,7 @@ import functools
 import itertools
 import math
 import operator
-from typing import Collection, Callable, Iterator, Optional, Sequence, TypeVar, Union
+from typing import Callable, Collection, Iterator, Optional, Sequence, TypeVar, Union
 
 import numpy as np
 import sparse
@@ -305,14 +305,19 @@ def mean_field_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
     return OperatorPolynomial(product)
 
 
-def cumulant_factorizer(
-    op: ops.MultiBodyOperator, keep: Callable[[ops.MultiBodyOperator], bool]
-) -> OperatorPolynomial:
-    """Factorize a multi-body operator by setting the cumulant of its local factors to zero."""
-    if op.locality <= 1 or keep(op):
-        return OperatorPolynomial(op)
-    factorized_op = OperatorPolynomial(op) - get_cumulant(*op.ops)
-    return factorized_op.factorize(lambda op: cumulant_factorizer(op, keep))
+def get_cumulant_factorizer(
+    keep: Callable[[ops.MultiBodyOperator], bool] = lambda _: False
+) -> FactorizationRule:
+    """Construct a factorization rule obtained by setting cumulants to zero."""
+
+    def cumulant_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
+        """Factorize a multi-body operator by setting the cumulant of its local factors to zero."""
+        if op.locality <= 1 or keep(op):
+            return OperatorPolynomial(op)
+        factorized_op = OperatorPolynomial(op) - get_cumulant(*op.ops)
+        return factorized_op.factorize(cumulant_factorizer)
+
+    return cumulant_factorizer
 
 
 def get_cumulant(*local_ops: ops.SingleBodyOperator) -> OperatorPolynomial:

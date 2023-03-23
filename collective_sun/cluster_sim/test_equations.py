@@ -81,13 +81,9 @@ def test_spin_model(num_sites: int, local_dim: int) -> None:
     assert np.allclose(final_vec, expected_final_vec, atol=1e-4)
 
 
-def cumulant_mean_field_factorizer(op: ops.MultiBodyOperator) -> eqs.OperatorPolynomial:
-    return eqs.cumulant_factorizer(op, lambda _: False)
-
-
 @pytest.mark.parametrize(
     "num_sites, local_dim, factorization_rule",
-    [(10, 2, eqs.mean_field_factorizer), (10, 2, cumulant_mean_field_factorizer)],
+    [(10, 2, eqs.mean_field_factorizer), (10, 2, eqs.get_cumulant_factorizer())],
 )
 def test_mean_field(
     num_sites: int, local_dim: int, factorization_rule: eqs.FactorizationRule
