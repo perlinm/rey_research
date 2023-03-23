@@ -308,6 +308,7 @@ def mean_field_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
 def cumulant_factorizer(
     op: ops.MultiBodyOperator, keep: Callable[[ops.MultiBodyOperator], bool]
 ) -> OperatorPolynomial:
+    """Factorize a multi-body operator by setting the cumulant of its local factors to zero."""
     if op.locality <= 1 or keep(op):
         return OperatorPolynomial(op)
     factorized_op = OperatorPolynomial(op) - get_cumulant(*op.ops)
@@ -426,13 +427,13 @@ def build_equations_of_motion(
 def time_deriv(
     _: float, op_vec: np.ndarray, time_deriv_tensors: tuple[sparse.SparseArray | np.ndarray, ...]
 ) -> np.ndarray:
-    output = sum(_single_time_deriv(op_vec, tensor) for tensor in time_deriv_tensors)
+    output = sum(_single_tensor_time_deriv(op_vec, tensor) for tensor in time_deriv_tensors)
     if not isinstance(output, np.ndarray):
         return np.zeros_like(op_vec)
     return output
 
 
-def _single_time_deriv(
+def _single_tensor_time_deriv(
     op_vec: np.ndarray, time_deriv_tensor: sparse.SparseArray | np.ndarray
 ) -> np.ndarray:
     order = time_deriv_tensor.ndim - 1
