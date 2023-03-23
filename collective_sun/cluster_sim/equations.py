@@ -82,10 +82,22 @@ class OperatorPolynomial:
     vec: dict[ExpectationValueProduct, complex]
 
     def __init__(
-        self, initial_vec: Optional[dict[ExpectationValueProduct, complex]] = None
+        self,
+        initializer: Optional[
+            dict[ExpectationValueProduct, complex]
+            | ExpectationValueProduct
+            | ops.MultiBodyOperator
+            | ops.SingleBodyOperator
+        ] = None,
     ) -> None:
-        if initial_vec is not None:
-            self.vec = collections.defaultdict(complex, initial_vec)
+        if isinstance(initializer, ops.SingleBodyOperator):
+            initializer = ops.MultiBodyOperator(initializer)
+        if isinstance(initializer, ops.MultiBodyOperator):
+            initializer = ExpectationValueProduct(initializer)
+        if isinstance(initializer, ExpectationValueProduct):
+            initializer = {initializer: 1}
+        if initializer is not None:
+            self.vec = collections.defaultdict(complex, initializer)
         else:
             self.vec = collections.defaultdict(complex)
 
@@ -247,7 +259,7 @@ class OperatorPolynomial:
         assert np.isclose(norm, 1)
 
         # compute all local expectation values
-        output = OperatorPolynomial({ExpectationValueProduct(): 1})
+        output = OperatorPolynomial(ops.MultiBodyOperator())
         num_sites, _ = product_state.shape
         for site in ops.LatticeSite.range(num_sites):
             for op_idx, op_mat in enumerate(op_mats[1:], start=1):
@@ -278,14 +290,14 @@ def trivial_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
 def mean_field_factorizer(op: ops.MultiBodyOperator) -> OperatorPolynomial:
     factors = [ops.MultiBodyOperator(located_op) for located_op in op]
     product = ExpectationValueProduct(*factors)
-    return OperatorPolynomial({product: 1})
+    return OperatorPolynomial(product)
 
 
 def cumulant_factorizer(
     op: ops.MultiBodyOperator, keep: Callable[[ops.MultiBodyOperator], bool]
 ) -> OperatorPolynomial:
     if op.locality <= 1:
-        return OperatorPolynomial({ExpectationValueProduct(op): 1})
+        return OperatorPolynomial(op)
 
     return NotImplemented
 
@@ -298,8 +310,8 @@ def cumulant(*local_ops: ops.SingleBodyOperator) -> OperatorPolynomial:
         sign = (-1) ** (len(partition) - 1)
         prefactor = math.factorial(len(partition) - 1)
         factors = [ops.MultiBodyOperator(*part) for part in partition]
-        expectation_values = ExpectationValueProduct(*factors)
-        output += sign * prefactor * OperatorPolynomial({expectation_values: 1})
+        product = ExpectationValueProduct(*factors)
+        output += sign * prefactor * OperatorPolynomial(product)
     return output
 
 
