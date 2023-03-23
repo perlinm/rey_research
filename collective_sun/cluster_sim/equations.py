@@ -315,7 +315,20 @@ def get_cumulant_factorizer(
         """Factorize a multi-body operator by setting the cumulant of its local factors to zero."""
         if op.locality <= 1 or keep(op):
             return OperatorPolynomial(op)
-        factorized_op = OperatorPolynomial(op) - get_cumulant(*op.ops)
+
+        # Since this method is called a (very) large number of times when building equations of
+        # motion, to speed things up we factorize `op` manually, which is slightly faster than
+        # calling `factorized_op = OperatorPolynomial(op) - get_cumulant(*op.ops)`.
+        factorized_op = OperatorPolynomial()
+        for partition in partitions(op.ops):
+            if len(partition) == 1:
+                continue
+            sign = (-1) ** (len(partition) - 1)
+            prefactor = math.factorial(len(partition) - 1)
+            factors = [operators.MultiBodyOperator(*part) for part in partition]
+            product = ExpectationValueProduct(*factors)
+            factorized_op.vec[product] = -sign * prefactor
+
         return factorized_op.factorize(cumulant_factorizer)
 
     return cumulant_factorizer
@@ -330,7 +343,7 @@ def get_cumulant(*ops: operators.SingleBodyOperator) -> OperatorPolynomial:
         prefactor = math.factorial(len(partition) - 1)
         factors = [operators.MultiBodyOperator(*part) for part in partition]
         product = ExpectationValueProduct(*factors)
-        output += sign * prefactor * OperatorPolynomial(product)
+        output.vec[product] = sign * prefactor
     return output
 
 

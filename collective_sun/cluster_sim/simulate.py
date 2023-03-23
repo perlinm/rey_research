@@ -40,7 +40,7 @@ def get_coupling(
 
 if __name__ == "__main__":
 
-    axis_sizes = (6, 6)
+    axis_sizes = (3, 3)
     num_sites = np.prod(axis_sizes, dtype=int)
 
     cluster_radius = 1

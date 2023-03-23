@@ -145,7 +145,7 @@ class TypedInteger:
         return str(self.index)
 
     def __hash__(self) -> int:
-        return hash(str(self))
+        return self.index
 
     def __index__(self) -> int:
         return self.index
@@ -195,7 +195,7 @@ class SingleBodyOperator:
         return f"{self.op}({self.site})"
 
     def __hash__(self) -> int:
-        return hash(str(self))
+        return hash((self.op, self.site))
 
     def __lt__(self, other: "SingleBodyOperator") -> bool:
         if self.site.index != other.site.index:
@@ -220,7 +220,7 @@ class MultiBodyOperator:
         return " ".join(str(op) for op in self)
 
     def __hash__(self) -> int:
-        return hash(str(self))
+        return hash(self.ops)
 
     def __iter__(self) -> Iterator[SingleBodyOperator]:
         yield from sorted(self.ops)
