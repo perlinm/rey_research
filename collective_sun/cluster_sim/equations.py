@@ -113,6 +113,8 @@ class OperatorPolynomial:
         output.vec = self.vec.copy()
         for term, scalar in other:
             output.vec[term] += scalar
+            if output.vec[term] == 0:
+                output.vec.pop(term)
         return output
 
     def __sub__(self, other: "OperatorPolynomial") -> "OperatorPolynomial":
@@ -121,6 +123,8 @@ class OperatorPolynomial:
         output.vec = self.vec.copy()
         for term, scalar in other:
             output.vec[term] -= scalar
+            if output.vec[term] == 0:
+                output.vec.pop(term)
         return output
 
     def __mul__(self, other: Union[complex, "OperatorPolynomial"]) -> "OperatorPolynomial":
@@ -306,11 +310,11 @@ def cumulant_factorizer(
 ) -> OperatorPolynomial:
     if op.locality <= 1 or keep(op):
         return OperatorPolynomial(op)
-    factorized_op = OperatorPolynomial(op) - cumulant(*op.ops)
+    factorized_op = OperatorPolynomial(op) - get_cumulant(*op.ops)
     return factorized_op.factorize(lambda op: cumulant_factorizer(op, keep))
 
 
-def cumulant(*local_ops: ops.SingleBodyOperator) -> OperatorPolynomial:
+def get_cumulant(*local_ops: ops.SingleBodyOperator) -> OperatorPolynomial:
     """Return the cumulant of a collection of local operators."""
     assert len(set(op.site for op in local_ops)) == len(local_ops)
     output = OperatorPolynomial()

@@ -83,8 +83,15 @@ def test_spin_model(num_sites: int) -> None:
     assert np.allclose(final_vec, expected_final_vec, atol=1e-4)
 
 
-@pytest.mark.parametrize("num_sites", [10])
-def test_mean_field(num_sites: int) -> None:
+def mean_field_from_cumulant(op: ops.MultiBodyOperator) -> eqs.OperatorPolynomial:
+    return eqs.cumulant_factorizer(op, lambda _: False)
+
+
+@pytest.mark.parametrize(
+    "num_sites, factorization_rule",
+    [(10, eqs.mean_field_factorizer), (10, mean_field_from_cumulant)],
+)
+def test_mean_field(num_sites: int, factorization_rule: eqs.FactorizationRule) -> None:
     local_dim = 2
     local_op_mats = QUBIT_OP_MATS
     structure_factors = ops.get_structure_factors(*local_op_mats)
@@ -109,7 +116,7 @@ def test_mean_field(num_sites: int) -> None:
         *init_op_poly.vec.keys(),
         hamiltonian=hamiltonian,
         structure_factors=structure_factors,
-        factorization_rule=eqs.mean_field_factorizer,
+        factorization_rule=factorization_rule,
     )
 
     if not hasattr(sparse, "einsum"):
