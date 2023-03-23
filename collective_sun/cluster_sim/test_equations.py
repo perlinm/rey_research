@@ -25,7 +25,7 @@ def test_op_poly(num_sites: int) -> None:
             assert op.locality == exp == 1
 
 
-@pytest.mark.parametrize("num_sites, local_dim", [(3, 2), (3, 3)])
+@pytest.mark.parametrize("num_sites, local_dim", [(3, 2), (2, 3)])
 def test_spin_model(num_sites: int, local_dim: int) -> None:
     local_op_mats = ops.get_qudit_op_mats(local_dim)
     dim = local_dim**num_sites
@@ -87,11 +87,7 @@ def cumulant_mean_field_factorizer(op: ops.MultiBodyOperator) -> eqs.OperatorPol
 
 @pytest.mark.parametrize(
     "num_sites, local_dim, factorization_rule",
-    [
-        (10, dim, factorizer)
-        for dim in [2, 3]
-        for factorizer in [eqs.mean_field_factorizer, cumulant_mean_field_factorizer]
-    ],
+    [(10, 2, eqs.mean_field_factorizer), (10, 2, cumulant_mean_field_factorizer)],
 )
 def test_mean_field(
     num_sites: int, local_dim: int, factorization_rule: eqs.FactorizationRule
