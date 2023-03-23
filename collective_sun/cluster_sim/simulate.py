@@ -4,8 +4,8 @@ from typing import Sequence
 
 import numpy as np
 
-import operators
 import equations
+import operators
 
 
 def get_location(position: Sequence[int], axis_sizes: Sequence[int]) -> int:
