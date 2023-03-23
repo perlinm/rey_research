@@ -15,10 +15,10 @@ import wigner
 def get_random_matrix(
     dim: int,
     *,
+    real: bool = False,
     hermitian: bool = False,
     traceless: bool = False,
-    diagonal: bool = False,
-    real: bool = False,
+    off_diagonal: bool = False,
 ) -> np.ndarray:
     """Build a random matrix acting on a Hilbert space of a given dimension."""
     matrix = np.random.standard_normal((dim, dim))
@@ -29,7 +29,7 @@ def get_random_matrix(
         matrix = (matrix + matrix.conj().T) / 2
     if traceless:
         matrix -= np.trace(matrix) / dim * np.eye(dim)
-    if diagonal:
+    if off_diagonal:
         diags = np.arange(dim, dtype=int)
         matrix[diags, diags] = 0
     return matrix
@@ -70,7 +70,7 @@ def get_structure_factors(
     """
     dim = op_mat_I.shape[0]
     op_mats = [op_mat_I, *other_mats]
-    assert np.array_equal(op_mat_I, np.eye(dim))
+    assert np.allclose(op_mat_I, np.eye(dim))
     assert len(op_mats) == dim**2
 
     structure_factors = np.empty((len(op_mats),) * 3, dtype=complex)
@@ -387,7 +387,7 @@ class DenseMultiBodyOperator:
             return self.tensor * self.scalar * _get_iden_op_tensor(spin_dim, self.num_sites)
 
         op_mat_I = np.eye(spin_dim)
-        assert np.array_equal(op_mats[0], op_mat_I)
+        assert np.allclose(op_mats[0], op_mat_I)
 
         # construct a tensor for all sites addressed by the identity
         iden_op_tensor = _get_iden_op_tensor(spin_dim, self.num_sites - self.locality)
@@ -615,7 +615,7 @@ class DenseMultiBodyOperators:
         num_sites = int(np.round(np.log(matrix.size) / np.log(spin_dim))) // 2
 
         op_mat_I = np.eye(spin_dim)
-        assert np.array_equal(op_mats[0], op_mat_I)
+        assert np.allclose(op_mats[0], op_mat_I)
 
         output = DenseMultiBodyOperators()
 

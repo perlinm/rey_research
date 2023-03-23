@@ -9,14 +9,13 @@ import operators as ops
 np.random.seed(0)
 np.set_printoptions(linewidth=200, precision=3)
 
-QUBIT_OP_MATS = ops.get_qubit_op_mats()
 INTEGRATION_OPTIONS = dict(method="DOP853", rtol=1e-8, atol=1e-8)
 
 
 @pytest.mark.parametrize("num_sites", [3])
 def test_op_poly(num_sites: int) -> None:
     op_mat = ops.get_random_matrix(2**num_sites)
-    op_poly = eqs.OperatorPolynomial.from_matrix(op_mat, QUBIT_OP_MATS)
+    op_poly = eqs.OperatorPolynomial.from_matrix(op_mat, ops.get_qubit_op_mats())
 
     for term, _ in op_poly.factorize(eqs.trivial_factorizer):
         assert term.num_factors() == 1 or term.is_empty()
@@ -26,10 +25,9 @@ def test_op_poly(num_sites: int) -> None:
             assert op.locality == exp == 1
 
 
-@pytest.mark.parametrize("num_sites", [3])
-def test_spin_model(num_sites: int) -> None:
-    local_dim = 2
-    local_op_mats = QUBIT_OP_MATS
+@pytest.mark.parametrize("num_sites, local_dim", [(3, 2), (3, 3)])
+def test_spin_model(num_sites: int, local_dim: int) -> None:
+    local_op_mats = ops.get_spin_qudit_op_mats(local_dim)
     dim = local_dim**num_sites
     structure_factors = ops.get_structure_factors(*local_op_mats)
 
@@ -83,21 +81,26 @@ def test_spin_model(num_sites: int) -> None:
     assert np.allclose(final_vec, expected_final_vec, atol=1e-4)
 
 
-def mean_field_from_cumulant(op: ops.MultiBodyOperator) -> eqs.OperatorPolynomial:
+def cumulant_mean_field_factorizer(op: ops.MultiBodyOperator) -> eqs.OperatorPolynomial:
     return eqs.cumulant_factorizer(op, lambda _: False)
 
 
 @pytest.mark.parametrize(
-    "num_sites, factorization_rule",
-    [(10, eqs.mean_field_factorizer), (10, mean_field_from_cumulant)],
+    "num_sites, local_dim, factorization_rule",
+    [
+        (10, dim, factorizer)
+        for dim in [2, 3]
+        for factorizer in [eqs.mean_field_factorizer, cumulant_mean_field_factorizer]
+    ],
 )
-def test_mean_field(num_sites: int, factorization_rule: eqs.FactorizationRule) -> None:
-    local_dim = 2
-    local_op_mats = QUBIT_OP_MATS
+def test_mean_field(
+    num_sites: int, local_dim: int, factorization_rule: eqs.FactorizationRule
+) -> None:
+    local_op_mats = ops.get_spin_qudit_op_mats(local_dim)
     structure_factors = ops.get_structure_factors(*local_op_mats)
 
     def get_random_coupling_matrix() -> np.ndarray:
-        return ops.get_random_matrix(num_sites, hermitian=True, diagonal=True, real=True)
+        return ops.get_random_matrix(num_sites, real=True, off_diagonal=True)
 
     # build a random 2-body Hamiltonian
     ham_terms = [
